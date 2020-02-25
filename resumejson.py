@@ -1,50 +1,48 @@
+# cv au format resume.json : https://jsonresume.org/schema/
+# modification pour ajouter le DID, le prenom, le nom de l'employeur, la mobilité, la disponibilite, la mobilité, le TJM
+# dict
 
 resume={
   "did": {
-    "chain": "",
-    "address": "",		
-    "url": "",
-    "protocol": "ERC725",
-    "subprotocol": "TALAO"	
+    "@context": None,
+    "network": None,
+    "address": None,		
+    "url": None,
+    "protocol": None,
+    "method": None	
     },		
   "basics": {
-    "name": "",
-    "firstname": "",
-    "label": "",
-    "picture": "",
-    "email": "",
-    "phone": "",
-    "website": "",
-    "summary": "",
+    "name": None,
+    "firstname": None,
+    "label": None,
+    "picture": None,
+    "email": None,
+    "phone": None,
+    "website": None,
+    "summary": None,
     "location": {
-      "address": "",
-      "postalCode": "",
-      "city": "",
-      "countryCode": "",
-      "region": ""
-    },
-    "profiles": [{
-      "network": "",
-      "username": "",
-      "url": ""
-    }]
-  },
+      "address": None,
+      "postalCode": None,
+      "city": None,
+      "countryCode": None,
+      "region": None},
+    "profiles": []},
   
   "work": [{
-    "company": "",
-    "position": "",
-    "website": "",
-    "startDate": "",
-    "endDate": "",
-    "summary": "",
+    "company": None,
+    "position": None,
+    "website": None,
+    "startDate": None,
+    "endDate": None,
+    "summary": None,
     "highlights": []
   }],
 
- "education": [],
+   "education": [],
 
   "skills": [{
-    "name": "",
-    "level": "",
+    "name": None,
+    "level": None,
     "keywords": []
   }],
   

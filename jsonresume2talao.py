@@ -67,6 +67,8 @@ def Proficiency(texte) :
 		return 3
 	if text == 'limited working' :
 		return 2
+	else :
+		return False
 		
 
 ###############################################################
@@ -165,7 +167,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET)
 	
 	# mise a jour du fichier archive Talao_Identity.csv
-	status="Workspace/Backend/experience publiée/education publiée"
+	status="Identité créée par jsonresume2talao"
 	writer.writerow( (name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key) )
 
 	# envoi du message de log
@@ -178,7 +180,7 @@ def creationworkspacefromscratch(firstname, name, email):
 ############################################################
 def createandpublishExperience(address, private_key, newexperience, email, password, workspace_contract) :
 
-	#recuperer le token sur le backend
+	#recuperer le bearer token sur le backend
 	conn = http.client.HTTPConnection(constante.ISSUER)
 	if constante.BLOCKCHAIN == 'ethereum' :
 		conn = http.client.HTTPSConnection(constante.ISSUER)
@@ -273,147 +275,88 @@ fname= constante.BLOCKCHAIN +"_Talao_Identity.csv"
 identityfile = open(fname, "a")
 writer = csv.writer(identityfile)
 
-# ouverture du fichier .csv
-fichiercsv=input('Entrer le nom du fichier CSV = ')
-with open(fichiercsv,newline='') as csvfile:
-	reader = csv.DictReader(csvfile)
+# ouverture du fichier resume.json
+filename=input("Saisissez le nom du fichier de cv json ?")
+resumefile=open(filename, "r")
+resume=json.loads(resumefile.read())
 	
-	# pour chaque ligne du fichier = chaque identité/workspace
-	for row in reader:
-		# calcul du temps de process
-		time_debut=datetime.now()
+# calcul du temps de process
+time_debut=datetime.now()
 		
-		# CREATION DU WORKSPACE ET DU BACKEND
-		name = row['LAST_NAME']
-		firstname = row['FIRST_NAME']
-		email = row['MAIL']
-		print('Name = ', name)
-		print('Firstname = ', firstname)
-		print('Email = ', email)
-		(address, private_key,password, workspace_contract) = creationworkspacefromscratch(firstname, name, email)
+# CREATION DU WORKSPACE ET DU BACKEND
+name = resume['basics']["name"]
+firstname = resume['basics']['firstname']
+email = resume['basics']['email']
+(address, private_key,password, workspace_contract) = creationworkspacefromscratch(firstname, name, email)
 		
-		# UPLOAD DU PROFIL
-		worksFor = row['COMPANY_NAME']
-		jobTitle = row['POSITION']
-		workLocation = row['LOCATION']
-		url= row ['LINKEDIN_URL']
-		description = row['SUMMARY']	
-		Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
+# UPLOAD DU PROFIL
+worksFor = resume['work'][0]['company']
+jobTitle = resume['work'][0]['position']
+workLocation = " " # a voir !!!!
+url= resume['basics']['website']
+description = resume['basics']['summary']	
+Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
 		
-		# CALCUL DE "SKILLS"		
-		skills =[]
-		skillarray=row["Skills"].split(',')
-		# limite a 5 skills pour IPFS
-		skillsmax= len(skillarray)
-		if skillsmax > 5 :
-			skillsmax=5
-		for s in range(0, skillsmax) :
-			if skillarray[s] != "" :
-				a = Talao_backend_transaction.getSkill(email, password, skillarray[s])
-				if a!="" :
-					skills.append(a)
-
-		# UPLOAD DES EXPERIENCES AVEC SKILLS
-		for i in ['Position 1', 'Position 2', 'Position 3','Position 4', 'Position 5', 'Position 6', 'Position 6', 'Position 7', 'Position 8', 'Position 9', 'Position 10'] :
-			chaine= row [i]
-			exp=[' ', ' ', ' ', ' ', '01/2000', '01/2000']
-			if len(chaine) != 0 :
-				liste=chaine.split(',')
-				for j in range (0, len(liste))	:
-					if liste[j] == 'NULL' or liste[j]=='' :
-						liste[j]=' '
-					exp[j]=liste[j]
-								
-				# debut traitement des dates du fichier Lobster
-				if exp[4] == ' ' :
-					exp[4] = '01/2000'
-				date=exp[4].split('/')
-				m=date[0]
-				y=date[1]
-				fromdate=y+'-'+m+'-'+'01'
-				
-				if exp[5] == ' ' :
-					todate=fromdate
-				else :
-					date=exp[5].split('/')
-					m=date[0]
-					y=date[1]
-					todate=y+'-'+m+'-'+'01'
-				# fin de traitement des dates
-				
-				organization_name = exp[0]
-				location = exp[2]
-				description = exp[1]
-				title = exp[3]		
-				experience = { 'experience' :{ 'title' : title,'description' : description,'from' : fromdate,'to' : todate,'location' : location,'remote' : False,'organization_name' : organization_name,'skills' : skills}}
-				print("Experience publiée = ", experience)
-				createandpublishExperience(address, private_key, experience, email, password, workspace_contract )
-
-		# UPLOAD DES DIPLOMES
-		name =firstname+' '+name
-		for i in ['Education 1', 'Education 2', 'Education 3','Education 4', 'Education 5', 'Education 6', 'Education 6', 'Education 7', 'Education 8', 'Education 9', 'Education 10'] :
-			chaine= row [i]
-			edu=[' ', ' ', '01/2000','01/2000']
-			if len(row[i]) != 0 :
-				liste2=chaine.split(',')
-				if len(liste2) > 4 :
-					lim=4
-				else :
-					lim=len(liste2)
-				for i in range (0, lim)	:
-					if liste2[i] == 'NULL' or liste2[i]=='' :
-						liste2[i]=' '
-					edu[i]=liste2[i]
-
-				# debut traitement des dates du fichier Lobster
-				if len(edu[2]) != 2 :
-					date=['01', '2000']
-				else :	
-					date=edu[2].split('/')							
-				m=date[0]
-				y=date[1]
-				fromdate=y+'-'+m+'-'+'01'
-				
-				if len(edu[3]) != 2 :
-					date=['01', '2000']
-				else :	
-					date=edu[2].split('/')							
-				m=date[0]
-				y=date[1]
-				todate=y+'-'+m+'-'+'01'
-				
-				if todate == '2000-01-01' :
-					todate=fromdate 
-						
-				# fin du traitement des dates
-				school_name = edu[0]
-				diploma_title = edu[1]
-				diploma_description = ' '
-				diploma_url = ' '
+# CALCUL DE "SKILLS"	
+skillsarray=[]
+for i in range(0,len(resume['skills'])) :
+	skillsarray.extend(resume['skills'][i]['keywords'])
+print (skillsarray)
+skills=list(set(skillsarray))
+print(skills)
+newskills=[]
+for s in range(0, len(skills)) :
+	a = Talao_backend_transaction.getSkill(email, password, skills[s])
+	newskills.append(a)
+print(newskills)
 		
-				data = {'documentType': 40000,
-				'version': 2,
-				'recipient': {'name': name,
-					'title': jobTitle,
-					'email': email,
-					'ethereum_account': address,
-					'ethereum_contract': workspace_contract},
-				 'issuer': {'organization': {'name': school_name}},
-				 'diploma': {'title': diploma_title, 'description': diploma_description, 'from': fromdate , 'to': todate, 'link': diploma_url}}
-				Talao_token_transaction.createDocument(address, private_key, 40000, data, False)
-				print( "Diplome publié = ",school_name,'   ', diploma_title, '   ', fromdate, '   ', todate)
+# UPLOAD DES EXPERIENCES AVEC SKILLS
+# les skills sont identiques pour toutes les experiences
+for i in range(1,len(resume['work'])) :					
+	organization_name = resume['work'][i]['company']
+	fromdate=resume['work'][i]['startDate']
+	todate=resume['work'][i]['endDate']
+	location = None
+	description = resume['work'][i]['summary']
+	title = resume['work'][i]['position']		
+	experience = { 'experience' :{ 'title' : title,
+	'description' : description,
+	'from' : fromdate,
+	'to' : todate,
+	'location' : location,
+	'remote' : False,
+	'organization_name' : organization_name,
+	'skills' : newskills}}
+	print("Experience publiée = ", experience)
+	createandpublishExperience(address, private_key, experience, email, password, workspace_contract )
 
 
-		# UPLOAD DES LANGUAGES et employabilité
-		lang=[]
-		for i in ['Language 1', 'Language 2', 'Language 3','Language 4', 'Language 5', 'Language 6', 'Language 7', 'Language 8', 'Language 9', 'Language 10'] :
-			chaine= row [i]
-			if len(chaine) != 0 and chaine != 'NULL' and chaine != " " :
-				langtab=chaine.split(',')
-				if Language(Langtab[0]) != False :
-					langitem={"code": Language(langtab[0]),"profiency": Proficiency(langtab[1])}	
-					lang.append(langitem)		
-		employabilite={
+# UPLOAD DES DIPLOMES
+name =firstname+' '+name
+for i in range (0,len(resume['education'])) :
+	school_name = resume['education'][i]['institution']
+	diploma_title = resume['education'][i]['studyType']
+	diploma_description =resume['education'][i]['courses']
+	diploma_url = None		
+	data = {'documentType': 40000,
+		'version': 2,
+		'recipient': {'name': name,
+			'title': jobTitle,
+			'email': email,
+			'ethereum_account': address,
+			'ethereum_contract': workspace_contract},
+			 'issuer': {'organization': {'name': school_name}},
+			 'diploma': {'title': diploma_title, 'description': diploma_description, 'from': fromdate , 'to': todate, 'link': diploma_url}}
+	Talao_token_transaction.createDocument(address, private_key, 40000, data, False)
+	print( "Diplome publié = ",school_name,'   ', diploma_title, '   ', fromdate, '   ', todate)
+
+
+# UPLOAD DES LANGUAGES et employabilité
+lang=[]
+for i in range(0,len(resume['languages'])) :
+	langitem={"code": Language(resume['languages'][i]['languages']),"profiency": Proficiency(resume['languages'][i]['fluency'])}	
+	lang.append(langitem)		
+employabilite={
   "documentType": 10000,
   "version": 1,
   "recipient": {
@@ -425,31 +368,26 @@ with open(fichiercsv,newline='') as csvfile:
   },
   "availability": {
     "dateCreated": "2020-02-21T15:35:02.374Z",
-    "availabilityWhen": "",
-    "availabilityFulltime": "",
+    "availabilityWhen": None,
+    "availabilityFulltime": None,
     "mobilityRemote": False,
     "mobilityAreas": False,
     "mobilityInternational": False,
     "mobilityAreasList": [],
-    "rateCurrency": "",
-    "ratePrice": "",
+    "rateCurrency": None,
+    "ratePrice": None,
     "languages": lang
   }
 }	
-		Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False)
+Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False)
 
 
-		# calcul du temps
-		time_fin=datetime.now()
-		time_delta=time_fin-time_debut
-		print('Durée des transactions = ', time_delta)
-		print('')
-		saisie=input('next row ??? yes/no = ')
-		if saisie == "no" :
-			csvfile.close()
-			identityfile.close()
-			sys.exit(0)
+# calcul du temps
+time_fin=datetime.now()
+time_delta=time_fin-time_debut
+print('Durée des transactions = ', time_delta)
+print('')
 
-	csvfile.close()
-	identityfile.close()
-	sys.exit(0)
+resumefile.close()
+identityfile.close()
+sys.exit(0)
