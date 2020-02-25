@@ -1,0 +1,87 @@
+{
+    "availability": {},
+    "basics": {
+        "email": "contact+1248487@talao.io",
+        "firstname": "Carine",
+        "label": "",
+        "location": {
+            "address": "",
+            "city": "",
+            "countryCode": "",
+            "postalCode": "",
+            "region": ""
+        },
+        "name": "Triest",
+        "phone": "",
+        "picture": "",
+        "profiles": [
+            {
+                "network": "",
+                "url": "",
+                "username": ""
+            }
+        ],
+        "summary": "10+ years experience in programme/project/account management. Telecom and international environments.",
+        "website": "https://www.linkedin.com/in/carine-triest-607502"
+    },
+    "did": {
+        "address": "0x97941Df7F2207c57EDe79055a6409f34799f6B92",
+        "chain": "rinkeby",
+        "protocol": "ERC725",
+        "subprotocol": "TALAO",
+        "url": "http://vault.talao.io:4011/visit/0xaCE2623AfA01301E36CC54AA2C21783fac78C390"
+    },
+    "education": [
+        {
+            "area": " ",
+            "endDate": "2000-01-01",
+            "institution": " ",
+            "startDate": "2000-01-01",
+            "studyType": "Master"
+        },
+        {
+            "area": " ",
+            "endDate": "2000-01-01",
+            "institution": " ",
+            "startDate": "2000-01-01",
+            "studyType": "Master"
+        }
+    ],
+    "languages": [],
+    "mobility": {},
+    "rate": {},
+    "skills": [
+        {
+            "keywords": [],
+            "level": "",
+            "name": ""
+        }
+    ],
+    "work": [
+        {
+            "company": "Independent Consultant",
+            "endDate": "Current",
+            "highlights": [],
+            "position": "Project Management Consultant",
+            "startDate": "",
+            "summary": "",
+            "website": ""
+        },
+        {
+            "company": "Independent Consultant",
+            "endDate": "2004-04-01",
+            "position": "Project Management Consultant",
+            "startDate": "2004-04-01",
+            "summary": "Offer consultancy services in Project and Programme Management. Salesforce Implementation CRM processes  KPIs Change Management Programme Management Coordination of IT work programme Budget monitoring Portfolio Management Project management tools and methodologies",
+            "website": ""
+        },
+        {
+            "company": "BELGACOM",
+            "endDate": "2004-03-01",
+            "position": "Expert Telecom Engineer",
+            "startDate": "1994-02-01",
+            "summary": " ",
+            "website": ""
+        }
+    ]
+}

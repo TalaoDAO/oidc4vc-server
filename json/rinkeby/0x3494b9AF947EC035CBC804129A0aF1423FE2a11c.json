@@ -1,0 +1,181 @@
+{
+    "availability": {
+        "availabilityfulltime": "",
+        "availabilitywhen": "",
+        "update": "2020-02-21T15:35:02.374Z"
+    },
+    "basics": {
+        "email": "contact+1300462@talao.io",
+        "firstname": "Hannah",
+        "label": "",
+        "location": {
+            "address": "",
+            "city": "",
+            "countryCode": "",
+            "postalCode": "",
+            "region": ""
+        },
+        "name": "Lindgreen McManes",
+        "phone": "",
+        "picture": "",
+        "profiles": [
+            {
+                "network": "",
+                "url": "",
+                "username": ""
+            }
+        ],
+        "summary": "Ambitious Business professional with over 10 years experience of International sales & marketing. Proven track of great accomplishments starting up and managing new markets and accounts. Excellent multi lingual communicator with great interpersonal skills. Specialties: Analyzing and targeting new businesses  managing International key accounts  B2B & B2C expertise  highly proficient relationship building  leadership in managing business activities.",
+        "website": "https://www.linkedin.com/in/hannah-lindgreen-mcmanes-6ba528"
+    },
+    "did": {
+        "address": "0x3494b9AF947EC035CBC804129A0aF1423FE2a11c",
+        "chain": "rinkeby",
+        "protocol": "ERC725",
+        "subprotocol": "TALAO",
+        "url": "http://vault.talao.io:4011/visit/0x9d69aD7c461d003567863bF572ddb7065DBaCb56"
+    },
+    "education": [
+        {
+            "area": " ",
+            "endDate": "2000-01-01",
+            "institution": "Niels Brock Business Academy",
+            "startDate": "2000-01-01",
+            "studyType": "BA"
+        }
+    ],
+    "languages": [
+        {
+            "fluency": "Native or Bilingual",
+            "language": "English"
+        },
+        {
+            "fluency": "Full Professional",
+            "language": "German"
+        },
+        {
+            "fluency": "Limited Working",
+            "language": "French"
+        },
+        {
+            "fluency": "Native or Bilingual",
+            "language": "Danish"
+        }
+    ],
+    "mobility": {
+        "mobilityareas": false,
+        "mobilityareaslist": [],
+        "mobilityinternational": false,
+        "mobilityremote": false
+    },
+    "rate": {
+        "ratecurrency": "",
+        "rateprice": ""
+    },
+    "skills": [
+        {
+            "keywords": [],
+            "level": "",
+            "name": ""
+        }
+    ],
+    "work": [
+        {
+            "company": "StandardAero",
+            "endDate": "Current",
+            "highlights": [],
+            "position": "Business Development Project Leader ",
+            "startDate": "",
+            "summary": "",
+            "website": ""
+        },
+        {
+            "company": "StandardAero",
+            "endDate": "2017-11-01",
+            "position": "Business Development Project Leader",
+            "startDate": "2017-11-01",
+            "summary": ".",
+            "website": ""
+        },
+        {
+            "company": "StandardAero",
+            "endDate": "2015-11-01",
+            "position": "Account Leader",
+            "startDate": "2015-11-01",
+            "summary": " ",
+            "website": ""
+        },
+        {
+            "company": "AMETEK Interconnect Technologies",
+            "endDate": "2015-10-01",
+            "position": "Business Development Specialist  Europe & Export Compliance Officer",
+            "startDate": "2015-01-01",
+            "summary": "Researched and Developped new business opportunities in Europe Grew customer base and revenue in Europe Managed Business Units Export Compliance within the Export Regulations of the Unites States Government. Contract review & cost analysis for price quotations",
+            "website": ""
+        },
+        {
+            "company": "Sealtron - Ametek",
+            "endDate": "2014-12-01",
+            "position": "Export Specialist & International Account Rep",
+            "startDate": "2011-02-01",
+            "summary": "International Account manager  Export license & Compliance Officer & Internal AS9100 Auditor Completed & implemented new ITAR company procedure and trained employees from 2 sites. Completed US State Department ITAR & AECA training and ensured a commodity jurisdiction of previously ITAR controlled products to be categorized as EAR99. Management of HCC Industries\u2019 international export license requirements for two of its US manufacturing plants. Work closely with the US & International Sales Directors to develop & grow International business accounts while complying with US export laws. Certified internal AS9100 Auditor. Responsible for the day-to-day management of International clients while communicating in several different languages. Increased international sales & sustained account retention by developing strong relationships with key decision makers.",
+            "website": ""
+        },
+        {
+            "company": "Riviera International",
+            "endDate": "2011-01-01",
+            "position": "Freelance Consultant",
+            "startDate": "2008-12-01",
+            "summary": "Riviera International buys  sells  & trades American collector vehicles across the United States and the entire World. Freelance Consulting Research & development of new business in Europe.",
+            "website": ""
+        },
+        {
+            "company": "Evenflo",
+            "endDate": "2010-10-01",
+            "position": "International Account Specialist",
+            "startDate": "2010-03-01",
+            "summary": "Evenflo is a global leader in the development of innovative infant equipment and one of the nation's leading manufacturers of high quality baby care and juvenile products. Assist in the start up face of new International distributors for Ameda overseas. \u2022Establish & implement processes of new business procedures \u2022Set up Ameda\u2019s international distributors and act as the Key contact person. \u2022Responsible for the exports of Ameda medical products to overseas countries and confirming Evenflo meets the international standards & regulations providing accurate export documentation. \u2022Solving warranty issues \u2013 issuing warranty credits \u2022Forecasting & reporting \u2022Helping with ideas and suggestions to improve business As the international Account Specialist  I am the key contact person for all Ameda International distributors. I am responsible for the exports of Evenflo product to other countries and confirming Evenflo meets the international standards.",
+            "website": ""
+        },
+        {
+            "company": "Evenflo",
+            "endDate": "2010-10-01",
+            "position": "International Account Specialist",
+            "startDate": "2010-03-01",
+            "summary": "Evenflo is a global leader in the development of innovative infant equipment and one of the nation's leading manufacturers of high quality baby care and juvenile products. Assist in the start up face of new International distributors for Ameda overseas. \u2022Establish & implement processes of new business procedures \u2022Set up Ameda\u2019s international distributors and act as the Key contact person. \u2022Responsible for the exports of Ameda medical products to overseas countries and confirming Evenflo meets the international standards & regulations providing accurate export documentation. \u2022Solving warranty issues \u2013 issuing warranty credits \u2022Forecasting & reporting \u2022Helping with ideas and suggestions to improve business As the international Account Specialist  I am the key contact person for all Ameda International distributors. I am responsible for the exports of Evenflo product to other countries and confirming Evenflo meets the international standards.",
+            "website": ""
+        },
+        {
+            "company": "Softpack",
+            "endDate": "2008-11-01",
+            "position": "Account Executive",
+            "startDate": "2007-07-01",
+            "summary": "S.P.A Inc  Cincinnati  OH 2007 \u2013 present A turnkey package manufacturer offering services from packaging development to packing  warehousing and fulfillment of products from strategic locations in the US and Europe. Account Executive Targeting and developing new business in a range of different industries across the USA and Canada. \u2022 Defining and targeting the fastest growing industries \u2022 Market and diversifying the company to grow new biz within these areas \u2022 Finding &amp establishing partnerships with new suppliers to secure competitive pricing \u2022 Ensuring continuing growth at our partner facilities in the US and Europe \u2022 Pursuing and building strategic alliances with rep groups &amp marketing companies to strengthening some of our competitive advantages",
+            "website": ""
+        },
+        {
+            "company": "Quality-Associates",
+            "endDate": "2007-07-01",
+            "position": "Project Manager",
+            "startDate": "2006-03-01",
+            "summary": "Project/ Account Manager Managing all phases of customer Display production and product delivery for multi million dollar International companies like Pernod Ricard  Kao Brands  Big Lots  Sam\u2019s Club  Gorilla Glue etc. \u2022 Consulting customer from concept development to proposal acceptance \u2022 Locating and evaluating suppliers and vendors within targeted industries \u2022 Managing in time inventory and delivery. \u2022 Coordinating production schedules to maximize customer expectation \u2022 Managing customer relationship to ensure business development",
+            "website": ""
+        },
+        {
+            "company": "Amcor Flexibles",
+            "endDate": "2005-01-01",
+            "position": "Sales",
+            "startDate": "1998-05-01",
+            "summary": "Opened the North American sales office and supported the sales team. Analyzed and targeted new business opportunities in 5 new markets. Established and maintained delivery infrastructure  communication channels and logistics. Key contact and primary link between clients  vendors  production facilities  colleagues and governmental agencies. Developed essential relationships with freight/transport companies. Managed International Key accounts with yearly revenues of over $10 million. Represented company in trade exhibitions and developed sales leads within US and Canada.",
+            "website": ""
+        },
+        {
+            "company": "TMI International",
+            "endDate": "1997-01-01",
+            "position": "sales coordinator",
+            "startDate": "1995-01-01",
+            "summary": " ",
+            "website": ""
+        }
+    ]
+}

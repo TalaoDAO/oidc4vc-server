@@ -1,0 +1,163 @@
+{
+    "availability": {
+        "availabilityfulltime": "",
+        "availabilitywhen": "",
+        "update": "2020-02-21T15:35:02.374Z"
+    },
+    "basics": {
+        "email": "contact+1401601@talao.io",
+        "firstname": "Joseph",
+        "label": "",
+        "location": {
+            "address": "",
+            "city": "",
+            "countryCode": "",
+            "postalCode": "",
+            "region": ""
+        },
+        "name": "Craig",
+        "phone": "",
+        "picture": "",
+        "profiles": [
+            {
+                "network": "",
+                "url": "",
+                "username": ""
+            }
+        ],
+        "summary": "Senior Performance Analyst with extensive experience in statistical and business modeling of network and data center capacity needs  using disparate data sources to derive actionable intelligence. Has helped many major firms develop business plans for the use and expansion of their compute  storage  power and bandwidth resources. Core Competencies \u2022 Quantitative Analysis \u2022 Data Center Capacity Planning \u2022 System Growth Road Maps \u2022 Dat",
+        "website": "https://www.linkedin.com/in/josephlcraig"
+    },
+    "did": {
+        "address": "0xa899D73b54CeC3aEA17283E055ACd9e642463510",
+        "chain": "rinkeby",
+        "protocol": "ERC725",
+        "subprotocol": "TALAO",
+        "url": "http://vault.talao.io:4011/visit/0xE11c38D63a31B8A968AAbc6cB0441d86a13CA121"
+    },
+    "education": [
+        {
+            "area": " ",
+            "endDate": "2000-01-01",
+            "institution": "Texas A&M University",
+            "startDate": "2000-01-01",
+            "studyType": "B.S."
+        },
+        {
+            "area": " ",
+            "endDate": "2000-01-01",
+            "institution": "University of Texas at Austin",
+            "startDate": "2000-01-01",
+            "studyType": "Ph.D."
+        }
+    ],
+    "languages": [],
+    "mobility": {
+        "mobilityareas": false,
+        "mobilityareaslist": [],
+        "mobilityinternational": false,
+        "mobilityremote": false
+    },
+    "rate": {
+        "ratecurrency": "",
+        "rateprice": ""
+    },
+    "skills": [
+        {
+            "keywords": [],
+            "level": "",
+            "name": ""
+        }
+    ],
+    "work": [
+        {
+            "company": "JLabs",
+            "endDate": "Current",
+            "highlights": [],
+            "position": "Owner & Chief Engineer",
+            "startDate": "",
+            "summary": "",
+            "website": ""
+        },
+        {
+            "company": "JLabs",
+            "endDate": "2011-11-01",
+            "position": "Owner & Chief Engineer",
+            "startDate": "2011-11-01",
+            "summary": "Writing  editing and proofreading engineering documentation  proposals and RFPs. Developing advanced power systems for aerospace applications  with a focus on long duration UAV operations",
+            "website": ""
+        },
+        {
+            "company": "Amazon.com",
+            "endDate": "2011-11-01",
+            "position": "Data Engineer - Capacity Planning",
+            "startDate": "2009-04-01",
+            "summary": "- Determined present and future capacity needs for all DWDM (Dense Wave Division Multiplexing) fiber optic networks  defining more than $50 million of new network infrastructure spend - Invented new capacity metric for capacity planning  derived from network topology  routing protocols  required redundancy and traffic levels throughout the network. New metric allows network managers to determine present and future capacity needs at a glance - Identified critical metric needs of network owners throughout enterprise  using disparate data sources to derive actionable intelligence. This allows network managers to see trends and current and future capacity issues throughout all data centers - Created long-term business growth projections using historic trends  business strategies and plans  and various economic scenarios to determine future server capacity needs for all Amazon business units. These are the basis for the enterprises long-term IT growth plans - Developed patented business process for the modeling of network data capacity for projected demands and potential failure scenarios",
+            "website": ""
+        },
+        {
+            "company": "CSTechnology",
+            "endDate": "2009-04-01",
+            "position": "Principal Consultant - Capacity Planning",
+            "startDate": "2005-09-01",
+            "summary": "Provides detailed time-series analysis and projections  technology strategies  and architecture  engineering and implementation services focused on delivering optimal solutions within a client's technology  infrastructure and financial constraints. Engagements include: - Morgan Stanley \u2013 Developed growth projections for data centers in North America  Europe and Asia Pacific regions. Used Monte Carlo techniques to develop confidence levels to those projections. - Merrill Lynch \u2013 Conducted an independent analysis of data center capacity requirements  performed oversight on deployment testing of solution for long distance synchronous replication - Wachovia \u2013 Determine wireless communications systems requirements - JP Morgan Chase \u2013 Determined site capacities and developed facility checklist for a uniform standard view for JPMC\u2019s Global Site Assessment Program - Also Bank of America  Kaiser Permanente  CIT  Moodys  HSBC  Barclays Global Investors  Barclays Capital  AIP and Fidelity",
+            "website": ""
+        },
+        {
+            "company": "J. Craig Consulting Corp.",
+            "endDate": "2005-09-01",
+            "position": "President and Principal Consultant",
+            "startDate": "2004-11-01",
+            "summary": "Provides advanced technology services to federal  state and local government agencies  prime contractors and commercial organizations. Expertise includes: - Communications systems engineering  integration and testing - Network architecture design and implementation - System testing for reliability and meeting of requirements - Project management  including managing teams of engineers in creating and deploying both equipment and systems - Functional requirements and RFPs produced in consultation with clients",
+            "website": ""
+        },
+        {
+            "company": "STV Inc.",
+            "endDate": "2004-01-01",
+            "position": "Manager of Communications Engineering",
+            "startDate": "2003-01-01",
+            "summary": "Performed system engineering and managed the design of communications systems involved in transportation systems. This included the design of Public Address  CCTV  telephone  fire and life safety  wireless and fiber optic network systems. Engagements included: - Managed preliminary engineering of $20 million of communications equipment  construction and installation for the No. 7 Line Extension of the New York City Transit Authority (NYC subway system)  a $2 billion project - Developed with Baltimore Metropolitan Transit Authority the functional specifications for a Next Vehicle Arrival Sign system  a $5 million project. Wrote complete specifications for the NVA Sign system for use in RFP",
+            "website": ""
+        },
+        {
+            "company": "Realtech Systems and Common Ground Consulting Services",
+            "endDate": "2003-01-01",
+            "position": "Director of Interoperability Testing and Principal Consultant",
+            "startDate": "2000-01-01",
+            "summary": "Provided consulting services to telecom carriers in optimizing network architectures and developing procedures for operating networks. Developed strategies for leading network equipment vendors to reduce development time required to certify new products for carrier\u0092s acceptance criteria. Engagements included: - Designed $10 million fiber optic network architecture for NYSERNet  a consortium of educational and medical facilities in the State of New York. This network will save NYSERNet over $2 million a year in outside communications costs. - Developed business strategies and network architectures for gigabit Ethernet service offering for Con Edison Communications - Produced requirements and RFP for $5 million fiber optic network hub for NYSERNet  including power and fire suppression systems - Analyzed DWDM (dense wave division multiplexing) systems as a tool in developing market analyses for clients",
+            "website": ""
+        },
+        {
+            "company": "Realtech Systems and Common Ground Consulting Services",
+            "endDate": "2003-01-01",
+            "position": "Director of Interoperability Testing and Principal Consultant",
+            "startDate": "2000-01-01",
+            "summary": "Provided consulting services to telecom carriers in optimizing network architectures and developing procedures for operating networks. Developed strategies for leading network equipment vendors to reduce development time required to certify new products for carrier\u0092s acceptance criteria. Engagements included: - Designed $10 million fiber optic network architecture for NYSERNet  a consortium of educational and medical facilities in the State of New York. This network will save NYSERNet over $2 million a year in outside communications costs. - Developed business strategies and network architectures for gigabit Ethernet service offering for Con Edison Communications - Produced requirements and RFP for $5 million fiber optic network hub for NYSERNet  including power and fire suppression systems - Analyzed DWDM (dense wave division multiplexing) systems as a tool in developing market analyses for clients",
+            "website": ""
+        },
+        {
+            "company": "AT&T",
+            "endDate": "2000-01-01",
+            "position": "Senior Technical Staff Member  Architecture Certification & Testing",
+            "startDate": "1997-01-01",
+            "summary": "Conducted certification tests of telecom equipment for network compatibility  reliability and determined whether equipment met AT&T network standards - Directed testing and initial deployment of AT&T\u0092s first Private Line  transcontinental ATM Network. This service\u0092s earnings are currently over $100 million a year. - Led network design certification and worked with business and technical teams in Argentina to deploy Latin America\u0092s first continent-wide fiber optic network  which currently provides over $165 million per year in telecom business services. - Led AT&T\u0092s network command center in upgrades of production networks - Led one of AT&T\u0092s nationwide troubleshooting teams - Certified Cisco and Nortel DWDM systems for deployment in AT&T networks - Installed  certified and upgraded in both laboratory and field fiber optic hardware  SONET  ATM  DS1/3  OC3/12/48  LAN/WAN equipment - Managed lab test team and developed $20 million testing budgets",
+            "website": ""
+        },
+        {
+            "company": "Fusion Research Center",
+            "endDate": "1996-01-01",
+            "position": "Researcher",
+            "startDate": "1988-01-01",
+            "summary": "Conducted research dealing with thermonuclear power generation. Designed research and test equipment and supervised construction and installation. Conducted experiments and analyzed data. Developed architecture  algorithms and software to accomplish the analysis. - Modeled magnetic flux surfaces in the Texas Experimental Tokamak  a plasma containment device used in fusion reactor power development. - Designed experimental diagnostic equipment to measure plasma position and magnetic surfaces. - Designed and coded analysis applications for magnetic surface reconstruction and error analysis.",
+            "website": ""
+        },
+        {
+            "company": "University of Texas Applied Research Laboratory",
+            "endDate": "1988-01-01",
+            "position": "Research Scientist Assistant",
+            "startDate": "1986-01-01",
+            "summary": "Tested multipath compensation algorithms used by Global Position Satellite (GPS) navigation and surveying systems. Analyzed radio propagation data to improve reliability of communications and predictability of radio transmissions. - Improved accuracy of GPS navigation fixes in a 3-dimension environment (for use by aircraft and spacecraft). - Developed seasonal maps of the southern polar ionosphere using signals from NAVSTAR navigation satellites received at McMurdo Sound  Antarctica.",
+            "website": ""
+        }
+    ]
+}

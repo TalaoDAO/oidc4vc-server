@@ -1,0 +1,238 @@
+{
+    "availability": {
+        "availabilityfulltime": "",
+        "availabilitywhen": "",
+        "update": "2020-02-21T15:35:02.374Z"
+    },
+    "basics": {
+        "email": "contact+1266956@talao.io",
+        "firstname": "Thierry",
+        "label": "",
+        "location": {
+            "address": "",
+            "city": "",
+            "countryCode": "",
+            "postalCode": "",
+            "region": ""
+        },
+        "name": "Narnio",
+        "phone": "",
+        "picture": "",
+        "profiles": [
+            {
+                "network": "",
+                "url": "",
+                "username": ""
+            }
+        ],
+        "summary": "An experienced International Business Development professional with specialist knowledge of the aerospace / defence / services industry  I have a demonstrated track record in devising regional strategies for business expansion and in setting up the business and partnership frameworks which successfully deliver against corporate targets. I work effectively with all stakeholders to create proposals that respond to customer needs  shape market requirements and promote the company's added value. I am Bilingual French-English and actively leverage an in-depth appreciation of diverse  challenging business environments and cultures to create and maintain long-term customer relationships. Skills \u2022 Sound business acumen combined with technical background: ability to successfully develop a business strategy  market entry and winning sales strategies in a technical environment, \u2022 Strategic campaign leadership / excellent key account management skills, \u2022 Extensive experience of bid management and effective contractual and commercial negotiations skills, \u2022 Demonstrated experience of establishing commercial partnerships to support all stages of the business development life cycle (influencing  relationship development  bid management  contract negotiations  delivery), \u2022 Project management  including providing leadership of multi-disciplinary consortia comprising industry  SME and academic partners, \u2022 Excellent appreciation of global market differentials and national cultures across Europe  Asia and the Middle East, \u2022 Extensive relationship building  business network and communications skills at all levels for business development (CEOs of client/partner organisations  Ministerial and governmental agencies, consular staff  UK Trade and I",
+        "website": "https://www.linkedin.com/in/thierrynarnio"
+    },
+    "did": {
+        "address": "0x382048FA89f5230Fee9a99977BFf450f26CB3301",
+        "chain": "rinkeby",
+        "protocol": "ERC725",
+        "subprotocol": "TALAO",
+        "url": "http://vault.talao.io:4011/visit/0x713BF4ee57b308c92F5a8Ed599E20655cd17D035"
+    },
+    "education": [
+        {
+            "area": " ",
+            "endDate": "2000-01-01",
+            "institution": "Institut national des Sciences appliqu\u00e9es de Rennes",
+            "startDate": "2000-01-01",
+            "studyType": " "
+        }
+    ],
+    "languages": [
+        {
+            "fluency": "Native or Bilingual",
+            "language": "English"
+        },
+        {
+            "fluency": "Native or Bilingual",
+            "language": "French"
+        }
+    ],
+    "mobility": {
+        "mobilityareas": false,
+        "mobilityareaslist": [],
+        "mobilityinternational": false,
+        "mobilityremote": false
+    },
+    "rate": {
+        "ratecurrency": "",
+        "rateprice": ""
+    },
+    "skills": [
+        {
+            "keywords": [
+                {
+                    "code": "MARKETING_SALES",
+                    "created_at": "2019-02-27T16:33:03.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:27.000Z",
+                        "experience_id": 275,
+                        "id": 606,
+                        "skill_id": 1017,
+                        "status": 2,
+                        "updated_at": "2020-02-21T16:47:27.000Z"
+                    },
+                    "freelance_id": null,
+                    "id": 1017,
+                    "name": "Sales",
+                    "status": 2,
+                    "updated_at": "2019-02-27T16:33:03.000Z"
+                },
+                {
+                    "code": "FONCTIONAL_PROJECTMANAGEMENT",
+                    "created_at": "2019-02-27T16:33:03.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:27.000Z",
+                        "experience_id": 275,
+                        "id": 603,
+                        "skill_id": 1137,
+                        "status": 2,
+                        "updated_at": "2020-02-21T16:47:27.000Z"
+                    },
+                    "freelance_id": null,
+                    "id": 1137,
+                    "name": "Project Management",
+                    "status": 2,
+                    "updated_at": "2019-02-27T16:33:03.000Z"
+                },
+                {
+                    "code": null,
+                    "created_at": "2020-02-21T16:47:23.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:27.000Z",
+                        "experience_id": 275,
+                        "id": 604,
+                        "skill_id": 1629,
+                        "status": 1,
+                        "updated_at": "2020-02-21T16:47:27.000Z"
+                    },
+                    "freelance_id": 194,
+                    "id": 1629,
+                    "name": "International Business Development",
+                    "status": 1,
+                    "updated_at": "2020-02-21T16:47:23.000Z"
+                },
+                {
+                    "code": null,
+                    "created_at": "2020-02-21T16:47:25.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:27.000Z",
+                        "experience_id": 275,
+                        "id": 605,
+                        "skill_id": 1630,
+                        "status": 1,
+                        "updated_at": "2020-02-21T16:47:27.000Z"
+                    },
+                    "freelance_id": 194,
+                    "id": 1630,
+                    "name": "International Negotiations",
+                    "status": 1,
+                    "updated_at": "2020-02-21T16:47:25.000Z"
+                },
+                {
+                    "code": "MARKETING_SALES",
+                    "created_at": "2019-02-27T16:33:03.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:52.000Z",
+                        "experience_id": 276,
+                        "id": 610,
+                        "skill_id": 1017,
+                        "status": 2,
+                        "updated_at": "2020-02-21T16:47:52.000Z"
+                    },
+                    "freelance_id": null,
+                    "id": 1017,
+                    "name": "Sales",
+                    "status": 2,
+                    "updated_at": "2019-02-27T16:33:03.000Z"
+                },
+                {
+                    "code": "FONCTIONAL_PROJECTMANAGEMENT",
+                    "created_at": "2019-02-27T16:33:03.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:52.000Z",
+                        "experience_id": 276,
+                        "id": 607,
+                        "skill_id": 1137,
+                        "status": 2,
+                        "updated_at": "2020-02-21T16:47:52.000Z"
+                    },
+                    "freelance_id": null,
+                    "id": 1137,
+                    "name": "Project Management",
+                    "status": 2,
+                    "updated_at": "2019-02-27T16:33:03.000Z"
+                },
+                {
+                    "code": null,
+                    "created_at": "2020-02-21T16:47:23.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:52.000Z",
+                        "experience_id": 276,
+                        "id": 609,
+                        "skill_id": 1629,
+                        "status": 1,
+                        "updated_at": "2020-02-21T16:47:52.000Z"
+                    },
+                    "freelance_id": 194,
+                    "id": 1629,
+                    "name": "International Business Development",
+                    "status": 1,
+                    "updated_at": "2020-02-21T16:47:23.000Z"
+                },
+                {
+                    "code": null,
+                    "created_at": "2020-02-21T16:47:25.000Z",
+                    "experience_skill": {
+                        "created_at": "2020-02-21T16:47:52.000Z",
+                        "experience_id": 276,
+                        "id": 608,
+                        "skill_id": 1630,
+                        "status": 1,
+                        "updated_at": "2020-02-21T16:47:52.000Z"
+                    },
+                    "freelance_id": 194,
+                    "id": 1630,
+                    "name": "International Negotiations",
+                    "status": 1,
+                    "updated_at": "2020-02-21T16:47:25.000Z"
+                }
+            ],
+            "level": "",
+            "name": ""
+        }
+    ],
+    "work": [
+        {
+            "company": "Ebeni Ltd",
+            "endDate": "Current",
+            "highlights": [],
+            "position": "ATM Business Manger",
+            "startDate": "",
+            "summary": "",
+            "website": ""
+        },
+        {
+            "company": "Ebeni Ltd",
+            "endDate": "2017-05-01",
+            "position": "ATM Business Manger",
+            "startDate": "2017-05-01",
+            "summary": "Business Manager for the ATM domain. Working with OEMs  ANSPs and regulators across the UK  Europe and the Middle East. In charge of strategy  business growth and diversification.",
+            "website": ""
+        },
+        {
+            "company": "Argon Electronics (UK) Ltd",
+            "endDate": "2017-04-01",
+            "position": "International Business Development Manager",
+            "startDate": "2016-02-01",
+            "summary": "Business Development Manager at Argon Electronics  a world leader in the development and manufacture of Chemical  Biological  Radiological and Nuclear (CBRN) and hazardous material (HAZMAT) detector simulators.",
+            "website": ""
+        }
+    ]
+}
