@@ -8,6 +8,7 @@ import time
 import Talao_ipfs
 import hashlib
 import json
+import ipfshttpclient
 
 ############################################################
 # appel de ownersToContracts de la fondation
@@ -28,9 +29,12 @@ def ownersToContracts(address) :
 # read Talao profil
 ###############################################################
 # return a dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
+# https://fr.wikibooks.org/wiki/Les_ASCII_de_0_%C3%A0_127/La_table_ASCII
+# ord('a')=97...attention ajouté un 0 au dessus dessous de 99....
 
 
 def readProfil (address) :
+	# liste des claim topic , 
 	givenName = 103105118101110078097109101
 	familyName = 102097109105108121078097109101
 	jobTitle = 106111098084105116108101
@@ -302,6 +306,39 @@ def createDocument(address, private_key, doctype, data, encrypted) :
 
  
 ############################################################
+#  Mise a jour de la photo
+############################################################
+#
+#  @picturefile : type str, nom fichier de la phooto avec path ex  './cvpdh.json'
+# claim topic 105109097103101
+    
+
+def savepictureProfile(address, private_key, picturefile) :
+
+	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	response=client.add(picturefile)
+	picturehash=response['Hash']	
+	image= 105109097103101 
+	workspace_contract=ownersToContracts(address)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+
+	# calcul du nonce de l envoyeur de token . Ici le caller
+	nonce = w3.eth.getTransactionCount(address)  
+
+	# Build transaction
+	txn=contract.functions.addClaim(image,1,address, '0x', '0x01',picturehash ).buildTransaction({'chainId': constante.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	
+	#sign transaction with caller wallet
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+	
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	return hash1
+
+ 
+############################################################
 #  Mise a jour du profil 2 000 000 gas
 ############################################################
 #
@@ -321,7 +358,7 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	email = 101109097105108
 	description = 100101115099114105112116105111110
 	topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-
+	image= 105109097103101
    
 #_givenName='Jean'
 #_familyName='Pascal'

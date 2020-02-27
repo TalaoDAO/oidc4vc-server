@@ -1,10 +1,11 @@
 import Talao_ipfs
 import constante
 import json
-import resumejson
 import datetime
 from web3 import Web3
 import sys
+
+import isolanguage
 
 # return profil comme dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
 def readProfil (address, workspace_contract) :
@@ -55,35 +56,9 @@ def getDocument(address,index, workspace_contract) :
 	ipfs_hash=doc[6].decode('utf-8')
 	return Talao_ipfs.IPFS_get(ipfs_hash)
 
+# retourne le langage
 def codeLanguage(code) :
-	if code == 'fr' :
-		return "French"
-	elif code == "en" :
-		return "English"
-	elif code == "ge" :
-		return "German"
-	elif code == "da" :
-		return "Danish"
-	elif code=="sp" :
-		return "Spanish"
-	elif code=="ch" :
-		return "Chineese"		
-	elif code == "it" :
-		return "Italian"	
-	elif code== "ru" :
-		return "Russian"
-	elif code == "ja" :
-		return "Japanese"
-	elif code == "ar" :
-		return "Arabic"
-	elif code == "po" :
-		return "Polish"
-	elif code == "du" :
-		return "Dutch"
-	elif code == "sw" :
-		return "Swedish"				
-	else :
-		return None	
+	return isolanguage.Language(code)
 		
 		
 def Proficiency(val) :
@@ -103,15 +78,19 @@ def Proficiency(val) :
 #############################################################
 # MAIN creation de CV au format json a parir du workspace Talao
 #############################################################
-# cv au format resume.json : https://jsonresume.org/schema/
-# modification pour ajouter le DID, le prenom, le nom de l'employeur, la mobilité, la disponibilite, la mobilité, le TJM
+# cv inspiré du format resume.json : https://jsonresume.org/schema/
 
-# utilisation IPC
-my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
+# utilisation geth local et IPC en light mode
+# /usr/local/bin/geth --rinkeby --syncmode 'light' --rpc
+if constante.BLOCKCHAIN == 'rinkeby' :
+	my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
+else :
+	print('Erreur de reseau')
+	sys.exit()
 w3 = Web3(my_provider)
 
 # cv est un objet python de type dict
-cv= resumejson.resume
+cv={"did": {},"basics": {},"work": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}
 
 # Saisie de l'adresse du DID
 address=input("Adresse = ")
@@ -120,37 +99,47 @@ try :
 except  :
     print ("Cette adresse n'est pas celle d'une identité")
     sys.exit()
+print("did = ", "did:erc725:"+constante.BLOCKCHAIB+":0x"+address[2:]	
 	
 # mise a jour du DID dans le resume json
 # did:erc725:rinkeby:2F2B37C890824242Cb9B0FE5614fA2221B79901E
-cv["did"]["@context"]="https://w3id.org/did/v1"
-cv["did"]["method"]="erc725"
-cv["did"]["protocol"]="Talao"
-cv["did"]["address"]=address[2:]
-cv["did"]["network"]=constante.BLOCKCHAIN
-cv["did"]["url"]=constante.WORKSPACE_LINK+workspace_contract
+# https://w3id.org/did/v1
+cv["id"]={"@context" : "https://w3id.org/did/v1",
+	"did" : "did:erc725:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
+	"protocol" : "Talao",
+	"owner" : address,
+	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}
 
 
 # mise a jour des informatons "basics" avec le profil de Talao et ajout du prénom dans le resume json
 profile=readProfil(address, workspace_contract)
-cv["basics"]["name"]=profile["familyName"]
-cv["basics"]["firstname"]=profile["givenName"]
-cv["basics"]["email"]=profile["email"]
-cv["basics"]["website"]=profile["url"]
-cv["basics"]["summary"]=profile["description"]
-cv["work"][0]["company"]=profile["worksFor"]
-cv["work"][0]["position"]=profile["jobTitle"]
-cv["work"][0]["endDate"]=str(datetime.date.today())
-cv["work"][0]["startDate"]=str(datetime.date.today())
+cv["basics"]={"name" : profile["familyName"],
+	"firstname" : profile["givenName"],
+	"email" : profile["email"],
+	"website" : profile["url"],
+	"summary" : profile["description"],
+	"picture" : ''}
 
 
 # mise a jour des experiences
 # ATTENTION l'employeur (company) n'est pas dans l experience Talao...alors on l ajoute ["organization"]["name"]
+# experience 0 = emploi actuel,obtenu du profil
+cv["work"].append({"company" : profile["worksFor"],
+	"position" : profile["jobTitle"],
+	"endDate" : str(datetime.date.today()),
+	"startDate" : str(datetime.date.today()),
+	"summary" : "",
+	"website" : ""})
+# autres experiences
 experienceIndex=getDocumentIndex(address, 50000, workspace_contract)
 for i in experienceIndex:
 	experience=getDocument(address,i, workspace_contract)
-	cv["work"].append({"position" : experience["certificate"]["title"], "endDate" : experience["certificate"]["to"], "startDate" : experience["certificate"]["from"],
-	"website" : experience["issuer"]["organization"]["url"], "company" : experience["issuer"]["organization"]["name"],"summary" : experience["certificate"]["description"]})	
+	cv["work"].append({"company" : experience["issuer"]["organization"]["name"],
+	"position" : experience["certificate"]["title"],
+	"endDate" : experience["certificate"]["to"],
+	"startDate" : experience["certificate"]["from"],	
+	"summary" : experience["certificate"]["description"],
+	"website" : experience["issuer"]["organization"]["url"]})	
 
 
 # mise a jour des formations 
@@ -162,8 +151,8 @@ for i in educationIndex:
 	 "startDate" : education["diploma"]["from"],
 	"studyType" : education["diploma"]["title"],
 	 "area" : education["diploma"]["description"],
-	 "gpa" : None,
-	 "courses" : []})
+	 "link" : education["diploma"]["link"]})
+
 
 
 # mise a jour des "skills", les skills Talao sont extraits des experiences et assemblés dans un seul dict du resume json
@@ -176,31 +165,26 @@ for j in range (0, len(skills)) :
 	skillsarray.append(skills[j]['name'])
 # elimination des doublons
 new_skillsarray=list(set(skillsarray))
+cv["skills"]=[{"keywords" : new_skillsarray }]
 
-cv["skills"]=[{"name" : None, "level" : None, "keywords" : new_skillsarray }]
 
-
-# mise a jour des langues, disponibilité, TJM et mobilité
+# mise a jour de la disponibilité, du TJM , de la mobilité et des langues
 docIndex=getDocumentIndex(address, 10000, workspace_contract)
 if docIndex != [] :
 	doc=getDocument(address, docIndex[0], workspace_contract)
-	
 	cv["availability"]={"update" : doc["availability"]["dateCreated"],
- "availabilitywhen" : doc["availability"]["availabilityWhen"],
- "availabilityfulltime" : doc["availability"]["availabilityFulltime"]}
-
+	"availabilitywhen" : doc["availability"]["availabilityWhen"],
+	"availabilityfulltime" : doc["availability"]["availabilityFulltime"]}
 	cv["rate"]= {"rateprice" : doc["availability"]["ratePrice"],
-"ratecurrency" : doc["availability"]["rateCurrency"]}
-
+	"ratecurrency" : doc["availability"]["rateCurrency"]}
 	cv["mobility"]={"mobilityremote" : doc["availability"]["mobilityRemote"],
- "mobilityinternational" : doc["availability"]["mobilityInternational"], 
- "mobilityareas" : doc["availability"]["mobilityAreas"],
- "mobilityareaslist" : doc["availability"]["mobilityAreasList"]}
-
+	"mobilityinternational" : doc["availability"]["mobilityInternational"], 
+	"mobilityareas" : doc["availability"]["mobilityAreas"],
+	"mobilityareaslist" : doc["availability"]["mobilityAreasList"]}
 	lang=doc["availability"]["languages"]
-
 	for i in range (0, len(lang)) :
-		cv["languages"].append({"language" : codeLanguage(lang[i]["code"]), "fluency" : Proficiency(lang[i]["profiency"])})
+		cv["languages"].append({"language" : codeLanguage(lang[i]["code"]),
+		"fluency" : Proficiency(lang[i]["profiency"])})
 
 
 # serialisation du cv ("cv" -> type dict ) au format json ("cvjson" -> type str)

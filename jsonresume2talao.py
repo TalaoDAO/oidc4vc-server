@@ -12,6 +12,7 @@ import Talao_token_transaction
 import Talao_backend_transaction
 import Talao_message
 import Talao_ipfs
+import isolanguage
 
 from web3 import Web3
 my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
@@ -24,36 +25,9 @@ talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
 talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
 
 # trad lang
+# returnle code language
 def Language(lang) :
-	code=lang.lower()
-	if code == 'french' :
-		return "fr"
-	elif code == "english" :
-		return "en"
-	elif code == "german" :
-		return "ge"
-	elif code == "danish" :
-		return "da"
-	elif code=="spanish" :
-		return "sp"
-	elif code=="chineese" :
-		return "ch"		
-	elif code == "italian" :
-		return "it"	
-	elif code== "russian" :
-		return "ru"
-	elif code == "japaneese" :
-		return "ja"
-	elif code == "arabic" :
-		return "ar"
-	elif code == "polish" :
-		return "po"
-	elif code == "dutch" :
-		return "du"
-	elif code == "swedish" :
-		return "sw"				
-	else :
-		return False	
+	return isolanguage.codeLanguage(lang)
 
 def Proficiency(texte) :
 	text=texte.lower()
@@ -171,13 +145,16 @@ def creationworkspacefromscratch(firstname, name, email):
 	writer.writerow( (name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key) )
 
 	# envoi du message de log
-	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
+#	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
 	
 	return eth_a, eth_p, SECRET, workspace_contract_address
 
 ############################################################
 #  Create and publish experience in one step
 ############################################################
+# @newexperience -> dict
+
+
 def createandpublishExperience(address, private_key, newexperience, email, password, workspace_contract) :
 
 	#recuperer le bearer token sur le backend
@@ -191,7 +168,7 @@ def createandpublishExperience(address, private_key, newexperience, email, passw
 	response = conn.getresponse()
 	res=response.read()
 	token= json.loads(res)["token"]
-
+	
 	# creation experience sur le backend
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload=newexperience
@@ -203,47 +180,26 @@ def createandpublishExperience(address, private_key, newexperience, email, passw
 	experience_id= json.loads(res)['experience']['id']
 	conn.close()
 
-	experience_blockchain=	{
-  "documentType": 50000,
-  "version": 2,
-  "recipient": {
-    "givenName": experience['freelance']['first_name'],
-    "familyName": experience['freelance']['last_name'],
-    "title": experience['freelance']['title'],
-    "email": experience['freelance']['email'],
-    "ethereum_account": experience['freelance']['ethereum_account'],
-    "ethereum_contract": experience['freelance']['ethereum_contract'],
-		  },
-  "issuer": {
-    "organization": {
-      "name" : experience['organization_name'],
-      "email": "",
-      "url": "",
-      "image": "",
-      "ethereum_account": "",
-      "ethereum_contract": ""
-    },
-    "responsible": {
-      "name": "",
-      "title": "",
-      "image": ""
-    },
-    "partner": {
-      "name": "",
-      "text": ""
-    }
-  },
-  "certificate": {
-    "title": experience['title'],
-    "description": experience['description'],
-    "from": experience['from'],
-    "to": experience['to'],
-    "skills": experience['skills'],
-    "ratings": []
-      }
-   }
+	experience_blockchain=	{"documentType": 50000,
+		"version": 2,
+		"recipient": {"givenName": experience['freelance']['first_name'],
+			"familyName": experience['freelance']['last_name'],
+			"title": experience['freelance']['title'],
+			"email": experience['freelance']['email'],
+			"ethereum_account": experience['freelance']['ethereum_account'],
+			"ethereum_contract": experience['freelance']['ethereum_contract']},
+		"issuer": {"organization": {"name" : experience['organization_name'],"email": "","url": "","image": "","ethereum_account": "","ethereum_contract": ""},
+			"responsible": {"name": "","title": "","image": ""},
+			"partner": {"name": "","text": ""}},
+		"certificate": {"title": experience['title'],
+			"description": experience['description'],
+			"from": experience['from'],
+			"to": experience['to'],
+			"skills": experience['skills'],
+			"ratings": []}
+		}
  
-	# upload de l experince sur la blockchain
+	# upload de l experience sur la blockchain
 	Talao_token_transaction.createDocument(address, private_key, 50000, experience_blockchain, False)
 	
 	# recuperer l iD du document sur le dernier event DocumentAdded
@@ -275,19 +231,37 @@ fname= constante.BLOCKCHAIN +"_Talao_Identity.csv"
 identityfile = open(fname, "a")
 writer = csv.writer(identityfile)
 
-# ouverture du fichier resume.json
+# ouverture du fichier cv au format json
+# cv inspiré du format resume.json : https://jsonresume.org/schema/
+# cv={"basics": {},"work": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}
+# donnez exemple ici...............
 filename=input("Saisissez le nom du fichier de cv json ?")
 resumefile=open(filename, "r")
 resume=json.loads(resumefile.read())
 	
 # calcul du temps de process
 time_debut=datetime.now()
+
 		
 # CREATION DU WORKSPACE ET DU BACKEND
 name = resume['basics']["name"]
 firstname = resume['basics']['firstname']
 email = resume['basics']['email']
 (address, private_key,password, workspace_contract) = creationworkspacefromscratch(firstname, name, email)
+
+
+#CREATION DU CV JSON
+resume.update({'did' : {"@context" : "https://w3id.org/did/v1",
+	"id" : "did:erc725:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
+	"protocol" : "Talao",
+	"owner" : address,
+	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}})
+filenamejson = "./json/"+constante.BLOCKCHAIN+'/'+address+".json"
+fjson=open(filenamejson,"w")
+cvjson=json.dumps(resume,indent=4)
+fjson.write(cvjson)
+fjson.close()   
+
 		
 # UPLOAD DU PROFIL
 worksFor = resume['work'][0]['company']
@@ -296,57 +270,68 @@ workLocation = " " # a voir !!!!
 url= resume['basics']['website']
 description = resume['basics']['summary']	
 Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
+
+"""
+# test avec Thierry Narnio
+email='contact+1266956@talao.io'
+address =  '0x382048FA89f5230Fee9a99977BFf450f26CB3301'
+private_key =  '0xd30502862a942532e5f6d7a2fd66d80650de04a4a0279ab469be41262e7f7c27'
+workspace_contract =  '0x713BF4ee57b308c92F5a8Ed599E20655cd17D035'
+password =  '7d60ff3538162bb84d64ec06b19540d6'
+"""
+
 		
 # CALCUL DE "SKILLS"	
 skillsarray=[]
 for i in range(0,len(resume['skills'])) :
 	skillsarray.extend(resume['skills'][i]['keywords'])
-print (skillsarray)
 skills=list(set(skillsarray))
-print(skills)
 newskills=[]
 for s in range(0, len(skills)) :
 	a = Talao_backend_transaction.getSkill(email, password, skills[s])
-	newskills.append(a)
-print(newskills)
+	if a!= "ERROR" :
+		newskills.append(a)
+
 		
 # UPLOAD DES EXPERIENCES AVEC SKILLS
 # les skills sont identiques pour toutes les experiences
-for i in range(1,len(resume['work'])) :					
+for i in range(0,len(resume['work'])) :					
 	organization_name = resume['work'][i]['company']
 	fromdate=resume['work'][i]['startDate']
 	todate=resume['work'][i]['endDate']
-	location = None
 	description = resume['work'][i]['summary']
 	title = resume['work'][i]['position']		
 	experience = { 'experience' :{ 'title' : title,
-	'description' : description,
-	'from' : fromdate,
-	'to' : todate,
-	'location' : location,
-	'remote' : False,
-	'organization_name' : organization_name,
-	'skills' : newskills}}
-	print("Experience publiée = ", experience)
+			'description' : description,
+			'from' : fromdate,
+			'to' : todate,
+			'location' : '',
+			'remote' : False,
+			'organization_name' : organization_name,
+			'skills' : newskills}}
 	createandpublishExperience(address, private_key, experience, email, password, workspace_contract )
-
+	print("Experience publiée = ", experience)
 
 # UPLOAD DES DIPLOMES
 name =firstname+' '+name
 for i in range (0,len(resume['education'])) :
 	school_name = resume['education'][i]['institution']
 	diploma_title = resume['education'][i]['studyType']
-	diploma_description =resume['education'][i]['courses']
-	diploma_url = None		
+	diploma_description =resume['education'][i]['area']
+	diploma_url = resume['education'][i]['link']	
 	data = {'documentType': 40000,
 		'version': 2,
 		'recipient': {'name': name,
-			'title': jobTitle,
-			'email': email,
-			'ethereum_account': address,
-			'ethereum_contract': workspace_contract},
-			 'issuer': {'organization': {'name': school_name}},
-			 'diploma': {'title': diploma_title, 'description': diploma_description, 'from': fromdate , 'to': todate, 'link': diploma_url}}
+		'title': jobTitle,
+		'email': email,
+		'ethereum_account': address,
+		'ethereum_contract': workspace_contract},
+		'issuer': {'organization': {'name': school_name}},
+		'diploma': {'title': diploma_title,
+			'description': diploma_description,
+			'from': fromdate ,
+			'to': todate,
+			'link': diploma_url}}
 	Talao_token_transaction.createDocument(address, private_key, 40000, data, False)
 	print( "Diplome publié = ",school_name,'   ', diploma_title, '   ', fromdate, '   ', todate)
 
@@ -354,20 +339,18 @@ for i in range (0,len(resume['education'])) :
 # UPLOAD DES LANGUAGES et employabilité
 lang=[]
 for i in range(0,len(resume['languages'])) :
-	langitem={"code": Language(resume['languages'][i]['languages']),"profiency": Proficiency(resume['languages'][i]['fluency'])}	
+	langitem={"code": Language(resume['languages'][i]['language']),"profiency": Proficiency(resume['languages'][i]['fluency'])}	
 	lang.append(langitem)		
-employabilite={
-  "documentType": 10000,
-  "version": 1,
-  "recipient": {
-    "name": name,
-    "title": jobTitle,
-    "email": email,
-    "ethereum_account": address,
-    "ethereum_contract": workspace_contract
-  },
-  "availability": {
-    "dateCreated": "2020-02-21T15:35:02.374Z",
+employabilite={"documentType": 10000,
+	"version": 1,
+	"recipient": {
+	"name": name,
+	"title": jobTitle,
+	"email": email,
+	"ethereum_account": address,
+	"ethereum_contract": workspace_contract},
+	"availability": {
+	"dateCreated": "2020-02-21T15:35:02.374Z",
     "availabilityWhen": None,
     "availabilityFulltime": None,
     "mobilityRemote": False,
@@ -376,9 +359,7 @@ employabilite={
     "mobilityAreasList": [],
     "rateCurrency": None,
     "ratePrice": None,
-    "languages": lang
-  }
-}	
+    "languages": lang}}	
 Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False)
 
 
@@ -388,6 +369,7 @@ time_delta=time_fin-time_debut
 print('Durée des transactions = ', time_delta)
 print('')
 
+# fermeture des fichiers
 resumefile.close()
 identityfile.close()
 sys.exit(0)

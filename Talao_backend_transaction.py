@@ -117,15 +117,12 @@ def createSkill (email, password, skillname) :
 	payload = {"skill": {"name": skillname}}
 	data = json.dumps(payload)
 	conn.request('POST', '/skills',data, headers)
-
 	response= conn.getresponse()
 	res=response.read()
 	conn.close()
 	a=json.loads(res)
 	if "err" in a :
-		a= {"skill"  : ""}
-	else :
-		print("New skill")
+		a= {"skill"  : "ERROR"} # cf guillaume pour trouver la cause
 	return a["skill"]
 	
 	
@@ -145,14 +142,12 @@ def getSkill (email, password, skillname) :
 	payload = {}
 	data = json.dumps(payload)
 	conn.request('GET', '/skills',data, headers)
-
 	response= conn.getresponse()
 	res=response.read()
 	conn.close()
 	skillarray=json.loads(res)["skills"]	
 	for i in range (0, len(skillarray)) :
 		if skillarray[i]["name"].lower()==skillname.lower() :
-			print("Skill already created")
 			return skillarray[i]
 	return createSkill(email, password, skillname)		
 
@@ -164,7 +159,6 @@ def getSkill (email, password, skillname) :
 def getExperience (email, password,experience) :
 
 	token=login(email, password)
-	
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload = {"Id" : experience }
 	data = json.dumps(payload)
@@ -174,10 +168,8 @@ def getExperience (email, password,experience) :
 	return json.loads(res)
 
 
-
-
 ###################################################################
-#  Token 
+#  Bearer Token 
 ###################################################################
 
 def encode_auth_token(user_id):
