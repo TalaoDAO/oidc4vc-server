@@ -2,9 +2,7 @@ import Talao_ipfs
 import constante
 import json
 import datetime
-from web3 import Web3
 import sys
-
 import isolanguage
 
 # return profil comme dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
@@ -49,7 +47,7 @@ def getDocumentIndex(address, doctype, workspace_contract) :
 			newdocindex.append(i)			
 	return newdocindex
 
-# return le doc au format json
+# return le doc au format json (str)
 def getDocument(address,index, workspace_contract) :
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	doc=contract.functions.getDocument(index).call()
@@ -60,7 +58,7 @@ def getDocument(address,index, workspace_contract) :
 def codeLanguage(code) :
 	return isolanguage.Language(code)
 		
-		
+# retourne le libéllé correspondant au code		
 def Proficiency(val) :
 	if val == '5' or  val == 5 :
 		return 'Native or Bilingual'
@@ -89,24 +87,24 @@ else :
 	sys.exit()
 w3 = Web3(my_provider)
 
-# cv est un objet python de type dict
+# cv est un Dict
 cv={"did": {},"basics": {},"work": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}
 
-# Saisie de l'adresse du DID
+# Saisie de l'adresse du did
 address=input("Adresse = ")
 try :
 	workspace_contract=ownersToContracts(address)		
 except  :
-    print ("Cette adresse n'est pas celle d'une identité")
+    print ("Cette adresse n'est pas celle d'une identité Talao")
     sys.exit()
-print("did = ", "did:erc725:"+constante.BLOCKCHAIB+":0x"+address[2:]	
+print("Decentralized Identifier = ", "did:talao:"+constante.BLOCKCHAIB+":0x"+address[2:]	
+
 	
 # mise a jour du DID dans le resume json
 # did:erc725:rinkeby:2F2B37C890824242Cb9B0FE5614fA2221B79901E
 # https://w3id.org/did/v1
-cv["id"]={"@context" : "https://w3id.org/did/v1",
-	"did" : "did:erc725:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
-	"protocol" : "Talao",
+cv["did"]={"@context" : "https://w3id.org/did/v1 and https://github.com/TalaoDAO/talao-contracts",
+	"id" : "did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
 	"owner" : address,
 	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}
 
@@ -122,7 +120,6 @@ cv["basics"]={"name" : profile["familyName"],
 
 
 # mise a jour des experiences
-# ATTENTION l'employeur (company) n'est pas dans l experience Talao...alors on l ajoute ["organization"]["name"]
 # experience 0 = emploi actuel,obtenu du profil
 cv["work"].append({"company" : profile["worksFor"],
 	"position" : profile["jobTitle"],
@@ -130,6 +127,8 @@ cv["work"].append({"company" : profile["worksFor"],
 	"startDate" : str(datetime.date.today()),
 	"summary" : "",
 	"website" : ""})
+	
+	
 # autres experiences
 experienceIndex=getDocumentIndex(address, 50000, workspace_contract)
 for i in experienceIndex:
@@ -152,7 +151,6 @@ for i in educationIndex:
 	"studyType" : education["diploma"]["title"],
 	 "area" : education["diploma"]["description"],
 	 "link" : education["diploma"]["link"]})
-
 
 
 # mise a jour des "skills", les skills Talao sont extraits des experiences et assemblés dans un seul dict du resume json

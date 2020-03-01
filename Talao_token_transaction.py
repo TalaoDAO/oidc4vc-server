@@ -9,6 +9,9 @@ import Talao_ipfs
 import hashlib
 import json
 import ipfshttpclient
+from datetime import datetime
+from eth_account.messages import encode_defunct
+
 
 ############################################################
 # appel de ownersToContracts de la fondation
@@ -559,4 +562,51 @@ def getDocument(address, _doctype,_index) :
 				index=index+1				
 
 
+#####################################
+#authentication d'un json de type str
+#####################################
+def authenticate(docjson, address, private_key) :
+# @docjson : type str au format json
+# @address, @private_key  : le Creator est celui qui signe
+# return le str json authentifié
+# pour decoder :
+# message = encode_defunct(text=msg)
+# address=w3.eth.account.recover_message(message, signature=signature)
+#
+# cf : https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 
+
+	# conversion en Dict python
+	objectdata=json.loads(docjson)
+
+	# mise a jour du Dict avec les infos d authentication
+	objectdata.update({'Authentication' : 
+	{'@context' : 'this Key can be used to authenticate the creator of this doc. Ownernership of did can be checked at https://rinkeby.etherscan.io/address/0xde4cf27d1cefc4a6fa000a5399c59c59da1bf253#readContract',
+	'type' : 'w3.eth.account.sign_message',
+	'PublicKey' : address,
+	'Created' : str(datetime.today()),
+	"Creator" : address,
+	'message' : 'to be added',
+	'signature' : 'to be added' }
+	}) 
+	
+	# upload et pin sur ipfs
+	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	response=client.add_json(objectdata)
+	client.pin.add(response)
+
+	# le lien sur le fichier IPFS est le message	
+	msg='https://ipfs.io/ipfs/'+response
+	message = encode_defunct(text=msg)
+	# signature du messaga avec web3 compatible avce solidity erocover 
+	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
+	signature=signed_message.signature.hex()
+	
+	# complement du Dict
+	objectdata["Authentication"]["message"]=msg
+	objectdata["Authentication"]["signature"]=signature
+	
+	# conversion du Dict en str json
+	auth_docjson=json.dumps(objectdata,indent=4)
+		
+	return auth_docjson
