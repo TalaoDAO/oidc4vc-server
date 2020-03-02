@@ -544,7 +544,7 @@ def getDocumentIndex(address, _doctype) :
 ######################################################	
 # read Talao experience or diploma
 ######################################################
-# @_doctype = integer, 40000 = Diploma, 50000 = experience
+# @_doctype = integer, 40000 = Diploma, 50000 = experience, 60000 certificate
 # return dictionnaire
 
 def getDocument(address, _doctype,_index) :

@@ -42,52 +42,61 @@ def gettopicname(topicid) :
 #############################
 
 #test
-workspace_contract='0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'
-#workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'
+#workspace_contract='0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'
+workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'  # pierre david houlle
+#workspace_contract='0xe7Ff2f6c271266DC7b354c1B376B57c9c93F0d65' # compte expterne
+#workspace_contract='0x29f880c177cD3017Cf05576576807d1A0dc87417' # TTF
 
-MANAGEMENT = 1
-ACTION = 2
-CLAIM = 3
-ENCRYPTION = 4
 
 
 did="did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:]
-contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-workspace_information = contract.functions.identityInformation().call()
+try : 
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+except:
+	print("Addresse erronée")
+	sys.exit()
 
+try :
+	workspace_information = contract.functions.identityInformation().call()
+except :
+	print("Cette addresse n'est pas un did Talao")
+	sys.exit()
+	
 # recuperation de l'address du owner
 contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
 address = contract.functions.contractsToOwners(workspace_contract).call()
-
-did_owner="did:talao:"+constante.BLOCKCHAIN+":"+address[2:]
+# calcul du keccak
 owner_publicKeyHex=w3.soliditySha3(['address'], [address])
 
 contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 
-# creation du Dict 
 
 # initialisation du Dict corespondant au DID Document
 # https://www.w3.org/TR/did-core/
 
+workspace_information=contract.functions.identityInformation().call()
+cat={1001 : "user", 2001 : "company", 3001 : "unknown", 4001 : "unknoown", 5001 : "unknown"}
+
 did_document={
 	"@context": "https://w3id.org/did/v1",
 	"id": did,
-	"category" : None,
-	"owner" : did_owner,
-	"owner_publicKeyHex" : owner_publicKeyHex.hex()[2:],
+	"category" : cat[workspace_information[1]],
+	"controller" : address,
 	"authentication" : [{"type": "RsaVerificationKey2018",
-		"controller" : did_owner,
+		"controller" : address,
 		"publicKeyPem": workspace_information[4].decode('utf_8')}],
 	"publicKey": [],
 	"encryption" : [],
 	"service" : {
 		"erc725claim" : { "endpoint" : "talao.io/api/did/claim",
-					"@context" : "GET",
+					"@context" : "....getclaim.py....",
 					"topic" : []},
 		"document" : {"endpoint" : "tala.io/aoi/did/document",
-					"@context" : "GET",
+					"@context" : "....getdocument.py",
 					"diploma" : [],
-					"experience" : []}
+					"experience" : [],
+					"certificate" : [],
+					"employability" : []}
 		}
 }
 
@@ -95,74 +104,74 @@ did_document={
 #        newWorkspace.addKey(keccak256(abi.encodePacked(msg.sender)), 1, 1);
 # w3.soliditySha3(['address'], [address])
 
-workspace_information=contract.functions.identityInformation().call()
 
-# category
-cat={1001 : "user", 2001 : "company", 3001 : "unknown", 4001 : "unknoown", 5001 : "unknown"}
-did_document["category"] = cat[workspace_information[1]]
 
 # recherche des publicKey
 # MANAGEMENT keys
-data = contract.functions.getKeysByPurpose(MANAGEMENT).call()
+data = contract.functions.getKeysByPurpose(1).call()
 for i in range(0, len(data)) :
 	key=contract.functions.getKey(data[i]).call()
 	keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
 	if key[2].hex() == owner_publicKeyHex.hex()[2:] :
-		controller = did_owner
+		key_controller = address
 	else :
-		controller = 'unknown'
+		key_controller = 'unknown'
 	did_document["publicKey"].append({"id": keyId,
 		"type": ["Secp256k1SignatureVerificationKey2018", "ERC725ManagementKey"],
-		"controller" : controller,
+		"controller" : key_controller,
 		"publicKeyHex": key[2].hex()})
 	
 	
 # ERC725 ACTION Keys
-data = contract.functions.getKeysByPurpose(ACTION).call()
+data = contract.functions.getKeysByPurpose(2).call()
 for i in range(0, len(data)) :
 	key=contract.functions.getKey(data[i]).call()
 	keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'ACTION']).hex()
 	if key[2].hex() == owner_publicKeyHex.hex()[2:] :
-		controller = did_owner
+		key_controller = address
 	else :
-		controller = 'unknown'
+		key_controller = 'unknown'
 	did_document["publicKey"].append({"id": keyId,
 		"type": ["Secp256k1SignatureVerificationKey2018", "ERC725ActionKey"],
-		"controller" : "",
+		"controller" : key_controller,
 		"publicKeyHex": key[2].hex()})
 	did_document.append({"authentication": { "id" : KeyId,
 		"type": "Secp256k1SignatureAuthentication2018",
-		"controller" : controller,
+		"controller" : key_controller,
 		"publicKey": key[2].hex()}})
 
 	
 # ERC725 CLAIM Keys
-data = contract.functions.getKeysByPurpose(CLAIM).call()
+data = contract.functions.getKeysByPurpose(3).call()
 for i in range(0, len(data)) :
 	key=contract.functions.getKey(data[i]).call()
 	keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'CLAIM']).hex()
 	if key[2].hex() == owner_publicKeyHex.hex()[2:] :
-		controller = did_owner
+		key_controller = address
 	else :
-		controller = 'unknown'
+		key_controller = 'unknown'
 	did_document["publicKey"].append({"id": keyId,
 		"type": ["Secp256k1SignatureVerificationKey2018", "ERC725ClaimKey"],
-		"controller" : controller,
+		"controller" : key_controller,
 		"publicKeyHex": key[2].hex()})
 
 	
 # ENCRYPTION Keys
-data = contract.functions.getKeysByPurpose(ENCRYPTION).call()
+data = contract.functions.getKeysByPurpose(4).call()
 for i in range(0, len(data)) :
 	key=contract.functions.getKey(data[i]).call()
 	keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+	if key[2].hex() == owner_publicKeyHex.hex()[2:] :
+		key_controller = address
+	else :
+		key_controller = 'unknown'
 	did_document["publicKey"].append({"id": keyId,
 		"type": ["Secp256k1SignatureVerificationKey2018", "ERC725EncryptionKey"],
-		"controller" : "",
+		"controller" : key_controller,
 		"publicKeyHex": key[2].hex()})
 	did_document.append({"encryption": {
 		"type": "Secp256k1SignatureEncryption2018",
-		"controller" : "",
+		"controller" : key_controller,
 		"publicKey": ""	}})
 
 
@@ -170,13 +179,20 @@ for i in range(0, len(data)) :
 # Documents Talao
 experience=[]
 diploma =[]
+certificate=[]
+employability=[]
+
 docindex=contract.functions.getDocuments().call()
 for i in docindex :
 	doc=contract.functions.getDocument(i).call()
+	if doc[0] == 10000 :
+		employability.append(i)
 	if doc[0]==40000:
 		diploma.append(i)
 	if doc[0] == 50000 :
 		experience.append(i)
+	if doc[0] == 60000 :
+		certificate.append(i)
 
 did_document["service"]["document"]["experience"]=experience
 did_document["service"]["document"]["diploma"]=diploma

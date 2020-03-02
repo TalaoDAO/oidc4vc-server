@@ -250,11 +250,10 @@ email = resume['basics']['email']
 (address, private_key,password, workspace_contract) = creationworkspacefromscratch(firstname, name, email)
 
 
-#CREATION DU CV JSON
+#MISE A JOUR DU CV JSON avec le did
 resume.update({'did' : {"@context" : "https://w3id.org/did/v1",
-	"id" : "did:erc725:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
-	"protocol" : "Talao",
-	"owner" : address,
+	"id" : "did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
+	"controller" : address,
 	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}})
 filenamejson = "./json/"+constante.BLOCKCHAIN+'/'+address+".json"
 fjson=open(filenamejson,"w")
@@ -270,15 +269,6 @@ workLocation = " " # a voir !!!!
 url= resume['basics']['website']
 description = resume['basics']['summary']	
 Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
-
-"""
-# test avec Thierry Narnio
-email='contact+1266956@talao.io'
-address =  '0x382048FA89f5230Fee9a99977BFf450f26CB3301'
-private_key =  '0xd30502862a942532e5f6d7a2fd66d80650de04a4a0279ab469be41262e7f7c27'
-workspace_contract =  '0x713BF4ee57b308c92F5a8Ed599E20655cd17D035'
-password =  '7d60ff3538162bb84d64ec06b19540d6'
-"""
 
 		
 # CALCUL DE "SKILLS"	

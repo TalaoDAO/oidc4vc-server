@@ -29,7 +29,7 @@ def getclaim (topicname, workspace_contract) :
 		claimdata=contract.functions.getClaim(data[i]).call()
 		issuer=claimdata[2]
 		if issuer == address :
-			issuer='self'
+			issuer='owner'
 		claim=dict()
 		claim["did"] = did
 		claim['@context'] = "https://talao.io/did/claim_documentation"
@@ -41,4 +41,4 @@ def getclaim (topicname, workspace_contract) :
 	return claims
 
 
-print (json.dumps(getclaim('firstname', '0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'), indent=4))
+print (json.dumps(getclaim('email', '0x29f880c177cD3017Cf05576576807d1A0dc87417'), indent=4))
