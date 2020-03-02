@@ -610,3 +610,29 @@ def authenticate(docjson, address, private_key) :
 	auth_docjson=json.dumps(objectdata,indent=4)
 		
 	return auth_docjson
+
+#################################################
+#  addclaim
+#################################################
+# @data : bytes	
+# topicname : type str , 'contact'
+# ipfs hash = str exemple  b'qlkjglgh'.decode('utf-8') 
+
+def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash) :
+	
+	topicvalue=constante.topic[topicname]
+	
+	# calcul du nonce de l envoyeur de token . Ici le caller
+	nonce = w3.eth.getTransactionCount(address)  
+
+	# Build transaction
+	txn=contract.functions.addClaim(topicvalue,1,issuer, '0x', '0x01',ipfshash ).buildTransaction({'chainId': constante.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	
+	#sign transaction with caller wallet
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+	
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	return hash1
