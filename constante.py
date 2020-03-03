@@ -44,9 +44,13 @@ topic={'firstname' : 103105118101110078097109101,
 	'birthdate' : 98105114116104100097116101,
 	'contact' : 99111110116097099116,
 	'company' : 19111114107115070111114,
-	'position' : 106111098084105116108101,
-	'phone' : 112104111110101
-} 		
+	'phone' : 112104111110101,
+	'socialsecurity' : 115111099105097108115101099117114105116121,
+	'address' : 97100100114101115115	
+}
+
+inv_topic=dict(map(reversed, topic.items()))
+
 """
 pour calculcer un claimId avec un topic
 claimId =''

@@ -1,21 +1,10 @@
-import datetime
 import json
-from datetime import datetime
 import constante
-import Talao_token_transaction
-import Talao_ipfs
-import ipfshttpclient
 from web3.auto import w3
-import sys
-
-"""
-[50000, 1, 0, '0xe7Ff2f6c271266DC7b354c1B376B57c9c93F0d65', b"j\x1e'@\xc8\xf3#\xcd\xfe%\xd7\xa8XyM\xce\xb6.\xca/^\x9a\xafn\x90\xe5\xd9\xc1\xf4\xc5\xcd\xcd", 1, b'QmeztGJRx2sKXGkw4fSMWWWwrP3Ww9bwn9NpCf6G9H1TeG', False, 0]
-"""
-
-
+import ipfshttpclient
 
 #####################################################	
-# read Talao experience or diploma
+# read Talao experience/diploma/certificate/employabilite
 ######################################################
 # @_doctype = integer, 40000 = Diploma, 50000 = experience, 60000 certificate
 # return dictionnaire
@@ -26,13 +15,35 @@ def getdocument(index, workspace_contract) :
 	did="did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:]		
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	doc=contract.functions.getDocument(index).call()
-	doctype={10000 : "employability", 40000 : "diploma", 50000 : "experience", 60000 : "certificate"}
+	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	data=client.get_json(doc[6].decode('utf-8'))
+	doc_type={10000 : "employability", 40000 : "diploma", 50000 : "experience", 60000 : "certificate"}
+	if doc[0]==10000 :
+		data=client.get_json(doc[6].decode('utf-8'))['availability']
+	if doc[0]== 40000 :
+		data=client.get_json(doc[6].decode('utf-8'))
+		del data["recipient"]
+		del data["documentType"]
+		del data["version"]
+	if doc[0] == 50000 or doc[0]==60000 :
+		data=client.get_json(doc[6].decode('utf-8'))
+		del data["recipient"]	
+		del data["documentType"]
+		del data["version"]
 	document=dict()
 	document["did"] = did
+	document["owner"] = address
 	document["issuer"] = doc[3]
-	document["document"]={"type" : doctype[doc[0]], '@context' : "https://talao.io/did/document_documentation", "expires" : doc[2],"location" : 'IPFS', "data" : doc[6].decode('utf-8'), 'encrypted' : doc[7]}
+	document["document"]={"type" : doc_type[doc[0]],
+		'@context' : "https://talao.io/did/document_documentation",
+		"expires" : doc[2],
+		"data" : data,
+		'encrypted' : doc[7]}
+	document['authenticated']=True
 	return document
-	
-workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'  # pierre david houlle
 
-print (json.dumps(getdocument(8, workspace_contract), indent=4))
+# test	
+workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'  # pierre david houlle
+#workspace_contract='0x2164c21e2ca79FD205700597A7Cc3A3867E226F1'
+
+print (json.dumps(getdocument(10, workspace_contract), indent=4))

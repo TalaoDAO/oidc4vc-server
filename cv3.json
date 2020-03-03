@@ -1,0 +1,92 @@
+{
+  "basics": {
+    "name": "Nardinot",
+    "firstname": "Thierry",
+    "email": "thierry.XX@gmail.com",
+    "website": "",
+    "summary": "I designed and implemented a large number of innovative solutions that granted a proven competitive edge to my clients and partners. I started in working in the big data before that existed.          More than 10 years in the production of e-tourism solutions: manage millions of rates and as many reservations have no secrets for me.          My expertise in software engineering does not stop at the technical delivery aspects, but extends further to strategic planning of the system, scalability, maintenance, extensibility, market positioning, training and documentation coverage. I love to accompany courageous entrepreneurs. I provide them with solutions to optimize each department of the company. Technology is an ingredient, understanding is a recipe. Every day, my team of developers allows me to get new opportunities. It s a constantly evolving field, and we have the energy to follow it. Thanks to the communication and the humor.",
+    "position" : "",
+    "company" : "",
+    "image" : "photos/TT.jpeg",
+    "@context" : "les informations qui suivent ne sont pas visualisables dans le workspace Talao",
+    "birthdate" : "",
+    "socialsecurity" : ""
+  },
+  "experience": [
+    {
+      "company": "PIC DIGITAL",
+      "position": "CTO",
+      "endDate": "2020-02-26",
+      "startDate": "2020-02-26",
+      "summary": "IoT fields : Smart-gateway development with NodeJS/Couchbase/Kafla and AngularJS/D3.js Ionic for front-end on behalf of leader irrigation agricultural Business apps : Portals development with Symfony2/MySQL/AngularJS on behalf of french ministry of defense IT internal restructuring of agency : deployment and customisation of ownCloud, vTigerCRM. Business workflow definition. IT partners contracts management ... Staff recruitment and team lead of more than 10 persons (junior/senior) - developers, designers, sysadmin and crazy geeks. Freelances selection and supervision, and approval",
+      "website": "",
+      "skills" : ["python"]
+    },
+    {
+      "company": "ALALOOP",
+      "position": "IT Consultant",
+      "endDate": "2015-04-01",
+      "startDate": "2012-04-01",
+      "summary": "Conception and development of dedicated salesmen CRM on mobile devices. Geolocation and scheduled appointments. Works on online & offline modes, data synchronization from/to server, real time notification... Android and iOS environments. Deployment on AWS et Héroku clouds. Couchbase Server & Lite, Elasticsearch, Cordova, Ionic/AngularJS are main ingredients.",
+      "website": "",
+      "skills" : ["Node.js","Management","E-commerce","JS"]
+    },
+    {
+      "company": "Nalta System",
+      "position": "Lead Developper",
+      "endDate": "2012-03-01",
+      "startDate": "2011-02-01",
+      "summary": "Health field web application development with VIDAL WebServices. Number of e-commerce website built with Magento and connected to SAP Business One",
+      "website": "",
+      "skills" : ["linux"]
+    }
+  ],
+  "education": [
+    {
+      "institution": "ESARC Evolution",
+      "endDate": "2009-01-01",
+      "startDate": "2008-01-01",
+      "studyType": "Master",
+      "area": " ",
+      "link": " "
+    },
+    {
+      "institution": "Skillvalue",
+      "endDate": "2020-05-01",
+      "startDate": "2020-12-01",
+      "studyType": "Node.js certified",
+      "area": "JS Framework",
+      "link": "https://skillvalue.com/fr/certificate/q1Qp25imrwgCKEAra15hQgkLpH0S68x1sFWuN9MDfKw7SNRhQaE13yBgSu6u"
+    }
+  ],
+ 
+  "languages": [
+    {
+      "language": "English",
+      "fluency": "Full Professional"
+    },
+    {
+      "language": "Spanish",
+      "fluency": "Full Professional"
+    },
+    {
+      "language": "French",
+      "fluency": "Native or Bilingual"
+    }
+  ],
+  "availability": {
+    "update": "2020-02-21T15:35:02.374Z",
+    "availabilitywhen": null,
+    "availabilityfulltime": null
+  },
+  "mobility": {
+    "mobilityremote": false,
+    "mobilityinternational": false,
+    "mobilityareas": false,
+    "mobilityareaslist": []
+  },
+  "rate": {
+    "rateprice": "",
+    "ratecurrency": null
+  }
+}

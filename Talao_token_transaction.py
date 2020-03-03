@@ -362,24 +362,11 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	description = 100101115099114105112116105111110
 	topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
 	image= 105109097103101
-   
-#_givenName='Jean'
-#_familyName='Pascal'
-#_jobTitle ='Developper'
-#_worksFor = 'Talao'
-#_workLocation ='St Ouen, Frnace'
-#_url='Talao.io'
-#_email='talaogen.jean.pascal@talao.io'
-#_description ='Ceci est une description'
-
+ 
 	chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
 	bchaine=bytes(chaine, 'utf-8')
 
 	offset=[len(_givenName), len(_familyName), len(_jobTitle), len(_worksFor), len(_workLocation), len(_url), len(_email), len(_description)]
-
-#address ='0x9A1D7ee6CcF5588c7f74E34a49308da9AbC27Bf8'
-#private_key='0xb152e156901c7b0d24607aede258aab6c2d72572c4ed766294e8a36fa1f7959b'
-#workspace_contract='0xec3edBe26fe78dBEe44942F961Ef8D968564AB3C'
 
 	workspace_contract=ownersToContracts(address)
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -579,6 +566,7 @@ def authenticate(docjson, address, private_key) :
 	# conversion en Dict python
 	objectdata=json.loads(docjson)
 
+
 	# mise a jour du Dict avec les infos d authentication
 	objectdata.update({'Authentication' : 
 	{'@context' : 'this Key can be used to authenticate the creator of this doc. Ownernership of did can be checked at https://rinkeby.etherscan.io/address/0xde4cf27d1cefc4a6fa000a5399c59c59da1bf253#readContract',
@@ -612,11 +600,12 @@ def authenticate(docjson, address, private_key) :
 	return auth_docjson
 
 #################################################
-#  addclaim
+#  add self claim
 #################################################
 # @data : bytes	
-# topicname : type str , 'contact'
-# ipfs hash = str exemple  b'qlkjglgh'.decode('utf-8') 
+# @topicname : type str , 'contact'
+# @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8') 
+# signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 
 def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash) :
 	
@@ -625,8 +614,14 @@ def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash)
 	# calcul du nonce de l envoyeur de token . Ici le caller
 	nonce = w3.eth.getTransactionCount(address)  
 
+	# calcul de la signature
+	msg = Web3.solidityKeccak(['string','address', 'bytes' ], [[topicname, issuer, data]])
+	message = encode_defunct(text=msg)
+	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
+	signature=signed_message['signature']
+	
 	# Build transaction
-	txn=contract.functions.addClaim(topicvalue,1,issuer, '0x', '0x01',ipfshash ).buildTransaction({'chainId': constante.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, data,ipfshash ).buildTransaction({'chainId': constante.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
 	
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)

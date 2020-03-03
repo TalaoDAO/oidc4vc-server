@@ -43,38 +43,7 @@ def Proficiency(texte) :
 		return 2
 	else :
 		return False
-		
 
-###############################################################
-# read Talao profil
-###############################################################
-# return a dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
-
-
-def readProfil (address) :
-	givenName = 103105118101110078097109101
-	familyName = 102097109105108121078097109101
-	jobTitle = 106111098084105116108101
-	worksFor = 119111114107115070111114
-	workLocation = 119111114107076111099097116105111110
-	url = 117114108
-	email = 101109097105108
-	description = 100101115099114105112116105111110
-	
-	topicvalue =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-	topicname =['givenName', 'familyName', 'jobTitle', 'worksFor', 'workLocation', 'url', 'email', 'description']
-	
-	workspace_contract=Talao_token_transaction.ownersToContracts(address)
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	profil=dict()
-	index=0
-	for i in topicvalue :
-		claim=contract.functions.getClaimIdsByTopic(i).call()
-		claimId=claim[0].hex()
-		data = contract.functions.getClaim(claimId).call()
-		profil[topicname[index]]=data[4].decode('utf-8')
-		index=index+1
-	return profil
 
 ############################################
 # Creation d'un workspace from scratch
@@ -221,7 +190,7 @@ def createandpublishExperience(address, private_key, newexperience, email, passw
 ##############################################################
 #             MAIN
 ##############################################################
-
+# tous les claims sont signe par le controller (owner) -> self claim
 
 # Ouverture du fichier d'archive Talao_Identity.csv
 fname= constante.BLOCKCHAIN +"_Talao_Identity.csv"
@@ -245,35 +214,23 @@ name = resume['basics']["name"]
 firstname = resume['basics']['firstname']
 email = resume['basics']['email']
 (address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email)
-
-
-
-#CREATION DU CV JSON avec le did
-resume.update({'did' : {"@context" : "https://w3id.org/did/v1",
-	"id" : "did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
-	"controller" : address,
-	"created" : str(datetime.today()),
-	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}})
-filenamejson = "./json/"+constante.BLOCKCHAIN+'/'+address+".json"
-fjson=open(filenamejson,"w")
-cvjson=json.dumps(resume,indent=4)
-fjson.write(cvjson)
-fjson.close()   
-
+	
 		
-# UPLOAD DU PROFIL sous la forme de claim erc725
+# UPLOAD DU PROFIL
 worksFor = resume['basics']['company']
 jobTitle = resume['basics']['position']
 workLocation = ""
 url= resume['basics']['website']
 description = resume['basics']['summary']	
 Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
-# add claim725 pour autre info. Ces infos ne seront pas visible dans la freedapp:
-if resume["basics"]["birthdate"] != "" :
-	Talao_token_transaction.addclaim(workspace_contract, private_key, "birthdate", address, data, "")
-# sauvegarde de la photo
+# sauvegarde de la photo de profil
 if resume["basics"]["image"] != "" :
 	Talao_token_transaction.savepictureProfile(address, private_key, resume["basics"]["image"])
+# add claim725 pour autre info. Ces infos ne seront pas visible dans la freedapp:
+if resume["basics"]["birthdate"] != "" :
+	Talao_token_transaction.addclaim(workspace_contract, private_key, "birthdate", address, bytes(resume["basics"]["birthdate"], 'utf-8') , "")
+if resume["basics"]["socialsecurity"] != "" :
+	Talao_token_transaction.addclaim(workspace_contract, private_key, "socialsecurity", address, bytes(resume["basics"]["socialsecurity"], 'utf-8'), "")
 
 
 # UPLOAD DES EXPERIENCES
@@ -303,7 +260,6 @@ for i in range(0,len(resume['experience'])) :
 	print("Experience publiée = ", json.dumps(experience, indent=4))
 
 
-
 # UPLOAD DES DIPLOMES
 name =firstname+' '+name
 for i in range (0,len(resume['education'])) :
@@ -314,10 +270,10 @@ for i in range (0,len(resume['education'])) :
 	data = {'documentType': 40000,
 		'version': 2,
 		'recipient': {'name': name,
-		'title': jobTitle,
-		'email': email,
-		'ethereum_account': address,
-		'ethereum_contract': workspace_contract},
+			'title': jobTitle,
+			'email': email,
+			'ethereum_account': address,
+			'ethereum_contract': workspace_contract},
 		'issuer': {'organization': {'name': school_name}},
 		'diploma': {'title': diploma_title,
 			'description': diploma_description,
@@ -325,48 +281,61 @@ for i in range (0,len(resume['education'])) :
 			'to': todate,
 			'link': diploma_url}}
 	Talao_token_transaction.createDocument(address, private_key, 40000, data, False)
-	print( "Diplome publié = ",school_name,'   ', diploma_title, '   ', fromdate, '   ', todate)
+	print("Diplome publié = ", json.dumps(data, indent=4))
 
 
-# UPLOAD DES LANGUAGES et employabilité
+# UPLOAD DE L'EMPLOYABILITE
 lang=[]
 for i in range(0,len(resume['languages'])) :
 	langitem={"code": Language(resume['languages'][i]['language']),"profiency": Proficiency(resume['languages'][i]['fluency'])}	
 	lang.append(langitem)		
 employabilite={"documentType": 10000,
 	"version": 1,
-	"recipient": {
-	"name": name,
-	"title": jobTitle,
-	"email": email,
-	"ethereum_account": address,
-	"ethereum_contract": workspace_contract},
-	"availability": {
-	"dateCreated": "2020-02-21T15:35:02.374Z",
-    "availabilityWhen": None,
-    "availabilityFulltime": None,
-    "mobilityRemote": False,
-    "mobilityAreas": False,
-    "mobilityInternational": False,
-    "mobilityAreasList": [],
-    "rateCurrency": None,
-    "ratePrice": None,
-    "languages": lang}}	
+	"recipient": {"name": name,
+		"title": jobTitle,
+		"email": email,
+		"ethereum_account": address,
+		"ethereum_contract": workspace_contract},
+	"availability": {"dateCreated": str(datetime.today()),
+		"availabilityWhen": "",
+		"availabilityFulltime": True,
+		"mobilityRemote": False,
+		"mobilityAreas": False,
+		"mobilityInternational": False,
+		"mobilityAreasList": [],
+		"rateCurrency": "",
+		"ratePrice": "",
+		"languages": lang}}	
 Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False)
+print("Employabilite publiée = ", json.dumps(employabilite, indent=4))
 
 
-# calcul du temps
+# calcul de la duree de transaction et du cout
 time_fin=datetime.now()
 time_delta=time_fin-time_debut
 print('Durée des transactions = ', time_delta)
-print('')
-
-	
-# mise a jour du fichier archive Talao_Identity.csv
 a=w3.eth.getBalance(address)
 cost=0.04-a/1000000000000000000	
+print('Cout des transactions =', cost)	
+
+
+# mise a jour du fichier archive Talao_Identity.csv
 status="Identité créée par resume2talao"
 writer.writerow(( datetime.today(),name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
+
+
+# creation du fichier cv.json avec le did
+resume.update({'did' : {"@context" : "https://w3id.org/did/v1",
+	"id" : "did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
+	"controller" : address,
+	"created" : str(datetime.today()),
+	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}})
+filenamejson = "./json/"+constante.BLOCKCHAIN+'/'+address+".json"
+fjson=open(filenamejson,"w")
+cvjson=json.dumps(resume,indent=4)
+fjson.write(cvjson)
+fjson.close()   
+
 
 # fermeture des fichiers
 resumefile.close()
