@@ -30,9 +30,14 @@ def getdocument(index, workspace_contract) :
 		del data["recipient"]	
 		del data["documentType"]
 		del data["version"]
+		new_skills=[]
+		for j in range (0, len(data['certificate']['skills'])) :
+			new_skills.append(data['certificate']['skills'][j]['name'])
+		del data['certificate']['skills']
+		data['certificate']['skills']=new_skills
 	document=dict()
 	document["did"] = did
-	document["owner"] = address
+	document["controller"] = address
 	document["issuer"] = doc[3]
 	document["document"]={"type" : doc_type[doc[0]],
 		'@context' : "https://talao.io/did/document_documentation",
@@ -46,4 +51,4 @@ def getdocument(index, workspace_contract) :
 workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'  # pierre david houlle
 #workspace_contract='0x2164c21e2ca79FD205700597A7Cc3A3867E226F1'
 
-print (json.dumps(getdocument(10, workspace_contract), indent=4))
+print (json.dumps(getdocument(8, workspace_contract), indent=4))

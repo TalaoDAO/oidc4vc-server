@@ -45,7 +45,7 @@ def getclaim (claim_id, workspace_contract) :
 	else :
 		verification = None
 	claim["did"] = did
-	claim["owner"]=address
+	claim["controller"]=address
 	claim['@context'] = "https://talao.io/did/claim_documentation"
 	claim["issuer"] = issuer
 	claim['topic']=topicname

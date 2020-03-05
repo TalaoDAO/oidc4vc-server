@@ -77,7 +77,7 @@ did_document={
 # w3.soliditySha3(['address'], [address])
 
 
-"""
+
 # recherche des publicKey
 # MANAGEMENT keys
 data = contract.functions.getKeysByPurpose(1).call()
@@ -145,7 +145,7 @@ for i in range(0, len(data)) :
 		"type": "Secp256k1SignatureEncryption2018",
 		"controller" : key_controller,
 		"publicKey": ""	}})
-"""
+
 
 # SERVICES
 # Documents Talao

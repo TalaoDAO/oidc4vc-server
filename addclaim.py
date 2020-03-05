@@ -43,7 +43,6 @@ def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash)
 
 
 issuer='0xc883Eb9D7DA8f041B9085749E75dd371eBA07640'
-ipfshash="mlkjmklj"
 private_key='0xf73c5085c32410657f78851386d78e84042076e762c0d1360b4b972045817e2a'
 workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'  # pierre david houlle
 address={'name' : 'Thierry', 'street' : '16 rue de Wattignies', 'city' : 'Paris', 'city code' : '75012'}
