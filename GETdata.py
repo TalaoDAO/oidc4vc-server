@@ -88,18 +88,21 @@ def getdocument(index, workspace_contract) :
 		category = "company"	
 			
 	# determination du profil de l issuer
-	issuerprofile=GETresume.readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])	
+	(issuerprofile, x)=GETresume.readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])	
 
 	# mise en forme de la reponse de la fonction
+	#document={'id' : None, 'value' :None}
 	document=dict()
-	document['@context'] = "https://github.com/TalaoDAO/talao-contracts"
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
-	document["issuer"] = {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:], 'value' : issuerprofile}	
-	document['doctype'] = doc[0]
-	document['doctypeversion'] = doc[1]
-	document["expires"]= doc[2]
-	document["encrypted"] = doc[7]
-	document["storage"] = 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8')
+	document['value'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
+									'endpoint' : constante.endpoint+'resume/did:talao:rinkeby:'+whatisthisaddress(issuer)["workspace"][2:],
+									'value' : issuerprofile},	
+						'doctype': doc[0],
+						'doctypeversion' : doc[1],
+						"expires" : doc[2],
+						"signature" : 'yes',
+						"encrypted" : doc[7],
+						"storage" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8')}
 	
 	return document
 
@@ -146,7 +149,7 @@ def getclaim (claim_id, workspace_contract) :
 		category = "company"	
 		
 	# determination du profil de l issuer
-	issuerprofile=GETresume.readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
+	(issuerprofile,X)=GETresume.readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
 
 	# verification de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes(topicname, 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
@@ -154,17 +157,20 @@ def getclaim (claim_id, workspace_contract) :
 	signature=claimdata[3]
 	if signature != b"" :
 		signataire=w3.eth.account.recover_message(message, signature=signature)
+		signature=claimdata[3].hex()
 		if signataire==issuer :
 			verification=True
 		else :
 			verification=False	
 	else :
+		signature=None
 		verification = None
 	
 	# mise en forme de la reponse
-	claim['@context'] = "https://github.com/TalaoDAO/talao-contracts"
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
-	claim["issuer"] = {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],  'value' : issuerprofile}	
+	claim["issuer"] = {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
+					'endpoint' : constante.endpoint+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
+					'value' : issuerprofile}	
 	claim['topic']=topicname
 	if claimdata[5][:1]=="Q" :
 		urldata=client.get_json(claimdata[5])
@@ -172,9 +178,12 @@ def getclaim (claim_id, workspace_contract) :
 		urldata=claimdata[5]
 		urldata=claimdata[4].decode('utf-8')
 	claim['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
-	claim['signature'] = claimdata[3].hex()
+	claim['signature'] = signature
 	claim['authenticated']=verification
-	claim['url']=claimdata[5]
+	if claimdata[5]=="" :
+		claim['url']=None
+	else :
+		claim['url']=claimdata[5]
 	
 	return claim
 
@@ -192,23 +201,27 @@ def getclaim (claim_id, workspace_contract) :
 #data = 'thierry.XX@gmail.com'
 #data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:7' # david houlle skil value
 
-def GET_data(data) :
+def getdata(data) :
 
 	datasplit=data.split('@')
 	datasplit2=data.split(':')
 
 	# si data est un email
-	if len(datasplit) == 2 :	
+	if len(datasplit) == 2 :
+		if len(datasplit[1].split('.')) == 1 :
+			return data+' n est pas un email correct'
 		# recherche d'un did avec cet email
 		workspace_contract=getworkspacelist.email2contract(data)
 		if workspace_contract== False :
-			return 'Il n existe pas de workspace pour cet email'
+			return 'Il n existe pas de workspace pour '+data
 		else :
-			result=GETresume.getresume(workspace_contract)
-
+			did='did:talao:rinkeby:'+workspace_contract[2:]
+			result=GETresume.getresume(did)
+			return result
+			
 	# si data n'est pas un did
 	if datasplit2[0] != 'did' or len(datasplit2) not in [4,6] :
-		return 'ce n est pas un identifiant'
+		return data+' n est pas un identifiant'
 
 	# determination de l'addresse du workspace
 	workspace_contract='0x'+datasplit2[3]
@@ -223,7 +236,7 @@ def GET_data(data) :
 
 	# si data est un did	
 	if len(datasplit2) == 4  :
-		result=GETresume.getresume(workspace_contract)
+		result=GETresume.getresume(data)
 
 	return result
 

@@ -1,3 +1,4 @@
+import constante
 
 # pour faire un call a la fonction getContractIndex qui a un "only owner", il faut passer par une addresse importée en local au node
 

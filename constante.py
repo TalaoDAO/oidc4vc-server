@@ -4,6 +4,7 @@
 
 # /usr/local/bin/geth --rinkeby --syncmode 'light' --rpc
 
+endpoint='http://127.0.0.1:5000/talao/api/'
 
 
 BLOCKCHAIN='rinkeby' 

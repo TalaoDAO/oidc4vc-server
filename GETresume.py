@@ -119,10 +119,15 @@ def Proficiency(val) :
 # utilisation geth local et IPC en light mode
 # /usr/local/bin/geth --rinkeby --syncmode 'light' --rpc
 #from web3 import Web3
-def getresume(workspace_contract) :
+
+#   did:talao:rinkeby:6FD4Cb70c7894fd84AF0708aa12636CCfEf99Ecb
+def getresume(did) :
 	
-	# calcul du did et de l addresse
-	did='did:talao:rinkeby:'+workspace_contract[2:]		
+	didsplit=did.split(':')
+	workspace_contract='0x'+didsplit[3]
+	print (workspace_contract)
+	
+	# calcul de l addresse du oner
 	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()		
 		
@@ -134,7 +139,7 @@ def getresume(workspace_contract) :
 	if category==1001 :
 		
 		# initialisation du cv
-		cv={"profil": {},"experience": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}
+		cv={'id' : did, 'endpoint' : constante.endpoint+'resolver/'+did, 'value' :{"profil": {},"experience": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}}
 
 		# experiences
 		experienceIndex=getDocumentIndex(address, 50000, workspace_contract)
@@ -144,6 +149,7 @@ def getresume(workspace_contract) :
 			experience=Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 		'id' : did+':document:'+str(i),
+		'endpoint' : constante.endpoint+'data/'+did+':document:'+str(i),
 		'value' : {'title' : experience['certificate']['title'],
 		'description' : experience['certificate']['description'],
 		 'from' : experience['certificate']['from'],
@@ -151,7 +157,7 @@ def getresume(workspace_contract) :
 		 'organization' : experience['issuer']['organization']}}
 			del new_experience['value']['organization']['ethereum_contract']
 			del new_experience['value']['organization']['ethereum_account']
-			cv["experience"].append(new_experience)
+			cv['value']["experience"].append(new_experience)
 
 		# mise a jour des formations 
 		educationIndex=getDocumentIndex(address, 40000, workspace_contract)
@@ -159,7 +165,8 @@ def getresume(workspace_contract) :
 			doc=contract.functions.getDocument(i).call()
 			ipfs_hash=doc[6].decode('utf-8')
 			education=Talao_ipfs.IPFS_get(ipfs_hash)	
-			cv["education"].append({'id' : did+':document:'+str(i),
+			cv['value']["education"].append({'id' : did+':document:'+str(i),
+			'endpoint' : constante.endpoint+'data/'+did+':document:'+str(i),
 	'value' : {	"organization" : education["issuer"]["organization"]["name"],
 	 "endDate" : education["diploma"]["to"], 
 	 "startDate" : education["diploma"]["from"],
@@ -176,7 +183,7 @@ def getresume(workspace_contract) :
 		for j in range (0, len(skills)) :
 			skillsarray.append(skills[j]['name'])
 		# elimination des doublons
-		cv["skills"]=list(set(skillsarray))
+		cv['value']["skills"]=list(set(skillsarray))
 	
 		# mise a jour de la disponibilité, du TJM , de la mobilité et des langues
 		docIndex=getDocumentIndex(address, 10000, workspace_contract)
@@ -184,32 +191,32 @@ def getresume(workspace_contract) :
 			doc=getDocument(address, docIndex[0], workspace_contract)
 			
 			# disponibilité
-			cv["availability"]={"update" : doc["availability"]["dateCreated"],
+			cv['value']["availability"]={"update" : doc["availability"]["dateCreated"],
 	"availabilitywhen" : doc["availability"]["availabilityWhen"],
 	"availabilityfulltime" : doc["availability"]["availabilityFulltime"]}
 			# tjm
-			cv["rate"]= {"rateprice" : doc["availability"]["ratePrice"],
+			cv['value']["rate"]= {"rateprice" : doc["availability"]["ratePrice"],
 	"ratecurrency" : doc["availability"]["rateCurrency"]}
 			# mobilité
-			cv["mobility"]={"mobilityremote" : doc["availability"]["mobilityRemote"],
+			cv['value']["mobility"]={"mobilityremote" : doc["availability"]["mobilityRemote"],
 	"mobilityinternational" : doc["availability"]["mobilityInternational"], 
 	"mobilityareas" : doc["availability"]["mobilityAreas"],
 	"mobilityareaslist" : doc["availability"]["mobilityAreasList"]}
 			# langues
 			lang=doc["availability"]["languages"]
 			for i in range (0, len(lang)) :
-				cv["languages"].append({"language" : isolanguage.Language(lang[i]["code"]),
+				cv['value']["languages"].append({"language" : isolanguage.Language(lang[i]["code"]),
 		"fluency" : Proficiency(lang[i]["profiency"])})
 	
 	# c est une company
 	else :	
 		# initialisation du cv
-		cv={"profil": {}}
+		cv={'id' : did,'value' : {"profil": {}}}
 	
 	# mise en forme de la reponse
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
 	claimid=claim[0].hex()
-	cv["profil"]={"id" : did+':claim:'+claimid, "value" : profile}
+	cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimid, "value" : profile}
 	
 	return cv
