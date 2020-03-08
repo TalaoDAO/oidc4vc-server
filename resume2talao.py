@@ -210,27 +210,27 @@ time_debut=datetime.now()
 
 
 # CREATION DU WORKSPACE ET DU BACKEND
-name = resume['basics']["name"]
-firstname = resume['basics']['firstname']
-email = resume['basics']['email']
+name = resume['profil']["name"]
+firstname = resume['profil']['firstname']
+email = resume['profil']['email']
 (address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email)
 	
 		
 # UPLOAD DU PROFIL
-worksFor = resume['basics']['company']
-jobTitle = resume['basics']['position']
+worksFor = resume['profil']['company']
+jobTitle = resume['profil']['position']
 workLocation = ""
-url= resume['basics']['website']
-description = resume['basics']['summary']	
+url= resume['profil']['website']
+description = resume['profil']['summary']	
 Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
 # sauvegarde de la photo de profil
-if resume["basics"]["image"] != "" :
-	Talao_token_transaction.savepictureProfile(address, private_key, resume["basics"]["image"])
+if resume["profil"]["image"] != "" :
+	Talao_token_transaction.savepictureProfile(address, private_key, resume["profil"]["image"])
 # add claim725 pour autre info. Ces infos ne seront pas visible dans la freedapp:
-if resume["basics"]["birthdate"] != "" :
-	Talao_token_transaction.addclaim(workspace_contract, private_key, "birthdate", address, bytes(resume["basics"]["birthdate"], 'utf-8') , "")
-if resume["basics"]["socialsecurity"] != "" :
-	Talao_token_transaction.addclaim(workspace_contract, private_key, "socialsecurity", address, bytes(resume["basics"]["socialsecurity"], 'utf-8'), "")
+if resume["profil"]["birthdate"] != "" :
+	Talao_token_transaction.addclaim(workspace_contract, private_key, "birthdate", address, bytes(resume["profil"]["birthdate"], 'utf-8') , "")
+if resume["profil"]["socialsecurity"] != "" :
+	Talao_token_transaction.addclaim(workspace_contract, private_key, "socialsecurity", address, bytes(resume["profil"]["socialsecurity"], 'utf-8'), "")
 
 
 # UPLOAD DES EXPERIENCES
