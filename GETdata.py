@@ -192,41 +192,39 @@ def getclaim (claim_id, workspace_contract) :
 #data = 'thierry.XX@gmail.com'
 #data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:7' # david houlle skil value
 
+def GET_data(data) :
 
-data=input('entrez email ou did =')
-datasplit=data.split('@')
-datasplit2=data.split(':')
+	datasplit=data.split('@')
+	datasplit2=data.split(':')
 
-# si data est un email
-if len(datasplit) == 2 :	
-	# recherche d'un did avec cet email
-	workspace_contract=getworkspacelist.email2contract(data)
-	if workspace_contract== False :
-		print('Il n existe pas de workspace pour cet email')
-		sys.exit()
-	else :
+	# si data est un email
+	if len(datasplit) == 2 :	
+		# recherche d'un did avec cet email
+		workspace_contract=getworkspacelist.email2contract(data)
+		if workspace_contract== False :
+			return 'Il n existe pas de workspace pour cet email'
+		else :
+			result=GETresume.getresume(workspace_contract)
+
+	# si data n'est pas un did
+	if datasplit2[0] != 'did' or len(datasplit2) not in [4,6] :
+		return 'ce n est pas un identifiant'
+
+	# determination de l'addresse du workspace
+	workspace_contract='0x'+datasplit2[3]
+
+	# si data est un identifiant de document
+	if len(datasplit2) == 6 and datasplit2[4]== 'document' :
+		result=getdocument(int(datasplit2[5]), workspace_contract)
+
+	# si data est un identfiant de claim
+	if len(datasplit2) == 6 and datasplit2[4]== 'claim' :	
+		result = getclaim(datasplit2[5], workspace_contract)	
+
+	# si data est un did	
+	if len(datasplit2) == 4  :
 		result=GETresume.getresume(workspace_contract)
 
-# si data n'est pas un did
-if datasplit2[0] != 'did' or len(datasplit2) not in [4,6] :
-	print('ce n est pas un identifiant')
-	sys.exit()
-
-# determination de l'addresse du workspace
-workspace_contract='0x'+datasplit2[3]
-
-# si data est un identifiant de document
-if len(datasplit2) == 6 and datasplit2[4]== 'document' :
-	result=getdocument(int(datasplit2[5]), workspace_contract)
-
-# si data est un identfiant de claim
-if len(datasplit2) == 6 and datasplit2[4]== 'claim' :	
-	result = getclaim(datasplit2[5], workspace_contract)	
-
-# si data est un did	
-if len(datasplit2) == 4  :
-	result=GETresume.getresume(workspace_contract)
-
-print(json.dumps(result, indent=4))
+	return result
 
 

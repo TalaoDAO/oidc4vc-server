@@ -1,13 +1,26 @@
-import http.client, urllib.parse
-import Talao_ipfs
+#import http.client, urllib.parse
 from flask import Flask, jsonify
 from flask import request
 from flask_api import FlaskAPI
+import GETdata
 
-import Talao_token_transaction
+# https://flask.palletsprojects.com/en/1.1.x/quickstart/
+
 
 app = FlaskAPI(__name__)
 
+
+@app.route('/<data>', methods=['GET'])
+def get_data(data) :
+	return GETdata.GET_data(data)
+
+
+
+@app.route('/resolver/<data>', methods=['GET'])
+def get_data(data) :
+	return GETdata.GET_data(data)
+
+"""
 @app.route('/api/v1.0/profil', methods=['GET'])
 def get_profil():
 	address=request.data.get("address")
@@ -35,7 +48,7 @@ def get_skill():
 		_skills.extend(Talao_token_transaction.getDocument(address,50000, i)['certificate']['skills'])
 		i=i+1
 	return jsonify({'skills': _skills})
-
+"""
 
 if __name__ == '__main__':
     app.run(debug=True)
