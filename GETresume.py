@@ -4,8 +4,55 @@ import json
 import datetime
 import sys
 import isolanguage
-import GETresume
+import ipfshttpclient
+from eth_account.messages import encode_defunct
+
 from web3.auto import w3
+
+
+
+##############################################
+# detrmination de la nauter de l addresse
+##############################################
+# @thisaddress, address
+# return dictionnaire
+
+def whatisthisaddress(thisaddress) :
+
+	# est ce une addresse Ethereum ?
+	if w3.isAddress(thisaddress) == False :
+		category = False
+		owner = None
+		workspace= None	
+	else :
+		
+		# test sur la nature de thisaddress
+		contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+		address = contract.functions.contractsToOwners(thisaddress).call()
+		workspace=contract.functions.ownersToContracts(thisaddress).call()
+		
+		# thisaddress est un owner
+		if address == '0x0000000000000000000000000000000000000000' and workspace != '0x0000000000000000000000000000000000000000' :
+			category = "owner"
+			owner = thisaddress
+			workspace=workspace
+			
+		# thisaddress est un workspace
+		if address != '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
+			category = 'workspace'
+			owner=address
+			workspace=thisaddress
+		
+		# thisaddressn est une addresse ethereum standard
+		if address == '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
+			category = 'unknown'
+			owner = None
+			workspace = None
+			
+	return {"type" : category, "owner" : owner, 'workspace' : workspace}
+
+
+
 
 #########################################################################################
 # return profil comme dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
@@ -125,7 +172,6 @@ def getresume(did) :
 	
 	didsplit=did.split(':')
 	workspace_contract='0x'+didsplit[3]
-	print (workspace_contract)
 	
 	# calcul de l addresse du oner
 	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
@@ -208,15 +254,75 @@ def getresume(did) :
 				cv['value']["languages"].append({"language" : isolanguage.Language(lang[i]["code"]),
 		"fluency" : Proficiency(lang[i]["profiency"])})
 	
+	
+		# mise en forme de la reponse
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
+		claimid=claim[0].hex()
+		cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimid, "value" : profile}
+	
+		return cv
+	
+	
+	
 	# c est une company
 	else :	
+		
 		# initialisation du cv
-		cv={'id' : did,'value' : {"profil": {}}}
+		fiche={'id' : did,'endpoint' : constante.endpoint+'resolver/'+did, 'value' : {"profil": {}, 'kbis' : {}}}
+
+		# kbis
+		
+		# setup variable
+		kbis=dict()
+		
+		# initialisation IPFS
+		client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	
+		# doownload du claim
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim=contract.functions.getClaimIdsByTopic(107098105115).call()
+		claimId=claim[0].hex()
+		claimdata = contract.functions.getClaim(claimId).call()
+		issuer=claimdata[2]	
+		data=claimdata[4]
+		url=claimdata[5]
+			
+		# determination du profil de l issuer
+		(issuerprofile,X)=readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
+
+		# verification de la signature
+		msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes('kbis', 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
+		message = encode_defunct(text=msg.hex())
+		signature=claimdata[3]
+		if signature != b"" :
+			signataire=w3.eth.account.recover_message(message, signature=signature)
+			signature=claimdata[3].hex()
+			if signataire==issuer :
+				verification=True
+			else :
+				verification=False	
+		else :
+			signature= None
+			verification = False
 	
 	# mise en forme de la reponse
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
-	claimid=claim[0].hex()
-	cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimid, "value" : profile}
-	
-	return cv
+		if claimdata[5][:1]=="Q" :
+			data=client.get_json(claimdata[5])
+		else :
+			url=claimdata[5]
+			data=claimdata[4].decode('utf-8')
+		kbis['data']=data
+		if claimdata[5]=="" :
+			kbis['value']['url']=None
+		else :
+			kbis['url']=claimdata[5]
+		fiche['value']['kbis']={'id' :did+':claim:'+claimId, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimId, "value" : data['KBIS']}
+		
+		# mise en forme de la reponse
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
+		claimid=claim[0].hex()
+		fiche['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimid, "value" : profile}
+		print(fiche)	
+	return fiche

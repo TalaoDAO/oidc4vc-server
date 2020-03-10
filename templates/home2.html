@@ -1,0 +1,18 @@
+<!doctype html> <html lang= "en ">
+
+<title>Talent Connect</title>
+
+<head>
+<link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='main.css') }}">
+
+</head>
+
+<body>
+<h1>Talent Connect</h1> 
+
+<h3>Saisissez le code reçu par email</h3> 
+<form action= "./code/" method= "POST">
+<input type= "text" name= "mycode"> <button type= "submit">OK</button>
+</form>
+
+</body> </html>

@@ -113,6 +113,25 @@ def creationworkspacefromscratch(firstname, name, email):
 	status="Identité créée par resume2talao"
 	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
 	
+
+	#ajout d'un cle 3 a la fondation
+	owner_foundation = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'	       
+	#envoyer la transaction sur le contrat
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token . Ici le owner
+	nonce = w3.eth.getTransactionCount(address)  
+	# calcul du keccak
+	_key=w3.soliditySha3(['address'], [owner_foundation])
+	# Build transaction
+	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': constante.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	#sign transaction
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1)		
+	print("creation de cle 3 pour la fondation = ", hash1)
+	
 	return eth_a, eth_p, SECRET, workspace_contract_address,backend_Id, email, SECRET, AES_key
 
 ############################################################

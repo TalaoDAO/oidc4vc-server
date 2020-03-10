@@ -11,110 +11,25 @@ import json
 import datetime
 import Talao_backend_transaction
 import Talao_ipfs
-
-# trad lang
-def Language(lang) :
-	code=lang.lower()
-	if code == 'french' :
-		return "fr"
-	elif code == "english" :
-		return "en"
-	elif code == "german" :
-		return "ge"
-	elif code == "danish" :
-		return "da"
-	elif code=="spanish" :
-		return "sp"
-	elif code=="chineese" :
-		return "ch"		
-	elif code == "italian" :
-		return "it"	
-	elif code== "russian" :
-		return "ru"
-	elif code == "japaneese" :
-		return "ja"
-	elif code == "arabic" :
-		return "ar"
-	elif code == "polish" :
-		return "po"
-	elif code == "dutch" :
-		return "du"
-	elif code == "swedish" :
-		return "sw"				
-	else :
-		return ""	
+import GETresume
+import createidentity
 
 
-def Proficiency(texte) :
-	text=texte.lower()
-	if text == 'native or bilingual' :
-		return 5
-	if text == 'full professional' :
-		return 4
-	if text == 'elementary' or text =='null' :
-		return 1
-	if text == 'professional working' :
-		return 3
-	if text == 'limited working' :
-		return 2
-		
-	
+# données des test
+#data ='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:10' # David Houlle
+#data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
+data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b' # david houlle
+#data= 'did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' # TTF
+#data = 'did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
+#data = 'antoine.keriven@talao.io'
 
-# ouverture du fichier .csv
-fichiercsv=input('Entrer le nom du fichier CSV = ')
-with open(fichiercsv,newline='') as csvfile:
-	reader = csv.DictReader(csvfile)
-	
-	# pour chaque ligne du fichier = chaque identité/workspace
-	for row in reader:
-		# UPLOAD DES LANGUAGES et employabilité
-		lang=[]
-		for i in ['Language 1', 'Language 2', 'Language 3','Language 4', 'Language 5', 'Language 6', 'Language 7', 'Language 8', 'Language 9', 'Language 10'] :
-			chaine= row [i]
-			if len(chaine) != 0 and chaine != 'NULL' and chaine != " " :
-				langtab=chaine.split(',')
-				langitem={"code": Language(langtab[0]),"profiency": Proficiency(langtab[1])}	
-				lang.append(langitem)		
-		employabilite={
-  "documentType": 10000,
-  "version": 1,
-  "recipient": {
-    "name": 'name',
-    "title": 'jobTitle',
-    "email": 'email',
-    "ethereum_account": 'address',
-    "ethereum_contract": 'workspace_contract'
-  },
-  "availability": {
-    "dateCreated": "2020-02-21T15:35:02.374Z",
-    "availabilityWhen": 'null',
-    "availabilityFulltime": 'null',
-    "mobilityRemote": 'false',
-    "mobilityAreas": 'false',
-    "mobilityInternational": 'false',
-    "mobilityAreasList": [
-      
-    ],
-    "rateCurrency": 'null',
-    "ratePrice": "",
-    "languages": lang
-  }
-}	
-		print (employabilite)
-		#Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False)
+data='did:talao:rinkeby:7B47122cb8caa6d3c174BBCd067b361e011446f5' #AXA
 
 
-		print('')
-		saisie=input('next row ??? yes/no = ')
-		if saisie == "no" :
-			csvfile.close()
-			sys.exit(0)
+#did='did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' #TTF
 
-	csvfile.close()
-	sys.exit(0)
+firstname = ""
+name = ""
+email = "paul.atemps@talao.io"
 
-
-
-
-
-
+(eth_a, eth_p, SECRET, workspace_contract_address,backend_Id, email, SECRET, AES_key)=createidentity.creationworkspacefromscratch(firstname, name, email)	

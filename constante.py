@@ -15,7 +15,7 @@ workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
 ISSUER='certificates.talao.io:5011'
 DAPP_LINK= '\r\nDapp Link : http://vault.talao.io:4011/'
 WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
-GASPRICE='3'
+GASPRICE='5'
 
 
 
@@ -49,7 +49,10 @@ topic={'firstname' : 103105118101110078097109101,
 	'socialsecurity' : 115111099105097108115101099117114105116121,
 	'address' : 97100100114101115115,
 	'SIRET' : 83073082069084,
-	'contact' : 99111110116097099116
+	'contact' : 99111110116097099116,
+	'kbis' : 107098105115,
+	'auth_email' : 97117116104095101109097105108,
+	'auth_phone' : 97117116104095112104111110101
 	
 }
 

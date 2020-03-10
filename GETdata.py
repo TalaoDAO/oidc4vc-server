@@ -10,7 +10,7 @@ import datetime
 import sys
 import isolanguage
 import GETresume
-import getworkspacelist
+import nameservice
 
 
 ##############################################
@@ -93,16 +93,19 @@ def getdocument(index, workspace_contract) :
 	# mise en forme de la reponse de la fonction
 	#document={'id' : None, 'value' :None}
 	document=dict()
+	document['@context']='https://github.com/TalaoDAO/talao-contracts'
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
+	document['endpoint']=constante.endpoint+'data/'+document['id']
 	document['value'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
 									'endpoint' : constante.endpoint+'resume/did:talao:rinkeby:'+whatisthisaddress(issuer)["workspace"][2:],
 									'value' : issuerprofile},	
 						'doctype': doc[0],
 						'doctypeversion' : doc[1],
 						"expires" : doc[2],
-						"signature" : 'yes',
 						"encrypted" : doc[7],
-						"storage" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8')}
+						"storage" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
+						"signature" : True,
+						'authentication' : True}
 	
 	return document
 
@@ -163,27 +166,31 @@ def getclaim (claim_id, workspace_contract) :
 		else :
 			verification=False	
 	else :
-		signature=None
-		verification = None
+		signature= None
+		verification = False
 	
 	# mise en forme de la reponse
+	claim['@context'] = 'https://github.com/ethereum/EIPs/issues/735'
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
-	claim["issuer"] = {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
+	claim['endpoint']=constante.endpoint+'data/'+claim['id']
+	claim["value"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
 					'endpoint' : constante.endpoint+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
-					'value' : issuerprofile}	
-	claim['topic']=topicname
+					'value' : issuerprofile}}	
+	claim['value']['topic']=topicname
 	if claimdata[5][:1]=="Q" :
-		urldata=client.get_json(claimdata[5])
+		data=client.get_json(claimdata[5])
 	else :
-		urldata=claimdata[5]
-		urldata=claimdata[4].decode('utf-8')
-	claim['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
-	claim['signature'] = signature
-	claim['authenticated']=verification
+		url=claimdata[5]
+		data=claimdata[4].decode('utf-8')
+	claim['value']['data']=data
 	if claimdata[5]=="" :
-		claim['url']=None
+		claim['value']['url']=None
 	else :
-		claim['url']=claimdata[5]
+		claim['value']['url']='https://ipfs.infura.io/ipfs/'+claimdata[5]
+	claim['value']['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
+	claim['value']['signature'] = signature
+	claim['value']['authentication']=verification
+	
 	
 	return claim
 
@@ -201,18 +208,17 @@ def getclaim (claim_id, workspace_contract) :
 #data = 'thierry.XX@gmail.com'
 #data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:7' # david houlle skil value
 
-def getdata(data) :
+def getdata(data, register) :
 
 	datasplit=data.split('@')
 	datasplit2=data.split(':')
-
 	# si data est un email
 	if len(datasplit) == 2 :
 		if len(datasplit[1].split('.')) == 1 :
 			return data+' n est pas un email correct'
-		# recherche d'un did avec cet email
-		workspace_contract=getworkspacelist.email2contract(data)
-		if workspace_contract== False :
+		# recherche d'un did dans le regsitre nameservice
+		workspace_contract= register.get(data)
+		if workspace_contract== None :
 			return 'Il n existe pas de workspace pour '+data
 		else :
 			did='did:talao:rinkeby:'+workspace_contract[2:]
