@@ -96,6 +96,7 @@ def getdocument(index, workspace_contract) :
 	document['@context']='https://github.com/TalaoDAO/talao-contracts'
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
 	document['endpoint']=constante.endpoint+'data/'+document['id']
+	document["methods"]=["GET"]
 	document['value'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
 									'endpoint' : constante.endpoint+'resume/did:talao:rinkeby:'+whatisthisaddress(issuer)["workspace"][2:],
 									'value' : issuerprofile},	
@@ -103,9 +104,9 @@ def getdocument(index, workspace_contract) :
 						'doctypeversion' : doc[1],
 						"expires" : doc[2],
 						"encrypted" : doc[7],
-						"storage" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
+						"datalocation" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
 						"signature" : True,
-						'authentication' : True}
+						'signature_check' : True}
 	
 	return document
 
@@ -173,6 +174,7 @@ def getclaim (claim_id, workspace_contract) :
 	claim['@context'] = 'https://github.com/ethereum/EIPs/issues/735'
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
 	claim['endpoint']=constante.endpoint+'data/'+claim['id']
+	claim["methods"]=["GET"]
 	claim["value"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
 					'endpoint' : constante.endpoint+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
 					'value' : issuerprofile}}	
@@ -184,12 +186,12 @@ def getclaim (claim_id, workspace_contract) :
 		data=claimdata[4].decode('utf-8')
 	claim['value']['data']=data
 	if claimdata[5]=="" :
-		claim['value']['url']=None
+		claim['value']['data']=None
 	else :
-		claim['value']['url']='https://ipfs.infura.io/ipfs/'+claimdata[5]
+		claim['value']['datalocation']='https://ipfs.infura.io/ipfs/'+claimdata[5]
 	claim['value']['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
 	claim['value']['signature'] = signature
-	claim['value']['authentication']=verification
+	claim['value']['signature_check']=verification
 	
 	
 	return claim

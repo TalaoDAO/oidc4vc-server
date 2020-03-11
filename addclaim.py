@@ -18,7 +18,6 @@ def addClaim(workspace_contract_to, address_from,private_key_from, topicname, is
 	topicvalue=constante.topic[topicname]
 	
 	nonce = w3.eth.getTransactionCount(address_from)  
-	print('nonce', nonce)
 	
 	# calcul de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
@@ -36,7 +35,6 @@ def addClaim(workspace_contract_to, address_from,private_key_from, topicname, is
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	print(hash1)
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	return hash1
 """

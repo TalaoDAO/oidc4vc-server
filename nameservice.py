@@ -38,7 +38,7 @@ def buildregister() :
 	contractlist = contract.functions.getContractsIndex().call()
 	contractlist.reverse()
 	
-	# construction du registre
+	# ATTENTION construction du registre sur la base du claim "email" 
 	register=dict()
 	for i in contractlist :
 		contract=w3.eth.contract(i,abi=constante.workspace_ABI)
@@ -192,7 +192,7 @@ def getauth (workspace_contract) :
 # ou None, None	
 #	auth_email Topic : 97117116104095101109097105108
 #	auth_phone Topic : 97117116104095112104111110101
-# ces 2 claims sont initialisés a la creation ou par la fondation dans nameservice
+# ces 3 claims sont initialisés a la creation ou par la fondation dans nameservice
 	
 	
 	# provider IPC classique
@@ -200,26 +200,37 @@ def getauth (workspace_contract) :
 	my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
 	w3 = Web3(my_provider)
 	
-	# doownload de la liste des claims auth_phone et auth_email
+	# doownload de la liste des claims auth_phone, auth_email et auth_website
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claim_email=contract.functions.getClaimIdsByTopic(97117116104095101109097105108).call()
 	claim_phone=contract.functions.getClaimIdsByTopic(97117116104095112104111110101).call()
-	
+	claim_website=contract.functions.getClaimIdsByTopic(97117116104095119101098115105116101).call()
+
 	# determination de auth_email
-	if len(claim_email) == 0 :
-		auth_email = None
+	if len(claim_email) == 0 :  # si il n existe pas on prend l email de base du profil
+		claim_email=contract.functions.getClaimIdsByTopic(101109097105108).call()
+		claimdata_email=contract.functions.getClaim(claim_email[0]).call()
+		auth_email = claimdata_email[4].decode('utf-8')
 	else :
 		claimdata_email=contract.functions.getClaim(claim_email[0]).call()
 		auth_email = claimdata_email[4].decode('utf-8')
 	
 	# determination de auth_phone
-	if len(claim_phone) == 0 :
+	if len(claim_phone) == 0 :		
 		auth_phone = None
 	else :
 		claimdata_phone=contract.functions.getClaim(claim_phone[0]).call()
 		auth_phone= claimdata_phone[4].decode('utf-8')
 	
-	return auth_email, auth_phone
+	# determination de auth_website
+	if len(claim_website) == 0 :
+		auth_website = None
+	else :
+		claimdata_website=contract.functions.getClaim(claim_website[0]).call()
+		auth_website= claimdata_website[4].decode('utf-8')
+	
+	
+	return auth_email, auth_phone, auth_website
 	
 
 
