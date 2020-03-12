@@ -200,15 +200,9 @@ def getclaim (claim_id, workspace_contract) :
 ##############################################
 #   MAIN
 ##############################################
+# @data = email ou did ou document ou claim
 
-# données des test
-#data ='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:10' # David Houlle
-#data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
-#data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b' # david houlle
-#data= 'did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' # TTF
-#data = 'did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
-#data = 'thierry.XX@gmail.com'
-#data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:7' # david houlle skil value
+#   A refaire !!!!!!
 
 def getdata(data, register) :
 

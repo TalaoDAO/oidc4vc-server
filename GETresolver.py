@@ -50,9 +50,12 @@ def getresolver(did) :
 	"id": did,
 	"category" : cat[workspace_information[1]],
 	"controller" : address,
-	"authentication" : [{"type": "RsaVerificationKey2018",
+	"authentication" : [{"type": "Secp256k1SignatureVerificationKey2018",
 						"controller" : address,
-						"publicKeyPem": workspace_information[4].decode('utf_8')},
+						"EthereumKey": address},
+						{"type": "RsaVerificationKey2018",
+						"controller" : address,
+						"publicKeyPem": workspace_information[4].decode('utf_8')},			
 						{"type": "EmailAuthentication",
 						"controller" : address,
 						"email": auth_email},
@@ -74,7 +77,7 @@ def getresolver(did) :
 ########################################################################################	
 	if workspace_information[1] == 1001 :
 		
-		did_document["service"]['freedapp'] = { "endpoint" : "http://vault.talao.io:4011/visit/"+workspace_contract,
+		did_document["service"]['resume_viewer'] = { "endpoint" : "http://vault.talao.io:4011/visit/"+workspace_contract,
 				"method" : "GET",
 				"@context" : "https://talao.io/",
 				"description" : "have a look at my resume"}

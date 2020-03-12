@@ -26,26 +26,49 @@ email = ""
 def Main(data) :
 	return GETdata.getdata(data, register)
 
-	
+#####################################################
+#   RESOLVER
+#####################################################
+
+# API
 @app.route('/talao/api/resolver/<did>', methods=['GET'])
 def DID_document(did) :
 	return GETresolver.getresolver(did)
+
+# version html
+@app.route('/resolver/')
+def DID_document_html() :
+	return render_template("home_resolver.html")
+@app.route('/resolver/did/', methods=['POST'])
+def DID_document_html_1() :
+	did = request.form['did']
+	return GETresolver.getresolver(did)
+
+#####################################################
+#   AUTRES API
+#####################################################
+
 
 @app.route('/talao/api/data/<data>', methods=['GET'])
 def Data(data) :
 	return GETdata.getdata(data, register)
 
 @app.route('/talao/api/resume/<did>', methods=['GET'])
-def Resume(did) :
+def Resume_resolver(did) :
 	return GETresume.getresume(did)
 
+#####################################################
+#   Talent Connect
+#####################################################
+# @data = name ou did
 
-@app.route('/talao/talent_connect/<data>', methods=['GET'])
+# API
+@app.route('/talent_connect/api/<data>', methods=['GET'])
 def talentconnect(data) :
 	return GETdata.getdata(data, register)
 
 #####################################################
-#### Création d'une identité online##################
+#   CREATION IDENTITE ONLINE (html)
 #####################################################
 
 @app.route('/talao/auth/')
@@ -81,12 +104,28 @@ def POST_authentification_2() :
 #######################################################
 #name service
 #######################################################
+
+# API
 @app.route('/talao/api/nameservice/<name>', methods=['GET'])
 def GET_nameservice(name) :
 	a= register.get(name)
-	return {"did" : "did:talao:rinkeby:"+a[2:]}
+	if a== None :
+		return {"ERR" : "601"}
+	else :
+		return {"did" : "did:talao:rinkeby:"+a[2:]}
 
-
+# version html 
+@app.route('/nameservice/')
+def GET_nameservice_html() :
+	return render_template("home_nameservice.html")
+@app.route('/nameservice/name/', methods=['POST'])
+def DID_nameservice_html_1() :
+	name = request.form['name']
+	a= register.get(name)
+	if a == None :
+		return { 'message' : 'Il n existe pas de did avec cet identifiant'}
+	else :
+		return {"did" : "did:talao:rinkeby:"+a[2:]}
 
 
 

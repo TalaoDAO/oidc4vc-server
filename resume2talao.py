@@ -13,6 +13,7 @@ import Talao_backend_transaction
 import Talao_message
 import Talao_ipfs
 import isolanguage
+import addclaim
 
 from web3 import Web3
 my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
@@ -85,9 +86,9 @@ def creationworkspacefromscratch(firstname, name, email):
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
-	# Transaction pour le transfert de 0.04 ethers depuis le portfeuille TalaoGen
-	hash1=Talao_token_transaction.ether_transfer(eth_a, 40)
-	print('hash de transfert de 0.04 eth = ',hash1)
+	# Transaction pour le transfert de 0.08 ethers depuis le portfeuille TalaoGen
+	hash1=Talao_token_transaction.ether_transfer(eth_a, 80)
+	print('hash de transfert de 0.08 eth = ',hash1)
 	
 	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
 	hash2=Talao_token_transaction.token_transfer(eth_a,100)
@@ -117,15 +118,15 @@ def creationworkspacefromscratch(firstname, name, email):
 	#ajout d'un cle 3 a la fondation
 	owner_foundation = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'	       
 	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le owner
-	nonce = w3.eth.getTransactionCount(address)  
+	nonce = w3.eth.getTransactionCount(eth_a)  
 	# calcul du keccak
 	_key=w3.soliditySha3(['address'], [owner_foundation])
 	# Build transaction
 	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': constante.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+	signed_txn=w3.eth.account.signTransaction(txn,eth_p)
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
@@ -247,9 +248,9 @@ if resume["profil"]["image"] != "" :
 	Talao_token_transaction.savepictureProfile(address, private_key, resume["profil"]["image"])
 # add claim725 pour autre info. Ces infos ne seront pas visible dans la freedapp:
 if resume["profil"]["birthdate"] != "" :
-	Talao_token_transaction.addclaim(workspace_contract, private_key, "birthdate", address, bytes(resume["profil"]["birthdate"], 'utf-8') , "")
+	addclaim.addClaim(workspace_contract, address, private_key, "birthdate", address, resume["profil"]["birthdate"] , "")
 if resume["profil"]["socialsecurity"] != "" :
-	Talao_token_transaction.addclaim(workspace_contract, private_key, "socialsecurity", address, bytes(resume["profil"]["socialsecurity"], 'utf-8'), "")
+	addclaim.addClaim(workspace_contract, address, private_key, "socialsecurity", address, resume["profil"]["socialsecurity"], "")
 
 
 # UPLOAD DES EXPERIENCES
@@ -334,7 +335,7 @@ time_fin=datetime.now()
 time_delta=time_fin-time_debut
 print('Durée des transactions = ', time_delta)
 a=w3.eth.getBalance(address)
-cost=0.04-a/1000000000000000000	
+cost=0.08-a/1000000000000000000	
 print('Cout des transactions =', cost)	
 
 

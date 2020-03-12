@@ -187,7 +187,69 @@ def getresume(did) :
 	if category==1001 :
 		
 		# initialisation du cv
-		cv={'id' : did, 'endpoint' : constante.endpoint+'resolver/'+did, 'methods' : ['GET'],'value' :{"profil": {},"experience": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}}
+		cv={'id' : did,
+			'endpoint' : constante.endpoint+'resolver/'+did,
+			'methods' : ['GET'],
+			'value' :{"profil": {},
+				"nationalidentity" : {"passport" : None, "kyc" : None, "driving_license" : None},
+				"experience": [],
+				"education": [],
+				"skills": [{"keywords": []}],
+				"languages": [],
+				"availability" : {},
+				"mobility" : {},
+				"rate" : {}}}
+
+
+		# KYC
+		
+		# setup variable
+		kyc=dict()
+		# initialisation IPFS
+		client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	
+		# download du claim du dernier kyc 107121099 => le dernier est supposé etre le bon ...................a discuter !!!!
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim=contract.functions.getClaimIdsByTopic(107121099).call()
+		if len(claim) == 0 : # pas de KBIS
+			cv['value']['nationalidentity']["kyc"]=None 
+		else : 			
+			claimId=claim[len(claim)-1].hex()
+			claimdata = contract.functions.getClaim(claimId).call()
+			issuer=claimdata[2]	
+			data=claimdata[4]
+			url=claimdata[5]
+			# determination du profil de l issuer du KYC
+			(issuerprofile,X)=readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
+			# verification de la signature du KYC
+			msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes('kbis', 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
+			message = encode_defunct(text=msg.hex())
+			signature=claimdata[3]
+			if signature != b"" :
+				signataire=w3.eth.account.recover_message(message, signature=signature)
+				signature=claimdata[3].hex()
+				if signataire==issuer :
+					verification=True
+				else :
+					verification=False	
+			else :
+				signature= None
+				verification = False
+			# mise en forme du KYC
+			if claimdata[5][:1]=="Q" :
+				data=client.get_json(claimdata[5])
+			else :
+				url=claimdata[5]
+				data=claimdata[4].decode('utf-8')
+			kyc['data']=data
+			if claimdata[5]=="" :
+				kyc['value']['url']=None
+			else :
+				kyc['url']=claimdata[5]
+			
+			cv['value']['nationalidentity']["kyc"]={'id' :did+':claim:'+claimId, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
+		
+
 
 		# experiences
 		experienceIndex=getDocumentIndex(address, 50000, workspace_contract)
@@ -208,6 +270,25 @@ def getresume(did) :
 			del new_experience['value']['organization']['ethereum_account']
 			cv['value']["experience"].append(new_experience)
 
+		# certificates
+		experienceIndex=getDocumentIndex(address, 60000, workspace_contract)
+		for i in experienceIndex:
+			doc=contract.functions.getDocument(i).call()
+			ipfs_hash=doc[6].decode('utf-8')
+			experience=Talao_ipfs.IPFS_get(ipfs_hash)
+			new_experience = {
+		'id' : did+':document:'+str(i),
+		'endpoint' : constante.endpoint+'data/'+did+':document:'+str(i),
+		'methods' : ['GET'],
+		'value' : {'title' : experience['certificate']['title'],
+		'description' : experience['certificate']['description'],
+		 'from' : experience['certificate']['from'],
+		 'to' : experience['certificate']['to'],
+		 'organization' : experience['issuer']['organization']}}
+			del new_experience['value']['organization']['ethereum_contract']
+			del new_experience['value']['organization']['ethereum_account']
+			cv['value']["experience"].append(new_experience)
+		
 		# mise a jour des formations 
 		educationIndex=getDocumentIndex(address, 40000, workspace_contract)
 		for i in educationIndex:

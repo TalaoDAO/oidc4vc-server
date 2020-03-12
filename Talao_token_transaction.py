@@ -307,6 +307,54 @@ def createDocument(address, private_key, doctype, data, encrypted) :
 	return hash
 
 
+
+###################################################################
+# issue certifica 250000 000 gas
+# @data = dictionnaire = {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }}
+# @encrypted = False ou True => AES
+# location engine = 1 pour IPFS, doctypeversion = 1, expire =Null, 
+###################################################################
+#   
+#      function issueCertificate(
+#        uint16 _docType,
+#        uint16 _docTypeVersion,
+#        bytes32 _fileChecksum,
+#        uint16 _fileLocationEngine,
+#        bytes _fileLocationHash,
+#        bool _encrypted,
+#        uint16 _related
+
+def createCertificate(address_to, address_from, private_key_from, doctype, data, encrypted, related) :
+	
+	
+	# lecture de l'adresse du workspace contract dans la fondation
+	workspace_contract_to=ownersToContracts(address_to)
+
+	#envoyer la transaction sur le contrat
+	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+
+	# calcul du nonce de l envoyeur de token
+	nonce = w3.eth.getTransactionCount(address_from)  
+
+	# stocke sur ipfs (un dictionnaire)
+	ipfshash=Talao_ipfs.IPFS_add(data)
+	
+	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
+	_data= json.dumps(data)
+	checksum=hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
+	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
+
+	# Build transaction
+	txn = contract.functions.issueCertificate(doctype,1,checksum,1, bytes(ipfshash, 'utf-8'), encrypted, related).buildTransaction({'chainId': constante.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	
+	#sign transaction
+	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
+	
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1)		
+	return hash1
  
 ############################################################
 #  Mise a jour de la photo
@@ -612,10 +660,12 @@ def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash)
 	topicvalue=constante.topic[topicname]
 	
 	# calcul du nonce de l envoyeur de token . Ici le caller
-	nonce = w3.eth.getTransactionCount(address)  
+	nonce = w3.eth.getTransactionCount(issuer)  
+	
+	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
 
 	# calcul de la signature
-	msg = Web3.solidityKeccak(['string','address', 'bytes' ], [[topicname, issuer, data]])
+	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
 	message = encode_defunct(text=msg)
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
 	signature=signed_message['signature']

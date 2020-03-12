@@ -5,7 +5,7 @@ from eth_account.messages import encode_defunct
 import ipfshttpclient
 
 #################################################
-#  add self claim
+#  add claim
 #################################################
 # @data : str
 # @topicname : type str , 'contact'
