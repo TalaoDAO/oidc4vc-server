@@ -22,6 +22,25 @@ app = FlaskAPI(__name__)
 code = ""
 email = ""
 
+
+# TEST
+# version html
+@app.route('/test/')
+def test_html() :
+	return render_template("formulaire.html")
+@app.route('/test/', methods=['POST'])
+def test_html_1() :
+	name = request.form['name']
+	email = request.form['email']
+	return {"name =" : name, "email" : email}
+
+
+
+
+
+
+
+
 @app.route('/talao/api/<data>', methods=['GET'])
 def Main(data) :
 	return GETdata.getdata(data, register)
@@ -60,7 +79,7 @@ def Resume_resolver(did) :
 #####################################################
 #   Talent Connect
 #####################################################
-# @data = name ou did
+# @data = did
 
 # API
 @app.route('/talent_connect/api/<data>', methods=['GET'])
@@ -106,13 +125,20 @@ def POST_authentification_2() :
 #######################################################
 
 # API
-@app.route('/talao/api/nameservice/<name>', methods=['GET'])
+@app.route('/nameservice/api/<name>', methods=['GET'])
 def GET_nameservice(name) :
 	a= register.get(name)
 	if a== None :
 		return {"ERR" : "601"}
 	else :
 		return {"did" : "did:talao:rinkeby:"+a[2:]}
+
+
+@app.route('/nameservice/api/reload/', methods=['GET'])
+def GET_nameservice_reload() :
+	nameservice.buildregister()
+	return "relaod done"
+
 
 # version html 
 @app.route('/nameservice/')

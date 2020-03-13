@@ -115,7 +115,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
 	
 
-	#ajout d'un cle 3 a la fondation
+	#ajout d'un cle 3 a la fondation pour la gestion du nameservice
 	owner_foundation = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'	       
 	#envoyer la transaction sur le contrat
 	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)

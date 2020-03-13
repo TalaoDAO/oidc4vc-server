@@ -40,8 +40,6 @@ def getresolver(did) :
 	workspace_information=contract.functions.identityInformation().call()
 	cat={1001 : "user", 2001 : "company", 3001 : "unknown", 4001 : "unknoown", 5001 : "unknown"}
 	
-	# to be done
-	(auth_email, auth_phone, auth_website) = nameservice.getauth(workspace_contract)
 	
 	
 	# structure du DID Document
@@ -56,12 +54,6 @@ def getresolver(did) :
 						{"type": "RsaVerificationKey2018",
 						"controller" : address,
 						"publicKeyPem": workspace_information[4].decode('utf_8')},			
-						{"type": "EmailAuthentication",
-						"controller" : address,
-						"email": auth_email},
-						{"type": "SMSAuthentication, WhatsAppAuthentication, TelegramAuthentication",
-						"controller" : address,
-						"phone": auth_phone},
 						{"type": "DNSAuthentication",
 						"controller" : address,
 						"website": auth_website}
@@ -115,6 +107,13 @@ def getresolver(did) :
 #                     COMPANY et les autres...................
 ########################################################################################	
 	else : 
+		
+			# gestion de l authentification sur le nom de domaine 	
+		(auth_nameservice, auth_website) = nameservice.getauth(workspace_contract)
+
+		did_document["authentication"].append({"type": "DNSAuthentication",
+						"controller" : address,
+						"website": auth_website})
 		
 		did_document["service"]["publicdata"] = { "endpoint" : "http://127.0.0.1:5000/talao/api/resume/"+ did,
 				"method" : "GET",
