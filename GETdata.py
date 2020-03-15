@@ -1,6 +1,5 @@
 import json
 import constante
-from web3.auto import w3
 import ipfshttpclient
 from eth_account.messages import encode_defunct
 import Talao_ipfs
@@ -12,6 +11,12 @@ import isolanguage
 import GETresume
 import nameservice
 
+
+
+# provider IPC classique
+from web3 import Web3
+my_provider = Web3.IPCProvider(constante.IPCProvider)
+w3 = Web3(my_provider)
 
 ##############################################
 # detrmination de la nauter de l addresse

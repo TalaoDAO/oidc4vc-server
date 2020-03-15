@@ -4,7 +4,7 @@ import json
 # retourne une chaine str
 # en entrée un dictionnaire {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }}
 def IPFS_add(json_data) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=35000)
 	response=client.add_json(json_data)
 	response2=client.pin.add(response)
 	return response

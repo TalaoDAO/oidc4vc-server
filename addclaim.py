@@ -1,8 +1,13 @@
 import json
 import constante
-from web3.auto import w3
 from eth_account.messages import encode_defunct
 import ipfshttpclient
+
+
+# provider IPC classique
+from web3 import Web3
+my_provider = Web3.IPCProvider(constante.IPCProvider)
+w3 = Web3(my_provider)
 
 #################################################
 #  add claim

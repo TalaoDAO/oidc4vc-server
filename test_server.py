@@ -1,5 +1,5 @@
 #import http.client, urllib.parse
-from flask import Flask, jsonify
+from flask import Flask, jsonify, session
 from flask import request
 from flask_api import FlaskAPI
 from Crypto.Random import get_random_bytes
@@ -11,6 +11,7 @@ import GETresume
 import nameservice
 import Talao_message
 import createidentity
+import constante
 
 from flask import render_template
 
@@ -18,23 +19,8 @@ from flask import render_template
 
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
-
-code = ""
-email = ""
-
-
-# TEST
-# version html
-@app.route('/test/')
-def test_html() :
-	return render_template("formulaire.html")
-@app.route('/test/', methods=['POST'])
-def test_html_1() :
-	name = request.form['name']
-	email = request.form['email']
-	return {"name =" : name, "email" : email}
-
-
+app.config["SECRET_KEY"] = "OCML3BRawWEUeaxcuKHLpw"
+tabcode = dict()
 
 
 
@@ -87,8 +73,12 @@ def talentconnect(data) :
 	return GETdata.getdata(data, register)
 
 #####################################################
-#   CREATION IDENTITE ONLINE (html)
+#   CREATION IDENTITE ONLINE (html) pour le site talao.io
 #####################################################
+"""
+le user reçoit par email les informations concernant son identité
+Talao dispose d'une copie de la clé
+"""
 
 @app.route('/talao/auth/')
 def authentification() :
@@ -97,26 +87,26 @@ def authentification() :
 ### recuperation de l email
 @app.route('/talao/auth/', methods=['POST'])
 def POST_authentification_1() :
-	global email
-	global code
+	global tabcode
 	email = request.form['email']
 	if register.get(email) != None :
 		return  {'message' : 'Email deja utilisé'}
 	code = get_random_bytes(3).hex()
+	tabcode[email]=code
+	session['email']=email
 	Talao_message.messageAuth(email, code)
 	return render_template("home2.html")
 
 # recuperation du code
 @app.route('/talao/auth/code/', methods=['POST'])
 def POST_authentification_2() :
-	global email
+	email=session.get('email')
 	mycode = request.form['mycode']
-	mycode = code  # a retirer ensuite
-	if mycode == code :
-		(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch("", "", email)	
-		return { "address" : address, "did" : "did:talao:rinkeby:"+workspace_contract[2:], "authentification" : email }
+	if mycode == tabcode[email] :
+		#(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch("", "", email)	
+		return { 'code juste' : tabcode[email] }
 	else :
-		return { 'message' : 'Code incorect'}
+		return { 'ERROR' : 'false code'}
 
 
 
@@ -127,12 +117,11 @@ def POST_authentification_2() :
 # API
 @app.route('/nameservice/api/<name>', methods=['GET'])
 def GET_nameservice(name) :
-	a= register.get(name)
+	a= nameservice.address(name)
 	if a== None :
 		return {"ERR" : "601"}
 	else :
 		return {"did" : "did:talao:rinkeby:"+a[2:]}
-
 
 @app.route('/nameservice/api/reload/', methods=['GET'])
 def GET_nameservice_reload() :
@@ -147,9 +136,9 @@ def GET_nameservice_html() :
 @app.route('/nameservice/name/', methods=['POST'])
 def DID_nameservice_html_1() :
 	name = request.form['name']
-	a= register.get(name)
+	a= nameservice.address(name,register)
 	if a == None :
-		return { 'message' : 'Il n existe pas de did avec cet identifiant'}
+		return {'Il n existe pas de did avec cet identifiant' :0}
 	else :
 		return {"did" : "did:talao:rinkeby:"+a[2:]}
 
@@ -207,8 +196,10 @@ def get_skill():
 """
 
 # setup du registre nameservice
-register=nameservice.buildregister()
-
+print('debut de la creation du registre')
+register={"pierre" : "0x4"}
+#register=nameservice.buildregister()
+print('initialisation du serveur')
 
 if __name__ == '__main__':
 	#app.run(host = "192.168.0.34", port= 5000, debug=True)

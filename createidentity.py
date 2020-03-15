@@ -1,3 +1,7 @@
+"""
+Pour la cration d'un workspace vierge depuis une page htmp
+
+"""
 import sys
 import csv
 from Crypto.PublicKey import RSA
@@ -13,9 +17,10 @@ import Talao_backend_transaction
 import Talao_message
 import Talao_ipfs
 import nameservice
+import constante
 
 from web3 import Web3
-my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
+my_provider = Web3.IPCProvider(constante.IPCProvider)
 w3 = Web3(my_provider)
 
 import constante
@@ -82,7 +87,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET)
 
 	# envoi du message de log
-	status="Identité créée par resume2talao"
+	status="Identité créée par createidentity.py"
 	# changer le destinataire
 	Talao_message.messageLog(name, firstname, 'thierry.thevenet@talao.io',status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
 	
@@ -104,7 +109,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	w3.eth.waitForTransactionReceipt(hash1)		
 	
 	# mise a jour de auth_email par la fondation
-	nameservice.writeauthemail(email, workspace_contract_address) 
+	#nameservice.writeauthemail(email, workspace_contract_address) 
 	
 	#ajout d'un cle 3 a Talao
 	owner_talao = '0xE7d045966ABf7cAdd026509fc485D1502b1843F1'	       

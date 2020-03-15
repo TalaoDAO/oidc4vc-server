@@ -1,9 +1,13 @@
 import Talao_token_transaction
 import Talao_ipfs
 import hashlib
-from web3.auto import w3
 import constante
 import json
+
+# provider IPC classique
+from web3 import Web3
+my_provider = Web3.IPCProvider(constante.IPCProvider)
+w3 = Web3(my_provider)
 
 ###################################################################
 # Création de document 250000 000 gas

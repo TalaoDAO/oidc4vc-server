@@ -1,4 +1,3 @@
-from web3.auto import w3
 import constante
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
@@ -11,6 +10,12 @@ import json
 import ipfshttpclient
 from datetime import datetime
 from eth_account.messages import encode_defunct
+
+
+# provider IPC classique
+from web3 import Web3
+my_provider = Web3.IPCProvider(constante.IPCProvider)
+w3 = Web3(my_provider)
 
 
 ############################################################

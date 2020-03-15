@@ -6,7 +6,7 @@ import ipfshttpclient
 import nameservice
 
 from web3 import Web3
-my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
+my_provider = Web3.IPCProvider(constante.IPCProvider)
 w3 = Web3(my_provider)
 	
 
@@ -53,10 +53,8 @@ def getresolver(did) :
 						"EthereumKey": address},
 						{"type": "RsaVerificationKey2018",
 						"controller" : address,
-						"publicKeyPem": workspace_information[4].decode('utf_8')},			
-						{"type": "DNSAuthentication",
-						"controller" : address,
-						"website": auth_website}
+						"publicKeyPem": workspace_information[4].decode('utf_8')}			
+						
 						
 						],
 	"publicKey": [],
@@ -108,12 +106,6 @@ def getresolver(did) :
 ########################################################################################	
 	else : 
 		
-			# gestion de l authentification sur le nom de domaine 	
-		(auth_nameservice, auth_website) = nameservice.getauth(workspace_contract)
-
-		did_document["authentication"].append({"type": "DNSAuthentication",
-						"controller" : address,
-						"website": auth_website})
 		
 		did_document["service"]["publicdata"] = { "endpoint" : "http://127.0.0.1:5000/talao/api/resume/"+ did,
 				"method" : "GET",

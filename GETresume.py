@@ -7,7 +7,10 @@ import isolanguage
 import ipfshttpclient
 from eth_account.messages import encode_defunct
 
-from web3.auto import w3
+# provider IPC classique
+from web3 import Web3
+my_provider = Web3.IPCProvider(constante.IPCProvider)
+w3 = Web3(my_provider)
 
 
 

@@ -16,7 +16,7 @@ import isolanguage
 import addclaim
 
 from web3 import Web3
-my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
+my_provider = Web3.IPCProvider(constante.IPCprovider)
 w3 = Web3(my_provider)
 
 import constante

@@ -16,7 +16,7 @@ ISSUER='certificates.talao.io:5011'
 DAPP_LINK= '\r\nDapp Link : http://vault.talao.io:4011/'
 WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
 GASPRICE='5'
-
+IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 
 
 """
@@ -68,7 +68,8 @@ topic={'firstname' : 103105118101110078097109101,  # = givenName
 	'auth_phone' : 97117116104095112104111110101,
 	'auth_website' : 97117116104095119101098115105116101,
 	'kyc' : 107121099,
-	'auth_nameservice' : 97117116104095110097109101115101114118105099101
+	'auth_nameservice' : 97117116104095110097109101115101114118105099101,
+	'nameservice' : 110097109101115101114118105099101
 	
 }
 
