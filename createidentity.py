@@ -1,9 +1,10 @@
 """
-Pour la cration d'un workspace vierge depuis une page htmp
+Pour la cration d'un workspace vierge depuis une page html
 
 """
 import sys
 import csv
+from Crypto.Protocol.KDF import PBKDF2
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
@@ -23,11 +24,17 @@ from web3 import Web3
 my_provider = Web3.IPCProvider(constante.IPCProvider)
 w3 = Web3(my_provider)
 
-import constante
-
 # wallet de Talaogen
 talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
 talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
+
+
+# deterministic RSA rand function
+def my_rand(n):
+    # kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG
+    my_rand.counter += 1
+    return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
+
 
 
 ############################################
@@ -37,12 +44,22 @@ talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a8
 def creationworkspacefromscratch(firstname, name, email): 
 
 	# creation de la wallet	
-	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
+	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	eth_a=account.address
 	eth_p=account.privateKey.hex()
 	
-	# création de la cle RSA (bytes), des cle public et privées
-	RSA_key = RSA.generate(2048)
+	# création de la cle RSA (bytes) aleatoire, des cle public et privées
+	#RSA_key = RSA.generate(2048)
+	#RSA_private = RSA_key.exportKey('PEM')
+	#RSA_public = RSA_key.publickey().exportKey('PEM')
+
+	# création de la cle RSA (bytes) deterministic
+	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
+	password = "suc2cane"   # for testing
+	salt = eth_p
+	master_key = PBKDF2(password, salt, count=10000)  # bigger count = better
+	my_rand.counter = 0
+	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	RSA_private = RSA_key.exportKey('PEM')
 	RSA_public = RSA_key.publickey().exportKey('PEM')
 

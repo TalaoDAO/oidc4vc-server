@@ -51,10 +51,7 @@ def canregister(email) :
 	data = json.dumps(payload)
 	conn.request('POST', '/user_available_email',data, headers)
 	response = conn.getresponse()
-
-	print('analyse de getresponse =',response.status, response.reason)
 	res=response.read()
-	print(json.loads(res)['available'])
 	return json.loads(res)['available']
 
 

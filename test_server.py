@@ -1,6 +1,6 @@
 #import http.client, urllib.parse
 from flask import Flask, jsonify, session
-from flask import request
+from flask import request, redirect, url_for
 from flask_api import FlaskAPI
 from Crypto.Random import get_random_bytes
 import json
@@ -12,6 +12,7 @@ import nameservice
 import Talao_message
 import createidentity
 import constante
+import Talao_backend_transaction
 
 from flask import render_template
 
@@ -78,36 +79,62 @@ def talentconnect(data) :
 """
 le user reçoit par email les informations concernant son identité
 Talao dispose d'une copie de la clé
+On test si l email existe dans le back end
 """
 
-@app.route('/talao/auth/')
+@app.route('/talao/register/')
 def authentification() :
-	return render_template("home.html")
+	return render_template("home.html",message='Aucun')
 
 ### recuperation de l email
-@app.route('/talao/auth/', methods=['POST'])
+@app.route('/talao/register/', methods=['POST'])
 def POST_authentification_1() :
 	global tabcode
+	
+	# verification de l email dans le backend
 	email = request.form['email']
-	if register.get(email) != None :
-		return  {'message' : 'Email deja utilisé'}
-	code = get_random_bytes(3).hex()
-	tabcode[email]=code
+	session['lastname']=request.form['lastname']
+	session['firstname']=request.form['firstname']
 	session['email']=email
+	print('email = ', email)
+	check_backend=Talao_backend_transaction.canregister(email)
+	print('check backend =',check_backend) 
+	if check_backend == False :
+		return render_template("home.html", message = 'Email already in Backend')
+	
+	# envoi du code secret par email
+	code = get_random_bytes(3).hex()
+	print('code secret = ', code)
+	tabcode[email]=code
+		
+	# envoi message de control du code
 	Talao_message.messageAuth(email, code)
-	return render_template("home2.html")
+	print('message envoyé à ', email)
+	print('name = ', request.form['lastname'])
+	print('firstname =', request.form['firstname'])
 
-# recuperation du code
-@app.route('/talao/auth/code/', methods=['POST'])
+	return render_template("home2.html", message = 'email avec code envoyé')
+
+# recuperation du code saisi
+@app.route('/talao/register/code/', methods=['POST'])
 def POST_authentification_2() :
 	email=session.get('email')
+	lastname=session.get('lastname')
+	firstname=session.get('firstname')
 	mycode = request.form['mycode']
+	print(firstname, '  ', lastname, '   ', email)
+	print('code retourné = ', mycode)
 	if mycode == tabcode[email] :
-		#(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch("", "", email)	
-		return { 'code juste' : tabcode[email] }
+		print('appel de createidentity avec firtsname = ', firstname, ' name = ', lastname, ' email = ', email)
+		#(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch(firstname, name, email)	
+		mymessage = 'workspace will be available within a couple of minutes' 
 	else :
-		return { 'ERROR' : 'false code'}
+		mymessage = 'false code'
+	return render_template("home3.html", message = mymessage)
 
+@app.route('/talao/register/code/', methods=['GET'])
+def POST_authentification_3() :
+	return redirect(url_for('authentification'))
 
 
 #######################################################

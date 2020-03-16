@@ -5,15 +5,24 @@
 <head>
 <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='main.css') }}">
 
+<style>
+message    {color: red;}
+</style>
 </head>
 
 <body>
-<h1>Talent Connect</h1> 
-<h1>Création d'une identité décentralisée on line</h1>
-<h3>Indiquez votre email pour authentifier votre identité </h3> 
+<h1>Création d'une identité décentralisée en ligne -> template home.html </h1>
+<p> La création d'une identité Talao necssite de verifer que l'email n'est pas déja utilisé dans le backend de l'issuer puis de vérifier la vaidité de l'email par un code secret envoyé</p>
+<message> message : {{message}}</message>
+<h3>Indiquez votre email, prénom et nom pour créer votre identité en ligne </h3> 
 <form action= "." method= "POST">
-<input type= "text" name= "email"> <button type= "submit">OK</button>
+<label>firstname</label> : <input type="text" name="firstname" />
+<label>name</label> : <input type="text" name="lastname" />
+<label>email</label> : <input type="text" name="email" />		
+<input type="submit" value="Envoyer" />
 </form>
 
 
 </body> </html>
+
+

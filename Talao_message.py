@@ -66,7 +66,6 @@ def messageAuth (email_to, random) :
 	# sending the mail 
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text) 
-		print ('email sent')
 	except:
 		print ('error sending mail')
 	s.quit()
