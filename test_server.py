@@ -1,3 +1,10 @@
+"""
+
+IP static 217.128.135.206
+
+"""
+
+
 #import http.client, urllib.parse
 from flask import Flask, jsonify, session
 from flask import request, redirect, url_for
@@ -17,6 +24,9 @@ import Talao_backend_transaction
 from flask import render_template
 
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
+
+mode ="portable"
+
 
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
@@ -229,5 +239,7 @@ register={"pierre" : "0x4"}
 print('initialisation du serveur')
 
 if __name__ == '__main__':
-	#app.run(host = "192.168.0.34", port= 5000, debug=True)
-    app.run(debug=True)
+	if mode == 'rasbperry' :
+		app.run(host = "192.168.0.17", port= 5000, debug=True)
+	else :
+		app.run(debug=True)
