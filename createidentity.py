@@ -20,13 +20,7 @@ import Talao_ipfs
 import nameservice
 import constante
 
-from web3 import Web3
-my_provider = Web3.IPCProvider(constante.IPCProvider)
-w3 = Web3(my_provider)
 
-# wallet de Talaogen
-talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
-talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
 
 
 # deterministic RSA rand function
@@ -41,7 +35,8 @@ def my_rand(n):
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(firstname, name, email): 
+def creationworkspacefromscratch(firstname, name, email,mode): 
+	w3=mode.initProvider()
 
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -64,7 +59,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	RSA_public = RSA_key.publickey().exportKey('PEM')
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum
-	filename = "./RSA_key/"+constante.BLOCKCHAIN+'/'+str(eth_a)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(eth_a)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	fichier=open(filename,"wb")
 	fichier.write(RSA_private)
 	fichier.close()   
@@ -85,20 +80,20 @@ def creationworkspacefromscratch(firstname, name, email):
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
 	# Transaction pour le transfert de 0.04 ethers depuis le portfeuille TalaoGen
-	hash1=Talao_token_transaction.ether_transfer(eth_a, 40)
+	hash1=Talao_token_transaction.ether_transfer(eth_a, 40,mode)
 	
 	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
-	hash2=Talao_token_transaction.token_transfer(eth_a,100)
+	hash2=Talao_token_transaction.token_transfer(eth_a,100,mode)
 	
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
-	hash3=Talao_token_transaction.createVaultAccess(eth_a,eth_p)
+	hash3=Talao_token_transaction.createVaultAccess(eth_a,eth_p,mode)
 	
 	# Transaction pour la creation du workspace :
 	bemail=bytes(email , 'utf-8')	
-	hash4=Talao_token_transaction.createWorkspace(eth_a,eth_p,RSA_public,AES_encrypted,SECRET_encrypted,bemail)
+	hash4=Talao_token_transaction.createWorkspace(eth_a,eth_p,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
 
 	# lecture de l'adresse du workspace contract dans la fondation
-	workspace_contract_address=Talao_token_transaction.ownersToContracts(eth_a)
+	workspace_contract_address=Talao_token_transaction.ownersToContracts(eth_a,mode)
 	
 	# Transaction pour la creation du compte sur le backend HTTP POST
 	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET)
@@ -109,7 +104,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	Talao_message.messageLog(name, firstname, 'thierry.thevenet@talao.io',status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
 	
 	#ajout d'un cle 3 a la fondation
-	owner_foundation = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'	       
+	owner_foundation = mode.foundation_address	       
 	#envoyer la transaction sur le contrat
 	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le owner
@@ -117,7 +112,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	# calcul du keccak
 	_key=w3.soliditySha3(['address'], [owner_foundation])
 	# Build transaction
-	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': constante.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction
 	signed_txn=w3.eth.account.signTransaction(txn,eth_p)
 	# send transaction	
@@ -129,7 +124,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	#nameservice.writeauthemail(email, workspace_contract_address) 
 	
 	#ajout d'un cle 3 a Talao
-	owner_talao = '0xE7d045966ABf7cAdd026509fc485D1502b1843F1'	       
+	owner_talao = mode.owner_talao	       
 	#envoyer la transaction sur le contrat
 	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le owner
@@ -137,7 +132,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	# calcul du keccak
 	_key=w3.soliditySha3(['address'], [owner_talao])
 	# Build transaction
-	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': constante.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction
 	signed_txn=w3.eth.account.signTransaction(txn,eth_p)
 	# send transaction	

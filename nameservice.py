@@ -27,6 +27,8 @@ normalisation:
 http://unicode.org/reports/tr46/
 
 """
+
+
 import constante
 from eth_account.messages import encode_defunct
 import hashlib
@@ -37,10 +39,6 @@ foundation_private_key =   '0x84AFF8F2CA153F4CADC6A5D52EAB0FD6DCE8FEB6E2AE1F1F48
 foundation_address = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
 foundation_workspace_contract = '0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
 
-# provider IPC classique
-from web3 import Web3
-my_provider = Web3.IPCProvider('/mnt/ssd/ethereum/geth.ipc')
-w3 = Web3(my_provider)
 
 
 
@@ -71,7 +69,9 @@ def namehash(name) :
 #################################################
 # le regsitre est un dict {hashname : address}
 
-def buildregister() :
+def buildregister(mode) :
+
+	w3=mode.initProvider()
 	
 	# pour choisir l address par defaut du node necessaire a la lecture de l index du smart contract de la fondation
 	address = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
@@ -79,7 +79,7 @@ def buildregister() :
 	#w3.geth.personal.unlockAccount(address, 'suc2cane')
 	
 	# lecture de la liste des contracts dans la fondation
-	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	contractlist = contract.functions.getContractsIndex().call() 
 	contractlist.reverse()
 	
@@ -102,8 +102,10 @@ def buildregister() :
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 # le namehash de name est stocké dans le workpace avec un claim 'nameservice'
 	
-def setup_address(name, workspace_contract) :
+def setup_address(name, workspace_contract,mode) :
 		
+	w3=mode.initProvider()
+
 	issuer = foundation_address	
 	data=namehash(name)	
 	topicname='nameservice'
@@ -113,14 +115,14 @@ def setup_address(name, workspace_contract) :
 	# calcul de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
-	signed_message = w3.eth.account.sign_message(message, private_key=foundation_private_key)
+	signed_message = w3.eth.account.sign_message(message, private_key=mode.foundation_private_key)
 	signature=signed_message['signature']	
 	
 	# Build transaction
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': constante.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})	
+	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
 	#sign transaction with caller wallet
-	signed_txn=w3.eth.account.signTransaction(txn,foundation_private_key)
+	signed_txn=w3.eth.account.signTransaction(txn,mode.foundation_private_key)
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))

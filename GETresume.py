@@ -7,10 +7,6 @@ import isolanguage
 import ipfshttpclient
 from eth_account.messages import encode_defunct
 
-# provider IPC classique
-from web3 import Web3
-my_provider = Web3.IPCProvider(constante.IPCProvider)
-w3 = Web3(my_provider)
 
 
 
@@ -20,7 +16,9 @@ w3 = Web3(my_provider)
 # @thisaddress, address
 # return dictionnaire
 
-def whatisthisaddress(thisaddress) :
+def whatisthisaddress(thisaddress,mode) :
+
+	w3=mode.initProvider()
 
 	# est ce une addresse Ethereum ?
 	if w3.isAddress(thisaddress) == False :
@@ -30,7 +28,7 @@ def whatisthisaddress(thisaddress) :
 	else :
 		
 		# test sur la nature de thisaddress
-		contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+		contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address = contract.functions.contractsToOwners(thisaddress).call()
 		workspace=contract.functions.ownersToContracts(thisaddress).call()
 		
@@ -62,7 +60,9 @@ def whatisthisaddress(thisaddress) :
 ###########################################################################################
 # return un couple (dict dictionaire,int category)
 
-def readProfil (address, workspace_contract) :
+def readProfil (address, workspace_contract, mode) :
+
+	w3=mode.initProvider()
 
 	# setup constante
 	givenName = 103105118101110078097109101 # = firstname
@@ -124,7 +124,10 @@ def readProfil (address, workspace_contract) :
 ################################################################
 # doctype : integer, 10000, 40000, 50000
 
-def getDocumentIndex(address, doctype, workspace_contract) :
+def getDocumentIndex(address, doctype, workspace_contract,mode) :
+
+	w3=mode.initProvider()
+
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	docindex=contract.functions.getDocuments().call()
 	newdocindex=[]
@@ -137,7 +140,9 @@ def getDocumentIndex(address, doctype, workspace_contract) :
 #############################################################
 # return le document au format json (str)
 ###############################################################
-def getDocument(address,index, workspace_contract) :
+def getDocument(address,index, workspace_contract, mode) :
+	w3=mode.initProvider()
+
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	doc=contract.functions.getDocument(index).call()
 	ipfs_hash=doc[6].decode('utf-8')
@@ -170,18 +175,19 @@ def Proficiency(val) :
 # /usr/local/bin/geth --rinkeby --syncmode 'light' --rpc
 #from web3 import Web3
 
-def getresume(did) :
-	
+def getresume(did, mode) :
+	w3=mode.initProvider()
+
 	didsplit=did.split(':')
 	workspace_contract='0x'+didsplit[3]
 	
 	# calcul de l addresse du oner
-	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()		
 		
 	# determination du profil
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	(profile, category)=readProfil(address, workspace_contract)
+	(profile, category)=readProfil(address, workspace_contract,mode)
 	
 	
 ##################################################################################	
@@ -191,7 +197,7 @@ def getresume(did) :
 		
 		# initialisation du cv
 		cv={'id' : did,
-			'endpoint' : constante.endpoint+'resolver/'+did,
+			'endpoint' : mode.server+'resolver/'+did,
 			'methods' : ['GET'],
 			'value' :{"profil": {},
 				"nationalidentity" : {"passport" : None, "kyc" : None, "driving_license" : None},
@@ -223,7 +229,7 @@ def getresume(did) :
 			data=claimdata[4]
 			url=claimdata[5]
 			# determination du profil de l issuer du KYC
-			(issuerprofile,X)=readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
+			(issuerprofile,X)=readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
 			# verification de la signature du KYC
 			msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes('kbis', 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
 			message = encode_defunct(text=msg.hex())
@@ -250,19 +256,19 @@ def getresume(did) :
 			else :
 				kyc['url']=claimdata[5]
 			
-			cv['value']['nationalidentity']["kyc"]={'id' :did+':claim:'+claimId, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
+			cv['value']['nationalidentity']["kyc"]={'id' :did+':claim:'+claimId, 'endpoint' : mode.server+'data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
 		
 
 
 		# experiences
-		experienceIndex=getDocumentIndex(address, 50000, workspace_contract)
+		experienceIndex=getDocumentIndex(address, 50000, workspace_contract,mode)
 		for i in experienceIndex:
 			doc=contract.functions.getDocument(i).call()
 			ipfs_hash=doc[6].decode('utf-8')
 			experience=Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 		'id' : did+':document:'+str(i),
-		'endpoint' : constante.endpoint+'data/'+did+':document:'+str(i),
+		'endpoint' : mode.server+'data/'+did+':document:'+str(i),
 		'methods' : ['GET'],
 		'value' : {'title' : experience['certificate']['title'],
 		'description' : experience['certificate']['description'],
@@ -274,14 +280,14 @@ def getresume(did) :
 			cv['value']["experience"].append(new_experience)
 
 		# certificates
-		experienceIndex=getDocumentIndex(address, 60000, workspace_contract)
+		experienceIndex=getDocumentIndex(address, 60000, workspace_contract, mode)
 		for i in experienceIndex:
 			doc=contract.functions.getDocument(i).call()
 			ipfs_hash=doc[6].decode('utf-8')
 			experience=Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 		'id' : did+':document:'+str(i),
-		'endpoint' : constante.endpoint+'data/'+did+':document:'+str(i),
+		'endpoint' : mode.server+'data/'+did+':document:'+str(i),
 		'methods' : ['GET'],
 		'value' : {'title' : experience['certificate']['title'],
 		'description' : experience['certificate']['description'],
@@ -293,13 +299,13 @@ def getresume(did) :
 			cv['value']["experience"].append(new_experience)
 		
 		# mise a jour des formations 
-		educationIndex=getDocumentIndex(address, 40000, workspace_contract)
+		educationIndex=getDocumentIndex(address, 40000, workspace_contract,mode)
 		for i in educationIndex:
 			doc=contract.functions.getDocument(i).call()
 			ipfs_hash=doc[6].decode('utf-8')
 			education=Talao_ipfs.IPFS_get(ipfs_hash)	
 			cv['value']["education"].append({'id' : did+':document:'+str(i),
-			'endpoint' : constante.endpoint+'data/'+did+':document:'+str(i),
+			'endpoint' : mode.server+'data/'+did+':document:'+str(i),
 			'methods' : ['GET'],
 			'value' : {	"organization" : education["issuer"]["organization"]["name"],
 			"endDate" : education["diploma"]["to"], 
@@ -309,10 +315,10 @@ def getresume(did) :
 			"link" : education["diploma"]["link"]}})
 
 		# mise a jour des "skills", les skills Talao sont extraits des experiences et assemblés dans un seul dict du resume json
-		experienceIndex=getDocumentIndex(address, 50000, workspace_contract)
+		experienceIndex=getDocumentIndex(address, 50000, workspace_contract,mode)
 		skills=[]
 		for i in experienceIndex :
-			skills.extend(getDocument(address,i, workspace_contract)['certificate']['skills'])
+			skills.extend(getDocument(address,i, workspace_contract,mode)['certificate']['skills'])
 		skillsarray=[]
 		for j in range (0, len(skills)) :
 			skillsarray.append(skills[j]['name'])
@@ -320,9 +326,9 @@ def getresume(did) :
 		cv['value']["skills"]=list(set(skillsarray))
 	
 		# mise a jour de la disponibilité, du TJM , de la mobilité et des langues
-		docIndex=getDocumentIndex(address, 10000, workspace_contract)
+		docIndex=getDocumentIndex(address, 10000, workspace_contract,mode)
 		if docIndex != [] :
-			doc=getDocument(address, docIndex[0], workspace_contract)
+			doc=getDocument(address, docIndex[0], workspace_contract,mode)
 			
 			# disponibilité
 			cv['value']["availability"]={"update" : doc["availability"]["dateCreated"],
@@ -347,7 +353,7 @@ def getresume(did) :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
 		claimid=claim[0].hex()
-		cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimid, "methods" : ["GET"],"value" : profile}
+		cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'data/'+did+':claim:'+claimid, "methods" : ["GET"],"value" : profile}
 	
 		return cv	
 	
@@ -357,7 +363,7 @@ def getresume(did) :
 	else :	
 		
 		# initialisation du cv
-		fiche={'id' : did,'endpoint' : constante.endpoint+'resolver/'+did, 'value' : {"profil": {}, 'kbis' : {}}}
+		fiche={'id' : did,'endpoint' : mode.server+'resolver/'+did, 'value' : {"profil": {}, 'kbis' : {}}}
 
 		# kbis
 		
@@ -379,7 +385,7 @@ def getresume(did) :
 			data=claimdata[4]
 			url=claimdata[5]
 			# determination du profil de l issuer du KBIS
-			(issuerprofile,X)=readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
+			(issuerprofile,X)=readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
 			# verification de la signature du KBIS
 			msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes('kbis', 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
 			message = encode_defunct(text=msg.hex())
@@ -406,7 +412,7 @@ def getresume(did) :
 			else :
 				kbis['url']=claimdata[5]
 			
-			fiche['value']['kbis']={'id' :did+':claim:'+claimId, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
+			fiche['value']['kbis']={'id' :did+':claim:'+claimId, 'endpoint' : mode.server+'data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
 		
 		
 		
@@ -414,6 +420,6 @@ def getresume(did) :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
 		claimid=claim[0].hex()
-		fiche['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : constante.endpoint+'data/'+did+':claim:'+claimid, "methods" : ["GET"], "value" : profile}
+		fiche['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'data/'+did+':claim:'+claimid, "methods" : ["GET"], "value" : profile}
 	
 	return fiche

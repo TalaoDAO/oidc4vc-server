@@ -4,9 +4,68 @@
 
 # /usr/local/bin/geth --rinkeby --syncmode 'light' --rpc
 
-endpoint='http://127.0.0.1:5000/talao/api/'
+from web3 import Web3
 
 
+class currentMode() :
+
+	def __init__(self, myenv, mychain):
+		
+		self.chain=mychain
+		self.env=myenv
+		self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
+		self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))
+		self.talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen
+		self.talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen
+
+		if mychain == 'rinkeby' :	
+			self.BLOCKCHAIN = "rinkeby"
+			self.Talao_contract_address='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE'
+			self.CHAIN_ID=4
+			self.foundation_contract='0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
+			self.foundation_address ='0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
+			self.foundation_private_key = '0x84AFF8F2CA153F4CADC6A5D52EAB0FD6DCE8FEB6E2AE1F1F48AD11A5D16E4A73'
+			self.workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
+			self.owner_talao='0xE7d045966ABf7cAdd026509fc485D1502b1843F1' # la company
+			self.ISSUER='certificates.talao.io:5011'
+			self.DAPP_LINK='\r\nDapp Link : http://vault.talao.io:4011/'
+			self.WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
+			self.GASPRICE='5'
+			
+		elif mychain == 'ethereum' :
+			self.BLOCKCHAIN = "ethereum"
+			self.Talao_contract_address='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515'
+			self.CHAIN_ID=1
+			self.foundation_contract='0xD46883ddfF92CC0474255F2F8134C63f8209171d'
+			self.foundation_address = ""
+			self.foundation_private_key = ""
+			self.workspacefactory_contract='0x7A237F06f85710b66184aFcDC55E2845F1B8f0eb'
+			self.owner_talao='' # la company
+			self.ISSUER='backend.talao.io'
+			self.DAPP_LINK='\r\nDapp Link : https://my.freedapp.io/'
+			self.WORKSPACE_LINK='https://my.freedapp.io/visit/'
+			self.GASPRICE='2'
+			
+		else :
+			print('error chain')
+				
+		if myenv == 'production' :
+			self.IP='217.128.135.206'
+			self.server=	'http://217.128.135.206:5000/'
+			self.port='5000'
+		
+		elif myenv == 'test' :
+			self.IP='127.0.0.1'
+			self.server = 'http://127.0.0.1:5000/'
+			self.port='5000'
+		else : 
+			print('error env')
+			
+	def initProvider(self) :
+		
+		return self.w3
+									
+"""
 BLOCKCHAIN='rinkeby' 
 Talao_contract_address='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE'
 CHAIN_ID=4
@@ -19,8 +78,6 @@ GASPRICE='5'
 IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 
 
-"""
-
 BLOCKCHAIN='ethereum'
 Talao_contract_address='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515'
 CHAIN_ID=1
@@ -32,18 +89,7 @@ WORKSPACE_LINK='https://my.freedapp.io/visit/'
 GASPRICE='2'
 
 """
-"""
-givenName = 103105118101110078097109101
-	familyName = 102097109105108121078097109101
-	jobTitle = 106111098084105116108101
-	worksFor = 119111114107115070111114
-	workLocation = 119111114107076111099097116105111110
-	url = 117114108
-	email = 101109097105108
-	description = 100101115099114105112116105111110
-	topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-	image= 105109097103101
-"""
+
 
 # attention certain ancien nom ne peuven etre calculé
 topic={'firstname' : 103105118101110078097109101,  # = givenName

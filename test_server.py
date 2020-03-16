@@ -1,10 +1,3 @@
-"""
-
-IP static 217.128.135.206
-
-"""
-
-
 #import http.client, urllib.parse
 from flask import Flask, jsonify, session
 from flask import request, redirect, url_for
@@ -22,12 +15,10 @@ import constante
 import Talao_backend_transaction
 
 from flask import render_template
-
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
-mode ="portable"
-
-
+# SETUP
+mode=constante.currentMode('test', 'rinkeby')
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
 app.config["SECRET_KEY"] = "OCML3BRawWEUeaxcuKHLpw"
@@ -36,11 +27,9 @@ tabcode = dict()
 
 
 
-
-
 @app.route('/talao/api/<data>', methods=['GET'])
 def Main(data) :
-	return GETdata.getdata(data, register)
+	return GETdata.getdata(data, register,mode)
 
 #####################################################
 #   RESOLVER
@@ -49,7 +38,7 @@ def Main(data) :
 # API
 @app.route('/talao/api/resolver/<did>', methods=['GET'])
 def DID_document(did) :
-	return GETresolver.getresolver(did)
+	return GETresolver.getresolver(did,mode)
 
 # version html
 @app.route('/resolver/')
@@ -58,7 +47,7 @@ def DID_document_html() :
 @app.route('/resolver/did/', methods=['POST'])
 def DID_document_html_1() :
 	did = request.form['did']
-	return GETresolver.getresolver(did)
+	return GETresolver.getresolver(did,mode)
 
 #####################################################
 #   AUTRES API
@@ -67,11 +56,11 @@ def DID_document_html_1() :
 
 @app.route('/talao/api/data/<data>', methods=['GET'])
 def Data(data) :
-	return GETdata.getdata(data, register)
+	return GETdata.getdata(data, register,mode)
 
 @app.route('/talao/api/resume/<did>', methods=['GET'])
 def Resume_resolver(did) :
-	return GETresume.getresume(did)
+	return GETresume.getresume(did,mode)
 
 #####################################################
 #   Talent Connect
@@ -81,7 +70,7 @@ def Resume_resolver(did) :
 # API
 @app.route('/talent_connect/api/<data>', methods=['GET'])
 def talentconnect(data) :
-	return GETdata.getdata(data, register)
+	return GETdata.getdata(data, register,mode)
 
 #####################################################
 #   CREATION IDENTITE ONLINE (html) pour le site talao.io
@@ -107,7 +96,7 @@ def POST_authentification_1() :
 	session['firstname']=request.form['firstname']
 	session['email']=email
 	print('email = ', email)
-	check_backend=Talao_backend_transaction.canregister(email)
+	check_backend=Talao_backend_transaction.canregister(email,mode)
 	print('check backend =',check_backend) 
 	if check_backend == False :
 		return render_template("home.html", message = 'Email already in Backend')
@@ -137,7 +126,7 @@ def POST_authentification_2() :
 	if mycode == tabcode[email] :
 		print('appel de createidentity avec firtsname = ', firstname, ' name = ', lastname, ' email = ', email)
 		#(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch(firstname, name, email)	
-		mymessage = 'workspace will be available within a couple of minutes' 
+		mymessage = 'workspace will be available within a couple of minutes. You will receive your Ethereum private key and RSA key to connect with my.Freedapp http://vault.talao.io:4011/' 
 	else :
 		mymessage = 'false code'
 	return render_template("home3.html", message = mymessage)
@@ -154,7 +143,7 @@ def POST_authentification_3() :
 # API
 @app.route('/nameservice/api/<name>', methods=['GET'])
 def GET_nameservice(name) :
-	a= nameservice.address(name)
+	a= nameservice.address(name,mode)
 	if a== None :
 		return {"ERR" : "601"}
 	else :
@@ -162,7 +151,7 @@ def GET_nameservice(name) :
 
 @app.route('/nameservice/api/reload/', methods=['GET'])
 def GET_nameservice_reload() :
-	nameservice.buildregister()
+	nameservice.buildregister(mode)
 	return "relaod done"
 
 
@@ -173,7 +162,7 @@ def GET_nameservice_html() :
 @app.route('/nameservice/name/', methods=['POST'])
 def DID_nameservice_html_1() :
 	name = request.form['name']
-	a= nameservice.address(name,register)
+	a= nameservice.address(name,register,mode)
 	if a == None :
 		return {'Il n existe pas de did avec cet identifiant' :0}
 	else :
@@ -234,12 +223,12 @@ def get_skill():
 
 # setup du registre nameservice
 print('debut de la creation du registre')
-register={"pierre" : "0x4"}
-#register=nameservice.buildregister()
+register=nameservice.buildregister(mode)
 print('initialisation du serveur')
 
 if __name__ == '__main__':
-	if mode == 'rasbperry' :
-		app.run(host = "192.168.0.17", port= 5000, debug=True)
+	
+	if mode.env == 'production' :
+		app.run(host = mode.IP, port= 5000, debug=True)
 	else :
 		app.run(debug=True)

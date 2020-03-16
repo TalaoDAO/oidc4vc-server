@@ -13,10 +13,6 @@ import nameservice
 
 
 
-# provider IPC classique
-from web3 import Web3
-my_provider = Web3.IPCProvider(constante.IPCProvider)
-w3 = Web3(my_provider)
 
 ##############################################
 # detrmination de la nauter de l addresse
@@ -24,7 +20,9 @@ w3 = Web3(my_provider)
 # @thisaddress, address
 # return dictionnaire
 
-def whatisthisaddress(thisaddress) :
+def whatisthisaddress(thisaddress,mode) :
+
+	w3=mode.initProvider()
 
 	# est ce une addresse Ethereum ?
 	if w3.isAddress(thisaddress) == False :
@@ -34,7 +32,7 @@ def whatisthisaddress(thisaddress) :
 	else :
 		
 		# test sur la nature de thisaddress
-		contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+		contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address = contract.functions.contractsToOwners(thisaddress).call()
 		workspace=contract.functions.ownersToContracts(thisaddress).call()
 		
@@ -66,17 +64,19 @@ def whatisthisaddress(thisaddress) :
 # return dictionnaire
 
 
-def getdocument(index, workspace_contract) :
+def getdocument(index, workspace_contract,mode) :
 	
+	w3=mode.initProvider()
+
 	# a voir pour l'affichage de doc[0] ?
 	#doc_type={10000 : "employability", 40000 : "diploma", 50000 : "experience", 60000 : "certificate"}	
 	
 	# determination de l addresse du workspace
-	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	
 	# calcul du did
-	did="did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:]		
+	did="did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:]		
 	
 	# download du doc
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -93,17 +93,17 @@ def getdocument(index, workspace_contract) :
 		category = "company"	
 			
 	# determination du profil de l issuer
-	(issuerprofile, x)=GETresume.readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])	
+	(issuerprofile, x)=GETresume.readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
 
 	# mise en forme de la reponse de la fonction
 	#document={'id' : None, 'value' :None}
 	document=dict()
 	document['@context']='https://github.com/TalaoDAO/talao-contracts'
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
-	document['endpoint']=constante.endpoint+'data/'+document['id']
+	document['endpoint']=mode.server+'data/'+document['id']
 	document["methods"]=["GET"]
-	document['value'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
-									'endpoint' : constante.endpoint+'resume/did:talao:rinkeby:'+whatisthisaddress(issuer)["workspace"][2:],
+	document['value'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
+									'endpoint' : mode.server+'resume/did:talao:rinkeby:'+whatisthisaddress(issuer,mode)["workspace"][2:],
 									'value' : issuerprofile},	
 						'doctype': doc[0],
 						'doctypeversion' : doc[1],
@@ -121,21 +121,23 @@ def getdocument(index, workspace_contract) :
 #####################################################	
 # read Talao claim
 ######################################################
-def getclaim (claim_id, workspace_contract) :
+def getclaim (claim_id, workspace_contract,mode) :
 # @claim_id : str, identifiant d un claim
 # return un dictionnaire
 # ajouter le check de validité
+
+	w3=mode.initProvider()
 
 	# setup variable
 	claims=[]
 	claim=dict()
 
 	# determination de l address du owner
-	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	
 	# calcul du did
-	did="did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:]			
+	did="did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:]			
 	
 	# initialisation IPFS
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
@@ -150,7 +152,7 @@ def getclaim (claim_id, workspace_contract) :
 	url=claimdata[5]
 	
 	# identification de la category de l'issuer du claim
-	contract=w3.eth.contract(whatisthisaddress(issuer)["workspace"],abi=constante.workspace_ABI)
+	contract=w3.eth.contract(whatisthisaddress(issuer,mode)["workspace"],abi=constante.workspace_ABI)
 	identityinformation = contract.functions.identityInformation().call()[1]
 	if identityinformation==1001 :
 		category="person"
@@ -158,7 +160,7 @@ def getclaim (claim_id, workspace_contract) :
 		category = "company"	
 		
 	# determination du profil de l issuer
-	(issuerprofile,X)=GETresume.readProfil(whatisthisaddress(issuer)["owner"], whatisthisaddress(issuer)["workspace"])
+	(issuerprofile,X)=GETresume.readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
 
 	# verification de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes(topicname, 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
@@ -178,10 +180,10 @@ def getclaim (claim_id, workspace_contract) :
 	# mise en forme de la reponse
 	claim['@context'] = 'https://github.com/ethereum/EIPs/issues/735'
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
-	claim['endpoint']=constante.endpoint+'data/'+claim['id']
+	claim['endpoint']=mode.server+'data/'+claim['id']
 	claim["methods"]=["GET"]
-	claim["value"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
-					'endpoint' : constante.endpoint+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer)["workspace"][2:],
+	claim["value"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
+					'endpoint' : mode.server+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
 					'value' : issuerprofile}}	
 	claim['value']['topic']=topicname
 	if claimdata[5][:1]=="Q" :
@@ -209,7 +211,8 @@ def getclaim (claim_id, workspace_contract) :
 
 #   A refaire !!!!!!
 
-def getdata(data, register) :
+def getdata(data, register,mode) :
+	w3=mode.initProvider()
 
 	datasplit=data.split('@')
 	datasplit2=data.split(':')
@@ -218,12 +221,12 @@ def getdata(data, register) :
 		if len(datasplit[1].split('.')) == 1 :
 			return data+' n est pas un email correct'
 		# recherche d'un did dans le regsitre nameservice
-		workspace_contract= register.get(data)
+		workspace_contract= register.get(data,mode)
 		if workspace_contract== None :
 			return 'Il n existe pas de workspace pour '+data
 		else :
 			did='did:talao:rinkeby:'+workspace_contract[2:]
-			result=GETresume.getresume(did)
+			result=GETresume.getresume(did,mode)
 			return result
 			
 	# si data n'est pas un did
@@ -235,15 +238,15 @@ def getdata(data, register) :
 
 	# si data est un identifiant de document
 	if len(datasplit2) == 6 and datasplit2[4]== 'document' :
-		result=getdocument(int(datasplit2[5]), workspace_contract)
+		result=getdocument(int(datasplit2[5]), workspace_contract,mode)
 
 	# si data est un identfiant de claim
 	if len(datasplit2) == 6 and datasplit2[4]== 'claim' :	
-		result = getclaim(datasplit2[5], workspace_contract)	
+		result = getclaim(datasplit2[5], workspace_contract,mode)	
 
 	# si data est un did	
 	if len(datasplit2) == 4  :
-		result=GETresume.getresume(data)
+		result=GETresume.getresume(data,mode)
 
 	return result
 

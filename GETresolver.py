@@ -1,34 +1,38 @@
+"""
+Le Resolver permet d'avoir acces au DID document
+
+cf le standard https://www.w3.org/TR/did-core/
+
+"""
+
 import json
 import constante
 import Talao_token_transaction
 import Talao_ipfs
 import ipfshttpclient
 import nameservice
-
-from web3 import Web3
-my_provider = Web3.IPCProvider(constante.IPCProvider)
-w3 = Web3(my_provider)
+#from constante import mymode
 	
-
-
 
 ########################################################################
 #                    RESOLVER
 ########################################################################
 # retourne un dict
-# https://www.w3.org/TR/did-core/
 # Add an ECDSA ERC 725 key for initial owner with MANAGER purpose
 # newWorkspace.addKey(keccak256(abi.encodePacked(msg.sender)), 1, 1);
 # w3.soliditySha3(['address'], [address])
 
 
 
-def getresolver(did) :
+def getresolver(did,mode) :
+	
+
+	w3=mode.initProvider()
 
 	workspace_contract='0x'+did[18:]
 	
 	# recuperation de l'address du owner
-	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 
 	# calcul du keccak
@@ -67,12 +71,12 @@ def getresolver(did) :
 ########################################################################################	
 	if workspace_information[1] == 1001 :
 		
-		did_document["service"]['resume_viewer'] = { "endpoint" : "http://vault.talao.io:4011/visit/"+workspace_contract,
+		did_document["service"]['resume_viewer'] = { "endpoint" : mode.WORKSPACE_LINK+workspace_contract,
 				"method" : "GET",
 				"@context" : "https://talao.io/",
 				"description" : "have a look at my resume"}
 
-		did_document["service"]["resume"] = { "endpoint" : "http://127.0.0.1:5000/talao/api/resume/"+ did,
+		did_document["service"]["resume"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
 				"method" : "GET",
 				"@context" : "https://talao.io",
 				"description" : "check and verify my resume"}
@@ -107,7 +111,7 @@ def getresolver(did) :
 	else : 
 		
 		
-		did_document["service"]["publicdata"] = { "endpoint" : "http://127.0.0.1:5000/talao/api/resume/"+ did,
+		did_document["service"]["publicdata"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
 				"method" : "GET",
 				"@context" : "https://talao.io",
 				"description" : "check and verify our Company data"}

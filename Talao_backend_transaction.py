@@ -20,11 +20,13 @@ import jwt
 # creation du freelance sur le back end
 ###################################################################
 
-def backend_register (eth_a, workspace, first_name, last_name, email, password) :
+def backend_register (eth_a, workspace, first_name, last_name, email, password,mode) :
+	
+	w3=mode.initProvider()
 
-	conn = http.client.HTTPConnection(constante.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+	conn = http.client.HTTPConnection(mode.ISSUER)
+	if mode.BLOCKCHAIN == 'ethereum' :
+		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json'}
 	payload = {"user": { "ethereum_account": eth_a , "ethereum_contract": workspace ,"first_name" : first_name ,"last_name" : last_name ,"email" : email ,"password" : password}}
 	data = json.dumps(payload)
@@ -43,9 +45,11 @@ def backend_register (eth_a, workspace, first_name, last_name, email, password) 
 
 def canregister(email) :
 
-	conn = http.client.HTTPConnection(constante.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+	w3=mode.initProvider()
+
+	conn = http.client.HTTPConnection(mode.ISSUER)
+	if mode.BLOCKCHAIN == 'ethereum' :
+		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json'}
 	payload = {'user':{'email': email }}
 	data = json.dumps(payload)
@@ -60,11 +64,13 @@ def canregister(email) :
 # login sur le back end
 ###################################################################
 
-def login (email, password) :
+def login (email, password,mode) :
 
-	conn = http.client.HTTPConnection(constante.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+	w3=mode.initProvider()
+
+	conn = http.client.HTTPConnection(mode.ISSUER)
+	if mode.BLOCKCHAIN == 'ethereum' :
+		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json'}
 	payload = {"email" : email ,"password" : password}
 	data = json.dumps(payload)
@@ -81,10 +87,14 @@ def login (email, password) :
 
 def createExperience (email, password, experience) :
 
-	token=login(email, password)
-	conn = http.client.HTTPConnection(constante.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+	w3=mode.initProvider()
+
+	token=login(email, password,mode)
+	
+	conn = http.client.HTTPConnection(mode.ISSUER)
+	if mode.BLOCKCHAIN == 'ethereum' :
+		conn = http.client.HTTPSConnection(mode.ISSUER)
+		
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload = experience
 # JSON => { 'experience':{'title': 'Nouveau Test depuis Talaogen', 'description': 'Nouvelle Aucune', 'from': '2002-02-02', 'to': '2003-02-02', 'location': '', 'remote': True, 'organization_name': 'Talao','skills': [] }}
@@ -104,12 +114,14 @@ def createExperience (email, password, experience) :
 ###################################################################
 # retourne un dict
 
-def createSkill (email, password, skillname) :
+def createSkill (email, password, skillname, mode) :
 
-	token=login(email, password)
-	conn = http.client.HTTPConnection(constante.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+	w3=mode.initProvider()
+
+	token=login(email, password,mode)
+	conn = http.client.HTTPConnection(mode.ISSUER)
+	if mode.BLOCKCHAIN == 'ethereum' :
+		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload = {"skill": {"name": skillname}}
 	data = json.dumps(payload)
@@ -129,12 +141,13 @@ def createSkill (email, password, skillname) :
 ###################################################################
 # retourne un dict
 
-def getSkill (email, password, skillname) :
+def getSkill (email, password, skillname, mode) :
+	w3=mode.initProvider()
 
-	token=login(email, password)
-	conn = http.client.HTTPConnection(constante.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+	token=login(email, password,mode)
+	conn = http.client.HTTPConnection(mode.ISSUER)
+	if mode.BLOCKCHAIN == 'ethereum' :
+		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload = {}
 	data = json.dumps(payload)
@@ -146,16 +159,18 @@ def getSkill (email, password, skillname) :
 	for i in range (0, len(skillarray)) :
 		if skillarray[i]["name"].lower()==skillname.lower() :
 			return skillarray[i]
-	return createSkill(email, password, skillname)		
+	return createSkill(email, password, skillname, mode)		
 
 
 ###################################################################
 #  Get d une experience sur le backend
 ###################################################################
 
-def getExperience (email, password,experience) :
+def getExperience (email, password,experience, mode) :
 
-	token=login(email, password)
+	w3=mode.initProvider()
+
+	token=login(email, password,mode)
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload = {"Id" : experience }
 	data = json.dumps(payload)
@@ -169,7 +184,9 @@ def getExperience (email, password,experience) :
 #  Bearer Token 
 ###################################################################
 
-def encode_auth_token(user_id):
+def encode_auth_token(user_id,mode):
+	w3=mode.initProvider()
+
 	try:
 		payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=5),'iat': datetime.datetime.utcnow(),'sub': user_id}
 		return jwt.encode(
