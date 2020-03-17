@@ -75,7 +75,7 @@ def messageAuth (email_to, random) :
 
 
 
-def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key)  :
+def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key,mode)  :
 
 
 	# debut de la fonction
@@ -93,16 +93,16 @@ def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_ad
 	msg['To'] = ", ".join(toaddr)
 
 	# storing the subject 
-	msg['Subject'] = 'Workspace Log : '+firstname+' '+ name + ' - '+ constante.BLOCKCHAIN
+	msg['Subject'] = 'Workspace Log : '+firstname+' '+ name + ' - '+ mode.BLOCKCHAIN
 
 	# string to store the body of the mail 
-	body = 'A new Talao workspace has been deployed for '+ firstname+' '+name+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ constante.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + constante.DAPP_LINK + str(workspace_contract_address)
+	body = 'A new Talao workspace has been deployed for '+ firstname+' '+name+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ mode.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + mode.DAPP_LINK + str(workspace_contract_address)
 
 	# attach the body with the msg instance 
 	msg.attach(MIMEText(body, 'plain')) 
 
 	# open the file to be sent
-	path = "./RSA_key/"+constante.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	attachment = open(path, "rb") 
 

@@ -21,6 +21,9 @@ import nameservice
 import constante
 
 
+password = "suc2cane"
+master_key = ""
+salt = ""
 
 
 # deterministic RSA rand function
@@ -37,7 +40,11 @@ def my_rand(n):
 
 def creationworkspacefromscratch(firstname, name, email,mode): 
 	w3=mode.initProvider()
-
+	
+	if Talao_backend_transaction.canregister(email,mode) == False :
+		print('email existant dans le backend')
+		sys.exit()
+	
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	eth_a=account.address
@@ -50,7 +57,8 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 
 	# création de la cle RSA (bytes) deterministic
 	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
-	password = "suc2cane"   # for testing
+	global salt
+	global master_key
 	salt = eth_p
 	master_key = PBKDF2(password, salt, count=10000)  # bigger count = better
 	my_rand.counter = 0
@@ -96,12 +104,12 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	workspace_contract_address=Talao_token_transaction.ownersToContracts(eth_a,mode)
 	
 	# Transaction pour la creation du compte sur le backend HTTP POST
-	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET)
+	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET,mode)
 
 	# envoi du message de log
 	status="Identité créée par createidentity.py"
 	# changer le destinataire
-	Talao_message.messageLog(name, firstname, 'thierry.thevenet@talao.io',status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
+	Talao_message.messageLog(name, firstname, 'thierry.thevenet@talao.io',status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key,mode)
 	
 	#ajout d'un cle 3 a la fondation
 	owner_foundation = mode.foundation_address	       

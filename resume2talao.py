@@ -15,15 +15,16 @@ import Talao_ipfs
 import isolanguage
 import addclaim
 
-from web3 import Web3
-my_provider = Web3.IPCProvider(constante.IPCprovider)
-w3 = Web3(my_provider)
-
+import environment
 import constante
 
 # wallet de Talaogen
-talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
-talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
+#talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
+#talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
+
+mode=environment.currentMode('test', 'rinkeby')
+
+
 
 # trad lang
 # returnle code language
@@ -50,8 +51,12 @@ def Proficiency(texte) :
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(firstname, name, email): 
-
+def creationworkspacefromscratch(firstname, name, email,mode): 
+	
+	if Talao_backend_transaction.canregister(email,mode) == False :
+		print('email existant dans le backend')
+		sys.exit()
+		
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
 	eth_a=account.address
@@ -65,7 +70,7 @@ def creationworkspacefromscratch(firstname, name, email):
 	RSA_public = RSA_key.publickey().exportKey('PEM')
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum
-	filename = "./RSA_key/"+constante.BLOCKCHAIN+'/'+str(eth_a)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(eth_a)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	fichier=open(filename,"wb")
 	fichier.write(RSA_private)
 	fichier.close()   
@@ -87,36 +92,36 @@ def creationworkspacefromscratch(firstname, name, email):
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
 	# Transaction pour le transfert de 0.08 ethers depuis le portfeuille TalaoGen
-	hash1=Talao_token_transaction.ether_transfer(eth_a, 80)
+	hash1=Talao_token_transaction.ether_transfer(eth_a, 80,mode)
 	print('hash de transfert de 0.08 eth = ',hash1)
 	
 	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
-	hash2=Talao_token_transaction.token_transfer(eth_a,100)
+	hash2=Talao_token_transaction.token_transfer(eth_a,100,mode)
 	print('hash de transfert de 100 TALAO = ', hash2)
 	
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
-	hash3=Talao_token_transaction.createVaultAccess(eth_a,eth_p)
+	hash3=Talao_token_transaction.createVaultAccess(eth_a,eth_p,mode)
 	print('hash du createVaultaccess = ', hash3)
 	
 	# Transaction pour la creation du workspace :
 	bemail=bytes(email , 'utf-8')	
-	hash4=Talao_token_transaction.createWorkspace(eth_a,eth_p,RSA_public,AES_encrypted,SECRET_encrypted,bemail)
+	hash4=Talao_token_transaction.createWorkspace(eth_a,eth_p,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
 	print('hash de createWorkspace =', hash4)
 
 	# lecture de l'adresse du workspace contract dans la fondation
-	workspace_contract_address=Talao_token_transaction.ownersToContracts(eth_a)
+	workspace_contract_address=Talao_token_transaction.ownersToContracts(eth_a,mode)
 	print( 'workspace contract = ', workspace_contract_address)
 	
 	# Transaction pour la creation du compte sur le backend HTTP POST
-	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET)
+	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET,mode)
 
 	# envoi du message de log
 	status="Identité créée par resume2talao"
-	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key)
+	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key,mode)
 	
 
 	#ajout d'un cle 3 a la fondation pour la gestion du nameservice
-	owner_foundation = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'	       
+	owner_foundation = mode.foundation_address	       
 	#envoyer la transaction sur le contrat
 	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le owner
@@ -141,12 +146,12 @@ def creationworkspacefromscratch(firstname, name, email):
 # @newexperience -> dict
 
 
-def createandpublishExperience(address, private_key, newexperience, email, password, workspace_contract) :
+def createandpublishExperience(address, private_key, newexperience, email, password, workspace_contract,mode) :
 
 	#recuperer le bearer token sur le backend
-	conn = http.client.HTTPConnection(constante.ISSUER)
+	conn = http.client.HTTPConnection(mode.ISSUER)
 	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
+		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json'}
 	payload = {"email" : email ,"password" : password}
 	data = json.dumps(payload)
@@ -186,7 +191,7 @@ def createandpublishExperience(address, private_key, newexperience, email, passw
 		}
  
 	# upload de l experience sur la blockchain
-	Talao_token_transaction.createDocument(address, private_key, 50000, experience_blockchain, False)
+	Talao_token_transaction.createDocument(address, private_key, 50000, experience_blockchain, False,mode)
 	
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	mycontract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -196,7 +201,7 @@ def createandpublishExperience(address, private_key, newexperience, email, passw
 	document_id=eventlist[l-1]['args']['id']
 
 	# update de l experience sur la backend . on change le status et on donne le numero du doc 
-	token=Talao_backend_transaction.login(email, password)
+	token=Talao_backend_transaction.login(email, password,mode)
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload ={"experience":{"blockchain_experience_id":document_id,"blockchain_status":1},"action":"SET_DRAFT"}
 	data = json.dumps(payload)
@@ -213,14 +218,11 @@ def createandpublishExperience(address, private_key, newexperience, email, passw
 # tous les claims sont signe par le controller (owner) -> self claim
 
 # Ouverture du fichier d'archive Talao_Identity.csv
-fname= constante.BLOCKCHAIN +"_Talao_Identity.csv"
+fname= mode.BLOCKCHAIN +"_Talao_Identity.csv"
 identityfile = open(fname, "a")
 writer = csv.writer(identityfile)
 
 # ouverture du fichier cv au format json
-# cv inspiré du format resume.json : https://jsonresume.org/schema/
-# cv={"basics": {},"work": [],"education": [],"skills": [{"keywords": []}],"languages": [],"availability" : {},"mobility" : {},"rate" : {}}
-# donnez exemple ici...............
 filename=input("Saisissez le nom du fichier de cv json ?")
 resumefile=open(filename, "r")
 resume=json.loads(resumefile.read())
@@ -233,7 +235,7 @@ time_debut=datetime.now()
 name = resume['profil']["name"]
 firstname = resume['profil']['firstname']
 email = resume['profil']['email']
-(address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email)
+(address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email,mode)
 	
 		
 # UPLOAD DU PROFIL
@@ -242,15 +244,15 @@ jobTitle = resume['profil']['position']
 workLocation = ""
 url= resume['profil']['website']
 description = resume['profil']['summary']	
-Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description)
+Talao_token_transaction.saveworkspaceProfile(address, private_key, firstname, name, jobTitle, worksFor, workLocation, url, email, description,mode)
 # sauvegarde de la photo de profil
 if resume["profil"]["image"] != "" :
-	Talao_token_transaction.savepictureProfile(address, private_key, resume["profil"]["image"])
+	Talao_token_transaction.savepictureProfile(address, private_key, resume["profil"]["image"], mode)
 # add claim725 pour autre info. Ces infos ne seront pas visible dans la freedapp:
 if resume["profil"]["birthdate"] != "" :
-	addclaim.addClaim(workspace_contract, address, private_key, "birthdate", address, resume["profil"]["birthdate"] , "")
+	addclaim.addClaim(workspace_contract, address, private_key, "birthdate", address, resume["profil"]["birthdate"] , "",mode)
 if resume["profil"]["socialsecurity"] != "" :
-	addclaim.addClaim(workspace_contract, address, private_key, "socialsecurity", address, resume["profil"]["socialsecurity"], "")
+	addclaim.addClaim(workspace_contract, address, private_key, "socialsecurity", address, resume["profil"]["socialsecurity"], "",mode)
 
 
 # UPLOAD DES EXPERIENCES
@@ -259,7 +261,7 @@ for i in range(0,len(resume['experience'])) :
 	skills=resume['experience'][i]['skills']
 	newskills=[]
 	for s in range(0, len(skills)) :
-		a = Talao_backend_transaction.getSkill(email, password, skills[s])
+		a = Talao_backend_transaction.getSkill(email, password, skills[s],mode)
 		if a!= "ERROR" :
 			newskills.append(a)
 	# autres mises a jour
@@ -276,7 +278,7 @@ for i in range(0,len(resume['experience'])) :
 			'remote' : False,
 			'organization_name' : organization_name,
 			'skills' : newskills}}
-	createandpublishExperience(address, private_key, experience, email, password, workspace_contract )
+	createandpublishExperience(address, private_key, experience, email, password, workspace_contract,mode )
 	print("Experience publiée = ", json.dumps(experience, indent=4))
 
 
@@ -300,7 +302,7 @@ for i in range (0,len(resume['education'])) :
 			'from': fromdate ,
 			'to': todate,
 			'link': diploma_url}}
-	Talao_token_transaction.createDocument(address, private_key, 40000, data, False)
+	Talao_token_transaction.createDocument(address, private_key, 40000, data, False,mode)
 	print("Diplome publié = ", json.dumps(data, indent=4))
 
 
@@ -326,7 +328,7 @@ employabilite={"documentType": 10000,
 		"rateCurrency": "",
 		"ratePrice": "",
 		"languages": lang}}	
-Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False)
+Talao_token_transaction.createDocument(address, private_key, 10000, employabilite, False,mode)
 print("Employabilite publiée = ", json.dumps(employabilite, indent=4))
 
 
@@ -346,11 +348,11 @@ writer.writerow(( datetime.today(),name, firstname, email,status,address, privat
 
 # creation du fichier cv.json avec le did
 resume.update({'did' : {"@context" : "https://w3id.org/did/v1",
-	"id" : "did:talao:"+constante.BLOCKCHAIN+":"+workspace_contract[2:],
+	"id" : "did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:],
 	"controller" : address,
 	"created" : str(datetime.today()),
-	"workspace_link" : constante.WORKSPACE_LINK+workspace_contract}})
-filenamejson = "./json/"+constante.BLOCKCHAIN+'/'+address+".json"
+	"workspace_link" : mode.WORKSPACE_LINK+workspace_contract}})
+filenamejson = "./json/"+mode.BLOCKCHAIN+'/'+address+".json"
 fjson=open(filenamejson,"w")
 cvjson=json.dumps(resume,indent=4)
 fjson.write(cvjson)

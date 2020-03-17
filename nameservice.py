@@ -94,7 +94,7 @@ def buildregister(mode) :
 
 
 #################################################
-#  setup name pour une address de workspace
+#  setup name pour une address de workspace par la fondation
 #################################################
 # @name : str
 # cf https://docs.ens.domains/dapp-developer-guide/managing-names
@@ -117,6 +117,13 @@ def setup_address(name, workspace_contract,mode) :
 	signed_message = w3.eth.account.sign_message(message, private_key=mode.foundation_private_key)
 	signature=signed_message['signature']	
 	
+	# build, sign and send avec une addresse dans le node "defaultAccount
+	w3.eth.defaultAccount=mode.foundation_address
+	hash1=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).transact({'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	
+	return hash1.hex()
+"""	
 	# Build transaction
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
@@ -126,9 +133,10 @@ def setup_address(name, workspace_contract,mode) :
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+
 	
 	return hash1
-	
+"""
 
 #####################################################	
 # obtenir l address depuis un nom

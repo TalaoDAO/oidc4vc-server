@@ -28,7 +28,7 @@ def initProvider(mode)
 
 def ownersToContracts(address, mode) :
 	w3=mode.initProvider()
-	contract=w3.eth.contract(constante.foundation_contract,abi=constante.foundation_ABI)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 
@@ -83,12 +83,17 @@ def token_transfer(address_to, value, mode) :
 	contract=w3.eth.contract(mode.Talao_contract_address,abi=constante.Talao_Token_ABI)
 
 	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen
-	nonce = w3.eth.getTransactionCount('0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b')  
+	nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key)  
 
 	# Build transaction
-	#chain ID = 4 sur rinkeby
 	valueTalao=value*10**18	
-	txn = contract.functions.transfer(address_to,valueTalao).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 70000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	w3.eth.defaultAccount=mode.Talaogen_public_key
+	# tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
+	hash1=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	
+	return hash1.hex()
+	"""
 	
 	#sign transaction with TalaoGen wallet
 	private_key_TalaoGen = '0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
@@ -99,7 +104,7 @@ def token_transfer(address_to, value, mode) :
 	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash, timeout=2000)		
 	return hash
-
+"""
 
 ###############################################################
 # Transfert d'ether depuis le portefuille TalaoGen
@@ -108,10 +113,11 @@ def token_transfer(address_to, value, mode) :
 ###############################################################
 
 def ether_transfer(address_to, value, mode) :
+	
 	w3=mode.initProvider()
 	
 	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen	
-	talaoGen_nonce = w3.eth.getTransactionCount('0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b') 
+	talaoGen_nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key) 
 
 	# build transaction
 	eth_value=w3.toWei(str(value), 'milli')
@@ -120,8 +126,13 @@ def ether_transfer(address_to, value, mode) :
 	#sign transaction with TalaoGen wallet
 	key = '0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
 	signed_txn = w3.eth.account.sign_transaction(transaction, key)
+	
+	#w3.eth.defaultAccount=mode.Talaogen_public_key
 
+	#signed_txn = w3.eth.signTransaction(dict(nonce=talaoGen_nonce,gasPrice=w3.toWei(mode.GASPRICE, 'gwei'),gas=50000,to=address_to,value=eth_value,data=b'',))
+	
 	# send transaction
+	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash, timeout=2000)	

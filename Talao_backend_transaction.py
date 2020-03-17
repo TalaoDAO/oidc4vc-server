@@ -43,7 +43,7 @@ def backend_register (eth_a, workspace, first_name, last_name, email, password,m
 # le password est celui qui fonctionne sur le back end
 ###################################################################
 
-def canregister(email) :
+def canregister(email,mode) :
 
 	w3=mode.initProvider()
 
