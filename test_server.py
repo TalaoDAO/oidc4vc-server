@@ -13,12 +13,14 @@ import Talao_message
 import createidentity
 import constante
 import Talao_backend_transaction
+import environment
 
 from flask import render_template
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
 # SETUP
-mode=constante.currentMode('test', 'rinkeby')
+mode=environment.currentMode('test', 'rinkeby')
+
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
 app.config["SECRET_KEY"] = "OCML3BRawWEUeaxcuKHLpw"
@@ -40,7 +42,7 @@ def Main(data) :
 def DID_document(did) :
 	return GETresolver.getresolver(did,mode)
 
-# version html
+# HTML
 @app.route('/resolver/')
 def DID_document_html() :
 	return render_template("home_resolver.html")
@@ -53,7 +55,6 @@ def DID_document_html_1() :
 #   AUTRES API
 #####################################################
 
-
 @app.route('/talao/api/data/<data>', methods=['GET'])
 def Data(data) :
 	return GETdata.getdata(data, register,mode)
@@ -63,14 +64,19 @@ def Resume_resolver(did) :
 	return GETresume.getresume(did,mode)
 
 #####################################################
-#   Talent Connect
+#   Talent Connect cf oAUTH2
 #####################################################
-# @data = did
+# 1) "connectez vous avec le Talent Connect" -> appel de la mire de login avec id et jwt de la societe RH
+# 2) "entrez votre did et checkez votre email" -> envoi d'un message avec code secret
+# 3) "entrez le code correspondant a votre souhait" 
+# 4) retour d'information a la société RH
+# https://orange.developpez.com/tutoriels/authentification-3-legged/
+
 
 # API
 @app.route('/talent_connect/api/<data>', methods=['GET'])
 def talentconnect(data) :
-	return GETdata.getdata(data, register,mode)
+	return GETresume.getresume(did, register,mode)
 
 #####################################################
 #   CREATION IDENTITE ONLINE (html) pour le site talao.io
@@ -137,7 +143,7 @@ def POST_authentification_3() :
 
 
 #######################################################
-#name service
+#   Name Service
 #######################################################
 
 # API
@@ -145,82 +151,39 @@ def POST_authentification_3() :
 def GET_nameservice(name) :
 	a= nameservice.address(name,mode)
 	if a== None :
-		return {"ERR" : "601"}
+		return {"CODE" : "601"}
 	else :
 		return {"did" : "did:talao:rinkeby:"+a[2:]}
 
 @app.route('/nameservice/api/reload/', methods=['GET'])
 def GET_nameservice_reload() :
 	nameservice.buildregister(mode)
-	return "relaod done"
+	return {"CODE" : "reload done"}
 
 
-# version html 
+# HTML name -> did
 @app.route('/nameservice/')
 def GET_nameservice_html() :
 	return render_template("home_nameservice.html")
+
 @app.route('/nameservice/name/', methods=['POST'])
 def DID_nameservice_html_1() :
 	name = request.form['name']
-	a= nameservice.address(name,register,mode)
+	a= nameservice.address(name,register)
 	if a == None :
-		return {'Il n existe pas de did avec cet identifiant' :0}
+		mymessage='Il n existe pas de did avec cet identifiant' 
 	else :
-		return {"did" : "did:talao:rinkeby:"+a[2:]}
+		mymessage="did:talao:rinkeby:"+a[2:]
+	return render_template("home_nameservice2.html", message = mymessage, name=name)
+
+@app.route('/nameservice/name/', methods=['GET'])
+def POST_nameservice_html_2() :
+	return redirect(url_for('GET_nameservice_html'))
 
 
-
-	
-"""
-from flask import Flask
-from flask import request
-from flask import render_template
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return render_template("home.html")
-
-@app.route('/', methods=['POST'])
-def text_box():
-    text = request.form['text']
-    processed_text = text.upper()
-    return render_template("bienvenue.html" , message = processed_text )
-
-if __name__ == '__main__':
-    app.run()
-
-
-@app.route('/api/v1.0/profil', methods=['GET'])
-def get_profil():
-	address=request.data.get("address")
-	return jsonify(Talao_token_transaction.readProfil(address))
-
-@app.route('/api/v1.0/experience', methods=['GET'])
-def get_experience():
-	address=request.data.get("address")	
-	index=Talao_token_transaction.getDocumentIndex(address, 50000)
-	return jsonify(Talao_token_transaction.getDocument(address,50000, index-1))
-
-@app.route('/api/v1.0/diploma', methods=['GET'])
-def get_diploma():
-	address=request.data.get("address")
-	index=Talao_token_transaction.getDocumentIndex(address, 40000)
-	return jsonify(Talao_token_transaction.getDocument(address,40000, index-1))
-
-@app.route('/api/v1.0/skill', methods=['GET'])
-def get_skill():
-	address=request.data.get("address")
-	index=Talao_token_transaction.getDocumentIndex(address, 50000)
-	i=0
-	_skills=[]
-	while i < index :
-		_skills.extend(Talao_token_transaction.getDocument(address,50000, i)['certificate']['skills'])
-		i=i+1
-	return jsonify({'skills': _skills})
-"""
-
+#######################################################
+#                        MAIN, server launch
+#######################################################
 # setup du registre nameservice
 print('debut de la creation du registre')
 register=nameservice.buildregister(mode)
@@ -229,6 +192,8 @@ print('initialisation du serveur')
 if __name__ == '__main__':
 	
 	if mode.env == 'production' :
-		app.run(host = mode.IP, port= 5000, debug=True)
-	else :
+		app.run(host = mode.IP, port= mode.port, debug=True)
+	elif mode.env =='test' :
 		app.run(debug=True)
+	else :
+		print("Erreur d'environnement")

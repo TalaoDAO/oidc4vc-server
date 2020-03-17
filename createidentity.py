@@ -120,8 +120,6 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1)		
 	
-	# mise a jour de auth_email par la fondation
-	#nameservice.writeauthemail(email, workspace_contract_address) 
 	
 	#ajout d'un cle 3 a Talao
 	owner_talao = mode.owner_talao	       

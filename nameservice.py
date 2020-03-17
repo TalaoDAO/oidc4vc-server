@@ -34,13 +34,6 @@ from eth_account.messages import encode_defunct
 import hashlib
 
 
-# nameservice est géré par la fondation
-foundation_private_key =   '0x84AFF8F2CA153F4CADC6A5D52EAB0FD6DCE8FEB6E2AE1F1F48AD11A5D16E4A73'
-foundation_address = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
-foundation_workspace_contract = '0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
-
-
-
 
 
 ####################################################
@@ -61,7 +54,6 @@ def namehash(name) :
 	else:
 		label, _, remainder = name.partition('.')
 		a =sha3( namehash(remainder) + sha3(label) )
-		print(name,"   ", a)
 		return a
 
 #################################################
@@ -74,7 +66,7 @@ def buildregister(mode) :
 	w3=mode.initProvider()
 	
 	# pour choisir l address par defaut du node necessaire a la lecture de l index du smart contract de la fondation
-	address = '0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
+	address = mode.foundation_address
 	w3.eth.defaultAccount=address
 	#w3.geth.personal.unlockAccount(address, 'suc2cane')
 	
@@ -83,14 +75,21 @@ def buildregister(mode) :
 	contractlist = contract.functions.getContractsIndex().call() 
 	contractlist.reverse()
 	
-	# ATTENTION construction du registre sur la base du claim auth_nameservice  : 97117116104095110097109101115101114118105099101
+	# ATTENTION construction du registre sur la base du claim "nameservice" ET "email'
 	register=dict()	
 	for workspace_contract in contractlist :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		"""
 		if len(contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()) != 0 :
 			claimId=contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()[0].hex()
 			hashname = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 			register[hashname]=workspace_contract
+	"""
+		if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
+			claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
+			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+			register[namehash(email)]=workspace_contract
+	
 	return register	
 
 
@@ -106,12 +105,12 @@ def setup_address(name, workspace_contract,mode) :
 		
 	w3=mode.initProvider()
 
-	issuer = foundation_address	
+	issuer = mode.foundation_address	
 	data=namehash(name)	
 	topicname='nameservice'
 	topicvalue= 110097109101115101114118105099101
 	ipfshash=""
-	nonce = w3.eth.getTransactionCount(foundation_address)  	
+	nonce = w3.eth.getTransactionCount(mode.foundation_address)  	
 	# calcul de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
