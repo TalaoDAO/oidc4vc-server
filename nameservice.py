@@ -32,7 +32,7 @@ http://unicode.org/reports/tr46/
 import constante
 from eth_account.messages import encode_defunct
 import hashlib
-
+import json
 
 
 
@@ -57,7 +57,7 @@ def namehash(name) :
 		return a
 
 #################################################
-#  construction dynamise du registre 
+#  construction dynamique du registre 
 #################################################
 # le regsitre est un dict {hashname : address}
 
@@ -79,29 +79,56 @@ def buildregister(mode) :
 	register=dict()	
 	for workspace_contract in contractlist :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		"""
+		
+		# nameservice
 		if len(contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()) != 0 :
 			claimId=contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()[0].hex()
 			hashname = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 			register[hashname]=workspace_contract
-	"""
+		
+		# email
 		if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
 			claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
 			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 			register[namehash(email)]=workspace_contract
 	
-	return register	
+	try : 
+		myfile=open('register.json', 'w') 
+	except IOError :
+		print('impossible de stocker le fichier')
+		return False
+
+	json.dump(register, myfile)
+	myfile.close()
+	return True
+	
+	
+
+#################################################
+#  lecture du registre 
+#################################################
+# le registre est un dict {hashname : address}
+
+def readregister(mode) :
+	
+	# Charger le dictionnaire depuis un fichier :
+	with open('register.json', 'r') as myfile: 
+		register = json.load(myfile)
+	return register
+	
 
 
 #################################################
-#  setup name pour une address de workspace par la fondation
+#  setup name 
 #################################################
 # @name : str
+# setup name pour le nameservice
+# cela remet a jour le fichier register.json en meme temps
 # cf https://docs.ens.domains/dapp-developer-guide/managing-names
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 # le namehash de name est stocké dans le workpace avec un claim 'nameservice'
 	
-def setup_address(name, workspace_contract,mode) :
+def setup_address(name, workspace_contract,register, mode) :
 		
 	w3=mode.initProvider()
 
@@ -122,21 +149,17 @@ def setup_address(name, workspace_contract,mode) :
 	hash1=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).transact({'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	
-	return hash1.hex()
-"""	
-	# Build transaction
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	#sign transaction with caller wallet
-	signed_txn=w3.eth.account.signTransaction(txn,mode.foundation_private_key)
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
-
-	
-	return hash1
-"""
+	# register.json update
+	register[data]=workspace_contract
+	try : 
+		myfile=open('register.json', 'w') 
+	except IOError :
+		print('impossible de stocker le fichier')
+		return False
+	json.dump(register, myfile)
+	myfile.close()
+		
+	return True
 
 #####################################################	
 # obtenir l address depuis un nom

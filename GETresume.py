@@ -268,7 +268,7 @@ def getresume(did, mode) :
 			experience=Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 		'id' : did+':document:'+str(i),
-		'endpoint' : mode.server+'data/'+did+':document:'+str(i),
+		'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),
 		'methods' : ['GET'],
 		'value' : {'title' : experience['certificate']['title'],
 		'description' : experience['certificate']['description'],
@@ -287,7 +287,7 @@ def getresume(did, mode) :
 			experience=Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 		'id' : did+':document:'+str(i),
-		'endpoint' : mode.server+'data/'+did+':document:'+str(i),
+		'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),
 		'methods' : ['GET'],
 		'value' : {'title' : experience['certificate']['title'],
 		'description' : experience['certificate']['description'],
@@ -305,7 +305,7 @@ def getresume(did, mode) :
 			ipfs_hash=doc[6].decode('utf-8')
 			education=Talao_ipfs.IPFS_get(ipfs_hash)	
 			cv['value']["education"].append({'id' : did+':document:'+str(i),
-			'endpoint' : mode.server+'data/'+did+':document:'+str(i),
+			'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),
 			'methods' : ['GET'],
 			'value' : {	"organization" : education["issuer"]["organization"]["name"],
 			"endDate" : education["diploma"]["to"], 
@@ -353,7 +353,7 @@ def getresume(did, mode) :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
 		claimid=claim[0].hex()
-		cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'data/'+did+':claim:'+claimid, "methods" : ["GET"],"value" : profile}
+		cv['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid, "methods" : ["GET"],"value" : profile}
 	
 		return cv	
 	
@@ -412,7 +412,7 @@ def getresume(did, mode) :
 			else :
 				kbis['url']=claimdata[5]
 			
-			fiche['value']['kbis']={'id' :did+':claim:'+claimId, 'endpoint' : mode.server+'data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
+			fiche['value']['kbis']={'id' :did+':claim:'+claimId, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimId, "methods" : ["GET"],"value" : data}
 		
 		
 		
@@ -420,6 +420,6 @@ def getresume(did, mode) :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
 		claimid=claim[0].hex()
-		fiche['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'data/'+did+':claim:'+claimid, "methods" : ["GET"], "value" : profile}
+		fiche['value']["profil"]={"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid, "methods" : ["GET"], "value" : profile}
 	
 	return fiche

@@ -24,6 +24,7 @@ import constante
 
 # initialisation de l'environnement
 mode=environment.currentMode('test', 'rinkeby')
+mode.print_mode()
 w3=mode.initProvider()
 
 

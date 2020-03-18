@@ -20,6 +20,7 @@ from flask import render_template
 
 # SETUP
 mode=environment.currentMode('test', 'rinkeby')
+mode.print_mode()
 
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
@@ -38,7 +39,7 @@ def Main(data) :
 #####################################################
 
 # API
-@app.route('/talao/api/resolver/<did>', methods=['GET'])
+@app.route('/talao/resolver/api/<did>', methods=['GET'])
 def DID_document(did) :
 	return GETresolver.getresolver(did,mode)
 
@@ -185,8 +186,8 @@ def POST_nameservice_html_2() :
 #                        MAIN, server launch
 #######################################################
 # setup du registre nameservice
-print('debut de la creation du registre')
-register=nameservice.buildregister(mode)
+print('chargement du registre')
+register=nameservice.readregister(mode)
 print('initialisation du serveur')
 
 if __name__ == '__main__':

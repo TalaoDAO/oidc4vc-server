@@ -180,7 +180,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 	# mise en forme de la reponse
 	claim['@context'] = 'https://github.com/ethereum/EIPs/issues/735'
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
-	claim['endpoint']=mode.server+'data/'+claim['id']
+	claim['endpoint']=mode.server+'talao/api/data/'+claim['id']
 	claim["methods"]=["GET"]
 	claim["value"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
 					'endpoint' : mode.server+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
