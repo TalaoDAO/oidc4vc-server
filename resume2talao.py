@@ -3,18 +3,18 @@ import csv
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Protocol.KDF import PBKDF2
 import http.client
 import json
 from datetime import datetime
 
-# import des fonctions custom
+# dependances
 import Talao_token_transaction
 import Talao_backend_transaction
 import Talao_message
 import Talao_ipfs
 import isolanguage
 import addclaim
-
 import environment
 import constante
 
@@ -22,12 +22,23 @@ import constante
 #talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
 #talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
 
+# initialisation de l'environnement
 mode=environment.currentMode('test', 'rinkeby')
+w3=mode.initProvider()
 
+
+# deterministic RSA rand function variable
+password = "suc2cane"
+master_key = ""
+salt = ""
+# deterministic RSA rand function
+def my_rand(n):
+    # kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG
+    my_rand.counter += 1
+    return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
 
 
 # trad lang
-# returnle code language
 def Language(lang) :
 	return isolanguage.codeLanguage(lang)
 
@@ -51,11 +62,7 @@ def Proficiency(texte) :
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(firstname, name, email,mode): 
-	
-	if Talao_backend_transaction.canregister(email,mode) == False :
-		print('email existant dans le backend')
-		sys.exit()
+def creationworkspacefromscratch(firstname, name, email): 
 		
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
@@ -64,10 +71,21 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	print('adresse = ',eth_a)
 	print('private key = ', eth_p)
 	
-	# création de la cle RSA (bytes), des cle public et privées
-	RSA_key = RSA.generate(2048)
+	# création de la cle RSA (bytes) deterministic
+	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
+	global salt
+	global master_key
+	salt = eth_p
+	master_key = PBKDF2(password, salt, count=10000)  # bigger count = better
+	my_rand.counter = 0
+	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	RSA_private = RSA_key.exportKey('PEM')
 	RSA_public = RSA_key.publickey().exportKey('PEM')
+		
+	# création de la cle RSA (bytes), des cle public et privées
+	#RSA_key = RSA.generate(2048)
+	#RSA_private = RSA_key.exportKey('PEM')
+	#RSA_public = RSA_key.publickey().exportKey('PEM')
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(eth_a)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
@@ -116,23 +134,16 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET,mode)
 
 	# envoi du message de log
-	status="Identité créée par resume2talao"
+	status="Identity created by resume2talao"
 	Talao_message.messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key,mode)
-	
 
 	#ajout d'un cle 3 a la fondation pour la gestion du nameservice
 	owner_foundation = mode.foundation_address	       
-	#envoyer la transaction sur le contrat
 	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token . Ici le owner
 	nonce = w3.eth.getTransactionCount(eth_a)  
-	# calcul du keccak
 	_key=w3.soliditySha3(['address'], [owner_foundation])
-	# Build transaction
-	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': constante.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
-	#sign transaction
+	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn=w3.eth.account.signTransaction(txn,eth_p)
-	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1)		
@@ -145,12 +156,11 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 ############################################################
 # @newexperience -> dict
 
-
-def createandpublishExperience(address, private_key, newexperience, email, password, workspace_contract,mode) :
+def createandpublishExperience(address, private_key, newexperience, email, password, workspace_contract) :
 
 	#recuperer le bearer token sur le backend
 	conn = http.client.HTTPConnection(mode.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
+	if mode.BLOCKCHAIN == 'ethereum' :
 		conn = http.client.HTTPSConnection(mode.ISSUER)
 	headers = {'Accept': 'application/json','Content-type': 'application/json'}
 	payload = {"email" : email ,"password" : password}
@@ -223,20 +233,27 @@ identityfile = open(fname, "a")
 writer = csv.writer(identityfile)
 
 # ouverture du fichier cv au format json
-filename=input("Saisissez le nom du fichier de cv json ?")
+filename=input("Saisissez le nom du fichier de cv json ? ")
 resumefile=open(filename, "r")
 resume=json.loads(resumefile.read())
 	
 # calcul du temps de process
 time_debut=datetime.now()
 
-
 # CREATION DU WORKSPACE ET DU BACKEND
 name = resume['profil']["name"]
 firstname = resume['profil']['firstname']
 email = resume['profil']['email']
-(address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email,mode)
-	
+
+# sortie immediate si l email existe deja dans le backend
+if Talao_backend_transaction.canregister(email,mode) == False :
+	print('email existant dans le backend')
+	resumefile.close()
+	identityfile.close()
+	sys.exit(0)
+
+# creation du workspace vierge
+(address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email)
 		
 # UPLOAD DU PROFIL
 worksFor = resume['profil']['company']
@@ -278,7 +295,7 @@ for i in range(0,len(resume['experience'])) :
 			'remote' : False,
 			'organization_name' : organization_name,
 			'skills' : newskills}}
-	createandpublishExperience(address, private_key, experience, email, password, workspace_contract,mode )
+	createandpublishExperience(address, private_key, experience, email, password, workspace_contract )
 	print("Experience publiée = ", json.dumps(experience, indent=4))
 
 
@@ -345,18 +362,6 @@ print('Cout des transactions =', cost)
 status="Identité créée par resume2talao"
 writer.writerow(( datetime.today(),name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
 
-
-# creation du fichier cv.json avec le did
-resume.update({'did' : {"@context" : "https://w3id.org/did/v1",
-	"id" : "did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:],
-	"controller" : address,
-	"created" : str(datetime.today()),
-	"workspace_link" : mode.WORKSPACE_LINK+workspace_contract}})
-filenamejson = "./json/"+mode.BLOCKCHAIN+'/'+address+".json"
-fjson=open(filenamejson,"w")
-cvjson=json.dumps(resume,indent=4)
-fjson.write(cvjson)
-fjson.close()   
 
 
 # fermeture des fichiers

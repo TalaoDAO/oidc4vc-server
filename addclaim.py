@@ -1,13 +1,8 @@
 import json
 import constante
 from eth_account.messages import encode_defunct
-import ipfshttpclient
 
 
-# provider IPC classique
-from web3 import Web3
-my_provider = Web3.IPCProvider(constante.IPCProvider)
-w3 = Web3(my_provider)
 
 #################################################
 #  add claim
@@ -17,8 +12,9 @@ w3 = Web3(my_provider)
 # @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8') 
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 
-def addClaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, data, ipfshash) :
+def addClaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, data, ipfshash,mode) :
 	
+	w3=mode.initProvider()
 	
 	topicvalue=constante.topic[topicname]
 	
@@ -32,7 +28,7 @@ def addClaim(workspace_contract_to, address_from,private_key_from, topicname, is
 	
 	# Build transaction
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': constante.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(constante.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
@@ -42,15 +38,3 @@ def addClaim(workspace_contract_to, address_from,private_key_from, topicname, is
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	return hash1
-"""
-
-issuer='0xc883Eb9D7DA8f041B9085749E75dd371eBA07640'
-private_key='0xf73c5085c32410657f78851386d78e84042076e762c0d1360b4b972045817e2a'
-workspace_contract='0xab6d2bAE5ca59E4f5f729b7275786979B17d224b'  # pierre david houlle
-address={'name' : 'Thierry', 'street' : '16 rue de Wattignies', 'city' : 'Paris', 'city code' : '75012'}
-client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-ipfshash=client.add_json(address)
-client.pin.add(ipfshash)
-
-print (addclaim(workspace_contract, private_key, 'address', issuer, "", ipfshash) )
-"""
