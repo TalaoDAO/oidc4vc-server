@@ -73,11 +73,20 @@ def Resume_resolver(did) :
 # 4) retour d'information a la société RH
 # https://orange.developpez.com/tutoriels/authentification-3-legged/
 
+# page d accueil du site RH
+@app.route('/RHcompany/')
+def RHcompnay_home() :
+	return render_template("RHcompany_home.html",message='Aucun')
+# ajouter un call vers un api exterieur avec l id de la RH company et son token
 
-# API
-@app.route('/talent_connect/api/<data>', methods=['GET'])
-def talentconnect(data) :
-	return GETresume.getresume(did, register,mode)
+
+
+# appel de la mire login de talent connect avec passage des identifiants de la société
+@app.route('/talent_connect/api/',methods=['GET'])
+def talentconnect() :
+	print(request.args["ID"])
+	print(request.args["JWT"])
+	return "done"
 
 #####################################################
 #   CREATION IDENTITE ONLINE (html) pour le site talao.io
@@ -90,6 +99,7 @@ On test si l email existe dans le back end
 
 @app.route('/talao/register/')
 def authentification() :
+	print('name = ', request.args['name'])
 	return render_template("home.html",message='Aucun')
 
 ### recuperation de l email

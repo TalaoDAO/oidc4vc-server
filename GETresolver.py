@@ -11,7 +11,6 @@ import Talao_token_transaction
 import Talao_ipfs
 import ipfshttpclient
 import nameservice
-#from constante import mymode
 	
 
 ########################################################################
