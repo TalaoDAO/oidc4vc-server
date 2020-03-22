@@ -217,13 +217,14 @@ def getresume(did, mode) :
 		# initialisation IPFS
 		client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	
-		# download du claim du dernier kyc 107121099 => le dernier est supposé etre le bon ...................a discuter !!!!
+		# download du claim du kyc 107121099 => le dernier efface  le precedent si eme issuer
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim=contract.functions.getClaimIdsByTopic(107121099).call()
 		if len(claim) == 0 : # pas de KBIS
 			cv['value']['nationalidentity']["kyc"]=None 
 		else : 			
-			claimId=claim[len(claim)-1].hex()
+			
+			claimId=claim[len(claim)-1].hex() # ???? le seul ????
 			claimdata = contract.functions.getClaim(claimId).call()
 			issuer=claimdata[2]	
 			data=claimdata[4]

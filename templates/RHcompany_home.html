@@ -1,0 +1,29 @@
+<!doctype html> <html lang= "en ">
+
+<title>RH company</title>
+
+<head>
+<link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='main.css') }}">
+
+<style>
+message    {color: red;}
+</style>
+</head>
+
+<body>
+<h1> RH Company, recruitment page </h1>
+<p></p>
+<message> message : {{message}}</message>
+<h3></h3> 
+
+<form action= "http://127.0.0.1:5000/talent_connect/api/" method= "GET">
+<input type="hidden" name="ID"  value="12345" />
+<input type="hidden" name="JWT" value="5678">
+<button type= "submit">Connect with Talent Connect</button>
+</form>
+
+
+
+</body> </html>
+
+

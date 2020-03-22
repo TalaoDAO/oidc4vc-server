@@ -1,5 +1,4 @@
-#import http.client, urllib.parse
-from flask import Flask, jsonify, session
+from flask import Flask, jsonify, session, send_from_directory
 from flask import request, redirect, url_for
 from flask_api import FlaskAPI
 from Crypto.Random import get_random_bytes
@@ -14,7 +13,7 @@ import createidentity
 import constante
 import Talao_backend_transaction
 import environment
-
+from flask_fontawesome import FontAwesome
 from flask import render_template
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
@@ -24,12 +23,66 @@ mode.print_mode()
 
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
+fa = FontAwesome(app)
 app.config["SECRET_KEY"] = "OCML3BRawWEUeaxcuKHLpw"
 tabcode = dict()
 
 
+certificate={"firstname" : "Eric",
+	"name" : "Planchais",
+	"company" : {"name" : "Thales", "manager" : "Jean Charles", "managersignature" : "experingsignature.png",
+		"companylogo" : "experinglogo.jpeg"},
+	"startDate" : "2019-06-01",
+	"endDate" :"2019-08-01",
+	"summary" :  "Within the framework of an international consortium (Peugeot, Exagon, Quebec state), development of a new large-dimension hybrid vehicle SUV for the premium automotive segment. Technical, economic and human challenge with the setup of a new production plant in North America",
+	"skills" : "Python3		Javascript		Debian",
+	"position" : "Interim manager as CTO for hybrid SUV project",
+	"score_recommendation" : 2,
+	"score_delivery" : 3,
+	"score_schedule" : 1,
+	"score_communication" : 4}
+	
+
+		
 
 
+#############################################################
+#    affichage d'un certificat de type claim
+#############################################################
+@app.route('/certificate/')
+def show_certificate():
+	ok="color: rgb(251,211,5); font-size: 10px;"
+	ko="color: rgb(0,0,0);font-size: 10px;"
+	context=certificate.copy()
+	context["manager"]=certificate["company"]["manager"]
+	context["managersignature"]=certificate["company"]["managersignature"]
+	context["companylogo"]=certificate["company"]["companylogo"]
+	
+	
+	# gestion des star 
+	score=[]
+	score.append(certificate["score_recommendation"])
+	score.append(certificate["score_delivery"])
+	score.append(certificate["score_schedule"])
+	score.append(certificate["score_communication"])
+	for q in range(0,4) :
+		for i in range(0,score[q]) :
+			context["star"+str(q)+str(i)]=ok
+		for i in range(score[q],5) :
+			context ["star"+str(q)+str(i)]=ko
+	print(json.dumps(context))
+
+	return render_template('certificate.html', **context)
+
+# upload des photos
+@app.route('/uploads/<filename>')
+def send_file(filename):
+	UPLOAD_FOLDER='photos'
+	return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+
+######################################################
 @app.route('/talao/api/<data>', methods=['GET'])
 def Main(data) :
 	return GETdata.getdata(data, register,mode)
@@ -65,30 +118,6 @@ def Resume_resolver(did) :
 	return GETresume.getresume(did,mode)
 
 #####################################################
-#   Talent Connect cf oAUTH2
-#####################################################
-# 1) "connectez vous avec le Talent Connect" -> appel de la mire de login avec id et jwt de la societe RH
-# 2) "entrez votre did et checkez votre email" -> envoi d'un message avec code secret
-# 3) "entrez le code correspondant a votre souhait" 
-# 4) retour d'information a la société RH
-# https://orange.developpez.com/tutoriels/authentification-3-legged/
-
-# page d accueil du site RH
-@app.route('/RHcompany/')
-def RHcompnay_home() :
-	return render_template("RHcompany_home.html",message='Aucun')
-# ajouter un call vers un api exterieur avec l id de la RH company et son token
-
-
-
-# appel de la mire login de talent connect avec passage des identifiants de la société
-@app.route('/talent_connect/api/',methods=['GET'])
-def talentconnect() :
-	print(request.args["ID"])
-	print(request.args["JWT"])
-	return "done"
-
-#####################################################
 #   CREATION IDENTITE ONLINE (html) pour le site talao.io
 #####################################################
 """
@@ -99,8 +128,8 @@ On test si l email existe dans le back end
 
 @app.route('/talao/register/')
 def authentification() :
-	print('name = ', request.args['name'])
-	return render_template("home.html",message='Aucun')
+	#print('name = ', request.args['name'])
+	return render_template("home.html",message='')
 
 ### recuperation de l email
 @app.route('/talao/register/', methods=['POST'])
@@ -109,10 +138,12 @@ def POST_authentification_1() :
 	
 	# verification de l email dans le backend
 	email = request.form['email']
-	session['lastname']=request.form['lastname']
+	print('email =' ,email)
+	firstname=request.form['firstname']
+	lastname=request.form['lastname']
 	session['firstname']=request.form['firstname']
+	session['lastname']=request.form['lastname']
 	session['email']=email
-	print('email = ', email)
 	check_backend=Talao_backend_transaction.canregister(email,mode)
 	print('check backend =',check_backend) 
 	if check_backend == False :
@@ -129,7 +160,7 @@ def POST_authentification_1() :
 	print('name = ', request.form['lastname'])
 	print('firstname =', request.form['firstname'])
 
-	return render_template("home2.html", message = 'email avec code envoyé')
+	return render_template("home2.html", message = '')
 
 # recuperation du code saisi
 @app.route('/talao/register/code/', methods=['POST'])
@@ -143,9 +174,9 @@ def POST_authentification_2() :
 	if mycode == tabcode[email] :
 		print('appel de createidentity avec firtsname = ', firstname, ' name = ', lastname, ' email = ', email)
 		#(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch(firstname, name, email)	
-		mymessage = 'workspace will be available within a couple of minutes. You will receive your Ethereum private key and RSA key to connect with my.Freedapp http://vault.talao.io:4011/' 
+		mymessage = 'Your professional Identity will be available within a couple of minutes. You will receive your Cryptographic keyys to connect through my.Freedapp http://vault.talao.io:4011/' 
 	else :
-		mymessage = 'false code'
+		mymessage = 'Error code'
 	return render_template("home3.html", message = mymessage)
 
 @app.route('/talao/register/code/', methods=['GET'])

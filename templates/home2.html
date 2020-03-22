@@ -1,22 +1,26 @@
-<!doctype html> <html lang= "en ">
-
-<title>Talent Connect</title>
+<!DOCTYPE html>
+<html>
 
 <head>
-<link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='main.css') }}">
-<style>
-message    {color: red;}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
 
 </head>
 
 <body>
-<h1>Création d'une identité décentralisée en ligne -> template home2.html</h1>
+    <div class="contact-clean" style="background-color: rgb(255,255,255);">
+        <form method="post" action="./code/">
+            <h2 class="text-center">Check your email and enter your code</h2>
+            <div class="col"><small>{{message}}</small></div><small class="form-text text-danger" required="">Please enter your code</small>
+            <div class="form-group"><input class="form-control required" type="text" name="mycode" placeholder="Your code" required=""></div><button class="btn btn-primary" type="submit">send </button></form>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
 
-<message> message : {{message}}</message>
-<h3>Saisissez le code reçu par email</h3> 
-<form action= "./code/" method= "POST">
-<input type= "text" name= "mycode"> <button type= "submit">OK</button>
-</form>
-
-</body> </html>
+</html>
