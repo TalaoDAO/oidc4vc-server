@@ -4,6 +4,8 @@ from flask_api import FlaskAPI
 from Crypto.Random import get_random_bytes
 import json
 import ipfshttpclient
+from flask_fontawesome import FontAwesome
+from flask import render_template
 
 import GETdata
 import GETresolver
@@ -14,12 +16,10 @@ import createidentity
 import constante
 import Talao_backend_transaction
 import environment
-from flask_fontawesome import FontAwesome
-from flask import render_template
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
 # SETUP
-mode=environment.currentMode('test', 'rinkeby')
+mode=environment.currentMode('prod', 'rinkeby')
 #mode.print_mode()
 w3=mode.initProvider()
 	
@@ -111,15 +111,25 @@ def Main(data) :
 def DID_Document(did) :
 	return GETresolver.getresolver(did,mode)
 
-# HTML
-@app.route('/resolver/')
-def DID_document_html() :
-	return render_template("home_resolver.html")
-@app.route('/resolver/did/', methods=['POST'])
-def DID_document_html_1() :
-	did = request.form['did']
-	return GETresolver.getresolver(did,mode)
+#####################################################
+#   RESUME
+#####################################################
 
+# HTML
+@app.route('/resume/')
+def resume_home() :
+	return render_template("home_resolver.html")
+@app.route('/resume/did/', methods=['POST'])
+def resume() :
+	did = request.form['did']
+	print(did)
+	if did[:3] == 'did' :
+		truedid=did
+	else :
+		truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did, register)[2:]		
+	print('truedid = ',truedid)
+	return GETresume.getresume(truedid,mode)
+	
 #####################################################
 #   AUTRES API
 #####################################################
@@ -260,8 +270,8 @@ print('initialisation du serveur')
 
 if __name__ == '__main__':
 	
-	if mode.env == 'production' :
-		app.run(host = mode.IP, port= mode.port, debug=True)
+	if mode.env == 'production' or mode.env == 'prod' :
+		app.run(host = mode.flaskserver, port= mode.port, debug=True)
 	elif mode.env =='test' :
 		app.run(debug=True)
 	else :
