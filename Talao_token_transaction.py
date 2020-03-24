@@ -1,10 +1,8 @@
-import constante
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import csv
 import sys
 import time
-import Talao_ipfs
 import hashlib
 import json
 import ipfshttpclient
@@ -12,12 +10,10 @@ from datetime import datetime
 from eth_account.messages import encode_defunct
 from web3 import Web3
 
-"""
-def initProvider(mode)
-	my_provider = Web3.IPCProvider(mode.IPCProvider)
-	w3 = Web3(my_provider)
-	return w3
-"""
+import Talao_ipfs
+import Talao_message
+import constante
+
 
 ############################################################
 # appel de ownersToContracts de la fondation
@@ -124,9 +120,15 @@ def ether_transfer(address_to, value, mode) :
 	transaction = {'to': address_to,'value': eth_value,'gas': 50000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': talaoGen_nonce,'chainId': mode.CHAIN_ID}
 
 	#sign transaction with TalaoGen wallet
-	key = '0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
+	key = mode.Talaogen_private_key
 	signed_txn = w3.eth.account.sign_transaction(transaction, key)
-	
+
+	# alert Admin
+	address=mode.Talaogen_public_key
+	balance =w3.eth.getBalance(address)/1000000000000000000
+	if balance < 0.2 :
+		Talao_message.messageAdmin('nameservice', 'balance Talaogen < 0.2eth', mode)
+		
 	#w3.eth.defaultAccount=mode.Talaogen_public_key
 
 	#signed_txn = w3.eth.signTransaction(dict(nonce=talaoGen_nonce,gasPrice=w3.toWei(mode.GASPRICE, 'gwei'),gas=50000,to=address_to,value=eth_value,data=b'',))
@@ -527,6 +529,9 @@ def readWorkspaceInfo (address,mode) :
 ############################################################
 #  Create and publish experience in one step
 ############################################################
+# experience={ 'experience':{'title': _experienceTitle, 'description': _experienceDescription, 'from': _fromdate, 'to': _todate, 'location': '', 'remote': True, 'organization_name': 'Talao','skills': [] }}
+
+
 def createandpublishExperience(address, private_key, experience,mode ) :
 	w3=mode.initProvider()
 
@@ -554,7 +559,6 @@ def createandpublishExperience(address, private_key, experience,mode ) :
 
 	# creation experience sur le backend
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
-	#experience={ 'experience':{'title': _experienceTitle, 'description': _experienceDescription, 'from': _fromdate, 'to': _todate, 'location': '', 'remote': True, 'organization_name': 'Talao','skills': [] }}
 	payload = experience
 	data = json.dumps(payload)
 	conn.request('POST', '/experiences',data, headers)
@@ -651,7 +655,6 @@ def authenticate(docjson, address, private_key,mode) :
 
 	# conversion en Dict python
 	objectdata=json.loads(docjson)
-
 
 	# mise a jour du Dict avec les infos d authentication
 	objectdata.update({'Authentication' : 

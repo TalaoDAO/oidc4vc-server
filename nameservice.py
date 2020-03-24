@@ -33,7 +33,7 @@ import constante
 from eth_account.messages import encode_defunct
 import hashlib
 import json
-
+import Talao_message
 
 
 ####################################################
@@ -93,9 +93,9 @@ def buildregister(mode) :
 			register[namehash(email)]=workspace_contract
 	
 	try : 
-		myfile=open('register.json', 'w') 
+		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
-		print('impossible de stocker le fichier')
+		print('IOError ; impossible de stocker le fichier')
 		return False
 
 	json.dump(register, myfile)
@@ -112,7 +112,7 @@ def buildregister(mode) :
 def readregister(mode) :
 	
 	# Charger le dictionnaire depuis un fichier :
-	with open('register.json', 'r') as myfile: 
+	with open(mode.BLOCKCHAIN+'_register.json', 'r') as myfile: 
 		register = json.load(myfile)
 	return register
 	
@@ -137,7 +137,14 @@ def setup_address(name, workspace_contract,register, mode) :
 	topicname='nameservice'
 	topicvalue= 110097109101115101114118105099101
 	ipfshash=""
+	
 	nonce = w3.eth.getTransactionCount(mode.foundation_address)  	
+	
+	address=mode.foundation_address
+	balance =w3.eth.getBalance(address)/1000000000000000000
+	if balance < 0.2 :
+		Talao_message.messageAdmin('nameservice', 'balance foundation < 0.2eth', mode)
+	
 	# calcul de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
@@ -152,7 +159,7 @@ def setup_address(name, workspace_contract,register, mode) :
 	# register.json update
 	register[data]=workspace_contract
 	try : 
-		myfile=open('register.json', 'w') 
+		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
 		print('impossible de stocker le fichier')
 		return False

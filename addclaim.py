@@ -16,7 +16,16 @@ def addClaim(workspace_contract_to, address_from,private_key_from, topicname, is
 	
 	w3=mode.initProvider()
 	
-	topicvalue=constante.topic[topicname]
+	# on va chercher topicvalue dans le dict existant (constante.py) si il n existe pas on le calcule
+	topicvalue=constante.topic.get(topicname)
+	if topicvalue== None :
+		topicvaluestr =''
+		for i in range(0, len(topicname))  :
+			a = str(ord(topicname[i]))
+			if int(a) < 100 :
+				a='0'+a
+			topicvaluestr=topicvaluestr+a
+		topicvalue=int(topicvaluestr)
 	
 	nonce = w3.eth.getTransactionCount(address_from)  
 	

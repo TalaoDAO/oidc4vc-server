@@ -110,10 +110,10 @@ def getresolver(did,mode) :
 	else : 
 		
 		
-		did_document["service"]["publicdata"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
+		did_document["service"]["publicdata"] = { "endpoint" : mode.server+"talao/api/profil/"+ did,
 				"method" : "GET",
 				"@context" : "https://talao.io",
-				"description" : "check and verify our Company data"}
+				"description" : "check and verify Company data"}
 				
 		did_document["service"]["messagebox"]  = { "endpoint" : "to be done....",
 				"method" : "POST",

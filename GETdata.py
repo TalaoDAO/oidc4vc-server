@@ -89,8 +89,10 @@ def getdocument(index, workspace_contract,mode) :
 	identityinformation = contract.functions.identityInformation().call()[1]	
 	if identityinformation==1001 :
 		category="individual"
+		path="resume"
 	else :
 		category = "company"	
+		path= "profil"
 			
 	# determination du profil de l issuer
 	(issuerprofile, x)=GETresume.readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
@@ -101,15 +103,13 @@ def getdocument(index, workspace_contract,mode) :
 	document['@context']='https://github.com/TalaoDAO/talao-contracts'
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
 	document['endpoint']=mode.server+'data/'+document['id']
-	document["methods"]=["GET"]
-	document['value'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
-									'endpoint' : mode.server+'resume/did:talao:rinkeby:'+whatisthisaddress(issuer,mode)["workspace"][2:],
-									'value' : issuerprofile},	
-						'doctype': doc[0],
-						'doctypeversion' : doc[1],
+	document['data'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
+									'endpoint' : mode.server+'talao/api/'+path+'/did:talao:'+mode.BLOCKCHAIN+':'+whatisthisaddress(issuer,mode)["workspace"][2:],
+									'data' : issuerprofile},	
 						"expires" : doc[2],
 						"encrypted" : doc[7],
 						"datalocation" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
+						"signaturetype" : "Secp256k1SignatureVerificationKey2018",
 						"signature" : True,
 						'signature_check' : True}
 	
@@ -146,7 +146,9 @@ def getclaim (claim_id, workspace_contract,mode) :
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claimdata=contract.functions.getClaim(claim_id).call()
 	inv_topic=dict(map(reversed, constante.topic.items()))
-	topicname=inv_topic[claimdata[0]]
+	topicname=inv_topic.get(claimdata[0])
+	if topicname==None :
+		topicname ='certificate'
 	issuer=claimdata[2]	
 	data=claimdata[4]
 	url=claimdata[5]
@@ -156,8 +158,10 @@ def getclaim (claim_id, workspace_contract,mode) :
 	identityinformation = contract.functions.identityInformation().call()[1]
 	if identityinformation==1001 :
 		category="person"
+		path= "resume"
 	else :
 		category = "company"	
+		path="profil"
 		
 	# determination du profil de l issuer
 	(issuerprofile,X)=GETresume.readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
@@ -181,24 +185,25 @@ def getclaim (claim_id, workspace_contract,mode) :
 	claim['@context'] = 'https://github.com/ethereum/EIPs/issues/735'
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
 	claim['endpoint']=mode.server+'talao/api/data/'+claim['id']
-	claim["methods"]=["GET"]
-	claim["value"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
-					'endpoint' : mode.server+"resume/did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
-					'value' : issuerprofile}}	
-	claim['value']['topic']=topicname
+	claim["data"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
+					'endpoint' : mode.server+"talao/api/"+path+"/did:talao:"+mode.BLOCKCHAIN+":"+whatisthisaddress(issuer,mode)["workspace"][2:],
+					'data' : issuerprofile}}	
+	claim['data']['topic']=topicname
 	if claimdata[5][:1]=="Q" :
 		data=client.get_json(claimdata[5])
 	else :
 		url=claimdata[5]
 		data=claimdata[4].decode('utf-8')
-	claim['value']['data']=data
+	claim['data']['value']=data
 	if claimdata[5]=="" :
-		claim['value']['data']=None
+		claim['data']['value']=None
 	else :
-		claim['value']['datalocation']='https://ipfs.infura.io/ipfs/'+claimdata[5]
-	claim['value']['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
-	claim['value']['signature'] = signature
-	claim['value']['signature_check']=verification
+		claim['data']['location']='https://ipfs.infura.io/ipfs/'+claimdata[5]
+	claim['data']['expires']=0
+	claim['data']['encrypted']=False
+	claim['data']['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
+	claim['data']['signature'] = signature
+	claim['data']['signature_check']=verification
 	
 	
 	return claim
@@ -207,45 +212,35 @@ def getclaim (claim_id, workspace_contract,mode) :
 ##############################################
 #   MAIN
 ##############################################
-# @data = email ou did ou document ou claim
-
+# @data = did ou document ou claim
+# did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b'
+# did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim;56879abc
 #   A refaire !!!!!!
 
 def getdata(data, register,mode) :
+	
 	w3=mode.initProvider()
-
-	datasplit=data.split('@')
-	datasplit2=data.split(':')
-	# si data est un email
-	if len(datasplit) == 2 :
-		if len(datasplit[1].split('.')) == 1 :
-			return data+' n est pas un email correct'
-		# recherche d'un did dans le regsitre nameservice
-		workspace_contract= register.get(data,mode)
-		if workspace_contract== None :
-			return 'Il n existe pas de workspace pour '+data
-		else :
-			did='did:talao:rinkeby:'+workspace_contract[2:]
-			result=GETresume.getresume(did,mode)
-			return result
+	datasplit=data.split(':')
+	if datasplit[2] != mode.BLOCKCHAIN :
+		return "Erreur de chain"	
 			
 	# si data n'est pas un did
-	if datasplit2[0] != 'did' or len(datasplit2) not in [4,6] :
+	if datasplit[0] != 'did' or len(datasplit) not in [4,6] :
 		return data+' n est pas un identifiant'
 
 	# determination de l'addresse du workspace
-	workspace_contract='0x'+datasplit2[3]
+	workspace_contract='0x'+datasplit[3]
 
 	# si data est un identifiant de document
-	if len(datasplit2) == 6 and datasplit2[4]== 'document' :
-		result=getdocument(int(datasplit2[5]), workspace_contract,mode)
+	if len(datasplit) == 6 and datasplit[4]== 'document' :
+		result=getdocument(int(datasplit[5]), workspace_contract,mode)
 
 	# si data est un identfiant de claim
-	if len(datasplit2) == 6 and datasplit2[4]== 'claim' :	
-		result = getclaim(datasplit2[5], workspace_contract,mode)	
+	if len(datasplit) == 6 and datasplit[4]== 'claim' :	
+		result = getclaim(datasplit[5], workspace_contract,mode)	
 
 	# si data est un did	
-	if len(datasplit2) == 4  :
+	if len(datasplit) == 4  :
 		result=GETresume.getresume(data,mode)
 
 	return result

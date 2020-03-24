@@ -142,3 +142,52 @@ def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_ad
 	return
 
 
+
+def messageAdmin (subject, messagetext,mode) :
+
+	# debut de la fonction
+	fromaddr = "thierry.thevenet1963@gmail.com"
+	toaddr = ["thierry.thevenet@talao.io"]
+
+	# instance of MIMEMultipart 
+	msg = MIMEMultipart() 
+
+	# storing the senders email address 
+	msg['From'] = fromaddr 
+
+	# storing the receivers email address 
+	msg['To'] = ", ".join(toaddr)
+
+	# storing the subject 
+	msg['Subject'] = "Admin message :" + subject
+
+	# string to store the body of the mail 
+	body = messagetext
+	
+	# attach the body with the msg instance 
+	msg.attach(MIMEText(body, 'plain')) 
+
+	# instance of MIMEBase and named as p 
+	p = MIMEBase('application', 'octet-stream') 
+
+
+	# creates SMTP session 
+	s = smtplib.SMTP('smtp.gmail.com', 587) 
+
+	# start TLS for security 
+	s.starttls() 
+
+	# Authentication 
+	s.login(fromaddr, "Mishoosh2") 
+
+	# Converts the Multipart msg into a string 
+	text = msg.as_string() 
+
+	# sending the mail 
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+	except:
+		print ('error sending mail')
+	s.quit()
+	return
+

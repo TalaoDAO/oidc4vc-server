@@ -3,6 +3,7 @@ from flask import request, redirect, url_for
 from flask_api import FlaskAPI
 from Crypto.Random import get_random_bytes
 import json
+import ipfshttpclient
 
 import GETdata
 import GETresolver
@@ -19,8 +20,9 @@ from flask import render_template
 
 # SETUP
 mode=environment.currentMode('test', 'rinkeby')
-mode.print_mode()
-
+#mode.print_mode()
+w3=mode.initProvider()
+	
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
 fa = FontAwesome(app)
@@ -28,38 +30,50 @@ app.config["SECRET_KEY"] = "OCML3BRawWEUeaxcuKHLpw"
 tabcode = dict()
 
 
-certificate={"firstname" : "Eric",
-	"name" : "Planchais",
-	"company" : {"name" : "Thales", "manager" : "Jean Charles", "managersignature" : "experingsignature.png",
-		"companylogo" : "experinglogo.jpeg"},
-	"startDate" : "2019-06-01",
-	"endDate" :"2019-08-01",
-	"summary" :  "Within the framework of an international consortium (Peugeot, Exagon, Quebec state), development of a new large-dimension hybrid vehicle SUV for the premium automotive segment. Technical, economic and human challenge with the setup of a new production plant in North America",
-	"skills" : "Python3		Javascript		Debian",
-	"position" : "Interim manager as CTO for hybrid SUV project",
-	"score_recommendation" : 2,
-	"score_delivery" : 3,
-	"score_schedule" : 1,
-	"score_communication" : 4}
+#####################################################	
+# read contenu du claim stocké sur IPFS
+######################################################
+def getclaimipfs (claim_id, workspace_contract) :
+# @topicname est un str
+# return un objet List
+
 	
-
+	# initialisation
+	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	claimdata=contract.functions.getClaim(claim_id).call()
+	print(claimdata)
+	if claimdata[5]!="" :
+		data=client.get_json(claimdata[5])
+		return data
+	else :
+		return False
 		
-
-
 #############################################################
 #    affichage d'un certificat de type claim
 #############################################################
-@app.route('/certificate/')
-def show_certificate():
+#data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
+
+
+@app.route('/certificate/<data>', methods=['GET'])
+def show_certificate(data):
+	
+	claimId=data.split(':')[5]
+	print(claimId)
+	workspace_contract= '0x'+data.split(':')[3]
+	print(workspace_contract)
+	certificate=getclaimipfs(claimId, workspace_contract)
+	
 	ok="color: rgb(251,211,5); font-size: 10px;"
 	ko="color: rgb(0,0,0);font-size: 10px;"
+	
 	context=certificate.copy()
 	context["manager"]=certificate["company"]["manager"]
 	context["managersignature"]=certificate["company"]["managersignature"]
 	context["companylogo"]=certificate["company"]["companylogo"]
 	
 	
-	# gestion des star 
+	# gestion des "fa-star" 
 	score=[]
 	score.append(certificate["score_recommendation"])
 	score.append(certificate["score_delivery"])
@@ -92,8 +106,9 @@ def Main(data) :
 #####################################################
 
 # API
+@app.route('/resolver/api/<did>', methods=['GET'])
 @app.route('/talao/resolver/api/<did>', methods=['GET'])
-def DID_document(did) :
+def DID_Document(did) :
 	return GETresolver.getresolver(did,mode)
 
 # HTML
@@ -113,9 +128,21 @@ def DID_document_html_1() :
 def Data(data) :
 	return GETdata.getdata(data, register,mode)
 
+"""
 @app.route('/talao/api/resume/<did>', methods=['GET'])
 def Resume_resolver(did) :
+	return redirect(url_for('Resume'))
+"""	
+
+@app.route('/talao/api/profil/<did>', methods=['GET'])
+def Company_Profil(did) :
+	return GETresume.getresume(did, mode)
+	
+@app.route('/talao/api/resume/<did>', methods=['GET'])	
+@app.route('/resume/<did>', methods=['GET'])
+def User_Resume(did) :
 	return GETresume.getresume(did,mode)
+	
 
 #####################################################
 #   CREATION IDENTITE ONLINE (html) pour le site talao.io

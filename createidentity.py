@@ -93,8 +93,10 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
 	hash2=Talao_token_transaction.token_transfer(eth_a,100,mode)
 	
+	
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
 	hash3=Talao_token_transaction.createVaultAccess(eth_a,eth_p,mode)
+	
 	
 	# Transaction pour la creation du workspace :
 	bemail=bytes(email , 'utf-8')	
