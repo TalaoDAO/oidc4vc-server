@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, session, send_from_directory
+from flask import Flask, jsonify, session, send_from_directory, flash
 from flask import request, redirect, url_for
 from flask_api import FlaskAPI
 from Crypto.Random import get_random_bytes
@@ -19,7 +19,7 @@ import environment
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
 # SETUP
-mode=environment.currentMode('prod', 'rinkeby')
+mode=environment.currentMode('test', 'rinkeby')
 #mode.print_mode()
 w3=mode.initProvider()
 	
@@ -112,23 +112,32 @@ def DID_Document(did) :
 	return GETresolver.getresolver(did,mode)
 
 #####################################################
-#   RESUME
+#   Talao Professional Identity Explorer
 #####################################################
 
 # HTML
 @app.route('/resume/')
 def resume_home() :
 	return render_template("home_resolver.html")
-@app.route('/resume/did/', methods=['POST'])
+	
+	
+@app.route('/resume/did/', methods=['GET'])
 def resume() :
-	did = request.form['did']
+	did = request.args['did']
 	print(did)
 	if did[:3] == 'did' :
 		truedid=did
 	else :
-		truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did, register)[2:]		
-	print('truedid = ',truedid)
-	return GETresume.getresume(truedid,mode)
+		print('nameservice = ', nameservice.address(did,register))
+		if nameservice.address(did,register) != None :
+			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did, register)[2:]
+		else :
+			flash('Identifier not found')
+			return redirect (url_for('resume_home'))
+	
+	return GETresume.getresume(truedid,mode)	
+
+	
 	
 #####################################################
 #   AUTRES API
@@ -210,7 +219,7 @@ def POST_authentification_2() :
 	print('code retourné = ', mycode)
 	if mycode == tabcode[email] :
 		print('appel de createidentity avec firtsname = ', firstname, ' name = ', lastname, ' email = ', email)
-		#(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch(firstname, name, email)	
+		(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch(firstname, name, email,mode)	
 		mymessage = 'Your professional Identity will be available within a couple of minutes. You will receive your Cryptographic keyys to connect through my.Freedapp http://vault.talao.io:4011/' 
 	else :
 		mymessage = 'Error code'

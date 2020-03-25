@@ -1,6 +1,6 @@
 <!doctype html> <html lang= "en ">
 
-<title>Resolver</title>
+<title>Talao Resume Explorer</title>
 
 <head>
 	
@@ -17,31 +17,34 @@
 
 <body>
     <div class="contact-clean" style="height: 900px;">
-        <form method="post" action="./did/" name="did">
+        <form method="get" action="./did/" name="did">
             <h2 class="text-center">Talao Professional Identity API Explorer</h2>
+            <div class="form-row" style="height: 39px;">
+                <div class="col" style="height: 30px;">
+				<!-- gestion des flash message -->
+					{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						<ul class=flashes>
+							{% for message in messages %}
+                    <p style="font-size: 12px;color: rgb(247,17,2);margin: 20px -40px;">{{message}}</p>
+							{% endfor %}
+						</ul>
+					{% endif %}
+					{% endwith %}
+                    
+                </div>
+            </div>
             <div class="form-group"><input class="form-control" type="text" name="did" placeholder="Email or Identifiant"></div>
             <div class="form-group"><button class="btn btn-primary" type="submit">send </button></div>
         </form>
     </div>
     
     
-    
-    <script src="static/jquery.min.js"></script>
-    <script src="static/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 
 
 </html>
 
-
-
-<!--
-<body>
-<h1>Talao Resolver</h1> 
-<h1></h1>
-<h3>Distributed IDentifierd </h3> 
-<form action= "./did/" method= "POST">
-<input type= "text" name= "did"> <button type= "submit">Resolve</button>
-</form>
--->
