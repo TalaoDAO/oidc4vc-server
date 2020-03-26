@@ -11,7 +11,52 @@ import Talao_token_transaction
 import Talao_ipfs
 import ipfshttpclient
 import nameservice
-	
+
+
+
+
+##############################################
+# detrmination de la nature de l addresse
+##############################################
+# @thisaddress, address
+# return dictionnaire
+
+def whatisthisaddress(thisaddress,mode) :
+
+	w3=mode.initProvider()
+
+	# est ce une addresse Ethereum ?
+	if w3.isAddress(thisaddress) == False :
+		category = False
+		owner = None
+		workspace= None	
+	else :
+		
+		# test sur la nature de thisaddress
+		contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+		address = contract.functions.contractsToOwners(thisaddress).call()
+		workspace=contract.functions.ownersToContracts(thisaddress).call()
+		
+		# thisaddress est un owner
+		if address == '0x0000000000000000000000000000000000000000' and workspace != '0x0000000000000000000000000000000000000000' :
+			category = "owner"
+			owner = thisaddress
+			workspace=workspace
+			
+		# thisaddress est un workspace
+		if address != '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
+			category = 'workspace'
+			owner=address
+			workspace=thisaddress
+		
+		# thisaddressn est une addresse ethereum standard
+		if address == '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
+			category = 'unknown'
+			owner = None
+			workspace = None
+			
+	return {"type" : category, "owner" : owner, 'workspace' : workspace}
+
 
 ########################################################################
 #                    RESOLVER
@@ -27,8 +72,15 @@ def getresolver(did,mode) :
 	
 
 	w3=mode.initProvider()
-
-	workspace_contract='0x'+did[18:]
+	
+	didsplit=did.split(':')
+	workspace_contract='0x'+didsplit[3]
+	
+	# test de validité de l addresse
+	category = whatisthisaddress(workspace_contract,mode)["type"]
+	if category != 'workspace' :
+		return False
+	
 	
 	# recuperation de l'address du owner
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -71,32 +123,26 @@ def getresolver(did,mode) :
 	if workspace_information[1] == 1001 :
 		
 		did_document["service"]['resume_viewer'] = { "endpoint" : mode.WORKSPACE_LINK+workspace_contract,
-				"method" : "GET",
 				"@context" : "https://talao.io/",
 				"description" : "have a look at my resume"}
 
 		did_document["service"]["resume"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
-				"method" : "GET",
 				"@context" : "https://talao.io",
 				"description" : "check and verify my resume"}
 				
 		did_document["service"]["messagebox"]  = { "endpoint" : "to be done....",
-				"method" : "POST",
 				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
 				"description" : "send me a message"}
 	
 		did_document["service"]["digitalvault"]  = { "endpoint" : "to be done....",
-				"method" : "POST",
 				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
 				"description" : "send me private document"}
 					
 		did_document["service"]["requestparnership"]= {"endpoint" : "to be done",
-					"method" : "POST",
 					"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/access/Partnership.sol",
 					"description" : "Let's partner together and exchange private data"}
 	
 		did_document["service"]["transfercrypto"] = {"endpoint" : "to be done",
-					"method" : "POST",
 					"@context" : "eth and TALAO token",
 					"description" : "My Ethereum account"}	
 	
@@ -111,27 +157,22 @@ def getresolver(did,mode) :
 		
 		
 		did_document["service"]["publicdata"] = { "endpoint" : mode.server+"talao/api/profil/"+ did,
-				"method" : "GET",
 				"@context" : "https://talao.io",
 				"description" : "check and verify Company data"}
 				
 		did_document["service"]["messagebox"]  = { "endpoint" : "to be done....",
-				"method" : "POST",
 				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
 				"description" : "send us a message"}
 	
 		did_document["service"]["digitalvault"]  = { "endpoint" : "to be done....",
-				"method" : "POST",
 				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
 				"description" : "send us private documents"}
 					
 		did_document["service"]["requestparnership"]= {"endpoint" : "to be done",
-					"method" : "POST",
 					"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/access/Partnership.sol",
 					"description" : "Let's partner together and exchange private data"}
 	
 		did_document["service"]["transfercrypto"] = {"endpoint" : "to be done",
-					"method" : "POST",
 					"@context" : "eth and TALAO token",
 					"description" : "Our Ethereum account"}	
 	

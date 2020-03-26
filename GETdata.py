@@ -217,7 +217,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 # did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim;56879abc
 #   A refaire !!!!!!
 
-def getdata(data, register,mode) :
+def getdata(data,mode) :
 	
 	w3=mode.initProvider()
 	datasplit=data.split(':')

@@ -1,11 +1,12 @@
-from flask import Flask, jsonify, session, send_from_directory, flash
+from flask import Flask, jsonify, session, send_from_directory, flash, send_file
 from flask import request, redirect, url_for
-from flask_api import FlaskAPI
+from flask_api import FlaskAPI, status
 from Crypto.Random import get_random_bytes
 import json
 import ipfshttpclient
 from flask_fontawesome import FontAwesome
 from flask import render_template
+import http.client, urllib.parse
 
 import GETdata
 import GETresolver
@@ -48,6 +49,188 @@ def getclaimipfs (claim_id, workspace_contract) :
 		return data
 	else :
 		return False
+		
+		
+		
+########################### API SERVER ###############################		
+
+
+#####################################################
+#   RESOLVER API
+# retourne le DID Document d'un user
+#####################################################
+#curl http://127.0.0.1:5000/resolver/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"did" : "mydid"}'
+
+@app.route('/resolver/api/v0/<PROJECT_ID>', methods=['POST'])
+def did_api(PROJECT_ID) :
+	
+	print (request.headers["Content-Type"])
+	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
+		content = {'Not Authorized': 'nothing to see here'}
+		return content, status.HTTP_401_UNAUTHORIZED
+	
+	else :	
+		mydid=request.data.get('did')
+		if GETresolver.getresolver(mydid, mode) == False :
+			content = {'Bad did': 'nothing to see here'}
+			return content, status.HTTP_204_NO_CONTENT
+		
+		else : 
+			return GETresolver.getresolver(mydid,mode)
+
+
+# autres API
+@app.route('/resolver/api/<did>', methods=['GET'])
+@app.route('/talao/resolver/api/<did>', methods=['GET'])
+def DID_Document(did) :
+	return GETresolver.getresolver(did,mode)		
+
+	
+#####################################################
+#   DATA API
+# retourne le contenu  d'une data
+#####################################################
+#curl http://127.0.0.1:5000/talao/data/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"data" : "mydata"}'
+#
+# data = 'did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
+
+@app.route('/talao/data/api/v0/<PROJECT_ID>', methods=['POST'])
+def data_api(PROJECT_ID) :
+	print (request.headers["Content-Type"])
+	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
+		content = {'Not Authorized': 'nothing to see here'}
+		return content, status.HTTP_401_UNAUTHORIZED
+	
+	else :	
+		mydata=request.data.get('data')
+		print('mydata   ', mydata)
+		if GETdata.getdata(mydata, mode) == False :
+			content = {'Bad data': 'nothing to see here'}
+			return content, status.HTTP_204_NO_CONTENT
+		
+		else : 
+			return GETdata.getdata(mydata,mode)
+
+
+# autre API
+@app.route('/talao/api/data/<data>', methods=['GET'])
+def Data(data) :
+	return GETdata.getdata(data, register,mode)
+
+
+#####################################################
+#    RESUME API
+# retourne le resume d'un user à partir de son did 
+#####################################################
+#curl http://127.0.0.1:5000/talao/resume/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"did" : "mydid"}'
+
+@app.route('/talao/resume/api/v0/<PROJECT_ID>', methods=['POST'])
+def resume_api(PROJECT_ID) :
+	
+	print (request.headers["Content-Type"])
+	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
+		content = {'Not Authorized': 'nothing to see here'}
+		return content, status.HTTP_401_UNAUTHORIZED
+	
+	else :	
+		mydid=request.data.get('did')
+		if GETresume.getresume(mydid, mode) == False :
+			content = {'Bad did': 'nothing to see here'}
+			return content, status.HTTP_204_NO_CONTENT
+		
+		else : 
+			return GETresume.getresume(mydid,mode)
+	
+
+#####################################################
+#    RESUME NAME API sans authentification
+# retourne le resume d'un user à partir de son "nom" 
+#####################################################
+#curl http://127.0.0.1:5000/talao/resume_name/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"name" : "myname"}'
+
+@app.route('/talao/resume_name/api/v0/<PROJECT_ID>', methods=['POST'])
+def resume_name_api(PROJECT_ID) :
+	
+	print (request.headers["Content-Type"])
+	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
+		content = {'Not Authorized': 'nothing to see here'}
+		return content, status.HTTP_401_UNAUTHORIZED
+	
+	else :	
+		myname=request.data.get('name')
+		print('myname =',myname)
+		myaddress=nameservice.address(myname, register)
+		if myaddress == None :
+			content = {'Bad name': 'nothing to see here'}
+			return content, status.HTTP_204_NO_CONTENT
+		else : 
+			mydid="did:talao:"+mode.BLOCKCHAIN+":"+myaddress[2:]
+			return GETresume.getresume(mydid,mode)
+
+
+#autre API
+@app.route('/talao/api/profil/<did>', methods=['GET'])
+def Company_Profil(did) :
+	return GETresume.getresume(did, mode)
+	
+@app.route('/talao/api/resume/<did>', methods=['GET'])	
+@app.route('/resume/<did>', methods=['GET'])
+def User_Resume(did) :
+	return GETresume.getresume(did,mode)		
+		
+
+
+
+#######################################################
+#   Name Service API
+#######################################################
+#curl http://127.0.0.1:5000/nameservice/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"name" : "myname"}'
+
+@app.route('/nameservice/api/v0/<PROJECT_ID>', methods=['POST'])
+def nameservice_api(PROJECT_ID) :
+	
+	print (request.headers["Content-Type"])
+	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
+		content = {'Not Authorized': 'nothing to see here'}
+		return content, status.HTTP_401_UNAUTHORIZED
+	
+	else :	
+		myname=request.data.get('name')
+		print('myname =',myname)
+		myaddress=nameservice.address(myname, register)
+		if myaddress == None :
+			content = {'Bad name': 'nothing to see here'}
+			return content, status.HTTP_204_NO_CONTENT
+		
+		else : 
+			return {"did" : "did:talao:"+mode.BLOCKCHAIN+":"+myaddress[2:]}
+	
+
+@app.route('/nameservice/api/reload/', methods=['GET'])
+def GET_nameservice_reload() :
+	nameservice.buildregister(mode)
+	return {"CODE" : "reload done"}
+
+
+
+
+
+############################### WEB SERVER ###########################		
 		
 #############################################################
 #    affichage d'un certificat de type claim
@@ -96,23 +279,8 @@ def send_file(filename):
 
 
 
-######################################################
-@app.route('/talao/api/<data>', methods=['GET'])
-def Main(data) :
-	return GETdata.getdata(data, register,mode)
-
 #####################################################
-#   RESOLVER
-#####################################################
-
-# API
-@app.route('/resolver/api/<did>', methods=['GET'])
-@app.route('/talao/resolver/api/<did>', methods=['GET'])
-def DID_Document(did) :
-	return GETresolver.getresolver(did,mode)
-
-#####################################################
-#   Talao Professional Identity Explorer
+#   Talao Professional Identity API Explorer
 #####################################################
 
 # HTML
@@ -135,32 +303,20 @@ def resume() :
 			flash('Identifier not found')
 			return redirect (url_for('resume_home'))
 	
-	return GETresume.getresume(truedid,mode)	
-
+	#return GETresume.getresume(truedid,mode)	
+	# appel de l API
+	print("appel de l api")
+	conn = http.client.HTTPConnection("127.0.0.1:5000")
+	headers = {'Accept': 'application/json','Content-type': 'application/json'}
+	payload = { "did" : truedid}
+	data = json.dumps(payload)
+	conn.request('POST', '/talao/resume/api/v0/sandbox',data, headers)
+	response = conn.getresponse()
+	res=response.read()
+	return json.loads(res)
 	
-	
-#####################################################
-#   AUTRES API
-#####################################################
 
-@app.route('/talao/api/data/<data>', methods=['GET'])
-def Data(data) :
-	return GETdata.getdata(data, register,mode)
 
-"""
-@app.route('/talao/api/resume/<did>', methods=['GET'])
-def Resume_resolver(did) :
-	return redirect(url_for('Resume'))
-"""	
-
-@app.route('/talao/api/profil/<did>', methods=['GET'])
-def Company_Profil(did) :
-	return GETresume.getresume(did, mode)
-	
-@app.route('/talao/api/resume/<did>', methods=['GET'])	
-@app.route('/resume/<did>', methods=['GET'])
-def User_Resume(did) :
-	return GETresume.getresume(did,mode)
 	
 
 #####################################################
@@ -174,24 +330,22 @@ On test si l email existe dans le back end
 
 @app.route('/talao/register/')
 def authentification() :
-	#print('name = ', request.args['name'])
 	return render_template("home.html",message='')
 
-### recuperation de l email
+### recuperation de l email, nom et prenom
 @app.route('/talao/register/', methods=['POST'])
 def POST_authentification_1() :
 	global tabcode
 	
-	# verification de l email dans le backend
 	email = request.form['email']
-	print('email =' ,email)
 	firstname=request.form['firstname']
 	lastname=request.form['lastname']
+	# stocké en session
 	session['firstname']=request.form['firstname']
 	session['lastname']=request.form['lastname']
 	session['email']=email
-	check_backend=Talao_backend_transaction.canregister(email,mode)
-	print('check backend =',check_backend) 
+	# check de l'email dans le backend
+	check_backend=Talao_backend_transaction.canregister(email,mode) 
 	if check_backend == False :
 		return render_template("home.html", message = 'Email already in Backend')
 	
@@ -203,8 +357,6 @@ def POST_authentification_1() :
 	# envoi message de control du code
 	Talao_message.messageAuth(email, code)
 	print('message envoyé à ', email)
-	print('name = ', request.form['lastname'])
-	print('firstname =', request.form['firstname'])
 
 	return render_template("home2.html", message = '')
 
@@ -230,23 +382,10 @@ def POST_authentification_3() :
 	return redirect(url_for('authentification'))
 
 
+
 #######################################################
 #   Name Service
 #######################################################
-
-# API
-@app.route('/nameservice/api/<name>', methods=['GET'])
-def GET_nameservice(name) :
-	a= nameservice.address(name,mode)
-	if a== None :
-		return {"CODE" : "601"}
-	else :
-		return {"did" : "did:talao:rinkeby:"+a[2:]}
-
-@app.route('/nameservice/api/reload/', methods=['GET'])
-def GET_nameservice_reload() :
-	nameservice.buildregister(mode)
-	return {"CODE" : "reload done"}
 
 
 # HTML name -> did

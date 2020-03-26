@@ -201,6 +201,11 @@ def getresume(did, mode) :
 	didsplit=did.split(':')
 	workspace_contract='0x'+didsplit[3]
 	
+	# test de validité de l addresse
+	category = whatisthisaddress(workspace_contract,mode)["type"]
+	if category != 'workspace' :
+		return False
+	
 	# calcul de l addresse du oner
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()		
