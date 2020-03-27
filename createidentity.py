@@ -41,14 +41,23 @@ def my_rand(n):
 def creationworkspacefromscratch(firstname, name, email,mode): 
 	w3=mode.initProvider()
 	
+	# Ouverture du fichier d'archive Talao_Identity.csv
+	fname= mode.BLOCKCHAIN +"_Talao_Identity.csv"
+	identityfile = open(fname, "a")
+	writer = csv.writer(identityfile)
+	
+	# calcul du temps de process
+	time_debut=datetime.now()
+
+	# check de l email
 	if Talao_backend_transaction.canregister(email,mode) == False :
 		print('email existant dans le backend')
 		sys.exit()
 	
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
-	eth_a=account.address
-	eth_p=account.privateKey.hex()
+	address=account.address
+	private_key=account.privateKey.hex()
 	
 	# création de la cle RSA (bytes) aleatoire, des cle public et privées
 	#RSA_key = RSA.generate(2048)
@@ -59,7 +68,7 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
 	global salt
 	global master_key
-	salt = eth_p
+	salt = private_key
 	master_key = PBKDF2(password, salt, count=10000)  # bigger count = better
 	my_rand.counter = 0
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
@@ -67,7 +76,7 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	RSA_public = RSA_key.publickey().exportKey('PEM')
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(eth_a)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	fichier=open(filename,"wb")
 	fichier.write(RSA_private)
 	fichier.close()   
@@ -87,44 +96,46 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
-	# Transaction pour le transfert de 0.04 ethers depuis le portfeuille TalaoGen
-	hash1=Talao_token_transaction.ether_transfer(eth_a, 40,mode)
+	# Transaction pour le transfert des ethers depuis le portfeuille TalaoGen
+	hash1=Talao_token_transaction.ether_transfer(address, 40,mode)
+	balance_avant=w3.eth.getBalance(address)/1000000000000000000
+	print('balance avant', balance_avant)
 	
 	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
-	hash2=Talao_token_transaction.token_transfer(eth_a,100,mode)
+	hash2=Talao_token_transaction.token_transfer(address,100,mode)
 	
 	
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
-	hash3=Talao_token_transaction.createVaultAccess(eth_a,eth_p,mode)
+	hash3=Talao_token_transaction.createVaultAccess(address,private_key,mode)
 	
 	
 	# Transaction pour la creation du workspace :
+##### email non crypté !!!!
 	bemail=bytes(email , 'utf-8')	
-	hash4=Talao_token_transaction.createWorkspace(eth_a,eth_p,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
+	hash4=Talao_token_transaction.createWorkspace(address,private_key,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
 
 	# lecture de l'adresse du workspace contract dans la fondation
-	workspace_contract_address=Talao_token_transaction.ownersToContracts(eth_a,mode)
+	workspace_contract=Talao_token_transaction.ownersToContracts(address,mode)
 	
 	# Transaction pour la creation du compte sur le backend HTTP POST
-	backend_Id = Talao_backend_transaction.backend_register(eth_a,workspace_contract_address,firstname, name, email, SECRET,mode)
+	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, name, email, SECRET,mode)
 
 	# envoi du message de log
-	status="Identité créée par createidentity.py"
-	# changer le destinataire
-	Talao_message.messageLog(name, firstname, 'thierry.thevenet@talao.io',status,eth_a, eth_p, workspace_contract_address, backend_Id, email, SECRET, AES_key,mode)
+	status="from website /talao/register/"
+	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
 	
 	#ajout d'un cle 3 a la fondation
 	owner_foundation = mode.foundation_address	       
 	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le owner
-	nonce = w3.eth.getTransactionCount(eth_a)  
+	nonce = w3.eth.getTransactionCount(address)  
 	# calcul du keccak
 	_key=w3.soliditySha3(['address'], [owner_foundation])
 	# Build transaction
 	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,eth_p)
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
@@ -134,19 +145,34 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	#ajout d'un cle 3 a Talao
 	owner_talao = mode.owner_talao	       
 	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le owner
-	nonce = w3.eth.getTransactionCount(eth_a)  
+	nonce = w3.eth.getTransactionCount(address)  
 	# calcul du keccak
 	_key=w3.soliditySha3(['address'], [owner_talao])
 	# Build transaction
 	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,eth_p)
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1)		
 	
 	
-	return eth_a, eth_p, SECRET, workspace_contract_address,backend_Id, email, SECRET, AES_key
+	# calcul de la duree de transaction et du cout
+	time_fin=datetime.now()
+	time_delta=time_fin-time_debut
+	print('Durée des transactions = ', time_delta)
+	balance_apres=w3.eth.getBalance(address)/1000000000000000000
+	cost=balance_avant-balance_apres
+	print('Cout des transactions =', cost)	
+
+
+	# mise a jour du fichier archive Talao_Identity.csv
+	status="website /talao/register/"
+	writer.writerow(( datetime.today(),name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
+	identityfile.close()
+
+	print("createidentity is OK")
+	return address, private_key, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key

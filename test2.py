@@ -1,5 +1,4 @@
 
-from web3.auto import w3
 import constante
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
@@ -13,7 +12,13 @@ import Talao_backend_transaction
 import Talao_ipfs
 import GETresume
 import createidentity
+import environment
 
+
+# SETUP
+mode=environment.currentMode('test', 'rinkeby')
+#mode.print_mode()
+w3=mode.initProvider()
 
 # données des test
 #data ='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:10' # David Houlle
@@ -28,8 +33,9 @@ data='did:talao:rinkeby:7B47122cb8caa6d3c174BBCd067b361e011446f5' #AXA
 
 #did='did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' #TTF
 
-firstname = ""
-name = ""
-email = "paul.atemps@talao.io"
+firstname = "paul"
+name = "alam"
+email = "p.alamaison@talao.io"
 
-(eth_a, eth_p, SECRET, workspace_contract_address,backend_Id, email, SECRET, AES_key)=createidentity.creationworkspacefromscratch(firstname, name, email)	
+print(createidentity.creationworkspacefromscratch(firstname, name, email, mode)	)
+

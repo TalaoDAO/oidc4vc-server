@@ -39,7 +39,7 @@ class currentMode() :
 			self.ISSUER='certificates.talao.io:5011'
 			self.DAPP_LINK="\r\nDapp Link : http://vault.talao.io:4011/"
 			self.WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
-			self.GASPRICE='5'		
+			self.GASPRICE='2'		
 		
 		elif mychain == 'ethereum' or mychain == 'mainet' :
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
@@ -84,7 +84,7 @@ class currentMode() :
 		self.w3.geth.personal.unlockAccount(self.foundation_address,"suc2cane",0)
 		self.w3.geth.personal.unlockAccount(self.owner_talao,"suc2cane",0)
 		
-		print("debut buildregister")
+		#print("debut buildregister")
 		#nameservice.buildregister(self)
 		
 	def print_mode(self) :		

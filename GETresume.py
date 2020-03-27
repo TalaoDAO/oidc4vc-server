@@ -306,7 +306,7 @@ def getresume(did, mode) :
 
 	
 		
-		# certificates implmented through  Documents
+		# certificates implementenes avec des documement 60000
 		experienceIndex=getDocumentIndex(address, 60000, workspace_contract, mode)
 		for i in experienceIndex:
 			doc=contract.functions.getDocument(i).call()
@@ -324,16 +324,16 @@ def getresume(did, mode) :
 			del new_experience['data']['organization']['ethereum_account']
 			cv['data']["experience"].append(new_experience)
 		
-		# experiences certifiees par claim		
+		# certificats implements avec des claim725		
 		# download des claim "certificate"->  99101114116105102105099097116101 du user
 		claimlist=contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
-		print("list des claim de type certificate =", claimlist)
+		#print("list des claim de type certificate =", claimlist)
 		for claimId in claimlist : #pour chaque issuer
 			claimdata=contract.functions.getClaim(claimId).call()
-			print("avant json.loads ",claimdata[4].decode('utf-8'))
+			#print("avant json.loads ",claimdata[4].decode('utf-8'))
 			if claimdata[4].decode('utf-8') !='' :   # il existe des certificats
 				certificatelist=json.loads(claimdata[4].decode('utf-8'))
-				print("liste des certificats existants = ",certificatelist)
+				#print("liste des certificats existants = ",certificatelist)
 				for certificateId in certificatelist :
 					certificate=getclaimipfs(certificateId, workspace_contract,mode)
 					new_certificate = {'id' : did+':claim:'+certificateId[2:],

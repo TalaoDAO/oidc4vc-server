@@ -1,3 +1,12 @@
+"""
+piur l authentication cf https://realpython.com/token-based-authentication-with-flask/
+
+pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
+
+"""
+
+
+
 from flask import Flask, jsonify, session, send_from_directory, flash, send_file
 from flask import request, redirect, url_for
 from flask_api import FlaskAPI, status
@@ -7,7 +16,11 @@ import ipfshttpclient
 from flask_fontawesome import FontAwesome
 from flask import render_template
 import http.client, urllib.parse
+import random
+import threading
+import time
 
+# dependances
 import GETdata
 import GETresolver
 import GETresume
@@ -19,11 +32,29 @@ import Talao_backend_transaction
 import environment
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
-# SETUP
+# environment setup
 mode=environment.currentMode('test', 'rinkeby')
 #mode.print_mode()
 w3=mode.initProvider()
-	
+
+# Multithreading setup   https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
+class ExportingThread(threading.Thread):
+	def __init__(self, firstname, lastname, email, mode):
+		self.progress = 0
+		super().__init__()
+		self.firstname=firstname
+		self.lastname=lastname
+		self.email=email
+		self.mode=mode
+	def run(self):
+		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)	
+		for _ in range(10):
+			time.sleep(1)
+			self.progress += 10
+
+exporting_threads = {}
+
+# Flask setup	
 app = FlaskAPI(__name__)
 #app = Flask(__name__)
 fa = FontAwesome(app)
@@ -154,6 +185,8 @@ def resume_api(PROJECT_ID) :
 #####################################################
 #    RESUME NAME API sans authentification
 # retourne le resume d'un user à partir de son "nom" 
+# exemple : un Talent laisse son id sur un site de recrutement
+# l information accessible ne dispose pas de l email et du telephone
 #####################################################
 #curl http://127.0.0.1:5000/talao/resume_name/api/v0/PROJECT-ID \
 #    -X POST \
@@ -179,6 +212,28 @@ def resume_name_api(PROJECT_ID) :
 			mydid="did:talao:"+mode.BLOCKCHAIN+":"+myaddress[2:]
 			return GETresume.getresume(mydid,mode)
 
+	
+
+#####################################################
+#    REQUEST PARNERSHIP
+# mise en place d un partneship pour acceder a l information cryptee dont le tel et l email 
+# 
+# l information accessible ne dispose pas de l email et du telephone
+#####################################################
+#curl http://127.0.0.1:5000/talao/resume_name/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"name" : "myname"}'
+"""
+le user laisse on did sur le site de recrutement
+le site fait apel a l API pour recuperer son cv
+le site demande la mise en place d 'un partenariat
+	talao genere un request poyr partnership au talent
+	talao envoie un email pour demander l accord au talent
+	si oui le parnership est accepté
+
+
+"""
 
 #autre API
 @app.route('/talao/api/profil/<did>', methods=['GET'])
@@ -221,12 +276,17 @@ def nameservice_api(PROJECT_ID) :
 			return {"did" : "did:talao:"+mode.BLOCKCHAIN+":"+myaddress[2:]}
 	
 
+@app.route('/nameservice/api/rebuild/', methods=['GET'])
+def GET_nameservice_rebuild() :
+	nameservice.buildregister(mode)
+	return {"CODE" : "rebuild done"}
+
+	
+
 @app.route('/nameservice/api/reload/', methods=['GET'])
 def GET_nameservice_reload() :
-	nameservice.buildregister(mode)
+	register=nameservice.readregister(mode)
 	return {"CODE" : "reload done"}
-
-
 
 
 
@@ -353,7 +413,7 @@ def POST_authentification_1() :
 	code = get_random_bytes(3).hex()
 	print('code secret = ', code)
 	tabcode[email]=code
-		
+	print('code =', code)
 	# envoi message de control du code
 	Talao_message.messageAuth(email, code)
 	print('message envoyé à ', email)
@@ -363,16 +423,20 @@ def POST_authentification_1() :
 # recuperation du code saisi
 @app.route('/talao/register/code/', methods=['POST'])
 def POST_authentification_2() :
+	print("entre dans post_authentificate_2")
+	global exporting_threads
 	email=session.get('email')
 	lastname=session.get('lastname')
 	firstname=session.get('firstname')
 	mycode = request.form['mycode']
-	print(firstname, '  ', lastname, '   ', email)
 	print('code retourné = ', mycode)
 	if mycode == tabcode[email] :
-		print('appel de createidentity avec firtsname = ', firstname, ' name = ', lastname, ' email = ', email)
-		(address, eth_p, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key) = createidentity.creationworkspacefromscratch(firstname, name, email,mode)	
-		mymessage = 'Your professional Identity will be available within a couple of minutes. You will receive your Cryptographic keyys to connect through my.Freedapp http://vault.talao.io:4011/' 
+		print('code correct')
+		thread_id = random.randint(0, 10000)
+		exporting_threads[thread_id] = ExportingThread(firstname, lastname, email, mode)
+		print("appel de createindentty")
+		exporting_threads[thread_id].start()
+		mymessage = 'Registation in progress........ You will receive an email with your Cryptographic keys to connect soon' 
 	else :
 		mymessage = 'Error code'
 	return render_template("home3.html", message = mymessage)
