@@ -19,6 +19,7 @@ class currentMode() :
 		
 		print('debut init')
 		
+	
 		self.env=myenv
 		self.chain=mychain
 	
@@ -32,7 +33,7 @@ class currentMode() :
 			self.Talao_contract_address='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
 			self.CHAIN_ID=4
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
-			self.Talaogen_private_key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen a retirer mais voir pb de send transaction sur chain POA
+			self.Talaogen_private_key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen a retirer mais voir pb de send ether vs transaction sur chain POA
 			self.foundation_contract='0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
 			self.foundation_address ='0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
 			self.workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
@@ -84,9 +85,13 @@ class currentMode() :
 		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,"suc2cane",0)
 		self.w3.geth.personal.unlockAccount(self.foundation_address,"suc2cane",0)
 		self.w3.geth.personal.unlockAccount(self.owner_talao,"suc2cane",0)
+	
+		print('upload de register.json')
+		with open(self.BLOCKCHAIN+'_register.json', 'r') as myfile: 
+			self.register = json.load(myfile)
+			myfile.close()
 		
-		#print("debut buildregister")
-		#nameservice.buildregister(self)
+	
 		
 	def print_mode(self) :		
 		mymode = vars(self)

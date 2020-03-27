@@ -13,7 +13,7 @@ import Talao_ipfs
 import GETresume
 import createidentity
 import environment
-
+import nameservice
 
 # SETUP
 mode=environment.currentMode('test', 'rinkeby')
@@ -33,9 +33,18 @@ data='did:talao:rinkeby:7B47122cb8caa6d3c174BBCd067b361e011446f5' #AXA
 
 #did='did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' #TTF
 
-firstname = "Paulot"
-name = "Alai"
-email = "Paulot.Alai@talao.io"
+firstname = "Alberta"
+name = "Pudrey"
+email = "Albert.Paudrey2@talao.io"
+
+
+
 
 print(createidentity.creationworkspacefromscratch(firstname, name, email, mode)	)
+
+
+
+
+
+print(nameservice.address(email, mode.register))
 

@@ -47,7 +47,7 @@ class ExportingThread(threading.Thread):
 		self.email=email
 		self.mode=mode
 	def run(self):
-		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)	
+		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)
 		for _ in range(10):
 			time.sleep(1)
 			self.progress += 10
@@ -152,7 +152,7 @@ def data_api(PROJECT_ID) :
 # autre API
 @app.route('/talao/api/data/<data>', methods=['GET'])
 def Data(data) :
-	return GETdata.getdata(data, register,mode)
+	return GETdata.getdata(data, mode.register,mode)
 
 
 #####################################################
@@ -204,7 +204,7 @@ def resume_name_api(PROJECT_ID) :
 	else :	
 		myname=request.data.get('name')
 		print('myname =',myname)
-		myaddress=nameservice.address(myname, register)
+		myaddress=nameservice.address(myname, mode.register)
 		if myaddress == None :
 			content = {'Bad name': 'nothing to see here'}
 			return content, status.HTTP_204_NO_CONTENT
@@ -267,7 +267,7 @@ def nameservice_api(PROJECT_ID) :
 	else :	
 		myname=request.data.get('name')
 		print('myname =',myname)
-		myaddress=nameservice.address(myname, register)
+		myaddress=nameservice.address(myname, mode.register)
 		if myaddress == None :
 			content = {'Bad name': 'nothing to see here'}
 			return content, status.HTTP_204_NO_CONTENT
@@ -275,17 +275,18 @@ def nameservice_api(PROJECT_ID) :
 		else : 
 			return {"did" : "did:talao:"+mode.BLOCKCHAIN+":"+myaddress[2:]}
 	
-
+"""
+ne fonctionne pas "timepout"
 @app.route('/nameservice/api/rebuild/', methods=['GET'])
 def GET_nameservice_rebuild() :
 	nameservice.buildregister(mode)
 	return {"CODE" : "rebuild done"}
-
+"""
 	
 
 @app.route('/nameservice/api/reload/', methods=['GET'])
 def GET_nameservice_reload() :
-	register=nameservice.readregister(mode)
+	nameservice.load_register_from_file(mode)
 	return {"CODE" : "reload done"}
 
 
@@ -356,9 +357,9 @@ def resume() :
 	if did[:3] == 'did' :
 		truedid=did
 	else :
-		print('nameservice = ', nameservice.address(did,register))
-		if nameservice.address(did,register) != None :
-			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did, register)[2:]
+		print('nameservice = ', nameservice.address(did,mode.register))
+		if nameservice.address(did,mode.register) != None :
+			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did, mode.register)[2:]
 		else :
 			flash('Identifier not found')
 			return redirect (url_for('resume_home'))
@@ -462,7 +463,7 @@ def GET_nameservice_html() :
 @app.route('/nameservice/name/', methods=['POST'])
 def DID_nameservice_html_1() :
 	name = request.form['name']
-	a= nameservice.address(name,register)
+	a= nameservice.address(name,mode.register)
 	if a == None :
 		mymessage='Il n existe pas de did avec cet identifiant' 
 	else :
@@ -478,8 +479,6 @@ def POST_nameservice_html_2() :
 #                        MAIN, server launch
 #######################################################
 # setup du registre nameservice
-print('chargement du registre')
-register=nameservice.readregister(mode)
 print('initialisation du serveur')
 
 if __name__ == '__main__':

@@ -109,12 +109,13 @@ def buildregister(mode) :
 #################################################
 # le registre est un dict {hashname : address}
 
-def readregister(mode) :
+def load_register_from_file(mode) :
 	
 	# Charger le dictionnaire depuis un fichier :
 	with open(mode.BLOCKCHAIN+'_register.json', 'r') as myfile: 
-		register = json.load(myfile)
-	return register
+		mode.register = json.load(myfile)
+	myfile.close()
+	return True
 	
 
 
@@ -128,7 +129,7 @@ def readregister(mode) :
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 # le namehash de name est stocké dans le workpace avec un claim 'nameservice'
 	
-def setup_address(name, workspace_contract,register, mode) :
+def setup_address(name, workspace_contract,mode) :
 		
 	w3=mode.initProvider()
 
@@ -156,14 +157,14 @@ def setup_address(name, workspace_contract,register, mode) :
 	hash1=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).transact({'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	
-	# register.json update
-	register[data]=workspace_contract
+	# register et register.json update
+	mode.register[data]=workspace_contract
 	try : 
 		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
 		print('impossible de stocker le fichier')
 		return False
-	json.dump(register, myfile)
+	json.dump(mode.register, myfile)
 	myfile.close()
 		
 	return True

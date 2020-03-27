@@ -120,6 +120,16 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	# Transaction pour la creation du compte sur le backend HTTP POST
 	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, name, email, SECRET,mode)
 
+	# ajout de l email dans register en memoire et dans le fichier
+	mode.register[nameservice.namehash(email)]=workspace_contract
+	try : 
+		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
+	except IOError :
+		print('impossible de stocker le fichier')
+		return False
+	json.dump(mode.register, myfile)
+	myfile.close()
+	
 	# envoi du message de log
 	status="from website /talao/register/"
 	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
