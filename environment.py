@@ -23,7 +23,8 @@ class currentMode() :
 		self.chain=mychain
 	
 			
-		if mychain == 'rinkeby' :	
+		if mychain == 'rinkeby' :
+			self.ether2transfer=20	
 			self.IPCProvider="/mnt/ssd/rinkeby/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))			
 			self.datadir="/mnt/ssd/rinkeby" 						
@@ -37,11 +38,12 @@ class currentMode() :
 			self.workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
 			self.owner_talao='0xE7d045966ABf7cAdd026509fc485D1502b1843F1' # la company
 			self.ISSUER='certificates.talao.io:5011'
-			self.DAPP_LINK="\r\nDapp Link : http://vault.talao.io:4011/"
+			self.DAPP_LINK="\r\nDapp Link : http://vault.talao.io:4011/visit/"
 			self.WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
 			self.GASPRICE='2'		
 		
 		elif mychain == 'ethereum' or mychain == 'mainet' :
+			self.ether2transfer=20
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	
 			self.datadir="/mnt/ssd/ethereum"
@@ -49,13 +51,13 @@ class currentMode() :
 			self.Talao_contract_address='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515' # Talao token
 			self.CHAIN_ID=1
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
-			self.Talaogen_private_key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'  #talaogen a retirer mais voir pb de send transaction sur chain POA
+			self.Talaogen_private_key=''  # pb send transaction
 			self.foundation_contract='0xD46883ddfF92CC0474255F2F8134C63f8209171d'
 			self.foundation_address = "0xD46883ddfF92CC0474255F2F8134C63f8209171d"
 			self.workspacefactory_contract='0x7A237F06f85710b66184aFcDC55E2845F1B8f0eb'
 			self.owner_talao='' # la company
 			self.ISSUER='backend.talao.io'
-			self.DAPP_LINK='\r\nDapp Link : https://my.freedapp.io/'
+			self.DAPP_LINK='\r\nDapp Link : https://my.freedapp.io/visit/'
 			self.WORKSPACE_LINK='https://my.freedapp.io/visit/'
 			self.GASPRICE='2'			
 		else :
@@ -65,13 +67,12 @@ class currentMode() :
 			print("Not Connected, network problem")
 			sys.exit()	
 		
-		if myenv == 'production' or myenv == 'prod' :
+		if myenv == 'production' or myenv == 'prod' :  # sur rasbperry
 			self.IP='217.128.135.206'
 			self.server=	'http://217.128.135.206:5000/'
-			#self.flaskserver ='192.168.0.17' # rasbperry
-			self.flaskserver ='192.168.0.34' # portable
+			self.flaskserver ='192.168.0.17'
 			self.port='5000'		
-		elif myenv == 'test' :
+		elif myenv == 'test' : # sur portable
 			self.IP='127.0.0.1'
 			self.flaskserver = '127.0.0.1'
 			self.server = 'http://127.0.0.1:5000/'

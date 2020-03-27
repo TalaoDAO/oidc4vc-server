@@ -80,7 +80,7 @@ def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_ad
 
 	# debut de la fonction
 	fromaddr = "thierry.thevenet1963@gmail.com"
-	toaddr = ['thierry.thevenet@talao.io']
+	toaddr = [email]
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
 	# instance of MIMEMultipart 

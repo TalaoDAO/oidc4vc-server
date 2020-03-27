@@ -37,7 +37,7 @@ mode=environment.currentMode('test', 'rinkeby')
 #mode.print_mode()
 w3=mode.initProvider()
 
-# Multithreading setup   https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
+# Multithreading de creatidentity setup   https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
 class ExportingThread(threading.Thread):
 	def __init__(self, firstname, lastname, email, mode):
 		self.progress = 0
@@ -410,14 +410,16 @@ def POST_authentification_1() :
 		return render_template("home.html", message = 'Email already in Backend')
 	
 	# envoi du code secret par email
-	code = get_random_bytes(3).hex()
-	print('code secret = ', code)
-	tabcode[email]=code
-	print('code =', code)
-	# envoi message de control du code
-	Talao_message.messageAuth(email, code)
-	print('message envoyé à ', email)
-
+	if tabcode.get(email) == None :
+		code = get_random_bytes(3).hex()
+		print('code secret = ', code)
+		tabcode[email]=code
+		print('code =', code)
+		# envoi message de control du code
+		Talao_message.messageAuth(email, code)
+		print('message envoyé à ', email)
+	else :
+		print("le code a deja ete envoye")
 	return render_template("home2.html", message = '')
 
 # recuperation du code saisi

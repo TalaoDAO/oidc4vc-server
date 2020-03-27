@@ -19,7 +19,7 @@ import Talao_message
 import Talao_ipfs
 import nameservice
 import constante
-
+import addclaim
 
 password = "suc2cane"
 master_key = ""
@@ -97,7 +97,7 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
 	# Transaction pour le transfert des ethers depuis le portfeuille TalaoGen
-	hash1=Talao_token_transaction.ether_transfer(address, 40,mode)
+	hash1=Talao_token_transaction.ether_transfer(address, mode.ether2transfer,mode)
 	balance_avant=w3.eth.getBalance(address)/1000000000000000000
 	print('balance avant', balance_avant)
 	
@@ -123,6 +123,12 @@ def creationworkspacefromscratch(firstname, name, email,mode):
 	# envoi du message de log
 	status="from website /talao/register/"
 	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
+	
+	# ajout du nom et prenom
+	#givenName = 103105118101110078097109101
+	#familyName = 102097109105108121078097109101
+	addclaim.addClaim(workspace_contract, address,private_key, "familyName", address, name, "",mode)
+	addclaim.addClaim(workspace_contract, address,private_key, "givenName", address, firstname, "",mode)
 	
 	#ajout d'un cle 3 a la fondation
 	owner_foundation = mode.foundation_address	       
