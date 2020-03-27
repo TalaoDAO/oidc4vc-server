@@ -724,3 +724,64 @@ def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash,
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	return hash1
+
+
+
+##############################################
+# detrmination de la nature de l addresse
+##############################################
+# @thisaddress, address
+# return dictionnaire
+
+def whatisthisaddress(thisaddress,mode) :
+
+	w3=mode.initProvider()
+
+	# est ce une addresse Ethereum ?
+	if w3.isAddress(thisaddress) == False :
+		category = False
+		owner = None
+		workspace= None	
+	else :
+		
+		# test sur la nature de thisaddress
+		contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+		address = contract.functions.contractsToOwners(thisaddress).call()
+		workspace=contract.functions.ownersToContracts(thisaddress).call()
+		
+		# thisaddress est un owner
+		if address == '0x0000000000000000000000000000000000000000' and workspace != '0x0000000000000000000000000000000000000000' :
+			category = "owner"
+			owner = thisaddress
+			workspace=workspace
+			
+		# thisaddress est un workspace
+		if address != '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
+			category = 'workspace'
+			owner=address
+			workspace=thisaddress
+		
+		# thisaddressn est une addresse ethereum standard
+		if address == '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
+			category = 'unknown'
+			owner = None
+			workspace = None
+			
+	return {"type" : category, "owner" : owner, 'workspace' : workspace}
+	
+
+##############################################
+# detrmination de la validité d'un did
+##############################################
+# did
+# return bool	
+
+def isdid(did,mode) :
+	didsplit=did.split(':')
+	if len(didsplit) != 4 :
+		return False
+	if didsplit[0] != 'did' or didsplit[1] != 'talao' or didsplit[2] != mode.BLOCKCHAIN :
+		return False 
+	if whatisthisaddress('0x'+didsplit[3], mode)["type"] != "workspace" :
+		return False
+	return True	

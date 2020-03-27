@@ -14,6 +14,7 @@ import GETresume
 import createidentity
 import environment
 import nameservice
+import Talao_token_transaction
 
 # SETUP
 mode=environment.currentMode('test', 'rinkeby')
@@ -37,7 +38,24 @@ firstname = "Alberta"
 name = "Pudrey"
 email = "Albert.Paudrey2@talao.io"
 
+def isDid(did) :
+	didsplit=did.split(':')
+	if len(didsplit) != 4 :
+		return False
+	if didsplit[0] != 'did' or didsplit[1] != 'talao' or didsplit[2] != mode.BLOCKCHAIN :
+		return False 
+	if Talao_token_transaction.whatisthisaddress('0x'+didsplit[3], mode)["type"] != "workspace" :
+		return False
+	return True
+	
+print (isDid(data))	
+	
+	 
 
+
+"""
+
+nameservice.buildregister(mode)
 
 
 print(createidentity.creationworkspacefromscratch(firstname, name, email, mode)	)
@@ -47,4 +65,4 @@ print(createidentity.creationworkspacefromscratch(firstname, name, email, mode)	
 
 
 print(nameservice.address(email, mode.register))
-
+"""

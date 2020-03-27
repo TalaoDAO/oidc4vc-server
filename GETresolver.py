@@ -73,14 +73,11 @@ def getresolver(did,mode) :
 
 	w3=mode.initProvider()
 	
-	didsplit=did.split(':')
-	workspace_contract='0x'+didsplit[3]
-	
-	# test de validité de l addresse
-	category = whatisthisaddress(workspace_contract,mode)["type"]
-	if category != 'workspace' :
+	# test de validité du did
+	if Talao_backend_transaction.isdid(did,mode) :
+		workspace_contract='0x'+didsplit[3]
+	else :	
 		return False
-	
 	
 	# recuperation de l'address du owner
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)

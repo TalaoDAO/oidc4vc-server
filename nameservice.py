@@ -90,7 +90,7 @@ def buildregister(mode) :
 		if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
 			claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
 			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
-			register[namehash(email)]=workspace_contract
+			register[namehash(email.lower())]=workspace_contract
 	
 	try : 
 		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
@@ -134,7 +134,7 @@ def setup_address(name, workspace_contract,mode) :
 	w3=mode.initProvider()
 
 	issuer = mode.foundation_address	
-	data=namehash(name)	
+	data=namehash(name.lower())	
 	topicname='nameservice'
 	topicvalue= 110097109101115101114118105099101
 	ipfshash=""
@@ -173,5 +173,5 @@ def setup_address(name, workspace_contract,mode) :
 # obtenir l address depuis un nom
 ######################################################
 def address(name,register) :
-	return register.get(namehash(name))
+	return register.get(namehash(name.lower()))
 

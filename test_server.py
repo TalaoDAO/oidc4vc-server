@@ -29,6 +29,7 @@ import Talao_message
 import createidentity
 import constante
 import Talao_backend_transaction
+import Talao_token_transaction
 import environment
 # https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
@@ -184,7 +185,7 @@ def resume_api(PROJECT_ID) :
 
 #####################################################
 #    RESUME NAME API sans authentification
-# retourne le resume d'un user à partir de son "nom" 
+# retourne le resume d'un user à partir de son "nom" du nameservice
 # exemple : un Talent laisse son id sur un site de recrutement
 # l information accessible ne dispose pas de l email et du telephone
 #####################################################
@@ -238,13 +239,18 @@ le site demande la mise en place d 'un partenariat
 #autre API
 @app.route('/talao/api/profil/<did>', methods=['GET'])
 def Company_Profil(did) :
-	return GETresume.getresume(did, mode)
+	if Talao_token_transaction.isdid(did) :
+		return GETresume.getresume(did,mode)		
+	else :
+		return {"Erreur" : "False Did"}
 	
 @app.route('/talao/api/resume/<did>', methods=['GET'])	
 @app.route('/resume/<did>', methods=['GET'])
 def User_Resume(did) :
-	return GETresume.getresume(did,mode)		
-		
+	if Talao_token_transaction.isdid(did) :
+		return GETresume.getresume(did,mode)		
+	else :
+		return {"Erreur" : "False Did"}
 
 
 
@@ -353,15 +359,14 @@ def resume_home() :
 @app.route('/resume/did/', methods=['GET'])
 def resume() :
 	did = request.args['did']
-	print(did)
-	if did[:3] == 'did' :
+	if Talao_token_transaction.isdid(did,mode) :
 		truedid=did
 	else :
-		print('nameservice = ', nameservice.address(did,mode.register))
-		if nameservice.address(did,mode.register) != None :
-			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did, mode.register)[2:]
+		print('nameservice = ', nameservice.address(did.lower(),mode.register))
+		if nameservice.address(did.lower(),mode.register) != None :
+			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did.lower(), mode.register)[2:]
 		else :
-			flash('Identifier not found')
+			flash('Name/Email not found')
 			return redirect (url_for('resume_home'))
 	
 	#return GETresume.getresume(truedid,mode)	

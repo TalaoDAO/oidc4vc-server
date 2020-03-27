@@ -38,8 +38,10 @@ def my_rand(n):
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(firstname, name, email,mode): 
+def creationworkspacefromscratch(firstname, name, _email,mode): 
 	w3=mode.initProvider()
+	
+	email=_email.lower()
 	
 	# Ouverture du fichier d'archive Talao_Identity.csv
 	fname= mode.BLOCKCHAIN +"_Talao_Identity.csv"
