@@ -136,6 +136,9 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	status="from website /talao/register/"
 	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
 	
+	# envoi du message user
+	Talao_message.messageUser(name, firstname, email,address, private_key, workspace_contract, mode)
+	
 	# ajout du nom et prenom
 	#givenName = 103105118101110078097109101
 	#familyName = 102097109105108121078097109101

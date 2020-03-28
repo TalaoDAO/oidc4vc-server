@@ -82,6 +82,41 @@ def getdocument(index, workspace_contract,mode) :
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	doc=contract.functions.getDocument(index).call()
 	
+	
+	# topic
+	if doc[0] == 60000 or doc[0] == 50000 :
+		topic = "experience"
+	elif doc[0] == 40000 :
+		topic = "education"
+	elif doc[0] == 10000 :
+		topic ="employability"
+	else :
+		topic = "unknown"
+	
+	# value
+	if topic == "education" :
+		ipfs_hash=doc[6].decode('utf-8')
+		education=Talao_ipfs.IPFS_get(ipfs_hash)	
+		value = {"organization" : education["issuer"]["organization"]["name"],
+		"endDate" : education["diploma"]["to"], 
+		"startDate" : education["diploma"]["from"],
+		"studyType" : education["diploma"]["title"],
+		"area" : education["diploma"]["description"],
+		"certificate_link" : education["diploma"]["link"]}
+	elif topic == "experience" :
+		ipfs_hash=doc[6].decode('utf-8')
+		experience=Talao_ipfs.IPFS_get(ipfs_hash)
+		value = {'title' : experience['certificate']['title'],
+		'description' : experience['certificate']['description'],
+		'from' : experience['certificate']['from'],
+		'to' : experience['certificate']['to'],
+		'organization' : {"name" : None, 
+				"contact_name" : experience['issuer']['responsible']["name"],
+				"contact_email" : experience["issuer"]["organization"]["email"]},
+		"certification_link" : None	}
+	else :
+		topic = "unknown"
+	
 	# issuer
 	issuer = doc[3]
 
@@ -98,20 +133,21 @@ def getdocument(index, workspace_contract,mode) :
 	(issuerprofile, x)=GETresume.readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
 
 	# mise en forme de la reponse de la fonction
-	#document={'id' : None, 'value' :None}
 	document=dict()
-	document['@context']='https://github.com/TalaoDAO/talao-contracts'
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
 	document['endpoint']=mode.server+'data/'+document['id']
 	document['data'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
 									'endpoint' : mode.server+'talao/api/'+path+'/did:talao:'+mode.BLOCKCHAIN+':'+whatisthisaddress(issuer,mode)["workspace"][2:],
-									'data' : issuerprofile},	
+									'data' : issuerprofile},
+						"topic": topic,
+						"value" : value,	
 						"expires" : doc[2],
 						"encrypted" : doc[7],
 						"datalocation" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
 						"signaturetype" : "Secp256k1SignatureVerificationKey2018",
 						"signature" : True,
-						'signature_check' : True}
+						'signature_check' : True,
+						"validity_check" : True}
 	
 	return document
 
@@ -148,7 +184,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 	inv_topic=dict(map(reversed, constante.topic.items()))
 	topicname=inv_topic.get(claimdata[0])
 	if topicname==None :
-		topicname ='certificate'
+		topicname ='experience'
 	issuer=claimdata[2]	
 	data=claimdata[4]
 	url=claimdata[5]
@@ -182,7 +218,6 @@ def getclaim (claim_id, workspace_contract,mode) :
 		verification = False
 	
 	# mise en forme de la reponse
-	claim['@context'] = 'https://github.com/ethereum/EIPs/issues/735'
 	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
 	claim['endpoint']=mode.server+'talao/api/data/'+claim['id']
 	claim["data"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
@@ -204,6 +239,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 	claim['data']['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
 	claim['data']['signature'] = signature
 	claim['data']['signature_check']=verification
+	claim['data']['validity_check']=True
 	
 	
 	return claim

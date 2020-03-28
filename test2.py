@@ -15,6 +15,7 @@ import createidentity
 import environment
 import nameservice
 import Talao_token_transaction
+import Talao_message
 
 # SETUP
 mode=environment.currentMode('test', 'rinkeby')
@@ -34,21 +35,17 @@ data='did:talao:rinkeby:7B47122cb8caa6d3c174BBCd067b361e011446f5' #AXA
 
 #did='did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' #TTF
 
-firstname = "Alberta"
-name = "Pudrey"
-email = "Albert.Paudrey2@talao.io"
+firstname = "Thierry"
+name = "Thevenet"
+email = "thevenet_thierry@yahoo.fr"
 
-def isDid(did) :
-	didsplit=did.split(':')
-	if len(didsplit) != 4 :
-		return False
-	if didsplit[0] != 'did' or didsplit[1] != 'talao' or didsplit[2] != mode.BLOCKCHAIN :
-		return False 
-	if Talao_token_transaction.whatisthisaddress('0x'+didsplit[3], mode)["type"] != "workspace" :
-		return False
-	return True
-	
-print (isDid(data))	
+workspace_contract = "0xab6d2bAE5ca59E4f5f729b7275786979B17d224b"
+private_key = "0xab6d2bAE5ca59E4f5f729b7275786979B17d224bab6d2bAE5ca5"
+address = "0x347aa2BC057A5317AFDc119AAa439e7E919f9fCe"
+
+
+Talao_message.messageUser(name, firstname, email,address, private_key, workspace_contract, mode)
+
 	
 	 
 

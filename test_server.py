@@ -153,7 +153,7 @@ def data_api(PROJECT_ID) :
 # autre API
 @app.route('/talao/api/data/<data>', methods=['GET'])
 def Data(data) :
-	return GETdata.getdata(data, mode.register,mode)
+	return GETdata.getdata(data,mode)
 
 
 #####################################################
@@ -236,10 +236,10 @@ le site demande la mise en place d 'un partenariat
 
 """
 
-#autre API
+#autre API pour API explorer
 @app.route('/talao/api/profil/<did>', methods=['GET'])
 def Company_Profil(did) :
-	if Talao_token_transaction.isdid(did) :
+	if Talao_token_transaction.isdid(did,mode) :
 		return GETresume.getresume(did,mode)		
 	else :
 		return {"Erreur" : "False Did"}
@@ -247,7 +247,7 @@ def Company_Profil(did) :
 @app.route('/talao/api/resume/<did>', methods=['GET'])	
 @app.route('/resume/<did>', methods=['GET'])
 def User_Resume(did) :
-	if Talao_token_transaction.isdid(did) :
+	if Talao_token_transaction.isdid(did,mode) :
 		return GETresume.getresume(did,mode)		
 	else :
 		return {"Erreur" : "False Did"}
@@ -397,6 +397,7 @@ On test si l email existe dans le back end
 @app.route('/talao/register/')
 def authentification() :
 	return render_template("home.html",message='')
+
 
 ### recuperation de l email, nom et prenom
 @app.route('/talao/register/', methods=['POST'])
