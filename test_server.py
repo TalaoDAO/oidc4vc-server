@@ -309,7 +309,7 @@ def GET_nameservice_reload() :
 @app.route('/certificate/<data>', methods=['GET'])
 def show_certificate(data):
 	
-	data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
+	#data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
 
 	claimId=data.split(':')[5]
 	workspace_contract= '0x'+data.split(':')[3]

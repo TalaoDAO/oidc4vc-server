@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="height: 350px;background-color: #dddbdb;">
+<html style="height: 480px;">
 
 <head>
     <meta charset="utf-8">
@@ -11,80 +11,71 @@
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Pretty-Footer.css') }}">
-
 </head>
 
-<body class="text-center" style="height: 450px;margin: 138px;">
-    <div class="border-primary shadow-sm" style="height: 450px;">
-        <div class="container" style="height: 450px;">
-            <div class="row" style="height: 450px;">
-                <div class="col-md-6 col-xl-7">
-                    <div class="row" style="height: 51px;">
-                        <h5 class="text-center" style="font-size: 16px;margin: 50px-50px;width: 611px;height: 20px;padding: 30px;"><strong>{{position}}</strong></h5>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <header></header>
-                        </div>
-                    </div>
-                    <div class="row" style="height: 50px;">
-                        <p class="text-center" style="font-size: 12px;width: 611px;margin: 0px-30px;height: 20px;padding: 7px;">from {{startDate}} to {{endDate}}</p>
-                    </div>
-                    <div class="row" style="height: 78px;">
-                        <p class="text-center" style="font-size: 12px;width: 611px;">{{summary}}</p>
-                    </div>
-                    <div class="row" style="height: 45px;">
-                        <p class="text-center" style="font-size: 14px;width: 611px;"><strong>{{skills}}</strong></p>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 45px;">
-                            <p class="text-left" style="font-size: 12px;">How likely are you to recommend this talent to others ?</p>
-                        </div>
-                        <div class="col-xl-4"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star" style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 45px;">
-                            <p class="text-left" style="font-size: 12px;">How satisfied are you with the overall freelance delivery ?<br></p>
-                        </div>
-                        <div class="col-xl-4"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star" style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 45px;">
-                            <p class="text-left" style="font-size: 12px;">How would you rate his/her ability to deliver to schedule ?<br></p>
-                        </div>
-                        <div class="col-xl-4"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star" style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 45px;">
-                            <p class="text-left" style="font-size: 12px;">How would you rate his/her overall communication skills ?<br></p>
-                        </div>
-                        <div class="col-xl-4"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star" style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
-                    </div>
+<body style="height: 480px;">
+    <div style="height: 480px;">
+        <div class="container" style="height: 480px;background-color: #f4f4f4;">
+            <div class="row" style="height: 60px;">
+                <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                    <h6 class="text-center" style="margin: 15px 0px 8px;"><strong>{{position}}</strong></h6>
                 </div>
-                <div class="col-md-6 col-xl-5" style="width: 254px;">
-                    <div class="row">
-                        <div class="col" style="height: 80px;">
-                            <h5 class="text-center" style="font-size: 16px;margin: 30px -0px;height: 20px;width: 382px;"><strong>Issued by {{manager}} for {{firstname}} {{name}}</strong></h5>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 125px;"><img src="{{ url_for('send_file', filename=companylogo) }}" style="margin: 20px;"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 88px;">
-                            <h5 class="text-center" style="font-size: 16px;margin: 36px;">{{manager}}</h5>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col" style="height: 150px;"><img src="{{ url_for('send_file', filename=managersignature) }}" style="height: 65px;"></div>
-                    </div>
+                <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                    <h6 class="text-center" style="margin: 15px 0px 8px;"><strong>Issued by {{manager}} for {{firstname}} {{name}}</strong></h6>
                 </div>
+                <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                    <p class="text-center" style="margin: -15px 0px 10px;font-size: 12px;">from {{startDate}} to {{endDate}}</p>
+                </div>
+                <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                    <p></p>
+                </div>
+                <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                    <p class="text-center" style="margin: -37px 0px 8px;font-size: 12px;">{{summary}}</p>
+                </div>
+                <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;"><img src="{{ url_for('send_file', filename=companylogo) }}" style="margin: -20px 57px;height: 71px;width: 217px;"></div>
+                <div class="col-md-12 col-xl-6 order-1 order-xl-1" style="height: 60px;">
+                    <h6 class="text-center" style="margin: 15px 0px 8px;"><strong>{{skills}}</strong></h6>
+                </div>
+                <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                    <p></p>
+                </div>
+                <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                    <p style="margin: 15px 0px 16px;font-size: 12px;">How likely are you to recommend this talent to others ?</p>
+                </div>
+                <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star" style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
+                <div
+                    class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                    <h6 class="text-center" style="margin: 15px 0px 8px;"><strong>{{manager}}</strong></h6>
+            </div>
+            <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                <p style="margin: 15px 0px 16px;font-size: 12px;">How satisfied are you with the overall freelance delivery ?</p>
+            </div>
+            <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star" style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
+            <div class="col-md-12 col-xl-6 order-2 order-xl-1"
+                style="height: 60px;">
+                <p></p>
+            </div>
+            <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                <p style="margin: 15px 0px 16px;font-size: 12px;">How would you rate his/her ability to deliver to schedule ?</p>
+            </div>
+            <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star" style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
+            <div class="col-md-12 col-xl-6 order-2 order-xl-1"
+                style="height: 60px;"><img src="{{ url_for('send_file', filename=managersignature) }}" style="width: 256px;height: 80px;margin: -31px 60px;"></div>
+            <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                <p style="margin: 15px 0px 16px;font-size: 12px;">How would you rate his/her overall communication skills ?</p>
+            </div>
+            <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star" style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
+            <div class="col-md-12 col-xl-6 order-2 order-xl-1"
+                style="height: 60px;">
+                <p class="d-inline-flex"></p>
             </div>
         </div>
+    </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
     <script src="/static/jquery.min.js"></script>
     <script src="/static/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
