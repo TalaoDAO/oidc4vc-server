@@ -36,7 +36,7 @@ data='did:talao:rinkeby:7B47122cb8caa6d3c174BBCd067b361e011446f5' #AXA
 #did='did:talao:rinkeby:29f880c177cD3017Cf05576576807d1A0dc87417' #TTF
 
 firstname = "Thierry"
-name = "Thevenet"
+name = "pierre.david"
 email = "thevenet_thierry@yahoo.fr"
 
 workspace_contract = "0xab6d2bAE5ca59E4f5f729b7275786979B17d224b"
@@ -44,9 +44,7 @@ private_key = "0xab6d2bAE5ca59E4f5f729b7275786979B17d224bab6d2bAE5ca5"
 address = "0x347aa2BC057A5317AFDc119AAa439e7E919f9fCe"
 
 
-Talao_message.messageUser(name, firstname, email,address, private_key, workspace_contract, mode)
-
-	
+print(nameservice.setup_address(name, workspace_contract,mode)) 
 	 
 
 

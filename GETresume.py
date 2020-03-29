@@ -23,7 +23,7 @@ def getclaimipfs (claim_id, workspace_contract, mode) :
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claimdata=contract.functions.getClaim(claim_id).call()
-	print(claimdata)
+
 	if claimdata[5]!="" :
 		data=client.get_json(claimdata[5])
 		return data

@@ -144,16 +144,20 @@ def setup_address(name, workspace_contract,mode) :
 	address=mode.foundation_address
 	balance =w3.eth.getBalance(address)/1000000000000000000
 	if balance < 0.2 :
-		Talao_message.messageAdmin('nameservice', 'balance foundation < 0.2eth', mode)
+		Talao_message.messageAdmin('nameservice', 'balance foundation < 0.2 eth', mode)
 	
 	# calcul de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
-	message = encode_defunct(text=msg.hex())
-	signed_message = w3.eth.account.sign_message(message, private_key=mode.foundation_private_key)
-	signature=signed_message['signature']	
+	#message = encode_defunct(text=msg.hex())
+	w3.eth.defaultAccount=mode.foundation_address
+	signed_message=w3.eth.sign(mode.foundation_address, data=msg)
+	#signed_message = w3.eth.account.sign_message(message, private_key=mode.foundation_private_key)
+	#signature=signed_message['signature']	
+	signature=signed_message
 	
 	# build, sign and send avec une addresse dans le node "defaultAccount
 	w3.eth.defaultAccount=mode.foundation_address
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	hash1=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).transact({'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	

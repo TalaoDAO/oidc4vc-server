@@ -75,7 +75,7 @@ def getclaimipfs (claim_id, workspace_contract) :
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claimdata=contract.functions.getClaim(claim_id).call()
-	print(claimdata)
+
 	if claimdata[5]!="" :
 		data=client.get_json(claimdata[5])
 		return data
@@ -99,7 +99,7 @@ def getclaimipfs (claim_id, workspace_contract) :
 @app.route('/resolver/api/v0/<PROJECT_ID>', methods=['POST'])
 def did_api(PROJECT_ID) :
 	
-	print (request.headers["Content-Type"])
+
 	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
 		content = {'Not Authorized': 'nothing to see here'}
 		return content, status.HTTP_401_UNAUTHORIZED
@@ -134,14 +134,14 @@ def DID_Document(did) :
 
 @app.route('/talao/data/api/v0/<PROJECT_ID>', methods=['POST'])
 def data_api(PROJECT_ID) :
-	print (request.headers["Content-Type"])
+	
 	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
 		content = {'Not Authorized': 'nothing to see here'}
 		return content, status.HTTP_401_UNAUTHORIZED
 	
 	else :	
 		mydata=request.data.get('data')
-		print('mydata   ', mydata)
+	
 		if GETdata.getdata(mydata, mode) == False :
 			content = {'Bad data': 'nothing to see here'}
 			return content, status.HTTP_204_NO_CONTENT
@@ -168,7 +168,7 @@ def Data(data) :
 @app.route('/talao/resume/api/v0/<PROJECT_ID>', methods=['POST'])
 def resume_api(PROJECT_ID) :
 	
-	print (request.headers["Content-Type"])
+	
 	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
 		content = {'Not Authorized': 'nothing to see here'}
 		return content, status.HTTP_401_UNAUTHORIZED
@@ -197,7 +197,7 @@ def resume_api(PROJECT_ID) :
 @app.route('/talao/resume_name/api/v0/<PROJECT_ID>', methods=['POST'])
 def resume_name_api(PROJECT_ID) :
 	
-	print (request.headers["Content-Type"])
+	
 	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
 		content = {'Not Authorized': 'nothing to see here'}
 		return content, status.HTTP_401_UNAUTHORIZED
@@ -265,7 +265,7 @@ def User_Resume(did) :
 @app.route('/nameservice/api/v0/<PROJECT_ID>', methods=['POST'])
 def nameservice_api(PROJECT_ID) :
 	
-	print (request.headers["Content-Type"])
+	
 	if PROJECT_ID !="sandbox" : 							# en attendant une liste des clients
 		content = {'Not Authorized': 'nothing to see here'}
 		return content, status.HTTP_401_UNAUTHORIZED
@@ -309,9 +309,9 @@ def GET_nameservice_reload() :
 def show_certificate(data):
 	
 	claimId=data.split(':')[5]
-	print(claimId)
+	
 	workspace_contract= '0x'+data.split(':')[3]
-	print(workspace_contract)
+	
 	certificate=getclaimipfs(claimId, workspace_contract)
 	
 	ok="color: rgb(251,211,5); font-size: 10px;"
@@ -334,7 +334,7 @@ def show_certificate(data):
 			context["star"+str(q)+str(i)]=ok
 		for i in range(score[q],5) :
 			context ["star"+str(q)+str(i)]=ko
-	print(json.dumps(context))
+	
 
 	return render_template('certificate.html', **context)
 
@@ -362,7 +362,7 @@ def resume() :
 	if Talao_token_transaction.isdid(did,mode) :
 		truedid=did
 	else :
-		print('nameservice = ', nameservice.address(did.lower(),mode.register))
+
 		if nameservice.address(did.lower(),mode.register) != None :
 			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did.lower(), mode.register)[2:]
 		else :
@@ -421,7 +421,6 @@ def POST_authentification_1() :
 		code = get_random_bytes(3).hex()
 		print('code secret = ', code)
 		tabcode[email]=code
-		print('code =', code)
 		# envoi message de control du code
 		Talao_message.messageAuth(email, code)
 		print('message envoyé à ', email)
