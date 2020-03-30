@@ -74,8 +74,8 @@ def getresolver(did,mode) :
 	w3=mode.initProvider()
 	
 	# test de validité du did
-	if Talao_backend_transaction.isdid(did,mode) :
-		workspace_contract='0x'+didsplit[3]
+	if Talao_token_transaction.isdid(did,mode) :
+		workspace_contract='0x'+did.split(':')[3]
 	else :	
 		return False
 	

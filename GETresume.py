@@ -347,7 +347,7 @@ def getresume(did, mode) :
 					'to' : certificate['endDate'],
 					'organization' : { "name" : certificate['company']['name'],
 							"contact_name" : certificate['company']['manager'],
-							"contact_email" : None
+							"contact_email" : certificate['company'].get('manager_email')
 							},
 					'certificate_link' : mode.server+'certificate/'+did+':claim:'+certificateId[2:]}}		
 					cv['data']["experience"].append(new_certificate)

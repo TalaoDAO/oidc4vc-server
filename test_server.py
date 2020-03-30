@@ -3,6 +3,7 @@ piur l authentication cf https://realpython.com/token-based-authentication-with-
 
 pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
 
+interace wsgi https://www.bortzmeyer.org/wsgi.html
 """
 
 
@@ -19,6 +20,7 @@ import http.client, urllib.parse
 import random
 import threading
 import time
+import csv 
 
 # dependances
 import GETdata
@@ -82,9 +84,68 @@ def getclaimipfs (claim_id, workspace_contract) :
 	else :
 		return False
 		
-		
+
 		
 ########################### API SERVER ###############################		
+
+
+
+
+#####################################################
+#   ADD un certfiiat d experienc ERC725
+# 0AUTH
+#####################################################
+#curl http://127.0.0.1:5000/resolver/api/v0/PROJECT-ID \
+#    -X POST \
+#    -H "Content-Type: application/json" \
+#    -d '{"did" : "mydid"}'
+
+@app.route('/certificate/', methods=['POST'])
+def issueCertificate() :  
+
+	if request.method != 'POST':
+		return {"ERROR" : "Bad request"}  	
+	auth = request.headers.get("Authorization")
+	if auth == None :
+		content = authorization_header_missing
+		return content, status.HTTP_401_UNAUTHORIZED       
+	parts = auth.split()
+	if parts[0].lower() != "bearer":
+		content ="invalid_heade description Authorization header must start with Bearer"
+		return content, status.HTTP_401_UNAUTHORIZED    
+	elif len(parts) == 1:
+		content ="Token not found"
+		return content, status.HTTP_401_UNAUTHORIZED
+		
+	elif len(parts) > 2:
+		content = "Authorization header must be Bearer token"
+		return content, status.HTTP_401_UNAUTHORIZED    
+	token = parts[1]	
+	certificate=request.data
+	did = certificate["did_issuer"]
+	
+	# valider le token ici et detreminer les arguments d appel de la fonction addcertificate
+    # comparer did_issuer avec token
+	
+	# ouverture du fichier .csv
+	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	csvfile = open(fichiercsv,newline='')
+	reader = csv.DictReader(csvfile)
+	workspace_from= '0x'+did.split(':')[3] 
+	for row in reader:
+		if row['workspace_contract'] == workspace_from :
+			print (row)
+			return	{"ok" : "ok"}
+		
+	#resultat= ADDcertificate.addcertificate(address_from, private_key_from, workspace_contract_to, certificate)
+	#if resultat == True :		
+	#	return {"resultat" : True}
+	#return False
+
+
+
+
+
 
 
 #####################################################
@@ -341,7 +402,7 @@ def show_certificate(data):
 			context ["star"+str(q)+str(i)]=ko
 	
 
-	return render_template('certificate2.html', **context)
+	return render_template('certificate.html', **context)
 
 # upload des photos
 @app.route('/uploads/<filename>')
@@ -378,11 +439,15 @@ def resume() :
 	# appel de l API
 	print("appel de l api")
 	conn = http.client.HTTPConnection(mode.flaskserver+':'+mode.port)
+
+	#conn = http.client.HTTPConnection('127.0.0.1:5000')
+	print('connect')
 	headers = {'Accept': 'application/json','Content-type': 'application/json'}
 	payload = { "did" : truedid}
 	data = json.dumps(payload)
 	conn.request('POST', '/talao/resume/api/v0/sandbox',data, headers)
 	response = conn.getresponse()
+	print('response')
 	res=response.read()
 	return json.loads(res)
 	
