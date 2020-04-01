@@ -67,9 +67,6 @@ def whatisthisaddress(thisaddress,mode) :
 def getdocument(index, workspace_contract,mode) :
 	
 	w3=mode.initProvider()
-
-	# a voir pour l'affichage de doc[0] ?
-	#doc_type={10000 : "employability", 40000 : "diploma", 50000 : "experience", 60000 : "certificate"}	
 	
 	# determination de l addresse du workspace
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -80,8 +77,12 @@ def getdocument(index, workspace_contract,mode) :
 	
 	# download du doc
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	doc=contract.functions.getDocument(index).call()
-	
+	print('index = ', index)
+	try :
+		doc=contract.functions.getDocument(index).call()
+	except :
+		return False
+	print('doc = ', doc)
 	
 	# topic
 	if doc[0] == 60000 or doc[0] == 50000 :
@@ -92,7 +93,7 @@ def getdocument(index, workspace_contract,mode) :
 		topic ="employability"
 	else :
 		topic = "unknown"
-	
+	print (topic)
 	# value
 	if topic == "education" :
 		ipfs_hash=doc[6].decode('utf-8')
@@ -116,7 +117,8 @@ def getdocument(index, workspace_contract,mode) :
 		"certification_link" : None	}
 	else :
 		topic = "unknown"
-	
+		value = {}
+		
 	# issuer
 	issuer = doc[3]
 
@@ -181,6 +183,9 @@ def getclaim (claim_id, workspace_contract,mode) :
 	# doownload du claim
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claimdata=contract.functions.getClaim(claim_id).call()
+	if claimdata[0] == 0 and claimdata[1] == 0:
+		return False
+	
 	inv_topic=dict(map(reversed, constante.topic.items()))
 	topicname=inv_topic.get(claimdata[0])
 	if topicname==None :
@@ -257,14 +262,6 @@ def getdata(data,mode) :
 	
 	w3=mode.initProvider()
 	datasplit=data.split(':')
-	if datasplit[2] != mode.BLOCKCHAIN :
-		return "Erreur de chain"	
-			
-	# si data n'est pas un did
-	if datasplit[0] != 'did' or len(datasplit) not in [4,6] :
-		return data+' n est pas un identifiant'
-
-	# determination de l'addresse du workspace
 	workspace_contract='0x'+datasplit[3]
 
 	# si data est un identifiant de document
@@ -278,7 +275,7 @@ def getdata(data,mode) :
 	# si data est un did	
 	if len(datasplit) == 4  :
 		result=GETresume.getresume(data,mode)
-
+		
 	return result
 
 

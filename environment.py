@@ -69,15 +69,15 @@ class currentMode() :
 			sys.exit()	
 		
 		if myenv == 'production' or myenv == 'prod' :  # sur rasbperry
-			self.IP='217.128.135.206'
-			self.server=	'http://217.128.135.206:5000/'
-			self.flaskserver ='192.168.0.17'
-			self.port='5000'		
-		elif myenv == 'test' : # sur portable
-			self.IP='127.0.0.1'
+			self.IP='217.128.135.206' # external
+			self.server=	'http://217.128.135.206:5000/' # external
+			self.flaskserver ='127.0.0.1'
+			self.port='4000'		
+		elif myenv == 'test' : # sur portable/internal
+			#self.IP='127.0.0.1'
 			self.flaskserver = '127.0.0.1'
-			self.server = 'http://127.0.0.1:5000/'
-			self.port='5000'
+			self.server = 'http://127.0.0.1:4000/' #internal
+			self.port='4000'
 		else : 
 			print('error env ->', myenv)
 		

@@ -1,9 +1,8 @@
 import environment
 import multiprocessing
 
-mode=environment.currentMode('test', 'rinkeby')
 
-bind = mode.flaskserver+':'+mode.port
+bind = '127.0.0.1:4000'
 workers = 3
 #workers = multiprocessing.cpu_count()*2
 

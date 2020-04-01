@@ -184,11 +184,9 @@ def getExperience (email, password,experience, mode) :
 #  Bearer Token 
 ###################################################################
 
-def encode_auth_token(user_id,mode):
-	w3=mode.initProvider()
-
+def encode_auth_token(user_id, mydays, myseconds):
 	try:
-		payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=5),'iat': datetime.datetime.utcnow(),'sub': user_id}
+		payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(days=mydays, seconds=myseconds),'iat': datetime.datetime.utcnow(),'sub': user_id}
 		return jwt.encode(
             payload,
             'TALAO',
@@ -199,11 +197,11 @@ def encode_auth_token(user_id,mode):
 def decode_auth_token(auth_token):
     try:
         payload = jwt.decode(auth_token,'TALAO')
-        return payload['sub']
+        return payload['sub'], 200, "token is ok"
     except jwt.ExpiredSignatureError:
-        return 'Signature expired. Please log in again.'
+        return False, 408, "token expired"
     except jwt.InvalidTokenError:
-        return 'Invalid token. Please log in again.'
+        return False, 401, "token invalid"
 
 
 

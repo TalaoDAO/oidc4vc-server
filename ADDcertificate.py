@@ -37,7 +37,7 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	haskey=contract.functions.keyHasPurpose(_key, 3).call()
 	if haskey==False :
-		return {"ERROR" : "cet issuer a une cle 3"}
+		return False, "cet issuer a une cle 3"
 
 	# cacul du topic value
 	topicvaluestr =''
@@ -76,7 +76,7 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 	newdata=json.dumps(data)
 	addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, newdata, "",mode) 
 
-	return  True
+	return  True, "certificate is created"
 
 
 
