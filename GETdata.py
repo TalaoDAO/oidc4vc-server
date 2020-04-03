@@ -67,6 +67,7 @@ def whatisthisaddress(thisaddress,mode) :
 def getdocument(index, workspace_contract,mode) :
 	
 	w3=mode.initProvider()
+	document=dict()
 	
 	# determination de l addresse du workspace
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -77,12 +78,12 @@ def getdocument(index, workspace_contract,mode) :
 	
 	# download du doc
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	print('index = ', index)
+
 	try :
 		doc=contract.functions.getDocument(index).call()
 	except :
 		return False
-	print('doc = ', doc)
+	
 	
 	# topic
 	if doc[0] == 60000 or doc[0] == 50000 :
@@ -93,7 +94,7 @@ def getdocument(index, workspace_contract,mode) :
 		topic ="employability"
 	else :
 		topic = "unknown"
-	print (topic)
+
 	# value
 	if topic == "education" :
 		ipfs_hash=doc[6].decode('utf-8')
@@ -135,7 +136,7 @@ def getdocument(index, workspace_contract,mode) :
 	(issuerprofile, x)=GETresume.readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
 
 	# mise en forme de la reponse de la fonction
-	document=dict()
+	
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
 	document['endpoint']=mode.server+'data/'+document['id']
 	document['data'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
@@ -165,9 +166,6 @@ def getclaim (claim_id, workspace_contract,mode) :
 # ajouter le check de validité
 
 	w3=mode.initProvider()
-
-	# setup variable
-	claims=[]
 	claim=dict()
 
 	# determination de l address du owner
@@ -256,7 +254,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 # @data = did ou document ou claim
 # did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b'
 # did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim;56879abc
-#   A refaire !!!!!!
+#  
 
 def getdata(data,mode) :
 	
@@ -269,13 +267,17 @@ def getdata(data,mode) :
 		result=getdocument(int(datasplit[5]), workspace_contract,mode)
 
 	# si data est un identfiant de claim
-	if len(datasplit) == 6 and datasplit[4]== 'claim' :	
+	elif len(datasplit) == 6 and datasplit[4]== 'claim' :	
 		result = getclaim(datasplit[5], workspace_contract,mode)	
-
+	
+	else :
+		result = False
+	return result
+"""
 	# si data est un did	
 	if len(datasplit) == 4  :
 		result=GETresume.getresume(data,mode)
-		
-	return result
+"""		
+	
 
 

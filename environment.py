@@ -22,7 +22,9 @@ class currentMode() :
 	
 		self.env=myenv
 		self.chain=mychain
-	
+		self.port = '4000'
+		self.apiport = '3000'
+		self.flaskserver = '127.0.0.1'
 			
 		if mychain == 'rinkeby' :
 			self.ether2transfer=20	
@@ -70,14 +72,12 @@ class currentMode() :
 		
 		if myenv == 'production' or myenv == 'prod' :  # sur rasbperry
 			self.IP='217.128.135.206' # external
-			self.server=	'http://217.128.135.206:5000/' # external
-			self.flaskserver ='127.0.0.1'
-			self.port='4000'		
+			self.server='http://217.128.135.206:5000/' # external
+					
 		elif myenv == 'test' : # sur portable/internal
 			#self.IP='127.0.0.1'
-			self.flaskserver = '127.0.0.1'
 			self.server = 'http://127.0.0.1:4000/' #internal
-			self.port='4000'
+			
 		else : 
 			print('error env ->', myenv)
 		

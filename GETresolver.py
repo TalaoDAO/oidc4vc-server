@@ -126,11 +126,11 @@ def getresolver(did,mode) :
 		did_document["service"]["resume"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
 				"@context" : "https://talao.io",
 				"description" : "check and verify my resume"}
+		
+		did_document["service"]["IssueCertificate"]  = { "endpoint" : mode.server+'certificate/experience/'+did,
+				"@context" : "https://talao.io/",
+				"description" : "Send me a professional certificate"}
 				
-		did_document["service"]["messagebox"]  = { "endpoint" : "to be done....",
-				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
-				"description" : "send me a message"}
-	
 		did_document["service"]["digitalvault"]  = { "endpoint" : "to be done....",
 				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
 				"description" : "send me private document"}
@@ -139,12 +139,6 @@ def getresolver(did,mode) :
 					"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/access/Partnership.sol",
 					"description" : "Let's partner together and exchange private data"}
 	
-		did_document["service"]["transfercrypto"] = {"endpoint" : "to be done",
-					"@context" : "eth and TALAO token",
-					"description" : "My Ethereum account"}	
-	
-
-
 
 
 ########################################################################################
@@ -161,10 +155,7 @@ def getresolver(did,mode) :
 				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
 				"description" : "send us a message"}
 	
-		did_document["service"]["digitalvault"]  = { "endpoint" : "to be done....",
-				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
-				"description" : "send us private documents"}
-					
+						
 		did_document["service"]["requestparnership"]= {"endpoint" : "to be done",
 					"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/access/Partnership.sol",
 					"description" : "Let's partner together and exchange private data"}

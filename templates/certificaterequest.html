@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html style="height: 480px;">
+
+<head>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Certificate Issuer</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <script>$(document).ready(function() {
+
+  const $valueSpan = $('.valueSpan');
+  const $value = $('#slider11');
+  $valueSpan.html($value.val());
+  $value.on('input change', () => {
+
+    $valueSpan.html($value.val());
+  });
+});</script>
+
+</head>
+
+<body style="height: 480px;background-color: rgb(244,243,243);">
+    <div style="height: 480px;margin: 30px;">
+        <form method="post" action=".">
+            <div class="container shadow-sm" style="height: 480px;background-color: #ffffff;padding: 0px 15px;">
+                <div class="form-row" style="height: 60px;">
+                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                        <h6 style="margin-top: 20px;"><strong>{{name}}</strong></h6>
+                    </div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;"><input class="form-control" type="text" placeholder="Project name" style="margin: 15px 0px 16px;" name="topicname"></div>
+                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;"><a href="{{resumelink}}">Resume</a></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                        <p></p><textarea class="form-control" placeholder="Project summary" name="summary"></textarea></div>
+                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;"><input class="form-control" type="text" placeholder="Position" name="position"></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;margin-bottom: 0px;"><label></label><label style="margin-top: 30px;">From :</label><input class="form-control" type="date" name="startDate" style="width: 202px;margin: 0px;margin-left: 58px;margin-top: -38px;"></div>
+                    <div class="col-md-12 col-xl-6 order-1 order-xl-1"
+                        style="height: 60px;"><input class="form-control" type="text" placeholder="Skills" name="skills"></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                        <p></p><label>To :</label><input class="form-control" type="date" name="endDate" style="width: 202px;margin-top: -38px;margin-left: 59px;"></div>
+                    <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                        <p style="margin: 15px 0px 16px;font-size: 12px;">How likely are you to recommend this talent to others ?</p>
+                    </div>
+                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><input class="form-control-range" type="range" style="margin: 15px 0px 16px;" name="score1" title="test" value="4" min="0" max="5" step="1"></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;"><input class="form-control" type="text" placeholder="Issued by" style="width: 259px;" name="issuedby"></div>
+                    <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                        <p style="margin: 15px 0px 16px;font-size: 12px;">How satisfied are you with the overall freelance delivery ?</p>
+                    </div>
+                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><input class="form-control-range" type="range" style="margin: 15px 0px 16px;" name="score2" value="4" min="0" max="5" step="1"></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                        <p></p><label style="margin-bottom: 3px;margin-top: -19px;">Key</label><input class="form-control" type="text" style="margin-top: -42px;width: 202px;margin-left: 60px;" name="key"></div>
+                    <div class="col-md-12 col-xl-4 order-1" style="height: 60px;">
+                        <p style="margin: 15px 0px 16px;font-size: 12px;">How would you rate his/her ability to deliver to schedule ?</p>
+                    </div>
+                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><input class="form-control-range" type="range" style="margin: 15px 0px 16px;" name="score3" value="4" min="0" max="5" step="1"></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;"><label style="margin-top: 12px;margin-bottom: -9px;">Secret</label><input class="form-control" type="text" style="width: 202px;margin-bottom: 0px;margin-top: -30px;margin-left: 60px;" name="secret"></div>
+                    <div class="col-md-12 col-xl-4 order-1"
+                        style="height: 60px;">
+                        <p style="margin: 15px 0px 16px;font-size: 12px;">How would you rate his/her overall communication skills ?</p>
+                    </div>
+                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><input class="form-control-range" type="range" style="margin: 15px 0px 16px;" name="score4" value="4" min="0" max="5" step="1"></div>
+                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                
+                        <p class="d-inline-flex"></p><button class="btn btn-primary text-center" type="submit" style="margin-right: 0px;margin-left: 58px;">Issue Certificate</button></div>
+                  </div><input type="hidden" name="user_did" value="{{myuser_did}}">  
+                </div>
+            </div>
+        </form>
+   
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+</script>
+</body>
+
+</html>

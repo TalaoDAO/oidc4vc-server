@@ -4,11 +4,6 @@ POur ajouter un certificats sous forme de claim a un user 2 claim sontnecessaire
 1) le claim du certificat, le topic est calculé sur la base du nom du projet, il est signé par la société
 2) le claim "certificate" emis par le socitété dans le equel on y met la liste des claims des certificats
 
-
-
-
-
-
 """
 
 import constante
@@ -17,19 +12,16 @@ import ipfshttpclient
 import addclaim
 import environment
 import json
-import http.client, urllib.parse
-
-
-
-
 
 ########################################################################
 #           EMISSION du certificat d'experience ERC725 NEW       
 ########################################################################
 # @certificate = dict normé
 
-def addcertificate(address_from, private_key_from, workspace_contract_to, certificate) :
-
+def addcertificate(address_from, private_key_from, workspace_contract_to, certificate,mode) :
+	
+	
+	w3=mode.initProvider()
 	topicname=certificate['topicname']
 
 	# verifier la presence de la cle 3
@@ -53,7 +45,7 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 	client.pin.add(ipfshash)
 	
 	# emission du claim
-	h=addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, "", ipfshash,mode) 
+	addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, "", ipfshash,mode) 
 
 	# calcul du claimId du claim du certificat
 	newclaimId=w3.solidityKeccak(['address', 'uint256'], [address_from, topicvalue]).hex()
@@ -75,66 +67,9 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 
 	newdata=json.dumps(data)
 	addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, newdata, "",mode) 
-
-	return  True, "certificate is created"
-
-
+	link = mode.server+'certificate/did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract_to[2:]+':claim:'+newclaimId[2:]
+	return  True, link
 
 
+# 'http://127.0.0.1:4000/certificate/did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:c62a385057593fe473346263f3564cf6f1d46c333a6081529c1e4864cfc9f3f1'
 
-
-# SETUP
-mode=environment.currentMode('test', 'rinkeby')
-w3=mode.initProvider()
-
-
-# pour les test
-private_key_onfido="0xdd6a47a3f324d8375850104c0c41a473dabdc1742666f4c63e28cb7ff0e26bbf"
-address_onfido = "0xdBEcB7f4A6f322444640b0173C81f9B0DECe0E07"
-
-workspace_contract_pierre = "0xab6d2bAE5ca59E4f5f729b7275786979B17d224b"
-address_pierre = "0xe7Ff2f6c271266DC7b354c1B376B57c9c93F0d65"
-private_key_pierre = "0xf73c5085c32410657f78851386d78e84042076e762c0d1360b4b972045817e2a"
-
-address_thales="0x60f6876F2880fB5c92Caad1C3002356d2F33b770"
-private_key_thales="0xe194d61bff666d67ca98e89bd8e266c0ca2dd7ba16d2b2256a2c0463e1b67070"
-
-workspace_contract_to= workspace_contract_pierre
-address_from = address_thales
-private_key_from = private_key_thales
-issuer = address_thales
-address_to ='0xe7Ff2f6c271266DC7b354c1B376B57c9c93F0d65'
-
-
-
-certificate={"did_issuer" : "did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b", 
-	"did_user" : "",
-	"topicname" : "Projet Opto Meganne",
-	"type" : "experience",	
-	"firstname" : "David",
-	"name" : "Houlle",
-	"company" : {"name" : "Thales", "manager" : "Jean Permet", "managersignature" : "experingsignature.png",
-		"companylogo" : "thaleslogo.jpeg", 'manager_email' : "jean.permet@thales.com"},
-	"startDate" : "2018-06-01",
-	"endDate" :"2018-10-01",
-	"summary" :  "New SUV Project. Development of a new large-dimension hybrid vehicle SUV for the premium automotive segment. Technical, economic and human challenge with the setup of a new production plant in North America",
-	"skills" : "Optoelectronics			IRST system		CAO/DAO",
-	"position" : "Manager for SUV project",
-	"score_recommendation" : 2,
-	"score_delivery" : 3,
-	"score_schedule" : 3,
-	"score_communication" : 5}
-
-
-#print (addcertificate(address_from, private_key_from, workspace_contract_to, certificate))
-
-
-
-conn = http.client.HTTPConnection('localhost:5000')
-headers = {'Accept': 'application/json','Content-type': 'application/json', "Authorization" : "Bearer sdsdsds"}
-payload = certificate
-data = json.dumps(payload)
-conn.request('POST', '/certificate/',data, headers)
-response = conn.getresponse()
-res=response.read()
-#print(json.loads(res))

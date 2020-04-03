@@ -112,6 +112,59 @@ def send_file(filename):
 	UPLOAD_FOLDER='photos'
 	return send_from_directory(UPLOAD_FOLDER, filename)
 
+##################################################
+# Saisie d un certificat pour entreprise
+##################################################
+
+@app.route('/certificate/experience/<did>', methods=['GET'])
+def input_certificate(did):
+
+	workspace_contract='0x'+did.split(':')[3]
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	address = contract.functions.contractsToOwners(workspace_contract).call()
+	profil =Talao_token_transaction.readProfil(address,mode)
+	username=profil['givenName']+' '+profil['familyName']
+	myresumelink='http://vault.talao.io:4011/visit/'+workspace_contract
+	print(did)
+	return render_template("certificaterequest.html",name=username, resumelink= myresumelink, myuser_did=did)
+
+@app.route('/certificate/experience/', methods=['POST']) # pour la demo on ne gere pas le bearer token, on utilise les champs hidden pour cinserver la trace du user di et issuer did
+def input_certificate_1():
+	certificate=dict()
+	key=request.form['key'] # c est le workspace contract de l issuer
+	issuer_did='did:talao:'+mode.BLOCKCHAIN+':'+key[2:]
+	secret=request.form['secret']
+	userdid = request.form['user_did']
+	workspace_contract='0x'+userdid.split(':')[3]
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	address = contract.functions.contractsToOwners(workspace_contract).call()
+	profil =Talao_token_transaction.readProfil(address,mode)
+	
+	certificate={"did_issuer" : issuer_did, 
+	"did_user" : request.form['user_did'],
+	"topicname" : request.form['topicname'],
+	"type" : "experience",	
+	"firstname" : profil['givenName'],
+	"name" : profil['familyName'],
+	"company" : {"name" : "Thales", "manager" : request.form['issuedby'], "managersignature" : "experingsignature.png",
+		"companylogo" : "thaleslogo.jpeg", 'manager_email' : "jean.permet@thales.com"},
+	"startDate" : request.form['startDate'],
+	"endDate" :request.form['endDate'],
+	"summary" :  request.form['summary'],
+	"skills" : "Optoelectronics			IRST system		CAO/DAO",
+	"position" : request.form['position'],
+	"score_recommendation" : int(request.form['score1']),
+	"score_delivery" : int(request.form['score2']),
+	"score_schedule" : int(request.form['score3']),
+	"score_communication" : int(request.form['score4'])}
+	username= certificate['firstname']+' '+certificate['name']
+	mymessage ="Your professional certificate has been issued to "+ username+ '. An email has been sent too'
+	print(certificate)
+	# ajouter ADDcertificate ici
+	return render_template("certificaterequest_1.html", message = mymessage)
+
+
+
 		
 #############################################################
 #    affichage d'un certificat de type claim
@@ -163,7 +216,7 @@ def show_certificate(data):
 
 @app.route('/resume/')
 def resume_home() :
-	return render_template("home_resolver.html")
+	return render_template("home_resume.html")
 		
 @app.route('/resume/did/', methods=['GET'])
 def resume() :
