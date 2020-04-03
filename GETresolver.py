@@ -131,13 +131,7 @@ def getresolver(did,mode) :
 				"@context" : "https://talao.io/",
 				"description" : "Send me a professional certificate"}
 				
-		did_document["service"]["digitalvault"]  = { "endpoint" : "to be done....",
-				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
-				"description" : "send me private document"}
-					
-		did_document["service"]["requestparnership"]= {"endpoint" : "to be done",
-					"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/access/Partnership.sol",
-					"description" : "Let's partner together and exchange private data"}
+	
 	
 
 
@@ -151,18 +145,7 @@ def getresolver(did,mode) :
 				"@context" : "https://talao.io",
 				"description" : "check and verify Company data"}
 				
-		did_document["service"]["messagebox"]  = { "endpoint" : "to be done....",
-				"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/identity/Identity.sol",
-				"description" : "send us a message"}
 	
-						
-		did_document["service"]["requestparnership"]= {"endpoint" : "to be done",
-					"@context" : "https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/access/Partnership.sol",
-					"description" : "Let's partner together and exchange private data"}
-	
-		did_document["service"]["transfercrypto"] = {"endpoint" : "to be done",
-					"@context" : "eth and TALAO token",
-					"description" : "Our Ethereum account"}	
 	
 		
 	
