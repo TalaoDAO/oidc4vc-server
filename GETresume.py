@@ -1,12 +1,14 @@
-import Talao_ipfs
-import constante
 import json
 import datetime
 import sys
-import isolanguage
 import ipfshttpclient
 from eth_account.messages import encode_defunct
 
+#dependances
+import ADDdocument
+import isolanguage
+import Talao_ipfs
+import constante
 
 
 #####################################################	
@@ -142,7 +144,7 @@ def readProfil (address, workspace_contract, mode) :
 ################################################################
 # return un tableau des identifiants documents
 ################################################################
-# doctype : integer, 10000, 40000, 50000
+# doctype : integer, 10000, 40000, 50000, 15000
 
 def getDocumentIndex(address, doctype, workspace_contract,mode) :
 
@@ -158,7 +160,7 @@ def getDocumentIndex(address, doctype, workspace_contract,mode) :
 	return newdocindex
 
 #############################################################
-# return le document au format json (str)
+# return le document au format dict
 ###############################################################
 def getDocument(address,index, workspace_contract, mode) :
 	w3=mode.initProvider()
@@ -213,6 +215,7 @@ def getresume(did, mode) :
 	# determination du profil
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	(profile, category)=readProfil(address, workspace_contract,mode)
+	del profile['email']
 	
 	
 ##################################################################################	
@@ -240,6 +243,12 @@ def getresume(did, mode) :
 		claimid=claim[0].hex()
 		cv['data']["personal"].append({"profil" : {"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid,"data" : profile}})
 		
+		# Contact cf ADDdocument , document de type 15000, crypté ou pas		
+		contactIndex=getDocumentIndex(address, 15000, workspace_contract,mode)
+		print("contactIndex = ", contactIndex)
+		for i in contactIndex:
+			contact=ADDdocument.getdocument(workspace_contract, '0x0', workspace_contract, i, mode)		
+			cv['data']['personal'].append({"contact" : {"id" : did+':document:'+str(i), 'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),"data" : contact}})
 		
 		# KYC
 		# setup variable

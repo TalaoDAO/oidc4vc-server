@@ -199,7 +199,7 @@ def getresolver(did,mode) :
 	data = contract.functions.getKeysByPurpose(4).call()
 	for i in range(0, len(data)) :
 		key=contract.functions.getKey(data[i]).call()
-		keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+		keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'ENCRYPTION']).hex()
 		if key[2].hex() == owner_publicKeyHex.hex()[2:] :
 			key_controller = address
 		else :
@@ -208,10 +208,21 @@ def getresolver(did,mode) :
 		"type": ["Secp256k1SignatureVerificationKey2018", "ERC725EncryptionKey"],
 		"controller" : key_controller,
 		"publicKeyHex": key[2].hex()})
-		did_document.append({"encryption": {
-		"type": "Secp256k1SignatureEncryption2018",
+
+		
+	# Keys 20002 to issue document
+	data = contract.functions.getKeysByPurpose(20002).call()
+	for i in range(0, len(data)) :
+		key=contract.functions.getKey(data[i]).call()
+		keyId=w3.soliditySha3(['string', 'string'], [key[2].hex(), 'KEY 20002']).hex()
+		if key[2].hex() == owner_publicKeyHex.hex()[2:] :
+			key_controller = address
+		else :
+			key_controller = 'unknown'
+		did_document["publicKey"].append({"id": keyId,
+		"type": ["Secp256k1SignatureVerificationKey2018", "ERC725 20002"],
 		"controller" : key_controller,
-		"publicKey": ""	}})
+		"publicKeyHex": key[2].hex()})
 
 	 
 	return did_document

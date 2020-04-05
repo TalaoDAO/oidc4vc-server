@@ -27,6 +27,21 @@ def ownersToContracts(address, mode) :
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
+	
+	
+
+
+############################################################
+# appel de contractsToOwners de la fondation
+############################################################
+#
+
+
+def contractsToOwners(workspace_contract, mode) :
+	w3=mode.initProvider()
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	address = contract.functions.contractsToOwners(workspace_contract).call()
+	return address	
 
 
 
@@ -61,9 +76,10 @@ def readProfil (address,mode) :
 	index=0
 	for i in topicvalue :
 		claim=contract.functions.getClaimIdsByTopic(i).call()
-		claimId=claim[0].hex()
-		data = contract.functions.getClaim(claimId).call()
-		profil[topicname[index]]=data[4].decode('utf-8')
+		if len(claim) != 0 : # uniquement si les information ont ete entrées a la cretaion de l identité
+			claimId=claim[0].hex()
+			data = contract.functions.getClaim(claimId).call()
+			profil[topicname[index]]=data[4].decode('utf-8')
 		index=index+1
 	return profil
 	
@@ -216,9 +232,66 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 	return hash
  
 
+###################################################################
+#  authorize partnership, from user to partner
+###################################################################
+#     */
+#    function authorizePartnership(address _hisContract, bytes _ourSymetricKey)
+#        external
+#        onlyIdentityPurpose(1)
+#   {
 
 
+def authorizepartnership(workspace_contract_partner, workspace_contract_user, private_key_user,mode) :
+	
+	w3=mode.initProvider()
+	contract=w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
+	address_user=contractsToOwners(workspace_contract_user,mode)
+	
+	# calcul du nonce de l envoyeur de token . Ici le user
+	nonce = w3.eth.getTransactionCount(address_user)  
 
+	#recuperer la cle AES cryptée du user
+	contract=w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
+	mydata = contract.functions.identityInformation().call()
+	user_aes_encrypted=mydata[5]
+		
+	# read la cle privee RSA du user sur le fichier
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_user+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	with open(filename,"r") as fp :
+		user_rsa_key=fp.read()	
+		fp.close()   
+
+	# decoder la cle AES128 cryptée du user avec la cle RSA privée du user
+	key = RSA.importKey(user_rsa_key)
+	cipher = PKCS1_OAEP.new(key)	
+	user_aes=cipher.decrypt(user_aes_encrypted)
+	
+	#recuperer la cle RSA publique du partner
+	contract=w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
+	data = contract.functions.identityInformation().call()
+	partner_rsa_key=data[4]
+	
+	# encryption de la cle AES du user avec la cle RSA du partner
+	key=RSA.importKey(partner_rsa_key)	
+	cipher = PKCS1_OAEP.new(key)
+	user_aes_encrypted_with_partner_key = cipher.encrypt(user_aes)
+	
+	
+	# Build transaction
+	contract=w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
+	txn=contract.functions.authorizePartnership(workspace_contract_partner, user_aes_encrypted_with_partner_key).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	#sign transaction with caller wallet
+	signed_txn=w3.eth.account.signTransaction(txn,private_key_user)
+	
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	h= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(h, timeout=2000, poll_latency=1)	
+	return h
+	
+	
+	
 ###################################################################
 # Demande de partnership 630 000 gas
 #
@@ -230,17 +303,12 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 #       5 identityInformation.symetricEncryptionEncryptedKey = _symetricEncryptionEncryptedKey;
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
 ###################################################################
-def partnershiprequest(my_address, my_private_key, his_address,mode) :
+def partnershiprequest(my_contract, my_private_key, his_contract,mode) :
 	w3=mode.initProvider()
 
 	#recuperer les 2 adresses de contrat
-	my_contract=ownersToContracts(my_address,mode)
-	his_contract=ownersToContracts(his_address,mode)
-
-	print('my address =', my_address)	
-	print('his address=', his_address)	
-	print('my_contrat =' , my_contract)
-	print('his contract =' ,his_contract)
+	my_address=contractsToOwners(my_contract,mode)
+	his_address=contractsToOwners(his_contract,mode)
 	
 	#recuperer ma cle AES cryptée
 	contract=w3.eth.contract(my_contract,abi=constante.workspace_ABI)
@@ -266,7 +334,7 @@ def partnershiprequest(my_address, my_private_key, his_address,mode) :
 	# encryption de ma cle AES avec sa cle RSA
 	key=RSA.importKey(his_rsa_key)	
 	cipher = PKCS1_OAEP.new(key)
-	my_aes_encrypted_with_his_key = cipher.encrypt(my_aes_key)
+	my_aes_encrypted_with_his_key = cipher.encrypt(my_aes)
 
 	#envoyer la transaction sur mon contrat
 	contract=w3.eth.contract(my_contract,abi=constante.workspace_ABI)
@@ -290,7 +358,7 @@ def partnershiprequest(my_address, my_private_key, his_address,mode) :
 ###################################################################
 # Création de document 250000 000 gas
 # @data = dictionnaire = {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }}
-# @encrypted = False ou True => AES
+# @encrypted = False ici
 # location engine = 1 pour IPFS, doctypeversion = 1, expire =Null, 
 ###################################################################
 #   function createDocument(
@@ -306,7 +374,9 @@ def partnershiprequest(my_address, my_private_key, his_address,mode) :
 def createDocument(address, private_key, doctype, data, encrypted,mode) :
 	
 	w3=mode.initProvider()
-
+	
+	encrypted = False
+	
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract=ownersToContracts(address,mode)
 
@@ -594,7 +664,7 @@ def createandpublishExperience(address, private_key, experience,mode ) :
 	conn.close()
 	return
 	
-	
+"""	
 #########################################################	
 # read Talao experience or diploma index
 #########################################################
@@ -615,6 +685,7 @@ def getDocumentIndex(address, _doctype,mode) :
 			index=index+1			
 	return index
 
+
 ######################################################	
 # read Talao experience or diploma
 ######################################################
@@ -626,7 +697,7 @@ def getDocument(address, _doctype,_index,mode) :
 
 	workspace_contract=ownersToContracts(address,mode)
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	docindex=contract.functions.getDocuments().call()
+	docindex=contract.functions.getDocuments().call() # la liste de tous les doc_id actifs
 	index=0
 	for i in docindex :
 		doc=contract.functions.getDocument(i).call()
@@ -636,7 +707,7 @@ def getDocument(address, _doctype,_index,mode) :
 				return Talao_ipfs.IPFS_get(ipfs_hash)
 			else :
 				index=index+1				
-
+"""
 
 #####################################
 #authentication d'un json de type str

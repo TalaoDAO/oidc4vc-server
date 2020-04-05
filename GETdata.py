@@ -1,17 +1,17 @@
-import json
-import constante
 import ipfshttpclient
 from eth_account.messages import encode_defunct
-import Talao_ipfs
-import constante
 import json
 import datetime
 import sys
+
+#dependances
 import isolanguage
 import GETresume
 import nameservice
-
-
+import ADDdocument
+import Talao_ipfs
+import constante
+import constante
 
 
 ##############################################
@@ -92,6 +92,8 @@ def getdocument(index, workspace_contract,mode) :
 		topic = "education"
 	elif doc[0] == 10000 :
 		topic ="employability"
+	elif doc[0] == 15000 :
+		topic ="contact"	
 	else :
 		topic = "unknown"
 
@@ -116,6 +118,10 @@ def getdocument(index, workspace_contract,mode) :
 				"contact_name" : experience['issuer']['responsible']["name"],
 				"contact_email" : experience["issuer"]["organization"]["email"]},
 		"certification_link" : None	}
+	
+	elif topic == 'contact' :
+		value=ADDdocument.getdocument(workspace_contract, '0x0', workspace_contract, index, mode)
+	
 	else :
 		topic = "unknown"
 		value = {}
@@ -261,9 +267,13 @@ def getdata(data,mode) :
 	w3=mode.initProvider()
 	datasplit=data.split(':')
 	workspace_contract='0x'+datasplit[3]
-
+	
+	# work in progress
+	if datasplit[5]=='0' :
+		result = {"msg" : "work to be done !!!!!"}
+	
 	# si data est un identifiant de document
-	if len(datasplit) == 6 and datasplit[4]== 'document' :
+	elif len(datasplit) == 6 and datasplit[4]== 'document' :
 		result=getdocument(int(datasplit[5]), workspace_contract,mode)
 
 	# si data est un identfiant de claim
@@ -271,7 +281,8 @@ def getdata(data,mode) :
 		result = getclaim(datasplit[5], workspace_contract,mode)	
 	
 	else :
-		result = False
+		result = {"msg" : "error in GETdata"}
+	
 	return result
 """
 	# si data est un did	

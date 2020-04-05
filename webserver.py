@@ -14,7 +14,6 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template
 from flask_api import FlaskAPI, status
-#import json
 import ipfshttpclient
 from flask_fontawesome import FontAwesome
 import http.client
@@ -119,6 +118,7 @@ def send_file(filename):
 @app.route('/certificate/experience/<did>', methods=['GET'])
 def input_certificate(did):
 
+	# recuperation des information sur le user
 	workspace_contract='0x'+did.split(':')[3]
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
@@ -293,7 +293,7 @@ def POST_authentification_2() :
 		exporting_threads[thread_id] = ExportingThread(firstname, lastname, email, mode)
 		print("appel de createindentty")
 		exporting_threads[thread_id].start()
-		mymessage = 'Registation in progress........ You will receive an email with your Cryptographic keys to connect soon' 
+		mymessage = 'Registation in progress........  You will receive an email with details on how to activate your Professional Identity.' 
 	else :
 		mymessage = 'Error code'
 	

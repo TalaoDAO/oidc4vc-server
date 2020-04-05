@@ -133,7 +133,7 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	myfile.close()
 	
 	# envoi du message de log
-	status="from website /talao/register/"
+	status="webserver"
 	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
 	
 	# envoi du message user
@@ -191,7 +191,7 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 
 
 	# mise a jour du fichier archive Talao_Identity.csv
-	status="website /talao/register/"
+	status="webserver"
 	writer.writerow(( datetime.today(),name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
 	identityfile.close()
 
