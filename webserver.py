@@ -143,13 +143,17 @@ def data(data) :
 ##################################################
 @app.route('/talao/api/data/remove/<did>', methods=['GET'])
 def identityRemove_1(did) :
-	print (did)
+	session['did']=did
+	print("did = ", did)
 	return render_template('remove1.html', message="", myusername="")
 	
-@app.route('/talao/api/data/', methods=['POST'])
+@app.route('/talao/api/data/remove/', methods=['POST'])
 def identityRemove_2() :
-	username= request.form['username']
+	username= request.form.get('username')
+	print("username = ", username)
 	data=session['data']
+	return {"msg" : "work in progress...."} # a retirer
+	
 	workspace_contract='0x'+data.split(':')[3]
 	global tabcode
 	if 'username' in session and session['username'] == username and nameservice.address(username,mode.register) == workspace_contract : # on efface sans passer par l'ecran de saisie de code 
@@ -163,13 +167,13 @@ def identityRemove_2() :
 			#Talao_token_transaction.removeClaim(workspace_contract, private_key, claimdocId,mode)
 			print("effacement de document au premier passage")
 		mymessage = 'Deletion done' 
-		return render_template("delete3.html", message = mymessage)
+		return render_template("remove3.html", message = mymessage)
 	
 	if nameservice.address(username, mode.register) == None :
 		mymessage="Your username is not registered"
 		if 'username' in session :
 		 del session['username']
-		return render_template('delete1.html', message=mymessage)
+		return render_template('remove1.html', message=mymessage)
 	
 	workspace_contract=nameservice.address(username, mode.register)
 	data=session['data']
@@ -177,15 +181,15 @@ def identityRemove_2() :
 	if workspace_contract_data != workspace_contract :
 		if 'username' in  session :
 			del session['username']
-		mymessage = 'Your are not the owner of this Identity, you cannot delete this data.'
-		return render_template("delete3.html", message = mymessage)
+		mymessage = 'Your are not the owner of this Identity, you cannot delete it.'
+		return render_template("remove3.html", message = mymessage)
 	
 	email=Talao_token_transaction.getEmail(workspace_contract,mode)
 	if email == False :
 		if 'username' in session :
 			del session['username']
 		mymessage="Your email for authentification is not registered"
-		return render_template('delete3.html', message= mymessage)			
+		return render_template('remove3.html', message= mymessage)			
 
 	session['email']=email
 	session['username']=username
@@ -196,11 +200,11 @@ def identityRemove_2() :
 	session['try_number']=0
 	Talao_message.messageAuth(email, code)
 	mymessage="Code has been sent"
-	return render_template("delete2.html", message = mymessage)
+	return render_template("remove2.html", message = mymessage)
 
 # recuperation du code saisi et effacement de la data
-@app.route('/talao/api/data/code/', methods=['POST'])
-def identityRemove_2() :
+@app.route('/talao/api/data/remove/code/', methods=['POST'])
+def identityRemove_3() :
 	global tabcode
 	session['try_number'] += 1
 	email=session['email']
@@ -208,11 +212,11 @@ def identityRemove_2() :
 	data=session['data']
 	if session['trial'] > 3 :
 		mymessage = "Too many trials (3 max)"
-		return render_template("delete3.html", message = mymessage)
+		return render_template("remove3.html", message = mymessage)
 	
 	if tabcode.get(email) == None :
 		mymessage = "Time out"
-		return render_template("delete3.html", message = mymessage)
+		return render_template("remove3.html", message = mymessage)
 	
 	if mycode == tabcode[email] : # code correct, on efface 
 		workspace_contract='0x'+data.split(':')[3]
@@ -226,15 +230,15 @@ def identityRemove_2() :
 			print("effacement de claim au premier passage")
 			#Talao_token_transaction.removeClaim(workspace_contract, private_key, claimdocId,mode)
 		mymessage = 'Deletion done' 
-		return render_template("delete3.html", message = mymessage)
+		return render_template("remove3.html", message = mymessage)
 
 	else : # code incorrect
 		mymessage = 'This code is incorrect'	
-		return render_template("delete2.html", message = mymessage)
+		return render_template("remove2.html", message = mymessage)
 
 # sortie et retour vers resume
-@app.route('/talao/api/data/code/', methods=['GET'])
-def dataDelete_3() :
+@app.route('/talao/api/data/remove/code/', methods=['GET'])
+def identityRemove_4() :
 	data=session['data']
 	did = 'did:talao:'+mode.BLOCKCHAIN+':'+data.split(':')[3]
 	return redirect(mode.server+'talao/api/resume/'+did)
@@ -246,12 +250,19 @@ def dataDelete_3() :
 ##################################################
 # Create data
 ##################################################
-@app.route('/talao/api/data/create', methods=['POST'])
+@app.route('/talao/api/data/create/', methods=['GET'])
 def dataCreate_1() :
 	print (request.form['value'])
 	return render_template('create1.html', message="", myusername="")
 	
-
+	
+@app.route('/talao/api/data/create/', methods=['POST'])
+def dataCreate_2() :
+	username= request.form.get('username')
+	print("username = ", username)
+	data=session['data']
+	return {"msg" : "work in progress...."} # a retirer
+	
 
 ##################################################
 # Delete data
@@ -316,7 +327,7 @@ def dataDelete_2() :
 	email=session['email']
 	mycode = request.form['mycode']	
 	data=session['data']
-	if session['trial'] > 3 :
+	if session['try_number'] > 3 :
 		mymessage = "Too many trials (3 max)"
 		return render_template("delete3.html", message = mymessage)
 	
