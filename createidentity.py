@@ -1,5 +1,10 @@
 """
-Pour la cration d'un workspace vierge depuis une page html
+Pour la cration d'un workspace vierge depuis le webserver
+email est gardé uniquement pour l authentification, il n est pas affiché
+Pour nameservice on y met "prenom.nom"
+
+
+mise en place d'un partenariat avec Talao
 
 """
 import sys
@@ -19,9 +24,10 @@ import Talao_message
 import Talao_ipfs
 import nameservice
 import constante
-import addclaim
+import ADDclaim
+import environment
 
-password = "suc2cane"
+#password = "suc2cane"
 master_key = ""
 salt = ""
 
@@ -38,7 +44,7 @@ def my_rand(n):
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(firstname, name, _email,mode): 
+def creationworkspacefromscratch(firstname, lastname, _email,mode): 
 	w3=mode.initProvider()
 	
 	email=_email.lower()
@@ -71,7 +77,7 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	global salt
 	global master_key
 	salt = private_key
-	master_key = PBKDF2(password, salt, count=10000)  # bigger count = better
+	master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
 	my_rand.counter = 0
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	RSA_private = RSA_key.exportKey('PEM')
@@ -112,7 +118,7 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	
 	
 	# Transaction pour la creation du workspace :
-##### email non crypté !!!!
+	##### email non crypté !!!!
 	bemail=bytes(email , 'utf-8')	
 	hash4=Talao_token_transaction.createWorkspace(address,private_key,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
 
@@ -122,8 +128,22 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	# Transaction pour la creation du compte sur le backend HTTP POST
 	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, name, email, SECRET,mode)
 
-	# ajout de l email dans register en memoire et dans le fichier
-	mode.register[nameservice.namehash(email)]=workspace_contract
+	# ajout des claim nom et prenom et nameservice . on n'utilise pas profil
+	#givenName = 103105118101110078097109101
+	#familyName = 102097109105108121078097109101
+	#nameservice = 110097109101115101114118105099101
+	ADDclaim.addclaim(workspace_contract, address,private_key, 'familyName', address, lastname, "",mode)
+	ADDclaim.addclaim(workspace_contract, address,private_key, 'givenName', address, firstname, "",mode)
+	
+	name=firstname+'.'+lastname
+	# on verifie que ce nom n existe pas deja dans le registre
+	if mode.register.get(nameservice.namehash(name.lower())) != None :
+		name=name+str(random.randrange(9999))
+		print("nameservice = ",name)
+	# ajout de name dans le claim nameservice
+	ADDclaim.addclaim(workspace_contract, address,private_key, 'nameservice', address, name, "",mode)
+	# ajout de prenom.nom dans register en memoire et dans le fichier
+	mode.register[nameservice.namehash(name.lower())]=workspace_contract
 	try : 
 		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
@@ -132,20 +152,16 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	json.dump(mode.register, myfile)
 	myfile.close()
 	
-	# envoi du message de log
+	# envoi du message de log a l admin
 	status="webserver"
 	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
 	
-	# envoi du message user
+	# envoi du message au user
 	Talao_message.messageUser(name, firstname, email,address, private_key, workspace_contract, mode)
 	
-	# ajout du nom et prenom
-	#givenName = 103105118101110078097109101
-	#familyName = 102097109105108121078097109101
-	addclaim.addClaim(workspace_contract, address,private_key, "familyName", address, name, "",mode)
-	addclaim.addClaim(workspace_contract, address,private_key, "givenName", address, firstname, "",mode)
 	
-	#ajout d'un cle 3 a la fondation
+	""" inutile le setup est fait directement pas le user avec un addclaim
+	#ajout d'un cle 3 a la fondation pour la fonction "setup_address" de nameservice
 	owner_foundation = mode.foundation_address	       
 	#envoyer la transaction sur le contrat
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -161,8 +177,11 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1)		
+	"""
 	
 	
+	
+	""" remplaçé par un partenariat avec Talao
 	#ajout d'un cle 3 a Talao
 	owner_talao = mode.owner_talao	       
 	#envoyer la transaction sur le contrat
@@ -179,7 +198,23 @@ def creationworkspacefromscratch(firstname, name, _email,mode):
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1)		
+	"""
 	
+	# envoi d'un request partnership à Talao
+	workspace_contract_talao=Talao_token_transaction.ownersToContracts(mode.owner_talao, mode)
+	Talao_token_transaction.partnershiprequest(workspace_contract, private_key, workspace_contract_talao,mode)
+	
+	# lecture de la private_key_talao
+	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	csvfile = open(fichiercsv,newline='')
+	reader = csv.DictReader(csvfile) 
+	for row in reader:
+		if row['workspace_contract'] == workspace_contract_talao :
+			private_key_talao= row['private_key']			
+			csvfile.close()	
+
+	# authorize request de Talao
+	Talao_token_transaction.authorizepartnership(workspace_contract, workspace_contract_talao, private_key_talao,mode) 
 	
 	# calcul de la duree de transaction et du cout
 	time_fin=datetime.now()

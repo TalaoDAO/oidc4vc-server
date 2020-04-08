@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html title="Talao">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Delete Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+   
+</head>
+
+<body>
+    <div class="contact-clean" style="background-color: rgb(255,255,255);">
+        <form method="post" action="/talao/api/data/remove">
+            <h2 class="text-center">Delete a Professional Identity</h2>
+            <div class="form-group"></div>
+            <div class="form-group">
+                <p>Your want to delete this Professional Identity. <br>After confirmation you will recieve a secret code by email to authentify.</p>
+            </div>
+            <div class="form-group"><label style="margin: 0px;">Your username</label><input class="form-control" type="text" name="username" style="font-size: 16px;" value="{{myusername}}"></div>
+            <div class="form-row">
+                <div class="col"><small style="color: rgb(255,0,0);">{{message}}</small></div>
+            </div>
+            <div class="form-row">
+                <div class="col"><button class="btn btn-primary" type="submit">CONFIRM DELETION</button></div>
+            </div>
+        </form>
+    </div>
+    <div class="col" style="height: 25px;color: rgb(255,0,0);"></div>
+       
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+</html>

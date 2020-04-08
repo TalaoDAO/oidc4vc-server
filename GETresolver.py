@@ -119,21 +119,29 @@ def getresolver(did,mode) :
 ########################################################################################	
 	if workspace_information[1] == 1001 :
 		
-		did_document["service"]['resume_viewer'] = { "endpoint" : mode.WORKSPACE_LINK+workspace_contract,
+		did_document["service"]['ResumeViewer'] = { "endpoint" : mode.WORKSPACE_LINK+workspace_contract,
 				"@context" : "https://talao.io/",
-				"description" : "have a look at my resume"}
+				"description" : "External viewer of this Identity"}
 
-		did_document["service"]["resume"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
+		did_document["service"]["Resume"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
 				"@context" : "https://talao.io",
-				"description" : "check and verify my resume"}
+				"description" : "check and verify the resume of thos Identity"}
 		
 		did_document["service"]["IssueCertificate"]  = { "endpoint" : mode.server+'certificate/experience/'+did,
 				"@context" : "https://talao.io/",
-				"description" : "Send me a professional certificate"}
-				
+				"description" : "Issue a professional certificate for this Identity"}
+		
+		did_document["service"]["OnboardIdentity"]  = { "endpoint" : mode.server+'onboarding/'+did,
+				"@context" : "https://talao.io/",
+				"description" : "Partner with this Identity"}
 	
-	
+		did_document["service"]["CreateData"]  = { "endpoint" : mode.server+'talao/api/data/'+did+'?action=create',
+				"@context" : "https://talao.io/",
+				"description" : "Create data for this Identity"}
 
+		did_document["service"]["RemoveIdentity"]  = { "endpoint" : mode.server+'talao/api/data/remove/'+did,
+				"@context" : "https://talao.io/",
+				"description" : "Delete this Identity"}
 
 ########################################################################################
 #                     COMPANY et les autres...................

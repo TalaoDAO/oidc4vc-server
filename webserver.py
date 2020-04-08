@@ -18,6 +18,8 @@ import ipfshttpclient
 from flask_fontawesome import FontAwesome
 import http.client
 import threading
+import random
+import csv
 
 # dependances
 import GETdata
@@ -59,9 +61,9 @@ class ExportingThread(threading.Thread):
 		self.mode=mode
 	def run(self):
 		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)
-		for _ in range(10):
-			time.sleep(1)
-			self.progress += 10
+		#for _ in range(10):
+		#	time.sleep(1)
+		#	self.progress += 10
 
 def getclaimipfs (claim_id, workspace_contract) :
 # @topicname est un str
@@ -76,6 +78,8 @@ def getclaimipfs (claim_id, workspace_contract) :
 		return data
 	else :
 		return False
+
+	
 		
 # GETresolver
 @app.route('/resolver/api/<did>', methods=['GET'])
@@ -83,11 +87,7 @@ def getclaimipfs (claim_id, workspace_contract) :
 def DID_Document(did) :
 	return GETresolver.getresolver(did,mode)		
 
-# GETdata
-@app.route('/talao/api/data/<data>', methods=['GET'])
-def Data(data) :
-	return GETdata.getdata(data,mode)
-	
+		
 # GETresume Profil
 @app.route('/talao/api/profil/<did>', methods=['GET'])
 def Company_Profil(did) :
@@ -110,11 +110,262 @@ def GET_nameservice_reload() :
 def send_file(filename):
 	UPLOAD_FOLDER='photos'
 	return send_from_directory(UPLOAD_FOLDER, filename)
+	
+# database
+@app.route('/database/')
+def database() :
+	return mode.register
+
+
+##################################################
+# GETdata avec option Delete/Create
+##################################################
+@app.route('/talao/api/data/<data>', methods=['GET'])
+def data(data) :
+	session['data']=data
+	if request.args.get('action') == None :
+		return GETdata.getdata(data,mode)
+	
+	elif request.args.get('action') == 'delete' :
+		if 'username' in session : 
+			username=session['username']
+			return render_template('delete1.html', message="", myusername=username)
+
+		else :
+			return render_template('delete1.html', message="", myusername="")
+	
+	elif request.args.get('action') == 'create' :
+		return render_template('create1.html', message="", myusername="")
+
+
+##################################################
+# Remove Identity
+##################################################
+@app.route('/talao/api/data/remove/<did>', methods=['GET'])
+def identityRemove_1(did) :
+	print (did)
+	return render_template('remove1.html', message="", myusername="")
+	
+@app.route('/talao/api/data/', methods=['POST'])
+def identityRemove_2() :
+	username= request.form['username']
+	data=session['data']
+	workspace_contract='0x'+data.split(':')[3]
+	global tabcode
+	if 'username' in session and session['username'] == username and nameservice.address(username,mode.register) == workspace_contract : # on efface sans passer par l'ecran de saisie de code 
+		private_key=Talao_token_transaction.getPrivatekey(workspace_contract,mode)
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claimdocId=data.split(':')[5]
+		if data.split(':')[4] == 'document' :
+			print("effacement de document au prmeier passage")
+			#Talao_token_transaction.deleteDocument(workspace_contract, private_key,claimdocId,mode)
+		else :
+			#Talao_token_transaction.removeClaim(workspace_contract, private_key, claimdocId,mode)
+			print("effacement de document au premier passage")
+		mymessage = 'Deletion done' 
+		return render_template("delete3.html", message = mymessage)
+	
+	if nameservice.address(username, mode.register) == None :
+		mymessage="Your username is not registered"
+		if 'username' in session :
+		 del session['username']
+		return render_template('delete1.html', message=mymessage)
+	
+	workspace_contract=nameservice.address(username, mode.register)
+	data=session['data']
+	workspace_contract_data='0x'+data.split(':')[3]
+	if workspace_contract_data != workspace_contract :
+		if 'username' in  session :
+			del session['username']
+		mymessage = 'Your are not the owner of this Identity, you cannot delete this data.'
+		return render_template("delete3.html", message = mymessage)
+	
+	email=Talao_token_transaction.getEmail(workspace_contract,mode)
+	if email == False :
+		if 'username' in session :
+			del session['username']
+		mymessage="Your email for authentification is not registered"
+		return render_template('delete3.html', message= mymessage)			
+
+	session['email']=email
+	session['username']=username
+	# envoi du code secret par email
+	code = str(random.randint(100000, 999999))
+	print('code secret = ', code)
+	tabcode[email]=code
+	session['try_number']=0
+	Talao_message.messageAuth(email, code)
+	mymessage="Code has been sent"
+	return render_template("delete2.html", message = mymessage)
+
+# recuperation du code saisi et effacement de la data
+@app.route('/talao/api/data/code/', methods=['POST'])
+def identityRemove_2() :
+	global tabcode
+	session['try_number'] += 1
+	email=session['email']
+	mycode = request.form['mycode']	
+	data=session['data']
+	if session['trial'] > 3 :
+		mymessage = "Too many trials (3 max)"
+		return render_template("delete3.html", message = mymessage)
+	
+	if tabcode.get(email) == None :
+		mymessage = "Time out"
+		return render_template("delete3.html", message = mymessage)
+	
+	if mycode == tabcode[email] : # code correct, on efface 
+		workspace_contract='0x'+data.split(':')[3]
+		private_key=Talao_token_transaction.getPrivatekey(workspace_contract,mode)	
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claimdocId=data.split(':')[5]
+		if data.split(':')[4] == 'document' :
+			print("effacement de document au prmeier passage")
+			#Talao_token_transaction.deleteDocument(workspace_contract, private_key,claimdocId,mode)
+		else :
+			print("effacement de claim au premier passage")
+			#Talao_token_transaction.removeClaim(workspace_contract, private_key, claimdocId,mode)
+		mymessage = 'Deletion done' 
+		return render_template("delete3.html", message = mymessage)
+
+	else : # code incorrect
+		mymessage = 'This code is incorrect'	
+		return render_template("delete2.html", message = mymessage)
+
+# sortie et retour vers resume
+@app.route('/talao/api/data/code/', methods=['GET'])
+def dataDelete_3() :
+	data=session['data']
+	did = 'did:talao:'+mode.BLOCKCHAIN+':'+data.split(':')[3]
+	return redirect(mode.server+'talao/api/resume/'+did)
+	
+
+
+
+
+##################################################
+# Create data
+##################################################
+@app.route('/talao/api/data/create', methods=['POST'])
+def dataCreate_1() :
+	print (request.form['value'])
+	return render_template('create1.html', message="", myusername="")
+	
+
+
+##################################################
+# Delete data
+##################################################			
+@app.route('/talao/api/data/', methods=['POST'])
+def dataDelete_1() :
+	username= request.form['username']
+	data=session['data']
+	workspace_contract='0x'+data.split(':')[3]
+	global tabcode
+	if 'username' in session and session['username'] == username and nameservice.address(username,mode.register) == workspace_contract : # on efface sans passer par l'ecran de saisie de code 
+		private_key=Talao_token_transaction.getPrivatekey(workspace_contract,mode)
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claimdocId=data.split(':')[5]
+		if data.split(':')[4] == 'document' :
+			print("effacement de document au prmeier passage")
+			#Talao_token_transaction.deleteDocument(workspace_contract, private_key,claimdocId,mode)
+		else :
+			#Talao_token_transaction.removeClaim(workspace_contract, private_key, claimdocId,mode)
+			print("effacement de document au premier passage")
+		mymessage = 'Deletion done' 
+		return render_template("delete3.html", message = mymessage)
+	
+	if nameservice.address(username, mode.register) == None :
+		mymessage="Your username is not registered"
+		if 'username' in session :
+		 del session['username']
+		return render_template('delete1.html', message=mymessage)
+	
+	workspace_contract=nameservice.address(username, mode.register)
+	data=session['data']
+	workspace_contract_data='0x'+data.split(':')[3]
+	if workspace_contract_data != workspace_contract :
+		if 'username' in  session :
+			del session['username']
+		mymessage = 'Your are not the owner of this Identity, you cannot delete this data.'
+		return render_template("delete3.html", message = mymessage)
+	
+	email=Talao_token_transaction.getEmail(workspace_contract,mode)
+	if email == False :
+		if 'username' in session :
+			del session['username']
+		mymessage="Your email for authentification is not registered"
+		return render_template('delete3.html', message= mymessage)			
+
+	session['email']=email
+	session['username']=username
+	# envoi du code secret par email
+	code = str(random.randint(100000, 999999))
+	print('code secret = ', code)
+	tabcode[email]=code
+	session['try_number']=0
+	Talao_message.messageAuth(email, code)
+	mymessage="Code has been sent"
+	return render_template("delete2.html", message = mymessage)
+
+# recuperation du code saisi et effacement de la data
+@app.route('/talao/api/data/code/', methods=['POST'])
+def dataDelete_2() :
+	global tabcode
+	session['try_number'] += 1
+	email=session['email']
+	mycode = request.form['mycode']	
+	data=session['data']
+	if session['trial'] > 3 :
+		mymessage = "Too many trials (3 max)"
+		return render_template("delete3.html", message = mymessage)
+	
+	if tabcode.get(email) == None :
+		mymessage = "Time out"
+		return render_template("delete3.html", message = mymessage)
+	
+	if mycode == tabcode[email] : # code correct, on efface 
+		workspace_contract='0x'+data.split(':')[3]
+		private_key=Talao_token_transaction.getPrivatekey(workspace_contract,mode)	
+		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claimdocId=data.split(':')[5]
+		if data.split(':')[4] == 'document' :
+			print("effacement de document au prmeier passage")
+			#Talao_token_transaction.deleteDocument(workspace_contract, private_key,claimdocId,mode)
+		else :
+			print("effacement de claim au premier passage")
+			#Talao_token_transaction.removeClaim(workspace_contract, private_key, claimdocId,mode)
+		mymessage = 'Deletion done' 
+		return render_template("delete3.html", message = mymessage)
+
+	else : # code incorrect
+		mymessage = 'This code is incorrect'	
+		return render_template("delete2.html", message = mymessage)
+
+# sortie et retour vers resume
+@app.route('/talao/api/data/code/', methods=['GET'])
+def dataDelete_3() :
+	data=session['data']
+	did = 'did:talao:'+mode.BLOCKCHAIN+':'+data.split(':')[3]
+	return redirect(mode.server+'talao/api/resume/'+did)
+	
+
+
+
+##################################################
+# Onboarding
+##################################################
+# onboarding
+@app.route('/onboarding/<did>')
+def	onboarding(did) :
+	return { "msg" : "to be done"}
+
 
 ##################################################
 # Saisie d un certificat pour entreprise
 ##################################################
 
+# Formulaire de saisi 
 @app.route('/certificate/experience/<did>', methods=['GET'])
 def input_certificate(did):
 
@@ -133,7 +384,7 @@ def input_certificate_1():
 	certificate=dict()
 	key=request.form['key'] # c est le workspace contract de l issuer
 	issuer_did='did:talao:'+mode.BLOCKCHAIN+':'+key[2:]
-	secret=request.form['secret']
+	secret=request.form['secret'] # c ets le secret de creation du workspace
 	userdid = request.form['user_did']
 	workspace_contract='0x'+userdid.split(':')[3]
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -224,11 +475,11 @@ def resume() :
 	if Talao_token_transaction.isdid(did,mode) :
 		truedid=did
 	else :
-
+		
 		if nameservice.address(did.lower(),mode.register) != None :
 			truedid='did:talao:'+mode.BLOCKCHAIN+':'+nameservice.address(did.lower(), mode.register)[2:]
 		else :
-			flash('Name/Email not found')
+			flash('identifier not found')
 			return redirect (mode.server+'resume/')
 	
 	return GETresume.getresume(truedid,mode)	
@@ -265,8 +516,8 @@ def POST_authentification_1() :
 		return render_template("home.html", message = 'Email already in Backend')
 	
 	# envoi du code secret par email
-	if tabcode.get(email) == None :
-		code = get_random_bytes(3).hex()
+	if tabcode.get('email') == None :
+		code = random.randint(100000, 999999)
 		print('code secret = ', code)
 		tabcode[email]=code
 		# envoi message de control du code
@@ -289,7 +540,7 @@ def POST_authentification_2() :
 	print('code retourné = ', mycode)
 	if mycode == tabcode[email] :
 		print('code correct')
-		thread_id = random.randint(0, 10000)
+		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(firstname, lastname, email, mode)
 		print("appel de createindentty")
 		exporting_threads[thread_id].start()

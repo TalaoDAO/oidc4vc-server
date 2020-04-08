@@ -12,7 +12,7 @@ from eth_account.messages import encode_defunct
 # @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8') 
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 
-def addClaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, data, ipfshash,mode) :
+def addclaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, data, ipfshash,mode) :
 	
 	w3=mode.initProvider()
 	

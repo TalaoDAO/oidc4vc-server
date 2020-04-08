@@ -1,4 +1,8 @@
-# add certificate for courses
+""" add certificate for courses
+
+copatible freedapp
+
+"""
 
 import sys
 import csv
@@ -8,22 +12,27 @@ from Crypto.Cipher import PKCS1_OAEP
 import http.client
 import json
 from datetime import datetime
+from web3 import Web3
 
-# import des fonctions custom
+
+# dependances
 import Talao_token_transaction
 import Talao_backend_transaction
 import Talao_message
 import Talao_ipfs
-
-from web3 import Web3
-my_provider = Web3.IPCProvider('/home/thierry/.ethereum/rinkeby/geth.ipc')
-w3 = Web3(my_provider)
-
 import constante
+import environment
+
+
+# environment setup
+mode=environment.currentMode('test', 'rinkeby')
+#mode.print_mode()
+w3=mode.initProvider()
+
 
 # wallet de Talaogen
-talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
-talao_private_Key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
+talao_public_Key=mode.Talaogen_public_key
+talao_private_Key=mode.Talaogen_private_key
 
 		
 

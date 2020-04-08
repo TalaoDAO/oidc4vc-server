@@ -29,11 +29,14 @@ http://unicode.org/reports/tr46/
 """
 
 
-import constante
 from eth_account.messages import encode_defunct
 import hashlib
 import json
+import random
+
+#dependances
 import Talao_message
+import constante
 
 
 ####################################################
@@ -56,6 +59,10 @@ def namehash(name) :
 		a =sha3( namehash(remainder) + sha3(label) )
 		return a
 
+
+
+
+
 #################################################
 #  construction dynamique du registre 
 #################################################
@@ -68,30 +75,79 @@ def buildregister(mode) :
 	# pour choisir l address par defaut du node necessaire a la lecture de l index du smart contract de la fondation
 	address = mode.foundation_address
 	w3.eth.defaultAccount=address
-	#w3.geth.personal.unlockAccount(address, 'suc2cane')
 	
 	# lecture de la liste des contracts dans la fondation
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	contractlist = contract.functions.getContractsIndex().call() 
 	contractlist.reverse()
 	
-	# ATTENTION construction du registre sur la base du claim "nameservice" ET "email'
+	# construction du registre sur la base des claim firstname et name
 	register=dict()	
 	for workspace_contract in contractlist :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		
-		# nameservice
+		# prenom+nom 103105118101110078097109101(firstname) et 102097109105108121078097109101(name)
+		lastname=""
+		firstname=""
+		try :
+			firstname_claimId=contract.functions.getClaimIdsByTopic(103105118101110078097109101).call()
+		except :
+			print ("erreur 1")
+			firstname_claimId=[]
+		if len(firstname_claimId) != 0 :
+			claimId=firstname_claimId[0].hex()
+			try :
+				firstname = contract.functions.getClaim(claimId).call()[4].decode('utf-8')			
+			except :
+				firstname=""
+				print('erreur 2', claimId)		
+		
+		try : 
+			lastname_claimId = contract.functions.getClaimIdsByTopic(102097109105108121078097109101).call()
+		except :
+			print ("erreur 3")
+			lastname_claimId=[]			
+		if  len(lastname_claimId) != 0 :							
+			claimId=lastname_claimId[0].hex()
+			try :
+				lastname = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+			except :
+				lastname=""
+				print('erreur 4', claimId)
+						
+		name=firstname+'.'+lastname
+		
+		if register.get(namehash(name.lower())) != None : 
+			mylastname=lastname+str(random.randrange(9999))
+			name=firstname+'.'+mylastname
+		else :	
+			mylastname=lastname
+			name=firstname+'.'+lastname
+		did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]	
+		if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
+			claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
+			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+			
+		register[namehash(name.lower())]={ 'firstname' : firstname, 'lastname' : mylastname, 'email_authentification' : email, 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
+		
+		
+		"""
+		# construction du registre sur la base du claim "nameservice" 
 		if len(contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()) != 0 :
 			claimId=contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()[0].hex()
 			hashname = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 			register[hashname]=workspace_contract
+		"""
 		
-		# email
+		
+		"""
+		# construction sur la base de l'email a retirer
 		if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
 			claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
 			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 			register[namehash(email.lower())]=workspace_contract
-	
+		"""
+	print(register)
 	try : 
 		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
@@ -118,7 +174,7 @@ def load_register_from_file(mode) :
 	return True
 	
 
-
+"""
 #################################################
 #  setup name 
 #################################################
@@ -129,7 +185,7 @@ def load_register_from_file(mode) :
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 # le namehash de name est stocké dans le workpace avec un claim 'nameservice'
 	
-def setup_address(name, workspace_contract,mode) :
+def setup_address(name, workspace_contract,private_key, mode) :
 		
 	w3=mode.initProvider()
 
@@ -172,10 +228,14 @@ def setup_address(name, workspace_contract,mode) :
 	myfile.close()
 		
 	return True
+"""
 
 #####################################################	
 # obtenir l address depuis un nom
 ######################################################
 def address(name,register) :
-	return register.get(namehash(name.lower()))
+	if register.get(namehash(name.lower())) != None :
+		return register.get(namehash(name.lower()))['workspace_contract']
+	else :
+		return None
 

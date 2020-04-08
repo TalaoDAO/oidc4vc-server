@@ -6,12 +6,16 @@ POur ajouter un certificats sous forme de claim a un user 2 claim sontnecessaire
 
 """
 
-import constante
 import Talao_ipfs
 import ipfshttpclient
-import addclaim
-import environment
 import json
+
+
+#dependances
+import ADDclaim
+import environment
+import constante
+
 
 ########################################################################
 #           EMISSION du certificat d'experience ERC725 NEW       
@@ -43,21 +47,17 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	ipfshash=client.add_json(certificate)
 	client.pin.add(ipfshash)
-	
 	# emission du claim
-	addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, "", ipfshash,mode) 
-
+	ADDclaim.addclaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, "", ipfshash,mode) 
 	# calcul du claimId du claim du certificat
 	newclaimId=w3.solidityKeccak(['address', 'uint256'], [address_from, topicvalue]).hex()
 
 	# UPDATE DE LA LISTE DE CERTIFICAT (claim "certificate" -> 99101114116105102105099097116101) du user
 	topicname= "certificate"
 	topicvalue = 99101114116105102105099097116101
-
 	# determination de id du claim "certificate" de l'issuer
 	claimId = w3.solidityKeccak(['address', 'uint256'], [address_from, topicvalue]).hex()
-
-	# download du claim "certificate" de l'issuer
+	# download du claim "certificate" de l'issuer pour update
 	claimdata=contract.functions.getClaim(claimId).call()
 	if claimdata[4].decode('utf-8') =='' :   # premiere fois, on cré la liste et le certificat
 		data=[newclaimId]
@@ -66,7 +66,7 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 		data.append(newclaimId)
 
 	newdata=json.dumps(data)
-	addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, newdata, "",mode) 
+	ADDclaim.addclaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, newdata, "",mode) 
 	link = mode.server+'certificate/did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract_to[2:]+':claim:'+newclaimId[2:]
 	return  True, link
 

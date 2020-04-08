@@ -10,6 +10,7 @@ from datetime import datetime
 from eth_account.messages import encode_defunct
 from web3 import Web3
 
+# dependances
 import Talao_ipfs
 import Talao_message
 import constante
@@ -41,6 +42,7 @@ def contractsToOwners(workspace_contract, mode) :
 	w3=mode.initProvider()
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
+	print("address = ", address)
 	return address	
 
 
@@ -92,7 +94,7 @@ def token_transfer(address_to, value, mode) :
 	
 	w3=mode.initProvider()
 
-	contract=w3.eth.contract(mode.Talao_contract_address,abi=constante.Talao_Token_ABI)
+	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 
 	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen
 	nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key)  
@@ -166,7 +168,7 @@ def ether_transfer(address_to, value, mode) :
 def token_balance(address,mode) :
 	w3=mode.initProvider()
 
-	contract=w3.eth.contract(mode.Talao_contract_address,abi=constante.Talao_Token_ABI)
+	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 	raw_balance = contract.functions.balanceOf(address).call()
 	balance=raw_balance//10**18
 	return balance
@@ -181,7 +183,7 @@ def token_balance(address,mode) :
 def createVaultAccess(address,private_key,mode) :
 	w3=mode.initProvider()
 
-	contract=w3.eth.contract(mode.Talao_contract_address,abi=constante.Talao_Token_ABI)
+	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 
 	# calcul du nonce de l envoyeur de token 
 	nonce = w3.eth.getTransactionCount(address)  
@@ -353,7 +355,83 @@ def partnershiprequest(my_contract, my_private_key, his_contract,mode) :
 	return hash
 
 
+#################################################################
+#  get Privatkey
+#################################################################
+def getPrivatekey(workspace_contract,mode) :
 
+	w3=mode.initProvider()
+	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	csvfile = open(fichiercsv,newline='')
+	reader = csv.DictReader(csvfile) 
+	search = False
+	for row in reader :
+		if row['workspace_contract'] == workspace_contract :
+			private_key=row.get('private_key')
+			search = True
+	csvfile.close()
+	if search == True :
+		return private_key
+	else :
+		return False
+
+##################################################################
+#    get Email from identity (not encrypted)
+##################################################################
+def getEmail(workspace_contract, mode) :
+
+	w3=mode.initProvider()
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
+		claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
+		email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+		return email
+	else :
+		return False	
+##################################################################
+# Delete document
+##################################################################
+def deleteDocument(workspace_contract,private_key,documentId, mode):
+#     solidity	  function deleteDocument (uint _id) external onlyIdentityPurpose(20002)
+	
+	w3=mode.initProvider()
+	address=contractsToOwners(workspace_contract,mode)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token
+	nonce = w3.eth.getTransactionCount(address)  
+
+	# Build transaction
+	txn = contract.functions.deleteDocument(int(documentId)).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+		
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
+	return hash
+
+
+##################################################################
+# Delete claim
+##################################################################
+def deleteClaim(workspace_contract,private_key,claimId, mode):
+#     solidity	  removeClaim(Id)
+	
+	w3=mode.initProvider()
+	address_from=contractsToOwners(workspace_contract,mode)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token, ici my_address
+	nonce = w3.eth.getTransactionCount(address)  
+
+	# Build transaction
+	txn = contract.functions.removeClaim(int(claimId)).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+		
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
+	return hash
 
 ###################################################################
 # Création de document 250000 000 gas
@@ -615,7 +693,7 @@ def createandpublishExperience(address, private_key, experience,mode ) :
 	_givenName=profile["givenName"]
 	_jobTitle=profile["jobTitle"]
 
-	#recuperer le tolen sur le backend
+	#recuperer le token sur le backend
 	conn = http.client.HTTPConnection(mode.ISSUER)
 	if constante.BLOCKCHAIN == 'ethereum' :
 		conn = http.client.HTTPSConnection(constante.ISSUER)

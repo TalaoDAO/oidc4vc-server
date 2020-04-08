@@ -239,8 +239,12 @@ def getresume(did, mode) :
 	
 		# Personal	
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
-		claimid=claim[0].hex()
+		claim=contract.functions.getClaimIdsByTopic(102097109105108121078097109101).call() # topic = name
+		try :
+			claimid=claim[0].hex()
+		except :
+			return {'msg' : 'Incorrect Identity, no name'}
+
 		cv['data']["personal"].append({"profil" : {"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid,"data" : profile}})
 		
 		# Contact cf ADDdocument , document de type 15000, crypté ou pas		

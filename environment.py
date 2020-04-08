@@ -19,7 +19,7 @@ class currentMode() :
 		
 		print('debut init')
 		
-	
+		self.password='suc2cane'
 		self.env=myenv
 		self.chain=mychain
 		self.port = '4000'
@@ -32,7 +32,7 @@ class currentMode() :
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))			
 			self.datadir="/mnt/ssd/rinkeby" 						
 			self.BLOCKCHAIN = "rinkeby"		
-			self.Talao_contract_address='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
+			self.Talao_token_contract='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
 			self.CHAIN_ID=4
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
 			self.Talaogen_private_key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen a retirer mais voir pb de send ether vs transaction sur chain POA
@@ -51,7 +51,7 @@ class currentMode() :
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	
 			self.datadir="/mnt/ssd/ethereum"
 			self.BLOCKCHAIN = "ethereum"
-			self.Talao_contract_address='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515' # Talao token
+			self.Talao_token_contract='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515' # Talao token
 			self.CHAIN_ID=1
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
 			self.Talaogen_private_key=''  # pb send transaction
@@ -82,9 +82,9 @@ class currentMode() :
 			print('error env ->', myenv)
 		
 		print('debut unlock')
-		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,"suc2cane",0)
-		self.w3.geth.personal.unlockAccount(self.foundation_address,"suc2cane",0)
-		self.w3.geth.personal.unlockAccount(self.owner_talao,"suc2cane",0)
+		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
+		self.w3.geth.personal.unlockAccount(self.foundation_address,self.password,0)
+		self.w3.geth.personal.unlockAccount(self.owner_talao,self.password,0)
 	
 		print('upload de register.json')
 		with open(self.BLOCKCHAIN+'_register.json', 'r') as myfile: 
