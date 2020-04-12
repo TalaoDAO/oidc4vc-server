@@ -12,7 +12,7 @@ import json
 
 
 #dependances
-import ADDclaim
+from .Talao_token_transaction import addclaim
 import environment
 import constante
 
@@ -25,7 +25,7 @@ import constante
 def addcertificate(address_from, private_key_from, workspace_contract_to, certificate,mode) :
 	
 	
-	w3=mode.initProvider()
+	w3=mode.w3
 	topicname=certificate['topicname']
 
 	# verifier la presence de la cle 3
@@ -33,7 +33,8 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	haskey=contract.functions.keyHasPurpose(_key, 3).call()
 	if haskey==False :
-		return False, "cet issuer a une cle 3"
+		
+		return False, "This issuer does not have authorization to issue certificate on this Identity"
 
 	# cacul du topic value
 	topicvaluestr =''
@@ -48,7 +49,7 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 	ipfshash=client.add_json(certificate)
 	client.pin.add(ipfshash)
 	# emission du claim
-	ADDclaim.addclaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, "", ipfshash,mode) 
+	addclaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, "", ipfshash,mode) 
 	# calcul du claimId du claim du certificat
 	newclaimId=w3.solidityKeccak(['address', 'uint256'], [address_from, topicvalue]).hex()
 
@@ -66,7 +67,7 @@ def addcertificate(address_from, private_key_from, workspace_contract_to, certif
 		data.append(newclaimId)
 
 	newdata=json.dumps(data)
-	ADDclaim.addclaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, newdata, "",mode) 
+	addclaim(workspace_contract_to, address_from,private_key_from, topicname, address_from, newdata, "",mode) 
 	link = mode.server+'certificate/did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract_to[2:]+':claim:'+newclaimId[2:]
 	return  True, link
 

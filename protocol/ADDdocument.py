@@ -11,9 +11,7 @@ from base64 import b64decode
 
 #dependances
 import constante
-#import environment
 import Talao_ipfs
-import Talao_token_transaction
 
 
 ###################################################################
@@ -26,7 +24,7 @@ import Talao_token_transaction
 
 def createdocument(workspace_contract_from, private_key_from, workspace_contract_to, doctype, data, mydays, encrypted, mode) :
 	
-	w3=mode.initProvider()
+	w3=mode.w3
 			
 	# lecture de l'adresse du workspace contract dans la fondation	
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)

@@ -9,25 +9,25 @@ check de geth
 """
 
 from web3 import Web3
-import nameservice
 import json
 import sys
 
 class currentMode() :
-
+	
+	password='suc2cane'
+	port = '4000'
+	apiport = '3000'
+	flaskserver = '127.0.0.1'
+		
 	def __init__(self, myenv, mychain):
 		
 		print('debut init')
 		
-		self.password='suc2cane'
 		self.env=myenv
 		self.chain=mychain
-		self.port = '4000'
-		self.apiport = '3000'
-		self.flaskserver = '127.0.0.1'
 			
 		if mychain == 'rinkeby' :
-			self.ether2transfer=20	
+			self.ether2transfer=40	
 			self.IPCProvider="/mnt/ssd/rinkeby/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))			
 			self.datadir="/mnt/ssd/rinkeby" 						
@@ -40,6 +40,7 @@ class currentMode() :
 			self.foundation_address ='0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
 			self.workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
 			self.owner_talao='0xE7d045966ABf7cAdd026509fc485D1502b1843F1' # la company
+			self.workspace_contract_talao='0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'
 			self.ISSUER='certificates.talao.io:5011'
 			self.DAPP_LINK="\r\nDapp Link : http://vault.talao.io:4011/visit/"
 			self.WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
@@ -59,6 +60,7 @@ class currentMode() :
 			self.foundation_address = "0xD46883ddfF92CC0474255F2F8134C63f8209171d"
 			self.workspacefactory_contract='0x7A237F06f85710b66184aFcDC55E2845F1B8f0eb'
 			self.owner_talao='' # la company
+			self.workspace_contract_talao=''
 			self.ISSUER='backend.talao.io'
 			self.DAPP_LINK='\r\nDapp Link : https://my.freedapp.io/visit/'
 			self.WORKSPACE_LINK='https://my.freedapp.io/visit/'

@@ -7,12 +7,10 @@ cf le standard https://www.w3.org/TR/did-core/
 
 import json
 import constante
-import Talao_token_transaction
 import Talao_ipfs
 import ipfshttpclient
-import nameservice
 
-
+from .Talao_token_transaction import isdid
 
 
 ##############################################
@@ -68,16 +66,14 @@ def whatisthisaddress(thisaddress,mode) :
 
 
 
-def getresolver(did,mode) :
+def getresolver(workspace_contract, did, mode) :
 	
-
-	w3=mode.initProvider()
-	
-	# test de validité du did
-	if Talao_token_transaction.isdid(did,mode) :
-		workspace_contract='0x'+did.split(':')[3]
-	else :	
+	# test de validité de l addresse
+	category = whatisthisaddress(workspace_contract,mode)["type"]
+	if category != 'workspace' :
 		return False
+	
+	w3=mode.w3
 	
 	# recuperation de l'address du owner
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -139,7 +135,7 @@ def getresolver(did,mode) :
 				"@context" : "https://talao.io/",
 				"description" : "Create data for this Identity"}
 
-		did_document["service"]["RemoveIdentity"]  = { "endpoint" : mode.server+'talao/api/data/remove/'+did,
+		did_document["service"]["RemoveIdentity"]  = { "endpoint" : mode.server+'talao/api/did/remove/'+did,
 				"@context" : "https://talao.io/",
 				"description" : "Delete this Identity"}
 

@@ -75,7 +75,7 @@ def messageAuth (email_to, random) :
 
 
 
-def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key,mode)  :
+def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key,mode)  :
 
 
 	# debut de la fonction
@@ -92,7 +92,7 @@ def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_ad
 	# storing the subject 
 	msg['Subject'] = 'Workspace Log : '+firstname+' '+ name + ' - '+ mode.BLOCKCHAIN
 	# string to store the body of the mail 
-	body = 'A new Talao workspace has been deployed for '+ firstname+' '+name+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ mode.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + mode.DAPP_LINK + str(workspace_contract_address)
+	body = 'A new Talao workspace has been deployed for '+ firstname+' '+name+'\r\nUsername : '+username+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ mode.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + mode.DAPP_LINK + str(workspace_contract_address)
 	# attach the body with the msg instance 
 	msg.attach(MIMEText(body, 'plain')) 
 	# open the file to be sent
@@ -129,7 +129,7 @@ def messageLog(name, firstname, email,status,eth_a, eth_p, workspace_contract_ad
 
 
 
-def messageUser(name, firstname, email,eth_a, eth_p, workspace_contract_address,mode)  :
+def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contract_address,mode)  :
 
 
 	# debut de la fonction
@@ -150,7 +150,7 @@ def messageUser(name, firstname, email,eth_a, eth_p, workspace_contract_address,
 	msg['Subject'] = 'Your professional Identity Registation by Talao'
 
 	# string to store the body of the mail 
-	body = 'A new Professional Identity has been deployed for '+ firstname+' '+name+'\r\n\r\nEmail : '+email+'\r\nBlockchain : '+ mode.BLOCKCHAIN +'\r\nYour Blockchain Address : ' + str(eth_a) +'\r\nYour Private Key : '+ str(eth_p)+'\r\nYour Distributed ID : did:talao:'+mode.BLOCKCHAIN+':'+str(workspace_contract_address)[2:]
+	body = 'A new Professional Identity has been deployed for '+ firstname+' '+name+'\r\nUsername : ' +username+'\r\n\r\nEmail : '+email+'\r\nBlockchain : '+ mode.BLOCKCHAIN +'\r\nYour Blockchain Address : ' + str(eth_a) +'\r\nYour Private Key : '+ str(eth_p)+'\r\nYour Distributed ID : did:talao:'+mode.BLOCKCHAIN+':'+str(workspace_contract_address)[2:]
 	footer='\r\n\r\n\r\n\r\nYour Identity is now available -> '+mode.WORKSPACE_LINK + str(workspace_contract_address)
 	body= body+footer
 	

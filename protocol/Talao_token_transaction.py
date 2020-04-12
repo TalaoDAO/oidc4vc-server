@@ -8,13 +8,14 @@ import json
 import ipfshttpclient
 from datetime import datetime
 from eth_account.messages import encode_defunct
-from web3 import Web3
+import random
+#from web3 import Web3
 
 # dependances
 import Talao_ipfs
 import Talao_message
 import constante
-
+#from protocol import nameservice
 
 ############################################################
 # appel de ownersToContracts de la fondation
@@ -30,6 +31,32 @@ def ownersToContracts(address, mode) :
 	return workspace_address
 	
 	
+###########################################################
+# remove workspace	
+############################################################	
+# function destroyWorkspace() external onlyIdentityOwner {
+#        if (cleanupPartnership() && foundation.renounceOwnershipInFoundation()) {
+#            selfdestruct(msg.sender);	
+
+def destroyWorkspace(workspace_contract, private_key, mode) :
+	w3=mode.initProvider()
+	address=contractsToOwners(workspace_contract, mode)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	
+	# calcul du nonce de l envoyeur de token
+	nonce = w3.eth.getTransactionCount(address)  
+	
+	# Build transaction
+	txn = contract.functions.destroyWorkspace().buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+		
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)		
+	return hash1
+	
+
 
 
 ############################################################
@@ -42,7 +69,6 @@ def contractsToOwners(workspace_contract, mode) :
 	w3=mode.initProvider()
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
-	print("address = ", address)
 	return address	
 
 
@@ -77,11 +103,16 @@ def readProfil (address,mode) :
 	profil=dict()
 	index=0
 	for i in topicvalue :
-		claim=contract.functions.getClaimIdsByTopic(i).call()
+		try :
+			claim=contract.functions.getClaimIdsByTopic(i).call()
+		except :
+			claim=[]
 		if len(claim) != 0 : # uniquement si les information ont ete entrées a la cretaion de l identité
 			claimId=claim[0].hex()
 			data = contract.functions.getClaim(claimId).call()
-			profil[topicname[index]]=data[4].decode('utf-8')
+			profil[topicname[index]]=data[4].decode('utf-8').lower()
+		else :
+			profil[topicname[index]]=None
 		index=index+1
 	return profil
 	
@@ -102,6 +133,7 @@ def token_transfer(address_to, value, mode) :
 	# Build transaction
 	valueTalao=value*10**18	
 	w3.eth.defaultAccount=mode.Talaogen_public_key
+	print ("token balance Talaogen = ", token_balance(mode.Talaogen_public_key,mode))
 	# tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
 	hash1=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
@@ -166,8 +198,7 @@ def ether_transfer(address_to, value, mode) :
 ###############################################################
 
 def token_balance(address,mode) :
-	w3=mode.initProvider()
-
+	w3=mode.w3
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 	raw_balance = contract.functions.balanceOf(address).call()
 	balance=raw_balance//10**18
@@ -260,9 +291,13 @@ def authorizepartnership(workspace_contract_partner, workspace_contract_user, pr
 		
 	# read la cle privee RSA du user sur le fichier
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_user+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	with open(filename,"r") as fp :
-		user_rsa_key=fp.read()	
-		fp.close()   
+	try :
+		fp = open(filename,"r")
+	except :
+		print (filename, " has not been found")
+		return False
+	user_rsa_key=fp.read()	
+	fp.close()   
 
 	# decoder la cle AES128 cryptée du user avec la cle RSA privée du user
 	key = RSA.importKey(user_rsa_key)
@@ -373,7 +408,30 @@ def getPrivatekey(workspace_contract,mode) :
 	if search == True :
 		return private_key
 	else :
-		return False
+		return None
+
+
+#################################################################
+#  get Privatekey, aes and SECRET
+#################################################################
+def getAll(workspace_contract,mode) :
+
+	w3=mode.initProvider()
+	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	csvfile = open(fichiercsv,newline='')
+	reader = csv.DictReader(csvfile) 
+	search = False
+	for row in reader :
+		if row['workspace_contract'] == workspace_contract :
+			private_key=row.get('private_key')
+			AES_key=row.get('aes')
+			SECRET=row.get('password')
+			search = True
+	csvfile.close()
+	if search == True :
+		return private_key, SECRET, AES_key
+	else :
+		return None
 
 ##################################################################
 #    get Email from identity (not encrypted)
@@ -382,12 +440,36 @@ def getEmail(workspace_contract, mode) :
 
 	w3=mode.initProvider()
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	if len(contract.functions.getClaimIdsByTopic(101109097105108).call()) != 0 :
-		claimId=contract.functions.getClaimIdsByTopic(101109097105108).call()[0].hex()
+	try :
+		a= contract.functions.getClaimIdsByTopic(101109097105108).call()
+	except :
+		return None	
+	if len(a) != 0:
+		claimId=a[0].hex()
 		email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 		return email
 	else :
-		return False	
+		return None	
+		
+
+##################################################################
+#    get username/nameservice from identity (not encrypted)
+##################################################################
+def getUsername(workspace_contract, mode) :
+
+	w3=mode.initProvider()
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	try :
+		a= contract.functions.getClaimIdsByTopic(110097109101115101114118105099101).call()
+	except :
+		return None	
+	if len(a) != 0:
+		claimId=a[0].hex()
+		username = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+		return username
+	else :
+		return None			
+		
 ##################################################################
 # Delete document
 ##################################################################
@@ -837,6 +919,51 @@ def authenticate(docjson, address, private_key,mode) :
 		
 	return auth_docjson
 
+
+#################################################
+#  add claim
+#################################################
+# @data : str
+# @topicname : type str , 'contact'
+# @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8') 
+# signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
+
+def addclaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, data, ipfshash, mode) :
+	
+	w3=mode.initProvider()
+	
+	# on va chercher topicvalue dans le dict existant (constante.py) si il n existe pas on le calcule
+	topicvalue=constante.topic.get(topicname)
+	if topicvalue== None :
+		topicvaluestr =''
+		for i in range(0, len(topicname))  :
+			a = str(ord(topicname[i]))
+			if int(a) < 100 :
+				a='0'+a
+			topicvaluestr=topicvaluestr+a
+		topicvalue=int(topicvaluestr)
+	
+	nonce = w3.eth.getTransactionCount(address_from)  
+	
+	# calcul de la signature
+	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
+	message = encode_defunct(text=msg.hex())
+	signed_message = w3.eth.account.sign_message(message, private_key=private_key_from)
+	signature=signed_message['signature']
+	
+	# Build transaction
+	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	
+	#sign transaction with caller wallet
+	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
+	
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	return hash1
+
 #################################################
 #  add self claim
 #################################################
@@ -845,7 +972,7 @@ def authenticate(docjson, address, private_key,mode) :
 # @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8') 
 # signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 
-def addclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash,mode) :
+def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash,mode) :
 	
 	w3=mode.initProvider()
 

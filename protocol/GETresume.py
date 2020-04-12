@@ -5,11 +5,11 @@ import ipfshttpclient
 from eth_account.messages import encode_defunct
 
 #dependances
-import ADDdocument
 import isolanguage
 import Talao_ipfs
 import constante
-
+from .Talao_token_transaction import isdid
+from .ADDdocument import getdocument
 
 #####################################################	
 # read contenu du claim stocké sur IPFS
@@ -111,7 +111,11 @@ def readProfil (address, workspace_contract, mode) :
 		topicvalue =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
 		topicname =['firstname', 'lastname', 'jobtitle', 'company', 'location', 'url', 'email', 'description']
 		for i in range (0, len(topicvalue)) :
-			claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+			try :
+				claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+			except :
+				print('no ', i)
+				claim=[]
 			if len(claim) != 0 :
 				claimId=claim[0].hex()
 				data = contract.functions.getClaim(claimId).call()
@@ -127,7 +131,11 @@ def readProfil (address, workspace_contract, mode) :
 		topicvalue =[givenName,url,email,contact, adresse]
 		topicname =['name', 'website', 'email', 'contact','address']
 		for i in range (0, len(topicvalue)) :
-			claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+			try :
+				claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+			except :
+				print('no ', i)
+				claim=[]
 			if len(claim) != 0 :
 				claimId=claim[0].hex()
 				data = contract.functions.getClaim(claimId).call()
@@ -197,11 +205,10 @@ def Proficiency(val) :
 # /usr/local/bin/geth --rinkeby --syncmode 'light' --rpc
 #from web3 import Web3
 
-def getresume(did, mode) :
-	w3=mode.initProvider()
-
-	didsplit=did.split(':')
-	workspace_contract='0x'+didsplit[3]
+def getresume(workspace_contract,did, mode) :
+	
+	
+	w3=mode.w3
 	
 	# test de validité de l addresse
 	category = whatisthisaddress(workspace_contract,mode)["type"]
@@ -211,7 +218,7 @@ def getresume(did, mode) :
 	# calcul de l addresse du owner
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()		
-		
+	
 	# determination du profil
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	(profile, category)=readProfil(address, workspace_contract,mode)
@@ -236,7 +243,6 @@ def getresume(did, mode) :
 				"rate" : {}}}
 
 
-	
 		# Personal	
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim=contract.functions.getClaimIdsByTopic(102097109105108121078097109101).call() # topic = name
@@ -249,9 +255,8 @@ def getresume(did, mode) :
 		
 		# Contact cf ADDdocument , document de type 15000, crypté ou pas		
 		contactIndex=getDocumentIndex(address, 15000, workspace_contract,mode)
-		print("contactIndex = ", contactIndex)
 		for i in contactIndex:
-			contact=ADDdocument.getdocument(workspace_contract, '0x0', workspace_contract, i, mode)		
+			contact=getdocument(workspace_contract, '0x0', workspace_contract, i, mode)		
 			cv['data']['personal'].append({"contact" : {"id" : did+':document:'+str(i), 'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),"data" : contact}})
 		
 		# KYC

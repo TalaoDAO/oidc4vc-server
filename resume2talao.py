@@ -17,6 +17,7 @@ import isolanguage
 import ADDclaim
 import environment
 import constante
+import nameservice
 
 # wallet de Talaogen
 #talao_public_Key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
@@ -62,7 +63,7 @@ def Proficiency(texte) :
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(firstname, name, email): 
+def creationworkspacefromscratch(firstname, lastname, email): 
 		
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
@@ -132,24 +133,8 @@ def creationworkspacefromscratch(firstname, name, email):
 	
 	# Transaction pour la creation du compte sur le backend HTTP POST
 	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract_address,firstname, name, email, SECRET,mode)
+	
 
-	# envoi du message de log
-	status="Identity created by resume2talao"
-	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract_address, backend_Id, email, SECRET, AES_key,mode)
-
-	""" remplaçé par pertnership avec talao
-	#ajout d'un cle 3 a la fondation pour la gestion du nameservice
-	owner_foundation = mode.foundation_address	       
-	contract=w3.eth.contract(workspace_contract_address,abi=constante.workspace_ABI)
-	nonce = w3.eth.getTransactionCount(address)  
-	_key=w3.soliditySha3(['address'], [owner_foundation])
-	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1)		
-	print("creation de cle 3 pour la fondation = ", hash1)
-	"""
 	
 	# envoi d'un request partnership à Talao
 	workspace_contract_talao=Talao_token_transaction.ownersToContracts(mode.owner_talao, mode)
@@ -260,7 +245,7 @@ resume=json.loads(resumefile.read())
 time_debut=datetime.now()
 
 # CREATION DU WORKSPACE ET DU BACKEND
-name = resume['profil']["name"]
+lastname = resume['profil']["name"]
 firstname = resume['profil']['firstname']
 email = resume['profil']['email']
 # sortie immediate si l email existe deja dans le backend
@@ -269,8 +254,9 @@ if Talao_backend_transaction.canregister(email,mode) == False :
 	resumefile.close()
 	identityfile.close()
 	sys.exit(0)
+
 # creation du workspace vierge
-(address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, name, email)
+(address, private_key,password, workspace_contract,backend_Id, email, SECRET, AES_key) = creationworkspacefromscratch(firstname, lastname, email)
 		
 		
 # UPLOAD DU PROFIL
@@ -289,23 +275,17 @@ if resume["profil"]["birthdate"] != "" :
 if resume["profil"]["socialsecurity"] != "" :
 	ADDclaim.addclaim(workspace_contract, address, private_key, "socialsecurity", address, resume["profil"]["socialsecurity"], "",mode)
 
-# REGISTER et NAMESERVICE
-username=firstname+'.'+name
+# MISE A JOUR DU REGISTER et NAMESERVICE
+username=firstname.lower()+'.'+lastname.lower()
 # on verifie que ce nom n existe pas deja dans le registre
-if mode.register.get(nameservice.namehash(username.lower())) != None :
-	username=username+str(random.randrange(9999))
-	print("nameservice = ",username)
-# ajout de name dans le claim nameservice
-ADDclaim.addclaim(workspace_contract, address,private_key, 'nameservice', address, username, "",mode)
+if mode.register.get(nameservice.namehash(username)) != None :
+	newusername=username+str(random.randrange(9999))
+else :
+	newusername=username
+# ajout de username dans le claim nameservice
+ADDclaim.addclaim(workspace_contract, address,private_key, 'nameservice', address, newusername, "",mode)
 # ajout de prenom.nom dans register en memoire et dans le fichier
-mode.register[nameservice.namehash(username.lower())]=workspace_contract
-try : 
-	myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
-except IOError :
-	print('impossible de stocker le fichier')
-	return False
-json.dump(mode.register, myfile)
-myfile.close()
+nameservice.addName(newusername, workspace_contract, mode)
 
 
 # UPLOAD DES EXPERIENCES
@@ -393,11 +373,13 @@ a=w3.eth.getBalance(address)
 cost=0.08-a/1000000000000000000	
 print("Cout des transactions = " , cost)	
 
-
 # mise a jour du fichier archive Talao_Identity.csv
 status="resume2talao"
-writer.writerow(( datetime.today(),name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
+writer.writerow(( datetime.today(),newusername, name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
 
+# envoi du message de log
+status="Identity created by resume2talao"
+Talao_message.messageLog(lastname, firstname, newusername, email,status,address, private_key, workspace_contract_address, backend_Id, email, SECRET, AES_key,mode)
 
 # fermeture des fichiers
 resumefile.close()

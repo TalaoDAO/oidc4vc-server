@@ -16,18 +16,17 @@ from Crypto.Cipher import PKCS1_OAEP
 import http.client
 import json
 from datetime import datetime
+import random
 
 # import des fonctions custom
-import Talao_token_transaction
 import Talao_backend_transaction
 import Talao_message
 import Talao_ipfs
-import nameservice
 import constante
-import ADDclaim
 import environment
+from protocol import identity, addclaim, ownersToContracts, token_transfer, createVaultAccess, ether_transfer, createWorkspace, partnershiprequest, authorizepartnership
+from protocol import addName, namehash
 
-#password = "suc2cane"
 master_key = ""
 salt = ""
 
@@ -37,7 +36,6 @@ def my_rand(n):
     # kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG
     my_rand.counter += 1
     return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
-
 
 
 ############################################
@@ -105,116 +103,53 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
 	# Transaction pour le transfert des ethers depuis le portfeuille TalaoGen
-	hash1=Talao_token_transaction.ether_transfer(address, mode.ether2transfer,mode)
+	hash1=ether_transfer(address, mode.ether2transfer,mode)
 	balance_avant=w3.eth.getBalance(address)/1000000000000000000
-	print('balance avant', balance_avant)
 	
 	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
-	hash2=Talao_token_transaction.token_transfer(address,100,mode)
-	
-	
+	token_transfer(address,100,mode)
+		
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
-	hash3=Talao_token_transaction.createVaultAccess(address,private_key,mode)
-	
+	createVaultAccess(address,private_key,mode)
 	
 	# Transaction pour la creation du workspace :
 	##### email non crypté !!!!
 	bemail=bytes(email , 'utf-8')	
-	hash4=Talao_token_transaction.createWorkspace(address,private_key,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
-
+	createWorkspace(address,private_key,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
+	
 	# lecture de l'adresse du workspace contract dans la fondation
-	workspace_contract=Talao_token_transaction.ownersToContracts(address,mode)
+	workspace_contract=ownersToContracts(address,mode)
 	
 	# Transaction pour la creation du compte sur le backend HTTP POST
-	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, name, email, SECRET,mode)
-
-	# ajout des claim nom et prenom et nameservice . on n'utilise pas profil
-	#givenName = 103105118101110078097109101
-	#familyName = 102097109105108121078097109101
-	#nameservice = 110097109101115101114118105099101
-	ADDclaim.addclaim(workspace_contract, address,private_key, 'familyName', address, lastname, "",mode)
-	ADDclaim.addclaim(workspace_contract, address,private_key, 'givenName', address, firstname, "",mode)
+	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
 	
-	name=firstname+'.'+lastname
-	# on verifie que ce nom n existe pas deja dans le registre
-	if mode.register.get(nameservice.namehash(name.lower())) != None :
-		name=name+str(random.randrange(9999))
-		print("nameservice = ",name)
-	# ajout de name dans le claim nameservice
-	ADDclaim.addclaim(workspace_contract, address,private_key, 'nameservice', address, name, "",mode)
-	# ajout de prenom.nom dans register en memoire et dans le fichier
-	mode.register[nameservice.namehash(name.lower())]=workspace_contract
-	try : 
-		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
-	except IOError :
-		print('impossible de stocker le fichier')
-		return False
-	json.dump(mode.register, myfile)
-	myfile.close()
+	# update du user
+	user=identity(workspace_contract,mode, SECRET=SECRET, AES_key=AES_key, private_key=private_key, backend_Id=backend_Id, email=email) 
+	user.setFirstname(firstname)
+	user.setLastname(lastname)
+	user.setUsername(firstname.lower()+'.'+lastname.lower())	
+	user.addToRegister()
 	
-	# envoi du message de log a l admin
+	# envoi du message a l admin et au user
 	status="webserver"
-	Talao_message.messageLog(name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,mode)
-	
-	# envoi du message au user
-	Talao_message.messageUser(name, firstname, email,address, private_key, workspace_contract, mode)
-	
-	
-	""" inutile le setup est fait directement pas le user avec un addclaim
-	#ajout d'un cle 3 a la fondation pour la fonction "setup_address" de nameservice
-	owner_foundation = mode.foundation_address	       
-	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token . Ici le owner
-	nonce = w3.eth.getTransactionCount(address)  
-	# calcul du keccak
-	_key=w3.soliditySha3(['address'], [owner_foundation])
-	# Build transaction
-	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1)		
-	"""
-	
-	
-	
-	""" remplaçé par un partenariat avec Talao
-	#ajout d'un cle 3 a Talao
-	owner_talao = mode.owner_talao	       
-	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token . Ici le owner
-	nonce = w3.eth.getTransactionCount(address)  
-	# calcul du keccak
-	_key=w3.soliditySha3(['address'], [owner_talao])
-	# Build transaction
-	txn = contract.functions.addKey(_key, 3, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1)		
-	"""
+	Talao_message.messageLog(user.lastname, user.firstname, user.username, user.email,status,user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,mode)
+	Talao_message.messageUser(user.lastname, user.firstname, user.username, user.email,user.address, user.private_key, user.workspace_contract, mode)
 	
 	# envoi d'un request partnership à Talao
-	workspace_contract_talao=Talao_token_transaction.ownersToContracts(mode.owner_talao, mode)
-	Talao_token_transaction.partnershiprequest(workspace_contract, private_key, workspace_contract_talao,mode)
+	user.requestPartnership(mode.workspace_contract_talao)
 	
+	################################################ debut intervention de Talao ########################################
 	# lecture de la private_key_talao
 	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
 	csvfile = open(fichiercsv,newline='')
 	reader = csv.DictReader(csvfile) 
 	for row in reader:
-		if row['workspace_contract'] == workspace_contract_talao :
+		if row['workspace_contract'] == mode.workspace_contract_talao :
 			private_key_talao= row['private_key']			
-			csvfile.close()	
-
+	csvfile.close()	
 	# authorize request de Talao
-	Talao_token_transaction.authorizepartnership(workspace_contract, workspace_contract_talao, private_key_talao,mode) 
+	authorizepartnership(workspace_contract, workspace_contract_talao, private_key_talao,mode) 
+	################################################ fin intervention de Talao ##########################################
 	
 	# calcul de la duree de transaction et du cout
 	time_fin=datetime.now()
@@ -224,11 +159,11 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 	cost=balance_avant-balance_apres
 	print('Cout des transactions =', cost)	
 
-
 	# mise a jour du fichier archive Talao_Identity.csv
 	status="webserver"
-	writer.writerow(( datetime.today(),name, firstname, email,status,address, private_key, workspace_contract, backend_Id, email, SECRET, AES_key,cost) )
+	writer.writerow(( datetime.today(),user.username,user.lastname, user.firstname, user.email,status,user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,cost) )
 	identityfile.close()
 
 	print("createidentity is OK")
-	return address, private_key, SECRET, workspace_contract,backend_Id, email, SECRET, AES_key
+	user.printIdentity()
+	return user

@@ -6,12 +6,11 @@ import sys
 from datetime import datetime
 #dependances
 import isolanguage
-import nameservice
-import ADDdocument
 import Talao_ipfs
 import constante
 import constante
 
+from .ADDdocument import getdocument
 
 ##############################################
 # detrmination de la nature de l addresse
@@ -130,7 +129,7 @@ def readProfil (address, workspace_contract, mode) :
 # return dictionnaire
 
 
-def getdocument(index, workspace_contract,mode) :
+def getdoc(index, workspace_contract,mode) :
 	
 	w3=mode.initProvider()
 	document=dict()
@@ -185,7 +184,7 @@ def getdocument(index, workspace_contract,mode) :
 				"contact_email" : experience["issuer"]["organization"]["email"]},
 		"certification_link" : None	}
 	elif topic == 'contact' :
-		value=ADDdocument.getdocument(workspace_contract, '0x0', workspace_contract, index, mode)
+		value=getdocument(workspace_contract, '0x0', workspace_contract, index, mode)
 	
 	else :
 		topic = "unknown"
@@ -354,7 +353,7 @@ def getdata(data,mode) :
 	
 	# si data est un identifiant de document
 	elif len(datasplit) == 6 and datasplit[4]== 'document' :
-		result=getdocument(int(datasplit[5]), workspace_contract,mode)
+		result=getdoc(int(datasplit[5]), workspace_contract,mode)
 
 	# si data est un identfiant de claim
 	elif len(datasplit) == 6 and datasplit[4]== 'claim' :	

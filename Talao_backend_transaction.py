@@ -4,7 +4,7 @@ import constante
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
-import Talao_token_transaction
+#import Talao_token_transaction
 import csv
 import http.client, urllib.parse
 import json
@@ -32,8 +32,9 @@ def backend_register (eth_a, workspace, first_name, last_name, email, password,m
 	data = json.dumps(payload)
 	conn.request('POST', '/register',data, headers)
 	response = conn.getresponse()
-
+	
 	res=response.read()
+
 	a= json.loads(res)
 	return a['user']['id']
 
