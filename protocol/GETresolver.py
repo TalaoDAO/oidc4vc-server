@@ -11,7 +11,7 @@ import Talao_ipfs
 import ipfshttpclient
 
 from .Talao_token_transaction import isdid
-
+from .nameservice import getUsername
 
 ##############################################
 # detrmination de la nature de l addresse
@@ -88,12 +88,11 @@ def getresolver(workspace_contract, did, mode) :
 	workspace_information=contract.functions.identityInformation().call()
 	cat={1001 : "user", 2001 : "company", 3001 : "unknown", 4001 : "unknoown", 5001 : "unknown"}
 	
-	
-	
 	# structure du DID Document
 	did_document={
 	"@context": "DID Document see https://w3c.github.io/did-core/",
 	"id": did,
+	"username" : getUsername(workspace_contract,mode),
 	"category" : cat[workspace_information[1]],
 	"controller" : address,
 	"authentication" : [{"type": "Secp256k1SignatureVerificationKey2018",

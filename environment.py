@@ -14,19 +14,17 @@ import sys
 
 class currentMode() :
 	
+	myenv='test'
+	mychain='rinkeby'
 	password='suc2cane'
 	port = '4000'
 	apiport = '3000'
 	flaskserver = '127.0.0.1'
 		
-	def __init__(self, myenv, mychain):
-		
-		print('debut init')
-		
-		self.env=myenv
-		self.chain=mychain
+	def __init__(self):
 			
-		if mychain == 'rinkeby' :
+		print('debut init')			
+		if self.mychain == 'rinkeby' :
 			self.ether2transfer=40	
 			self.IPCProvider="/mnt/ssd/rinkeby/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))			
@@ -46,7 +44,7 @@ class currentMode() :
 			self.WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
 			self.GASPRICE='2'		
 		
-		elif mychain == 'ethereum' or mychain == 'mainet' :
+		elif self.mychain == 'ethereum' or self.mychain == 'mainet' :
 			self.ether2transfer=20
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	
@@ -66,22 +64,22 @@ class currentMode() :
 			self.WORKSPACE_LINK='https://my.freedapp.io/visit/'
 			self.GASPRICE='2'			
 		else :
-			print('error chain ->', mychain)
+			print('error chain ->', self.mychain)
 		
 		if self.w3.isConnected()== False :
 			print("Not Connected, network problem")
 			sys.exit()	
 		
-		if myenv == 'production' or myenv == 'prod' :  # sur rasbperry
+		if self.myenv == 'production' or self.myenv == 'prod' :  # sur rasbperry
 			self.IP='217.128.135.206' # external
 			self.server='http://217.128.135.206:5000/' # external
 					
-		elif myenv == 'test' : # sur portable/internal
+		elif self.myenv == 'test' : # sur portable/internal
 			#self.IP='127.0.0.1'
 			self.server = 'http://127.0.0.1:4000/' #internal
 			
 		else : 
-			print('error env ->', myenv)
+			print('error env ->', self.myenv)
 		
 		print('debut unlock')
 		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
@@ -91,9 +89,7 @@ class currentMode() :
 		print('upload de register.json')
 		with open(self.BLOCKCHAIN+'_register.json', 'r') as myfile: 
 			self.register = json.load(myfile)
-			myfile.close()
-		
-	
+			myfile.close()	
 		
 	def print_mode(self) :		
 		mymode = vars(self)

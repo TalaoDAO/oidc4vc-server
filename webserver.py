@@ -1,5 +1,5 @@
 """
-piur l authentication cf https://realpython.com/token-based-authentication-with-flask/
+pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
 
 pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
 
@@ -9,15 +9,12 @@ interace wsgi https://www.bortzmeyer.org/wsgi.html
 request : http://blog.luisrei.com/articles/flaskrest.html
 """
 
-
-
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template
 from flask_api import FlaskAPI, status
 import ipfshttpclient
 from flask_fontawesome import FontAwesome
 import http.client
-import threading
 import random
 import csv
 from datetime import timedelta, datetime
@@ -25,58 +22,102 @@ import json
 
 # dependances
 import Talao_message
-import createidentity
 import constante
 from protocol import identity, getresolver, getresume, load_register_from_file, address, getEmail, getPrivatekey, contractsToOwners
 from protocol import deleteName, deleteDocument, deleteClaim, readProfil, isdid, getdata, destroyWorkspace, addcertificate, canRegister_email
 import environment
+import web_create_identity
+import web_show_certificate
 
 # environment setup
-mode=environment.currentMode('test', 'rinkeby')
+mode=environment.currentMode()
 w3=mode.w3
 
 # Flask setup	
 app = FlaskAPI(__name__)
+
+# Centralized @route pour web_create_identity
+app.add_url_rule('/talao/register/',  view_func=web_create_identity.authentification)
+app.add_url_rule('/talao/register/', view_func=web_create_identity.POST_authentification_1, methods=['POST'])
+app.add_url_rule('/talao/register/code/', view_func=web_create_identity.POST_authentification_2, methods=['POST'])
+app.add_url_rule('/talao/register/code/', view_func=web_create_identity.POST_authentification_3, methods=['GET'])
+
+# Centralized @route pour certificate
+app.add_url_rule('/certificate/<data>',  view_func=web_show_certificate.show_certificate)
+
 fa = FontAwesome(app)
 app.config["SECRET_KEY"] = "OCML3BRawWEUeaxcuKHLpw"
 
-# thread
-exporting_threads = {}
+# cache pour getresume et getresume
 lastresume=dict()
 lastdidoc=dict()
 
-#####################################################	
-# tools
-######################################################
 
-# Multithreading de creatidentity setup   https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
-class ExportingThread(threading.Thread):
-	def __init__(self, firstname, lastname, email, mode):
-		self.progress = 0
-		super().__init__()
-		self.firstname=firstname
-		self.lastname=lastname
-		self.email=email
-		self.mode=mode
-	def run(self):
-		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)
-		
+##############################################  USER  LOGIN/LOGOUT #######################################
+@app.route('/login/', methods=['GET'])
+@app.route('/user/login/', methods=['GET'])
+def login() :
+		return render_template('login.html')
 
-def getclaimipfs (claim_id, workspace_contract) :
-# @topicname est un str
-# return un objet List
-	
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	claimdata=contract.functions.getClaim(claim_id).call()
-	print("claimdata = ", claimdata)
-	if claimdata[5]!="" :
-		data=client.get_json(claimdata[5])
-		return data
+@app.route('/logout/', methods=['GET'])
+@app.route('/user/logout/', methods=['GET'])
+def logout() :
+	if session.get('rememberme') != 'on' :
+		session.clear()
 	else :
-		return False
+		pass
+	return render_template('login.html')
 
-# GETresolver
+##############################################  USER  PROFIL #######################################
+
+@app.route('/user/', methods=['GET'])
+def user() :
+	if request.args.get('option') != None :
+		session['rememberme']=request.args.get('option')
+	username=request.args['username']
+	session['username']=username
+	if address(username,mode.register) == None :
+		mymessage = "Username not found"
+		return render_template('login.html', message=mymessage)
+	workspace_contract = address(username, mode.register)	
+	user=identity(workspace_contract, mode)
+	thisname = user.firstname+ ' '+ user.lastname
+	return render_template('profile.html', name = thisname, lastname=user.lastname, firstname=user.firstname, email=user.email, username=user.username, description=user.description,crypted="unchecked")
+
+@app.route('/user/contact_settings/', methods=['POST'])
+def contact_settings() :
+	
+	return redirect(mode.server+'user/?username='+user.username)
+	
+@app.route('/user/description/', methods=['POST'])
+def description() :
+	username=session['username']
+	workspace_contract = address(username, mode.register)	
+	user=identity(workspace_contract, mode)
+	newdescription=request.form.get('description')
+	if user.description != newdescription :	
+		res=user.setDescription(newdescription)
+	return redirect(mode.server+'user/?username='+user.username)
+
+
+@app.route('/user/user_settings/', methods=['POST'])
+def user_settings() :
+	username=session['username']
+	workspace_contract = address(username, mode.register)	
+	user=identity(workspace_contract, mode)
+	newfirstname=request.form.get('firstname')
+	newlastname=request.form.get('lastname')
+	newusername=request.form.get('username')
+	newemail=request.form.get('email')
+	if user.lastname != newlastname or user.firstname != newfirstname or user.email != newemail :		
+		user.setUserSettings(newfirstname, newlastname, newemail)
+	if user.username != newusername :		
+		user.setUsername(newusername)	
+	return redirect(mode.server+'user/?username='+user.username)
+		
+#######################################################################################################
+
+# GETresolver with cache
 @app.route('/resolver/api/<did>', methods=['GET'])
 @app.route('/talao/resolver/api/<did>', methods=['GET'])
 def DID_Document(did) :
@@ -94,8 +135,7 @@ def DID_Document(did) :
 	if didoc == False :
 		return {'msg' : 'Identity invalid'}
 	return didoc
-
-		
+	
 # GETresume Profil
 @app.route('/talao/api/profil/<did>', methods=['GET'])
 def Company_Profil(did) :
@@ -106,14 +146,16 @@ def Company_Profil(did) :
 	return resume
 
 
-# GETresume	Resume
+
+
+# GETresume	Resume with cache
 @app.route('/talao/api/resume/<did>', methods=['GET'])	
 @app.route('/resume/<did>', methods=['GET'])
 def User_Resume(did) :
 	global lastresume
-	print('session = ',session)
+	print('session = ',session, 'lastresume = ' ,lastresume)
 	workspace_contract='0x'+did.split(':')[3]
-	if session.get('lastworkspaceforresume')== workspace_contract :
+	if session.get('lastworkspaceforresume')== workspace_contract and bool(lastresume) :
 		resume = lastresume
 		print('deja passe')
 	else :		
@@ -124,21 +166,30 @@ def User_Resume(did) :
 	if resume == False :
 		return {'msg' : 'Identity invalid'}
 	return resume
-	
 
+"""	
 # Nameservice
 @app.route('/nameservice/api/reload/', methods=['GET'])
 def GET_nameservice_reload() :
 	load_register_from_file(mode)
 	return {"CODE" : "reload done"}
+"""
 
-# upload des photos
+# upload des photos pour certificate
 @app.route('/uploads/<filename>')
 def send_file(filename):
 	UPLOAD_FOLDER='photos'
 	return send_from_directory(UPLOAD_FOLDER, filename)
 	
-# database
+
+# upload des photos pour certificate
+@app.route('/fonts/<filename>')
+def send_fonts(filename):
+	UPLOAD_FOLDER='templates/assets/fonts'
+	return send_from_directory(UPLOAD_FOLDER, filename)	
+	
+	
+# database pour test
 @app.route('/database/')
 def database() :
 	return mode.register
@@ -444,51 +495,6 @@ def input_certificate_1():
 	return render_template("certificaterequest_1.html", message = mymessage)
 
 
-
-		
-#############################################################
-#    affichage d'un certificat de type claim
-#############################################################
-#data='did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:b34c2a6837a9e89da5ef886d18763fb13a12615814d50a5b73ae403cb547d788'
-#data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
-                
-
-@app.route('/certificate/<data>', methods=['GET'])
-def show_certificate(data):
-	
-	#data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
-
-	claimId=data.split(':')[5]
-	workspace_contract= '0x'+data.split(':')[3]
-	certificate=getclaimipfs(claimId, workspace_contract)
-	
-	if certificate == False :
-		return {"ERROR" : "No Certificate"}
-	
-	ok="color: rgb(251,211,5); font-size: 10px;"
-	ko="color: rgb(0,0,0);font-size: 10px;"
-	context=certificate.copy()
-	context["manager"]=certificate["company"]["manager"]
-	context["managersignature"]=certificate["company"]["managersignature"]
-	context["companylogo"]=certificate["company"]["companylogo"]
-	
-	
-	# gestion des "fa-star" 
-	score=[]
-	score.append(certificate["score_recommendation"])
-	score.append(certificate["score_delivery"])
-	score.append(certificate["score_schedule"])
-	score.append(certificate["score_communication"])
-	for q in range(0,4) :
-		for i in range(0,score[q]) :
-			context["star"+str(q)+str(i)]=ok
-		for i in range(score[q],5) :
-			context ["star"+str(q)+str(i)]=ko
-
-	return render_template('certificate.html', **context)
-
-
-
 #####################################################
 #   Talao Professional Identity Explorer
 #####################################################
@@ -516,81 +522,6 @@ def resume() :
 	return getresume(workspace_contract,truedid,mode)	
 
 
-	
-#####################################################
-#   CREATION IDENTITE ONLINE (html) pour le site talao.io
-#####################################################
-"""
-le user reçoit par email les informations concernant son identité
-Talao dispose d'une copie de la clé
-On test si l email existe dans le back end
-"""
-
-@app.route('/talao/register/')
-def authentification() :
-	session.clear()
-	return render_template("home.html",message='')
-
-### recuperation de l email, nom et prenom
-@app.route('/talao/register/', methods=['POST'])
-def POST_authentification_1() :
-	email = request.form['email']
-	firstname=request.form['firstname']
-	lastname=request.form['lastname']
-	# stocké en session
-	session['firstname']=request.form['firstname']
-	session['lastname']=request.form['lastname']
-	session['email']=email
-	# check si email disponible
-	if canRegister_email(email,mode) == False :
-		return render_template("home.html", message = 'Email already used')	
-	# envoi du code secret par email
-	if session.get('code') == None :
-		code = str(random.randint(100000, 999999))
-		session['try_number']=1
-		session['code']=code
-		# envoi message de control du code
-		Talao_message.messageAuth(email, str(code))
-		print('code secret envoyé= ', code)
-	else :
-		print("le code a deja ete envoye")
-	
-	return render_template("home2.html", message = '')
-
-# recuperation du code saisi
-@app.route('/talao/register/code/', methods=['POST'])
-def POST_authentification_2() :
-	global exporting_threads
-	email=session.get('email')
-	lastname=session.get('lastname')
-	firstname=session.get('firstname')
-	mycode = request.form['mycode']
-	session['try_number'] +=1
-	print('code retourné = ', mycode)
-	print (session)
-	if mycode == session.get('code') :
-		print('code correct')
-		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(firstname, lastname, email, mode)
-		print("appel de createindentty")
-		#exporting_threads[thread_id].start()
-		mymessage = 'Registation in progress. You will receive an email with details soon.' 
-	else :
-		if session['try_number'] > 3 :
-			mymessage = "Too many trials (3 max)"
-			return render_template("home3.html", message = mymessage)
-
-		mymessage = 'Error code'
-		return render_template("home2.html", message = mymessage)
-
-	return render_template("home3.html", message = mymessage)
-
-		
-@app.route('/talao/register/code/', methods=['GET'])
-def POST_authentification_3() :
-	return redirect(mode.server+'talao/register/')
-	
-
 
 #######################################################
 #                        MAIN, server launch
@@ -602,9 +533,9 @@ print('initialisation du serveur')
 
 if __name__ == '__main__':
 	
-	if mode.env == 'production' or mode.env == 'prod' :
+	if mode.myenv == 'production' or mode.myenv == 'prod' :
 		app.run(host = mode.flaskserver, port= mode.port, debug=True)
-	elif mode.env =='test' :
+	elif mode.myenv =='test' :
 		app.run(host='127.0.0.1', port =4000, debug=True)
 	else :
 		print("Erreur d'environnement")

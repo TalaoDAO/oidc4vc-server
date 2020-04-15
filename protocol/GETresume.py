@@ -348,13 +348,12 @@ def getresume(workspace_contract,did, mode) :
 		# experiences avec certificats implements avec des claim725		
 		# download des claim "certificate"->  99101114116105102105099097116101 du user
 		claimlist=contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
-		#print("list des claim de type certificate =", claimlist)
 		for claimId in claimlist : #pour chaque issuer
 			claimdata=contract.functions.getClaim(claimId).call()
-			#print("avant json.loads ",claimdata[4].decode('utf-8'))
+			print("avant json.loads ",claimdata[4].decode('utf-8'))
 			if claimdata[4].decode('utf-8') !='' :   # il existe des certificats
 				certificatelist=json.loads(claimdata[4].decode('utf-8'))
-				#print("liste des certificats existants = ",certificatelist)
+				print("liste des certificats existants = ",certificatelist)
 				for certificateId in certificatelist :
 					certificate=getclaimipfs(certificateId, workspace_contract,mode)
 					new_certificate = {'id' : did+':claim:'+certificateId[2:],

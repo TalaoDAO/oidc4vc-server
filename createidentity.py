@@ -124,7 +124,7 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
 	
 	# update du user
-	user=identity(workspace_contract,mode, SECRET=SECRET, AES_key=AES_key, private_key=private_key, backend_Id=backend_Id, email=email) 
+	user=identity(workspace_contract,mode, SECRET=SECRET, AES_key=AES_key, private_key=private_key, backend_Id=backend_Id, email=email, rsa_key=RSA_private ) 
 	user.setFirstname(firstname)
 	user.setLastname(lastname)
 	user.setUsername(firstname.lower()+'.'+lastname.lower())	

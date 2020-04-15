@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body style="background-color: rgb(255,254,254);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-12 col-xl-10">
+                <div class="card shadow-sm o-hidden border-0 my-5" style="color: rgb(133,135,150);">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-flex">
+                                <div class="flex-grow-1 bg-login-image">
+                                    <p class="text-center" style="margin: 75px 50px 0px;">This application developed on the Blockchain allows you to become the sole owner of your professional data, to manage and share it in order to boost your career and your business.<br><br>Enter your username and you
+                                        will receive a secret code by email to confirm your identity.&nbsp;<br>Your data are not stored on a centralized database.<br><br>In order to assist you to setup your identity, Talao keeps a copy of your private
+                                        key.&nbsp;&nbsp;<br></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Professional Identity</h4>
+                                    </div>
+                                    <form class="user" action="/talao/register/" method="post">
+                                        <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" name="firstname" style="color: rgb(133,135,150);" required></div>
+                                        <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" name="lastname" style="color: rgb(133,135,150);" required></div>
+                                        <div class="form-group"><input class="form-control" type="email" placeholder="Email" name="email" required></div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Send</button>
+                                        <hr>
+                                        <hr>
+                                    </form>
+                                    <div class="text-center"><a class="small" href="forgot-password.html">Forgot username ?</a></div>
+                                    <div class="text-center"><a class="small" href="/user/login/">Back to Login !</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

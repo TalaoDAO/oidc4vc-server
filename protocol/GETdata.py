@@ -20,7 +20,7 @@ from .ADDdocument import getdocument
 
 def whatisthisaddress(thisaddress,mode) :
 
-	w3=mode.initProvider()
+	w3=mode.w3
 
 	# est ce une addresse Ethereum ?
 	if w3.isAddress(thisaddress) == False :
@@ -65,7 +65,7 @@ def whatisthisaddress(thisaddress,mode) :
 
 def readProfil (address, workspace_contract, mode) :
 
-	w3=mode.initProvider()
+	w3=mode.w3
 
 	# setup constante
 	givenName = 103105118101110078097109101 # = firstname
@@ -131,7 +131,7 @@ def readProfil (address, workspace_contract, mode) :
 
 def getdoc(index, workspace_contract,mode) :
 	
-	w3=mode.initProvider()
+	w3=mode.w3
 	document=dict()
 	
 	# determination de l addresse du workspace
@@ -240,7 +240,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 # return un dictionnaire
 # ajouter le check de validité
 
-	w3=mode.initProvider()
+	w3=mode.w3
 	claim=dict()
 
 	# determination de l address du owner
@@ -343,7 +343,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 
 def getdata(data,mode) :
 	
-	w3=mode.initProvider()
+	w3=mode.w3
 	datasplit=data.split(':')
 	workspace_contract='0x'+datasplit[3]
 	

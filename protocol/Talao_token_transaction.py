@@ -9,13 +9,11 @@ import ipfshttpclient
 from datetime import datetime
 from eth_account.messages import encode_defunct
 import random
-#from web3 import Web3
 
 # dependances
 import Talao_ipfs
 import Talao_message
 import constante
-#from protocol import nameservice
 
 ############################################################
 # appel de ownersToContracts de la fondation
@@ -57,21 +55,15 @@ def destroyWorkspace(workspace_contract, private_key, mode) :
 	return hash1
 	
 
-
-
 ############################################################
 # appel de contractsToOwners de la fondation
 ############################################################
 #
-
-
 def contractsToOwners(workspace_contract, mode) :
 	w3=mode.initProvider()
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address	
-
-
 
 ###############################################################
 # read Talao profil
@@ -80,10 +72,9 @@ def contractsToOwners(workspace_contract, mode) :
 # https://fr.wikibooks.org/wiki/Les_ASCII_de_0_%C3%A0_127/La_table_ASCII
 # ord('a')=97...attention ajouté un 0 au dessus dessous de 99....
 
-
 def readProfil (address,mode) :
 
-	w3=mode.initProvider()
+	w3=mode.w3
 
 	# liste des claim topic , 
 	givenName = 103105118101110078097109101
@@ -107,10 +98,10 @@ def readProfil (address,mode) :
 			claim=contract.functions.getClaimIdsByTopic(i).call()
 		except :
 			claim=[]
-		if len(claim) != 0 : # uniquement si les information ont ete entrées a la cretaion de l identité
+		if len(claim) != 0 : # uniquement si les information ont ete entrées a la creation de l identité
 			claimId=claim[0].hex()
 			data = contract.functions.getClaim(claimId).call()
-			profil[topicname[index]]=data[4].decode('utf-8').lower()
+			profil[topicname[index]]=data[4].decode('utf-8')
 		else :
 			profil[topicname[index]]=None
 		index=index+1
@@ -204,9 +195,6 @@ def token_balance(address,mode) :
 	balance=raw_balance//10**18
 	return balance
 
-
-
-
 ############################################################
 # appel de createVaultAcces (uint price) 
 ############################################################
@@ -235,15 +223,6 @@ def createVaultAccess(address,private_key,mode) :
 ############################################################
 # creation d'un workspace
 ############################################################
-
-# solidity function createWorkspace (
-#        uint16 _category,
-#        uint16 _asymetricEncryptionAlgorithm,
-#        uint16 _symetricEncryptionAlgorithm,
-#        bytes _asymetricEncryptionPublicKey,
-#        bytes _symetricEncryptionEncryptedKey,
-#        bytes _encryptedSecret,
-#        bytes _email
 
 def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
 	w3=mode.initProvider()
@@ -313,7 +292,6 @@ def authorizepartnership(workspace_contract_partner, workspace_contract_user, pr
 	key=RSA.importKey(partner_rsa_key)	
 	cipher = PKCS1_OAEP.new(key)
 	user_aes_encrypted_with_partner_key = cipher.encrypt(user_aes)
-	
 	
 	# Build transaction
 	contract=w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
@@ -434,7 +412,7 @@ def getAll(workspace_contract,mode) :
 		return None
 
 ##################################################################
-#    get Email from identity (not encrypted)
+#    get Email from identity 
 ##################################################################
 def getEmail(workspace_contract, mode) :
 
@@ -451,9 +429,10 @@ def getEmail(workspace_contract, mode) :
 	else :
 		return None	
 		
-
+"""
 ##################################################################
-#    get username/nameservice from identity (not encrypted)
+#    get username/nameservice from nameservice/register
+# 
 ##################################################################
 def getUsername(workspace_contract, mode) :
 
@@ -469,6 +448,7 @@ def getUsername(workspace_contract, mode) :
 		return username
 	else :
 		return None			
+"""
 		
 ##################################################################
 # Delete document
@@ -691,6 +671,39 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
 	
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	return hash1
+
+############################################################
+# 	@chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
+#	@topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
+# 	@offset [len(_givenName), len(_familyName), len(_jobTitle), len(_worksFor), len(_workLocation), len(_url), len(_email), len(_description)]
+"""
+	givenName = 103105118101110078097109101
+	familyName = 102097109105108121078097109101
+	jobTitle = 106111098084105116108101
+	worksFor = 119111114107115070111114
+	workLocation = 119111114107076111099097116105111110
+	url = 117114108
+	email = 101109097105108
+	description = 100101115099114105112116105111110
+	image= 105109097103101
+	"""
+def updateSelfclaims(address, private_key, topic,chaine, offset, mode) :
+	
+	w3=mode.w3
+	bchaine=bytes(chaine, 'utf-8')
+	workspace_contract=ownersToContracts(address,mode)
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token . Ici le caller
+	nonce = w3.eth.getTransactionCount(address)  
+	# Build transaction
+	txn=contract.functions.updateSelfClaims(topic, bchaine,offset).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	#sign transaction with caller wallet
+	signed_txn=w3.eth.account.signTransaction(txn,private_key)
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
@@ -961,7 +974,8 @@ def addclaim(workspace_contract_to, address_from,private_key_from, topicname, is
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+	print('hash =', hash1)	
 	return hash1
 
 #################################################
