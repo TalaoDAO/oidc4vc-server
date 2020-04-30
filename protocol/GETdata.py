@@ -166,23 +166,30 @@ def getdoc(index, workspace_contract,mode) :
 	if topic == "education" :
 		ipfs_hash=doc[6].decode('utf-8')
 		education=Talao_ipfs.IPFS_get(ipfs_hash)	
-		value = {"organization" : education["issuer"]["organization"]["name"],
-		"endDate" : education["diploma"]["to"], 
-		"startDate" : education["diploma"]["from"],
-		"studyType" : education["diploma"]["title"],
-		"area" : education["diploma"]["description"],
-		"certificate_link" : education["diploma"]["link"]}
+		value = {"organization" : { 'name' :education["issuer"]["organization"]["name"],
+									'contact_name' : "Unknown",
+									'contact_email' : "Unknown"},
+				"to" : education["diploma"]["to"], 
+				"from" : education["diploma"]["from"],
+				"title" : education["diploma"]["title"],
+				'skilss' : "Unknown",
+				"description" : education["diploma"]["description"],
+				"certificate_link" : education["diploma"]["link"]}
+	
+	
 	elif topic == "experience" :
 		ipfs_hash=doc[6].decode('utf-8')
 		experience=Talao_ipfs.IPFS_get(ipfs_hash)
-		value = {'title' : experience['certificate']['title'],
-		'description' : experience['certificate']['description'],
-		'from' : experience['certificate']['from'],
-		'to' : experience['certificate']['to'],
-		'organization' : {"name" : None, 
-				"contact_name" : experience['issuer']['responsible']["name"],
-				"contact_email" : experience["issuer"]["organization"]["email"]},
-		"certification_link" : None	}
+		value = {'position' : experience['certificate']['title'],
+				'summary' : experience['certificate']['description'],
+				'startDate' : experience['certificate']['from'],
+				'endDate' : experience['certificate']['to'],
+				'company' : {"name" : "Unknown", 
+								"manager" : experience['issuer']['responsible']["name"],
+								"manager_email" : experience["issuer"]["organization"]["email"]},
+				'skills' : "Unknown",
+				"certificate_link" : "No"	}
+	
 	elif topic == 'contact' :
 		value=getdocument(workspace_contract, '0x0', workspace_contract, index, mode)
 	
@@ -207,11 +214,15 @@ def getdoc(index, workspace_contract,mode) :
 
 	# calcul de la date
 	if doc[2]== 0 :
-		date = 'unlimited'
+		date = 'Unlimited'
 	else :			
 		date=datetime.fromtimestamp(doc[2])
+	if doc[7]== False :
+		encrypted = 'Public'
+	else :
+		encrypted = 'Partner'	
 		
-	# mise en forme de la reponse de la fonction		
+	# mise en forme de la reponse globale		
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
 	document['endpoint']=mode.server+'talao/api/data/'+document['id']
 	document['data'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
@@ -220,12 +231,11 @@ def getdoc(index, workspace_contract,mode) :
 						"topic": topic,
 						"value" : value,	
 						"expires" : date,
-						"encrypted" : doc[7],
-						"datalocation" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
+						"encrypted" : encrypted,
+						"location" : 'https://ipfs.infura.io/ipfs/'+doc[6].decode('utf-8'),						
 						"signaturetype" : "Secp256k1SignatureVerificationKey2018, AES128 MODE-EAX",
-						"signature" : True,
-						'signature_check' : True,
-						"validity_check" : True}
+						"signature" : 'Unknown',
+						"signature_check" : 'Undone'}
 	document['action']={'Delete' : mode.server+'talao/api/data/'+document['id']+'?action=delete'}	
 	return document
 
@@ -283,51 +293,47 @@ def getclaim (claim_id, workspace_contract,mode) :
 	# verification de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes(topicname, 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
 	message = encode_defunct(text=msg.hex())
-	signature=claimdata[3]
+	signature = claimdata[3]
 	if signature != b"" :
-		signataire=w3.eth.account.recover_message(message, signature=signature)
-		signature=claimdata[3].hex()
-		if signataire==issuer :
-			verification=True
+		signataire = w3.eth.account.recover_message(message, signature=signature)
+		signature = claimdata[3].hex()
+		if signataire == issuer :
+			verification = 'Right'
 		else :
-			verification=False	
+			verification = 'False'	
 	else :
-		signature= None
-		verification = False
+		signature = 'Unknown'
+		verification = 'Undone'
 	
 	# calcul de la date
 	date = 'unlimited'
 	
 	# mise en forme de la reponse
-	claim["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
-	claim['endpoint']=mode.server+'talao/api/data/'+claim['id']
+	claim["id"] = "did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
+	claim['endpoint'] = mode.server+'talao/api/data/'+claim['id']
 	claim["data"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
 					'endpoint' : mode.server+"talao/api/"+path+"/did:talao:"+mode.BLOCKCHAIN+":"+whatisthisaddress(issuer,mode)["workspace"][2:],
 					'data' : issuerprofile}}
 	claim['action']={'delete' : mode.server+'talao/api/data/'+claim['id']+'?action=delete'}				
+
+	claim['data']['topic']=topicname	
 	
-	if topicname == 'lastname' :
-		claim['data']['topic']='profil'
-	else :
-		claim['data']['topic']=topicname
-	if claimdata[5][:1]=="Q" :
-		data=client.get_json(claimdata[5])
-	else :
-		url=claimdata[5]
-		data=claimdata[4].decode('utf-8')
-	claim['data']['value']=data
-	if claimdata[5]=="" :
-		claim['data']['value']=None
-	else :
-		claim['data']['location']='https://ipfs.infura.io/ipfs/'+claimdata[5]
-	if topicname == 'lastname' :
-		claim['data']['value']=issuerprofile
-	claim['data']['expires']=date
-	claim['data']['encrypted']=False
-	claim['data']['signaturetype']=['Keccak256(topic,issuer,data, url)','ECDSA']
+	if claimdata[5][:1] == "Q" : # les datas sont sur IPFS
+		claim['data']['value'] = client.get_json(claimdata[5])
+		claim['data']['location'] = 'https://ipfs.infura.io/ipfs/'+claimdata[5]	
+		if claim['data']['value'].get('certificate_link') == None :
+			claim['data']['value']['certificate_link']="No"	
+	else :		
+		claim['data']['value'] = claimdata[4].decode('utf-8')
+		claim['data']['location'] = mode.BLOCKCHAIN
+		
+	
+
+	claim['data']['expires'] = date
+	claim['data']['encrypted'] = 'Public'
+	claim['data']['signaturetype'] = 'Keccak256(topic,issuer,data, url) ECDSA'
 	claim['data']['signature'] = signature
-	claim['data']['signature_check']=verification
-	claim['data']['validity_check']=True
+	claim['data']['signature_check'] = verification
 	
 	
 	return claim

@@ -43,7 +43,8 @@ def getclaimipfs (claim_id, workspace_contract) :
 
 def show_certificate(data):
 	
-	#data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
+	# TEST
+	data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
 
 	claimId=data.split(':')[5]
 	workspace_contract= '0x'+data.split(':')[3]
@@ -72,4 +73,4 @@ def show_certificate(data):
 		for i in range(score[q],5) :
 			context ["star"+str(q)+str(i)]=ko
 
-	return render_template('certificate.html', **context)
+	return render_template('newcertificate.html', **context)

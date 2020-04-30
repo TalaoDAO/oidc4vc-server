@@ -7,7 +7,6 @@ import datetime
 import ipfshttpclient
 from eth_account import Account
 from base64 import b64encode
-from base64 import b64decode
 
 #dependances
 import constante
@@ -16,13 +15,13 @@ import Talao_ipfs
 
 ###################################################################
 # @data = dictionnaire 
-# @encrypted = False ou True => AES128
+# @encrypted = False ou True => AES128 AES.MODE_EAX
 # @expires : days from now, 0 if unlimited
 # location engine = 1 pour IPFS, doctypeversion = 1, expire =Null, 
 ###################################################################
   
 
-def createdocument(workspace_contract_from, private_key_from, workspace_contract_to, doctype, data, mydays, encrypted, mode) :
+def createdocument(workspace_contract_from, private_key_from, workspace_contract_to, doctype, data, mydays, encrypted, mode, synchronous=True) :
 	
 	w3=mode.w3
 			
@@ -107,7 +106,7 @@ def createdocument(workspace_contract_from, private_key_from, workspace_contract
 
 def getdocument(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
 	
-	w3=mode.initProvider()
+	w3=mode.w3
 
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
@@ -118,10 +117,7 @@ def getdocument(workspace_contract_from, private_key_from, workspace_contract_us
 	# recuperation du msg 
 	data=Talao_ipfs.IPFS_get(ipfshash.decode('utf-8'))
 	
-	
 	if encrypted == False :
-		print('data non cryptée = ',data)
-		print('type = ', type(data))
 		return data
 	
 	if encrypted == True and private_key_from == '0x0' : # msg non cryptée
@@ -160,8 +156,6 @@ def getdocument(workspace_contract_from, private_key_from, workspace_contract_us
 				cipher.update(jv['header'])
 				plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 				msg=json.loads(plaintext.decode('utf-8'))
-				print('data décryptée = ',msg)
-				print('type = ', type(msg))
 				return msg				
 			
 			except ValueError :

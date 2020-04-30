@@ -53,7 +53,7 @@ def namehash(name) :
 def buildregister(mode) :
 	
 	w3=mode.w3
-	
+
 	# pour choisir l address par defaut du node necessaire a la lecture de l index du smart contract de la fondation
 	address = mode.foundation_address
 	w3.eth.defaultAccount=address
@@ -69,6 +69,7 @@ def buildregister(mode) :
 	for workspace_contract in contractlist :
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		count += 1	
+		
 		# download de firstname
 		firstname=""
 		try :
@@ -83,6 +84,7 @@ def buildregister(mode) :
 			except :
 				firstname=""
 				print('erreur 2', claimId)				
+		
 		# download de lastname
 		lastname=""
 		try : 
@@ -104,14 +106,30 @@ def buildregister(mode) :
 			newusername=username+str(random.randrange(99999))
 		else :
 			newusername=username
-		print("username = ", newusername)		
+		
 		did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
-		email=getEmail(workspace_contract, mode)
+		
+		# on recupere l email
+		try :
+			a= contract.functions.getClaimIdsByTopic(101109097105108).call()
+		except :
+			email= None
+			a=[]	
+		if len(a) != 0:
+			claimId=a[len(a) -1].hex()
+			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+		else :
+			email = None				
 		if email == None :
 			print ("no email")				
 			email=''			
 		
-		register[namehash(newusername)]={ 'username' : newusername, 'email' : email, 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}		
+		# calcul du keccak de l address de celui pour qui la cle est emise (publickey)
+		contract=mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+		address = contract.functions.contractsToOwners(workspace_contract).call()
+		key=mode.w3.soliditySha3(['address'], [address])
+		
+		register[namehash(newusername)]={ 'username' : newusername, 'email' : email, "PublicKey" : key.hex(), 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}		
 	
 	# copie dans le fichier rinkeby/ethereum_register.json du registre (un seul acces au disque)
 	print('nombre de workspace =', count)
@@ -141,6 +159,17 @@ def address(username,register) :
 		return register.get(namehash(username.lower()))['workspace_contract']
 	else :
 		return None
+
+	
+#####################################################	
+# obtenir le workspace_contract depuis un pubicKeyHex
+######################################################
+def workspaceFromPublickeyhex(publickeyhex,mode) :
+	key='0x'+publickeyhex
+	for a in mode.register  :
+		if mode.register[a].get('PublicKey') == key :
+			return  {'workspace_contract' : mode.register[a].get('workspace_contract'), 'username' : mode.register[a].get('username')}
+	return None
 	
 #####################################################	
 # obtenir le username depuis le workspace_contract
@@ -165,16 +194,17 @@ def load_register_from_file(mode) :
 #################################################
 #  ajoute un usernane au registre memoire et disque
 #################################################
-def addName(username, email, workspace_contract,mode) :
+def addName(username, email, address, workspace_contract,mode) :
 	
 	did='did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
-	mode.register[namehash(username.lower())]={ 'username' : username, 'email' : email, 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
+	key=mode.w3.soliditySha3(['address'], [address])
+	mode.register[namehash(username.lower())]={ 'username' : username, 'email' : email, 'PublicKey' : key.hex(), 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
 	try : 
 		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
 		print('IOError ; impossible de stocker le fichier')
 		return False
-	json.dump(register, myfile)
+	json.dump(mode.register, myfile)
 	myfile.close()
 	return True
 
@@ -198,20 +228,26 @@ def deleteName(username, mode) :
 #################################################
 def updateName(username, newusername, mode) :
 	
-	workspace_contract=address(username, mode)
+	workspace_contract=address(username, mode.register)
 	contract=mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	# recuperation de l email
 	try :
 		a= contract.functions.getClaimIdsByTopic(101109097105108).call()
 	except :
 		return False
 	if len(a) != 0:
-		claimId=a[0].hex()
+		claimId=a[len(a)-1].hex()
 		email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 	else :
-		return False	
+		return False
+	# calcul du keccak (publickey)
+	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	address = contract.functions.contractsToOwners(workspace_contract).call()
+	key=w3.soliditySha3(['address'], [address])			
+	# effacement de l ancien username 
 	del mode.register[namehash(username.lower())]
 	did='did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
-	mode.register[namehash(newusername.lower())]={ 'username' : newusername, 'email' : email, 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
+	mode.register[namehash(newusername.lower())]={ 'username' : newusername, 'email' : email, 'publicKey': key.hex(),'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
 	try : 
 		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :

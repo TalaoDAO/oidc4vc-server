@@ -4,8 +4,6 @@ email est gardé uniquement pour l authentification, il n est pas affiché
 Pour nameservice on y met "prenom.nom"
 
 
-mise en place d'un partenariat avec Talao
-
 """
 import sys
 import csv
@@ -24,7 +22,7 @@ import Talao_message
 import Talao_ipfs
 import constante
 import environment
-from protocol import identity, addclaim, ownersToContracts, token_transfer, createVaultAccess, ether_transfer, createWorkspace, partnershiprequest, authorizepartnership
+from protocol import identity, addclaim, ownersToContracts, token_transfer, createVaultAccess, ether_transfer, createWorkspace, partnershiprequest, authorizepartnership, addkey
 from protocol import addName, namehash
 
 master_key = ""
@@ -43,8 +41,8 @@ def my_rand(n):
 ############################################
 
 def creationworkspacefromscratch(firstname, lastname, _email,mode): 
-	w3=mode.initProvider()
 	
+	w3=mode.w3	
 	email=_email.lower()
 	
 	# Ouverture du fichier d'archive Talao_Identity.csv
@@ -119,22 +117,30 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 	
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract=ownersToContracts(address,mode)
-	
+	print('workspace_contract = ',workspace_contract)
 	# Transaction pour la creation du compte sur le backend HTTP POST
 	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
 	
 	# update du user
-	user=identity(workspace_contract,mode, SECRET=SECRET, AES_key=AES_key, private_key=private_key, backend_Id=backend_Id, email=email, rsa_key=RSA_private ) 
+	user=identity(workspace_contract,mode, private_key=private_key,SECRET=SECRET, AES_key=AES_key, backend_Id=backend_Id, rsa_key=RSA_private ) 
+	
+	""" Nouvelle option mise en place : on donne une cle 1 a Talao qui ensuite prend en charge la gestion de l'identité au moins au début. Talao dispose également d'une copie de la cle RSA
+	Lorsque le user souhaite recuperer le ownership total de son identité, Talao procede a un change owner et éventuellement le user retire a cle 1 a Talao
+	Si Talao conserve la cle de type 1, le user peut continuer a utiliser le service web. Dans le cas contraire le user doit changer d interface.
+	
+	"""
+	# creation d'une cle 1 au webRelay et initialisation des données de base
+	addkey(address, workspace_contract, address, workspace_contract, private_key,mode.owner_talao, 1,mode, synchronous=True) 
 	user.setFirstname(firstname)
 	user.setLastname(lastname)
-	user.setUsername(firstname.lower()+'.'+lastname.lower())	
-	user.addToRegister()
+	user.setEmail(email)
 	
 	# envoi du message a l admin et au user
 	status="webserver"
-	Talao_message.messageLog(user.lastname, user.firstname, user.username, user.email,status,user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,mode)
-	Talao_message.messageUser(user.lastname, user.firstname, user.username, user.email,user.address, user.private_key, user.workspace_contract, mode)
+	Talao_message.messageLog(lastname, firstname, user.username, user.email,status,user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,mode)
+	Talao_message.messageUser(user.lastname, user.firstname, user.username, user.email,user.address, user.private_key, user.workspace_contract, mode)	
 	
+	"""
 	# envoi d'un request partnership à Talao
 	user.requestPartnership(mode.workspace_contract_talao)
 	
@@ -150,6 +156,7 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 	# authorize request de Talao
 	authorizepartnership(workspace_contract, workspace_contract_talao, private_key_talao,mode) 
 	################################################ fin intervention de Talao ##########################################
+	"""
 	
 	# calcul de la duree de transaction et du cout
 	time_fin=datetime.now()
@@ -161,9 +168,8 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 
 	# mise a jour du fichier archive Talao_Identity.csv
 	status="webserver"
-	writer.writerow(( datetime.today(),user.username,user.lastname, user.firstname, user.email,status,user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,cost) )
+	writer.writerow(( datetime.today(),user.username,lastname, firstname, user.email,status,user.address, private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,cost) )
 	identityfile.close()
 
 	print("createidentity is OK")
-	user.printIdentity()
 	return user

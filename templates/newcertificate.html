@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome-all.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
+                    <div class="container-fluid"><img src="{{ url_for('send_file', filename='talao2.png') }}"  width="50" height="50">
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-bars"></i></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Profile</a><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
+                                        <a
+                                            class="dropdown-item" role="presentation" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activity log</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col-lg-8 col-xl-8 offset-xl-2">
+                            <div class="row">
+                                <div class="col-lg-9 col-xl-10 offset-lg-4 offset-xl-1">
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold"><strong>{{firstname}} {{name}}&nbsp;</strong>Professional Certificate</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="/user/user_settings/" method="POST">
+                                                <div class="form-row">
+                                                    <div class="col-xl-7">
+                                                        <p class="text-center"><strong>{{position}}</strong><br></p>
+                                                        <p class="text-center" style="font-size: 12px;">from {{startDate}} to {{endDate}}</p><textarea class="form-control" row="5" style="font-size: 12px;">{{summary}}</textarea>
+                                                        <hr>
+                                                        <div>
+                                                            <p class="text-center"><strong>{{skills}}</strong><br></p>
+                                                            <hr>
+                                                            <div class="form-row">
+                                                                <div class="col">
+                                                                    <div class="form-group">
+                                                                        <p style="font-size: 12px;">How likely are you to recommend this talent to others ?</p>
+                                                                    </div>
+                                                                </div>
+                                                                                <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star" style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
+
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <div class="col">
+                                                                    <div class="form-group">
+                                                                        <p style="font-size: 12px;">How satisfied are you with the overall freelance delivery ?</p>
+                                                                    </div>
+                                                                </div>
+                                                                            <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star" style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
+
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <div class="col">
+                                                                    <div class="form-group">
+                                                                        <p style="font-size: 12px;">How would you rate his/her ability to deliver to schedule ?</p>
+                                                                    </div>
+                                                                </div>
+                                                                            <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star" style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
+
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <div class="col">
+                                                                    <div class="form-group">
+                                                                        <p style="font-size: 12px;">How would you rate his/her overall communication skills ?</p>
+                                                                    </div>
+                                                                </div>
+                                                                            <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star" style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-5">
+                                                        <div>
+                                                            <p class="text-center"><strong>Issued by {{manager}}</strong><br></p>
+                                                            <div></div><img id="company" class="mx-auto d-block" src="{{ url_for('send_file', filename=companylogo) }}" height="150" width="150"></div>
+                                                        <div>
+                                                            <p class="text-center"><strong>{{manager}}</strong><br></p>
+                                                            <div></div><img id="signature" class="mx-auto d-block" src="{{ url_for('send_file', filename=managersignature) }}" height="150" width="150"></div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Talao 2020</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"></a></div>
+     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>
+</body>
+
+</html>

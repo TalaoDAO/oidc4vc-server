@@ -385,3 +385,4 @@ Talao_message.messageLog(lastname, firstname, newusername, email,status,address,
 resumefile.close()
 identityfile.close()
 sys.exit(0)
+
