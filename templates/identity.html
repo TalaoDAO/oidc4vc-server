@@ -24,28 +24,25 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
-                    <div class="container-fluid"><img style = "width: 30px;height: 30px;" src="/uploads/talao3.png">
+                    <div class="container-fluid"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;">
                         <ul class="nav navbar-nav flex-nowrap ml-auto">
                             <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="user/education/" style="color: rgb(133,135,150);">How-to</a></li>
                             <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
                             <li class="nav-item dropdown no-arrow mx-1" role="presentation">
-                                <div class="nav-item dropdown show no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="False" href="#"><span class="badge badge-danger badge-counter">3+</span><i class="fas fa-bell fa-fw"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
+         <!-- on retire dropdown-toggle de la class -->   <div class="nav-item dropdown no-arrow"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="badge badge-danger badge-counter">{{counter}}+</span><i class="fas fa-bell fa-fw"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right  dropdown-list dropdown-menu-right animated--grow-in"
                                         role="menu">
                                         <h6 class="dropdown-header">Events Center</h6>
-                                        <!--Gestion des Alert dans em code de webserver -->
+                                        <!--Gestion des Alert dans em code de webserver-->
  {{event|safe}}
- --><a class="text-center dropdown-item small text-gray-500" href="#">Show All Events</a></div>
+ <a class="text-center dropdown-item small text-gray-500" href="#">Show All Events</a></div>
                                 </div>
                             </li>
                             <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" style = "width: 30px;height: 30px;" src=" {{ url_for('send_file', filename=picturefile) }}"></a>
+                                <div class="nav-item dropdown show no-arrow"><a class="nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"></a>
                                     <div
-                                        class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-                                        <a class="dropdown-item" role="presentation" href="/user/?username={{username}}"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Identity</a>
-                                        <a class="dropdown-item" role="presentation" href="#"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
-                                        <a class="dropdown-item" role="presentation" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activity log</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                        class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
                     </div>
                     </li>
                     </ul>
@@ -56,9 +53,9 @@
                 <div class="row">
                     <div class="col-xl-6 offset-xl-3">
                         <div class="card-deck">
-                            <div class="card mb-5">
+                            <div class="card shadow mb-5">
                                 <div class="card-body">
-                                    <h4><img class="mx-auto d-block card-img" src=" {{ url_for('send_file', filename=picturefile) }}"></h4>
+                                    <h4><img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=picturefile) }}"></h4>
                                     <div role="tablist" id="accordion-1">
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
@@ -71,28 +68,40 @@
                                             </div>
                                         </div>
                                         <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-2">&nbsp; Experience</a></h5>
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
+                                                <h5 class="mb-0"><i class="fa fa-phone"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Contact</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-                                                    <p class="card-text">{{experience|safe}}</p><a href="#">Add+</a></div>
+                                                    <p class="card-text">{{contact|safe}}</p>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text edication"><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-3" href="#accordion-1 .item-3">&nbsp;Education</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
                                             </div>
                                             <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">&nbsp;{{education|safe}}</p><a href="#">Link</a></div>
+                                                <div class="card-body"><a href="#">Add Experience</a>
+                                                    <p class="card-text">{{experience|safe}}</p>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="tedt languages"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4" href="#accordion-1 .item-4">&nbsp;Languages</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text edication"><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4" href="#accordion-1 .item-4">&nbsp;Education</a></h5>
                                             </div>
                                             <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body"><a href="#">Add Education</a>
+                                                    <p class="card-text">{{education|safe}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header" role="tab">
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="tedt languages"><i class="fa fa-comments"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp;Languages</a></h5>
+                                            </div>
+                                            <div class="collapse item-5" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
                                                     <p class="card-text">&nbsp;{{languages|safe}}</p>
                                                 </div>
@@ -100,17 +109,18 @@
                                         </div>
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp;Skills</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6" href="#accordion-1 .item-6">&nbsp;Skills</a></h5>
                                             </div>
-                                            <div class="collapse item-5" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">&nbsp;{{skills|safe}}</p><a href="#">Link</a></div>
+                                            <div class="collapse item-6" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body"><a href="#">Add Skills</a>
+                                                    <p class="card-text">&nbsp;{{skills|safe}}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card mb-5">
+                            <div class="card shadow mb-5">
                                 <div class="card-body">
                                     <h4></h4>
                                     <div role="tablist" id="accordion-2">
@@ -119,8 +129,9 @@
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text controller"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp;Controller</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                    <p class="card-text">&nbsp;{{controller|safe}}</p><a href="#">Link</a></div>
+                                                <div class="card-body"><a href="#">Add Controller</a>
+                                                    <p class="card-text">{{controller|safe}}</p>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="card">
@@ -128,29 +139,46 @@
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text partner"><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp;Partner</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                    <p class="card-text">&nbsp;{{partner|safe}}</p><a href="#">Link</a></div>
+                                                <div class="card-body"><a href="#">Add Partner</a>
+                                                    <p class="card-text">&nbsp;{{partner|safe}}</p>
+                                                </div>
                                             </div>
                                         </div>
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text issuer"><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp;Claim Issuer</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text issuer"><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp;Certificate Issuer</a></h5>
                                             </div>
-                                            <div class="collapse item-3" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                    <p class="card-text">&nbsp;{{claimissuer|safe}}</p><a href="#">Link</a></div>
+                                            
+                                            <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
+                                                <div class="card-body"><a href="#">Add Issuer</a>
+                                                    <p class="card-text">{{claimissuer|safe}}</p>
+                                                </div>
                                             </div>
                                         </div>
+                                       
+                                       
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text services"><i class="fa fa-gear"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp;Services</a></h5>
                                             </div>
-                                            <div class="collapse item-4" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                    <p class="card-text">&nbsp;{{services|safe}}</p>
-                                                </div>
+                                            
+     
+                                            <div class="collapse item-4" role="tabpanel" data-parent="#accordion-2">			 
+												 <div class="card-body">
+													 <p class="card-text"> 
+														<a class="card-link"><a href="#">Request Certificates</a><br>
+														<a class="card-link"><a href="#">Request a Partnership</a><br>
+														<a class="card-link"><a href="#">Authorize an Issuer</a><br>
+													 </p>
+												</div>
+														
                                             </div>
                                         </div>
+                                        
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
                                                 <h5 class="mb-0"><i class="fa fa-euro"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-5">&nbsp;Account</a></h5>

@@ -65,7 +65,7 @@ def whatisthisaddress(thisaddress,mode) :
 
 def readProfil (address, workspace_contract, mode) :
 
-	w3=mode.w3
+	w3 = mode.w3
 
 	# setup constante
 	givenName = 103105118101110078097109101 # = firstname
@@ -81,46 +81,45 @@ def readProfil (address, workspace_contract, mode) :
 	contact = 99111110116097099116
 
 	# initialisation de la reponse
-	profil=dict()
+	profil = dict()
 		
 	# determination de la category
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	category = contract.functions.identityInformation().call()[1]	
 	
 	# si profil d un individu, on retire email
-	if category ==1001 : 
-		topicvalue =[givenName, familyName, jobTitle, worksFor, workLocation, url,  description]
-		topicname =['firstname', 'lastname', 'jobtitle', 'company', 'location', 'url', 'description']
+	if category == 1001 : 
+		topicvalue = [givenName, familyName, jobTitle, worksFor, workLocation, url,  description]
+		topicname = ['firstname', 'lastname', 'jobtitle', 'company', 'location', 'url', 'description']
 		for i in range (0, len(topicvalue)) :
-			claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+			claim = contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
 			if len(claim) != 0 :
-				claimId=claim[0].hex()
+				claimId = claim[0].hex()
 				data = contract.functions.getClaim(claimId).call()
 				if data[4].decode('utf-8') == "" or data[4].decode('utf-8')==" " :
-					profil[topicname[i]]=None
+					profil[topicname[i]] = None
 				else :
-					profil[topicname[i]]=data[4].decode('utf-8')			
+					profil[topicname[i]] = data[4].decode('utf-8')			
 			else :
-				profil[topicname[i]]=None		
+				profil[topicname[i]] = None		
 	
-	# si profil d une company
+	# si profil d'une company
 	else :
-		topicvalue =[givenName,url,email,contact, adresse]
-		topicname =['name', 'website', 'email', 'contact','address']
+		topicvalue = [givenName,url,email,contact, adresse]
+		topicname = ['name', 'website', 'email', 'contact','address']
 		for i in range (0, len(topicvalue)) :
-			claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+			claim = contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
 			if len(claim) != 0 :
-				claimId=claim[0].hex()
+				claimId = claim[0].hex()
 				data = contract.functions.getClaim(claimId).call()
 				if data[4].decode('utf-8') == "" or data[4].decode('utf-8')==" " :
-					profil[topicname[i]]=None
+					profil[topicname[i]] = None
 				else :
-					profil[topicname[i]]=data[4].decode('utf-8')										
+					profil[topicname[i]] = data[4].decode('utf-8')										
 			else :
-				profil[topicname[i]]=None			
+				profil[topicname[i]] = None			
 	
 	return profil,category 
-
 
 #####################################################	
 # read Talao document
@@ -131,21 +130,21 @@ def readProfil (address, workspace_contract, mode) :
 
 def getdoc(index, workspace_contract,mode) :
 	
-	w3=mode.w3
-	document=dict()
+	w3 = mode.w3
+	document = dict()
 	
 	# determination de l addresse du workspace
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	
 	# calcul du did
-	did="did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:]		
+	did = "did:talao:" + mode.BLOCKCHAIN + ":" + workspace_contract[2:]		
 	
 	# download du doc
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 
 	try :
-		doc=contract.functions.getDocument(index).call()
+		doc = contract.functions.getDocument(index).call()
 	except :
 		return False
 	
@@ -191,7 +190,8 @@ def getdoc(index, workspace_contract,mode) :
 				"certificate_link" : "No"	}
 	
 	elif topic == 'contact' :
-		value=getdocument(workspace_contract, '0x0', workspace_contract, index, mode)
+		""" getdocument avec data cryptee  """
+		value = getdocument(workspace_contract, '0x0', workspace_contract, index, mode)
 	
 	else :
 		topic = "unknown"
@@ -202,18 +202,18 @@ def getdoc(index, workspace_contract,mode) :
 
 	# category
 	identityinformation = contract.functions.identityInformation().call()[1]	
-	if identityinformation==1001 :
+	if identityinformation == 1001 :
 		category="individual"
 		path="resume"
 	else :
 		category = "company"	
-		path= "profil"
+		path = "profil"
 			
 	# determination du profil de l issuer
-	(issuerprofile, x)=readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
+	(issuerprofile, x) = readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
 
 	# calcul de la date
-	if doc[2]== 0 :
+	if doc[2] == 0 :
 		date = 'Unlimited'
 	else :			
 		date=datetime.fromtimestamp(doc[2])
@@ -226,8 +226,9 @@ def getdoc(index, workspace_contract,mode) :
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
 	document['endpoint']=mode.server+'talao/api/data/'+document['id']
 	document['data'] = {"issuer" : {'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
-									'endpoint' : mode.server+'talao/api/'+path+'/did:talao:'+mode.BLOCKCHAIN+':'+whatisthisaddress(issuer,mode)["workspace"][2:],
-									'data' : issuerprofile},
+									'endpoint' : mode.server+'talao/'+path+'/did:talao:'+mode.BLOCKCHAIN+':'+whatisthisaddress(issuer,mode)["workspace"][2:],
+									'data' : issuerprofile,
+									'type' : category},
 						"topic": topic,
 						"value" : value,	
 						"expires" : date,
@@ -236,10 +237,7 @@ def getdoc(index, workspace_contract,mode) :
 						"signaturetype" : "Secp256k1SignatureVerificationKey2018, AES128 MODE-EAX",
 						"signature" : 'Unknown',
 						"signature_check" : 'Undone'}
-	document['action']={'Delete' : mode.server+'talao/api/data/'+document['id']+'?action=delete'}	
 	return document
-
-
 
 
 #####################################################	
@@ -250,45 +248,45 @@ def getclaim (claim_id, workspace_contract,mode) :
 # return un dictionnaire
 # ajouter le check de validité
 
-	w3=mode.w3
-	claim=dict()
+	w3 = mode.w3
+	claim = dict()
 
 	# determination de l address du owner
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	
 	# calcul du did
-	did="did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:]			
+	did = "did:talao:"+mode.BLOCKCHAIN+":"+workspace_contract[2:]			
 	
 	# initialisation IPFS
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	
 	# doownload du claim
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	claimdata=contract.functions.getClaim(claim_id).call()
+	contract = w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
+	claimdata = contract.functions.getClaim(claim_id).call()
 	if claimdata[0] == 0 and claimdata[1] == 0:
 		return False
 	
-	inv_topic=dict(map(reversed, constante.topic.items()))
-	topicname=inv_topic.get(claimdata[0])
-	if topicname==None :
-		topicname ='experience'
-	issuer=claimdata[2]	
-	data=claimdata[4]
-	url=claimdata[5]
+	inv_topic = dict(map(reversed, constante.topic.items()))
+	topicname = inv_topic.get(claimdata[0])
+	if topicname == None :
+		topicname = 'experience'
+	issuer = claimdata[2]	
+	data = claimdata[4]
+	url = claimdata[5]
 	
 	# identification de la category de l'issuer du claim
-	contract=w3.eth.contract(whatisthisaddress(issuer,mode)["workspace"],abi=constante.workspace_ABI)
+	contract = w3.eth.contract(whatisthisaddress(issuer,mode)["workspace"],abi = constante.workspace_ABI)
 	identityinformation = contract.functions.identityInformation().call()[1]
-	if identityinformation==1001 :
-		category="person"
-		path= "resume"
+	if identityinformation == 1001 :
+		category = "person"
+		path = "resume"
 	else :
 		category = "company"	
-		path="profil"
+		path = "profil"
 		
 	# determination du profil de l issuer
-	(issuerprofile,X)=readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
+	(issuerprofile,X) = readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
 
 	# verification de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes(topicname, 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
@@ -311,12 +309,12 @@ def getclaim (claim_id, workspace_contract,mode) :
 	# mise en forme de la reponse
 	claim["id"] = "did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
 	claim['endpoint'] = mode.server+'talao/api/data/'+claim['id']
-	claim["data"]={"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
-					'endpoint' : mode.server+"talao/api/"+path+"/did:talao:"+mode.BLOCKCHAIN+":"+whatisthisaddress(issuer,mode)["workspace"][2:],
-					'data' : issuerprofile}}
-	claim['action']={'delete' : mode.server+'talao/api/data/'+claim['id']+'?action=delete'}				
+	claim["data"] = {"issuer" :{'id' : "did:talao:rinkeby:"+whatisthisaddress(issuer,mode)["workspace"][2:],
+					'endpoint' : mode.server+"talao/"+path+"/did:talao:"+mode.BLOCKCHAIN+":"+whatisthisaddress(issuer,mode)["workspace"][2:],
+					'data' : issuerprofile,
+					'type' : category}}
 
-	claim['data']['topic']=topicname	
+	claim['data']['topic'] = topicname	
 	
 	if claimdata[5][:1] == "Q" : # les datas sont sur IPFS
 		claim['data']['value'] = client.get_json(claimdata[5])
@@ -326,15 +324,12 @@ def getclaim (claim_id, workspace_contract,mode) :
 	else :		
 		claim['data']['value'] = claimdata[4].decode('utf-8')
 		claim['data']['location'] = mode.BLOCKCHAIN
-		
-	
 
 	claim['data']['expires'] = date
 	claim['data']['encrypted'] = 'Public'
 	claim['data']['signaturetype'] = 'Keccak256(topic,issuer,data, url) ECDSA'
 	claim['data']['signature'] = signature
 	claim['data']['signature_check'] = verification
-	
 	
 	return claim
 

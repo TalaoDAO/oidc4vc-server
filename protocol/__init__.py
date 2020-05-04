@@ -1,5 +1,5 @@
 
-from .identity import identity
+from .identity import Identity
 from .data import Data
 
 from .Talao_token_transaction import getEmail, destroyWorkspace, ether_transfer, token_transfer, createVaultAccess
@@ -16,7 +16,7 @@ from .GETresolver import getresolver
 
 from .ADDdocument import getdocument, createdocument
 
-from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal
+from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education
 
 from .GETdata import getdata
 

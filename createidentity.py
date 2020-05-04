@@ -1,7 +1,8 @@
 """
 Pour la cration d'un workspace vierge depuis le webserver
 email est gardé uniquement pour l authentification, il n est pas affiché
-Pour nameservice on y met "prenom.nom"
+Pour nameservice on y met "prenom.nom" ou un equivalent
+une cle 1 est donnée au Web Relay pour uen délégation de signature
 
 
 """
@@ -22,7 +23,7 @@ import Talao_message
 import Talao_ipfs
 import constante
 import environment
-from protocol import identity, addclaim, ownersToContracts, token_transfer, createVaultAccess, ether_transfer, createWorkspace, partnershiprequest, authorizepartnership, addkey
+from protocol import Identity, addclaim, ownersToContracts, token_transfer, createVaultAccess, ether_transfer, createWorkspace, partnershiprequest, authorizepartnership, addkey
 from protocol import addName, namehash
 
 master_key = ""
@@ -42,34 +43,29 @@ def my_rand(n):
 
 def creationworkspacefromscratch(firstname, lastname, _email,mode): 
 	
-	w3=mode.w3	
-	email=_email.lower()
+	w3 = mode.w3	
+	email =_email.lower()
 	
-	# Ouverture du fichier d'archive Talao_Identity.csv
-	fname= mode.BLOCKCHAIN +"_Talao_Identity.csv"
+	# open Talao_Identity.csv
+	fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
 	identityfile = open(fname, "a")
 	writer = csv.writer(identityfile)
 	
-	# calcul du temps de process
-	time_debut=datetime.now()
+	# process duration
+	time_debut = datetime.now()
 
-	# check de l email
-	if Talao_backend_transaction.canregister(email,mode) == False :
+	# check email
+	if not Talao_backend_transaction.canregister(email,mode) :
 		print('email existant dans le backend')
 		sys.exit()
 	
-	# creation de la wallet	
+	# user wallet 
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
-	address=account.address
-	private_key=account.privateKey.hex()
+	address = account.address
+	private_key = account.privateKey.hex()
 	
-	# création de la cle RSA (bytes) aleatoire, des cle public et privées
-	#RSA_key = RSA.generate(2048)
-	#RSA_private = RSA_key.exportKey('PEM')
-	#RSA_public = RSA_key.publickey().exportKey('PEM')
-
-	# création de la cle RSA (bytes) deterministic
-	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
+	# deterministic RSA key
+	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python 
 	global salt
 	global master_key
 	salt = private_key
@@ -79,95 +75,87 @@ def creationworkspacefromscratch(firstname, lastname, _email,mode):
 	RSA_private = RSA_key.exportKey('PEM')
 	RSA_public = RSA_key.publickey().exportKey('PEM')
 
-	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum
+	# store RSA private key in file ./RSA_key/rinkeby ou ethereum
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	fichier=open(filename,"wb")
 	fichier.write(RSA_private)
 	fichier.close()   
 
-	# création de la cle AES
+	# new AES key
 	AES_key = get_random_bytes(16)	
 
-	# création du Secret
+	# Secret = backend password
 	SECRET_key = get_random_bytes(16)
-	SECRET=SECRET_key.hex()
+	SECRET = SECRET_key.hex()
 	
-	# encryption de la cle AES avec la cle RSA
+	# AES key encrypted with RSA key
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	AES_encrypted=cipher_rsa.encrypt(AES_key)
 	
-	# encryption du SECRET avec la cle RSA 
+	# SECRET encrypted with RSA key 
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
-	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
+	SECRET_encrypted = cipher_rsa.encrypt(SECRET_key)
 	
-	# Transaction pour le transfert des ethers depuis le portfeuille TalaoGen
+	# ether transfer from TalaoGen wallet
 	hash1=ether_transfer(address, mode.ether2transfer,mode)
 	balance_avant=w3.eth.getBalance(address)/1000000000000000000
 	
-	# Transaction pour le transfert de 100 tokens Talao depuis le portfeuille TalaoGen
+	# 100 Talao tokens transfer from TalaoGen wallet
 	token_transfer(address,100,mode)
 		
-	# Transaction pour l'acces dans le token Talao par createVaultAccess
+	# createVaultAccess call in the token
 	createVaultAccess(address,private_key,mode)
 	
-	# Transaction pour la creation du workspace :
-	##### email non crypté !!!!
+	# workspace (Decentralized IDentity) setup
+	# email is not encrypted !!!! to do..........................
 	bemail=bytes(email , 'utf-8')	
 	createWorkspace(address,private_key,RSA_public,AES_encrypted,SECRET_encrypted,bemail,mode)
 	
-	# lecture de l'adresse du workspace contract dans la fondation
+	# workspace_contract address to be read in fondation smart contract
 	workspace_contract=ownersToContracts(address,mode)
 	print('workspace_contract = ',workspace_contract)
-	# Transaction pour la creation du compte sur le backend HTTP POST
+	# issuer backend setup
 	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
 	
-	# update du user
-	user=identity(workspace_contract,mode, private_key=private_key,SECRET=SECRET, AES_key=AES_key, backend_Id=backend_Id, rsa_key=RSA_private ) 
+	# user instanciation
+	user = identity(workspace_contract,mode, private_key=private_key,SECRET=SECRET, AES_key=AES_key, backend_Id=backend_Id, rsa_key=RSA_private ) 
 	
-	""" Nouvelle option mise en place : on donne une cle 1 a Talao qui ensuite prend en charge la gestion de l'identité au moins au début. Talao dispose également d'une copie de la cle RSA
-	Lorsque le user souhaite recuperer le ownership total de son identité, Talao procede a un change owner et éventuellement le user retire a cle 1 a Talao
-	Si Talao conserve la cle de type 1, le user peut continuer a utiliser le service web. Dans le cas contraire le user doit changer d interface.
-	
-	"""
-	# creation d'une cle 1 au webRelay et initialisation des données de base
+	# management key issued to Web Relay
 	addkey(address, workspace_contract, address, workspace_contract, private_key,mode.owner_talao, 1,mode, synchronous=True) 
 	user.setFirstname(firstname)
 	user.setLastname(lastname)
 	user.setEmail(email)
 	
-	# envoi du message a l admin et au user
-	status="webserver"
+	# emails send to user and admin
+	status=" createidentity.py"
 	Talao_message.messageLog(lastname, firstname, user.username, user.email,status,user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,mode)
 	Talao_message.messageUser(user.lastname, user.firstname, user.username, user.email,user.address, user.private_key, user.workspace_contract, mode)	
 	
-	"""
-	# envoi d'un request partnership à Talao
+	# partnership request to Talao
 	user.requestPartnership(mode.workspace_contract_talao)
 	
-	################################################ debut intervention de Talao ########################################
-	# lecture de la private_key_talao
-	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	# start of Talao task ...........................................to be removed
+	fichiercsv = mode.BLOCKCHAIN+'_Talao_Identity.csv'
 	csvfile = open(fichiercsv,newline='')
 	reader = csv.DictReader(csvfile) 
 	for row in reader:
 		if row['workspace_contract'] == mode.workspace_contract_talao :
-			private_key_talao= row['private_key']			
+			private_key_talao = row['private_key']			
 	csvfile.close()	
-	# authorize request de Talao
+	# talao partnership authorization
 	authorizepartnership(workspace_contract, workspace_contract_talao, private_key_talao,mode) 
-	################################################ fin intervention de Talao ##########################################
-	"""
+	# end of talao task ...............................................................
 	
-	# calcul de la duree de transaction et du cout
-	time_fin=datetime.now()
-	time_delta=time_fin-time_debut
+	# process duration and cost
+	time_fin = datetime.now()
+	time_delta = time_fin-time_debut
 	print('Durée des transactions = ', time_delta)
-	balance_apres=w3.eth.getBalance(address)/1000000000000000000
-	cost=balance_avant-balance_apres
+	balance_apres = w3.eth.getBalance(address)/1000000000000000000
+	cost = balance_avant-balance_apres
 	print('Cout des transactions =', cost)	
 
-	# mise a jour du fichier archive Talao_Identity.csv
-	status="webserver"
+	# update of Talao_Identity.csv
+	status = "createidentity.py"
 	writer.writerow(( datetime.today(),user.username,lastname, firstname, user.email,status,user.address, private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,cost) )
 	identityfile.close()
 

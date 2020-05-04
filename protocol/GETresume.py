@@ -102,68 +102,66 @@ def readProfil (workspace_contract, mode) :
 	
 
 	# initialisation de la reponse
-	profil=dict()
+	profil = dict()
 		
 	# determination de la category
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	category = contract.functions.identityInformation().call()[1]	
 	
 	# si profil d un individu
-	if category ==1001 : 
-		topicvalue =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-		topicname =['firstname', 'lastname', 'jobtitle', 'company', 'location', 'url', 'email', 'description']
+	if category == 1001 : 
+		topicvalue = [givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
+		topicname = ['firstname', 'lastname', 'jobtitle', 'company', 'location', 'url', 'email', 'description']
 		for i in range (0, len(topicvalue)) :
 			try :
 				claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
 			except :
-				claim=[]
+				claim = []
 			if len(claim) != 0 :
-				claimId=claim[0].hex()
+				claimId = claim[0].hex()
 				data = contract.functions.getClaim(claimId).call()
 				if data[4].decode('utf-8') == "" or data[4].decode('utf-8')==" " :
-					profil[topicname[i]]=None
+					profil[topicname[i]] = None
 				else :
 					profil[topicname[i]]=data[4].decode('utf-8')			
 			else :
-				profil[topicname[i]]=None		
+				profil[topicname[i]] = None		
 	
 	# si profil d une company
 	else :
-		topicvalue =[givenName,url,email,contact, adresse]
-		topicname =['name', 'website', 'email', 'contact','address']
+		topicvalue = [givenName,url,email,contact, adresse]
+		topicname = ['name', 'website', 'email', 'contact','address']
 		for i in range (0, len(topicvalue)) :
 			try :
-				claim=contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
+				claim = contract.functions.getClaimIdsByTopic(topicvalue[i]).call()
 			except :
-				claim=[]
+				claim = []
 			if len(claim) != 0 :
-				claimId=claim[0].hex()
+				claimId = claim[0].hex()
 				data = contract.functions.getClaim(claimId).call()
 				if data[4].decode('utf-8') == "" or data[4].decode('utf-8')==" " :
-					profil[topicname[i]]=None
+					profil[topicname[i]] = None
 				else :
-					profil[topicname[i]]=data[4].decode('utf-8')										
+					profil[topicname[i]] = data[4].decode('utf-8')										
 			else :
-				profil[topicname[i]]=None			
-	
+				profil[topicname[i]] = None				
 	return profil,category 
-
 
 ################################################################
 # return un tableau des identifiants documents
 ################################################################
 # doctype : integer, 10000, 40000, 50000, 15000
 
-def getDocumentIndex(address, doctype, workspace_contract,mode) :
+def getDocumentIndex(doctype, workspace_contract,mode) :
 
-	w3=mode.initProvider()
+	w3 = mode.initProvider()
 
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	docindex=contract.functions.getDocuments().call()
-	newdocindex=[]
+	contract = w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
+	docindex = contract.functions.getDocuments().call()
+	newdocindex = []
 	for i in docindex :
-		doc=contract.functions.getDocument(i).call()
-		if doc[0]==doctype :
+		doc = contract.functions.getDocument(i).call()
+		if doc[0] == doctype :
 			newdocindex.append(i)			
 	return newdocindex
 
@@ -171,11 +169,11 @@ def getDocumentIndex(address, doctype, workspace_contract,mode) :
 # return le document au format dict
 ###############################################################
 def getDocument(address,index, workspace_contract, mode) :
-	w3=mode.initProvider()
-
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	doc=contract.functions.getDocument(index).call()
-	ipfs_hash=doc[6].decode('utf-8')
+	
+	w3 = mode.w3
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	doc = contract.functions.getDocument(index).call()
+	ipfs_hash = doc[6].decode('utf-8')
 	return Talao_ipfs.IPFS_get(ipfs_hash)
 
 
@@ -207,32 +205,29 @@ def Proficiency(val) :
 
 def getresume(workspace_contract,did, mode) :
 	
-	
 	w3=mode.w3
 	
-	# test de validité de l addresse
+	# address validity
 	category = whatisthisaddress(workspace_contract,mode)["type"]
 	if category != 'workspace' :
 		return False
 	
-	# calcul de l addresse du owner
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	# owner address
+	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()		
 	
-	# determination du profil
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	# profil
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	(profile, category)=readProfil( workspace_contract,mode)
 	del profile['email']
 	
 	
-##################################################################################	
-#                                INDIVIDUAL
-##################################################################################
-	if category==1001 :
+#  individual 
+	if category == 1001 :
 		
-		# initialisation du cv
+		# general cv setup
 		cv={'id' : did,
-			'DID_Document' : mode.server+'resolver/api/'+did,
+			'DID_Document' : mode.server+'resolver/'+did,
 			'data' :{"personal": [],
 				"experience": [],
 				"education": [],
@@ -243,8 +238,8 @@ def getresume(workspace_contract,did, mode) :
 				"rate" : {}}}
 
 
-		# Personal	
-		thistopic ={'firstname' :103105118101110078097109101 ,
+		# Personal data	
+		thistopic = {'firstname' :103105118101110078097109101 ,
 				'lastname' : 102097109105108121078097109101,
 				'jobtitle' : 106111098084105116108101,
 				'company' : 119111114107115070111114,
@@ -254,74 +249,76 @@ def getresume(workspace_contract,did, mode) :
 				'description' : 100101115099114105112116105111110,
 				'picture' : 105109097103101 	}
 		for key in profile :				
-			contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-			claim=contract.functions.getClaimIdsByTopic(thistopic[key]).call() # topic = name
-			isKey=True
+			contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+			claim = contract.functions.getClaimIdsByTopic(thistopic[key]).call() # topic = name
+			isKey = True
 			try :
-				claimid=claim[len(claim)-1].hex()
+				claimid = claim[len(claim)-1].hex()
 			except :
 				isKey = False
 			if isKey :
-				cv['data']["personal"].append({key : {"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid,"data" : profile.get(key)}})
+				cv['data']["personal"].append({key : {"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/data/'+did+':claim:'+claimid,"data" : profile.get(key)}})
 		
-		# Contact cf ADDdocument , document de type 15000, crypté ou pas		
-		contactIndex=getDocumentIndex(address, 15000, workspace_contract,mode)
+		# Contact cf ADDdocument , document de type 15000, crypté ou pas mais on ne passe pas la cle pour decrypter		
+		contactIndex = getDocumentIndex(15000, workspace_contract,mode)
 		for i in contactIndex:
-			contact=getdocument(workspace_contract, '0x0', workspace_contract, i, mode)		
-			cv['data']['personal'].append({"contact" : {"id" : did+':document:'+str(i), 'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),"data" : contact}})
+			contact = getdocument(workspace_contract, '0x0', workspace_contract, i, mode)		
+			if contact == None :
+				contact = { 'email' : 'encrypted', 'phone' : 'encrypted', 'twitter' : 'encrypted'}
+			cv['data']['personal'].append({"contact" : {"id" : did+':document:'+str(i), 'endpoint' : mode.server+'talao/data/'+did+':document:'+str(i),"data" : contact}})
 		
-		# KYC
+		# KYC data
 		# setup variable
-		kyc=dict()
+		kyc = dict()
 		# initialisation IPFS
 		client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	
 		# download du claim du kyc 107121099 => le dernier efface  le precedent si eme issuer
-		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		claim=contract.functions.getClaimIdsByTopic(107121099).call()
+		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim = contract.functions.getClaimIdsByTopic(107121099).call()
 		if len(claim) != 0 : # il y a un  KBIS
 			
-			claimId=claim[len(claim)-1].hex() # ???? le seul ????
+			claimId = claim[len(claim)-1].hex() # ???? le seul ????
 			claimdata = contract.functions.getClaim(claimId).call()
-			issuer=claimdata[2]	
-			data=claimdata[4]
-			url=claimdata[5]
+			issuer = claimdata[2]	
+			data = claimdata[4]
+			url = claimdata[5]
 			# determination du profil de l issuer du KYC
-			(issuerprofile,X)=readProfil( whatisthisaddress(issuer,mode)["workspace"],mode)
+			(issuerprofile,X) = readProfil( whatisthisaddress(issuer,mode)["workspace"],mode)
 			# verification de la signature du KYC
 			msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes('kbis', 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
 			message = encode_defunct(text=msg.hex())
-			signature=claimdata[3]
+			signature = claimdata[3]
 			if signature != b"" :
-				signataire=w3.eth.account.recover_message(message, signature=signature)
-				signature=claimdata[3].hex()
-				if signataire==issuer :
-					verification=True
+				signataire = w3.eth.account.recover_message(message, signature=signature)
+				signature = claimdata[3].hex()
+				if signataire == issuer :
+					verification = True
 				else :
-					verification=False	
+					verification = False	
 			else :
-				signature= None
+				signature = None
 				verification = False
 			# mise en forme du KYC
-			if claimdata[5][:1]=="Q" :
-				data=client.get_json(claimdata[5])
+			if claimdata[5][:1] == "Q" :
+				data = client.get_json(claimdata[5])
 			else :
-				url=claimdata[5]
-				data=claimdata[4].decode('utf-8')
-			kyc['id']=did+':claim:'+claimId
-			kyc['endpoint']=mode.server+'talao/api/data/'+did+':claim:'+claimId
-			kyc['data']=data
+				url = claimdata[5]
+				data = claimdata[4].decode('utf-8')
+			kyc['id'] = did + ':claim:' + claimId
+			kyc['endpoint'] = mode.server + 'talao/data/' + did + ':claim:' + claimId
+			kyc['data'] = data
 			cv['data']['personal'].append({"kyc" : kyc})
 
-		# experiences de type document 50000
-		experienceIndex=getDocumentIndex(address, 50000, workspace_contract,mode)
+		# basic experiences = document 50000
+		experienceIndex = getDocumentIndex(50000, workspace_contract,mode)
 		for i in experienceIndex:
-			doc=contract.functions.getDocument(i).call()
+			doc = contract.functions.getDocument(i).call()
 			ipfs_hash=doc[6].decode('utf-8')
-			experience=Talao_ipfs.IPFS_get(ipfs_hash)
+			experience = Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 				'id' : did+':document:'+str(i),
-				'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),
+				'endpoint' : mode.server+'talao/data/'+did+':document:'+str(i),
 				'data' : {'title' : experience['certificate']['title'],
 				'description' : experience['certificate']['description'],
 				'from' : experience['certificate']['from'],
@@ -333,17 +330,16 @@ def getresume(workspace_contract,did, mode) :
 				"certification_link" : None
 				}}			
 			cv['data']["experience"].append(new_experience)
-
-		
-		# experiences certifies de type document 60000
-		experienceIndex=getDocumentIndex(address, 60000, workspace_contract, mode)
+	
+		# experiences certified = document 60000
+		experienceIndex = getDocumentIndex(60000, workspace_contract, mode)
 		for i in experienceIndex:
-			doc=contract.functions.getDocument(i).call()
-			ipfs_hash=doc[6].decode('utf-8')
-			experience=Talao_ipfs.IPFS_get(ipfs_hash)
+			doc = contract.functions.getDocument(i).call()
+			ipfs_hash = doc[6].decode('utf-8')
+			experience = Talao_ipfs.IPFS_get(ipfs_hash)
 			new_experience = {
 				'id' : did+':document:'+str(i),
-				'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),
+				'endpoint' : mode.server+'talao/data/'+did+':document:'+str(i),
 				'data' : {'title' : experience['certificate']['title'],
 				'description' : experience['certificate']['description'],
 				'from' : experience['certificate']['from'],
@@ -356,18 +352,18 @@ def getresume(workspace_contract,did, mode) :
 				}}
 			cv['data']["experience"].append(new_experience)
 		
-		# experiences avec certificats implements avec des claim725		
-		# download des claim "certificate"->  99101114116105102105099097116101 du user
-		claimlist=contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
+		# experiences certified with  claim725		
+		# download claim "certificate"->  99101114116105102105099097116101 du user
+		claimlist = contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
 		for claimId in claimlist : #pour chaque issuer
-			claimdata=contract.functions.getClaim(claimId).call()
-			if claimdata[4].decode('utf-8') !='' :   # il existe des certificats
+			claimdata = contract.functions.getClaim(claimId).call()
+			if claimdata[4].decode('utf-8') != '' :   # il existe des certificats
 				certificatelist=json.loads(claimdata[4].decode('utf-8'))
 				for certificateId in certificatelist :
-					certificate=getclaimipfs(certificateId, workspace_contract,mode)
+					certificate = getclaimipfs(certificateId, workspace_contract,mode)
 					if certificate != False : # on evite dans le cas ou le certificat a été effacé mais pas retiré de la lsite
 						new_certificate = {'id' : did+':claim:'+certificateId[2:],
-											'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+certificateId[2:],
+											'endpoint' : mode.server+'talao/data/'+did+':claim:'+certificateId[2:],
 											'data' : {'title' : certificate['position'],
 											'description' : certificate['summary'],
 											'from' : certificate['startDate'],
@@ -379,14 +375,14 @@ def getresume(workspace_contract,did, mode) :
 						'certificate_link' : mode.server+'certificate/'+did+':claim:'+certificateId[2:]}}												
 						cv['data']["experience"].append(new_certificate)
 		
-		# mise a jour des formations 
-		educationIndex=getDocumentIndex(address, 40000, workspace_contract,mode)
+		# education = document 40000 
+		educationIndex = getDocumentIndex(40000, workspace_contract,mode)
 		for i in educationIndex:
-			doc=contract.functions.getDocument(i).call()
-			ipfs_hash=doc[6].decode('utf-8')
-			education=Talao_ipfs.IPFS_get(ipfs_hash)	
+			doc = contract.functions.getDocument(i).call()
+			ipfs_hash = doc[6].decode('utf-8')
+			education = Talao_ipfs.IPFS_get(ipfs_hash)	
 			cv['data']["education"].append({'id' : did+':document:'+str(i),
-			'endpoint' : mode.server+'talao/api/data/'+did+':document:'+str(i),
+			'endpoint' : mode.server+'talao/data/'+did+':document:'+str(i),
 			'data' : {	"organization" : education["issuer"]["organization"]["name"],
 			"endDate" : education["diploma"]["to"], 
 			"startDate" : education["diploma"]["from"],
@@ -395,35 +391,35 @@ def getresume(workspace_contract,did, mode) :
 			"certificate_link" : education["diploma"]["link"]}})
 
 		# mise a jour des "skills", les skills Talao sont extraits des experiences et assemblés dans un seul dict du resume json
-		experienceIndex=getDocumentIndex(address, 50000, workspace_contract,mode)
-		skills=[]
+		experienceIndex = getDocumentIndex(50000, workspace_contract,mode)
+		skills = []
 		for i in experienceIndex :
 			skills.extend(getDocument(address,i, workspace_contract,mode)['certificate']['skills'])
-		skillsarray=[]
+		skillsarray = []
 		for j in range (0, len(skills)) :
 			skillsarray.append(skills[j]['name'])
 		# elimination des doublons
-		cv['data']["skills"]=list(set(skillsarray))
+		cv['data']["skills"] = list(set(skillsarray))
 	
 		# mise a jour de la disponibilité, du TJM , de la mobilité et des langues
-		docIndex=getDocumentIndex(address, 10000, workspace_contract,mode)
+		docIndex = getDocumentIndex(10000, workspace_contract,mode)
 		if docIndex != [] :
 			doc=getDocument(address, docIndex[0], workspace_contract,mode)
 			
 			# disponibilité
-			cv['data']["availability"]={"update" : doc["availability"]["dateCreated"],
+			cv['data']["availability"] = {"update" : doc["availability"]["dateCreated"],
 	"availabilitywhen" : doc["availability"]["availabilityWhen"],
 	"availabilityfulltime" : doc["availability"]["availabilityFulltime"]}
 			# tjm
-			cv['data']["rate"]= {"rateprice" : doc["availability"]["ratePrice"],
+			cv['data']["rate"] = {"rateprice" : doc["availability"]["ratePrice"],
 	"ratecurrency" : doc["availability"]["rateCurrency"]}
 			# mobilité
-			cv['data']["mobility"]={"mobilityremote" : doc["availability"]["mobilityRemote"],
+			cv['data']["mobility"] = {"mobilityremote" : doc["availability"]["mobilityRemote"],
 	"mobilityinternational" : doc["availability"]["mobilityInternational"], 
 	"mobilityareas" : doc["availability"]["mobilityAreas"],
 	"mobilityareaslist" : doc["availability"]["mobilityAreasList"]}
 			# langues
-			lang=doc["availability"]["languages"]
+			lang = doc["availability"]["languages"]
 			for i in range (0, len(lang)) :
 				cv['data']["languages"].append({"language" : isolanguage.Language(lang[i]["code"]),
 		"fluency" : Proficiency(lang[i]["profiency"])})
@@ -437,14 +433,14 @@ def getresume(workspace_contract,did, mode) :
 	else :	
 		
 		# initialisation de la fiche
-		fiche={'id' : did,'DID_Document' : mode.server+'resolver/api/'+did, 'data' : {"legal" : []}}
+		fiche = {'id' : did,'DID_Document' : mode.server+'resolver/'+did, 'data' : {"legal" : []}}
 
 		
 		# Profil
-		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
-		claimid=claim[0].hex()
-		fiche['data']["legal"].append({"profil" : {"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid, "data" : profile}})
+		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim = contract.functions.getClaimIdsByTopic(101109097105108).call()
+		claimid = claim[0].hex()
+		fiche['data']["legal"].append({"profil" : {"id" : did+':claim:'+claimid, 'endpoint' : mode.server+'talao/data/'+did+':claim:'+claimid, "data" : profile}})
 
 		# kbis
 		# setup variable
@@ -454,45 +450,45 @@ def getresume(workspace_contract,did, mode) :
 		client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	
 		# download du claim du dernier KBIS 107098105115) => le dernier est supposé etre le bon ...................a discuter !!!!
-		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		claim=contract.functions.getClaimIdsByTopic(107098105115).call()
+		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim = contract.functions.getClaimIdsByTopic(107098105115).call()
 		if len(claim) == 0 : # pas de KBIS
 			fiche['data']['kbis'] = {}
 		else : 			
-			claimId=claim[len(claim)-1].hex()
+			claimId = claim[len(claim)-1].hex()
 			claimdata = contract.functions.getClaim(claimId).call()
-			issuer=claimdata[2]	
-			data=claimdata[4]
-			url=claimdata[5]
+			issuer = claimdata[2]	
+			data = claimdata[4]
+			url = claimdata[5]
 			# determination du profil de l issuer du KBIS
-			(issuerprofile,X)=readProfil(whatisthisaddress(issuer,mode)["workspace"],mode)
+			(issuerprofile,X) = readProfil(whatisthisaddress(issuer,mode)["workspace"],mode)
 			# verification de la signature du KBIS
 			msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32'], [bytes('kbis', 'utf-8'), issuer, data, bytes(url, 'utf-8') ])
 			message = encode_defunct(text=msg.hex())
-			signature=claimdata[3]
+			signature = claimdata[3]
 			if signature != b"" :
-				signataire=w3.eth.account.recover_message(message, signature=signature)
-				signature=claimdata[3].hex()
-				if signataire==issuer :
-					verification=True
+				signataire = w3.eth.account.recover_message(message, signature=signature)
+				signature = claimdata[3].hex()
+				if signataire == issuer :
+					verification = True
 				else :
-					verification=False	
+					verification = False	
 			else :
-				signature= None
+				signature = None
 				verification = False
 			# mise en forme du KBIS
-			if claimdata[5][:1]=="Q" :
-				data=client.get_json(claimdata[5])
+			if claimdata[5][:1] == "Q" :
+				data = client.get_json(claimdata[5])
 			else :
-				url=claimdata[5]
-				data=claimdata[4].decode('utf-8')
-			kbis['data']=data
-			if claimdata[5]=="" :
-				kbis['data']['url']=None
+				url = claimdata[5]
+				data = claimdata[4].decode('utf-8')
+			kbis['data'] = data
+			if claimdata[5] == "" :
+				kbis['data']['url'] = None
 			else :
-				kbis['url']=claimdata[5]
+				kbis['url'] = claimdata[5]
 			
-			fiche['data']["legal"].append({'kbis' :{'id' :did+':claim:'+claimId, 'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimId,"data" : data}})
+			fiche['data']["legal"].append({'kbis' :{'id' :did+':claim:'+claimId, 'endpoint' : mode.server+'talao/data/'+did+':claim:'+claimId,"data" : data}})
 	
 	return fiche
 
@@ -502,28 +498,28 @@ def getresume(workspace_contract,did, mode) :
 
 def getlanguage (workspace_contract, mode) :
 
-		w3=mode.w3
+		w3 = mode.w3
 		address = contractsToOwners(workspace_contract, mode)
-		docIndex=getDocumentIndex(address, 10000, workspace_contract,mode)
-		data=dict()
+		docIndex = getDocumentIndex(10000, workspace_contract,mode)
+		data = dict()
 		if docIndex != [] :
-			doc=getDocument(address, docIndex[len(docIndex)-1], workspace_contract,mode)
+			doc = getDocument(address, docIndex[len(docIndex)-1], workspace_contract,mode)
 			
 			# disponibilité
-			data["availability"]={"update" : doc["availability"]["dateCreated"],
+			data["availability"] = {"update" : doc["availability"]["dateCreated"],
 	"availabilitywhen" : doc["availability"]["availabilityWhen"],
 	"availabilityfulltime" : doc["availability"]["availabilityFulltime"]}
 			# tjm
-			data["rate"]= {"rateprice" : doc["availability"]["ratePrice"],
+			data["rate"] = {"rateprice" : doc["availability"]["ratePrice"],
 	"ratecurrency" : doc["availability"]["rateCurrency"]}
 			# mobilité
-			data["mobility"]={"mobilityremote" : doc["availability"]["mobilityRemote"],
+			data["mobility"] = {"mobilityremote" : doc["availability"]["mobilityRemote"],
 	"mobilityinternational" : doc["availability"]["mobilityInternational"], 
 	"mobilityareas" : doc["availability"]["mobilityAreas"],
 	"mobilityareaslist" : doc["availability"]["mobilityAreasList"]}
 			# langues
-			lang=doc["availability"]["languages"]
-			data['languages']=[]
+			lang = doc["availability"]["languages"]
+			data['languages'] = []
 			for i in range (0, len(lang)) :
 				data["languages"].append({"language" : isolanguage.Language(lang[i]["code"]),
 		"fluency" : lang[i]["profiency"]})
@@ -534,15 +530,15 @@ def getlanguage (workspace_contract, mode) :
 
 #####################################################################################
 def setlanguage(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, language, mode, synchronous=True) :
-	lang=[]
+	lang = []
 	for i in range(0,len(language)) :
-		langitem={"code": isolanguage.codeLanguage(language[i]['language']),"profiency": language[i]['fluency']}	
+		langitem = {"code": isolanguage.codeLanguage(language[i]['language']),"profiency": language[i]['fluency']}	
 		lang.append(langitem)	
 		# a voir utilite de donner les bonnes valeur suivantes
-		name=""
-		email=""
-		jobTitle=""	
-	employabilite={"documentType": 10000,
+		name = ""
+		email = ""
+		jobTitle = ""	
+	employabilite = {"documentType": 10000,
 		"version": 1,
 		"recipient": {"name": name,
 			"title": jobTitle,
@@ -559,7 +555,7 @@ def setlanguage(address_from, workspace_contract_from, address_to, workspace_con
 			"rateCurrency": "",
 			"ratePrice": "",
 			"languages": lang}}	
-	hash1=createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, 10000, employabilite, False,mode, synchronous)	
+	hash1 = createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, 10000, employabilite, False,mode, synchronous)	
 	return hash1
 
 
@@ -567,16 +563,16 @@ def setlanguage(address_from, workspace_contract_from, address_to, workspace_con
 
 def getexperience(workspace_contract,address, mode) : 
 	
-	w3=mode.w3
+	w3 = mode.w3
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 
-	userexperience=[]
+	userexperience = []
 	# experiences de type document 50000
-	experienceIndex=getDocumentIndex(address, 50000, workspace_contract,mode)
+	experienceIndex = getDocumentIndex(50000, workspace_contract,mode)
 	for i in experienceIndex:
-		doc=contract.functions.getDocument(i).call()
-		ipfs_hash=doc[6].decode('utf-8')
-		experience=Talao_ipfs.IPFS_get(ipfs_hash)
+		doc = contract.functions.getDocument(i).call()
+		ipfs_hash = doc[6].decode('utf-8')
+		experience = Talao_ipfs.IPFS_get(ipfs_hash)
 		new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : experience['certificate']['title'],
 				'description' : experience['certificate']['description'],
 				'from' : experience['certificate']['from'],
@@ -587,20 +583,20 @@ def getexperience(workspace_contract,address, mode) :
 						},
 				"certification_link" : ""
 				}	
-		skills=experience['certificate']['skills']
-		skillsarray=""
+		skills = experience['certificate']['skills']
+		skillsarray = ""
 		for j in range (0, len(skills)) :
-			skillsarray=skillsarray+' '+skills[j]['name']			
-		new_experience['skills']=skillsarray
+			skillsarray = skillsarray+' '+skills[j]['name']			
+		new_experience['skills'] = skillsarray
 		userexperience.append(new_experience)
 
 		
 	# experiences certifies de type document 60000
-	experienceIndex=getDocumentIndex(address, 60000, workspace_contract, mode)
+	experienceIndex = getDocumentIndex(60000, workspace_contract, mode)
 	for i in experienceIndex:
-		doc=contract.functions.getDocument(i).call()
-		ipfs_hash=doc[6].decode('utf-8')
-		experience=Talao_ipfs.IPFS_get(ipfs_hash)
+		doc = contract.functions.getDocument(i).call()
+		ipfs_hash = doc[6].decode('utf-8')
+		experience = Talao_ipfs.IPFS_get(ipfs_hash)
 		new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : experience['certificate']['title'],
 				'description' : experience['certificate']['description'],
 				'from' : experience['certificate']['from'],
@@ -618,13 +614,13 @@ def getexperience(workspace_contract,address, mode) :
 		
 	# experiences avec certificats implements avec des claim725		
 	# download des claim "certificate"->  99101114116105102105099097116101 du user
-	claimlist=contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
+	claimlist = contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
 	for claimId in claimlist : #pour chaque issuer du claim "certificate"
-		claimdata=contract.functions.getClaim(claimId).call()
-		if claimdata[4].decode('utf-8') !='' :   # il existe des certificats
-			certificatelist=json.loads(claimdata[4].decode('utf-8'))
+		claimdata = contract.functions.getClaim(claimId).call()
+		if claimdata[4].decode('utf-8') != '' :   # il existe des certificats
+			certificatelist = json.loads(claimdata[4].decode('utf-8'))
 			for certificateId in certificatelist :
-				certificate=getclaimipfs(certificateId, workspace_contract,mode)
+				certificate = getclaimipfs(certificateId, workspace_contract,mode)
 				if certificate != False : # on evite ceux qu ont ete effacés mais pas retirés de la certificatelist
 					new_certificate = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':claim:'+certificateId[2:], 'title' : certificate['position'],
 					'description' : certificate['summary'],
@@ -642,17 +638,16 @@ def getexperience(workspace_contract,address, mode) :
 				
 	
 ############################################################################	
-
 def getpersonal(workspace_contract, mode) :
 	
-	w3=mode.w3
-	did='did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	w3 = mode.w3
+	did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	(profile, category)=readProfil(workspace_contract,mode)
 	
-	personal=dict()
+	personal = dict()
 	# Personal	
-	thistopic ={'firstname' :103105118101110078097109101 ,
+	thistopic = {'firstname' :103105118101110078097109101 ,
 				'lastname' : 102097109105108121078097109101,
 				'jobtitle' : 106111098084105116108101,
 				'company' : 119111114107115070111114,
@@ -662,16 +657,59 @@ def getpersonal(workspace_contract, mode) :
 				'description' : 100101115099114105112116105111110
 				}
 	for key in profile :				
-		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		claim=contract.functions.getClaimIdsByTopic(thistopic[key]).call() # topic = name
-		isKey=True
+		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		claim = contract.functions.getClaimIdsByTopic(thistopic[key]).call() # topic = name
+		isKey = True
 		try :
-			claimid=claim[len(claim)-1].hex()
+			claimid = claim[len(claim)-1].hex()
 		except :
 			isKey = False
 		if isKey :
 			personal[key] = {"id" : did+':claim:'+claimid,
-							'endpoint' : mode.server+'talao/api/data/'+did+':claim:'+claimid,
+							'endpoint' : mode.server+'talao/data/'+did+':claim:'+claimid,
 							"data" : profile.get(key)}
 	
 	return personal
+
+
+""" retourne les contacts sans cle privees """
+def getcontact(workspace_contract_from, private_key_from, workspace_contract_user, mode) :
+	
+	w3 = mode.w3
+	did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract_user[2:]
+	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)	
+	contactIndex = getDocumentIndex(15000, workspace_contract_user,mode)
+	if len(contactIndex) == 0 :
+		contact = None
+	else :	
+		index = contactIndex[len(contactIndex) -1]
+		mycontact = getdocument(workspace_contract_from, private_key_from, workspace_contract_user, index, mode)
+		if mycontact == None :
+			mycontact = { 'email' : 'encrypted', 'phone' : 'encrypted', 'twitter': 'encrypted'}
+		else :
+			pass			
+		contact = {"id" : did+':document:'+str(index), 'endpoint' : mode.server+'talao/data/'+did+':document:'+str(index),"data" : mycontact}	
+	return contact
+
+# education = document 40000 
+def get_education (workspace_contract, mode) :
+	
+	w3 = mode.w3
+	did = 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+	education_list = getDocumentIndex(40000, workspace_contract,mode)
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)	
+	user_education = []
+	for i in education_list:
+		doc = contract.functions.getDocument(i).call()
+		ipfs_hash = doc[6].decode('utf-8')
+		education = Talao_ipfs.IPFS_get(ipfs_hash)	
+		user_education.append({'id' : did+':document:'+str(i),
+			'endpoint' : mode.server+'talao/data/'+did+':document:'+str(i),
+			'data' : {	"organization" : education["issuer"]["organization"]["name"],
+			"endDate" : education["diploma"]["to"], 
+			"startDate" : education["diploma"]["from"],
+			"studyType" : education["diploma"]["title"],
+			"area" : education["diploma"]["description"],
+			"certificate_link" : education["diploma"]["link"]}})
+	return user_education		
+			

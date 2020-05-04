@@ -366,7 +366,7 @@ def partnershiprequest(address_from, workspace_contract_from, address_to, worksp
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
+	if synchronous :
 		w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
 	return hash
 
@@ -386,7 +386,7 @@ def getPrivatekey(workspace_contract,mode) :
 			private_key=row.get('private_key')
 			search = True
 	csvfile.close()
-	if search == True :
+	if search :
 		return private_key
 	else :
 		return None
@@ -397,8 +397,8 @@ def getPrivatekey(workspace_contract,mode) :
 #################################################################
 def getAll(workspace_contract,mode) :
 
-	w3=mode.initProvider()
-	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	w3 = mode.initProvider()
+	fichiercsv = mode.BLOCKCHAIN+'_Talao_Identity.csv'
 	csvfile = open(fichiercsv,newline='')
 	reader = csv.DictReader(csvfile) 
 	search = False
@@ -409,7 +409,7 @@ def getAll(workspace_contract,mode) :
 			SECRET=row.get('password')
 			search = True
 	csvfile.close()
-	if search == True :
+	if search :
 		return private_key, SECRET, AES_key
 	else :
 		return None
@@ -420,14 +420,15 @@ def getAll(workspace_contract,mode) :
 def getEmail(workspace_contract, mode) :
 
 	w3=mode.initProvider()
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	try :
-		a= contract.functions.getClaimIdsByTopic(101109097105108).call()
+		a = contract.functions.getClaimIdsByTopic(101109097105108).call()
 	except :
 		return None	
 	if len(a) != 0:
-		claimId=a[len(a) -1].hex()
-		email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+		# always the last one
+		claim_Id = a[len(a)-1].hex()
+		email = contract.functions.getClaim(claim_Id).call()[4].decode('utf-8')
 		return email
 	else :
 		return None	
@@ -438,16 +439,16 @@ def getEmail(workspace_contract, mode) :
 ##################################################################
 def getpicture(workspace_contract, mode) :
 
-	w3=mode.w3
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	w3 = mode.w3
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	try :
-		a= contract.functions.getClaimIdsByTopic(105109097103101).call()
+		a = contract.functions.getClaimIdsByTopic(105109097103101).call()
 	except :
 		return None	
 	if len(a) != 0:
-		claimId=a[len(a)-1].hex()
-		picturehash = contract.functions.getClaim(claimId).call()[5]
-		return picturehash
+		claim_Id = a[len(a)-1].hex()
+		picture_hash = contract.functions.getClaim(claim_Id).call()[5]
+		return picture_hash
 	else :
 		return None	
 		
@@ -504,7 +505,7 @@ def deleteClaim(address_from, workspace_contract_from, address_to, workspace_con
 # DEPRECATED !!!!!!!
 
 def createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, encrypted,mode, synchronous = True) :
-	
+
 	w3=mode.initProvider()
 	
 	encrypted = False

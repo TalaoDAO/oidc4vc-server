@@ -129,7 +129,7 @@ def buildregister(mode) :
 		address = contract.functions.contractsToOwners(workspace_contract).call()
 		key=mode.w3.soliditySha3(['address'], [address])
 		
-		register[namehash(newusername)]={ 'username' : newusername, 'email' : email, "PublicKey" : key.hex(), 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}		
+		register[namehash(newusername)]={ 'username' : newusername, 'email' : email, "publicKey" : key.hex()[2:], 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}		
 	
 	# copie dans le fichier rinkeby/ethereum_register.json du registre (un seul acces au disque)
 	print('nombre de workspace =', count)
@@ -165,9 +165,8 @@ def address(username,register) :
 # obtenir le workspace_contract depuis un pubicKeyHex
 ######################################################
 def workspaceFromPublickeyhex(publickeyhex,mode) :
-	key='0x'+publickeyhex
 	for a in mode.register  :
-		if mode.register[a].get('PublicKey') == key :
+		if mode.register[a].get('publicKey') == publickeyhex :
 			return  {'workspace_contract' : mode.register[a].get('workspace_contract'), 'username' : mode.register[a].get('username')}
 	return None
 	
@@ -196,11 +195,11 @@ def load_register_from_file(mode) :
 #################################################
 def addName(username, email, address, workspace_contract,mode) :
 	
-	did='did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
-	key=mode.w3.soliditySha3(['address'], [address])
-	mode.register[namehash(username.lower())]={ 'username' : username, 'email' : email, 'PublicKey' : key.hex(), 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
+	did = 'did:talao:' + mode.BLOCKCHAIN+':' + workspace_contract[2:]
+	key = mode.w3.soliditySha3(['address'], [address])
+	mode.register[namehash(username.lower())] = { 'username' : username, 'email' : email, 'publicKey' : key.hex()[2:], 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}	
 	try : 
-		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
+		myfile = open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
 		print('IOError ; impossible de stocker le fichier')
 		return False
@@ -215,7 +214,7 @@ def deleteName(username, mode) :
 	
 	del mode.register[namehash(username.lower())]
 	try : 
-		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
+		myfile = open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
 		print('IOError ; impossible de stocker le fichier')
 		return False
@@ -228,28 +227,28 @@ def deleteName(username, mode) :
 #################################################
 def updateName(username, newusername, mode) :
 	
-	workspace_contract=address(username, mode.register)
-	contract=mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	workspace_contract = address(username, mode.register)
+	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	# recuperation de l email
 	try :
-		a= contract.functions.getClaimIdsByTopic(101109097105108).call()
+		a = contract.functions.getClaimIdsByTopic(101109097105108).call()
 	except :
 		return False
 	if len(a) != 0:
-		claimId=a[len(a)-1].hex()
+		claimId = a[len(a)-1].hex()
 		email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 	else :
 		return False
 	# calcul du keccak (publickey)
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
-	key=w3.soliditySha3(['address'], [address])			
+	key = w3.soliditySha3(['address'], [address])			
 	# effacement de l ancien username 
 	del mode.register[namehash(username.lower())]
-	did='did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
-	mode.register[namehash(newusername.lower())]={ 'username' : newusername, 'email' : email, 'publicKey': key.hex(),'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/api/'+did, 'resume' : mode.server+"talao/api/resume/"+ did}	
+	did = 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+	mode.register[namehash(newusername.lower())] = { 'username' : newusername, 'email' : email, 'publicKey': key.hex()[2:],'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}	
 	try : 
-		myfile=open(mode.BLOCKCHAIN+'_register.json', 'w') 
+		myfile = open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
 		print('IOError ; impossible de stocker le fichier')
 		return False

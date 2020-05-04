@@ -16,12 +16,12 @@ import constante
 
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, readProfil, getAll, addclaim, partnershiprequest, whatisthisaddress
 from .Talao_token_transaction import  updateSelfclaims, savepictureProfile, getpicture, deleteDocument, deleteClaim
-from .nameservice import namehash, addName,getUsername, updateName
+from .nameservice import namehash, addName,getUsername, updateName, workspaceFromPublickeyhex
 from .GETresolver import getresolver
-from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal
+from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education
 from .ADDkey import addkey
  
-class identity() :
+class Identity() :
 	
 	def __init__(self, workspace_contract,mode, address=None, private_key=None, SECRET=None,  AES_key=None, backend_Id=None, username=None, rsa_key=None):
 		
@@ -35,65 +35,64 @@ class identity() :
 		self.rsa_key = rsa_key
 		self.SECRET = SECRET
 		self.private_key=private_key # uniquement utilisée pour destroy et change owner
-		if address == None :
+		if address is None :
 			self.address = contractsToOwners(self.workspace_contract,mode)
 		else :
 			self.address=address
 		self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
 		self.token = token_balance(self.workspace_contract,mode)
-		self.backend_Id=backend_Id	
-		
-		""" personal  """
+		self.backend_Id=backend_Id		
 		self.getPersonal()
 		self.name = self.personal['firstname']['data']+' '+self.personal['lastname']['data']
-
-		""" experience """
+		self.getContact()
 		self.getExperience()
-
-		""" picture """
+		self.getLanguage()
+		self.getManagementKeys()
+		self.getClaimKeys()
+		self.getEducation()
 		self.picture = getpicture(self.workspace_contract, self.mode)
-		if self.picture != None :
+		
+		if self.picture is not None :
 			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 			client.get(self.picture)
-			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)			
+			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
 		
-		""" username  """
-		if username == None :	
+		self.getPartners()
+		self.getEvents()				
+		
+		if username is None :	
 			self.username=getUsername(self.workspace_contract,mode)	
 		else :
 			self.username=username
-		if self.username == None : # si il n existe pas on fabrique le username de type "prenom.nom"
-			if self.firstname == None :
+		if self.username is None : # si il n existe pas on fabrique le username de type "prenom.nom"
+			if self.firstname is None :
 				a=''					
 			else :
 				a =self.firstname
-			if self.lastname == None :
+			if self.lastname is None :
 				b = ''
 			else :
 				b = self.lastname	
 			username=a+'.'+b
 			self.username=username.lower()
-			if self.mode.register.get(namehash(self.username)) != None :
+			if self.mode.register.get(namehash(self.username)) is not None :
 				self.username=self.username+str(random.randrange(9999))
 			else :
 				pass
 			# ajout au registre memoire et fichier
 			addName(self.username, self.email, self.address, self.workspace_contract,self.mode) 		
 		self.endpoint=mode.server+'user/?username='+self.username
+		
 
-		
-	#########################################	
-		
-	def getAlerts(self) :
+	# filters on external events only
+	def getEvents(self) :
 		contract=self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		alert=[]
-		
+		alert=dict()
 		filterList= [contract.events.DocumentAdded.createFilter(fromBlock= 6200000,toBlock = 'latest'),
 					contract.events.ClaimAdded.createFilter(fromBlock= 6200000,toBlock = 'latest'),
-					contract.events.DocumentRemoved.createFilter(fromBlock= 6200000,toBlock = 'latest'),
-					contract.events.ClaimRemoved.createFilter(fromBlock= 6200000,toBlock = 'latest')]		
-		
+					contract.events.PartnershipRequested.createFilter(fromBlock= 6200000,toBlock = 'latest'),
+					contract.events.PartnershipAccepted.createFilter(fromBlock= 6200000,toBlock = 'latest')]		
 		for i in range(0,len(filterList)) :
 			eventlist=filterList[i].get_all_entries()
 			for doc in eventlist :
@@ -109,74 +108,110 @@ class identity() :
 				block=self.mode.w3.eth.getBlock(blockNumber)
 				date = datetime.fromtimestamp(block['timestamp'])			
 				
-				if i == 0 :
+				if i == 0 and issuer_workspace_contract != self.workspace_contract :
 					eventType='DocumentAdded' 
 					doc_id= 'did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':document:'+str(doc['args']['id'])
-					helptext = 'A new document #'+str(doc['args']['id'])+' has been issued by ' + issuer_name				
-				elif i == 1 :
+					helptext = 'A new document #'+str(doc['args']['id'])+' has been issued by ' + issuer_name	
+					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
+				elif i == 1 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'ClaimAdded' 
 					doc_id='did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':claim:'+str(doc['args']['claimId'].hex())
-					helptext= 'A new claim has been issued by '+issuer_name	
-				elif i == 2 :
-					eventType = 'DocumentRemoved' 					
+					helptext= 'A new claim has been issued by '+issuer_name
+					alert[str(date)] =  {'alert' : helptext,'event' : eventType, 'doc_id' : doc_id}
+				elif i == 2 and issuer_workspace_contract != self.workspace_contract :
+					eventType = 'PartnershipRequested' 					
 					doc_id = None
-					helptext= 'You have removed the document #'+str(doc['args']['id'])
-				
-				elif i == 3 :
-					eventType = 'ClaimRemoved' 					
+					helptext= 'You have received a request for partnership from ' + issuer_name
+					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
+				elif i == 3 and issuer_workspace_contract != self.workspace_contract :
+					eventType = 'PartnershipAccepted' 					
 					doc_id = None
-					helptext= 'You have removed the document #'+str(doc['args']['claimId'].hex())
-				
-				
+					helptext= 'Your request for partnership has been accepted by ' + issuer_name
+					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				else :
-					pass
-				
-				alert.append({'date' : str(date), 
-						'alert' : helptext,
-						'event' : eventType, 
-						'doc_id' : doc_id}) 
+					pass								
+		self.eventslist = alert
+		return self.eventslist
 	
-		newlist= sorted(alert, key=itemgetter('date')) 	 
-		newlist.reverse()
+	def getManagementKeys(self) :
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		keylist = contract.functions.getKeysByPurpose(1).call()
+		mymanagementkeys = []
+		for i in keylist :
+			key = contract.functions.getKey(i).call()
+			keyId = self.mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+			controller = workspaceFromPublickeyhex(key[2].hex(), self.mode)
+			if controller is None : 
+				controller = {'workspace_contract' : 'unknown' , 'username' : 'unknown'}
+			mymanagementkeys.append({"id": keyId, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
+		self.managementkeys = mymanagementkeys
+		return self.managementkeys
 
-		return newlist
-		
+	def getClaimKeys(self) :
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		keylist = contract.functions.getKeysByPurpose(3).call()
+		claimkeys = []
+		for i in keylist :
+			key = contract.functions.getKey(i).call()
+			keyId = self.mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+			issuer = workspaceFromPublickeyhex(key[2].hex(), self.mode)
+			if issuer is None : 
+				issuer = {'workspace_contract' : 'unknown' , 'username' : 'unknown'}
+			claimkeys.append({"id": keyId, 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+		self.claimkeys = claimkeys
+		return self.claimkeys
 	
-	def getPartnershiplist(self) :
-		# construction de la liste des partnership
+	def getPartners(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		acct = Account.from_key(self.mode.relay_private_key)
-		self.mode.w3.eth.defaultAccount=acct.address
-		partnershiplist = contract.functions.getKnownPartnershipsContracts().call()
-		self.partnershiplist = partnershiplist
-		return self.partnershiplist
+		self.mode.w3.eth.defaultAccount = acct.address
+		partners = []
+		try :
+			partners_list = contract.functions.getKnownPartnershipsContracts().call()
+		except :
+			partners_list = []
+			print('pb d acces a la partnership list, manque key 1')		
+		for partner_workspace_contract in partners_list :			
+			partners.append({"workspace_contract" : partner_workspace_contract , 'username' : getUsername(partner_workspace_contract,self.mode) } )
+		self.partners = partners
+		return self.partners
 	
 	def getRsa_key(self) :
 		filename = "./RSA_key/"+self.mode.BLOCKCHAIN+'/'+str(self.address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 		try :
 			fp =open(filename,"r")
 		except :
-			self.rsa_key = None
+			self.rsa_key is None
 			return None
 		self.rsa_key = fp.read()	
 		fp.close()   
 		return self.ras_key
 		
-	def getResolver(self) : # a voir si on le laisse ici !!!!
-		return getresolver(self.workspace_contract, self.did,self.mode)
-		
-	def getResume(self) : # a voir si on le laisse ici !!!!
-		return getresume(self.workspace_contract, self.did,self.mode)
-	
 	def getPersonal(self) :
 		self.personal = getpersonal(self.workspace_contract, self.mode)
 		return self.personal
 			
+	def getContact(self) :
+		self.contact = getcontact(self.mode.relay_workspace_contract, self.mode.relay_private_key, self.workspace_contract, self.mode)
+		return self.contact		
+	
+	"""contact = {
+  'id': 'did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:15',
+  'endpoint': 'http://127.0.0.1:4000/talao/data/did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:15',
+  'data': {
+    'email': 'pierre@talao.io',
+    'phone': '0607182594',
+    'twitter': '@pierredavid'
+  }
+}"""
+	
+	
+	
 	def getLanguage(self) :	
-		lang = getlanguage(self.workspace_contract, self.mode)
-		
-		if lang == None :
-			return {}, '', '', ''
+		lang = getlanguage(self.workspace_contract, self.mode)		
+		if lang is None :
+			self.language = ( {}, '', '', '')
+			return self.language
 		context=dict()
 		lang1 = ''
 		lang2 = ''
@@ -198,19 +233,12 @@ class identity() :
 			else :
 				context['radio'+str(i+1) + '4'] = "checked"
 	
-		return context, lang1, lang2, lang3
-		
-	def getPartnershiplist(self) : 
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		acct = Account.from_key(self.private_key)
-		self.mode.w3.eth.defaultAccount=acct.address
-		partnershiplist = contract.functions.getKnownPartnershipsContracts().call()
-		self.partnershiplist = partnershiplist
-		return partnershiplist
-		
-	def getDid_document(self) :
-		self.did_document = getresolver(self.workspace_contract, self.did, self.mode)
-		return self.did_document
+		self.language = (context, lang1, lang2, lang3)
+		return self.language
+	
+	def getEducation(self) :
+		self.education = get_education(self.workspace_contract, self.mode)
+		return self.education
 	
 	def getExperience(self) :
 		self.experience = getexperience(self.workspace_contract, self.address, self.mode)

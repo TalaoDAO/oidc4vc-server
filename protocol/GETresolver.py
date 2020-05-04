@@ -65,7 +65,6 @@ def whatisthisaddress(thisaddress,mode) :
 # w3.soliditySha3(['address'], [address])
 
 
-
 def getresolver(workspace_contract, did, mode) :
 	
 	# test de validité de l addresse
@@ -76,37 +75,34 @@ def getresolver(workspace_contract, did, mode) :
 	w3=mode.w3
 	
 	# recuperation de l'address du owner
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 
 	# calcul du keccak
-	owner_publicKeyHex=w3.soliditySha3(['address'], [address])
-
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	owner_publicKeyHex = w3.soliditySha3(['address'], [address])
+	
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 
 	# initialisation du Dict corespondant au DID Document
-	workspace_information=contract.functions.identityInformation().call()
+	workspace_information = contract.functions.identityInformation().call()
 	cat={1001 : "user", 2001 : "company", 3001 : "unknown", 4001 : "unknoown", 5001 : "unknown"}
 	
 	# structure du DID Document
-	did_document={
-	"@context": "DID Document see https://w3c.github.io/did-core/",
-	"id": did,
-	"username" : getUsername(workspace_contract,mode),
-	"category" : cat[workspace_information[1]],
-	"controller" : address,
-	"authentication" : [{"type": "Secp256k1SignatureVerificationKey2018",
-						"controller" : address,
-						"EthereumKey": address},
-						{"type": "RsaVerificationKey2018",
-						"controller" : address,
-						"publicKeyPem": workspace_information[4].decode('utf_8')}			
-						
-						
+	did_document = {"@context": "DID Document see https://w3c.github.io/did-core/",
+					"id": did,
+					"username" : getUsername(workspace_contract,mode),
+					"category" : cat[workspace_information[1]],
+					"controller" : address,
+					"authentication" : [{"type": "Secp256k1SignatureVerificationKey2018",
+										"controller" : address,
+										"EthereumKey": address},
+										{"type": "RsaVerificationKey2018",
+										"controller" : address,
+										"publicKeyPem": workspace_information[4].decode('utf_8')}			
 						],
-	"publicKey": [],
-	"encryption" : [],
-	"service" : {}}
+					"publicKey": [],
+					"encryption" : [],
+					"service" : {}}
 
 
 ########################################################################################
@@ -118,7 +114,7 @@ def getresolver(workspace_contract, did, mode) :
 				"@context" : "https://talao.io/",
 				"description" : "External viewer of this Identity"}
 
-		did_document["service"]["Resume"] = { "endpoint" : mode.server+"talao/api/resume/"+ did,
+		did_document["service"]["Resume"] = { "endpoint" : mode.server+"talao/resume/"+ did,
 				"@context" : "https://talao.io",
 				"description" : "check and verify the resume of thos Identity"}
 		
@@ -144,7 +140,7 @@ def getresolver(workspace_contract, did, mode) :
 	else : 
 		
 		
-		did_document["service"]["publicdata"] = { "endpoint" : mode.server+"talao/api/profil/"+ did,
+		did_document["service"]["publicdata"] = { "endpoint" : mode.server+"talao/profil/"+ did,
 				"@context" : "https://talao.io",
 				"description" : "check and verify Company data"}
 				
