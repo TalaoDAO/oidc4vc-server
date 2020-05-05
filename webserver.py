@@ -387,6 +387,19 @@ def photo() :
 def contact_settings() :	
 	return redirect(mode.server + 'user/?username=' + user.username)
 
+# partnership request input display 
+@app.route('/user/partnership/', methods=['GET'])
+def partnership() :	
+	return render_template('parnership_request.html')
+# parnership request management
+@app.route('/user/partnership/', methods=['POST'])
+def partnership_1() :
+		
+	return render_template('parnership_request.html')
+
+
+
+
 @app.route('/user/experience_delete/', methods=['GET'])
 def experience_2() :
 	username = session['username']

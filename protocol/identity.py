@@ -23,7 +23,7 @@ from .ADDkey import addkey
  
 class Identity() :
 	
-	def __init__(self, workspace_contract,mode, address=None, private_key=None, SECRET=None,  AES_key=None, backend_Id=None, username=None, rsa_key=None):
+	def __init__(self, workspace_contract,mode, address=None, SECRET=None,  AES_key=None, backend_Id=None, username=None, rsa_key=None):
 		
 		if whatisthisaddress(workspace_contract, mode)['type'] != 'workspace' :
 			print("probleme identity workspace_contract address")
@@ -34,7 +34,6 @@ class Identity() :
 		self.AES_key = AES_key
 		self.rsa_key = rsa_key
 		self.SECRET = SECRET
-		self.private_key=private_key # uniquement utilisée pour destroy et change owner
 		if address is None :
 			self.address = contractsToOwners(self.workspace_contract,mode)
 		else :
@@ -309,14 +308,14 @@ class Identity() :
 	def updateUsername(self, newusername) : 
 		return updateName(self.username, newusername, self.mode)
 	
-	""" Only Owner """	
+	""" Only Owner 
 	# destroy Identity and remove it from register
 	def killIdentity(self) :				
 		deleteName(self.username, self.mode) 
 		destroyWorkspace(self.workspace_contract, self.private_key, self.mode)
 		return True	
 	
-	# def changeOwner(self, address_new_owner ) :  
+	# def changeOwner(self, address_new_owner ) :  """
 	
 	
 	

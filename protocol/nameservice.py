@@ -52,84 +52,84 @@ def namehash(name) :
 
 def buildregister(mode) :
 	
-	w3=mode.w3
+	w3 = mode.w3
 
 	# pour choisir l address par defaut du node necessaire a la lecture de l index du smart contract de la fondation
 	address = mode.foundation_address
 	w3.eth.defaultAccount=address
 	
 	# lecture de la liste des workspace_contracts dans la fondation
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	contractlist = contract.functions.getContractsIndex().call() 
 	contractlist.reverse()
 	
 	# construction du registre sur la base du username firstname.name
-	register=dict()	
-	count=0
+	register = dict()	
+	count = 0
 	for workspace_contract in contractlist :
-		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		count += 1	
 		
 		# download de firstname
-		firstname=""
+		firstname = ""
 		try :
 			firstname_claimId=contract.functions.getClaimIdsByTopic(103105118101110078097109101).call()
 		except :
 			print ("erreur 1")
-			firstname_claimId=[]
+			firstname_claimId = []
 		if len(firstname_claimId) != 0 :
-			claimId=firstname_claimId[0].hex()
+			claimId = firstname_claimId[-1].hex()
 			try :
 				firstname = contract.functions.getClaim(claimId).call()[4].decode('utf-8').lower()			
 			except :
-				firstname=""
+				firstname = ""
 				print('erreur 2', claimId)				
 		
 		# download de lastname
-		lastname=""
+		lastname = ""
 		try : 
 			lastname_claimId = contract.functions.getClaimIdsByTopic(102097109105108121078097109101).call()
 		except :
 			print ("erreur 3")
-			lastname_claimId=[]			
+			lastname_claimId = []			
 		if  len(lastname_claimId) != 0 :							
-			claimId=lastname_claimId[0].hex()
+			claimId = lastname_claimId[-1].hex()
 			try :
 				lastname = contract.functions.getClaim(claimId).call()[4].decode('utf-8').lower()
 			except :
-				lastname=""
+				lastname = ""
 				print('erreur 4', claimId)
 						
 		# on verifie que username = "firstname.lastname" n existe pas deja dans le registre sinon, on le modifie
-		username=firstname+'.'+lastname		
-		if register.get(namehash(username)) != None :
-			newusername=username+str(random.randrange(99999))
+		username = firstname + '.' + lastname		
+		if register.get(namehash(username)) is not None :
+			newusername = username + str(random.randrange(99999))
 		else :
-			newusername=username
+			newusername = username
 		
 		did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
 		
 		# on recupere l email
 		try :
-			a= contract.functions.getClaimIdsByTopic(101109097105108).call()
+			a = contract.functions.getClaimIdsByTopic(101109097105108).call()
 		except :
-			email= None
-			a=[]	
+			email = None
+			a = []	
 		if len(a) != 0:
-			claimId=a[len(a) -1].hex()
+			claimId = a[-1].hex()
 			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
 		else :
 			email = None				
-		if email == None :
+		if email is None :
 			print ("no email")				
-			email=''			
+			email = ''			
 		
 		# calcul du keccak de l address de celui pour qui la cle est emise (publickey)
-		contract=mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address = contract.functions.contractsToOwners(workspace_contract).call()
-		key=mode.w3.soliditySha3(['address'], [address])
+		key = mode.w3.soliditySha3(['address'], [address])
 		
-		register[namehash(newusername)]={ 'username' : newusername, 'email' : email, "publicKey" : key.hex()[2:], 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}		
+		register[namehash(newusername)] = { 'username' : newusername, 'email' : email, "publicKey" : key.hex()[2:], 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}		
 	
 	# copie dans le fichier rinkeby/ethereum_register.json du registre (un seul acces au disque)
 	print('nombre de workspace =', count)
