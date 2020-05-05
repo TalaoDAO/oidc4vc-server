@@ -26,8 +26,8 @@ from werkzeug.utils import secure_filename
 # dependances
 import Talao_message
 import constante
-from protocol import Identity, Data, getresolver, getresume, load_register_from_file, address, getEmail, getPrivatekey, contractsToOwners
-from protocol import deleteName, deleteDocument, deleteClaim, readProfil, isdid, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName
+from protocol import Identity, Data, getresolver, getresume, load_register_from_file, address, getEmail, getPrivatekey, contractsToOwners, data_from_publickey
+from protocol import deleteName, deleteDocument, deleteClaim, readProfil, isdid, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, addkey, addName, delete_key
 import environment
 import web_create_identity
 import web_certificate
@@ -80,7 +80,6 @@ def event_display(eventlist) :
 			
 	event_html = ""
 	index = 0
-	#gen = (key for key in sorted(eventlist, reverse = True) if index < min([5, len(eventlist)]))  # https://www.python.org/dev/peps/pep-0289/ generator expression
 	for key in sorted(eventlist, reverse=True) :
 		index += 1
 		date= key
@@ -98,12 +97,19 @@ def event_display(eventlist) :
 			icon = 'class="fas fa-trash-alt text-white"'
 			background = 'class="bg-warning icon-circle"'
 		
-		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """><div class="mr-3">
-                                                <div """ + background + """><i """ + icon + """></i></div>
-                                            </div><div><span class="small text-gray-500">""" + date + """</span>
-                                             <p>""" + texte + """</p></div></a>"""
+		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """>
+							<div class="mr-3"> <div """ + background + """><i """ + icon + """></i></div></div>
+							<div>
+								<span class="small text-gray-500">""" + date + """</span><br>
+								<div class = "text-truncate">
+                                <span>""" + texte + """</span></div>
+                            </div>
+                        </a>"""
+		
 		event_html = event_html + thisevent 
 	return event_html, index
+
+#                                <p>""" + texte + """</p>
 
 ############################################################################################
 #         DATA
@@ -240,6 +246,8 @@ def user() :
 		session['issuer'] = user.claimkeys
 		session['partner'] = user.partners
 		session['education'] = user.education
+		session['did'] = user.did
+		session['eth'] = user.eth
 		if user.picture is None :
 			session['picture'] = "anonymous1.png"
 		else :
@@ -280,7 +288,6 @@ def user() :
 				<b>Username</b> : <a class="card-link" href=/username/?username="""+session['username']+""">"""+session['username']+"""</a><br>
 				<b>Picture</b> : <a class="card-link" href=/picture/"""+session['picture']+""">"""+session['picture']+"""</a>"""	
 	
-	print('appel de session(contact) ')
 	if session['contact'] is None :
 		my_contact =  """ <a class="card-link" href="">Add Contact</a>"""
 	else :
@@ -308,17 +315,22 @@ def user() :
 				</p>"""	
 		my_education = my_education + edu_html
 	
-	
+	my_advanced = """
+					<b>Workspace Contract</b> : """ + session['workspace_contract'] + """<br>						
+					<b>Address</b> : """ + session['address'] + """<br>				
+					<b>DID</b> : """ + session['did']			
 	
 	my_languages = ""
+	
 	my_skills = ""
 
 	my_controller = ''
 	for controller in controller_list :
+		print(controller)
 		controller_html = """<hr>
 				<p>""" + controller['username'] + """
-					<a class="text-secondary" href="#remove">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+					<a class="text-secondary" href="/user/remove_controller/?controller_username="""+controller['username']+"""&amp;controller_address="""+controller['address']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
 					</a>
 					<a class="text-secondary" href="#explore">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
@@ -352,23 +364,27 @@ def user() :
 				</p>"""
 		my_claim_issuer = my_claim_issuer + issuer_html
 	
-	my_account = ""
+	my_account = """<b>Balance ETH</b> : """ + str(session['eth'])				
+
 	
 	return render_template('identity.html',
-							personal = my_personal,
-							contact = my_contact,
-							experience = my_experience,
-							education = my_education,
-							languages = my_languages,
-							skills = my_skills,
-							controller = my_controller,
-							partner = my_partner,
-							claimissuer = my_claim_issuer,
-							event = my_event_html,
-							counter = my_counter,
-							picturefile = my_picture,
-							username = my_username)	
+							personal=my_personal,
+							contact=my_contact,
+							experience=my_experience,
+							education=my_education,
+							languages=my_languages,
+							skills=my_skills,
+							controller=my_controller,
+							partner=my_partner,
+							claimissuer=my_claim_issuer,
+							advanced=my_advanced,
+							event=my_event_html,
+							counter=my_counter,
+							account=my_account,
+							picturefile=my_picture,
+							username=my_username)	
 
+# picture helper
 @app.route('/user/photo/', methods=['POST'])
 def photo() :
 	username = session['username']
@@ -387,16 +403,84 @@ def photo() :
 def contact_settings() :	
 	return redirect(mode.server + 'user/?username=' + user.username)
 
-# partnership request input display 
+# partnership request
 @app.route('/user/partnership/', methods=['GET'])
 def partnership() :	
 	return render_template('parnership_request.html')
-# parnership request management
 @app.route('/user/partnership/', methods=['POST'])
 def partnership_1() :
-		
 	return render_template('parnership_request.html')
 
+
+# add controller
+@app.route('/user/add_controller/', methods=['GET'])
+def add_controller() :	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	return render_template('add_controller.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
+@app.route('/user/add_controller/', methods=['POST'])
+def add_controller_1_() :	
+	controller_name = request.form['controller_name']
+	controller_wallet = request.form['controller_wallet']
+	workspace_contract_from = mode.relay_workspace_contract
+	address_from = mode.relay_address	
+	private_key_from = mode.relay_private_key
+	address_to = session['address']
+	workspace_contract_to = session['workspace_contract']
+	address_partner = controller_wallet
+	purpose = 1 
+	addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode, synchronous=False) 
+	addName(controller_name, controller_wallet, mode)
+	username = session['username']
+	# update controller list in session
+	contract = mode.w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
+	key_list = contract.functions.getKeysByPurpose(1).call()
+	controller_keys = []
+	for i in key_list :
+		key = contract.functions.getKey(i).call()
+		key_Id = mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+		controller = data_from_publickey(key[2].hex(), mode)
+		if controller is None : 
+			controller = {'workspace_contract' : 'unknown' , 'username' : 'unknown'}
+		controller_keys.append({"address": address_to, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
+	session['controller'] = controller_keys
+	return redirect (mode.server +'user/?username=' + username)
+
+# remove controller
+@app.route('/user/remove_controller/', methods=['GET'])
+def remove_controller() :	
+	controller_username = request.args['controller_username']
+	controller_address : request.args['controller_address']
+	session['controller_address_to_remove'] = request.args['controller_address']
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	return render_template('remove_controller.html', picturefile=my_picture, event=my_event_html, counter=my_counter, controller_name=controller_username)
+@app.route('/user/remove_controller/', methods=['POST'])
+def remove_controller_1_() :	
+	workspace_contract_to = session['workspace_contract']
+	address_to = session['address']
+	address_partner = session['controller_address_to_remove']
+	purpose = 1
+	address_from = mode.relay_address
+	workspace_contract_from = mode.relay_workspace_contract
+	private_key_from = mode.relay_private_key
+	delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode,  synchhronous=False) 
+	# update controller list in session
+	contract = mode.w3.eth.contract(workspace_contract_from, abi=constante.workspace_ABI)
+	key_list = contract.functions.getKeysByPurpose(1).call()
+	controller_keys = []
+	for i in key_list :
+		key = contract.functions.getKey(i).call()
+		key_Id = mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+		controller = data_from_publickey(key[2].hex(), mode)
+		if controller is None : 
+			controller = {'address' : 'unknown', 'workspace_contract' : 'unknown' , 'username' : 'unknown'}
+		controller_keys.append({"address": address_from, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
+	session['controller'] = controller_keys
+	username = session['username']
+	return redirect (mode.server +'user/?username=' + username)
 
 
 

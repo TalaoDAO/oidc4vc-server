@@ -16,7 +16,7 @@ import constante
 
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, readProfil, getAll, addclaim, partnershiprequest, whatisthisaddress
 from .Talao_token_transaction import  updateSelfclaims, savepictureProfile, getpicture, deleteDocument, deleteClaim
-from .nameservice import namehash, addName,getUsername, updateName, workspaceFromPublickeyhex
+from .nameservice import namehash, getUsername, updateName, data_from_publickey
 from .GETresolver import getresolver
 from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education
 from .ADDkey import addkey
@@ -61,28 +61,10 @@ class Identity() :
 		self.getEvents()				
 		
 		if username is None :	
-			self.username=getUsername(self.workspace_contract,mode)	
-		else :
-			self.username=username
-		if self.username is None : # si il n existe pas on fabrique le username de type "prenom.nom"
-			if self.firstname is None :
-				a=''					
-			else :
-				a =self.firstname
-			if self.lastname is None :
-				b = ''
-			else :
-				b = self.lastname	
-			username=a+'.'+b
-			self.username=username.lower()
-			if self.mode.register.get(namehash(self.username)) is not None :
-				self.username=self.username+str(random.randrange(9999))
-			else :
-				pass
-			# ajout au registre memoire et fichier
-			addName(self.username, self.email, self.address, self.workspace_contract,self.mode) 		
-		self.endpoint=mode.server+'user/?username='+self.username
+			self.username = getUsername(self.workspace_contract,mode)		
 		
+		self.endpoint=mode.server+'user/?username='+self.username
+		print('controlleur keys ', self.managementkeys)
 
 	# filters on external events only
 	def getEvents(self) :
@@ -110,22 +92,22 @@ class Identity() :
 				if i == 0 and issuer_workspace_contract != self.workspace_contract :
 					eventType='DocumentAdded' 
 					doc_id= 'did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':document:'+str(doc['args']['id'])
-					helptext = 'A new document #'+str(doc['args']['id'])+' has been issued by ' + issuer_name	
+					helptext = issuer_name +' issued a new document'	
 					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				elif i == 1 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'ClaimAdded' 
 					doc_id='did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':claim:'+str(doc['args']['claimId'].hex())
-					helptext= 'A new claim has been issued by '+issuer_name
+					helptext= issuer_name + ' issued a new claim'
 					alert[str(date)] =  {'alert' : helptext,'event' : eventType, 'doc_id' : doc_id}
 				elif i == 2 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'PartnershipRequested' 					
 					doc_id = None
-					helptext= 'You have received a request for partnership from ' + issuer_name
+					helptext= 'Request for partnership from ' + issuer_name
 					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				elif i == 3 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'PartnershipAccepted' 					
 					doc_id = None
-					helptext= 'Your request for partnership has been accepted by ' + issuer_name
+					helptext= 'Partnership accepted by ' + issuer_name
 					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				else :
 					pass								
@@ -138,11 +120,12 @@ class Identity() :
 		mymanagementkeys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			keyId = self.mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
-			controller = workspaceFromPublickeyhex(key[2].hex(), self.mode)
-			if controller is None : 
-				controller = {'workspace_contract' : 'unknown' , 'username' : 'unknown'}
-			mymanagementkeys.append({"id": keyId, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
+			#keyId = self.mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+			controller = data_from_publickey(key[2].hex(), self.mode)
+			if controller is None or controller['address'] is None or controller['username'] is None :
+				pass
+			else :
+				mymanagementkeys.append({"address": controller['address'], "publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
 		self.managementkeys = mymanagementkeys
 		return self.managementkeys
 
@@ -152,11 +135,11 @@ class Identity() :
 		claimkeys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			keyId = self.mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
-			issuer = workspaceFromPublickeyhex(key[2].hex(), self.mode)
+			#keyId = self.mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
+			issuer = data_from_publickey(key[2].hex(), self.mode)
 			if issuer is None : 
-				issuer = {'workspace_contract' : 'unknown' , 'username' : 'unknown'}
-			claimkeys.append({"id": keyId, 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+				issuer = {'address' : 'unknown' ,'workspace_contract' : 'unknown' , 'username' : 'unknown'}
+			claimkeys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
 		self.claimkeys = claimkeys
 		return self.claimkeys
 	

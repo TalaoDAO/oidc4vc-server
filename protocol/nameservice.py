@@ -129,7 +129,7 @@ def buildregister(mode) :
 		address = contract.functions.contractsToOwners(workspace_contract).call()
 		key = mode.w3.soliditySha3(['address'], [address])
 		
-		register[namehash(newusername)] = { 'username' : newusername, 'email' : email, "publicKey" : key.hex()[2:], 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}		
+		register[namehash(newusername)] = { 'username' : newusername, 'email' : email, "publicKey" : key.hex()[2:], 'address' : address, 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}		
 	
 	# copie dans le fichier rinkeby/ethereum_register.json du registre (un seul acces au disque)
 	print('nombre de workspace =', count)
@@ -170,6 +170,17 @@ def workspaceFromPublickeyhex(publickeyhex,mode) :
 			return  {'workspace_contract' : mode.register[a].get('workspace_contract'), 'username' : mode.register[a].get('username')}
 	return None
 	
+	
+	
+#####################################################	
+# obtenir des datas depuis un pubicKeyHex
+######################################################
+def data_from_publickey(publickeyhex,mode) :
+	for a in mode.register  :
+		if mode.register[a].get('publicKey') == publickeyhex :
+			return  {'address' : mode.register[a].get('address'), 'workspace_contract' : mode.register[a].get('workspace_contract'), 'username' : mode.register[a].get('username')}
+	return None
+		
 #####################################################	
 # obtenir le username depuis le workspace_contract
 ######################################################
@@ -191,13 +202,24 @@ def load_register_from_file(mode) :
 	return True
 	
 #################################################
-#  ajoute un usernane au registre memoire et disque
+#  ajoute un username au registre memoire et disque
 #################################################
-def addName(username, email, address, workspace_contract,mode) :
+def addName(username, address, mode, email=None, workspace_contract=None) :
 	
-	did = 'did:talao:' + mode.BLOCKCHAIN+':' + workspace_contract[2:]
+	if workspace_contract is not None :
+		resolver = mode.server + 'resolver/did:talao:' + mode.BLOCKCHAIN+':'+ workspace_contract[2:]
+		resume = mode.server + 'talao/resume/did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]	
+	else :
+		resolver = None
+		resume = None
 	key = mode.w3.soliditySha3(['address'], [address])
-	mode.register[namehash(username.lower())] = { 'username' : username, 'email' : email, 'publicKey' : key.hex()[2:], 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}	
+	mode.register[namehash(username.lower())] = { 'username' : username,
+												'email' : email,
+												'publicKey' : key.hex()[2:],
+												'address' : address,
+												'workspace_contract' : workspace_contract,
+												'resolver' : resolver,
+												'resume' : resume}	
 	try : 
 		myfile = open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :
@@ -246,7 +268,7 @@ def updateName(username, newusername, mode) :
 	# effacement de l ancien username 
 	del mode.register[namehash(username.lower())]
 	did = 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
-	mode.register[namehash(newusername.lower())] = { 'username' : newusername, 'email' : email, 'publicKey': key.hex()[2:],'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}	
+	mode.register[namehash(newusername.lower())] = { 'username' : newusername, 'email' : email, 'publicKey': key.hex()[2:],'address' : address, 'workspace_contract' : workspace_contract, 'resolver' : mode.server+'resolver/'+did, 'resume' : mode.server+"talao/resume/"+ did}	
 	try : 
 		myfile = open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :

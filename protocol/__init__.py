@@ -10,7 +10,7 @@ from .Talao_token_transaction import ownersToContracts, createWorkspace, savepic
 from .Talao_token_transaction import token_transfer, createVaultAccess, ether_transfer, getPrivatekey
 
 from .nameservice import addName, address, deleteName, buildregister, getUsername,updateName
-from .nameservice import namehash, load_register_from_file, canRegister_email, workspaceFromPublickeyhex
+from .nameservice import namehash, load_register_from_file, canRegister_email, workspaceFromPublickeyhex, data_from_publickey
 
 from .GETresolver import getresolver
 
@@ -22,4 +22,4 @@ from .GETdata import getdata
 
 from .ADDcertificate import addcertificate
 
-from .ADDkey import addkey
+from .ADDkey import addkey, delete_key

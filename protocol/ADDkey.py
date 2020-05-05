@@ -1,73 +1,82 @@
-# dependances
+# dependancies
 import constante
 
 
 #######################################################################
-# ajout d'un cle avec purpose
+# Add key with one purpose
 #######################################################################
-# @purpose = int, 1,2,3,4, 20002(create doc), 2003(acces to partnership)
-# si a cle existe deja on ajoute simplement le purpose
-# si la cle n existe pas on cre la cle avec le purpose
-#
-def addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner,purpose,mode, synchronous=True) :
-	
-	#address_from : celui qui paye
-	# address_to : celui qui emet la cle = l identité dans laquelle la cle est crée
-	# address_partner = celui pour qui la cle est emise
-	
-	w3=mode.w3
-	
-	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+# @purpose = int, 1,2,3,4, 2002(create doc), 2003(acces to partnership)
+#address_from : address which signs
+# address_to : key issuer
+# address_partner = key receiver
 
-	# calcul du nonce de l issuer de la transaction
+def addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner,purpose,mode, synchronous=True) :
+		
+	w3 = mode.w3
+	
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)  
 	
-	# calcul du keccak de l address de celui pour qui la cle est emise (publickey)
-	key=w3.soliditySha3(['address'], [address_partner])
+	# keccak (publickey)
+	key = w3.soliditySha3(['address'], [address_partner])
 	print(" key = ", key.hex())
 
-	# on verifie si la cle et le purpose existe deja
-	keydescription = contract.functions.getKey(key).call()
-	keylist=keydescription[0]
+	# one checks if key with purpose exists
+	key_description = contract.functions.getKey(key).call()
+	purpose_list = key_description[0]
 	
-	if len(keylist) != 0 : # la cle existe dejà
-		print('la cle existe deja')
-		if purpose not in keylist : # si purpose n' existe pas déja, on ajoute le purpose
-			
-			print(" cle existe, purpose n existe pas")
-			# Build transaction
+	# key already exists
+	if len(purpose_list) != 0 : 
+		if purpose not in purpose_list : 
+			# key exists without this purpose, one adds this purpose
+			print(" key exists, purpose does not exist")
+			# Build, sign and send transaction
 			txn = contract.functions.addPurpose(key, purpose).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-			#sign transaction
-			signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-			# send transaction	
+			signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 			w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-			hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-			if synchronous == True :
-				w3.eth.waitForTransactionReceipt(hash1)		
-			print("hash = ", hash1)		
-			
+			hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+			if synchronous :
+				w3.eth.waitForTransactionReceipt(hash_transaction)		
+			print("hash = ", hash_transaction)		
 			return True
-		
-		else : # purpose existe
-			print("purpose existe")
-			
+		else : # purpose exists
+			print("purpose and key already exists")
 			return False
 	
-	else : # on cre la cle avec le purpose
-		
-		print("cle n existe pas")
-		# Build transaction
+	else : 
+		print("key does not exist")
+		# Build, sign and send transaction
 		txn = contract.functions.addKey(key, purpose, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-		#sign transaction
-		signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-		# send transaction	
+		signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-		hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-		if synchronous == True :
-			w3.eth.waitForTransactionReceipt(hash1)
-		print("hash = ", hash1)		
-		
+		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		if synchronous :
+			w3.eth.waitForTransactionReceipt(hash_transaction)
+		print("hash = ", hash_transaction)		
 		return True
 
 
+def delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode, synchronous=True) :
+
+	w3 = mode.w3
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	nonce = w3.eth.getTransactionCount(address_from)  
+
+	key = w3.soliditySha3(['address'], [address_partner])
+		
+	# one checks if this key with this purpose exists
+	key_description = contract.functions.getKey(key).call()
+	purpose_list = key_description[0]
+	if purpose not in purpose_list :
+		print('key does not exist or purpose dies not exist')
+		return False 
+	else :
+		# build, sign and send transaction
+		txn = contract.functions.removeKey(key, purpose).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+		signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
+		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		if synchronous :
+			w3.eth.waitForTransactionReceipt(hash_transaction)
+		print("hash = ", hash_transaction)		
+		return True

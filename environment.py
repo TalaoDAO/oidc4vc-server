@@ -39,18 +39,18 @@ class currentMode() :
 			self.BLOCKCHAIN = "rinkeby"		
 			self.Talao_token_contract='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
 			self.CHAIN_ID=4
-			""" Talaogen  """
+			# Talaogen  
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
 			self.Talaogen_private_key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen a retirer mais voir pb de send ether vs transaction sur chain POA
-			""" fondation et factory """
+			# Foundation and factory """
 			self.foundation_contract='0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
 			self.foundation_address ='0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
 			self.workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
-			"""  Web Relay """
+			# Web Relay 
 			self.relay_address = '0x18bD40F878927E74a807969Af2e3045170669c71'
 			self.relay_workspace_contract = '0xD6679Be1FeDD66e9313b9358D89E521325e37683'
 			self.relay_private_key = '0xc5381961fcd24555420d511c758804ef8b71e63b72d3dc98f8a8e285881796f9'
-			""" la company Talao """
+			# Talao company
 			self.owner_talao='0xE7d045966ABf7cAdd026509fc485D1502b1843F1' # la company
 			self.owner_talao_private_key='0x26A0B235537FEF1672597067858379BEC0FFBCF557A25A719B8DC24E8FA573BE'
 			self.workspace_contract_talao='0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'
