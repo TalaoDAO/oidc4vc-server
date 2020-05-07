@@ -19,7 +19,7 @@ import random
 # dependances
 import Talao_message
 import createidentity
-from protocol import canRegister_email
+from protocol import canRegister_email, address
 import environment
 
 # environment setup
@@ -29,43 +29,39 @@ exporting_threads = {}
 	
 # Multithreading creatidentity setup   https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
 class ExportingThread(threading.Thread):
-	def __init__(self, firstname, lastname, email, mode):
-		self.progress = 0
+	def __init__(self, username, email, mode):
 		super().__init__()
-		self.firstname = firstname
-		self.lastname = lastname
+		self.username = username
 		self.email = email
 		self.mode = mode
 	def run(self):
-		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)	
+		createidentity.creationworkspacefromscratch(self.username, self.email,self.mode)	
 
 # centralized URL in webserver.py https://flask.palletsprojects.com/en/1.1.x/patterns/lazyloading/
 def authentification() :
 	session.clear()
 	return render_template("create.html",message='')
 
-### recuperation de l email, nom et prenom
+### recuperation de l email et username
 def POST_authentification_1() :
 	email = request.form['email']
-	firstname = request.form['firstname']
-	lastname = request.form['lastname']
-	# stocké en session
-	session['firstname'] = request.form['firstname']
-	session['lastname'] = request.form['lastname']
+	username = request.form['username']
+	session['username'] = username
 	session['email'] = email
-	# check si email disponible
+	# check if email and username available
 	if not canRegister_email(email,mode) :
-		return render_template("home.html", message = 'Email already used')	
-	# envoi du code secret par email
+		return render_template("create.html", message = 'Email already used')	
+	if address(username, mode.register) is not None :	
+		return render_template("create.html", message = 'Username already used')	
+	# secret code sent by email
 	if session.get('code') is None :
 		code = str(random.randint(100000, 999999))
 		session['try_number'] = 1
 		session['code'] = code
-		# envoi message de control du code
 		Talao_message.messageAuth(email, str(code))
-		print('code secret envoyé= ', code)
+		print('secret code = ', code)
 	else :
-		print("le code a deja ete envoye")
+		print("secret code already sent")
 	
 	return render_template("create2.html", message = '')
 
@@ -73,10 +69,9 @@ def POST_authentification_1() :
 def POST_authentification_2() :
 	global exporting_threads
 	email = session.get('email')
-	lastname = session.get('lastname')
-	firstname = session.get('firstname')
+	username = session.get('username')
 	mycode = request.form['mycode']
-	# on verifie que le user n a pas
+	# 
 	if not session.get('code') : 
 		return "renvoyer au login"
 	session['try_number'] +=1
@@ -85,9 +80,9 @@ def POST_authentification_2() :
 	if mycode == session.get('code') :
 		print('code correct')
 		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(firstname, lastname, email, mode)
+		exporting_threads[thread_id] = ExportingThread(username, email, mode)
 		print("appel de createindentty")
-		#exporting_threads[thread_id].start() pour les Tests
+		#TEST a retirer exporting_threads[thread_id].start() pour les Tests
 		mymessage = 'Registation in progress. You will receive an email with details soon.' 
 	else :
 		if session['try_number'] > 3 :

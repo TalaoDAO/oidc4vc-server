@@ -109,7 +109,40 @@ def event_display(eventlist) :
 		event_html = event_html + thisevent 
 	return event_html, index
 
-#                                <p>""" + texte + """</p>
+
+
+# Starter, login and logout
+@app.route('/starter/', methods = ['GET', 'POST'])
+def starter() :
+		if request.method == 'GET' :
+			return render_template('starter.html')
+		else :
+			start = request.form['start']
+			if start == 'user' :
+				return redirect(mode.server + 'login/')
+			elif start == 'quick' :
+				return redirect(mode.server + 'talao/register/')
+			else :
+				return redirect(mode.server + 'starter/')
+
+
+@app.route('/login/', methods = ['GET'])
+#@app.route('/user/login/', methods = ['GET'])
+def login() :
+		return render_template('login.html')
+
+@app.route('/logout/', methods = ['GET'])
+#@app.route('/user/logout/', methods = ['GET'])
+def logout() :
+	if session.get('rememberme') != 'on' :
+		session.clear()
+	else :
+		pass
+	return render_template('login.html')
+
+
+
+
 
 ############################################################################################
 #         DATA
@@ -203,19 +236,7 @@ def data2(dataId) :
 #######################################################################################
 #                        IDENTITY
 #######################################################################################
-@app.route('/login/', methods = ['GET'])
-#@app.route('/user/login/', methods = ['GET'])
-def login() :
-		return render_template('login.html')
 
-@app.route('/logout/', methods = ['GET'])
-#@app.route('/user/logout/', methods = ['GET'])
-def logout() :
-	if session.get('rememberme') != 'on' :
-		session.clear()
-	else :
-		pass
-	return render_template('login.html')
 
 """ fonction principale d'affichage de l identité """
 @app.route('/user/', methods = ['GET'])
@@ -248,6 +269,9 @@ def user() :
 		session['education'] = user.education
 		session['did'] = user.did
 		session['eth'] = user.eth
+		session['token'] = user.token
+		session['rsa_key'] = user.rsa_key
+		session['web_relay_authorized'] = user.web_relay_authorized
 		if user.picture is None :
 			session['picture'] = "anonymous1.png"
 		else :
@@ -255,7 +279,9 @@ def user() :
 	#this_name = session['personal']['firstname']['data']+ ' '+ session['personal']['lastname']['data']
 	#(radio, mylang1, mylang2, mylang3)= session['language']
 	
-	my_event = session.get('events')
+	my_eth = session['eth']
+	my_token = session['token']
+	my_event = session['events']
 	my_picture = session['picture']
 	my_username = session['username'] 
 	my_event_html, my_counter =  event_display(session['events'])
@@ -264,6 +290,15 @@ def user() :
 	experience_list = session['experience']
 	partners_list = session['partner']		
 	education_list = session['education']
+	if session['web_relay_authorized'] :
+		web_relay_authorized = 'Yes'
+	else :
+		web_relay_authorized = 'No'
+	if session['rsa_key'] is None :
+		rsa_key = 'No'
+	else :	
+		rsa_key = 'Yes'
+	
 	
 	my_experience = ''
 	for experience in experience_list :
@@ -316,56 +351,82 @@ def user() :
 		my_education = my_education + edu_html
 	
 	my_advanced = """
-					<b>Workspace Contract</b> : """ + session['workspace_contract'] + """<br>						
-					<b>Address</b> : """ + session['address'] + """<br>				
-					<b>DID</b> : """ + session['did']			
+					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
+					<b>Workspace Address</b> : """ + session['workspace_contract'] + """<br>						
+					<b>Owner Address</b> : """ + session['address'] + """<br>				
+					<b>DID</b> : """ + session['did'] + """<br>	
+					<b>RSA Key</b> : """ + rsa_key + """<br>
+					<b>Web Relay Authorized</b> : """ + web_relay_authorized 	
+					
+							
 	
 	my_languages = ""
 	
 	my_skills = ""
-
-	my_controller = ''
+	
+	# TEST web_relay_authorized = 'No'
+	if web_relay_authorized == 'Yes':
+		my_controller_start = """<a href="/user/add_controller/">Create a Controller</a><hr> """
+	else :
+		my_controller_start = ""	
+	my_controller = ""
 	for controller in controller_list :
-		print(controller)
-		controller_html = """<hr>
-				<p>""" + controller['username'] + """
+		controller_html = """
+				<span>""" + controller['username'] + """
 					<a class="text-secondary" href="/user/remove_controller/?controller_username="""+controller['username']+"""&amp;controller_address="""+controller['address']+"""">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
 					</a>
 					<a class="text-secondary" href="#explore">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</p>"""	
-		my_controller = my_controller + controller_html
-		
+				</span>"""	
+		my_controller = my_controller + controller_html + """<br>""" 
+	my_controller = my_controller_start + my_controller
+	#else :
+	#	my_controller = """<a class = "bg-warning" > Data not available, Web Relay is not authorized (Need a management Key ERC725). </a>"""
+	
+	# TEST web_relay_authorized = 'No'
+	if web_relay_authorized == 'Yes' and rsa_key == 'Yes' :
+		my_partner_start = """<a href="/user/add_parner/">Add a Partner</a><hr> """
+	else :
+		my_partner_start = ""				
 	my_partner = ""
 	for partner in partners_list :
-		partner_html = """<hr>
-				<p>""" + partner['username'] + """
+		partner_html = """
+				<span>""" + partner['username'] + """
 					<a class="text-secondary" href="#remove">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
 					</a>
 					<a class="text-secondary" href="#explore">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</p>"""	
-		my_partner = my_partner + partner_html
+				</apn>"""	
+		my_partner = my_partner + partner_html + """<br>"""
+	my_partner = my_partner_start + my_partner 	
 		
-	my_claim_issuer = ""
+	# TEST web_relay_authorized = 'No'
+	if web_relay_authorized == 'Yes':
+		my_issuer_start = """<a href="/user/add_issuer/">Create an Issuer</a><hr> """
+	else :
+		my_issuer_start = ""	
+	my_claim_issuer = ""		
 	for issuer in issuer_list :
-		issuer_html = """<hr>
-				<p>""" + issuer['username'] + """
-					<a class="text-secondary" href="#remove">
+		issuer_html = """
+				<span>""" + issuer['username'] + """
+					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+issuer['username']+"""&amp;issuer_address="""+issuer['address']+"""">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
 					</a>
 					<a class="text-secondary" href="#explore">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</p>"""
-		my_claim_issuer = my_claim_issuer + issuer_html
+				</span>"""
+		my_claim_issuer = my_claim_issuer + issuer_html + """<br>"""
+	my_claim_issuer = my_issuer_start + my_claim_issuer
 	
-	my_account = """<b>Balance ETH</b> : """ + str(session['eth'])				
-
+	my_account = """
+					<b>Balance ETH</b> : """ + str(my_eth)+"""<br>				
+					<b>Balance TALAO</b> : """ + str(my_token)
+					
 	
 	return render_template('identity.html',
 							personal=my_personal,
@@ -421,6 +482,7 @@ def add_controller() :
 	return render_template('add_controller.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
 @app.route('/user/add_controller/', methods=['POST'])
 def add_controller_1_() :	
+	username = session['username']
 	controller_name = request.form['controller_name']
 	controller_wallet = request.form['controller_wallet']
 	workspace_contract_from = mode.relay_workspace_contract
@@ -432,7 +494,6 @@ def add_controller_1_() :
 	purpose = 1 
 	addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode, synchronous=False) 
 	addName(controller_name, controller_wallet, mode)
-	username = session['username']
 	# update controller list in session
 	contract = mode.w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
 	key_list = contract.functions.getKeysByPurpose(1).call()
@@ -459,6 +520,9 @@ def remove_controller() :
 	return render_template('remove_controller.html', picturefile=my_picture, event=my_event_html, counter=my_counter, controller_name=controller_username)
 @app.route('/user/remove_controller/', methods=['POST'])
 def remove_controller_1_() :	
+	username = session['username']
+	if request.form['remove'] == 'cancel' :
+		return redirect (mode.server +'user/?username=' + username)
 	workspace_contract_to = session['workspace_contract']
 	address_to = session['address']
 	address_partner = session['controller_address_to_remove']
@@ -466,22 +530,54 @@ def remove_controller_1_() :
 	address_from = mode.relay_address
 	workspace_contract_from = mode.relay_workspace_contract
 	private_key_from = mode.relay_private_key
-	delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode,  synchhronous=False) 
+	delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode) 
 	# update controller list in session
-	contract = mode.w3.eth.contract(workspace_contract_from, abi=constante.workspace_ABI)
+	contract = mode.w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
 	key_list = contract.functions.getKeysByPurpose(1).call()
 	controller_keys = []
 	for i in key_list :
 		key = contract.functions.getKey(i).call()
-		key_Id = mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
 		controller = data_from_publickey(key[2].hex(), mode)
-		if controller is None : 
-			controller = {'address' : 'unknown', 'workspace_contract' : 'unknown' , 'username' : 'unknown'}
-		controller_keys.append({"address": address_from, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
+		if controller is not None : 
+			controller_keys.append({"address": address_from, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
 	session['controller'] = controller_keys
-	username = session['username']
 	return redirect (mode.server +'user/?username=' + username)
 
+
+# remove issuer
+@app.route('/user/remove_issuer/', methods=['GET'])
+def remove_issuer() :	
+	issuer_username = request.args['issuer_username']
+	issuer_address : request.args['issuer_address']
+	session['issuer_address_to_remove'] = request.args['issuer_address']
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	return render_template('remove_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, issuer_name=issuer_username)
+@app.route('/user/remove_issuer/', methods=['POST'])
+def remove_issuer_1_() :	
+	username = session['username']
+	if request.form['remove'] == 'cancel' :
+		return redirect (mode.server +'user/?username=' + username)
+	workspace_contract_to = session['workspace_contract']
+	address_to = session['address']
+	address_partner = session['issuer_address_to_remove']
+	purpose = 3
+	address_from = mode.relay_address
+	workspace_contract_from = mode.relay_workspace_contract
+	private_key_from = mode.relay_private_key
+	delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode) 
+	# update issuer list in session
+	contract = mode.w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
+	key_list = contract.functions.getKeysByPurpose(3).call()
+	issuer_keys = []
+	for i in key_list :
+		key = contract.functions.getKey(i).call()
+		issuer = data_from_publickey(key[2].hex(), mode)
+		if issuer is not None : 
+			issuer_keys.append({"address": address_from, 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+	session['issuer'] = issuer_keys
+	return redirect (mode.server +'user/?username=' + username)
 
 
 @app.route('/user/experience_delete/', methods=['GET'])

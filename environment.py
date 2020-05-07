@@ -50,6 +50,7 @@ class currentMode() :
 			self.relay_address = '0x18bD40F878927E74a807969Af2e3045170669c71'
 			self.relay_workspace_contract = '0xD6679Be1FeDD66e9313b9358D89E521325e37683'
 			self.relay_private_key = '0xc5381961fcd24555420d511c758804ef8b71e63b72d3dc98f8a8e285881796f9'
+			self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])			
 			# Talao company
 			self.owner_talao='0xE7d045966ABf7cAdd026509fc485D1502b1843F1' # la company
 			self.owner_talao_private_key='0x26A0B235537FEF1672597067858379BEC0FFBCF557A25A719B8DC24E8FA573BE'
@@ -67,18 +68,19 @@ class currentMode() :
 			self.BLOCKCHAIN = "ethereum"
 			self.Talao_token_contract='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515' # Talao token
 			self.CHAIN_ID=1
-			""" Talaogen """
+			# Talaogen 
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
 			self.Talaogen_private_key=''  # pb send transaction
-			"""  fondation et factory """
+			#  fondation et factory """
 			self.foundation_contract='0xD46883ddfF92CC0474255F2F8134C63f8209171d'
 			self.foundation_address = "0xD46883ddfF92CC0474255F2F8134C63f8209171d"
 			self.workspacefactory_contract='0x7A237F06f85710b66184aFcDC55E2845F1B8f0eb'
-			"""  Web Relay """
+			#  Web Relay 
 			self.relay_address = ""
 			self.relay_workspace_contract = ""
 			self.relay_private_key = ''
-			""" company Talao """
+			self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])			
+			# Talao company 
 			self.owner_talao='' # la company
 			self.workspace_contract_talao=''
 			self.ISSUER='backend.talao.io'

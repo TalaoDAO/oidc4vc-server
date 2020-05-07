@@ -308,9 +308,7 @@ def authorizepartnership(address_from, workspace_contract_from, address_to, work
 	
 	
 	
-###################################################################
-# Demande de partnership 630 000 gas
-#
+
 # 		0 identityInformation.creator = msg.sender;
 #       1 identityInformation.category = _category;
 #       2 identityInformation.asymetricEncryptionAlgorithm = _asymetricEncryptionAlgorithm;
@@ -318,66 +316,63 @@ def authorizepartnership(address_from, workspace_contract_from, address_to, work
 #       4 identityInformation.asymetricEncryptionPublicKey = _asymetricEncryptionPublicKey;
 #       5 identityInformation.symetricEncryptionEncryptedKey = _symetricEncryptionEncryptedKey;
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
-###################################################################
-def partnershiprequest(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner,mode, synchronous= True) :
-	w3=mode.initProvider()
 
-	address_partner=contractsToOwners(workspace_contract_partner,mode)
+def partnershiprequest(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner,mode, synchronous= True) :
+#moi = address_to
+#lui = address_partner
 	
-	#moi = address_to
-	#lui = address_partner
+	w3 = mode.initProvider()
+	address_partner = contractsToOwners(workspace_contract_partner,mode)	
 	
 	#recuperer ma cle AES cryptée
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	my_aes_encrypted=data[5]
 	
 	#recuperer sa cle RSA publique
-	contract=w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
-	his_rsa_key=data[4]
+	his_rsa_key = data[4]
 
 	# read ma cle privee RSA sur le fichier
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address_to)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	with open(filename,"r") as fp :
-		my_rsa_key=fp.read()	
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address_to)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"	
+	try :
+		fp = open(filename,"r")
+		my_rsa_key = fp.read()	
 		fp.close()   
-
-	# decoder ma cle AES cryptée avec ma cle RSA privée
+	except IOError :
+		print('RSA file not found')
+		return False
+	
+	# decrypt my AES key avec my RSA key
 	key = RSA.importKey(my_rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
-	my_aes=cipher.decrypt(my_aes_encrypted)
+	my_aes = cipher.decrypt(my_aes_encrypted)
 	
 	# encryption de ma cle AES avec sa cle RSA
-	key=RSA.importKey(his_rsa_key)	
+	key = RSA.importKey(his_rsa_key)	
 	cipher = PKCS1_OAEP.new(key)
 	my_aes_encrypted_with_his_key = cipher.encrypt(my_aes)
 
-	#envoyer la transaction sur mon contrat
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-
-	# calcul du nonce de l envoyeur de token, ici address_from
+	# build, sign and send transaction
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)  
-
-	# Build transaction
 	txn = contract.functions.requestPartnership(workspace_contract_partner, my_aes_encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-		
-	# send transaction	
+	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	print('talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
 	if synchronous :
-		w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
-	return hash
-
+		w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)		
+	return True
 
 #################################################################
 #  get Privatkey
 #################################################################
 def getPrivatekey(workspace_contract,mode) :
 
-	w3=mode.initProvider()
-	fichiercsv=mode.BLOCKCHAIN+'_Talao_Identity.csv'
+	w3 = mode.initProvider()
+	fichiercsv = mode.BLOCKCHAIN+'_Talao_Identity.csv'
 	csvfile = open(fichiercsv,newline='')
 	reader = csv.DictReader(csvfile) 
 	search = False
