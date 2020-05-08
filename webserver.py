@@ -27,7 +27,7 @@ from werkzeug.utils import secure_filename
 import Talao_message
 import constante
 from protocol import Identity, Data, getresolver, getresume, load_register_from_file, address, getEmail, getPrivatekey, contractsToOwners, data_from_publickey
-from protocol import deleteName, deleteDocument, deleteClaim, readProfil, isdid, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, addkey, addName, delete_key
+from protocol import deleteName, deleteDocument, deleteClaim, readProfil, isdid, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, deleteName, addkey, addName, delete_key
 import environment
 import web_create_identity
 import web_certificate
@@ -82,7 +82,7 @@ def event_display(eventlist) :
 	index = 0
 	for key in sorted(eventlist, reverse=True) :
 		index += 1
-		date= key
+		date= key.strftime("%y/%m/%d")
 		texte = eventlist[key]['alert']
 		doc_id = eventlist[key]['doc_id']
 		event_type = eventlist[key]['event']
@@ -154,33 +154,39 @@ def logout() :
 def data2(dataId) :
 	
 	workspace_contract = '0x'+dataId.split(':')[3]
-	if session.get('workspace_contract') == workspace_contract and 'event' in session :
-		myevent = session['event']
-	else :	
-		myevent = event_display(workspace_contract)                             
-		session['event'] = myevent
+	if session.get('workspace_contract') != workspace_contract or 'events' not in session :
+		print('dans data2 de webserver.py error')	
+		
+	my_event_html, my_counter =  event_display(session['events'])
 		
 	mydata = Data(dataId,mode)
 			
 	mytopic = mydata.topic.capitalize() + ' - ' + mydata.encrypted.capitalize()
 	
 	
-	myissuer = """<b>Identity</b> : <a class = "card-link" href = """+mydata.issuer_endpoint+""">"""+mydata.issuer_id+"""</a><br>
-				<b>Type</b> : """ + mydata.issuer_type + """<br>				
+	myissuer = """
 				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username
+				<b>Username</b> : """ + mydata.issuer_username +"""<br>
+				<b>Type</b> : """ + mydata.issuer_type + """<br>				
+				<b>Identity</b> : <a class = "card-link" href = """+mydata.issuer_endpoint+""">"""+mydata.issuer_id+"""</a>
+				<p>
+					<a class="text-secondary" href=/data/""" + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</p>"""
 	
 	myprivacy = """ <b>Privacy</b> : """ + mydata.encrypted + """<br>"""
 	
 	
-	myadvanced = """<b>Data Id</b> : """ + mydata.id + """<br>
+	myadvanced = """
+				<b>Data Id</b> : """ + mydata.id + """<br>
 				<b>Created</b> : """ + mydata.created + """<br>	
-				<b>Expires</b> : """ + mydata.expires.capitalize() + """<br>
+				<b>Expires</b> : """ + mydata.expires + """<br>
 				<b>Signature</b> : """ + mydata.signature + """<br>
-				<b>Signature Type</b> : """ + mydata.signatureType + """<br>
-				<b>Signature Check</b> : """ + mydata.signatureCheck + """<br>
-				<b>Transaction Hash</b> : """ + mydata.transactionHash + """<br>					
-				<b>Data storage</b> : <a class="card-link" href=""" + mydata.datalocation + """>""" + mydata.datalocation + """</a>"""
+				<b>Signature Type</b> : """ + mydata.signature_type + """<br>
+				<b>Signature Check</b> : """ + mydata.signature_check + """<br>
+				<b>Transaction Hash</b> : """ + mydata.transaction_hash + """<br>					
+				<b>Data storage</b> : <a class="card-link" href=""" + mydata.data_location + """>""" + mydata.data_location + """</a>"""
 	
 	""" topic = Experience """
 	if mydata.topic.capitalize() == "Experience"  :
@@ -206,8 +212,9 @@ def data2(dataId) :
 	else :
 		mytitle = 'Profil'
 		mysummary = ''		
-		myvalue = """<b>"""+mydata.topic.capitalize()+"""</b> : """+mydata.value
-	
+		#myvalue = """<b>"""+mydata.topic.capitalize()+"""</b> : """+mydata.value
+		myvalue = ""
+		
 	if session.get('picture') is None :
 		mypicture = 'anonymous1.jpeg'
 	else :
@@ -227,7 +234,8 @@ def data2(dataId) :
 							privacy = myprivacy,
 							advanced = myadvanced,
 							delete_link = mydelete_link,
-							event = myevent,
+							event = my_event_html,
+							counter = my_counter,
 							picturefile = mypicture,
 							username = myusername)
 
@@ -299,7 +307,7 @@ def user() :
 	else :	
 		rsa_key = 'Yes'
 	
-	
+	# experience
 	my_experience = ''
 	for experience in experience_list :
 		exp_html = """<hr> 
@@ -316,23 +324,70 @@ def user() :
 				</p>"""	
 		my_experience = my_experience + exp_html
 	
+	# personal
 	my_personal = """ 
-				<b>Firstname</b> : <a class="card-link" href=/data/"""+session['personal']['firstname']['id']+""">"""+session['personal']['firstname']['data']+"""</a><br>
-				<b>Lastname</b> : <a class="card-link" href=/data/"""+session['personal']['lastname']['id']+""">"""+session['personal']['lastname']['data']+"""</a><br>
-				<b>Authentification Email</b> : <a class="card-link" href=/data/"""+session['personal']['email']['id']+""">"""+session['personal']['email']['data']+"""</a><br>				
-				<b>Username</b> : <a class="card-link" href=/username/?username="""+session['username']+""">"""+session['username']+"""</a><br>
-				<b>Picture</b> : <a class="card-link" href=/picture/"""+session['picture']+""">"""+session['picture']+"""</a>"""	
+				<span><b>Firstname</b> : """+session['personal']['firstname']['data']+"""				
+					<a class="text-secondary" href="#remove">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+					</a>
+					<a class="text-secondary" href=/data/"""+session['personal']['firstname']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Lastname</b> : """+session['personal']['lastname']['data']+"""
+					<a class="text-secondary" href="#remove">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+					</a>
+					<a class="text-secondary" href=/data/"""+session['personal']['lastname']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Authentification Email</b> : """+session['personal']['email']['data']+"""	
+					<a class="text-secondary" href="#remove">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+					</a>
+					<a class="text-secondary" href=/data/"""+session['personal']['email']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>			
+							
+				<span><b>Username</b> : """+session['username']+"""
+					<a class="text-secondary" href="#remove">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+					</a>
+					<a class="text-secondary" href=/data/"""+session['username'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Picture</b>  	
+					<a class="text-secondary" href="#remove">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+					</a>
+					<a class="text-secondary" href=/data/"""+session['picture'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span>"""
 	
+	# contact
 	if session['contact'] is None :
 		my_contact =  """ <a class="card-link" href="">Add Contact</a>"""
 	else :
-		my_contact = """
-					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """</a><br>						
-					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """</a><br>				
-					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """</a><br>				
-					<a class="card-link" href=/data/""" + session['contact']['id'] + """>Delete or Update</a>"""				
+		my_contact = """<span>
+					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """<br>						
+					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """<br>				
+					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """<br>				
+						<a class="text-secondary" href="#remove">
+							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
+						</a>
+						<a class="text-secondary" href=/data/"""+session['contact']['id'] + """>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						</a>
+					</span>"""	
 	
-	
+	# education
 	my_education = ""
 	for education in education_list :
 		edu_html = """<hr> 
@@ -350,6 +405,7 @@ def user() :
 				</p>"""	
 		my_education = my_education + edu_html
 	
+	# advanced
 	my_advanced = """
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
 					<b>Workspace Address</b> : """ + session['workspace_contract'] + """<br>						
@@ -359,12 +415,13 @@ def user() :
 					<b>Web Relay Authorized</b> : """ + web_relay_authorized 	
 					
 							
-	
+	# languages
 	my_languages = ""
 	
+	# skills
 	my_skills = ""
 	
-	# TEST web_relay_authorized = 'No'
+	# controller
 	if web_relay_authorized == 'Yes':
 		my_controller_start = """<a href="/user/add_controller/">Create a Controller</a><hr> """
 	else :
@@ -382,10 +439,8 @@ def user() :
 				</span>"""	
 		my_controller = my_controller + controller_html + """<br>""" 
 	my_controller = my_controller_start + my_controller
-	#else :
-	#	my_controller = """<a class = "bg-warning" > Data not available, Web Relay is not authorized (Need a management Key ERC725). </a>"""
 	
-	# TEST web_relay_authorized = 'No'
+	# partner
 	if web_relay_authorized == 'Yes' and rsa_key == 'Yes' :
 		my_partner_start = """<a href="/user/add_parner/">Add a Partner</a><hr> """
 	else :
@@ -403,10 +458,11 @@ def user() :
 				</apn>"""	
 		my_partner = my_partner + partner_html + """<br>"""
 	my_partner = my_partner_start + my_partner 	
-		
-	# TEST web_relay_authorized = 'No'
+	
+	
+	# issuer	
 	if web_relay_authorized == 'Yes':
-		my_issuer_start = """<a href="/user/add_issuer/">Create an Issuer</a><hr> """
+		my_issuer_start = """<a href="/user/add_issuer/">Add an Issuer</a><hr> """
 	else :
 		my_issuer_start = ""	
 	my_claim_issuer = ""		
@@ -423,6 +479,7 @@ def user() :
 		my_claim_issuer = my_claim_issuer + issuer_html + """<br>"""
 	my_claim_issuer = my_issuer_start + my_claim_issuer
 	
+	# account
 	my_account = """
 					<b>Balance ETH</b> : """ + str(my_eth)+"""<br>				
 					<b>Balance TALAO</b> : """ + str(my_token)
@@ -495,25 +552,19 @@ def add_controller_1_() :
 	addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode, synchronous=False) 
 	addName(controller_name, controller_wallet, mode)
 	# update controller list in session
-	contract = mode.w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
-	key_list = contract.functions.getKeysByPurpose(1).call()
-	controller_keys = []
-	for i in key_list :
-		key = contract.functions.getKey(i).call()
-		key_Id = mode.w3.soliditySha3(['string', 'string'], [key[2].hex(), 'MANAGEMENT']).hex()
-		controller = data_from_publickey(key[2].hex(), mode)
-		if controller is None : 
-			controller = {'workspace_contract' : 'unknown' , 'username' : 'unknown'}
-		controller_keys.append({"address": address_to, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
-	session['controller'] = controller_keys
+	controller_key = mode.w3.soliditySha3(['address'], [controller_wallet])
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
+	controller_workspace_contract = None	
+	session['controller'].append({"address": controller_wallet, "publickey": controller_key.hex()[2:], "workspace_contract" : controller_workspace_contract , 'username' : controller_name } )	
 	return redirect (mode.server +'user/?username=' + username)
 
-# remove controller
+# remove controller Les controller ne sont que des devices, ils n ont pas d de workspaces
 @app.route('/user/remove_controller/', methods=['GET'])
 def remove_controller() :	
 	controller_username = request.args['controller_username']
-	controller_address : request.args['controller_address']
-	session['controller_address_to_remove'] = request.args['controller_address']
+	controller_address = request.args['controller_address']
+	session['controller_address_to_remove'] = controller_address
+	session['controller_name_to_remove'] = controller_username
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -530,17 +581,15 @@ def remove_controller_1_() :
 	address_from = mode.relay_address
 	workspace_contract_from = mode.relay_workspace_contract
 	private_key_from = mode.relay_private_key
-	delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode) 
+	delete_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode,synchronous=False) 
+	deleteName(session['controller_name_to_remove'], mode)
 	# update controller list in session
-	contract = mode.w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
-	key_list = contract.functions.getKeysByPurpose(1).call()
-	controller_keys = []
-	for i in key_list :
-		key = contract.functions.getKey(i).call()
-		controller = data_from_publickey(key[2].hex(), mode)
-		if controller is not None : 
-			controller_keys.append({"address": address_from, 	"publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
-	session['controller'] = controller_keys
+	for i in range(0, len(session['controller'])) :
+		if session['controller'][i]['address'] == session['controller_address_to_remove'] :
+			del session['controller'][i]
+	del session['controller_address_to_remove']
+	del session['controller_name_to_remove']
+	print(session['controller'])
 	return redirect (mode.server +'user/?username=' + username)
 
 

@@ -249,22 +249,29 @@ def deleteName(username, mode) :
 #################################################
 def updateName(username, newusername, mode) :
 	
-	workspace_contract = address(username, mode.register)
-	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	# recuperation de l email
-	try :
-		a = contract.functions.getClaimIdsByTopic(101109097105108).call()
-	except :
-		return False
-	if len(a) != 0:
-		claimId = a[len(a)-1].hex()
-		email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+	if mode.register.get(namehash(username.lower())) is None :
+		print ('username does not exist')
+		return False	
+	address = mode.register.get(namehash(username.lower()))['address']
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
+	workspace_contract = contract.functions.ownersToContracts(address).call()
+	if workspace_contract != '0x0000000000000000000000000000000000000000' :
+		# get email
+		contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+		try :
+			a = contract.functions.getClaimIdsByTopic(101109097105108).call()
+		except :			
+			return False
+		if len(a) != 0:
+			claimId = a[-1].hex()
+			email = contract.functions.getClaim(claimId).call()[4].decode('utf-8')
+			print('email = ', email)
+		else :
+			return False
 	else :
-		return False
+		email = 'Unknown'	
 	# calcul du keccak (publickey)
-	contract = w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
-	address = contract.functions.contractsToOwners(workspace_contract).call()
-	key = w3.soliditySha3(['address'], [address])			
+	key = mode.w3.soliditySha3(['address'], [address])			
 	# effacement de l ancien username 
 	del mode.register[namehash(username.lower())]
 	did = 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
@@ -275,5 +282,6 @@ def updateName(username, newusername, mode) :
 		print('IOError ; impossible de stocker le fichier')
 		return False
 	json.dump(mode.register, myfile)
+	print('register ok')
 	myfile.close()
 	return True

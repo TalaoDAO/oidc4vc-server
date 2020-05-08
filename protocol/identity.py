@@ -103,23 +103,23 @@ class Identity() :
 				if i == 0 and issuer_workspace_contract != self.workspace_contract :
 					eventType='DocumentAdded' 
 					doc_id= 'did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':document:'+str(doc['args']['id'])
-					helptext = issuer_name +' issued a new document'	
-					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
+					helptext = issuer_name +' issued a new certificate'	
+					alert[date] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				elif i == 1 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'ClaimAdded' 
 					doc_id='did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':claim:'+str(doc['args']['claimId'].hex())
-					helptext= issuer_name + ' issued a new claim'
-					alert[str(date)] =  {'alert' : helptext,'event' : eventType, 'doc_id' : doc_id}
+					helptext= issuer_name + ' issued a new certificate'
+					alert[date] =  {'alert' : helptext,'event' : eventType, 'doc_id' : doc_id}
 				elif i == 2 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'PartnershipRequested' 					
 					doc_id = None
 					helptext= 'Request for partnership from ' + issuer_name
-					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
+					alert[date] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				elif i == 3 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'PartnershipAccepted' 					
 					doc_id = None
 					helptext= 'Partnership accepted by ' + issuer_name
-					alert[str(date)] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
+					alert[date] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				else :
 					pass								
 		self.eventslist = alert

@@ -39,15 +39,17 @@
 									</div>
                             </li>
                             
-                            
-                            
+                               
                             <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown show no-arrow"><a class="nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"></a>
-                                    <div
-                                        class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
-									</div>
-							</li>
+                                <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"><!--retrer dropdown-toggle de la class du nav link
+Comment--></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-file-text-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Request Certificate</a>
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit&nbsp;</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                </div>
+                            </li>
+                           
 							
 							
                     </ul>
@@ -77,14 +79,14 @@
                                                 <h5 class="mb-0"><i class="fa fa-phone"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Contact</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
+                                                <div class="card-body"><a href="#"></a>
                                                     <p class="card-text">{{contact|safe}}</p>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
+                                                <h5 class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
                                             </div>
                                             <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body"><a href="#">Add Experience</a>
@@ -133,7 +135,7 @@
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text controller"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Controller</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A controller allows you to acces and manage your Identity through different devices (Smartphone, PC,...). The talao.web.relay is a special controller which gives you access to your Identity through this app."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Controller</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">					
 													<div class="card-body"><p class="card-text">{{controller|safe}}</p></div>                                                  
@@ -161,21 +163,7 @@
                                         </div>
                                        
                                        
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text services"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; Services</a></h5>
-                                            </div>
-                                            <div class="collapse item-4" role="tabpanel" data-parent="#accordion-2">			 
-												 <div class="card-body">
-													 <p class="card-text"> 
-														<a class="card-link"><a href="#">Request Certificates</a><br>
-														<a class="card-link"><a href="#">Request a Partnership</a><br>
-														<a class="card-link"><a href="#">Authorize an Issuer</a><br>
-													 </p>
-												</div>
-														
-                                            </div>
-                                        </div>
+                                      
                                         
                                         
                                         
@@ -192,7 +180,7 @@
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
-                                                <h5 class="mb-0"><i class="fa fa-gear"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Advanced</a></h5>
+                                                <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Advanced</a></h5>
                                             </div>
                                             <div class="collapse item-6" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body">

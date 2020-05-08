@@ -33,8 +33,9 @@ class Data() :
 		self.issuer_workspace_contract = '0x'+ self.issuer_id.split(':')[3]
 		self.issuer_endpoint = my_data['data']['issuer']['endpoint']		
 		self.issuer_type = my_data['data']['issuer']['type']
+		print(self.issuer_type)
 		
-		if self.issuer_type == 'person' :			
+		if self.issuer_type == 'individual' :			
 			self.issuer_firstname = my_data['data']['issuer']['data']['firstname']
 			self.issuer_lastname = my_data['data']['issuer']['data']['lastname']
 			self.issuer_name = self.issuer_firstname + ' ' + self.issuer_lastname
@@ -52,12 +53,12 @@ class Data() :
 		self.issuer_username = getUsername(self.issuer_workspace_contract,self.mode)
 		self.topic = my_data['data']['topic']
 		self.value = my_data['data']['value']
-		self.expires = my_data['data']['expires']
+		self.expires = my_data['data']['expires'].strftime("%y/%m/%d")
 		self.encrypted = my_data['data']['encrypted']
-		self.datalocation = my_data['data']['location']
-		self.signatureType = my_data['data']['signaturetype']
+		self.data_location = my_data['data']['location']
+		self.signature_type = my_data['data']['signaturetype']
 		self.signature = my_data['data']['signature']
-		self.signatureCheck = my_data['data']['signature_check']
+		self.signature_check = my_data['data']['signature_check']
 		
 		if self.type == 'claim' :
 			contract = self.mode.w3.eth.contract(self.identity_workspace_contract,abi=constante.workspace_ABI)
@@ -66,10 +67,10 @@ class Data() :
 			for doc in event_list :
 				if doc['args']['claimId'].hex() == self.id.split(':')[5] :
 					transactionhash = doc['transactionHash']
-					self.transactionHash = transactionhash.hex()
+					self.transaction_hash = transactionhash.hex()
 					transaction = self.mode.w3.eth.getTransaction(transactionhash)
 					blocknumber = transaction['blockNumber']
-					self.blockNumber = str(blocknumber)
+					self.block_number = str(blocknumber)
 					block = self.mode.w3.eth.getBlock(blocknumber)
 					date = datetime.fromtimestamp(block['timestamp'])	
 					self.created = date.strftime("%y/%m/%d")
@@ -82,10 +83,10 @@ class Data() :
 			for doc in event_list :
 				if doc['args']['id'] == int(self.id.split(':')[5]) :
 					transactionhash = doc['transactionHash']
-					self.transactionHash = transactionhash.hex()
+					self.transaction_hash = transactionhash.hex()
 					transaction = self.mode.w3.eth.getTransaction(transactionhash)
 					blocknumber = transaction['blockNumber']
-					self.blockNumber = blocknumber
+					self.block_number = blocknumber
 					block = self.mode.w3.eth.getBlock(blocknumber)
 					date = datetime.fromtimestamp(block['timestamp'])	
 					self.created = date.strftime("%y/%m/%d")
