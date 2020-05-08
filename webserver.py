@@ -132,7 +132,6 @@ def login() :
 		return render_template('login.html')
 
 @app.route('/logout/', methods = ['GET'])
-#@app.route('/user/logout/', methods = ['GET'])
 def logout() :
 	if session.get('rememberme') != 'on' :
 		session.clear()
@@ -152,11 +151,10 @@ def logout() :
 
 @app.route('/data/<dataId>', methods=['GET'])
 def data2(dataId) :
-	
 	workspace_contract = '0x'+dataId.split(':')[3]
 	if session.get('workspace_contract') != workspace_contract or 'events' not in session :
 		print('dans data2 de webserver.py error')	
-		
+	
 	my_event_html, my_counter =  event_display(session['events'])
 		
 	mydata = Data(dataId,mode)
@@ -165,28 +163,31 @@ def data2(dataId) :
 	
 	
 	myissuer = """
+				<span>
 				<b>Name</b> : """ + mydata.issuer_name + """<br>
 				<b>Username</b> : """ + mydata.issuer_username +"""<br>
 				<b>Type</b> : """ + mydata.issuer_type + """<br>				
-				<b>Identity</b> : <a class = "card-link" href = """+mydata.issuer_endpoint+""">"""+mydata.issuer_id+"""</a>
-				<p>
-					<a class="text-secondary" href=/data/""" + """>
+					<a class="text-secondary" href=/data/"""+mydata.issuer_id+""" >
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</p>"""
+				</span>"""
 	
 	myprivacy = """ <b>Privacy</b> : """ + mydata.encrypted + """<br>"""
 	
 	
+	if mydata.data_location == 'rinkeby' :
+		path = """https://rinkeby.etherscan.io/tx/"""
+	else :
+		path = """https://etherscan.io/tx/"""
 	myadvanced = """
-				<b>Data Id</b> : """ + mydata.id + """<br>
+		<!--		<b>Data Id</b> : """ + mydata.id + """<br>  -->
 				<b>Created</b> : """ + mydata.created + """<br>	
 				<b>Expires</b> : """ + mydata.expires + """<br>
 				<b>Signature</b> : """ + mydata.signature + """<br>
-				<b>Signature Type</b> : """ + mydata.signature_type + """<br>
 				<b>Signature Check</b> : """ + mydata.signature_check + """<br>
-				<b>Transaction Hash</b> : """ + mydata.transaction_hash + """<br>					
+				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + mydata.transaction_hash + """>"""+ mydata.transaction_hash + """</a><br>					
 				<b>Data storage</b> : <a class="card-link" href=""" + mydata.data_location + """>""" + mydata.data_location + """</a>"""
+	
 	
 	""" topic = Experience """
 	if mydata.topic.capitalize() == "Experience"  :
@@ -201,8 +202,6 @@ def data2(dataId) :
 				<b>End Date</b> : """+mydata.value['endDate']+"""<br>
 				<b>Skills</b> : """+mydata.value['skills']+"""<br>
 				<b>Certificate</b> : """+mydata.value['certificate_link']
-	
-	
 	elif mydata.topic.capitalize() == "Education" :
 		print('mydatatopic = ', mydata.topic)
 		return 'work in progress'
@@ -212,8 +211,7 @@ def data2(dataId) :
 	else :
 		mytitle = 'Profil'
 		mysummary = ''		
-		#myvalue = """<b>"""+mydata.topic.capitalize()+"""</b> : """+mydata.value
-		myvalue = ""
+		myvalue = """<b>"""+mydata.topic.capitalize()+"""</b> : """+mydata.value
 		
 	if session.get('picture') is None :
 		mypicture = 'anonymous1.jpeg'
@@ -250,6 +248,7 @@ def data2(dataId) :
 @app.route('/user/', methods = ['GET'])
 def user() :
 	if request.args.get('option') is not None :
+		print (request.args['option'])
 		session['rememberme'] = request.args.get('option')
 	else :
 		pass
@@ -428,7 +427,8 @@ def user() :
 		my_controller_start = ""	
 	my_controller = ""
 	for controller in controller_list :
-		controller_html = """
+		if controller['address'] != mode.relay_address :
+			controller_html = """
 				<span>""" + controller['username'] + """
 					<a class="text-secondary" href="/user/remove_controller/?controller_username="""+controller['username']+"""&amp;controller_address="""+controller['address']+"""">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
@@ -437,7 +437,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span>"""	
-		my_controller = my_controller + controller_html + """<br>""" 
+			my_controller = my_controller + controller_html + """<br>""" 
 	my_controller = my_controller_start + my_controller
 	
 	# partner

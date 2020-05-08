@@ -53,7 +53,7 @@ class Data() :
 		self.issuer_username = getUsername(self.issuer_workspace_contract,self.mode)
 		self.topic = my_data['data']['topic']
 		self.value = my_data['data']['value']
-		self.expires = my_data['data']['expires'].strftime("%y/%m/%d")
+		self.expires = my_data['data']['expires']
 		self.encrypted = my_data['data']['encrypted']
 		self.data_location = my_data['data']['location']
 		self.signature_type = my_data['data']['signaturetype']

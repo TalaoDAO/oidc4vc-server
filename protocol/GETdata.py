@@ -216,7 +216,7 @@ def getdoc(index, workspace_contract,mode) :
 	if doc[2] == 0 :
 		date = 'Unlimited'
 	else :			
-		date=datetime.fromtimestamp(doc[2])
+		date=datetime.fromtimestamp(doc[2]).strftime("%y/%m/%d")
 	if doc[7]== False :
 		encrypted = 'Public'
 	else :
@@ -279,7 +279,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 	contract = w3.eth.contract(whatisthisaddress(issuer,mode)["workspace"],abi = constante.workspace_ABI)
 	identityinformation = contract.functions.identityInformation().call()[1]
 	if identityinformation == 1001 :
-		category = "person"
+		category = "individual"
 		path = "resume"
 	else :
 		category = "company"	
@@ -323,7 +323,7 @@ def getclaim (claim_id, workspace_contract,mode) :
 			claim['data']['value']['certificate_link']="No"	
 	else :		
 		claim['data']['value'] = claimdata[4].decode('utf-8')
-		claim['data']['location'] = mode.BLOCKCHAIN
+		claim['data']['location'] = mode.BLOCKCHAIN # a corriger pour ne pas avoir de pb du lien dans webserver.py
 
 	claim['data']['expires'] = date
 	claim['data']['encrypted'] = 'Public'

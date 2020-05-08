@@ -33,7 +33,8 @@
                             <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
                             <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
                             <li class="nav-item dropdown no-arrow mx-1" role="presentation">
-                                <div class="nav-item dropdown show no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="False" href="#"><span class="badge badge-danger badge-counter">{{counter}}+</span><i class="fas fa-bell fa-fw"></i></a>
+                                
+                                <div class="nav-item dropdown show no-arrow"><a class="nav-link" data-toggle="dropdown" aria-expanded="False" href="#"><span class="badge badge-danger badge-counter">{{counter}}+</span><i class="fas fa-bell fa-fw"></i></a>
                                     <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
                                         role="menu">
                                         <h6 class="dropdown-header">Events Center</h6>
@@ -42,11 +43,14 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown  no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="False" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" style = "width: 30px;height: 30px;" src="{{ url_for('send_file', filename=picturefile) }}"></a>
-                                    <div
-                                        class="dropdown-menu  shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="/user/?username={{username}}"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Identitty</a><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
-                                        <div
-                                            class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                <div class="nav-item dropdown  no-arrow"><a class=" nav-link" data-toggle="dropdown" aria-expanded="False" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" style = "width: 30px;height: 30px;" src="{{ url_for('send_file', filename=picturefile) }}"></a>
+                                    
+                                    <div class="dropdown-menu  shadow dropdown-menu-right animated--grow-in" role="menu">
+																				<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-file-text-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Request Certificate</a>
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit&nbsp;</a>
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-calculator fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Buy/Sell TALAO token&nbsp;</a>
+                                        <div class="dropdown-divider">
+                                        </div><a class="dropdown-item" role="presentation" href="/logout/"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
             </div>
             </li>
             </ul>
@@ -98,12 +102,12 @@
                                     </div>
                                     <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
                                         <div class="card-body">
-                                            <p class="card-text">&nbsp;{{advanced|safe}}</p>
+                                            <p class="card-text">{{advanced|safe}}</p>
                                         </div>
                                     </div>
                                 </div>
-                            </div><a class="card-link" data-toggle="tooltip" data-bs-tooltip="" href="/talao/api/data/delete/" title="text delete">Delete this data</a><a class="card-link" data-toggle="tooltip" data-bs-tooltip="" href="/talao/api/data/delete/"
-                                title="text update">Update this data</a></div>
+                            </div><a class="card-link" data-toggle="tooltip" data-bs-tooltip="" href="/user/?username={{username}}" title="Back">Back</a>
+                        <!--    <a class="card-link" data-toggle="tooltip" data-bs-tooltip="" href="/talao/api/data/delete/"title="text update">Update this data</a></div> -->
                     </div>
                 </div>
                 <div class="col"></div>
