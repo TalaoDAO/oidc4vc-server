@@ -11,7 +11,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 """
 import os
 from flask import Flask, session, send_from_directory, flash, send_file
-from flask import request, redirect, render_template
+from flask import request, redirect, render_template,abort
 from flask_session import Session
 from flask_api import FlaskAPI, status
 import ipfshttpclient
@@ -26,7 +26,8 @@ from werkzeug.utils import secure_filename
 # dependances
 import Talao_message
 import constante
-from protocol import Identity, Data, getresolver, getresume, load_register_from_file, address, getEmail, getPrivatekey, contractsToOwners, data_from_publickey
+from protocol import Identity, Data
+from protocol import getresolver, getresume, load_register_from_file, address, getEmail, getPrivatekey, contractsToOwners, data_from_publickey
 from protocol import deleteName, deleteDocument, deleteClaim, readProfil, isdid, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, deleteName, addkey, addName, delete_key
 import environment
 import web_create_identity
@@ -95,8 +96,7 @@ def event_display(eventlist) :
 		
 		if event_type == 'DocumentRemoved' or event_type == 'ClaimRemoved' :
 			icon = 'class="fas fa-trash-alt text-white"'
-			background = 'class="bg-warning icon-circle"'
-		
+			background = 'class="bg-warning icon-circle"'	
 		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """>
 							<div class="mr-3"> <div """ + background + """><i """ + icon + """></i></div></div>
 							<div>
@@ -104,14 +104,11 @@ def event_display(eventlist) :
 								<div class = "text-truncate">
                                 <span>""" + texte + """</span></div>
                             </div>
-                        </a>"""
-		
+                        </a>"""	
 		event_html = event_html + thisevent 
 	return event_html, index
 
-
-
-# Starter, login and logout
+# Starter with 3 options, login and logout
 @app.route('/starter/', methods = ['GET', 'POST'])
 def starter() :
 		if request.method == 'GET' :
@@ -122,26 +119,83 @@ def starter() :
 				return redirect(mode.server + 'login/')
 			elif start == 'quick' :
 				return redirect(mode.server + 'talao/register/')
-			else :
+			elif start == 'advanced' :
 				return redirect(mode.server + 'starter/')
-
+			else :
+				pass
 
 @app.route('/login/', methods = ['GET'])
 #@app.route('/user/login/', methods = ['GET'])
 def login() :
-		return render_template('login.html')
+	return render_template('login.html')
+		
+### recuperation de l email et username
+@app.route('/login/authentification/', methods = ['POST'])
+def login_1() :	
+	username = request.form['username']	
+	session.clear()
+	session['username_to_log'] = username
+	session['remember_me'] = request.form.get('remember_me')
+	if address(username, mode.register) is None :
+		my_message = "Username not found"		
+		return render_template('login.html', message=my_message)
+	workspace_contract = address(username, mode.register)
+	if workspace_contract is None :
+		print('address has no Identity')		
+	session['workspace_contract_to_log'] = workspace_contract	
+	print('workspace contract to log = ', workspace_contract)
+	email = getEmail(workspace_contract, mode)
+	session['email_to_log'] = email
+	print('email = ', email)
+	# secret code sent by email
+	if session.get('code') is None :
+		code = str(random.randint(100000, 999999))
+		session['try_number'] = 1
+		session['code'] = code
+		Talao_message.messageAuth(email, str(code))
+		print('secret code = ', code)
+	else :
+		print("secret code already sent")
+	return render_template("login_2.html", message = '')
 
+# recuperation du code saisi
+@app.route('/login/authentification/code/', methods = ['POST'])
+def login_2() :
+	email_to_log = session.get('email_to_log')
+	username_to_log = session.get('username_to_log')
+	code = request.form['code']
+	if not session.get('code') : 
+		return "renvoyer au login"
+	session['try_number'] +=1
+	print('code retourné = ', code)
+	print (session)
+	if code == session.get('code') or code == "123456": # pour les tests
+		print('code correct, do something')
+		session['workspace_contract_logged'] = session['workspace_contract_to_log']
+		session['username_logged'] = session['username_to_log']
+		session['email'] = session['email_to_log']
+		del session['workspace_contract_to_log']
+		del session['username_to_log']
+		del session['try_number']
+		del session['code'] 
+		return redirect(mode.server + 'user/?username=' + session['username_logged'])		
+		mymessage = 'login ok, to be completed................' 
+	else :
+		if session['try_number'] > 3 :
+			mymessage = "Too many trials (3 max)"
+			return render_template("login_3.html", message=mymessage)
+		mymessage = 'This code is incorrect'
+		return render_template("login_2.html", message=mymessage)
+	return render_template("login_3.html", message=mymessage)		
+
+# logout
 @app.route('/logout/', methods = ['GET'])
 def logout() :
-	if session.get('rememberme') != 'on' :
+	if session.get('remember_me') != 'on' :
 		session.clear()
 	else :
 		pass
 	return render_template('login.html')
-
-
-
-
 
 ############################################################################################
 #         DATA
@@ -159,8 +213,9 @@ def data2(dataId) :
 		
 	mydata = Data(dataId,mode)
 			
-	mytopic = mydata.topic.capitalize() + ' - ' + mydata.encrypted.capitalize()
+	mytopic = mydata.topic.capitalize()
 	
+	myvisibility = mydata.encrypted.capitalize()
 	
 	myissuer = """
 				<span>
@@ -225,6 +280,7 @@ def data2(dataId) :
 		
 	return render_template('data.html',
 							topic = mytopic,
+							visibility = myvisibility,
 							issuer = myissuer,
 							title = mytitle,
 							summary = mysummary,
@@ -237,8 +293,211 @@ def data2(dataId) :
 							picturefile = mypicture,
 							username = myusername)
 
-# 70 39 04 06#
-# tel 0172260470
+
+#######################################################################################
+#                        GUEST
+#######################################################################################
+
+
+""" fonction principale d'affichage de l identité """
+@app.route('/guest/', methods = ['GET'])
+def guest() :
+	username = request.args.get('username')
+	workspace_contract = address(username, mode.register)	
+	print('guest')
+	if username != session.get('username') :
+		session.clear()
+	if session.get('uploaded') is None :
+		print('first instanciation user')
+		user = Identity(workspace_contract, mode)
+		session['uploaded'] = True
+		session['username'] = user.username		
+		session['address'] = user.address
+		session['workspace_contract'] = user.workspace_contract
+		session['experience'] = user.experience
+		session['personal'] = user.personal
+		session['name'] = user.name
+		session['contact'] = user.contact
+		session['language'] = user.language
+		session['events']=  user.eventslist
+		session['controller'] = user.managementkeys
+		session['issuer'] = user.claimkeys
+		session['partner'] = user.partners
+		session['education'] = user.education
+		session['did'] = user.did
+		if user.picture is None :
+			session['picture'] = "anonymous1.png"
+		else :
+			session['picture'] = user.picture		
+	#this_name = session['personal']['firstname']['data']+ ' '+ session['personal']['lastname']['data']
+	#(radio, mylang1, mylang2, mylang3)= session['language']
+	
+	my_name = session['name']
+	my_event = session['events']
+	my_picture = session['picture']
+	my_username = session['username'] 
+	my_event_html, my_counter =  event_display(session['events'])
+	controller_list = session['controller']
+	issuer_list = session['issuer']
+	experience_list = session['experience']
+	partners_list = session['partner']		
+	education_list = session['education']
+	
+	
+	# experience
+	my_experience = ''
+	for experience in experience_list :
+		exp_html = """<hr> 
+				<b>Company</b> : """+experience['organization']['name']+"""<br>			
+				<b>Title</b> : """+experience['title']+"""<br>
+				<b>Description</b> : """+experience['description'][:100]+"""...<br>
+				<p>
+					
+					<a class="text-secondary" href=/data/"""+experience['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</p>"""	
+		my_experience = my_experience + exp_html
+	
+	# personal
+	my_personal = """ 
+				<span><b>Firstname</b> : """+session['personal']['firstname']['data']+"""				
+					
+					<a class="text-secondary" href=/data/"""+session['personal']['firstname']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Lastname</b> : """+session['personal']['lastname']['data']+"""
+					
+					<a class="text-secondary" href=/data/"""+session['personal']['lastname']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Authentification Email</b> : """+session['personal']['email']['data']+"""	
+					
+					<a class="text-secondary" href=/data/"""+session['personal']['email']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>			
+							
+				<span><b>Username</b> : """+session['username']+"""
+					
+					<a class="text-secondary" href=/data/"""+session['username'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Picture</b>  	
+					
+					<a class="text-secondary" href=/data/"""+session['picture'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span>"""
+	
+	# contact
+	if session['contact'] is None :
+		my_contact =  """ <a class="card-link" href="">Add Contact</a>"""
+	else :
+		my_contact = """<span>
+					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """<br>						
+					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """<br>				
+					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """<br>				
+						
+						<a class="text-secondary" href=/data/"""+session['contact']['id'] + """>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						</a>
+					</span>"""	
+	
+	# education
+	my_education = ""
+	for education in education_list :
+		edu_html = """<hr> 
+				<b>Organization</b> : """+education['data']['organization']+"""<br>			
+				<b>Title</b> : """+education['data']['studyType']+"""<br>
+				<b>Start Date</b> : """+education['data']['startDate']+"""<br>
+				<b>End Date</b> : """+education['data']['endDate']+"""<br>				
+				<p>
+					
+					<a class="text-secondary" href=/data/"""+education['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</p>"""	
+		my_education = my_education + edu_html
+	
+	# advanced
+	my_advanced = """
+					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
+					<b>Workspace Address</b> : """ + session['workspace_contract'] + """<br>						
+					<b>Owner Address</b> : """ + session['address'] + """<br>				
+					<b>DID</b> : """ + session['did'] 	
+					
+							
+	# languages
+	my_languages = ""
+	
+	# skills
+	my_skills = ""
+	
+	# controller
+	my_controller = ""
+	for controller in controller_list :
+		if controller['address'] != mode.relay_address :
+			controller_html = """
+				<span>""" + controller['username'] + """
+					<a class="text-secondary" href="/user/remove_controller/?controller_username="""+controller['username']+"""&amp;controller_address="""+controller['address']+"""">
+						
+					</a>
+					<a class="text-secondary" href="#explore">
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span>"""	
+			my_controller = my_controller + controller_html + """<br>""" 
+	
+	# partner
+	my_partner = ""
+	for partner in partners_list :
+		partner_html = """
+				<span>""" + partner['username'] + """
+					
+					<a class="text-secondary" href="#explore">
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</apn>"""	
+		my_partner = my_partner + partner_html + """<br>"""
+	
+	
+	# issuer	
+	my_claim_issuer = ""		
+	for issuer in issuer_list :
+		issuer_html = """
+				<span>""" + issuer['username'] + """
+					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+issuer['username']+"""&amp;issuer_address="""+issuer['address']+"""">
+						
+					</a>
+					<a class="text-secondary" href="#explore">
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span>"""
+		my_claim_issuer = my_claim_issuer + issuer_html + """<br>"""
+					
+	
+	return render_template('guest.html',
+							name=my_name,
+							personal=my_personal,
+							contact=my_contact,
+							experience=my_experience,
+							education=my_education,
+							languages=my_languages,
+							skills=my_skills,
+							controller=my_controller,
+							partner=my_partner,
+							claimissuer=my_claim_issuer,
+							advanced=my_advanced,			
+							picturefile=my_picture,
+							username=my_username)	
+
 #######################################################################################
 #                        IDENTITY
 #######################################################################################
@@ -247,26 +506,24 @@ def data2(dataId) :
 """ fonction principale d'affichage de l identité """
 @app.route('/user/', methods = ['GET'])
 def user() :
-	if request.args.get('option') is not None :
-		print (request.args['option'])
-		session['rememberme'] = request.args.get('option')
+	username = request.args.get('username')
+	if username == session.get('username_logged') and username is not None :
+		workspace_contract = session['workspace_contract_logged']
+		print('visitor = user')		
 	else :
-		pass
-	username = request.args['username']	
-	if address(username,mode.register) is None :
-			my_message = "Username not found"		
-			return render_template('login.html', message=my_message)	
-	else :
-		pass
-	workspace_contract = address(username, mode.register)	
-	if session.get('username') != username or 'personal' not in session :
-		print('premiere instanciation du user')
-		user = Identity(workspace_contract, mode)
+		session.clear()
+		abort(403, description="Authentification required")
+		return 
+	if session.get('uploaded') is None :
+		print('first instanciation user')
+		user = Identity(workspace_contract, mode, authenticated=True)
+		session['uploaded'] = True
 		session['username'] = user.username		
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract
 		session['experience'] = user.experience
 		session['personal'] = user.personal
+		session['name'] = user.name
 		session['contact'] = user.contact
 		session['language'] = user.language
 		session['events']=  user.eventslist
@@ -286,6 +543,7 @@ def user() :
 	#this_name = session['personal']['firstname']['data']+ ' '+ session['personal']['lastname']['data']
 	#(radio, mylang1, mylang2, mylang3)= session['language']
 	
+	my_name = session['name']
 	my_eth = session['eth']
 	my_token = session['token']
 	my_event = session['events']
@@ -421,7 +679,7 @@ def user() :
 	my_skills = ""
 	
 	# controller
-	if web_relay_authorized == 'Yes':
+	if web_relay_authorized == 'Yes' :
 		my_controller_start = """<a href="/user/add_controller/">Create a Controller</a><hr> """
 	else :
 		my_controller_start = ""	
@@ -441,7 +699,7 @@ def user() :
 	my_controller = my_controller_start + my_controller
 	
 	# partner
-	if web_relay_authorized == 'Yes' and rsa_key == 'Yes' :
+	if web_relay_authorized == 'Yes' and rsa_key == 'Yes'  :
 		my_partner_start = """<a href="/user/add_parner/">Add a Partner</a><hr> """
 	else :
 		my_partner_start = ""				
@@ -462,6 +720,7 @@ def user() :
 	
 	# issuer	
 	if web_relay_authorized == 'Yes':
+		print('passage' )
 		my_issuer_start = """<a href="/user/add_issuer/">Add an Issuer</a><hr> """
 	else :
 		my_issuer_start = ""	
@@ -486,6 +745,7 @@ def user() :
 					
 	
 	return render_template('identity.html',
+							name=my_name,
 							personal=my_personal,
 							contact=my_contact,
 							experience=my_experience,
@@ -592,6 +852,35 @@ def remove_controller_1_() :
 	print(session['controller'])
 	return redirect (mode.server +'user/?username=' + username)
 
+
+
+# add issuer to be completed
+@app.route('/user/add_issuer/', methods=['GET'])
+def add_issuer() :	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	return render_template('add_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
+@app.route('/user/add_issuer/', methods=['POST'])
+def add_issuer_1_() :	
+	username = session['username']
+	controller_name = request.form['controller_name']
+	controller_wallet = request.form['controller_wallet']
+	workspace_contract_from = mode.relay_workspace_contract
+	address_from = mode.relay_address	
+	private_key_from = mode.relay_private_key
+	address_to = session['address']
+	workspace_contract_to = session['workspace_contract']
+	address_partner = controller_wallet
+	purpose = 1 
+	addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner, purpose, mode, synchronous=False) 
+	addName(controller_name, controller_wallet, mode)
+	# update controller list in session
+	controller_key = mode.w3.soliditySha3(['address'], [controller_wallet])
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
+	controller_workspace_contract = None	
+	session['controller'].append({"address": controller_wallet, "publickey": controller_key.hex()[2:], "workspace_contract" : controller_workspace_contract , 'username' : controller_name } )	
+	return redirect (mode.server +'user/?username=' + username)
 
 # remove issuer
 @app.route('/user/remove_issuer/', methods=['GET'])
@@ -994,7 +1283,7 @@ print('initialisation du serveur')
 if __name__ == '__main__':
 	
 	if mode.myenv == 'production' or mode.myenv == 'prod' :
-		app.run(host = mode.flaskserver, port= mode.port, debug=True)
+		app.run(host = mode.flaskserver, port= mode.port, debug=False)
 	elif mode.myenv =='test' :
 		app.run(host='127.0.0.1', port =4000, debug=True)
 	else :

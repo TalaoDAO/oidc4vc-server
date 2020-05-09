@@ -25,7 +25,7 @@
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
                                     <p class="text-center" style="margin: 75px 50px 0px;"><br><br>Enter your username and you
-                                        will receive a secret code by email to confirm your identity.&nbsp;<br><br>There is no centralized database<br>You private data are protected by your private keys.<br><br></p>
+                                        will receive a secret code by email to confirm your identity.<br><br>There is no centralized database.<br>Your data are protected by your cryptographics keys.<br><br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -33,14 +33,14 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4">Welcome Back</h4>
                                     </div>
-                                    <form class="user" action="/user/" method="GET">
+                                    <form class="user" action="/login/authentification/" method="POST">
                                         <div class="form-group"><input class="form-control" type="text" placeholder="Enter your username" name="username" style="color: rgb(133,135,150);" required></div>
                                         <div class="form-group">
                                             <h6 class ="text-warning" >{{message}}</h->
                                         </div>
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
-                                                <div class="form-check"><input class="form-check-input custom-control-input" type="checkbox" name="option" id="formCheck-1"><label class="form-check-label custom-control-label" for="formCheck-1">Remember Me</label></div>
+                                                <div class="form-check"><input class="form-check-input custom-control-input" type="checkbox" name="remember_me" id="formCheck-1"><label class="form-check-label custom-control-label" for="formCheck-1">Remember Me</label></div>
                                             </div>
                                         </div><button class="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
                                         <hr>

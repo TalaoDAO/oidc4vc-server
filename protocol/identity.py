@@ -23,16 +23,16 @@ from .ADDkey import addkey
  
 class Identity() :
 	
-	def __init__(self, workspace_contract,mode, address=None, SECRET=None,  AES_key=None, backend_Id=None, username=None, rsa_key=None):
+	def __init__(self, workspace_contract,mode, address=None, SECRET=None,  AES_key=None, backend_Id=None, username=None, rsa_key=None, authenticated=False):
 		
 		if whatisthisaddress(workspace_contract, mode)['type'] != 'workspace' :
 			print("identity.py, this address is not an Identity")
 			return None
-		
 		self.workspace_contract = workspace_contract
 		self.mode = mode
 		self.synchronous = True # UI synchrone par defaut, on attend les receipts des transactions blockchain
 		self.AES_key = AES_key
+		self.authenticated = authenticated
 		
 		if address is None :
 			self.address = contractsToOwners(self.workspace_contract,mode)
@@ -55,7 +55,7 @@ class Identity() :
 		self.backend_Id=backend_Id		
 		self.web_relay_authorized = False	
 		self.getPersonal()
-		self.name = self.personal['firstname']['data']+' '+self.personal['lastname']['data']
+		self.name = self.personal['firstname']['data'].capitalize()+' '+self.personal['lastname']['data'].capitalize()
 		self.getContact()
 		self.getExperience()
 		self.getLanguage()
@@ -69,9 +69,14 @@ class Identity() :
 			client.get(self.picture)
 			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
 		
-		self.getPartners()
-		self.getEvents()				
-		
+		# data not available for guests
+		if self.authenticated :
+			self.getEvents()
+			self.getPartners()				
+		else :
+			self.eventslist = dict()
+			self.partners = []
+			
 		if username is None :	
 			self.username = getUsername(self.workspace_contract,mode)		
 		
@@ -132,8 +137,6 @@ class Identity() :
 		mymanagementkeys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			print(self.mode.relay_publickeyhex)
-			print(key)
 			if key[2] == self.mode.relay_publickeyhex :
 				self.web_relay_authorized = True	
 			controller = data_from_publickey(key[2].hex(), self.mode)
@@ -187,11 +190,12 @@ class Identity() :
 		fp.close()   
 		return self.ras_key
 	"""
-		
+		# always available
 	def getPersonal(self) :
 		self.personal = getpersonal(self.workspace_contract, self.mode)
 		return self.personal
-			
+		
+		# always available	
 	def getContact(self) :
 		self.contact = getcontact(self.mode.relay_workspace_contract, self.mode.relay_private_key, self.workspace_contract, self.mode)
 		return self.contact		
@@ -206,7 +210,7 @@ class Identity() :
   }
 }"""
 	
-	
+	# always available
 	def getLanguage(self) :	
 		lang = getlanguage(self.workspace_contract, self.mode)		
 		if lang is None :
@@ -236,14 +240,15 @@ class Identity() :
 		self.language = (context, lang1, lang2, lang3)
 		return self.language
 	
+	# always available
 	def getEducation(self) :
 		self.education = get_education(self.workspace_contract, self.mode)
 		return self.education
 	
+	# always available
 	def getExperience(self) :
 		self.experience = getexperience(self.workspace_contract, self.address, self.mode)
 		return self.experience
-	
 	
 	# all setters need web_relay_authorized = True
 

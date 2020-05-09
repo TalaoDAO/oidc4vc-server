@@ -103,7 +103,6 @@ def getdocument(workspace_contract_from, private_key_from, workspace_contract_us
 	address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 	
 	contract=w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
-	print('documentId = ', documentId)
 	(doctype, doctypeversion, expires, issuer, checksum, engine, ipfshash, encrypted, related) = contract.functions.getDocument(documentId).call()
 	
 	# recuperation du msg 
@@ -124,7 +123,6 @@ def getdocument(workspace_contract_from, private_key_from, workspace_contract_us
 		acct =Account.from_key(private_key_from)
 		w3.eth.defaultAccount=acct.address
 		mypartnershiplist = contract.functions.getKnownPartnershipsContracts().call()
-		print('partshiplist = ', mypartnershiplist)
 		if workspace_contract_user in mypartnershiplist : # ils sont en parnership
 			
 			contract=w3.eth.contract(workspace_contract_from,abi=constante.workspace_ABI)
