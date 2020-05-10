@@ -9,8 +9,8 @@ from .Talao_token_transaction import partnershiprequest, authorizepartnership
 from .Talao_token_transaction import ownersToContracts, createWorkspace, savepictureProfile, getpicture
 from .Talao_token_transaction import token_transfer, createVaultAccess, ether_transfer, getPrivatekey
 
-from .nameservice import addName, address, deleteName, buildregister, getUsername,updateName
-from .nameservice import namehash, load_register_from_file, canRegister_email, workspaceFromPublickeyhex, data_from_publickey
+from .nameservice import addName, address, deleteName, buildregister, getUsername,updateName, username_to_email, username_to_workspace_contract
+from .nameservice import namehash, load_register_from_file, canRegister_email, workspaceFromPublickeyhex, data_from_publickey, username_and_email_list, username_to_data
 
 from .GETresolver import getresolver
 

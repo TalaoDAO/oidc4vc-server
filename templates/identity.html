@@ -30,7 +30,7 @@
                         <ul class="nav navbar-nav flex-nowrap ml-auto">
                             <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="" style="color: rgb(133,135,150);">How-to</a></li>
                             
-                            <!--Gestion des Events dans le code de webserver-->
+                            <!--Gestion des Events dans la Nav Bar-->
                             <li class="nav-item dropdown no-arrow mx-1" role="presentation">									
 									<!-- on retire dropdown-toggle de la class ci dessous -->  
 									<div class="nav-item dropdown no-arrow"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="badge badge-danger badge-counter">{{counter}}+</span><i class="fas fa-bell fa-fw"></i></a>
@@ -41,12 +41,12 @@
 									</div>
                             </li>
                             
-                             <!--Gestion du menu dans le code de webserver-->
+                             <!--Gestion du menu de la Nav Bar -->
                             <li class="nav-item dropdown no-arrow" role="presentation">
                                 <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"><!--retrer dropdown-toggle de la class du nav linkComment--></a>
                                     <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
 										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-file-text-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Request Certificate</a>
-										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit&nbsp;</a>
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit an Issuer&nbsp;</a>
 										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-calculator fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Buy/Sell TALAO token&nbsp;</a>
                                             
                                             
@@ -112,6 +112,9 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="tedt languages"><i class="fa fa-comments"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp;Languages</a></h5>
@@ -123,6 +126,8 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6" href="#accordion-1 .item-6">&nbsp;Skills</a></h5>
@@ -134,6 +139,21 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                 
+                                        <div class="card">
+                                            <div class="card-header" role="tab">
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp;Certificates</a></h5>
+                                            </div>
+                                            <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body">
+													<a href="#">Request Certificate</a>
+                                                    <p class="card-text">&nbsp;{{certificates|safe}}</p>
+                                                </div>
+                                            </div>
+                                        </div>                         
+                                        
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -147,10 +167,10 @@
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A controller allows you to acces and manage your Identity through different devices (Smartphone, PC,...)."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Controller</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Allows you to acces and manage your Identity through different username and email."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Access</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">					
-													<div class="card-body"><p class="card-text">{{controller|safe}}</p></div>                                                  
+													<div class="card-body"><p class="card-text">{{access|safe}}</p></div>                                                  
                                             </div>
                                         </div>
                                         
@@ -197,7 +217,7 @@
                                         </div>
                                                                                                                      
                                     </div>
-                                    <a class="card-link" href="#">Delete this identity</a>
+                                    <a class="card-link" href="#">Delete my Identity</a>
                                     </div>
                             </div>
                         </div>

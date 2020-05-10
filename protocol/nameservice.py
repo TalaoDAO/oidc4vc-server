@@ -152,7 +152,7 @@ def canRegister_email (email,mode) :
 	return True 
 	
 #####################################################	
-# obtenir le workspace_contract depuis un username prenom.nom
+# DEPRECATED obtenir le workspace_contract depuis un username 
 ######################################################
 def address(username,register) :
 	if register.get(namehash(username.lower())) != None :
@@ -160,6 +160,34 @@ def address(username,register) :
 	else :
 		return None
 
+	
+#####################################################	
+# obtenir le workspace_contract depuis un username 
+######################################################
+def username_to_workspace_contract(username,mode) :
+	if mode.register.get(namehash(username.lower())) != None :
+		return mode.register.get(namehash(username.lower()))['workspace_contract']
+	else :
+		return None
+	
+#####################################################	
+# obtenir l email depuis un username 
+######################################################
+def username_to_email(username,mode) :
+	if mode.register.get(namehash(username.lower())) != None :
+		return mode.register.get(namehash(username.lower()))['email']
+	else :
+		return None
+
+	
+#####################################################	
+# obtenir l address depuis un username 
+######################################################
+def username_to_data(username,mode) :
+	if mode.register.get(namehash(username.lower())) != None :
+		return mode.register.get(namehash(username.lower()))
+	else :
+		return None
 	
 #####################################################	
 # obtenir le workspace_contract depuis un pubicKeyHex
@@ -189,6 +217,17 @@ def getUsername(workspace_contract,mode) :
 		if mode.register[a].get('workspace_contract') == workspace_contract :
 			return  mode.register[a].get('username')
 	return None
+
+		
+#####################################################	
+# obtenir le username et email depuis le workspace_contract
+######################################################
+def username_and_email_list(workspace_contract, mode) :
+	this_list=[]
+	for access in mode.register  :
+		if mode.register[access].get('workspace_contract') == workspace_contract :
+			this_list.append({'username' : mode.register[access].get('username'), 'email' : mode.register[access].get('email')})
+	return this_list
 	
 #################################################
 #  upload du registre en memoire 
@@ -220,6 +259,7 @@ def addName(username, address, mode, email=None, workspace_contract=None) :
 												'workspace_contract' : workspace_contract,
 												'resolver' : resolver,
 												'resume' : resume}	
+	print(mode.register[namehash(username.lower())])											
 	try : 
 		myfile = open(mode.BLOCKCHAIN+'_register.json', 'w') 
 	except IOError :

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
+                    <div class="container-fluid"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;">
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="user/education/" style="color: rgb(133,135,150);">How-to</a></li>
+                            <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
+                            <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
+                            <li class="nav-item dropdown no-arrow mx-1" role="presentation">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><span class="badge badge-danger badge-counter">{{counter}}+</span><i class="fas fa-bell fa-fw"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
+                                        role="menu">
+                                        <h6 class="dropdown-header">Events Center</h6>
+                                        <!--Gestion des Alert dans em code de webserver -->
+										{{event|safe}}
+									<a class="text-center dropdown-item small text-gray-500" href="#">Show All Events</a></div>
+                                </div>
+                            </li>
+                            
+                            
+                              <!--Gestion du menu de la Nav Bar -->
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"><!--retrer dropdown-toggle de la class du nav linkComment--></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-file-text-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Request Certificate</a>
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit&nbsp;</a>
+										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-calculator fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Buy/Sell TALAO token&nbsp;</a>
+                                            
+                                            
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                </div>
+                            </li>	
+                            
+                        
+            </ul>
+        </div>
+        </nav>
+        <div class="container-fluid">
+            <div class="row mb-3">
+                <div class="col-lg-8 col-xl-4 offset-xl-4">
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Create a new Access</p>
+                        </div>
+                        <div class="card-body">
+                            <form action="/user/add_access/" method="post">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <p>Allows you to acces and manage your Identity through different username and email. You can for instance create a new access for each of your devices (Smartphone, PC,...)...</p>
+                                        <div class="form-group"><label><strong>Access Userame</strong><br></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="Ex : My.PC,  My.SmartPhone, ..." required="" title="text pour acces username"
+                                                name="access_username"></div>
+                                        <div class="form-group"><label><strong>Acces Authentification Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="Your email" required="" title="Text pour access email"
+                                                name="access_email"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add a new Access</button></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    <div class="footer-clean">
+        <footer>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-sm-4 col-md-3 item">
+                        <h3>Services</h3>
+                        <ul>
+                            <li><a href="#">Certification</a></li>
+                            <li><a href="#">Development</a></li>
+                            <li></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4 col-md-3 item">
+                        <h3>About</h3>
+                        <ul>
+                            <li><a href="https;//talao.io">Company</a></li>
+                            <li><a href="#">CGU</a></li>
+                            <li></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4 col-md-3 item">
+                        <h3>Careers</h3>
+                        <ul>
+                            <li><a href="#">Job openings</a></li>
+                            <li><a href="#">Employee success</a></li>
+                            <li></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 item social"><a href="#"><i class="fa fa-facebook"></i></a><a href="https://twitter.com/talaodao?lang=fr"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-telegram"></i></a><a href="mailto:contact@talao.io"><i class="fa fa-envelope-o"></i></a>
+                        <p
+                            class="copyright">Talao © 2020</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>
