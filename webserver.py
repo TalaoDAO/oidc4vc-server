@@ -30,7 +30,7 @@ from protocol import Identity, Data
 from protocol import getresolver, getresume, load_register_from_file, getEmail, getPrivatekey, data_from_publickey
 from protocol import ownersToContracts, contractsToOwners, readProfil, isdid
 from protocol import deleteName, deleteDocument, deleteClaim, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, addkey, addName, delete_key
-from protocol import username_to_email, username_to_workspace_contract, username_and_email_list, deleteName, username_to_data
+from protocol import username_and_email_list, deleteName, username_to_data
 import environment
 import web_create_identity
 import web_certificate
@@ -46,7 +46,7 @@ UPLOAD_FOLDER = './uploads'
 app = FlaskAPI(__name__)
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_TYPE'] = 'redis'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=5)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 app.config['SESSION_FILE_THRESHOLD'] = 100  
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -147,16 +147,16 @@ def login_1() :
 	session.clear()
 	session['username_to_log'] = username
 	session['remember_me'] = request.form.get('remember_me')
-	if username_to_workspace_contract(username, mode) is None :
+	if username_to_data(username, mode)['workspace_contract'] is None :
 		my_message = "Username not found"		
 		return render_template('login.html', message=my_message)
-	workspace_contract = username_to_workspace_contract(username, mode)
+	workspace_contract = username_to_data(username, mode)['workspace_contract']
 	if workspace_contract is None :
 		print('address has no Identity')		
 	session['workspace_contract_to_log'] = workspace_contract	
 	print('workspace contract to log = ', workspace_contract)
 	
-	email = username_to_email(username, mode)
+	email = username_to_data(username, mode)['email']
 	
 	session['email_to_log'] = email
 	print('email = ', email)
@@ -317,7 +317,7 @@ def data2(dataId) :
 @app.route('/guest/', methods = ['GET'])
 def guest() :
 	username = request.args.get('username')
-	workspace_contract = username_to_workspace_contract(username, mode)	
+	workspace_contract = username_to_data(username, mode)['workspace_contract']	
 	print('guest')
 	if username != session.get('username') :
 		session.clear()
@@ -755,7 +755,7 @@ def user() :
 @app.route('/user/photo/', methods=['POST'])
 def photo() :
 	username = session['username']
-	workspace_contract = username_to_workspace_contract(username, mode)	
+	workspace_contract = username_to_data(username, mode)['workspace_contract']	
 	user = Identity(workspace_contract, mode)
 	if 'file' not in request.files:
 		print('No file part')
@@ -779,6 +779,41 @@ def partnership() :
 def partnership_1() :
 	check_login()
 	return render_template('parnership_request.html')
+
+
+
+
+# request certificate
+@app.route('/user/request_certificate/', methods=['GET'])
+def request_certificate() :	
+	check_login()
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
+@app.route('/user/request_certificate_2/', methods=['POST'])
+def request_certificate_2() :	
+	check_login()
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	username = session['username']
+	issuer_username = request.form['issuer_username']
+	certificate_type = request.form['certificate_type']
+	if issuer_username == 'new' :
+		return render_template('request_certificate_new_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
+	else :
+		return redirect(mode.server + 'user/?username=' + username)
+@app.route('/user/request_certificate_new_issuer/', methods=['POST'])
+def request_certificate_new_issuer() :
+	check_login()
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	username = session['username']
+	issuer_memo = request.form['issuer_memo']
+	issuer_email = request.form['issuer_email']
+	return redirect(mode.server + 'user/?username=' + username)
 
 
 # add access
@@ -809,7 +844,7 @@ def remove_access() :
 	deleteName(username_to_remove, mode)
 	return redirect (mode.server +'user/?username=' + username)
 
-# add issuer to be completed
+# add issuer
 @app.route('/user/add_issuer/', methods=['GET'])
 def add_issuer() :	
 	check_login()
@@ -966,13 +1001,13 @@ def identityRemove_2() :
 		return render_template('remove3.html', message=mymessage)	
 	
 	username= request.form.get('username')
-	if username_to_workspace_contract(username, mode) == None :
+	if username_to_data(username, mode)['workspace_contract']is None :
 		mymessage="Your username is not registered"
 		return render_template('remove1.html', message=mymessage)
 	
 	did=session['did']	
 	workspace_contract_did='0x'+did.split(':')[3]
-	workspace_contract = username_to_workspace_contract(username, mode)
+	workspace_contract = username_to_data(username, mode)['workspace_contract']
 	if workspace_contract_did != workspace_contract :
 		mymessage = 'Your are not the owner of this Identity, you cannot delete it.'
 		return render_template("remove3.html", message=mymessage)
@@ -1060,7 +1095,7 @@ def dataDelete_1() :
 	username= request.form['username']
 	data=session['data']
 	workspace_contract='0x'+data.split(':')[3]
-	if 'username' in session and session['username'] == username and username_to_workspace_contract(username,mode) == workspace_contract : # on efface sans passer par l'ecran de saisie de code 
+	if 'username' in session and session['username'] == username and username_to_data(username,mode)['orkspace_contract'] == workspace_contract : # on efface sans passer par l'ecran de saisie de code 
 		private_key=getPrivatekey(workspace_contract,mode)
 		contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claimdocId=data.split(':')[5]
@@ -1073,13 +1108,13 @@ def dataDelete_1() :
 		mymessage = 'Deletion done' 
 		return render_template("delete3.html", message = mymessage)
 	
-	if username_to_workspace_contract(username, mode) is None :
+	if username_to_data(username, mode)['workspace_contract'] is None :
 		mymessage = "Your username is not registered"
 		if 'username' in session :
 		 del session['username']
 		return render_template('delete1.html', message=mymessage)
 	
-	workspace_contract = username_to_workspace_contract(username, mode)
+	workspace_contract = username_to_data(username, mode)['workspace_contract']
 	data=session['data']
 	workspace_contract_data = '0x'+data.split(':')[3]
 	if workspace_contract_data != workspace_contract :
@@ -1166,8 +1201,8 @@ def resume() :
 		truedid=did
 	else :
 		
-		if username_to_workspace_contract(did.lower(),mode.register) is not None :
-			truedid='did:talao:'+mode.BLOCKCHAIN+':'+ username_to_workspace_contract(did.lower(), mode)[2:]
+		if username_to_data(did.lower(),mode)['workspace_contract'] is not None :
+			truedid='did:talao:'+mode.BLOCKCHAIN+':'+ username_to_data(did.lower(), mode)['workspace_contract'][2:]
 		else :
 			flash('identifier not found')
 			return redirect (mode.server+'resume/')

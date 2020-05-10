@@ -160,24 +160,6 @@ def address(username,register) :
 	else :
 		return None
 
-	
-#####################################################	
-# obtenir le workspace_contract depuis un username 
-######################################################
-def username_to_workspace_contract(username,mode) :
-	if mode.register.get(namehash(username.lower())) != None :
-		return mode.register.get(namehash(username.lower()))['workspace_contract']
-	else :
-		return None
-	
-#####################################################	
-# obtenir l email depuis un username 
-######################################################
-def username_to_email(username,mode) :
-	if mode.register.get(namehash(username.lower())) != None :
-		return mode.register.get(namehash(username.lower()))['email']
-	else :
-		return None
 
 	
 #####################################################	
