@@ -32,6 +32,14 @@ w3=mode.w3
 
 
 
+
+def anonymous() :
+	if request.method == 'GET' :
+		return render_template('anonymous.html')
+	else : 
+		talent_name = request.form['username']
+		return redirect(mode.server + 'guest/?username=' + talent_name)
+
 #######################################################################################
 #                        IDENTITY for GUEST
 #######################################################################################

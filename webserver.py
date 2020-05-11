@@ -85,6 +85,7 @@ Gestion des access anonyme
 # centralized route for Guest
 app.add_url_rule('/guest/',  view_func=web_guest.guest , methods = ['GET'])
 app.add_url_rule('/guest_data/<dataId>',  view_func=web_guest.guest_data, methods = ['GET'])
+app.add_url_rule('/talent-connect/',  view_func=web_guest.anonymous, methods = ['GET', 'POST'])
 
 
 def check_login() :
@@ -1099,6 +1100,6 @@ if __name__ == '__main__':
 	if mode.myenv == 'production' or mode.myenv == 'prod' :
 		app.run(host = mode.flaskserver, port= mode.port, debug=False)
 	elif mode.myenv =='test' :
-		app.run(host='127.0.0.1', port =4000, debug=False)
+		app.run(host='127.0.0.1', port =4000, debug=True)
 	else :
 		print("Erreur d'environnement")
