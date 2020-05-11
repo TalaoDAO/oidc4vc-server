@@ -49,9 +49,7 @@ class Identity() :
 				self.rsa_key = None			 
 		
 		self.SECRET = SECRET
-		self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
-		self.token = token_balance(self.address,mode)
 		self.backend_Id=backend_Id		
 		self.web_relay_authorized = False	
 		self.getPersonal()
@@ -59,8 +57,6 @@ class Identity() :
 		self.getContact()
 		self.getExperience()
 		self.getLanguage()
-		self.getManagementKeys()
-		self.getClaimKeys()
 		self.getEducation()
 		self.picture = getpicture(self.workspace_contract, self.mode)
 
@@ -71,11 +67,16 @@ class Identity() :
 		
 		# data not available for guests
 		if self.authenticated :
+			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
+			self.token = token_balance(self.address,mode)
+			self.getManagementKeys()
+			self.getClaimKeys()
 			self.getEvents()
 			self.getPartners()				
 		else :
 			self.eventslist = dict()
 			self.partners = []
+			self.managementkeys = []
 			
 		if username is None :	
 			self.username = getUsername(self.workspace_contract,mode)		

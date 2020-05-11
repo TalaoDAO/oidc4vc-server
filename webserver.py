@@ -32,9 +32,11 @@ from protocol import ownersToContracts, contractsToOwners, readProfil, isdid
 from protocol import deleteName, deleteDocument, deleteClaim, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, addkey, addName, delete_key
 from protocol import username_and_email_list, deleteName, username_to_data
 import environment
+import hcode
+# Centralized  route
 import web_create_identity
 import web_certificate
-import hcode
+import web_guest
 
 # environment setup
 mode=environment.currentMode()
@@ -77,6 +79,12 @@ app.add_url_rule('/certificate/experience/<did>',  view_func=web_certificate.inp
 app.add_url_rule('/certificate/experience/',  view_func=web_certificate.input_certificate_1, methods = ['POST'])
 
 
+"""
+Gestion des access anonyme 
+"""
+# centralized route for Guest
+app.add_url_rule('/guest/',  view_func=web_guest.guest , methods = ['GET'])
+app.add_url_rule('/guest_data/<dataId>',  view_func=web_guest.guest_data, methods = ['GET'])
 
 
 def check_login() :
@@ -212,7 +220,7 @@ def logout() :
 	return render_template('login.html')
 
 ############################################################################################
-#         DATA
+#         DATA for USER
 ############################################################################################
 """ on ne gere aucune information des data en session """
 
@@ -308,188 +316,6 @@ def data2(dataId) :
 							username = myusername)
 
 
-#######################################################################################
-#                        GUEST
-#######################################################################################
-
-
-""" fonction principale d'affichage de l identité """
-@app.route('/guest/', methods = ['GET'])
-def guest() :
-	username = request.args.get('username')
-	workspace_contract = username_to_data(username, mode)['workspace_contract']	
-	print('guest')
-	if username != session.get('username') :
-		session.clear()
-	if session.get('uploaded') is None :
-		print('first instanciation user')
-		user = Identity(workspace_contract, mode)
-		session['uploaded'] = True
-		session['username'] = user.username		
-		session['address'] = user.address
-		session['workspace_contract'] = user.workspace_contract
-		session['experience'] = user.experience
-		session['personal'] = user.personal
-		session['name'] = user.name
-		session['contact'] = user.contact
-		session['language'] = user.language
-		session['events']=  user.eventslist
-		#session['controller'] = user.managementkeys
-		session['issuer'] = user.claimkeys
-		session['partner'] = user.partners
-		session['education'] = user.education
-		session['did'] = user.did
-		if user.picture is None :
-			session['picture'] = "anonymous1.png"
-		else :
-			session['picture'] = user.picture		
-	#this_name = session['personal']['firstname']['data']+ ' '+ session['personal']['lastname']['data']
-	#(radio, mylang1, mylang2, mylang3)= session['language']
-	
-	my_name = session['name']
-	my_event = session['events']
-	my_picture = session['picture']
-	my_username = session['username'] 
-	my_event_html, my_counter =  event_display(session['events'])
-	#controller_list = session['controller']
-	issuer_list = session['issuer']
-	experience_list = session['experience']
-	partners_list = session['partner']		
-	education_list = session['education']
-	
-	
-	# experience
-	my_experience = ''
-	for experience in experience_list :
-		exp_html = """<hr> 
-				<b>Company</b> : """+experience['organization']['name']+"""<br>			
-				<b>Title</b> : """+experience['title']+"""<br>
-				<b>Description</b> : """+experience['description'][:100]+"""...<br>
-				<p>
-					
-					<a class="text-secondary" href=/data/"""+experience['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</p>"""	
-		my_experience = my_experience + exp_html
-	
-	# personal
-	my_personal = """ 
-				<span><b>Firstname</b> : """+session['personal']['firstname']['data']+"""				
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['firstname']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Lastname</b> : """+session['personal']['lastname']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['lastname']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-							
-				<span><b>Username</b> : """+session['username']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['username'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Picture</b>  	
-					
-					<a class="text-secondary" href=/data/"""+session['picture'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span>"""
-	
-	# contact
-	if session['contact'] is None :
-		my_contact =  """ <a class="card-link" href="">Add Contact</a>"""
-	else :
-		my_contact = """<span>
-					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """<br>						
-					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """<br>				
-					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """<br>				
-						
-						<a class="text-secondary" href=/data/"""+session['contact']['id'] + """>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-						</a>
-					</span>"""	
-	
-	# education
-	my_education = ""
-	for education in education_list :
-		edu_html = """<hr> 
-				<b>Organization</b> : """+education['data']['organization']+"""<br>			
-				<b>Title</b> : """+education['data']['studyType']+"""<br>
-				<b>Start Date</b> : """+education['data']['startDate']+"""<br>
-				<b>End Date</b> : """+education['data']['endDate']+"""<br>				
-				<p>
-					
-					<a class="text-secondary" href=/data/"""+education['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</p>"""	
-		my_education = my_education + edu_html
-	
-	# advanced
-	my_advanced = """
-					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
-					<b>Workspace Address</b> : """ + session['workspace_contract'] + """<br>						
-					<b>Owner Address</b> : """ + session['address'] + """<br>				
-					<b>DID</b> : """ + session['did'] 	
-					
-							
-	# languages
-	my_languages = ""
-	
-	# skills
-	my_skills = ""
-	
-	
-	
-	# partner
-	my_partner = ""
-	for partner in partners_list :
-		partner_html = """
-				<span>""" + partner['username'] + """
-					
-					<a class="text-secondary" href="#explore">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</apn>"""	
-		my_partner = my_partner + partner_html + """<br>"""
-	
-	
-	# issuer	
-	my_claim_issuer = ""		
-	for issuer in issuer_list :
-		issuer_html = """
-				<span>""" + issuer['username'] + """
-					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+issuer['username']+"""&amp;issuer_address="""+issuer['address']+"""">
-						
-					</a>
-					<a class="text-secondary" href="#explore">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span>"""
-		my_claim_issuer = my_claim_issuer + issuer_html + """<br>"""
-					
-	
-	return render_template('guest.html',
-							name=my_name,
-							personal=my_personal,
-							contact=my_contact,
-							experience=my_experience,
-							education=my_education,
-							languages=my_languages,
-							skills=my_skills,
-							partner=my_partner,
-							claimissuer=my_claim_issuer,
-							advanced=my_advanced,			
-							picturefile=my_picture,
-							username=my_username)	
 
 #######################################################################################
 #                        IDENTITY
@@ -565,9 +391,7 @@ def user() :
 				<b>Title</b> : """+experience['title']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
 				<p>
-					<a class="text-secondary" href="#remove">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
-					</a>
+					
 					<a class="text-secondary" href=/data/"""+experience['id'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
@@ -577,27 +401,21 @@ def user() :
 	# personal
 	my_personal = """ 
 				<span><b>Firstname</b> : """+session['personal']['firstname']['data']+"""				
-					<a class="text-secondary" href="#remove">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
-					</a>
+					
 					<a class="text-secondary" href=/data/"""+session['personal']['firstname']['id'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span><br>
 				
 				<span><b>Lastname</b> : """+session['personal']['lastname']['data']+"""
-					<a class="text-secondary" href="#remove">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
-					</a>
+					
 					<a class="text-secondary" href=/data/"""+session['personal']['lastname']['id'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span><br>
 				
 				<span><b>Picture</b>  	
-					<a class="text-secondary" href="#remove">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
-					</a>
+					
 					<a class="text-secondary" href=/data/"""+session['picture'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
@@ -611,9 +429,7 @@ def user() :
 					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """<br>						
 					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """<br>				
 					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """<br>				
-						<a class="text-secondary" href="#remove">
-							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
-						</a>
+						
 						<a class="text-secondary" href=/data/"""+session['contact']['id'] + """>
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 						</a>
@@ -628,9 +444,7 @@ def user() :
 				<b>Start Date</b> : """+education['data']['startDate']+"""<br>
 				<b>End Date</b> : """+education['data']['endDate']+"""<br>				
 				<p>
-					<a class="text-secondary" href="#remove">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove"></i>
-					</a>
+					
 					<a class="text-secondary" href=/data/"""+education['id'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
@@ -801,18 +615,25 @@ def request_certificate_2() :
 	issuer_username = request.form['issuer_username']
 	certificate_type = request.form['certificate_type']
 	if issuer_username == 'new' :
-		return render_template('request_certificate_new_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
+		return render_template('request_certificate_new_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	else :
 		return redirect(mode.server + 'user/?username=' + username)
 @app.route('/user/request_certificate_new_issuer/', methods=['POST'])
 def request_certificate_new_issuer() :
 	check_login()
+	choice = request.form['choice']
+	if choice == 'cancel' :
+		return redirect(mode.server + 'user/?username=' + username)
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	username = session['username']
+	project_description = request.form['project_description']
+	issuer_type = request.form['type']
 	issuer_memo = request.form['issuer_memo']
 	issuer_email = request.form['issuer_email']
+	# to do send  email
+	print('email to request certificate sent')
 	return redirect(mode.server + 'user/?username=' + username)
 
 
@@ -1278,6 +1099,6 @@ if __name__ == '__main__':
 	if mode.myenv == 'production' or mode.myenv == 'prod' :
 		app.run(host = mode.flaskserver, port= mode.port, debug=False)
 	elif mode.myenv =='test' :
-		app.run(host='127.0.0.1', port =4000, debug=True)
+		app.run(host='127.0.0.1', port =4000, debug=False)
 	else :
 		print("Erreur d'environnement")

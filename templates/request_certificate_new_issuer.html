@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	 <meta charset="utf-8">
+	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -25,7 +25,7 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
-                    <div class="container-fluid"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;">
+                    <div class="container-fluid"><a href="https://talao.io"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;"></a>
                         <ul class="nav navbar-nav flex-nowrap ml-auto">
                             <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="user/education/" style="color: rgb(133,135,150);">How-to</a></li>
                             <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
@@ -40,11 +40,11 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"></a>
+                                <div class="nav-item dropdown show no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"></a>
                                     <div
-                                        class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Identitty</a><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
+                                        class="dropdown-menu show shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit a Friend</a><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-calculator fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Sell/Buy TALAO token</a>
                                         <div
-                                            class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                            class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
             </div>
             </li>
             </ul>
@@ -63,10 +63,28 @@
                                     <div class="col">
                                         <p>This new Issuer will receive an email to register and complete the certificate form.</p>
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Email</strong><br></label><input class="form-control" type="email" required="" name="issuer_email"></div>
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Memo</strong><br></label><input class="form-control" type="text" name="issuer_memo"></div>
+                                        <div class="form-group">
+                                            <div class="form-inline">
+                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" name="type" required><label class="form-check-label" for="formCheck-1">Company&nbsp; &nbsp; &nbsp;</label></div>
+                                             
+													<div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="type" required><label class="form-check-label" for="formCheck-2">Individual</label></div>
+												
+                                            </div>
+                                        </div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Project Description"><strong>Project Description</strong><br></label><input class="form-control" type="text" required name="project_description"></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Memo</strong><br></label><input class="form-control" type="text" required name="issuer_memo"></div>
                                     </div>
                                 </div>
-                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Send the Request</button></div>
+                                <div class="form-row">
+                                    <div class="col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" value="send">Send the Request</button></div>
+                                    </div>
+                                    <div class="col-xl-3">
+										   <a href="/user/?username={{username}}">
+												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Cancel</button></div>
+											</a>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -112,12 +130,15 @@
             </div>
         </footer>
     </div>
-     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+   
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  
+   
+   
+   
 </body>
 
 </html>

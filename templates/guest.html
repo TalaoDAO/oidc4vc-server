@@ -27,7 +27,9 @@
                
 		        <!-- Nav Bar Guest -->
                 <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
-                    <div class="container-fluid"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;">
+                    <div class="container-fluid">
+						<a href="https://talao.io"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;"></a>
+                        <h6 class="text-secondary flex-nowrap ml-auto" style="color: rgb(133,135,150);">Talao Professional Identity</h6>
                         <ul class="nav navbar-nav flex-nowrap ml-auto">
                             <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="" style="color: rgb(133,135,150);"></a></li>
                             <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="" style="color: rgb(133,135,150);"></a></li>
@@ -38,8 +40,8 @@
                             <li class="nav-item dropdown no-arrow" role="presentation">
                                 <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><i class="fa fa-navicon fa-sm fa-fw mr-2 text-gray-400"></i><!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><!--retrer dropdown-toggle de la class du nav linkComment--></a>
                                     <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-										<a class="dropdown-item" role="presentation" href="/starter/"><i class="fa fa-file-text-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Register</a>
-										<a class="dropdown-item" role="presentation" href="/login/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Login</a>
+										<a class="dropdown-item" role="presentation" href="/starter/"><i class="fa fa-registered fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Register</a>
+										<a class="dropdown-item" role="presentation" href="/login/"><i class="fa fa-sign-in fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Login</a>
 										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-calculator fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Buy/Sell TALAO token&nbsp;</a>
                                         <div class="dropdown-divider"></div>
                                         <!--<a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div> -->
@@ -102,6 +104,8 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="tedt languages"><i class="fa fa-comments"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp;Languages</a></h5>
@@ -112,6 +116,9 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6" href="#accordion-1 .item-6">&nbsp;Skills</a></h5>
@@ -122,6 +129,21 @@
                                                 </div>
                                             </div>
                                         </div>
+                         
+                         
+                                        <div class="card">
+                                            <div class="card-header" role="tab">
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp;Certificates</a></h5>
+                                            </div>
+                                            <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body">
+                                                    <p class="card-text">&nbsp;{{certificates|safe}}</p>
+                                                </div>
+                                            </div>
+                                        </div>          
+                                        
+                                        
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -135,32 +157,20 @@
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A controller allows you to acces and manage your Identity through different devices (Smartphone, PC,...)."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Controller</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A controller allows you to acces and manage your Identity through different devices (Smartphone, PC,...)."><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Services</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">					
-													<div class="card-body"><p class="card-text">{{controller|safe}}</p></div>                                                  
+													<div class="card-body">
+														
+													<a href="">Request Partnership</a><br>
+													<a href="">Send Message</a><br>
+													<a href="">...</a>
+
+														<p class="card-text">{{services|safe}}</p></div>                                                  
                                             </div>
                                         </div>
                                         
-                                        
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text partner"><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner</a></h5>
-                                            </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
-                                            </div>
-                                        </div>
-                                        
-                                        
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Certificate Issuer is an individual or a company which is authorized to issue certificates confirming your skills, experience or abilities."><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; Certificate Issuer</a></h5>
-                                            </div>                               
-                                            <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{claimissuer|safe}}</p></div>
-                                            </div>
-                                        </div>                                      
+                                      
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
