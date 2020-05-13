@@ -35,7 +35,7 @@ class Data() :
 		self.issuer_type = my_data['data']['issuer']['type']
 		print(self.issuer_type)
 		
-		if self.issuer_type == 'individual' :			
+		if self.issuer_type == 'person' :			
 			self.issuer_firstname = my_data['data']['issuer']['data']['firstname']
 			self.issuer_lastname = my_data['data']['issuer']['data']['lastname']
 			self.issuer_name = self.issuer_firstname + ' ' + self.issuer_lastname

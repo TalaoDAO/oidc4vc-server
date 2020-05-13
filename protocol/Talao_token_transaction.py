@@ -66,7 +66,7 @@ def contractsToOwners(workspace_contract, mode) :
 	return address	
 
 ###############################################################
-# read Talao profil
+# DEPRECATED cf ReadProfil de GetResume read Talao profil
 ###############################################################
 # return a dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
 # https://fr.wikibooks.org/wiki/Les_ASCII_de_0_%C3%A0_127/La_table_ASCII

@@ -118,7 +118,7 @@ def readProfil (workspace_contract, mode) :
 			except :
 				claim = []
 			if len(claim) != 0 :
-				claimId = claim[0].hex()
+				claimId = claim[-1].hex()
 				data = contract.functions.getClaim(claimId).call()
 				if data[4].decode('utf-8') == "" or data[4].decode('utf-8')==" " :
 					profil[topicname[i]] = None
@@ -137,7 +137,7 @@ def readProfil (workspace_contract, mode) :
 			except :
 				claim = []
 			if len(claim) != 0 :
-				claimId = claim[0].hex()
+				claimId = claim[-1].hex()
 				data = contract.functions.getClaim(claimId).call()
 				if data[4].decode('utf-8') == "" or data[4].decode('utf-8')==" " :
 					profil[topicname[i]] = None
@@ -611,7 +611,19 @@ def getexperience(workspace_contract,address, mode) :
 				
 				}
 		userexperience.append(new_experience)
-		
+
+	return userexperience
+				
+	
+	
+############################################################################	
+def get_certificate(workspace_contract, address, mode) :
+	
+	
+	w3 = mode.w3
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+
+	user_certificate = []		
 	# experiences avec certificats implements avec des claim725		
 	# download des claim "certificate"->  99101114116105102105099097116101 du user
 	claimlist = contract.functions.getClaimIdsByTopic(99101114116105102105099097116101).call()
@@ -632,10 +644,11 @@ def getexperience(workspace_contract,address, mode) :
 							},
 					'certificate_link' : certificateId[2:],
 					'skills' : ""}		
-					userexperience.append(new_certificate)
+					user_certificate.append(new_certificate)
 	
-	return userexperience
-				
+	return user_certificate
+	
+	
 	
 ############################################################################	
 def getpersonal(workspace_contract, mode) :
@@ -643,11 +656,12 @@ def getpersonal(workspace_contract, mode) :
 	w3 = mode.w3
 	did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
 	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	(profile, category)=readProfil(workspace_contract,mode)
+	(profile, category) = readProfil(workspace_contract,mode)
 	
 	personal = dict()
-	# Personal	
-	thistopic = {'firstname' :103105118101110078097109101 ,
+	if category == 1001 :
+		# Personal	
+		thistopic = {'firstname' :103105118101110078097109101 ,
 				'lastname' : 102097109105108121078097109101,
 				'jobtitle' : 106111098084105116108101,
 				'company' : 119111114107115070111114,
@@ -656,12 +670,20 @@ def getpersonal(workspace_contract, mode) :
 				'email' : 101109097105108,
 				'description' : 100101115099114105112116105111110
 				}
+	else : 
+		# company
+		thistopic = {'name' : 103105118101110078097109101,
+					'website' : 117114108,
+					 'email' : 101109097105108,
+					 'contact' : 99111110116097099116,
+					 'address' : 97100100114101115115}
+			
 	for key in profile :				
 		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 		claim = contract.functions.getClaimIdsByTopic(thistopic[key]).call() # topic = name
 		isKey = True
 		try :
-			claimid = claim[len(claim)-1].hex()
+			claimid = claim[-1].hex() # one takes the last one
 		except :
 			isKey = False
 		if isKey :
@@ -669,9 +691,10 @@ def getpersonal(workspace_contract, mode) :
 							'endpoint' : mode.server+'talao/data/'+did+':claim:'+claimid,
 							"data" : profile.get(key)}
 	
+	 
 	return personal
 
-
+#######################################################
 """ retourne les contacts sans cle privees """
 def getcontact(workspace_contract_from, private_key_from, workspace_contract_user, mode) :
 	

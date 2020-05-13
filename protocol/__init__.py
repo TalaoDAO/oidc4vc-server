@@ -16,7 +16,7 @@ from .GETresolver import getresolver
 
 from .ADDdocument import getdocument, createdocument
 
-from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education
+from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education, get_certificate
 
 from .GETdata import getdata
 

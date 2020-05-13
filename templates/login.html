@@ -16,10 +16,7 @@
         <div class="row justify-content-center">
             <div class="col-md-9 col-lg-12 col-xl-10">
 				
-				                <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
-
-				
-         <!--       <div class="card shadow-sm o-hidden border-0 my-5" style="color: rgb(133,135,150);"> -->
+				<div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">				
                     <div class="card-body p-0">
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
@@ -33,17 +30,20 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4">Welcome Back</h4>
                                     </div>
-                                    <form class="user" action="/login/authentification/" method="POST">
-                                        <div class="form-group"><input class="form-control" type="text" placeholder="Enter your username" name="username" style="color: rgb(133,135,150);" required></div>
+                                    <form class="user" action="/login/" method="POST">
+                                           
                                         <div class="form-group">
-                                            <h6 class ="text-warning" >{{message}}</h->
-                                        </div>
+											<div class="custom-control custom-checkbox small"><h6 class="text-warning">{{get_flashed_messages()[0]}}</h6></div>
+										</div>	
+                                        
                                         <div class="form-group">
-                                            <div class="custom-control custom-checkbox small">
-                                                <div class="form-check"><input class="form-check-input custom-control-input" type="checkbox" name="remember_me" id="formCheck-1"><label class="form-check-label custom-control-label" for="formCheck-1">Remember Me</label></div>
-                                            </div>
-                                        </div><button class="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
-                                        <hr>
+											<input class="form-control" type="text" placeholder="Enter your username" name="username" style="color: rgb(133,135,150);" required>
+										</div>
+										
+                                        
+                                        <button class="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
+                                        
+                                        <br>
                                         
                                     </form>
                                     <div class="text-center"><a class="small" href="">Forgot username ?</a></div>

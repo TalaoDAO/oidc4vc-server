@@ -199,18 +199,15 @@ def getdoc(index, workspace_contract,mode) :
 		
 	# issuer
 	issuer = doc[3]
-
-	# category
-	identityinformation = contract.functions.identityInformation().call()[1]	
+			
+	# determination du profil de l issuer
+	(issuerprofile, identityinformation) = readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
 	if identityinformation == 1001 :
-		category="individual"
+		category="person"
 		path="resume"
 	else :
 		category = "company"	
 		path = "profil"
-			
-	# determination du profil de l issuer
-	(issuerprofile, x) = readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)	
 
 	# calcul de la date
 	if doc[2] == 0 :
@@ -261,16 +258,16 @@ def getclaim (claim_id, workspace_contract,mode) :
 	# initialisation IPFS
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	
-	# doownload du claim
+	# download du claim
 	contract = w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	claimdata = contract.functions.getClaim(claim_id).call()
 	if claimdata[0] == 0 and claimdata[1] == 0:
+		print( 'claim n existe pas ')
 		return False
 	
 	inv_topic = dict(map(reversed, constante.topic.items()))
 	topicname = inv_topic.get(claimdata[0])
-	if topicname == None :
-		topicname = 'experience'
+	topicname = 'certificate' if topicanme is None else topicname
 	issuer = claimdata[2]	
 	data = claimdata[4]
 	url = claimdata[5]
@@ -278,12 +275,18 @@ def getclaim (claim_id, workspace_contract,mode) :
 	# identification de la category de l'issuer du claim
 	contract = w3.eth.contract(whatisthisaddress(issuer,mode)["workspace"],abi = constante.workspace_ABI)
 	identityinformation = contract.functions.identityInformation().call()[1]
+	
 	if identityinformation == 1001 :
-		category = "individual"
+		category = "person"
 		path = "resume"
-	else :
-		category = "company"	
+	elif indentityinformation == 2001 :
+		category = "company"
+		topicname = 'website' if topicname == 'url' else topicname
+		topicname = 'name' if topicname == 'firstname' else topicname
 		path = "profil"
+	else :
+		print ('erreur de category')
+		return False
 		
 	# determination du profil de l issuer
 	(issuerprofile,X) = readProfil(whatisthisaddress(issuer,mode)["owner"], whatisthisaddress(issuer,mode)["workspace"],mode)
@@ -295,16 +298,13 @@ def getclaim (claim_id, workspace_contract,mode) :
 	if signature != b"" :
 		signataire = w3.eth.account.recover_message(message, signature=signature)
 		signature = claimdata[3].hex()
-		if signataire == issuer :
-			verification = 'Right'
-		else :
-			verification = 'False'	
+		verification = 'Right' if signataire == issuer else 'False' 	
 	else :
 		signature = 'Unknown'
 		verification = 'Undone'
 	
 	# calcul de la date
-	date = 'unlimited'
+	date = 'Unlimited'
 	
 	# mise en forme de la reponse
 	claim["id"] = "did:talao:rinkeby:"+workspace_contract[2:]+":claim:"+claim_id
@@ -318,9 +318,11 @@ def getclaim (claim_id, workspace_contract,mode) :
 	
 	if claimdata[5][:1] == "Q" : # les datas sont sur IPFS
 		claim['data']['value'] = client.get_json(claimdata[5])
-		claim['data']['location'] = 'https://ipfs.infura.io/ipfs/'+claimdata[5]	
-		if claim['data']['value'].get('certificate_link') == None :
-			claim['data']['value']['certificate_link']="No"	
+		claim['data']['location'] = 'https://ipfs.infura.io/ipfs/'+claimdata[5]
+		if 	topicname == 'certificate' :
+			claim['data']['value']['certificate_link'] = claim_id
+		else :
+			claim['data']['value'].get('certificate_link', 'No') 
 	else :		
 		claim['data']['value'] = claimdata[4].decode('utf-8')
 		claim['data']['location'] = mode.BLOCKCHAIN # a corriger pour ne pas avoir de pb du lien dans webserver.py
@@ -335,35 +337,18 @@ def getclaim (claim_id, workspace_contract,mode) :
 
 
 ##############################################
-#   MAIN
-##############################################
 # @data = did ou document ou claim
 # did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b'
 # did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim;56879abc
 #  
-
-def getdata(data,mode) :
-	
-	w3=mode.w3
-	datasplit=data.split(':')
-	workspace_contract='0x'+datasplit[3]
-	
-	# work in progress
-	if datasplit[5]=='0' :
-		result = {"msg" : "work to be done !!!!!"}
-	
-	# si data est un identifiant de document
-	elif len(datasplit) == 6 and datasplit[4]== 'document' :
-		result=getdoc(int(datasplit[5]), workspace_contract,mode)
-
-	# si data est un identfiant de claim
-	elif len(datasplit) == 6 and datasplit[4]== 'claim' :	
-		result = getclaim(datasplit[5], workspace_contract,mode)	
-	
-	else :
-		result = {"msg" : "error in GETdata"}
-	
-	return result
+def getdata(data, mode) :
+	w3 = mode.w3
+	datasplit = data.split(':')
+	workspace_contract = '0x' + datasplit[3]
+	if datasplit[4]== 'document' :
+		return getdoc(int(datasplit[5]), workspace_contract, mode)
+	if datasplit[4]== 'claim' :	
+		return getclaim(datasplit[5], workspace_contract, mode)
 
 
 

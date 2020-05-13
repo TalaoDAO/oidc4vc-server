@@ -18,16 +18,19 @@ from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_
 from .Talao_token_transaction import  updateSelfclaims, savepictureProfile, getpicture, deleteDocument, deleteClaim
 from .nameservice import namehash, getUsername, updateName, data_from_publickey
 from .GETresolver import getresolver
-from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education
+from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education, get_certificate
 from .ADDkey import addkey
  
 class Identity() :
 	
-	def __init__(self, workspace_contract,mode, address=None, SECRET=None,  AES_key=None, backend_Id=None, username=None, rsa_key=None, authenticated=False):
+	def __init__(self, workspace_contract, mode, address=None, SECRET=None,  AES_key=None, backend_Id=None, rsa_key=None, authenticated=False):
 		
 		if whatisthisaddress(workspace_contract, mode)['type'] != 'workspace' :
 			print("identity.py, this address is not an Identity")
 			return None
+		
+	
+		
 		self.workspace_contract = workspace_contract
 		self.mode = mode
 		self.synchronous = True # UI synchrone par defaut, on attend les receipts des transactions blockchain
@@ -52,20 +55,13 @@ class Identity() :
 		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
 		self.backend_Id=backend_Id		
 		self.web_relay_authorized = False	
-		self.getPersonal()
-		self.name = self.personal['firstname']['data'].capitalize()+' '+self.personal['lastname']['data'].capitalize()
-		self.getContact()
-		self.getExperience()
-		self.getLanguage()
-		self.getEducation()
-		self.picture = getpicture(self.workspace_contract, self.mode)
-
-		if self.picture is not None :
-			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-			client.get(self.picture)
-			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
 		
-		# data not available for guests
+		contract = self.mode.w3.eth.contract(self.workspace_contract, abi = constante.workspace_ABI)
+		identity_information = contract.functions.identityInformation().call()[1]
+		
+		self.getPersonal()	
+
+		
 		if self.authenticated :
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
@@ -77,44 +73,59 @@ class Identity() :
 			self.eventslist = dict()
 			self.partners = []
 			self.managementkeys = []
-			
-		if username is None :	
-			self.username = getUsername(self.workspace_contract,mode)		
 		
-		self.endpoint=mode.server+'user/?username='+self.username
+		if identity_information == 2001 :
+			self.type = "company"
+			self.name = self.personal['name']['data']
+			pass
+			
+		if identity_information == 1001 :
+			self.type = "person"
+			self.name = self.personal['firstname']['data'].capitalize()+' '+self.personal['lastname']['data'].capitalize()
+			self.getContact()
+			self.get_identity_experience()
+			self.get_identity_certificate()
+			self.getLanguage()
+			self.get_identity_education()
+			self.picture = getpicture(self.workspace_contract, self.mode)
+			if self.picture is not None :
+				client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+				client.get(self.picture)
+				os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
+			
 
 	# filters on external events only, always available
 	def getEvents(self) :
-		contract=self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		alert=dict()
-		filterList= [contract.events.DocumentAdded.createFilter(fromBlock= 6200000,toBlock = 'latest'),
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
+		alert = dict()
+		filter_list = [contract.events.DocumentAdded.createFilter(fromBlock= 6200000,toBlock = 'latest'),
 					contract.events.ClaimAdded.createFilter(fromBlock= 6200000,toBlock = 'latest'),
 					contract.events.PartnershipRequested.createFilter(fromBlock= 6200000,toBlock = 'latest'),
 					contract.events.PartnershipAccepted.createFilter(fromBlock= 6200000,toBlock = 'latest')]		
-		for i in range(0,len(filterList)) :
-			eventlist=filterList[i].get_all_entries()
+		for i in range(0, len(filter_list)) :
+			eventlist = filter_list[i].get_new_entries()
 			for doc in eventlist :
-				transactionhash =doc['transactionHash']
-				transaction=self.mode.w3.eth.getTransaction(transactionhash)
-				issuer=transaction['from']
-				issuer_workspace_contract=ownersToContracts(issuer,self.mode)
-				profil=readProfil(issuer,self.mode)
-				firstname=profil.get('givenName', "")
-				lastname=profil.get('familyName', "")
+				transactionhash = doc['transactionHash']
+				transaction = self.mode.w3.eth.getTransaction(transactionhash)
+				issuer = transaction['from']
+				issuer_workspace_contract = ownersToContracts(issuer,self.mode)
+				profil = readProfil(issuer,self.mode)
+				firstname = profil.get('givenName', "")
+				lastname = profil.get('familyName', "")
 				issuer_name = firstname+' '+lastname
-				blockNumber=transaction['blockNumber']
-				block=self.mode.w3.eth.getBlock(blockNumber)
+				blockNumber = transaction['blockNumber']
+				block = self.mode.w3.eth.getBlock(blockNumber)
 				date = datetime.fromtimestamp(block['timestamp'])			
 				
 				if i == 0 and issuer_workspace_contract != self.workspace_contract :
-					eventType='DocumentAdded' 
-					doc_id= 'did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':document:'+str(doc['args']['id'])
+					eventType = 'DocumentAdded' 
+					doc_id = 'did:talao:' + self.mode.BLOCKCHAIN+':' + issuer_workspace_contract[2:] + ':document:' + str(doc['args']['id'])
 					helptext = issuer_name +' issued a new certificate'	
 					alert[date] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
 				elif i == 1 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'ClaimAdded' 
-					doc_id='did:talao:'+self.mode.BLOCKCHAIN+':'+issuer_workspace_contract[2:]+':claim:'+str(doc['args']['claimId'].hex())
-					helptext= issuer_name + ' issued a new certificate'
+					doc_id = 'did:talao:' + self.mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + str(doc['args']['claimId'].hex())
+					helptext = issuer_name + ' issued a new certificate'
 					alert[date] =  {'alert' : helptext,'event' : eventType, 'doc_id' : doc_id}
 				elif i == 2 and issuer_workspace_contract != self.workspace_contract :
 					eventType = 'PartnershipRequested' 					
@@ -242,14 +253,20 @@ class Identity() :
 		return self.language
 	
 	# always available
-	def getEducation(self) :
+	def get_identity_education(self) :
 		self.education = get_education(self.workspace_contract, self.mode)
 		return self.education
 	
 	# always available
-	def getExperience(self) :
+	def get_identity_experience(self) :
 		self.experience = getexperience(self.workspace_contract, self.address, self.mode)
 		return self.experience
+	
+	# always available
+	def get_identity_certificate(self) :
+		self.certificate = get_certificate(self.workspace_contract, self.address, self.mode)
+		return self.certificate
+	
 	
 	# all setters need web_relay_authorized = True
 

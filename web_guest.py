@@ -240,20 +240,32 @@ def guest_data(dataId) :
 		his_title = his_data.value['position']
 		his_summary = his_data.value['summary']		
 		his_value = """ 
-				<b>Title</b> : """+his_data.value['position']+"""<br>
-				<b>Company</b> : """+his_data.value['company']['name']+"""<br>
-				<b>Manager</b> : """+his_data.value['company']['manager']+"""<br>
-				<b>Manager Email</b> : """+his_data.value['company']['manager_email']+"""<br>
-				<b>Start Date</b> : """+his_data.value['startDate']+"""<br>		
-				<b>End Date</b> : """+his_data.value['endDate']+"""<br>
-				<b>Skills</b> : """+his_data.value['skills']+"""<br>
-				<b>Certificate</b> : """+his_data.value['certificate_link']
+				<b>Title</b> : """+his_data.value['position'] + """<br>
+				<b>Company</b> : """+his_data.value['company']['name'] + """<br>
+				<b>Manager</b> : """+his_data.value['company'].get('manager', 'Unknown') + """<br>
+				<b>Manager Email</b> : """+his_data.value['company'].get('manager_email', 'Unknown') + """<br>
+				<b>Start Date</b> : """+his_data.value['startDate'] + """<br>		
+				<b>End Date</b> : """+his_data.value['endDate'] + """<br>
+				<b>Skills</b> : """+his_data.value['skills'] + """<br>
+				<b>Certificate</b> : """ + his_data.value['certificate_link']
 	elif his_data.topic.capitalize() == "Education" :
 		print('mydatatopic = ', his_data.topic)
 		return 'work in progress'
 	elif his_data.topic.capitalize() == "Employability" :
 		print('mydatatopic = ', his_data.topic)
 		return 'work in progress'		
+	elif his_data.topic.capitalize() == "Certificate" :
+		his_title = his_data.value['position']
+		his_summary = his_data.value['summary']		
+		his_value = """ 
+				<b>Title</b> : """+his_data.value['position'] + """<br>
+				<b>Company</b> : """+his_data.value['company']['name'] + """<br>
+				<b>Manager</b> : """+his_data.value['company'].get('manager', 'Unknown') + """<br>
+				<b>Manager Email</b> : """+his_data.value['company'].get('manager_email', 'Unknown') + """<br>
+				<b>Start Date</b> : """+his_data.value['startDate'] + """<br>		
+				<b>End Date</b> : """+his_data.value['endDate'] + """<br>
+				<b>Skills</b> : """+his_data.value['skills'] + """<br>
+				<b>Certificate</b> : """ + his_data.value['certificate_link']
 	else :
 		his_title = 'Profil'
 		his_summary = ''		
