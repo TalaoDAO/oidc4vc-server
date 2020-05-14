@@ -49,12 +49,11 @@ def anonymous() :
 #@app.route('/guest/', methods = ['GET'])
 def guest() :
 	username = request.args.get('username')
-	workspace_contract = username_to_data(username, mode)['workspace_contract']	
-	print('guest')
+	#workspace_contract = username_to_data(username, mode)['workspace_contract']	
 	if username != session.get('username') :
 		session.clear()
 	if session.get('uploaded') is None :
-		print('first instanciation user')
+		print('user first instanciation in guest')
 		user = Identity(workspace_contract, mode)
 		session['uploaded'] = True
 		session['username'] = user.username		
@@ -202,7 +201,7 @@ def guest_data(dataId) :
 	workspace_contract = '0x'+dataId.split(':')[3]
 	if session.get('workspace_contract') != workspace_contract or 'events' not in session :
 		print('dans guest_data2 de webserver.py error')	
-	his_data = Data(dataId,mode)
+	his_data = Data(dataId, mode)
 			
 	his_topic = his_data.topic.capitalize()
 	
@@ -213,7 +212,7 @@ def guest_data(dataId) :
 				<b>Name</b> : """ + his_data.issuer_name + """<br>
 				<b>Username</b> : """ + his_data.issuer_username +"""<br>
 				<b>Type</b> : """ + his_data.issuer_type + """<br>				
-					<a class="text-secondary" href=/guest_data/"""+his_data.issuer_id+""" >
+					<a class="text-secondary" href=/guest/issuer_explore/?issuer_username="""+his_data.issuer_username+""" >
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span>"""
@@ -290,4 +289,104 @@ def guest_data(dataId) :
 							advanced = his_advanced,
 							picturefile = his_picture,
 							username = his_username)
+
+
+
+
+# guest issuer explore On ne met rien en session
+#@app.route('/guest/issuer_explore/', methods=['GET'])
+def guest_issuer_explore() :
+	issuer_username = request.args['issuer_username']
+	issuer_workspace_contract = username_to_data(issuer_username, mode)['workspace_contract']
+	issuer = Identity(issuer_workspace_contract, mode)
+	# do something common
+	issuer_name = issuer.name
+	
+	# advanced
+	issuer_advanced = """
+					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
+					<b>Username</b> : """ + issuer_username + """<br>										
+					<b>DID</b> : """ + issuer.did 				
+	
+	
+	
+	
+	if issuer.type == 'person' :
+		# do something specifc
+
+		
+		issuer_picture = "anonymous1.png" if issuer.picture is None else issuer.picture
+
+		# personal
+		issuer_personal = """ 
+				<span><b>Firstname</b> : """+ issuer.personal['firstname']['data']+"""				
+					
+					<a class="text-secondary" href=/guest_data/""" + issuer.personal['firstname']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Lastname</b> : """+ issuer.personal['lastname']['data']+"""
+					
+					<a class="text-secondary" href=/guest_data/""" + issuer.personal['lastname']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Picture</b>  	
+					
+					<a class="text-secondary" href=/guest_data/"""+ issuer_picture + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span>"""
+		
+		
+		
+		
+		
+		return render_template('guest_person_issuer_identity.html',
+							issuer_name=issuer_name,
+							advanced=issuer_advanced,
+							personal=issuer_personal,
+							issuer_picturefile=issuer_picture)
+	
+	
+	if issuer.type == 'company' :
+		# do something specific
+		
+		# personal
+		issuer_personal = """ 
+				<span><b>Name</b> : """ + issuer.personal['name']['data'] + """				
+					
+					<a class="text-secondary" href=/guest_data/"""+ issuer.personal['name']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Website</b> : """+ issuer.personal['website']['data']+"""
+					
+					<a class="text-secondary" href=/guest_data/"""+ issuer.personal['website']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Contact</b> : """+ issuer.personal['contact']['data']+"""
+					
+					<a class="text-secondary" href=/guest_data/"""+ issuer.personal['contact']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>
+				
+				<span><b>Email</b> : """+ issuer.personal['email']['data']+"""
+					
+					<a class="text-secondary" href=/guest_data/""" + issuer.personal['email']['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</span><br>"""
+		
+		return render_template('guest_company_issuer_identity.html',
+							issuer_name=issuer_name,
+							advanced=issuer_advanced,
+							personal=issuer_personal)
+
 

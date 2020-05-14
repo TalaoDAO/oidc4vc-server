@@ -87,6 +87,8 @@ Gestion des access anonyme
 app.add_url_rule('/guest/',  view_func=web_guest.guest , methods = ['GET'])
 app.add_url_rule('/guest_data/<dataId>',  view_func=web_guest.guest_data, methods = ['GET'])
 app.add_url_rule('/talent-connect/',  view_func=web_guest.anonymous, methods = ['GET', 'POST'])
+app.add_url_rule('/guest/issuer_explore/',  view_func=web_guest.guest_issuer_explore, methods = ['GET'])
+
 
 
 def check_login(username) :
@@ -656,7 +658,6 @@ def photo() :
 @app.route('/user/contact_settings/', methods=['POST'])
 def contact_settings() :	
 	return redirect(mode.server + 'user/?username=' + user.username)
-
 
 
 

@@ -217,7 +217,7 @@ def getdoc(index, workspace_contract,mode) :
 	if doc[7]== False :
 		encrypted = 'Public'
 	else :
-		encrypted = 'Partner'	
+		encrypted = 'Private'	
 		
 	# mise en forme de la reponse globale		
 	document["id"]="did:talao:rinkeby:"+workspace_contract[2:]+":document:"+str(index)
@@ -267,7 +267,8 @@ def getclaim (claim_id, workspace_contract,mode) :
 	
 	inv_topic = dict(map(reversed, constante.topic.items()))
 	topicname = inv_topic.get(claimdata[0])
-	topicname = 'certificate' if topicanme is None else topicname
+	if topicname is None :
+		topicname = 'certificate'
 	issuer = claimdata[2]	
 	data = claimdata[4]
 	url = claimdata[5]
@@ -279,10 +280,12 @@ def getclaim (claim_id, workspace_contract,mode) :
 	if identityinformation == 1001 :
 		category = "person"
 		path = "resume"
-	elif indentityinformation == 2001 :
+	elif identityinformation == 2001 :
 		category = "company"
-		topicname = 'website' if topicname == 'url' else topicname
-		topicname = 'name' if topicname == 'firstname' else topicname
+		if topicname == 'url' :
+			topicname = 'website'
+		elif topicname == 'firstname' :
+			topicname = 'name'	
 		path = "profil"
 	else :
 		print ('erreur de category')

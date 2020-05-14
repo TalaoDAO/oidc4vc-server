@@ -163,7 +163,7 @@ def certificate_verify(dataId) :
 				<b>Email</b> : """ + his_data.issuer_email + """<br>
 				<b>Adress</b> : """ + his_data.issuer_address + """<br>
 				<b>Website</b> : <a href=""" + his_data.issuer_website +""">"""+ his_data.issuer_website  + """</a><br>			
-					<a class="text-secondary" href=/guest_data/"""+his_data.issuer_id+""" >
+					<a class="text-secondary" href=/guest/issuer_explore/?issuer_username="""+his_data.issuer_username+""" >
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span>"""
