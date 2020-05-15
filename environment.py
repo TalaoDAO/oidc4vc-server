@@ -17,7 +17,6 @@ class currentMode() :
 	myenv='test'
 	mychain='rinkeby'
 	password='suc2cane'
-	port = '4000'
 	apiport = '3000'
 	flaskserver = '127.0.0.1'
 		
@@ -97,11 +96,13 @@ class currentMode() :
 		if self.myenv == 'production' or self.myenv == 'prod' :  # sur rasbperry
 			self.IP='217.128.135.206' # external
 			self.server='http://217.128.135.206:5000/' # external
+			self.port = 4000
 					
 		elif self.myenv == 'test' : # sur portable/internal
-			#self.IP='127.0.0.1'
-			self.server = 'http://127.0.0.1:4000/' #internal
-			
+			#self.server = 'http://127.0.0.1:4000/' #internal
+			self.server = 'http://192.168.0.34:3000/' #internal
+			self.flaskserver = "192.168.0.34"
+			self.port = 3000
 		else : 
 			print('error env ->', self.myenv)
 		

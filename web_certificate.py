@@ -24,9 +24,6 @@ import constante
 # environment setup
 mode=environment.currentMode()
 w3=mode.w3
- 
-#fa = FontAwesome(app)
-
 
 # get ipfs data
 def getclaimipfs (claim_id, workspace_contract) :
@@ -170,10 +167,7 @@ def certificate_verify(dataId) :
 	
 	
 	# advanced
-	if his_data.data_location == 'rinkeby' :
-		path = """https://rinkeby.etherscan.io/tx/"""
-	else :
-		path = """https://etherscan.io/tx/"""
+	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
 	his_advanced = """
 		<!--		<b>Data Id</b> : """ + his_data.id + """<br>  -->
 				<b>Created</b> : """ + his_data.created + """<br>	
@@ -206,7 +200,6 @@ def certificate_verify(dataId) :
 	elif his_data.topic.capitalize() == "Certificate" :
 		his_title = his_data.value['position']
 		his_summary = his_data.value['summary']		
-		print(his_data.value)
 		his_value = """ 
 				<b>Title</b> : """+his_data.value['position'] + """<br>
 				<b>Company</b> : """+his_data.value['company']['name'] + """<br>

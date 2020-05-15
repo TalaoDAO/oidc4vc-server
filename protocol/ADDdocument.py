@@ -109,7 +109,6 @@ def getdocument(workspace_contract_from, private_key_from, workspace_contract_us
 	data=Talao_ipfs.IPFS_get(ipfshash.decode('utf-8'))
 	
 	if encrypted == False :
-		print('document is not encrypted')
 		return data
 	
 	if encrypted == True and private_key_from == '0x0' : # pas de possiblite de decrypter

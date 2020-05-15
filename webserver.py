@@ -232,16 +232,12 @@ def data2(dataId) :
 	
 	myprivacy = """ <b>Privacy</b> : """ + mydata.encrypted + """<br>"""
 	
-	
-	if mydata.data_location == 'rinkeby' :
-		path = """https://rinkeby.etherscan.io/tx/"""
-	else :
-		path = """https://etherscan.io/tx/"""
+	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
+
 	myadvanced = """
 		<!--		<b>Data Id</b> : """ + mydata.id + """<br>  -->
 				<b>Created</b> : """ + mydata.created + """<br>	
 				<b>Expires</b> : """ + mydata.expires + """<br>
-				<b>Signature</b> : """ + mydata.signature + """<br>
 				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + mydata.transaction_hash + """>"""+ mydata.transaction_hash + """</a><br>					
 				<b>Data storage</b> : <a class="card-link" href=""" + mydata.data_location + """>""" + mydata.data_location + """</a>"""
 	
@@ -559,7 +555,7 @@ def user() :
 			cert_html = """<hr> 
 				<b>Company</b> : """ + certificate['organization']['name']+"""<br>			
 				<b>Title</b> : """ + certificate['title']+"""<br>
-				<b></b><a href= """ + mode.server +  """certificate/did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:claim:""" + certificate['certificate_link'] + """>Certificate</a><br>
+				<b></b><a href= """ + mode.server +  """certificate/did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:claim:""" + certificate['certificate_link'] + """>Display Certificate</a><br>
 				<p>
 					<a class="text-secondary" href="#remove">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -571,6 +567,7 @@ def user() :
 				</p>"""	
 			my_certificates = my_certificates + cert_html
 	
+		
 		return render_template('person_identity.html',
 							name=my_name,
 							personal=my_personal,
@@ -771,6 +768,24 @@ def issuer_explore() :
 
 
 
+
+# invit friend
+@app.route('/user/invit_friend/', methods=['GET', 'POST'])
+def invit_friend() :
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		return render_template('invit_friend.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+	else :
+		friend__email = request.form['friend_email']
+		friend_memo = request.form['friend_memo']
+		# something to do		
+		flash('Invit sent to friend')
+		return redirect(mode.server + 'user/?username=' + username)
+
+
 # requets partnership
 @app.route('/user/request_partnership/', methods=['GET', 'POST'])
 def resquest_partnership() :
@@ -778,7 +793,7 @@ def resquest_partnership() :
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
-	if form.method == 'GET' :
+	if request.method == 'GET' :
 		flash('Partnership request sent') 
 		return render_template('request_partnership.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	else :
@@ -797,7 +812,7 @@ def request_certificate() :
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
-	if form.method == 'GET' :
+	if request.method == 'GET' :
 		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
 	else :
 		issuer_username = request.form['issuer_username']
@@ -829,7 +844,7 @@ def request_certificate_new_issuer() :
 @app.route('/user/add_access/', methods=['GET', 'POST'])
 def add_access() :	
 	username = check_login(session.get('username'))	
-	if form.method == 'GET' :		
+	if request.method == 'GET' :		
 		my_picture = session['picture']
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
@@ -1284,6 +1299,6 @@ if __name__ == '__main__':
 	if mode.myenv == 'production' or mode.myenv == 'prod' :
 		app.run(host = mode.flaskserver, port= mode.port, debug=False)
 	elif mode.myenv =='test' :
-		app.run(host='127.0.0.1', port =4000, debug=True)
+		app.run(host=mode.flaskserver, port = mode.port , debug=True)
 	else :
 		print("Erreur d'environnement")

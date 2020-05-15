@@ -219,11 +219,8 @@ def guest_data(dataId) :
 	
 	his_privacy = """ <b>Privacy</b> : """ + his_data.encrypted + """<br>"""
 	
-	
-	if his_data.data_location == 'rinkeby' :
-		path = """https://rinkeby.etherscan.io/tx/"""
-	else :
-		path = """https://etherscan.io/tx/"""
+	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
+
 	his_advanced = """
 		<!--		<b>Data Id</b> : """ + his_data.id + """<br>  -->
 				<b>Created</b> : """ + his_data.created + """<br>	
