@@ -20,6 +20,7 @@ from .nameservice import namehash, getUsername, updateName, data_from_publickey
 from .GETresolver import getresolver
 from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education, get_certificate
 from .ADDkey import addkey
+from .ADDdocument import createdocument
  
 class Identity() :
 	
@@ -35,13 +36,15 @@ class Identity() :
 		self.mode = mode
 		self.synchronous = True # UI synchrone par defaut, on attend les receipts des transactions blockchain
 		self.AES_key = AES_key
+		self.SECRET = SECRET
+		self.backend_Id=backend_Id		
 		self.authenticated = authenticated
-		
+		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
+		self.web_relay_authorized = False			
 		if address is None :
 			self.address = contractsToOwners(self.workspace_contract,mode)
 		else :
 			self.address = address
-		
 		if rsa_key is None :
 			filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(self.address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 			try :
@@ -50,11 +53,7 @@ class Identity() :
 				fp.close()   
 			except IOError :
 				self.rsa_key = None			 
-		
-		self.SECRET = SECRET
-		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
-		self.backend_Id=backend_Id		
-		self.web_relay_authorized = False	
+			
 		
 		contract = self.mode.w3.eth.contract(self.workspace_contract, abi = constante.workspace_ABI)
 		identity_information = contract.functions.identityInformation().call()[1]
@@ -67,6 +66,7 @@ class Identity() :
 			self.token = token_balance(self.address,mode)
 			self.getManagementKeys()
 			self.getClaimKeys()
+			self.get_whitekeys()
 			self.getEvents()
 			self.getPartners()				
 		else :
@@ -77,7 +77,6 @@ class Identity() :
 		if identity_information == 2001 :
 			self.type = "company"
 			self.name = self.personal['name']['data']
-			pass
 			
 		if identity_information == 1001 :
 			self.type = "person"
@@ -174,6 +173,22 @@ class Identity() :
 		self.claimkeys = claimkeys
 		return self.claimkeys
 	
+	
+	# always available
+	def get_whitekeys(self) :
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		keylist = contract.functions.getKeysByPurpose(5).call()
+		whitekeys = []
+		for i in keylist :
+			key = contract.functions.getKey(i).call()
+			issuer = data_from_publickey(key[2].hex(), self.mode)
+			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
+				pass
+			else :	
+				whitekeys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+		self.whitekeys = whitekeys
+		return self.whitekeys
+		
 	# Need web_relay_authorized = True
 	def getPartners(self) :
 		if not self.web_relay_authorized :
@@ -284,6 +299,10 @@ class Identity() :
 		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	
 		return self.picture
 		
+		# need webrelay
+	def add_experience(self, experience, mydays, encrypted ) : # document type 55000 not compatible with freedapp
+		return createdocument(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, 55000, experience, mydays, encrypted, self.mode, synchronous=self.wait)
+	
 	def setLanguage(self, language) :
 #		language= [{"language": 'English',"fluency": '1'}]
 		user.language = language

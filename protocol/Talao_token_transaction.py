@@ -99,12 +99,12 @@ def readProfil (address,mode) :
 		except :
 			claim=[]
 		if len(claim) != 0 : # uniquement si les information ont ete entrées a la creation de l identité
-			claimId=claim[len(claim)-1].hex()
+			claimId = claim[len(claim)-1].hex()
 			data = contract.functions.getClaim(claimId).call()
 			profil[topicname[index]]=data[4].decode('utf-8')
 		#else :
 		#	profil[topicname[index]]=None
-		index=index+1
+		index = index+1
 	return profil
 	
 
@@ -762,20 +762,20 @@ def readWorkspaceInfo (address,mode) :
 #  Create and publish experience in one step
 ############################################################
 # experience={ 'experience':{'title': _experienceTitle, 'description': _experienceDescription, 'from': _fromdate, 'to': _todate, 'location': '', 'remote': True, 'organization_name': 'Talao','skills': [] }}
+	
 
-
-def createandpublishExperience(address, private_key, experience,mode ) :
-	w3=mode.initProvider()
+def createandpublishExperience(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, exprience, mode, synchronous = True) :
+	w3 = mode.w3
 
 	# recuperer les infos du compte sur le workspace
-	(workspace_contract,_email, _password, aes)=readWorkspaceInfo(address,mode)
+	(workspace_contract_to,_email, _password, aes)=readWorkspaceInfo(address_to,mode)
 	
 	# recuperer les info du profil
-	profile=readProfil(address)
+	profile = readProfil(address_to,mode)
 	#	topicname =['givenName', 'familyName', 'jobTitle', 'worksFor', 'workLocation', 'url', 'email', 'description']
-	_familyName=profile["familyName"]
-	_givenName=profile["givenName"]
-	_jobTitle=profile["jobTitle"]
+	_familyName = profile["familyName"]
+	_givenName = profile["givenName"]
+	_jobTitle = profile["jobTitle"]
 
 	#recuperer le token sur le backend
 	conn = http.client.HTTPConnection(mode.ISSUER)
@@ -786,47 +786,66 @@ def createandpublishExperience(address, private_key, experience,mode ) :
 	data = json.dumps(payload)
 	conn.request('POST', '/login',data, headers)
 	response = conn.getresponse()
-	res=response.read()
-	token= json.loads(res)["token"]
+	res = response.read()
+	token = json.loads(res)["token"]
 
 	# creation experience sur le backend
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
 	payload = experience
 	data = json.dumps(payload)
 	conn.request('POST', '/experiences',data, headers)
-	response= conn.getresponse()
-	res=response.read()
-	experience_id= json.loads(res)['experience']['id']	
+	response = conn.getresponse()
+	res = response.read()
+	experience_id = json.loads(res)['experience']['id']	
 	conn.close()
 
 	# publish experience sur ipfs et la blockchain
-	data={"documentType":50000,"version":2,
-	"recipient":{"givenName":_givenName,"familyName":_familyName,"title": _jobTitle,"email":_email[5:],"ethereum_account": address,"ethereum_contract": workspace_contract},
-	"issuer":{"organization":{"email":"","url":"","image":"","ethereum_account":"","ethereum_contract":""},"responsible":{"name":"","title":"","image":""},"partner":{"name":"","text":""}},
-	"certificate":{"title":_experienceTitle,"description":_experienceDescription,"from":_fromdate,"to":_todate,"skills":[],"ratings":[]}}
+	data = {"documentType":50000,
+			"version":2,
+			"recipient": {"givenName":_givenName,
+						"familyName":_familyName,
+						"title": _jobTitle,
+						"email":_email[5:],
+						"ethereum_account": address_to,
+						"ethereum_contract": workspace_contract_to},
+			"issuer":{"organization":{"email":"",
+									"url":"",
+									"image":"",
+									"ethereum_account":"",
+									"ethereum_contract":""},
+									"responsible":{"name":"",
+													"title":"",
+													"image":""},
+			"partner":{"name":"",
+						"text":""}},
+			"certificate":{"title":_experienceTitle,
+							"description":_experienceDescription,
+							"from":_fromdate,
+							"to":_todate,
+							"skills":[],
+							"ratings":[]}}
 
-	createDocument(address, private_key, 50000, data, False,mode)
+	createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, 50000, data, False, mode, synchronous = True)
 
 	# recuperer l iD du document sur le dernier event DocumentAdded
-	mycontract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	mycontract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	myfilter = mycontract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
-	l=len(eventlist)
-	document_id=eventlist[l-1]['args']['id']
+	document_id = eventlist[-1]['args']['id']
 
 	# update de l experience sur la backend . on change le status et on donne le numero du doc 
-	token=Talao_backend_transaction.login(_email, _password)
+	token = Talao_backend_transaction.login(_email, _password)
 	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
-	payload ={"experience":{"blockchain_experience_id":document_id,"blockchain_status":1},"action":"SET_DRAFT"}
+	payload = {"experience":{"blockchain_experience_id":document_id,"blockchain_status":1},"action":"SET_DRAFT"}
 	data = json.dumps(payload)
-	conn.request('PUT', '/experiences/'+str(experience_id),data, headers)
-	response= conn.getresponse()
-	res=response.read()
+	conn.request('PUT', '/experiences/' + str(experience_id),data, headers)
+	response = conn.getresponse()
+	res = response.read()
 	print(json.loads(res))	
 	conn.close()
 	return
-	
-"""	
+
+
 #########################################################	
 # read Talao experience or diploma index
 #########################################################
@@ -869,10 +888,7 @@ def getDocument(address, _doctype,_index,mode) :
 				return Talao_ipfs.IPFS_get(ipfs_hash)
 			else :
 				index=index+1				
-"""
 
-
-"""
 #####################################
 #authentication d'un json de type str
 #####################################
@@ -922,7 +938,7 @@ def authenticate(docjson, address, private_key,mode) :
 	auth_docjson=json.dumps(objectdata,indent=4)
 		
 	return auth_docjson
-"""
+
 
 #################################################
 #  add claim
@@ -1068,3 +1084,4 @@ def isdid(did,mode) :
 	if whatisthisaddress('0x'+didsplit[3], mode)["type"] != "workspace" :
 		return False
 	return True	
+

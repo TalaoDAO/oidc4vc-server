@@ -24,43 +24,8 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 
-                
-                <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
-                    <div class="container-fluid"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;">
-                     <h6 class="text-secondary flex-nowrap ml-auto" style="color: rgb(133,135,150);">Talao Professional Identity</h6>
+                                                           {% include 'user_nav_bar.html' %}    
 
-                        <ul class="nav navbar-nav flex-nowrap ml-auto">
-                            <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="user/education/" style="color: rgb(133,135,150);">How-to</a></li>
-                            <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
-                            <li class="nav-item d-none d-none d-md-block" role="presentation"></li>
-                            <li class="nav-item dropdown no-arrow mx-1" role="presentation">
-                                <div class="nav-item dropdown no-arrow"><a class="nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><span class="badge badge-danger badge-counter">{{counter}}+</span><i class="fas fa-bell fa-fw"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
-                                        role="menu">
-                                        <h6 class="dropdown-header">Events Center</h6>
-                                        <!--Gestion des Alert dans em code de webserver -->
-								{{event|safe}}
-								<a class="text-center dropdown-item small text-gray-500" href="#">Show All Events</a></div>
-                                </div>
-                            </li>
-                            
-                               <!--Gestion du menu de la Nav Bar -->
-                            <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;"><!--retrer dropdown-toggle de la class du nav linkComment--></a>
-                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-file-text-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Request Certificate</a>
-										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit an Issuer&nbsp;</a>
-										<a class="dropdown-item" role="presentation" href="#"><i class="fa fa-calculator fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Buy/Sell TALAO token&nbsp;</a>
-                                            
-                                            
-                                            <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
-                                </div>
-                            </li>	
-                       
-            
-            </ul>
-        </div>
-        </nav>
         
         
         <div class="container-fluid">
@@ -115,41 +80,10 @@
     </div>
     </div>
     </div>
-    <div class="footer-clean">
-        <footer>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Services</h3>
-                        <ul>
-                            <li><a href="#">Certification</a></li>
-                            <li><a href="#">Development</a></li>
-                            <li></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>About</h3>
-                        <ul>
-                            <li><a href="https;//talao.io">Company</a></li>
-                            <li><a href="#">CGU</a></li>
-                            <li></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Careers</h3>
-                        <ul>
-                            <li><a href="#">Job openings</a></li>
-                            <li><a href="#">Employee success</a></li>
-                            <li></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-3 item social"><a href="#"><i class="fa fa-facebook"></i></a><a href="https://twitter.com/talaodao?lang=fr"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-telegram"></i></a><a href="mailto:contact@talao.io"><i class="fa fa-envelope-o"></i></a>
-                        <p
-                            class="copyright">Talao © 2020</p>
-                    </div>
-                </div>
-            </div>
-        </footer>
+   
+   
+                                  {% include 'user_footer.html' %}    
+
     </div>
    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

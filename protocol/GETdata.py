@@ -150,7 +150,7 @@ def getdoc(index, workspace_contract,mode) :
 	
 	
 	# topic
-	if doc[0] == 60000 or doc[0] == 50000 :
+	if doc[0] == 60000 or doc[0] == 50000  or doc[0] == 55000 :
 		topic = "experience"
 	elif doc[0] == 40000 :
 		topic = "education"
@@ -171,22 +171,27 @@ def getdoc(index, workspace_contract,mode) :
 				"to" : education["diploma"]["to"], 
 				"from" : education["diploma"]["from"],
 				"title" : education["diploma"]["title"],
-				'skilss' : "Unknown",
+				'skills' : "Unknown",
 				"description" : education["diploma"]["description"],
 				"certificate_link" : education["diploma"]["link"]}
 	
 	
 	elif topic == "experience" :
-		ipfs_hash=doc[6].decode('utf-8')
-		experience=Talao_ipfs.IPFS_get(ipfs_hash)
+		ipfs_hash = doc[6].decode('utf-8')
+		experience = Talao_ipfs.IPFS_get(ipfs_hash)
+		if doc[0] == 55000 :
+			skills = experience['certificate']['skills']
+		else :
+			skills = [ skill.get('name') for skill in experience['certificate']['skills'] ]
+		
 		value = {'position' : experience['certificate']['title'],
 				'summary' : experience['certificate']['description'],
 				'startDate' : experience['certificate']['from'],
 				'endDate' : experience['certificate']['to'],
-				'company' : {"name" : "Unknown", 
+				'company' : {"name" : experience["issuer"]["organization"].get("name", 'Unknown'), 
 								"manager" : experience['issuer']['responsible']["name"],
 								"manager_email" : experience["issuer"]["organization"]["email"]},
-				'skills' : "Unknown",
+				'skills' : skills,
 				"certificate_link" : "No"	}
 	
 	elif topic == 'contact' :

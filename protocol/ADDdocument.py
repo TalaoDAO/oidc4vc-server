@@ -58,8 +58,11 @@ def createdocument(address_from, workspace_contract_from, address_to, workspace_
 		result = data
 			
 	# calcul de la date
-	myexpires = datetime.datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
-	expires = int(myexpires.timestamp())	
+	if mydays == 0 :
+		expires = 0
+	else :	
+		myexpires = datetime.datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
+		expires = int(myexpires.timestamp())	
 		
 	#envoyer la transaction sur le contrat
 	contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)

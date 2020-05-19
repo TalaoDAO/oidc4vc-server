@@ -567,7 +567,7 @@ def getexperience(workspace_contract,address, mode) :
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 
 	userexperience = []
-	# experiences de type document 50000
+	# experiences de type document 50000 compatible freedapp
 	experienceIndex = getDocumentIndex(50000, workspace_contract,mode)
 	for i in experienceIndex:
 		doc = contract.functions.getDocument(i).call()
@@ -590,7 +590,44 @@ def getexperience(workspace_contract,address, mode) :
 		new_experience['skills'] = skillsarray
 		userexperience.append(new_experience)
 
-		
+	# experiences de type document 55000 non compatibles freedapp
+	experienceIndex = getDocumentIndex(55000, workspace_contract,mode)
+	for i in experienceIndex:
+		doc = contract.functions.getDocument(i).call()
+		if doc[7] == True : # doc encrypted
+			 new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : 'Encrypted',
+				'description' : 'Encrypted',
+				'from' : 'Encrypted',
+				'to' : 'Encrypted',
+				'organization' : {"name" : "Encrypted", 
+						"contact_name" : 'Encrypted',
+						"contact_email" : 'Encrypted'
+						},
+				"certification_link" : ""
+				}	
+		elif doc[7] == False :
+			ipfs_hash = doc[6].decode('utf-8')
+			experience = Talao_ipfs.IPFS_get(ipfs_hash)
+			new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : experience['certificate']['title'],
+				'description' : experience['certificate']['description'],
+				'from' : experience['certificate']['from'],
+				'to' : experience['certificate']['to'],
+				'organization' : {"name" : experience['issuer']['organization']['name'], 
+						"contact_name" : experience['issuer']['responsible']["name"],
+						"contact_email" : experience["issuer"]["organization"]["email"]
+						},
+				"certification_link" : ""
+				}	
+			skills = experience['certificate']['skills']
+			skillsarray = ""
+			for skill in skills :
+				skillsarray = skillsarray + ' ' + skill			
+			new_experience['skills'] = skillsarray
+		else :
+			print('Error getresume.getexperince, encrypted problem')
+			return None			
+		userexperience.append(new_experience)
+
 	# experiences certifies de type document 60000
 	experienceIndex = getDocumentIndex(60000, workspace_contract, mode)
 	for i in experienceIndex:

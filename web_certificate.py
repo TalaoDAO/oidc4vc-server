@@ -172,7 +172,6 @@ def certificate_verify(dataId) :
 		<!--		<b>Data Id</b> : """ + his_data.id + """<br>  -->
 				<b>Created</b> : """ + his_data.created + """<br>	
 				<b>Expires</b> : """ + his_data.expires + """<br>
-				<b>Signature</b> : """ + his_data.signature + """<br>
 			<!--	<b>Signature Check</b> : """ + his_data.signature_check + """<br> -->
 				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + his_data.transaction_hash + """>"""+ his_data.transaction_hash + """</a><br>					
 				<b>Data storage</b> : <a class="card-link" href=""" + his_data.data_location + """>""" + his_data.data_location + """</a>"""

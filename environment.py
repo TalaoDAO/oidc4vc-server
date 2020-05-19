@@ -14,7 +14,7 @@ import sys
 
 class currentMode() :
 	
-	myenv='test'
+	myenv='test'  # test ou airbox ou prod
 	mychain='rinkeby'
 	password='suc2cane'
 	apiport = '3000'
@@ -26,25 +26,27 @@ class currentMode() :
 		if self.mychain == 'rinkeby' :
 			
 			
-			self.ether2transfer=40	
+			self.ether2transfer = 40	
+			self.talao_to_transfer = 101
+			self.talao_bonus = 10
 			
 			""" provider """
-			self.IPCProvider="/mnt/ssd/rinkeby/geth.ipc"
-			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
 			# gestion des extra bytes POA
 			self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 		
-			self.datadir="/mnt/ssd/rinkeby" 						
+			self.datadir = "/mnt/ssd/rinkeby" 						
 			self.BLOCKCHAIN = "rinkeby"		
-			self.Talao_token_contract='0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
-			self.CHAIN_ID=4
+			self.Talao_token_contract = '0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
+			self.CHAIN_ID = 4
 			# Talaogen  
-			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
-			self.Talaogen_private_key='0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen a retirer mais voir pb de send ether vs transaction sur chain POA
+			self.Talaogen_public_key = '0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
+			self.Talaogen_private_key = '0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460' #talaogen a retirer mais voir pb de send ether vs transaction sur chain POA
 			# Foundation and factory """
-			self.foundation_contract='0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
+			self.foundation_contract = '0xde4cF27d1CEfc4a6fA000a5399c59c59dA1BF253'
 			self.foundation_address ='0x2aaF9517227A4De39d7cd1bb2930F13BdB89A113'
-			self.workspacefactory_contract='0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
+			self.workspacefactory_contract = '0x22d0E5639cAEF577BEDEAD4B94D3215A6c2aC0A8'
 			# Web Relay 
 			self.relay_address = '0x18bD40F878927E74a807969Af2e3045170669c71'
 			self.relay_workspace_contract = '0xD6679Be1FeDD66e9313b9358D89E521325e37683'
@@ -60,13 +62,18 @@ class currentMode() :
 			self.GASPRICE='2'		
 		
 		elif self.mychain == 'ethereum' or self.mychain == 'mainet' :
-			self.ether2transfer=20
+			
+			self.ether2transfer = 20
+			self.talao_to_transfer = 101
+			self.talao_bonus = 10
+
+			
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	
 			self.datadir="/mnt/ssd/ethereum"
 			self.BLOCKCHAIN = "ethereum"
 			self.Talao_token_contract='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515' # Talao token
-			self.CHAIN_ID=1
+			self.CHAIN_ID = 1
 			# Talaogen 
 			self.Talaogen_public_key='0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b' # talaogen, uniquement pour le tranfer d'ether et de token
 			self.Talaogen_private_key=''  # pb send transaction
@@ -80,12 +87,12 @@ class currentMode() :
 			self.relay_private_key = ''
 			self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])			
 			# Talao company 
-			self.owner_talao='' # la company
-			self.workspace_contract_talao=''
-			self.ISSUER='backend.talao.io'
-			self.DAPP_LINK='\r\nDapp Link : https://my.freedapp.io/visit/'
-			self.WORKSPACE_LINK='https://my.freedapp.io/visit/'
-			self.GASPRICE='2'			
+			self.owner_talao = '' # la company
+			self.workspace_contract_talao = ''
+			self.ISSUER = 'backend.talao.io'
+			self.DAPP_LINK = '\r\nDapp Link : https://my.freedapp.io/visit/'
+			self.WORKSPACE_LINK = 'https://my.freedapp.io/visit/'
+			self.GASPRICE = '2'			
 		else :
 			print('error chain ->', self.mychain)
 		
@@ -93,16 +100,23 @@ class currentMode() :
 			print("Not Connected, network problem")
 			sys.exit()	
 		
-		if self.myenv == 'production' or self.myenv == 'prod' :  # sur rasbperry
-			self.IP='217.128.135.206' # external
-			self.server='http://217.128.135.206:5000/' # external
+		if self.myenv == 'production' or self.myenv == 'prod' :  # sur rasbperry et Livebox Houdan
+			self.IP = '217.128.135.206' # external
+			self.server = 'http://217.128.135.206:5000/' # external
 			self.port = 4000
-					
-		elif self.myenv == 'test' : # sur portable/internal
-			#self.server = 'http://127.0.0.1:4000/' #internal
-			self.server = 'http://192.168.0.34:3000/' #internal
+			self.debug = False	
+		
+		if self.myenv == 'airbox' :  # sur portable et airbox
+			self.server = 'http://127.0.0.1:3000/' # external
+			self.flaskserver = "127.0.0.1"
+			self.port = 3000
+			self.debug = True
+						
+		elif self.myenv == 'test' : # sur portable avec acces reseau pour les test depuis un smartphone
+			self.server = 'http://192.168.0.34:3000/' 
 			self.flaskserver = "192.168.0.34"
 			self.port = 3000
+			self.debug = True
 		else : 
 			print('error env ->', self.myenv)
 		

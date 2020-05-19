@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+   <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -23,60 +23,60 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-               
-                                            {% include 'user_nav_bar.html' %}    
+				
+				
+                   {% include 'user_nav_bar.html' %}    
 
-        
-        
-        <div class="container-fluid">
-            <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-xl-4">
-                    <div class="card shadow mb-3">
-                        <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove an Issuer</p>
-                        </div>
-                        <div class="card-body">
-                            <form action="/user/remove_issuer/" method="post">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <p>An issuer can send you certificates or claims.<br><br>Confirm
-                                            the removal of the following issuer</p>
-                                        <p><b>{{issuer_name}}</b></p>
-                                    </div>
-                                </div>
+
+
+
+           
+
+
+
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">{{name}}</h3>
+                <div class="row mb-3">
+                    <div class="col-lg-4 col-xl-4 offset-xl-4">
+                        <div class="card mb-3">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">Picture</p>
+                            </div>
+                            <div class="card-body text-center shadow">
                                 
-                                    <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
+                                <form action="/user/picture/" method="POST" enctype="multipart/form-data">
+                                  <div class="mb-3"><img class="img-fluid" src="{{ url_for('send_file', filename=picturefile) }}"></div>  
+                                    <div class="form-group">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend"><button class="btn btn-primary btn-sm small" type="submit">Save</button></div>
+                                            <div class="custom-file"><label class="custom-file-label" for="inputGroupFile01"></label><input type="file" id="inputGroupFile01" class="custom-file-input" name="file"></div>
+                                        </div>
                                     </div>
-                                    <div class="col-6 col-xl-3">
-										<a href="/user/?username={{username}}">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
-                                        </a>
-                                    </div>
-                                </div>
-                               
-                            
-                            
-                            </form>
+                                </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-    </div>
-   
-   
-                           {% include 'user_footer.html' %}    
+        
+        
+                               {% include 'user_footer.html' %}    
 
-    </div>
+        
+        
+        
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>
 </body>
 
 </html>
