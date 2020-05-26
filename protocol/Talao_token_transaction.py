@@ -317,32 +317,24 @@ def authorizepartnership(address_from, workspace_contract_from, address_to, work
 #       5 identityInformation.symetricEncryptionEncryptedKey = _symetricEncryptionEncryptedKey;
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
 
-def partnershiprequest(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner,mode, synchronous= True) :
+def partnershiprequest(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, partner_workspace_contract, partner_rsa_key, mode, synchronous= True) :
 #moi = address_to
-#lui = address_partner
+#lui = partner_address
 	
-	w3 = mode.initProvider()
-	address_partner = contractsToOwners(workspace_contract_partner,mode)	
+	w3 = mode.w3
+	partner_address = contractsToOwners(partner_workspace_contract, mode)	
 	
 	#recuperer ma cle AES cryptée
-	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	my_aes_encrypted=data[5]
 	
 	#recuperer sa cle RSA publique
-	contract = w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(partner_workspace_contract, abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	his_rsa_key = data[4]
-
-	# read ma cle privee RSA sur le fichier
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address_to)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"	
-	try :
-		fp = open(filename,"r")
-		my_rsa_key = fp.read()	
-		fp.close()   
-	except IOError :
-		print('RSA file not found')
-		return False
+	
+	my_rsa_key = partner_rsa_key
 	
 	# decrypt my AES key avec my RSA key
 	key = RSA.importKey(my_rsa_key)
@@ -357,7 +349,7 @@ def partnershiprequest(address_from, workspace_contract_from, address_to, worksp
 	# build, sign and send transaction
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)  
-	txn = contract.functions.requestPartnership(workspace_contract_partner, my_aes_encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	txn = contract.functions.requestPartnership(partner_workspace_contract, my_aes_encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
@@ -365,6 +357,28 @@ def partnershiprequest(address_from, workspace_contract_from, address_to, worksp
 	if synchronous :
 		w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)		
 	return True
+
+
+# reject a partnership
+def remove_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, partner_workspace_contract, mode, synchronous= True):
+#     solidity	  function rejectPartnership(address _hisContract)
+
+	w3 = mode.w3
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token
+	nonce = w3.eth.getTransactionCount(address_from)
+
+	# Build and send transaction
+	txn = contract.functions.removePartnership(partner_workspace_contract).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	print('hash = ', hash1)
+	if synchronous :
+		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)		
+	return True
+
+
 
 #################################################################
 #  get Privatkey

@@ -24,12 +24,32 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 
-                {% include 'user_nav_bar.html' %}    
             
+        {% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+           
+                
+            
+         {% include 'user_nav_bar.html' %}    
+
             
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{name}}</h3>
-                 <h6 class="text-info">{{get_flashed_messages()[0]}}</h6>
+    <!--             <h6 class="text-info">{{get_flashed_messages()[0]}}</h6> -->
+                 
+          
+
+
        
                 <div class="row">
                     <div class="col-xl-6 offset-xl-3">
@@ -50,16 +70,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0"><i class="fa fa-phone"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Contact</a></h5>
-                                            </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body"><a href="#"></a>
-                                                    <p class="card-text">{{contact|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                     
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
                                                 <h5 class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
@@ -223,6 +234,8 @@
         </div>
     </div>
     </div>
+    
+        
     
     
                     {% include 'user_footer.html' %}    

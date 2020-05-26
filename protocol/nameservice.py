@@ -175,11 +175,13 @@ def username_to_data(username,mode) :
 # obtenir le workspace_contract depuis un pubicKeyHex
 ######################################################
 def workspaceFromPublickeyhex(publickeyhex,mode) :
+	
+	#return [access for access in mode.register if access.get('publicKey') == publickeyhex]  
 	for a in mode.register  :
 		if mode.register[a].get('publicKey') == publickeyhex :
 			return  {'workspace_contract' : mode.register[a].get('workspace_contract'), 'username' : mode.register[a].get('username')}
 	return None
-	
+
 	
 	
 #####################################################	

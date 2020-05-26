@@ -32,6 +32,7 @@ from protocol import ownersToContracts, contractsToOwners, readProfil, isdid
 from protocol import deleteName, deleteDocument, deleteClaim, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, addkey, addName, delete_key
 from protocol import username_and_email_list, deleteName, username_to_data, getUsername
 from protocol import createdocument, savepictureProfile, partnershiprequest, remove_partnership
+from protocol import Experience, Claim, Education, File
 import environment
 import hcode
 # Centralized  route
@@ -252,98 +253,114 @@ def data2(dataId) :
 	username = check_login(session.get('username'))
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
 	my_event_html, my_counter =  event_display(session['events'])
-				
-	mydata = Data(dataId,mode)		
-	mytopic = mydata.topic.capitalize()
-	myvisibility = mydata.encrypted.capitalize()
+	workspace_contract = '0x' + dataId.split(':')[3]
+	support = dataId.split(':')[4]
+		
+	if support == 'document' : 
+		doc_id = int(dataId.split(':')[5])			
+		my_data = Experience().relay_get(workspace_contract, doc_id, mode) 
+		my_topic = my_data.topic	
+		ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
+		expires = my_data.expires
+		my_topic = my_data.topic.capitalize()
+	
+	if support == 'claim' :
+		claim_id = dataId.split(':')[5]
+		my_data = Claim().relay_get_by_id(workspace_contract, claim_id, mode) 
+		my_topic = ""
+		ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':claim:'+ my_data.claim_id
+		expires = 'Unlimited'
+		my_topic = 'Personal'
+		
+	myvisibility = my_data.privacy
 	issuer_is_white = False
 	for issuer in session['whitelist'] :
-		if issuer['username'] == mydata.issuer_username :
+		if issuer['username'] == my_data.issuer['username'] :
 			issuer_is_white = True 		
-	if mydata.issuer_username == session['username']:					
+	if my_data.issuer['username'] == session['username']:					
 		myissuer = """
 				<span>
-				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username +"""<br>
+				<b>Name</b> : """ + my_data.issuer['name'] + """<br>
+				<b>Username</b> : """ + my_data.issuer['username'] +"""<br>
 				</span>"""
 	elif issuer_is_white :					
 		myissuer = """
 				<span>
-				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username +"""<br>
-				<b>Type</b> : """ + mydata.issuer_type + """<br>
-				<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+mydata.issuer_username+""" >
+				<b>Name</b> : """ + my_data.issuer['name'] + """<br>
+				<b>Username</b> : """ + my_data.issuer['username'] +"""<br>
+				<b>Type</b> : """ + my_data.issuer['type'] + """<br>
+				<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+my_data.issuer['username']+""" >
 					<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 				</a><br>
 				  <a class="text-info">This issuer is in my White List</a>			
 				</span>"""		
 	else :	
+		if my_data.issuer['name'] == None :
+			my_data.issuer['name'] = 'Unknown' # a retirer
 		myissuer = """
 				<span>
-				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username +"""<br>
-				<b>Type</b> : """ + mydata.issuer_type + """<br>				
-					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+mydata.issuer_username+""" >
+				<b>Name</b> : """ + my_data.issuer['name'] + """<br>
+				<b>Username</b> : """ + my_data.issuer['username'] +"""<br>
+				<b>Type</b> : """ + my_data.issuer['type'] + """<br>				
+					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+my_data.issuer['username'] + """ >
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a><br>
 					<a class="text-warning">This issuer is not in my Whitelist</a>
 				</span>"""
 		
-	myprivacy = """ <b>Privacy</b> : """ + mydata.encrypted + """<br>"""
+	myprivacy = """ <b>Privacy</b> : """ + myvisibility + """<br>"""
 	
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
-
+	
 	myadvanced = """
-		<!--		<b>Data Id</b> : """ + mydata.id + """<br>  -->
-				<b>Created</b> : """ + mydata.created + """<br>	
-				<b>Expires</b> : """ + mydata.expires + """<br>
-				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + mydata.transaction_hash + """>"""+ mydata.transaction_hash + """</a><br>					
-				<b>Data storage</b> : <a class="card-link" href=""" + mydata.data_location + """>""" + mydata.data_location + """</a>"""
+		<!--		<b>Data Id</b> : """ + ID + """<br>  -->
+				<b>Created</b> : """ + my_data.created + """<br>	
+				<b>Expires</b> : """ + expires + """<br>
+				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br>	
+				<b>Transaction Fee</b> : """ + str(my_data.transaction_fee/1000000000000000000) + """ ETH<br>
+				<b>Data storage</b> : <a class="card-link" href=""" + my_data.data_location + """>""" + my_data.data_location + """</a>"""
 	
 	
 	""" topic = Experience """
-	if mydata.topic.capitalize() == "Experience"  :
-		mytitle = mydata.value['position']
-		mysummary = mydata.value['summary']		
+	if my_topic == "Experience"  :
+		mytitle = my_data.title
+		mysummary = my_data.description	
 		myvalue = """ 
-				<b>Title</b> : """+mydata.value['position']+"""<br>
-				<b>Company</b> : """+mydata.value['company']['name']+"""<br>
-				<b>Manager</b> : """+mydata.value['company']['manager']+"""<br>
-				<b>Manager Email</b> : """+mydata.value['company']['manager_email']+"""<br>
-				<b>Start Date</b> : """+mydata.value['startDate']+"""<br>		
-				<b>End Date</b> : """+mydata.value['endDate']+"""<br>
-				<b>Skills</b> : """+ " ".join(mydata.value['skills'])
+				<b>Title</b> : """+my_data.title + """<br>
+				<b>Company Name</b> : """+my_data.company['name']+"""<br>
+				<b>Contact Name</b> : """+my_data.company['contact_name']+"""<br>
+				<b>Contact Email</b> : """+my_data.company['contact_email']+"""<br>
+				<b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br>
+				<b>Start Date</b> : """+my_data.start_date + """<br>		
+				<b>End Date</b> : """+my_data.end_date+"""<br>
+				<b>Skills</b> : """+ " ".join(my_data.skills)
 				
-	elif mydata.topic.capitalize() == "Education" :
+	elif my_topic == "Education" :
 		return 'work in progress'
 	
-	elif mydata.topic.capitalize() == "Employability" :
-		return 'work in progress'		
-	
-	elif mydata.topic.capitalize() == "Certificate" :
-		mytitle = mydata.value['position']
-		mysummary = mydata.value['summary']		
-		print(mydata.value)
+	elif my_topic == "Certificate" :
+		mytitle = my_data.title
+		mysummary = my_data.description		
 		myvalue = """ 
-				<b>Title</b> : """ + mydata.value['position'] + """<br>
-				<b>Company</b> : """ + mydata.value['company']['name'] + """<br>
-				<b>Manager</b> : """+ mydata.value['company'].get('manager', 'Unknown') + """<br>
-				<b>Manager Email</b> : """+ mydata.value['company'].get('manager_email', 'Unknown') + """<br>
-				<b>Start Date</b> : """+ mydata.value['startDate'] + """<br>		
-				<b>End Date</b> : """+ mydata.value['endDate'] + """<br>
-				<b>Skills</b> : """+ mydata.value['skills'] 
-	else :
+				<b>Title</b> : """ + my_data.title + """<br>
+				<b>Company Name</b> : """ + my_data.company['name'] + """<br>
+				<b>Contact Name</b> : """+ my_data.company['contact_name'] + """<br>
+				<b>Contact Email</b> : """+ my_data.company['contact_email'] + """<br>
+				<b>Start Date</b> : """+ my_data.start_date + """<br>		
+				<b>End Date</b> : """+ my_data.end_date + """<br>
+				<b>Skills</b> : """+ my_data.skills 
+	elif my_topic == 'Personal' :
 		mytitle = 'Profil'
 		mysummary = ''		
-		myvalue = """<b>"""+mydata.topic.capitalize()+"""</b> : """+mydata.value
+		myvalue = """<b>"""+ my_data.topic_name + ' : ' + my_data.claim_value + """</b> : """
 
 			
 	mydelete_link = "/talao/api/data/delete/"
 	
-	myusername = mydata.issuer_username
+	myusername = my_data.issuer['username']
 		
 	return render_template('data.html',
-							topic = mytopic,
+							topic = my_topic,
 							visibility = myvisibility,
 							issuer = myissuer,
 							title = mytitle,
@@ -393,7 +410,6 @@ def user() :
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
-			session['contact'] = user.contact
 			session['language'] = user.language
 			session['education'] = user.education	
 			session['picture'] = "anonymous1.png" if user.picture is None else user.picture
@@ -529,7 +545,7 @@ def user() :
 		my_experience = ''
 		for experience in experience_list :
 			exp_html = """<hr> 
-				<b>Company</b> : """+experience['organization']['name']+"""<br>			
+				<b>Company</b> : """+experience['company']['name']+"""<br>			
 				<b>Title</b> : """+experience['title']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
 				<p>
@@ -544,36 +560,20 @@ def user() :
 			my_experience = my_experience + exp_html
 	
 		# personal
-		my_personal_start = """<a href="/user/picture/">Change Picture</a>"""
-		my_personal = """ 
-				<span><b>Firstname</b> : """+session['personal']['firstname']['data']+"""								
-					<a class="text-secondary" href=/data/"""+session['personal']['firstname']['id'] + """>
+		my_personal = """<a href="/user/picture/">Change Picture</a><br>"""
+		for topicname in ['firstname', 'lastname', 'contact_email', 'contact_phone', 'birthdate'] :
+			if session['personal'][topicname]['claim_value'] is not None :
+				topicname_value = session['personal'][topicname]['claim_value']
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
+				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
+				my_personal = my_personal + """ 
+				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""								
+					<a class="text-secondary" href=/data/""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</span><br>		
-				<span><b>Lastname</b> : """+session['personal']['lastname']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['lastname']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				"""
-		my_personal = my_personal + my_personal_start
+				</span><br>"""				
+		my_personal = my_personal + """<a href="/user/update_personal/">Update Data</a>"""
 		
-		# contact
-		if session['contact'] is None :
-			my_contact =  """ <a class="card-link" href="">Add Contact</a>"""
-		else :
-			my_contact = """<span>
-					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """<br>						
-					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """<br>				
-					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """<br>				
-						
-						<a class="text-secondary" href=/data/"""+session['contact']['id'] + """>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-						</a>
-					</span>"""	
 	
 		# education
 		my_education = ""
@@ -618,7 +618,6 @@ def user() :
 		return render_template('person_identity.html',
 							name=my_name,
 							personal=my_personal,
-							contact=my_contact,
 							experience=my_experience,
 							education=my_education,
 							languages=my_languages,
@@ -707,11 +706,6 @@ def photo() :
 		session['picture'] = filename			
 		return redirect(mode.server + 'user/?username=' + username)
 
-# a faire
-@app.route('/user/contact_settings/', methods=['POST'])
-def contact_settings() :	
-	return redirect(mode.server + 'user/?username=' + user.username)
-
 
 
 # issuer explore On ne met rien en session
@@ -728,38 +722,35 @@ def issuer_explore() :
 	my_picture = session['picture'] if session['type'] == 'person' else ""  
 	
 	# advanced
+	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	issuer_advanced = """
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
 					<b>Username</b> : """ + issuer_username + """<br>										
-					<b>DID</b> : """ + issuer.did 				
+					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + issuer.workspace_contract + """>"""+ issuer.workspace_contract + """</a><br>					
+					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + issuer.address + """>"""+ issuer.address + """</a>"""					
+
 	
 	if issuer.type == 'person' :
 		# do something specifc	
 		issuer_picture = "anonymous1.png" if issuer.picture is None else issuer.picture
-
+	
 		# personal
-		issuer_personal = """ 
-				<span><b>Firstname</b> : """+ issuer.personal['firstname']['data']+"""				
+		issuer_personal = """ <span><b>Username : </b> : """ + getUsername(issuer.workspace_contract, mode)+"""<br>"""			
+		for key, value in issuer.personal.items() : 
+			if issuer.personal.get(key) != None :
+				issuer_personal = issuer_personal + """ 
+				<span><b>"""+ key +"""</b> : """+ issuer.personal[key]['data']+"""				
 					
-					<a class="text-secondary" href=/data/""" + issuer.personal['firstname']['id'] + """>
+					<a class="text-secondary" href=/data/""" + issuer.personal[key]['id'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</span><br>
-				
-				<span><b>Lastname</b> : """+ issuer.personal['lastname']['data']+"""
-					
-					<a class="text-secondary" href=/data/""" + issuer.personal['lastname']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Picture</b>  	
-					
+				</span><br>"""				
+		issuer_personal = issuer_personal +	"""	<span><b>Picture</b>  	
 					<a class="text-secondary" href=/data/"""+ issuer_picture + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span>"""
-		
+
 		# experience
 		issuer_experience = ''
 		for experience in issuer.experience :
@@ -808,35 +799,18 @@ def issuer_explore() :
 		# do something specific
 		
 		# personal
-		issuer_personal = """ 
-				<span><b>Name</b> : """ + issuer.personal['name']['data'] + """				
+		issuer_personal = """ <span><b>Username : </b> : """ + getUsername(issuer.workspace_contract, mode)	+ """<br>"""		
+		for key, value in issuer.personal.items() :
+			if issuer.personal.get(key) != None :
+				issuer_personal = issuer_personal + """ 
+				<span><b>"""+ key +"""</b> : """+ issuer.personal[key]['data']+"""				
 					
-					<a class="text-secondary" href=/data/"""+ issuer.personal['name']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Website</b> : """+ issuer.personal['website']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+ issuer.personal['website']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Contact</b> : """+ issuer.personal['contact']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+ issuer.personal['contact']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Email</b> : """+ issuer.personal['email']['data']+"""
-					
-					<a class="text-secondary" href=/data/""" + issuer.personal['email']['id'] + """>
+					<a class="text-secondary" href=/data/""" + issuer.personal[key]['id'] + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span><br>"""
-		
+					
+					
 		return render_template('company_issuer_identity.html',
 							issuer_name=issuer_name,
 							name=my_name,
@@ -862,6 +836,74 @@ def search() :
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + username_to_search)
 
 
+@app.route('/user/update_personal/', methods=['GET', 'POST'])
+def update_personal() :	
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		privacy=dict()
+		for topicname in ['firstname', 'lastname', 'contact_email', 'contact_phone', 'birthdate'] :
+			if session['personal'][topicname]['privacy']=='secret' :
+				(p1,p2,p3) = ("", "", "selected") 
+			if session['personal'][topicname]['privacy']=='private' :
+				(p1,p2,p3) = ("", "selected", "") 
+			if session['personal'][topicname]['privacy']=='public' :
+				(p1,p2,p3) = ("selected", "", "") 
+			if session['personal'][topicname]['privacy'] is None :
+				(p1,p2,p3) = ("", "", "") 
+			
+			privacy[topicname] = """
+					<optgroup """ +  """ label="Select">
+					<option """+ p1 + """ value="public">Public</option>
+					<option """ + p2 +""" value="private">Private</option>
+					<option """ + p3 + """ value="secret">Secret</option>
+					</opgroup>"""
+					
+		return render_template('update_personal.html',
+								picturefile=my_picture,
+								event=my_event_html,
+								counter=my_counter,
+								username=username,
+								firstname=session['personal']['firstname']['claim_value'],
+								firstname_privacy=privacy['firstname'],
+								lastname=session['personal']['lastname']['claim_value'],
+								lastname_privacy=privacy['lastname'],
+								contact_email=session['personal']['contact_email']['claim_value'],
+								contact_email_privacy=privacy['contact_email'],
+								contact_phone=session['personal']['contact_phone']['claim_value'],
+								contact_phone_privacy=privacy['contact_phone'],
+								birthdate=session['personal']['birthdate']['claim_value'],
+								birthdate_privacy=privacy['birthdate']
+								)
+	if request.method == 'POST' :
+		firstname = None if request.form['firstname'] == 'None' else request.form['firstname']
+		lastname = None if request.form['lastname'] == 'None' else request.form['lastname']
+		contact_phone = None if request.form['contact_phone'] == 'None' else request.form['contact_phone']
+		contact_email = None if request.form['contact_email'] == 'None' else request.form['contact_email']
+		birthdate = None if request.form['birthdate'] == 'None' else request.form['birthdate']
+		
+		if 	firstname != session['personal']['firstname']['claim_value'] :
+			Claim().relay_add(session['workspace_contract'],'firstname', firstname, request.form['firstname_select'], mode)
+			session['personal']['firstname']['claim_value'] = firstname
+			session['personal']['firstname']['claim_value'] = request.form['firstname_select']
+		
+		if 	lastname != session['personal']['lastname']['claim_value'] :
+			Claim().relay_add(session['workspace_contract'],'lastname', lastname, request.form['lastname_select'], mode)
+		
+		if 	contact_phone != session['personal']['contact_phone']['claim_value'] :
+			Claim().relay_add(session['workspace_contract'],'contact_phone', contact_phone, request.form['contact_phone_select'], mode)
+			
+		if 	contact_email != session['personal']['contact_email']['claim_value'] :
+			Claim().relay_add(session['workspace_contract'],'contact_email', contact_email, request.form['contact_email_select'], mode)
+
+		if 	birthdate != session['personal']['birthdate']['claim_value'] :
+			Claim().relay_add(session['workspace_contract'],'birtdate', birthdate, request.form['birthdate_select'], mode)
+		
+		flash('personal has been updated', 'success')
+		return redirect(mode.server + 'user/?username=' + username)
+
 
 
 # add experience
@@ -874,49 +916,32 @@ def add_experience() :
 	if request.method == 'GET' :
 		return render_template('add_experience.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
-		experience = {"documentType":55000,
-						"version":2,
-						"recipient": {"givenName": "",
-									"familyName": "",
-									"title": "",
-									"email": "",
-									"ethereum_account": session['address'],
-									"ethereum_contract": session['workspace_contract']
-									},
-						"issuer": {"organization": {"email": request.form['contact_email'],
-													'name' : request.form['company_name'],
-													"url":"",
-													"image":"",
-													"ethereum_account":"",
-													"ethereum_contract":""},
-									"responsible":{"name": request.form['contact_name'],
-													"title":"",
-													"image":""},
-									"partner":{"name":"",
-												"text":""}
-									},												
-						"certificate":{"title": request.form['title'],
-										"description": request.form['description'],
-										"from": request.form['from'],
-										"to": request.form['to'],
-										"skills": request.form['skills'].split(' '),
-										"ratings":[]
-										}
-					}
-		encrypted = False if request.form['privacy'] == 'public' else True							
-		doc_id = createdocument(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, 55000, experience, 0, encrypted, mode, synchronous=True) 
+		experience = Experience()
+		experience.company['contact_email'] = request.form['contact_email']
+		experience.company['name'] = request.form['company_name']
+		experience.company['contact_name'] = request.form['contact_name']
+		experience.company['contact_phone'] = request.form['contact_phone']
+		experience.title = request.form['title']
+		experience.description = request.form['description']
+		experience.start_date = request.form['from']
+		experience.end_date = request.form['to']
+		experience.skills = request.form['skills'].split(' ')  		
+		privacy = request.form['privacy']
+		(doc_id, ipfshash, transaction_hash) = experience.relay_add(session['workspace_contract'], mode, privacy=privacy)		
 		# add experience in session
 		new_experience = {'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id),
-						'title' : experience['certificate']['title'],
-						'description' : experience['certificate']['description'],
-						'from' : experience['certificate']['from'],
-						'to' : experience['certificate']['to'],
-						'organization' : {"name" : experience['issuer']['organization']['name'], 
-										"contact_name" : experience['issuer']['responsible']["name"],
-										"contact_email" : experience["issuer"]["organization"]["email"]
+						'doc_id' : doc_id,
+						'title' : experience.title,
+						'description' : experience.description,
+						'start_date' : experience.start_date,
+						'end_date' : experience.end_date,
+						'company' : {"name" : experience.company['name'], 
+										"contact_name" : experience.company['contact_name'],
+										"contact_email" : experience.company['contact_email'],
+										'contact_phone' : experience.company['contact_phone']
 										},
-						"certification_link" : "",
-						'skills' : experience['certificate']['skills']
+						"certificate_link" : "",
+						'skills' : experience.skills
 						}	
 		
 		session['experience'].append(new_experience)			
@@ -928,8 +953,6 @@ def remove_experience() :
 	if request.method == 'GET' :
 		session['experience_to_remove'] = request.args['experience_id']
 		session['experience_title'] = request.args['experience_title']
-		print(session['experience_to_remove'])
-		print(session['experience_title'])
 		my_picture = session['picture']
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
@@ -938,12 +961,12 @@ def remove_experience() :
 		session['experience'] = [experience for experience in session['experience'] if experience['id'] != session['experience_to_remove']]
 		Id = session['experience_to_remove'].split(':')[5]
 		if session['experience_to_remove'].split(':')[4] == 'document' :
-			deleteDocument(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, Id, mode)
+			Experience().relay_delete(session['workspace_contract'], int(Id), mode)
 		else :
 			deleteClaim(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, Id, mode)
 		del session['experience_to_remove']
 		del session['experience_title']
-		flash('The experience has been removed')
+		flash('The experience has been removed', 'success')
 		return redirect (mode.server +'user/?username=' + username)
 
 

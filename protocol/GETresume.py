@@ -10,7 +10,9 @@ import isolanguage
 import Talao_ipfs
 import constante
 from .Talao_token_transaction import isdid, contractsToOwners, createDocument
+from .document import Experience
 from .ADDdocument import getdocument
+from .claim import Claim
 
 #####################################################	
 # read contenu du claim stocké sur IPFS
@@ -558,7 +560,7 @@ def setlanguage(address_from, workspace_contract_from, address_to, workspace_con
 	hash1 = createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, 10000, employabilite, False,mode, synchronous)	
 	return hash1
 
-
+"""
 #########################################################################################
 
 def getexperience(workspace_contract,address, mode) : 
@@ -650,7 +652,101 @@ def getexperience(workspace_contract,address, mode) :
 		userexperience.append(new_experience)
 
 	return userexperience
+"""				
+	
+	
+	
+
+
+#########################################################################################
+
+def getexperience(workspace_contract,address, mode) : 
+	
+	w3 = mode.w3
+	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+
+	userexperience = []
+	# experiences de type document 50000 
+	experienceIndex = getDocumentIndex(50000, workspace_contract,mode)
+	for e in experienceIndex:
+		experience = Experience().relay_get(workspace_contract, e, mode)
+		new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+ str(experience.doc_id) , 'title' : experience.title,
+				'doc_id' : experience.doc_id,
+				'description' : experience.description,
+				'start_date' : experience.start_date,
+				'end_date' : experience.end_date,
+				'company' : {"name" : experience.company['name'], 
+						"contact_name" : experience.company["contact_name"],
+						"contact_email" : experience.company["contact_email"],
+						"contact_phone" : experience.company.get('contact_phone', 'unknown') # a retirer
+						},
+				"certificate_link" : experience.certificate_link,
+				'skills' : experience.skills
+				}	
+		userexperience.append(new_experience)
+
+	# experiences de type document 55000 non compatibles freedapp
+	experienceIndex = getDocumentIndex(55000, workspace_contract,mode)
+	for i in experienceIndex:
+		doc = contract.functions.getDocument(i).call()
+		if doc[7] == True : # doc encrypted
+			 new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : 'Encrypted',
+				'description' : 'Encrypted',
+				'from' : 'Encrypted',
+				'to' : 'Encrypted',
+				'organization' : {"name" : "Encrypted", 
+						"contact_name" : 'Encrypted',
+						"contact_email" : 'Encrypted'
+						},
+				"certification_link" : ""
+				}	
+		elif doc[7] == False :
+			ipfs_hash = doc[6].decode('utf-8')
+			experience = Talao_ipfs.IPFS_get(ipfs_hash)
+			new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : experience['certificate']['title'],
+				'description' : experience['certificate']['description'],
+				'from' : experience['certificate']['from'],
+				'to' : experience['certificate']['to'],
+				'organization' : {"name" : experience['issuer']['organization']['name'], 
+						"contact_name" : experience['issuer']['responsible']["name"],
+						"contact_email" : experience["issuer"]["organization"]["email"]
+						},
+				"certification_link" : ""
+				}	
+			skills = experience['certificate']['skills']
+			skillsarray = ""
+			for skill in skills :
+				skillsarray = skillsarray + ' ' + skill			
+			new_experience['skills'] = skillsarray
+		else :
+			print('Error getresume.getexperince, encrypted problem')
+			return None			
+		userexperience.append(new_experience)
+
+	# experiences certifies de type document 60000
+	experienceIndex = getDocumentIndex(60000, workspace_contract, mode)
+	for i in experienceIndex:
+		doc = contract.functions.getDocument(i).call()
+		ipfs_hash = doc[6].decode('utf-8')
+		experience = Talao_ipfs.IPFS_get(ipfs_hash)
+		new_experience = {'id' : 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]+':document:'+str(i), 'title' : experience['certificate']['title'],
+				'description' : experience['certificate']['description'],
+				'from' : experience['certificate']['from'],
+				'to' : experience['certificate']['to'],
+				'organization' : {"name" : "", 
+						"contact_name" : experience['issuer']['responsible']["name"],
+						"contact_email" : experience["issuer"]["organization"]["email"]
+						},
+				"certification_link" : "",
+				"skills": ""
+
 				
+				}
+		userexperience.append(new_experience)
+
+	return userexperience
+			
+		
 	
 	
 ############################################################################	
@@ -686,70 +782,42 @@ def get_certificate(workspace_contract, address, mode) :
 	return user_certificate
 	
 	
-	
+"""	
 ############################################################################	
 def getpersonal(workspace_contract, mode) :
 	
 	w3 = mode.w3
 	did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract[2:]
 	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	(profile, category) = readProfil(workspace_contract,mode)
 	
-	personal = dict()
-	if category == 1001 :
-		# Personal	
-		thistopic = {'firstname' :103105118101110078097109101 ,
-				'lastname' : 102097109105108121078097109101,
-				'jobtitle' : 106111098084105116108101,
-				'company' : 119111114107115070111114,
-				'location' : 119111114107076111099097116105111110,
-				'url' : 117114108,
-				'email' : 101109097105108,
-				'description' : 100101115099114105112116105111110
+	person= {'firstname' : 102105114115116110097109101,
+			'lastname' : 108097115116110097109101
+		#	'url' : 117114108,
+		#	'email' : 101109097105108
+			}
+	company = {'name' : 110097109101,
+				'contact_name' : 99111110116097099116095110097109101,
+				'contact_email' : 99111110116097099116095101109097105108,
+				'contact_phone' : 99111110116097099116095112104111110101
+			#	'website' : 119101098115105116101,
+			#	'email' : 101109097105108
 				}
-	else : 
-		# company
-		thistopic = {'name' : 103105118101110078097109101,
-					'website' : 117114108,
-					 'email' : 101109097105108,
-					 'contact' : 99111110116097099116,
-					 'address' : 97100100114101115115}
-			
-	for key in profile :				
-		contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-		claim = contract.functions.getClaimIdsByTopic(thistopic[key]).call() # topic = name
-		isKey = True
-		try :
-			claimid = claim[-1].hex() # one takes the last one
-		except :
-			isKey = False
-		if isKey :
-			personal[key] = {"id" : did+':claim:'+claimid,
-							'endpoint' : mode.server+'talao/data/'+did+':claim:'+claimid,
-							"data" : profile.get(key)}
-	
-	 
-	return personal
 
-#######################################################
-""" retourne les contacts sans cle privees """
-def getcontact(workspace_contract_from, private_key_from, workspace_contract_user, mode) :
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	category = contract.functions.identityInformation().call()[1]	
+	personal = dict()
+	if category == 1001 : 
+		for topicname, topic in person.items() :
+			claim = Claim().relay_get(workspace_contract, topicname, mode)
+			personal[topicname] = claim.__dict__
 	
-	w3 = mode.w3
-	did = 'did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract_user[2:]
-	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)	
-	contactIndex = getDocumentIndex(15000, workspace_contract_user,mode)
-	if len(contactIndex) == 0 :
-		contact = None
-	else :	
-		index = contactIndex[len(contactIndex) -1]
-		mycontact = getdocument(workspace_contract_from, private_key_from, workspace_contract_user, index, mode)
-		if mycontact == None :
-			mycontact = { 'email' : 'encrypted', 'phone' : 'encrypted', 'twitter': 'encrypted'}
-		else :
-			pass			
-		contact = {"id" : did+':document:'+str(index), 'endpoint' : mode.server+'talao/data/'+did+':document:'+str(index),"data" : mycontact}	
-	return contact
+	if category == 2001 : 
+		for topicname, topic in company.items() :
+			claim = Claim().relay_get(workspace_contract, topicname, mode)
+			personal[topicname] = claim.__dict__ 
+	print('personal =', personal)
+	return personal, category
+"""
 
 # education = document 40000 
 def get_education (workspace_contract, mode) :

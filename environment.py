@@ -14,7 +14,7 @@ import sys
 
 class currentMode() :
 	
-	myenv='test'  # test ou airbox ou prod
+	myenv='airbox'  # test ou airbox ou prod
 	mychain='rinkeby'
 	password='suc2cane'
 	apiport = '3000'
@@ -25,7 +25,7 @@ class currentMode() :
 		print('debut init')			
 		if self.mychain == 'rinkeby' :
 			
-			
+			self.start_block = 6400000
 			self.ether2transfer = 40	
 			self.talao_to_transfer = 101
 			self.talao_bonus = 10
@@ -66,7 +66,7 @@ class currentMode() :
 			self.ether2transfer = 20
 			self.talao_to_transfer = 101
 			self.talao_bonus = 10
-
+			self.start_block = 0
 			
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	

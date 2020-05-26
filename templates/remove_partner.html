@@ -2,7 +2,7 @@
 <html>
 
 <head>
-   <meta charset="utf-8">
+  <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -23,35 +23,41 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-				
-			                {% include 'user_nav_bar.html' %}    
-	
+               
+                                            {% include 'user_nav_bar.html' %}    
+
+        
         
         <div class="container-fluid">
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a Partnership</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Partner</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/request_partnership/" method="post">
+                            <form action="/user/remove_partner/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Fill the fields below with the username the partner your want to invit.</p>
-                                        <div class="form-group"><label><strong>Partner</strong><br></label>
-											 <select name="partner_username" class="form-control">
-											<option value="bnp" >BNP</option>
-											<option value="thales">Thales</option>
-											<option value="skill.value">Skill Value</option>
-											<option value="talao" selected>Talao</option>
-											<option value="onfido">Onfido</option>
-											
-										
-											</select></div>
+                                        <p>A Parner can send you certificates or claims and exchange prvate data with you.<br><br>Confirm
+                                            the removal of the following Partner</p>
+                                        <p><b>{{partner_name}}</b></p>
                                     </div>
                                 </div>
-                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Send the Request</button></div>
+                                
+                                    <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+										<a href="/user/?username={{username}}">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+                                        </a>
+                                    </div>
+                                </div>
+                               
+                            
+                            
                             </form>
                         </div>
                     </div>
@@ -61,10 +67,11 @@
     </div>
     </div>
     </div>
-                        {% include 'user_footer.html' %}    
+   
+   
+                           {% include 'user_footer.html' %}    
 
     </div>
-    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

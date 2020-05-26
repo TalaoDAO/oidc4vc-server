@@ -24,52 +24,64 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
 				
-			                {% include 'user_nav_bar.html' %}    
-	
-        
-        <div class="container-fluid">
-            <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-xl-4">
-                    <div class="card shadow mb-3">
-                        <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a Partnership</p>
-                        </div>
-                        <div class="card-body">
-                            <form action="/user/request_partnership/" method="post">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <p>Fill the fields below with the username the partner your want to invit.</p>
-                                        <div class="form-group"><label><strong>Partner</strong><br></label>
-											 <select name="partner_username" class="form-control">
-											<option value="bnp" >BNP</option>
-											<option value="thales">Thales</option>
-											<option value="skill.value">Skill Value</option>
-											<option value="talao" selected>Talao</option>
-											<option value="onfido">Onfido</option>
-											
-										
-											</select></div>
+				
+                   {% include 'user_nav_bar.html' %}    
+
+
+
+
+           
+
+
+
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">{{name}}</h3>
+                <div class="row mb-3">
+                    <div class="col-lg-4 col-xl-4 offset-xl-4">
+                        <div class="card mb-3">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">Picture</p>
+                            </div>
+                            <div class="card-body text-center shadow">
+                                
+                                <form action="/user/picture/" method="POST" enctype="multipart/form-data">
+                                  <div class="mb-3"><img class="img-fluid" id ="output" src="{{ url_for('send_file', filename=picturefile) }}"></div>  
+                                    <div class="form-group">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend"><button class="btn btn-primary btn-sm small" type="submit">Save</button></div>
+                                            <div class="custom-file"><label class="custom-file-label" for="inputGroupFile01"></label><input type="file" id="inputGroupFile01" onchange="loadFile(event)" class="custom-file-input" name="file"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Send the Request</button></div>
-                            </form>
+                                </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-    </div>
-                        {% include 'user_footer.html' %}    
+        
+        
+                               {% include 'user_footer.html' %}    
 
-    </div>
+        
+        
+        
     </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>
+<script>
+var loadFile = function(event) {
+	var image = document.getElementById('output');
+	image.src = URL.createObjectURL(event.target.files[0]);
+};
 </body>
 
 </html>

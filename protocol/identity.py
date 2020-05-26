@@ -16,11 +16,13 @@ import constante
 
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, readProfil, getAll, addclaim, partnershiprequest, whatisthisaddress
 from .Talao_token_transaction import  updateSelfclaims, savepictureProfile, getpicture, deleteDocument, deleteClaim
-from .nameservice import namehash, getUsername, updateName, data_from_publickey
+from .nameservice import namehash, getUsername, updateName, data_from_publickey, username_to_data
 from .GETresolver import getresolver
-from .GETresume import getresume, getlanguage, setlanguage, getexperience, getpersonal, getcontact, get_education, get_certificate
+from .GETresume import getresume, getlanguage, setlanguage, get_education, get_certificate
 from .ADDkey import addkey
 from .ADDdocument import createdocument
+from .claim import Claim
+from .document import Experience, Education, File
  
 class Identity() :
 	
@@ -40,11 +42,12 @@ class Identity() :
 		self.backend_Id=backend_Id		
 		self.authenticated = authenticated
 		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
-		self.web_relay_authorized = False			
+		self.web_relay_activated = False			
 		if address is None :
 			self.address = contractsToOwners(self.workspace_contract,mode)
 		else :
 			self.address = address
+		
 		if rsa_key is None :
 			filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(self.address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 			try :
@@ -53,38 +56,38 @@ class Identity() :
 				fp.close()   
 			except IOError :
 				self.rsa_key = None			 
-			
 		
-		contract = self.mode.w3.eth.contract(self.workspace_contract, abi = constante.workspace_ABI)
-		identity_information = contract.functions.identityInformation().call()[1]
-		
-		self.getPersonal()	
-
+		self.get_identity_personal()	
 		
 		if self.authenticated :
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
-			self.getManagementKeys()
-			self.getClaimKeys()
-			self.get_whitekeys()
-			self.getEvents()
-			self.getPartners()				
+			self.get_management_keys()
+			self.get_claim_keys()
+			self.get_white_keys()
+			self.get_events()
+			self.get_partners()				
 		else :
 			self.eventslist = dict()
 			self.partners = []
 			self.managementkeys = []
 		
-		if identity_information == 2001 :
+		if self.category  == 2001 :
 			self.type = "company"
-			self.name = self.personal['name']['data']
-			
-		if identity_information == 1001 :
+			try :
+				self.name = self.personal['name']['data']
+			except :
+				self.name = 'Unknown'
+				self.personal['name']={'data' : 'Unknown', 'id' : "", 'data' : ""}
+				
+		if self.category == 1001 :
 			self.type = "person"
-			self.name = self.personal['firstname']['data'].capitalize()+' '+self.personal['lastname']['data'].capitalize()
-			self.getContact()
+			firstname = "" if self.personal['firstname']['claim_value'] is None else self.personal['firstname']['claim_value']
+			lastname = "" if self.personal['lastname']['claim_value'] is None else self.personal['lastname']['claim_value']
+			self.name = firstname.capitalize() + ' ' + lastname.capitalize()
 			self.get_identity_experience()
 			self.get_identity_certificate()
-			self.getLanguage()
+			self.get_language()
 			self.get_identity_education()
 			self.picture = getpicture(self.workspace_contract, self.mode)
 			if self.picture is not None :
@@ -94,7 +97,7 @@ class Identity() :
 			
 
 	# filters on external events only, always available
-	def getEvents(self) :
+	def get_events(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		alert = dict()
 		filter_list = [contract.events.DocumentAdded.createFilter(fromBlock= 6200000,toBlock = 'latest'),
@@ -139,27 +142,26 @@ class Identity() :
 				else :
 					pass								
 		self.eventslist = alert
-		return self.eventslist
+		return True
+	
+	
+	
 	
 	# always available
-	def getManagementKeys(self) :
+	def get_management_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(1).call()
 		mymanagementkeys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			if key[2] == self.mode.relay_publickeyhex :
-				self.web_relay_authorized = True	
-			controller = data_from_publickey(key[2].hex(), self.mode)
-			if controller is None or controller['address'] is None or controller['username'] is None :
-				pass
-			else :
-				mymanagementkeys.append({"address": controller['address'], "publickey": key[2].hex(), "workspace_contract" : controller['workspace_contract'] , 'username' : controller['username'] } )
-		self.managementkeys = mymanagementkeys
-		return self.managementkeys
-
+				self.web_relay_activated = True	
+		return True
+	
+	
+		
 	# always available
-	def getClaimKeys(self) :
+	def get_claim_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(3).call()
 		claimkeys = []
@@ -171,11 +173,11 @@ class Identity() :
 			else :	
 				claimkeys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
 		self.claimkeys = claimkeys
-		return self.claimkeys
+		return True
 	
 	
 	# always available
-	def get_whitekeys(self) :
+	def get_white_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(5).call()
 		whitekeys = []
@@ -185,60 +187,80 @@ class Identity() :
 			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
 				pass
 			else :	
-				whitekeys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+				whitekeys.append({"address": issuer['address'],
+								"publickey": key[2].hex(),
+								 "workspace_contract" : issuer['workspace_contract'],
+								  'username' : issuer['username'] } )
 		self.whitekeys = whitekeys
-		return self.whitekeys
+		return True
+		
 		
 	# Need web_relay_authorized = True
-	def getPartners(self) :
-		if not self.web_relay_authorized :
+	def get_partners(self) :
+		if not self.web_relay_activated :
 			print('Identity.py, Impossible to upload partner without key 1')		
-			self.partners = []
-			return   
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		acct = Account.from_key(self.mode.relay_private_key)
-		self.mode.w3.eth.defaultAccount = acct.address
-		partners = []
-		partners_list = contract.functions.getKnownPartnershipsContracts().call()
-		for partner_workspace_contract in partners_list :			
-			partners.append({"workspace_contract" : partner_workspace_contract , 'username' : getUsername(partner_workspace_contract,self.mode) } )
-		self.partners = partners
-		return self.partners
+			self.partners = []			 
+		else :
+			contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
+			acct = Account.from_key(self.mode.relay_private_key)
+			self.mode.w3.eth.defaultAccount = acct.address
+			partners = []
+			partners_list = contract.functions.getKnownPartnershipsContracts().call()
+			liste = ["Unknown","Authorized", "Pending","Rejected","Removed"] 
+			print(partners_list)
+			for partner_workspace_contract in partners_list :	
+				authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
+				if authorization_index != 4 :
+					partner_username = getUsername(partner_workspace_contract, self.mode)
+					partner_address = contractsToOwners(partner_workspace_contract, self.mode)
+					contract = self.mode.w3.eth.contract(partner_workspace_contract,abi=constante.workspace_ABI)
+					my_status = contract.functions.getMyPartnershipStatus().call()
+					partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
+					partners.append({"address": partner_address,
+								"publickey": partner_publickey,
+								 "workspace_contract" : partner_workspace_contract,
+								  'username' : partner_username,
+								  'authorized' : liste[authorization_index],
+								  'status' : liste[my_status] } )				
+			self.partners = partners
+		print(partners)
+		return True
 	
-	"""
-	def getRsa_key(self) :
-		filename = "./RSA_key/"+self.mode.BLOCKCHAIN+'/'+str(self.address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-		try :
-			fp =open(filename,"r")
-		except :
-			self.rsa_key is None
-			return None
-		self.rsa_key = fp.read()	
-		fp.close()   
-		return self.ras_key
-	"""
+	def topicname2topicvalue(topicname) :
+		topicvaluestr =''
+		for i in range(0, len(topicname))  :
+			a = str(ord(topicname[i]))
+			if int(a) < 100 :
+				a='0'+a
+			topicvaluestr = topicvaluestr + a
+		return int(topicvaluestr)
+	
 		# always available
-	def getPersonal(self) :
-		self.personal = getpersonal(self.workspace_contract, self.mode)
-		return self.personal
+	def get_identity_personal(self) :
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)	
+		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate',]
+		company = ['name','contact_name','contact_email','contact_phone','website',]
+
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
+		category = contract.functions.identityInformation().call()[1]	
+		personal = dict()
 		
-		# always available	
-	def getContact(self) :
-		self.contact = getcontact(self.mode.relay_workspace_contract, self.mode.relay_private_key, self.workspace_contract, self.mode)
-		return self.contact		
+		if category == 1001 : 
+			for topicname in person :
+				claim = Claim().relay_get(self.workspace_contract, topicname, self.mode)
+				personal[topicname] = claim.__dict__
 	
-	"""contact = {
-  'id': 'did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:15',
-  'endpoint': 'http://127.0.0.1:4000/talao/data/did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:document:15',
-  'data': {
-    'email': 'pierre@talao.io',
-    'phone': '0607182594',
-    'twitter': '@pierredavid'
-  }
-}"""
+		if category == 2001 : 
+			for topicname in company :
+				claim = Claim().relay_get(self.workspace_contract, topicname, self.mode)
+				personal[topicname] = claim.__dict__ 
+		print('personal =', personal)
+		self.personal = personal
+		self.category = category
+		return True
 	
 	# always available
-	def getLanguage(self) :	
+	def get_language(self) :	
 		lang = getlanguage(self.workspace_contract, self.mode)		
 		if lang is None :
 			self.language = ( {}, '', '', '')
@@ -273,10 +295,30 @@ class Identity() :
 		return self.education
 	
 	# always available
-	def get_identity_experience(self) :
-		self.experience = getexperience(self.workspace_contract, self.address, self.mode)
-		return self.experience
-	
+	def get_identity_experience(self) :	
+		self.experience = []
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		for doc_id in contract.functions.getDocuments().call() :
+			if contract.functions.getDocument(doc_id).call()[0] in [50000, 50001, 50002] : # doctype
+				experience = Experience().relay_get(self.workspace_contract, doc_id, self.mode)
+				new_experience = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(experience.doc_id),
+									'title' : experience.title,
+									'doc_id' : experience.doc_id,
+									'description' : experience.description,
+									'start_date' : experience.start_date,
+									'end_date' : experience.end_date,
+									'company' : {'name' : experience.company['name'], 
+												'contact_name' : experience.company['contact_name'],
+												'contact_email' : experience.company['contact_email'],
+												'contact_phone' : experience.company.get('contact_phone', 'unknown') # a retirer
+												},
+									'certificate_link' : experience.certificate_link,
+									'skills' : experience.skills
+									}	
+				self.experience.append(new_experience)
+		return True	
+		
+		
 	# always available
 	def get_identity_certificate(self) :
 		self.certificate = get_certificate(self.workspace_contract, self.address, self.mode)
@@ -285,7 +327,7 @@ class Identity() :
 	
 	# all setters need web_relay_authorized = True
 
-	def deleteExperience(self, experienceId) :			
+	"""def deleteExperience(self, experienceId) :			
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		claimdocId=experienceId.split(':')[5]
 		if experienceId.split(':')[4] == 'document' :
@@ -293,13 +335,13 @@ class Identity() :
 		else :
 			deleteClaim(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, '0x'+claimdocId,self.mode)
 		self.getExperience()
-		return True
+		return True"""
 		
 	def uploadPicture(self,picturefile) :
 		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	
 		return self.picture
-		
-		# need webrelay
+	
+	"""	# need webrelay
 	def add_experience(self, experience, mydays, encrypted ) : # document type 55000 not compatible with freedapp
 		return createdocument(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, 55000, experience, mydays, encrypted, self.mode, synchronous=self.wait)
 	
@@ -342,21 +384,11 @@ class Identity() :
 	def setContact(self, contact) :	
 		addclaim(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, 'contact', self.mode.relay_address, contact, "",self.mode, synchronous=self.wait)
 		self.url = url
-		return True	
+		return True	"""
 
-	""" Name Service """		
 	# update le username
 	def updateUsername(self, newusername) : 
 		return updateName(self.username, newusername, self.mode)
-	
-	""" Only Owner 
-	# destroy Identity and remove it from register
-	def killIdentity(self) :				
-		deleteName(self.username, self.mode) 
-		destroyWorkspace(self.workspace_contract, self.private_key, self.mode)
-		return True	
-	
-	# def changeOwner(self, address_new_owner ) :  """
 	
 	
 	

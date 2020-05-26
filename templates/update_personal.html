@@ -23,18 +23,14 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-				
-                                            {% include 'user_nav_bar.html' %}    
-
-            
-            
-            
+               
+                     {% include 'user_nav_bar.html' %}    
+   
+               
             <div class="container-fluid">
-				
-				<!--
                 <h3 class="text-dark mb-4">{{name}}</h3>
                 <div class="row mb-3">
-                    <div class="col-lg-8 offset-xl-2">
+                    <div class="col-lg-8 col-xl-6 offset-xl-3">
                         <div class="row mb-3 d-none">
                             <div class="col">
                                 <div class="card text-white bg-primary shadow">
@@ -65,85 +61,86 @@
                                 </div>
                             </div>
                         </div>
-                        
-                    -->
-                    
-                     
-            <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-xl-4">
-                        
+                        <div class="row">
+                            <div class="col-xl-10 offset-xl-1">
                                 <div class="card shadow mb-3">
                                     <div class="card-header py-3">
                                         <div class="row">
                                             <div class="col-xl-6">
-                                                <p class="text-primary m-0 font-weight-bold">&nbsp;Experience</p>
+                                                <p class="text-primary m-0 font-weight-bold">&nbsp;Personal</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <form action="/user/add_experience/" method="POST">
-                                            <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label for="username"><strong>Company</strong><br></label><input class="form-control" type="text" placeholder="Company Name" name="company_name" required ></div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Position</strong><br></label><input class="form-control" type="text" placeholder="Your position" required name="title"></div>
-                                                </div>
-                                            </div>
+                                        <form action="/user/update_personal/" method="POST">
                                             <div class="form-row">
                                                 <div class="col-xl-3">
-                                                    <div class="form-group"><label for="startdate"><strong>Start Date</strong><br></label><input class="form-control" id="startdate" type="date" required="" name="from"></div>
+                                                    <div class="form-group"><label ><strong>Firstname</strong><br></label><input class="form-control" type="text" name="firstname" value={{firstname}} required=""></div>
                                                 </div>
                                                 <div class="col-xl-3">
-                                                    <div class="form-group"><label for="email"><strong>End Date</strong><br></label><input class="form-control" type="date" required="" name="to"></div>
+                                                    <div class="form-group"><label for="email"><br></label>
+                                                    <select name = "firstname_select" class="form-control">
+														{{firstname_privacy|safe}}
+													</select></div>
                                                 </div>
-                                                <div class="col-xl-6 offset-xl-0">
-                                                    <div class="form-group"><label><strong>Privacy</strong></label>
-                                                    <select class="form-control" name="privacy">
-														<optgroup label="Privacy">
-															<option value="public" selected >Public</option>
-															<option value="private">Private</option>
-															<option value="secret">Secret</option>
-														</optgroup>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label ><strong>Lastname</strong><br></label><input class="form-control" type="text" required="" value={{lastname}}  name="lastname"></div>
+                                                </div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label for="email"><br></label>
+                                                    <select name="lastname_select" class="form-control">
+														{{lastname_privacy|safe}}
 													</select></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label for="username"><strong>Contact Name</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="Name of your contact wthin the company" name="contact_name" title="Texte"></div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label ><strong>Contact Email</strong><br></label><input class="form-control" type="email" value = {{contact_email}} name="contact_email"></div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="user@example.com" name="contact_email" title="Texte"></div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label for="email"><br></label>
+                                                    <select name="contact_email_select" class="form-control">
+														{{contact_email_privacy|safe}}
+													</select></div>
+                                                </div>
+                                                <div class="col-xl-3 offset-xl-0">
+                                                    <div class="form-group"><label ><strong>Contact Phone</strong><br></label><input class="form-control" type="tel" value = {{contact_phone}} name="contact_phone"></div>
+                                                </div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label for="email"><br></label>
+                                                    <select name = "contact_phone_select" class="form-control">
+														{{contact_phone_privacy|safe}}
+													</select></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <div class="col" id="checkbox1">
-                                                    <div class="form-group"><label for="checkbox1"><strong>Skills</strong><br></label><textarea class="form-control" row="2" name="skills" placeholder="skill1 skill2 skill3 ..."></textarea></div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label ><strong>Birth Date</strong><br></label><input class="form-control" name="birthdate" type="date"></div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Phone</strong><br></label><input class="form-control" type="tel" name="contact_phone" placeholder = "Your contact within the company"></div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label for="email"><br></label>
+                                                    <select name="birthdate_select" class="form-control">
+														{{birthdate_privacy|safe}}	
+													</select></div>
+                                                </div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label ><strong>Postal Address</strong><br></label><input type="text" class="form-control-plaintext" name="postal_address" value={{postal_address}} /></div>
+                                                </div>
+                                                <div class="col-xl-3">
+                                                    <div  class="form-group"><label for="email"><br></label>
+                                                    <select name="postal_address_select" class="form-control">
+														<option value="12">Public</option>
+														<option value="13" >Private</option>
+														<option value="14">Secret</option>
+													</select></div>
                                                 </div>
                                             </div>
-                                            
-                                            
-              
-                                            <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" placeholder ="Short description of the mission" required="" title="texte"></textarea></div>
+                                            <div class="form-group">
+                                                <div class="form-row">
+                                                    <div class="col-xl-3"><button class="btn btn-primary btn-sm" type="submit">Update</button></div>
+                                                    <div class="col-xl-3"><button class="btn btn-primary btn-sm" type="submit">Cancel</button></div>
                                                 </div>
                                             </div>
-                                            
-                                             <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add Experience</button></div>
-                                    </div>
-                                    <div class="col-6 col-xl-3">
-										<a href="/user/?username={{username}}">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
-                                        </a>
-                                    </div>
-                                </div>
-                                            
                                         </form>
                                     </div>
                                 </div>
@@ -154,19 +151,15 @@
             </div>
         </div>
         
-                               {% include 'user_footer.html' %}    
+        
+                            {% include 'user_footer.html' %}    
 
-        
-        
-        
-    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  
+   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-   
-  
 </body>
 
 </html>

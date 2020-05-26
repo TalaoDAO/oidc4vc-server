@@ -6,7 +6,7 @@ from Crypto.Cipher import AES
 import datetime
 import ipfshttpclient
 from eth_account import Account
-from base64 import b64encode
+from base64 import b64encode, b64decode
 
 #dependances
 import constante
