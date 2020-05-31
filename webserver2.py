@@ -248,7 +248,7 @@ def logout() :
 
 
 @app.route('/data/<dataId>', methods=['GET'])
-def data2(dataId) :
+def data(dataId) :
 	username = check_login(session.get('username'))
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
 	my_event_html, my_counter =  event_display(session['events'])
@@ -257,7 +257,8 @@ def data2(dataId) :
 		
 	if support == 'document' : 
 		doc_id = int(dataId.split(':')[5])			
-		my_data = Experience().relay_get(workspace_contract, doc_id, mode) 
+		my_data = Experience()
+		my_data.relay_get(workspace_contract, doc_id, mode) 
 		my_topic = my_data.topic	
 		ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
 		expires = my_data.expires
@@ -545,16 +546,15 @@ def user() :
 
 	for one_file in identity_file_list :
 		file_html = """<hr> 
-				<b>File Name</b> : """+one_file['filename']+"""<br>			
+				<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
 				<b>Created</b> : """+ one_file['created'] + """<br>
-				<b>Privacy</b> : """+ one_file['privacy']+"""<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + one_file['id'] + """&experience_title="""+ one_file['filename'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					
-					<a class="text-secondary" href=/data/""" + one_file['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					<a class="text-secondary" href=/user/donload/""" + one_file['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
 					</a>
 				</p>"""	
 		my_file = my_file + file_html
@@ -1063,10 +1063,22 @@ def store_file() :
 		myfile = request.files['file']
 		filename = secure_filename(myfile.filename)
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-		file_to_upload = UPLOAD_FOLDER + '/' + filename
-		savepictureProfile(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, mode, synchronous = False)	
-		print('file = ',file_to_upload)
-		flash('File uploaded', "success")
+		privacy = request.form['privacy']
+		print(privacy)
+		print(filename)
+		user_file = File()
+		(doc_id, ipfs_hash, transaction_hash) =user_file.add(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, filename, privacy, mode)
+		new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(doc_id),
+									'filename' : filename,
+									'doc_id' : doc_id,
+									'created' : str(datetime.utcnow()),
+									'privacy' : privacy,
+									'doctype' : "",
+									'issuer' : mode.relay_address,
+									'transaction_hash' : transaction_hash
+									}	
+		session['identity_file'].append(new_file)				
+		flash(filename + ' uploaded', "success")
 		return redirect(mode.server + 'user/?username=' + username)
 
 

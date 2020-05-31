@@ -1,38 +1,31 @@
-Nouvel essai
-========
+Starter Guide for Talents
+=========================
 
-$project will solve your problem of where to start with documentation,
+This guide will solve your problem of where to start with documentation,
 by providing a basic explanation of how to do it easily.
 
 Look how easy it is to use:
 
-    import project
+    Create a new identity
     # Get your stuff done
     project.do_stuff()
 
-Features
---------
+Create a New Identity
+---------------------
 
 - Be awesome
 - Make things faster
 
-Installation
-------------
+Request a Certificate
+---------------------
 
 Install $project by running:
 
     install project
 
-Contribute
-----------
+Use my Certificates
+-------------------
 
 - Issue Tracker: github.com/$project/$project/issues
 - Source Code: github.com/$project/$project
 
-Support
--------
-
-If you are having issues, please let us know.
-We have a mailing list located at: project@google-groups.com
-
-Test

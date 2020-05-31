@@ -7,9 +7,14 @@ Welcome to Talao's documentation!
 =================================
 
 .. toctree::
-   readme
-   test
+   contents
+   starter
+   starter_company
+   resume
+   other_features
+   api
    :maxdepth: 2
+   :caption: Contents:
 	
 
 

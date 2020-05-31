@@ -1,4 +1,4 @@
-$project
+How-To
 ========
 
 $project will solve your problem of where to start with documentation,
@@ -10,21 +10,21 @@ Look how easy it is to use:
     # Get your stuff done
     project.do_stuff()
 
-Features
---------
+Request a Certificate
+---------------------
 
 - Be awesome
 - Make things faster
 
-Installation
-------------
+Update my Profil
+----------------
 
 Install $project by running:
 
     install project
 
-Contribute
-----------
+Use my Own Wallet
+-----------------
 
 - Issue Tracker: github.com/$project/$project/issues
 - Source Code: github.com/$project/$project
