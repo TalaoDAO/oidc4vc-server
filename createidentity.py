@@ -18,13 +18,13 @@ from datetime import datetime
 import random
 
 # import des fonctions custom
-import Talao_backend_transaction
+#import Talao_backend_transaction
 import Talao_message
-import Talao_ipfs
+#import Talao_ipfs
 import constante
 import environment
-from protocol import Identity, addclaim, ownersToContracts, token_transfer, createVaultAccess, ether_transfer, createWorkspace, partnershiprequest, authorizepartnership, addkey
-from protocol import addName, namehash
+from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, addkey
+from protocol import addName
 
 master_key = ""
 salt = ""
@@ -41,10 +41,10 @@ def my_rand(n):
 # Creation d'un workspace from scratch
 ############################################
 
-def creationworkspacefromscratch(username, _email,mode): 
+def creationworkspacefromscratch(username, email,mode): 
 	
 	w3 = mode.w3	
-	email =_email.lower()
+	email = email.lower()
 	
 	# open Talao_Identity.csv
 	fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
@@ -55,9 +55,9 @@ def creationworkspacefromscratch(username, _email,mode):
 	time_debut = datetime.now()
 
 	# check email
-	if not Talao_backend_transaction.canregister(email,mode) :
-		print('email existant dans le backend')
-		sys.exit()
+	#if not Talao_backend_transaction.canregister(email,mode) :
+	#	print('email existant dans le backend')
+	#	sys.exit()
 	
 	# user wallet 
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -81,12 +81,12 @@ def creationworkspacefromscratch(username, _email,mode):
 	fichier.write(RSA_private)
 	fichier.close()   
 
-	# new AES key
+	# new AES key , shared with partnership
 	AES_key = get_random_bytes(16)	
 
-	# Secret = backend password
+	# Secret 
 	SECRET_key = get_random_bytes(16)
-	SECRET = SECRET_key.hex()
+	#SECRET = SECRET_key.hex()
 	
 	# AES key encrypted with RSA key
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
@@ -95,6 +95,11 @@ def creationworkspacefromscratch(username, _email,mode):
 	# SECRET encrypted with RSA key 
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	SECRET_encrypted = cipher_rsa.encrypt(SECRET_key)
+	
+	# Email encrypted with RSA Key
+	bemail = bytes(email , 'utf-8')	
+	email_encrypted = cipher_ras.encrypt(bemail)
+	print('email encrypted =' ,email_encrypted)
 	
 	# ether transfer from TalaoGen wallet
 	hash1 = ether_transfer(address, mode.ether2transfer,mode)
@@ -107,9 +112,13 @@ def creationworkspacefromscratch(username, _email,mode):
 	createVaultAccess(address,private_key,mode)
 	
 	# workspace (Decentralized IDentity) setup
-	# email is not encrypted !!!! to do..........................
-	bemail = bytes(email , 'utf-8')	
-	createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode)
+	contract = w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
+	nonce = w3.eth.getTransactionCount(address)  
+	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, email_encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = w3.eth.account.signTransaction(txn,private_key)
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)	
 	
 	# workspace_contract address to be read in fondation smart contract
 	workspace_contract = ownersToContracts(address,mode)
@@ -117,32 +126,18 @@ def creationworkspacefromscratch(username, _email,mode):
 	# issuer backend setup
 	firstname = ""
 	lastname = ""
-	backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
-	
-	# user instanciation
-	user = Identity(workspace_contract,mode, private_key=private_key,SECRET=SECRET, AES_key=AES_key, backend_Id=backend_Id, rsa_key=RSA_private ) 
+	#backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
 
 	# emails send to user and admin
 	status = " createidentity.py"
-	Talao_message.messageLog(lastname, firstname, user.username, user.email, status, user.address, user.private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,mode)
-	Talao_message.messageUser(lastname, firstname, user.username, user.email, user.address, user.private_key, user.workspace_contract, mode)	
+	Talao_message.messageLog(lastname, firstname, username, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
+	Talao_message.messageUser(lastname, firstname, username, email, address, private_key, workspace_contract, mode)	
 
-	# management key issued to Web Relay
+	# management key issued to Web Relay (agent)
 	addkey(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
 	
-	# partnership request to Talao A confirmer l interet de faire ça.
-	user.requestPartnership(mode.workspace_contract_talao)	
-	# start of Talao task ...........................................to be removed
-	fichiercsv = mode.BLOCKCHAIN+'_Talao_Identity.csv'
-	csvfile = open(fichiercsv,newline='')
-	reader = csv.DictReader(csvfile) 
-	for row in reader:
-		if row['workspace_contract'] == mode.workspace_contract_talao :
-			private_key_talao = row['private_key']			
-	csvfile.close()	
-	# talao partnership authorization
-	authorizepartnership(workspace_contract, workspace_contract_talao, private_key_talao,mode) 
-	# end of talao task ...............................................................
+	# add username to register
+	addName(username, address, workspace_contract, email, mode) 
 	
 	# process duration and cost
 	time_fin = datetime.now()
@@ -153,8 +148,8 @@ def creationworkspacefromscratch(username, _email,mode):
 	print('Cout des transactions =', cost)	
 
 	# update of Talao_Identity.csv
-	status = "createidentity.py"
-	writer.writerow(( datetime.today(),user.username,lastname, firstname, user.email, status, user.address, private_key, user.workspace_contract, user.backend_Id, user.email, user.SECRET, user.AES_key,cost) )
+	status = "createidentity.py, email crypté"
+	writer.writerow(( datetime.today(),username,lastname, firstname, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), cost) )
 	identityfile.close()
 
 	print("createidentity is OK")

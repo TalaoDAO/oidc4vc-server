@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- create2.html -->
 <html>
 
 <head>
@@ -16,10 +17,37 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->
 </head>
 
-<body style="background-color: rgb(255,254,254);">
+ <body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                
+                
+                <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
+                    <div class="container-fluid">
+						<a href="https://talao.io"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;"></a>
+                        <h6 class="text-secondary flex-nowrap ml-auto" style="color: rgb(133,135,150);">Talao Professional Identity</h6>
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="" style="color: rgb(133,135,150);"></a></li> <!-- menu vide -->
+                            <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="" style="color: rgb(133,135,150);"></a></li>
+                            
+                               
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><i class="fa fa-navicon fa-sm fa-fw mr-2 text-gray-400"></i><!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><!--retrer dropdown-toggle de la class du nav linkComment--></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
+										<a class="dropdown-item" role="presentation" href="/login/"><i class="fa fa-sign-in fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Login</a>
+                                </div>
+                            </li>	
+						</ul>
+					</div>
+				</nav>
+            
+    
+    
+    
+    
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-9 col-lg-12 col-xl-10">
@@ -36,7 +64,7 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Check your email</h4>
                                     </div>
-                                    <form class="user" action="/talao/register/code/" method="post">
+                                    <form class="user" action="/register/code/" method="post">
                                         <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-warning">{{message}}</h6></div>										
                                         <div class="form-group"><input class="form-control" type="text" placeholder="Enter your secret code" name="mycode" style="color: rgb(133,135,150);"></div>  
                                         </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Send</button> 
@@ -50,11 +78,18 @@
                 </div>
             </div>
         </div>
+        
+        
+                             {% include 'user_footer.html' %}    
+
+        
     </div>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  
 </body>
 
 </html>

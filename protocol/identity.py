@@ -10,7 +10,7 @@ import random
 from eth_account import Account
 import ipfshttpclient
 import os
-
+import csv 
 # dependances
 import constante
 
@@ -22,64 +22,51 @@ from .GETresume import getresume, getlanguage, setlanguage, get_education, get_c
 from .ADDkey import addkey
 from .ADDdocument import createdocument
 from .claim import Claim
-from .document import Experience, Education, File
+from .document import Experience, Education
+from .file import File
  
 class Identity() :
 	
-	def __init__(self, workspace_contract, mode, address=None, SECRET=None,  AES_key=None, backend_Id=None, rsa_key=None, authenticated=False):
-		
-		if whatisthisaddress(workspace_contract, mode)['type'] != 'workspace' :
-			print("identity.py, this address is not an Identity")
-			return None
-		
-	
-		
+	def __init__(self, workspace_contract, mode, authenticated=False):
+			
 		self.workspace_contract = workspace_contract
 		self.mode = mode
 		self.synchronous = True # UI synchrone par defaut, on attend les receipts des transactions blockchain
-		self.AES_key = AES_key
-		self.SECRET = SECRET
-		self.backend_Id=backend_Id		
 		self.authenticated = authenticated
-		self.did = 'did:talao:'+mode.BLOCKCHAIN+':'+self.workspace_contract[2:]
-		self.web_relay_activated = False			
-		if address is None :
-			self.address = contractsToOwners(self.workspace_contract,mode)
-		else :
-			self.address = address
-		
-		if rsa_key is None :
-			filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(self.address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-			try :
-				fp = open(filename,"r")
-				self.rsa_key = fp.read()	
-				fp.close()   
-			except IOError :
-				self.rsa_key = None			 
-		
+		self.did = 'did:talao:'+mode.BLOCKCHAIN + ':' + self.workspace_contract[2:]
+		self.address = contractsToOwners(self.workspace_contract,mode)
+				
+		#self.get_management_keys()
 		self.get_identity_personal()	
+		self.picture = getpicture(self.workspace_contract, self.mode)
+		if self.picture is not None :
+			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+			client.get(self.picture)
+			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
 		
+		self.get_identity_file()
+				
 		if self.authenticated :
+			self.has_relay_rsa_key()
+			self.has_relay_private_key()
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
-			self.get_management_keys()
-			self.get_claim_keys()
+			self.is_relay_activated()
+			self.get_issuer_keys()
 			self.get_white_keys()
 			self.get_events()
 			self.get_partners()				
 		else :
 			self.eventslist = dict()
 			self.partners = []
-			self.managementkeys = []
+			self.private_key = False
+			self.rsa_key = False
+			self.relay_activated = False
 		
 		if self.category  == 2001 :
 			self.type = "company"
-			try :
-				self.name = self.personal['name']['data']
-			except :
-				self.name = 'Unknown'
-				self.personal['name']={'data' : 'Unknown', 'id' : "", 'data' : ""}
-				
+			self.name = self.personal['name']['claim_value']			
+		
 		if self.category == 1001 :
 			self.type = "person"
 			firstname = "" if self.personal['firstname']['claim_value'] is None else self.personal['firstname']['claim_value']
@@ -89,13 +76,25 @@ class Identity() :
 			self.get_identity_certificate()
 			self.get_language()
 			self.get_identity_education()
-			self.picture = getpicture(self.workspace_contract, self.mode)
-			if self.picture is not None :
-				client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-				client.get(self.picture)
-				os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
-			
+		
+	def has_relay_private_key(self) :
+		fname = self.mode.BLOCKCHAIN +"_Talao_Identity.csv"
+		identity_file = open(fname, newline='')
+		reader = csv.DictReader(identity_file)
+		for row in reader :
+			if row['ethereum_address'] == self.address :
+				self.private_key = False if row.get('private_key', '')[:2] != '0x'  else True				
 
+	def has_relay_rsa_key(self) :
+		filename = "./RSA_key/" + self.mode.BLOCKCHAIN + '/' + str(self.address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+		try :
+			fp = open(filename,"r")
+			rsa_key = fp.read()
+			self.rsa_key = True	
+			fp.close()   
+		except IOError :
+			self.rsa_key = False		
+				
 	# filters on external events only, always available
 	def get_events(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
@@ -145,8 +144,16 @@ class Identity() :
 		return True
 	
 	
+	def is_relay_activated(self):
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		key = self.mode.w3.soliditySha3(['address'], [self.mode.relay_address])
+		if 1 in contract.functions.getKeyPurposes(key).call() :
+			self.relay_activated = True
+		else :
+			self.relay_activated = False
+		return
 	
-	
+	# Not used today
 	# always available
 	def get_management_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
@@ -161,18 +168,18 @@ class Identity() :
 	
 		
 	# always available
-	def get_claim_keys(self) :
+	def get_issuer_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
-		keylist = contract.functions.getKeysByPurpose(3).call()
-		claimkeys = []
+		keylist = contract.functions.getKeysByPurpose(20002).call()
+		issuer_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = data_from_publickey(key[2].hex(), self.mode)
 			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
 				pass
 			else :	
-				claimkeys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
-		self.claimkeys = claimkeys
+				issuer_keys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+		self.issuer_keys = issuer_keys
 		return True
 	
 	
@@ -180,50 +187,45 @@ class Identity() :
 	def get_white_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(5).call()
-		whitekeys = []
+		white_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = data_from_publickey(key[2].hex(), self.mode)
 			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
 				pass
 			else :	
-				whitekeys.append({"address": issuer['address'],
+				white_keys.append({"address": issuer['address'],
 								"publickey": key[2].hex(),
 								 "workspace_contract" : issuer['workspace_contract'],
 								  'username' : issuer['username'] } )
-		self.whitekeys = whitekeys
+		self.white_keys = white_keys
 		return True
 		
 		
 	# Need web_relay_authorized = True
 	def get_partners(self) :
-		if not self.web_relay_activated :
-			print('Identity.py, Impossible to upload partner without key 1')		
-			self.partners = []			 
-		else :
-			contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-			acct = Account.from_key(self.mode.relay_private_key)
-			self.mode.w3.eth.defaultAccount = acct.address
-			partners = []
-			partners_list = contract.functions.getKnownPartnershipsContracts().call()
-			liste = ["Unknown","Authorized", "Pending","Rejected","Removed"] 
-			print(partners_list)
-			for partner_workspace_contract in partners_list :	
-				authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
-				if authorization_index != 4 :
-					partner_username = getUsername(partner_workspace_contract, self.mode)
-					partner_address = contractsToOwners(partner_workspace_contract, self.mode)
-					contract = self.mode.w3.eth.contract(partner_workspace_contract,abi=constante.workspace_ABI)
-					my_status = contract.functions.getMyPartnershipStatus().call()
-					partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
-					partners.append({"address": partner_address,
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
+		acct = Account.from_key(self.mode.relay_private_key)
+		self.mode.w3.eth.defaultAccount = acct.address
+		partners = []
+		partners_list = contract.functions.getKnownPartnershipsContracts().call()
+		liste = ["Unknown","Authorized", "Pending","Rejected","Removed"] 
+		print(partners_list)
+		for partner_workspace_contract in partners_list :	
+			authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
+			if authorization_index != 4 :
+				partner_username = getUsername(partner_workspace_contract, self.mode)
+				partner_address = contractsToOwners(partner_workspace_contract, self.mode)
+				contract = self.mode.w3.eth.contract(partner_workspace_contract,abi=constante.workspace_ABI)
+				my_status = contract.functions.getMyPartnershipStatus().call()
+				partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
+				partners.append({"address": partner_address,
 								"publickey": partner_publickey,
 								 "workspace_contract" : partner_workspace_contract,
 								  'username' : partner_username,
 								  'authorized' : liste[authorization_index],
 								  'status' : liste[my_status] } )				
-			self.partners = partners
-		print(partners)
+		self.partners = partners
 		return True
 	
 	def topicname2topicvalue(topicname) :
@@ -238,7 +240,7 @@ class Identity() :
 		# always available
 	def get_identity_personal(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)	
-		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate',]
+		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address']
 		company = ['name','contact_name','contact_email','contact_phone','website',]
 
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
@@ -247,14 +249,14 @@ class Identity() :
 		
 		if category == 1001 : 
 			for topicname in person :
-				claim = Claim().relay_get(self.workspace_contract, topicname, self.mode)
+				claim = Claim().get_by_topic_name(self.workspace_contract, topicname, self.mode)
 				personal[topicname] = claim.__dict__
 	
 		if category == 2001 : 
 			for topicname in company :
-				claim = Claim().relay_get(self.workspace_contract, topicname, self.mode)
+				claim = Claim().get_by_topic_name(self.workspace_contract, topicname, self.mode)
 				personal[topicname] = claim.__dict__ 
-		print('personal =', personal)
+		
 		self.personal = personal
 		self.category = category
 		return True
@@ -300,7 +302,8 @@ class Identity() :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in contract.functions.getDocuments().call() :
 			if contract.functions.getDocument(doc_id).call()[0] in [50000, 50001, 50002] : # doctype
-				experience = Experience().relay_get(self.workspace_contract, doc_id, self.mode)
+				experience = Experience()
+				experience.relay_get_experience(self.workspace_contract, doc_id, self.mode)
 				new_experience = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(experience.doc_id),
 									'title' : experience.title,
 									'doc_id' : experience.doc_id,
@@ -317,7 +320,28 @@ class Identity() :
 									}	
 				self.experience.append(new_experience)
 		return True	
-		
+	
+	
+	
+	def get_identity_file(self) :	
+		self.identity_file = []
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		for doc_id in contract.functions.getDocuments().call() :
+			if contract.functions.getDocument(doc_id).call()[0] in [30000, 30001, 30002] : # doctype
+				this_file = File()
+				this_file.get(self.workspace_contract, doc_id, "", self.mode)
+				
+				new_file = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(this_file.doc_id),
+									'filename' : this_file.filename,
+									'doc_id' : this_file.doc_id,
+									'created' : this_file.created,
+									'privacy' : this_file.privacy,
+									'doctype' : this_file.doctype,
+									'issuer' : this_file.issuer,
+									'transaction_hash' : this_file.transaction_hash
+									}	
+				self.identity_file.append(new_file)
+		return True		
 		
 	# always available
 	def get_identity_certificate(self) :

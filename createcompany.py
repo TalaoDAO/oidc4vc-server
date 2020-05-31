@@ -58,19 +58,12 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)	
 	return hash
 
-##############################################
-# deterministic RSA rand function variable
-##############################################
 # deterministic RSA rand function
 def my_rand(n):
     # kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG
     my_rand.counter += 1
     return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
 
-
-############################################
-# Creation d'un workspace from scratch
-############################################
 
 def _creationworkspacefromscratch(email): 
 

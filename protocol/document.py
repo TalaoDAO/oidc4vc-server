@@ -13,11 +13,6 @@ from base64 import b64encode, b64decode
 #dependances
 import constante
 
-def ipfs_add(json_data) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=35000)
-	response=client.add_json(json_data)
-	response2=client.pin.add(response)
-	return response
 
 def ipfs_get(ipfs_hash) :
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
@@ -85,28 +80,28 @@ def read_profil (workspace_contract, mode) :
 	return profil,category 
  	 
 
-def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous=True) :
+def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
 # @data = dict	
 	w3=mode.w3	
 	
 	# cryptage des données par le user
 	if privacy != 'public' :
 		encrypted_data = data
-		#recuperer ma cle AES cryptée
-		contract = w3.eth.contract(workspace_contract_from,abi = constante.workspace_ABI)
+		#recuperer la cle AES cryptée
+		contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 		mydata = contract.functions.identityInformation().call()
 		if privacy == 'private' :
 			my_aes_encrypted = mydata[5]
 		if privacy == 'secret' :
-			my_aes_encrypted = mydata[5]
+			my_aes_encrypted = mydata[6]
 
-		# read ma cle privee RSA sur le fichier
-		filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
+		# read la cle privee RSA sur le fichier
+		filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_to + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
 		with open(filename,"r") as fp :
 			my_rsa_key = fp.read()	
 			fp.close()   
 
-		# decoder ma cle AES128 cryptée avec ma cle RSA privée
+		# decoder la cle AES128 cryptée avec la cle RSA privée
 		key = RSA.importKey(my_rsa_key)
 		cipher = PKCS1_OAEP.new(key)	
 		my_aes = cipher.decrypt(my_aes_encrypted)
@@ -135,6 +130,8 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	
 	# stocke sur ipfs les data attention on archive des bytes
 	ipfs_hash = ipfs_add(data)
+	
+	
 	
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	_data = json.dumps(data)
@@ -204,48 +201,42 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		print ("document is  encrypted and no keys has been given ")
 		return None
 	
-	# verifier si ils sont en partnership
-	contract=w3.eth.contract(workspace_contract_from,abi=constante.workspace_ABI)
-	acct =Account.from_key(private_key_from)
-	w3.eth.defaultAccount=acct.address
-	mypartnershiplist = contract.functions.getKnownPartnershipsContracts().call()
-	if workspace_contract_user in mypartnershiplist : # ils sont en partnership			
-		contract=w3.eth.contract(workspace_contract_from,abi=constante.workspace_ABI)
+	
+	#recuperer la cle AES cryptée
+		contract = w3.eth.contract(workspace_contract_user,abi = constante.workspace_ABI)
+		mydata = contract.functions.identityInformation().call()
 		if privacy == 'private' :
-			his_aes_encrypted=contract.functions.getPartnership(workspace_contract_user).call()[4] 
+			his_aes_encrypted = mydata[5]
 		if privacy == 'secret' :
-			his_aes_encrypted=contract.functions.getPartnership(workspace_contract_user).call()[5] 
+			his_aes_encrypted = mydata[6]
 		
-		# read ma cle privee RSA sur le fichier
-		address_from = contracts_to_owners(workspace_contract_from, mode)
-		filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_from+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-		with open(filename,"r") as fp :
-			my_rsa_key=fp.read()	
-			fp.close()   
+	# read la cle privee RSA sur le fichier
+	address_user = contracts_to_owners(workspace_contract_user, mode)
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_from+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	with open(filename,"r") as fp :
+		rsa_key=fp.read()	
+		fp.close()   
 					
-		# decoder sa cle AES128 cryptée avec ma cle RSA privée
-		key = RSA.importKey(my_rsa_key)
-		cipher = PKCS1_OAEP.new(key)	
-		his_aes=cipher.decrypt(his_aes_encrypted)
+	# decoder ma cle AES128 cryptée avec ma cle RSA privée
+	key = RSA.importKey(rsa_key)
+	cipher = PKCS1_OAEP.new(key)	
+	his_aes=cipher.decrypt(his_aes_encrypted)
 		
 		# decoder les datas
-		try:
-			b64 = data #json.loads(json_input)
-			json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-			jv = {k:b64decode(b64[k]) for k in json_k}
-			cipher = AES.new(his_aes, AES.MODE_EAX, nonce=jv['nonce'])
-			cipher.update(jv['header'])
-			plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
-			msg = json.loads(plaintext.decode('utf-8'))
-			return issuer, identity_workspace_contract, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
+	try:
+		b64 = data #json.loads(json_input)
+		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
+		jv = {k:b64decode(b64[k]) for k in json_k}
+		cipher = AES.new(his_aes, AES.MODE_EAX, nonce=jv['nonce'])
+		cipher.update(jv['header'])
+		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
+		msg = json.loads(plaintext.decode('utf-8'))
+		return issuer, identity_workspace_contract, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
 			
-		except ValueError :
-			print("data Decryption error")
-			return None
-	else :
-		print ("document is encrypted private_key has been given but there is no partnership between them")
+	except ValueError :
+		print("data Decryption error")
 		return None
-
+	
 				
 def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
 	w3 = mode.w3
@@ -269,79 +260,36 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 	return transaction_hash, gas_used*gas_price, deleted
 
 class Document() :
-	def __init__(self,
-				start_date=None,
-				end_date=None,
-				title=None,
-				skills=[],
-				description=None,
-				certificate_link=None,
-				created=None,
-				transaction_hash=None,
-				issuer = None,
-				transaction_fee= None,
-				doctypeversion = None,
-				doc_id = None,
-				ipfshash = None,
-				data_location=None,
-				expires = 0,
-				privacy = 'public',
-				identity = None
-				) :		
-		
-		self.title = title
-		self.description = description
-		self.start_date = start_date
-		self.end_date = end_date
-		self.skills = skills
-		self.certificate_link = certificate_link
-		self.created = created
-		self.transaction_hash = transaction_hash
-		self.doc_id = doc_id
-		self.issuer = issuer
-		self.transaction_fee = transaction_fee
-		self.doctypeversion = doctypeversion
-		self.ipfshash = ipfshash
-		self.data_location = data_location
-		self.expires = expires
-		self.privacy = privacy
-		self.identity = identity
-					
-	def relay_add(self, identity_workspace_contract, mode, mydays=0, privacy='public', synchronous=True) :			
-		data = self.__dict__
-		print('data = ',data)
+	def __init__(self) :		
+		pass
+							
+	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :			
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, data['doctype'], data, mydays, privacy, mode, synchronous=True)
+		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, data['doctype'], data, mydays, privacy, mode, synchronous)
 	
 	def relay_get(self, identity_workspace_contract, doc_id, mode) :	
 		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 		issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
 		(profil, category) = read_profil(issuer_workspace_contract, mode)
-		data['created'] = created
-		data['issuer']= {'address' : issuer_address,
+		self.created = created
+		self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : category}
-		data['issuer']['type'] = 'Person' if category == 1001 else 'Company'
-		data['issuer']['username'] = get_username(issuer_workspace_contract, mode)
-		data['issuer'].update(profil)
-		data['transaction_hash'] = transaction_hash
-		data['transaction_fee'] = transaction_fee
-		data['doctypeversion'] = doctypeversion
-		data['ipfshash'] = ipfshash
-		data['data_location'] = 'https://ipfs.infura.io/ipfs/'+ ipfshash
-		data['expires'] = expires
-		data['privacy'] = privacy
-		data['doc_id'] = doc_id
-		data['identity']= {'address' : contracts_to_owners(identity_workspace_contract, mode),
+		self.issuer['type'] = 'Person' if category == 1001 else 'Company'
+		self.issuer['username'] = get_username(issuer_workspace_contract, mode)
+		self.issuer.update(profil)
+		self.transaction_hash = transaction_hash
+		self.transaction_fee = transaction_fee
+		self.doctypeversion = doctypeversion
+		self.ipfshash = ipfshash
+		self.data_location = 'https://ipfs.infura.io/ipfs/'+ ipfshash
+		self.expires = expires
+		self.privacy = privacy
+		self.doc_id = doc_id
+		self.identity= {'address' : contracts_to_owners(identity_workspace_contract, mode),
 							'workspace_contract' : identity_workspace_contract}
-		data['transaction_fee'] = transaction_fee
-		del data['doctype']
-		if doctype == 50000 or doctype == 50001 or doctype == 50002 :
-			return Experience(**data)
-		if doctype == 40000 :
-			return Education(**data)
-		if doctype == 30000 or doctype == 30001 or doctype == 30002 :
-			return File(**data)	
+		self.transaction_fee = transaction_fee
+		return data
 			
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
@@ -350,167 +298,25 @@ class Document() :
 
 
 class Education(Document) :
-	def __init__(self,
-				organization= {'name' : None,
-								'contact_name' : None,
-								'contact_email' : None,
-								'contact_phone' : None,
-								'website' : None,
-								'address' : None,
-								'workspace_contract' : None},
-				start_date=None,
-				end_date=None,
-				title=None,
-				skills=[],
-				description=None,
-				doc_id=None,
-				certificate_link=None,
-				topic = 'Education',				
-				created=None,
-				transaction_hash=None,
-				issuer = None,							
-				transaction_fee= None,
-				doctypeversion = None,
-				ipfshash = None,
-				data_location=None,
-				expires = 0,
-				privacy = 'public',
-				identity = { 'address' : None,
-							'workspace_contract' : None},
-				) :		
-		Document.__init__(self,
-				start_date,
-				end_date,
-				title,
-				skills,
-				description,
-				certificate_link,
-				created,
-				transaction_hash,
-				issuer,
-				transaction_fee,
-				doctypeversion,
-				doc_id,
-				ipfshash,
-				data_location,
-				expires,
-				privacy,
-				identity
-				)	
-		self.topic = topic
-		self.doctype = 40000
-		self.organization = organization
+	def __init__(self) :		
+		Document.__init__(self)	
 
 
 class Experience(Document) :
-	def __init__(self,
-				company = {'name' : None,
-							'contact_name' : None,
-							'contact_email' : None,
-							'contact_phone' : None,
-							'website' : None,
-							'address' : None,
-							'workspace_contract' : None}, 
-				start_date=None,
-				end_date=None,
-				title=None,
-				skills=[],
-				description=None,
-				certificate_link=None,
-				topic = 'Experience',
-				created=None,
-				doc_id= None,
-				transaction_hash=None,
-				issuer = None,
-				transaction_fee= None,
-				doctypeversion = None,
-				ipfshash = None,
-				data_location=None,
-				expires = 0,
-				privacy = 'public',
-				identity = {'address' : None,
-							'workspace_contract' : None}
-				) :	
-		Document.__init__(self,
-				start_date,
-				end_date,
-				title,
-				skills,
-				description,
-				certificate_link,
-				created,
-				transaction_hash,
-				issuer,
-				transaction_fee,
-				doctypeversion,
-				doc_id,
-				ipfshash,
-				data_location,
-				expires,
-				privacy,
-				identity
-				)		
-		self.topic = topic
-		self.company = company
-		if self.privacy == 'public' :
-			self.doctype = 50000
-		if self.privacy == 'private' :
-			self.doctype = 50001
-		if self.privacy == 'secret' :
-			self.doctype == 50002	
+	def __init__(self) :	
+		Document.__init__(self)		
 		
-
-
-class File(Document) :
-	def __init__(self,
-				start_date=None,
-				end_date=None,
-				title=None,
-				skills=[],
-				description=None,
-				certificate_link=None,
-				doctype= None,
-				topic = 'Experience',
-				created=None,
-				doc_id= None,
-				transaction_hash=None,
-				issuer = None,
-				transaction_fee= None,
-				doctypeversion = None,
-				ipfshash = None,
-				data_location=None,
-				expires = 0,
-				privacy = 'public',
-				identity = {'address' : None,
-							'workspace_contract' : None}
-				) :	
-		Document.__init__(self,
-				start_date,
-				end_date,
-				title,
-				skills,
-				description,
-				certificate_link,
-				created,
-				transaction_hash,
-				issuer,
-				transaction_fee,
-				doctypeversion,
-				doc_id,
-				ipfshash,
-				data_location,
-				expires,
-				privacy,
-				identity
-				)		
-		self.topic = topic
-		self.company = company
-		if self.privacy == 'public' :
-			self.doctype = 30000
-		if self.privacy == 'private' :
-			self.doctype = 30001
-		if self.privacy == 'secret' :
-			self.doctype == 30002	
+	def relay_get_experience(self, identity_workspace_contract, doc_id, mode) :
+		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
+		self.title = data['title']
+		self.description = data['description']
+		self.end_date = data['end_date']
+		self.start_date = data['start_date']
+		self.company = data['company']
+		self.certificate_link = data['certificate_link']
+		self.skills = data['skills']
+		
+		
 		
 
 """  exemple

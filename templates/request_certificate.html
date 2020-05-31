@@ -45,7 +45,16 @@
                                             class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Certificate Type</strong><br></label><select class="form-control" name="certificate_type"><option value="experience" selected="">Experience Certificate</option><option value="skill">Skill Certificate</option><option value="education">Education</option></select></div>
                                 </div>
                         </div>
-                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Next</button></div>
+                         <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit"  value="send">Next</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+										   <a href="/user/?username={{username}}">
+												<div class="form-group"><button class="btn btn-primary btn-sm" type="button"  value="cancel">Cancel</button></div>
+											</a>
+                                    </div>
+                                </div>	
                         </form>
                     </div>
                 </div>

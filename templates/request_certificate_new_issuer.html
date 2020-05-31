@@ -33,13 +33,13 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a Certificate</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request an Experience Certificate</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/request_certificate_new_issuer/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>This new Issuer will receive an email to register and complete the certificate form.</p>
+                                        <p>This new Issuer will receive an email to register and complete the Experience Certificate form.</p>
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Email</strong><br></label><input class="form-control" type="email" required="" name="issuer_email"></div>
                                         <div class="form-group">
                                             <div class="form-inline">
@@ -50,7 +50,8 @@
                                             </div>
                                         </div>
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Project Description"><strong>Project Description</strong><br></label><input class="form-control" type="text" required name="project_description"></div>
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Memo</strong><br></label><input class="form-control" type="text" required name="issuer_memo"></div>
+                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Project Skills"><strong>Project Skills (Optional)</strong><br></label><input class="form-control" type="text"  name="project_skills"></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Memo (Optional)</strong><br></label><input class="form-control" type="text"  name="issuer_memo"></div>
                                     </div>
                                 </div>
                                 

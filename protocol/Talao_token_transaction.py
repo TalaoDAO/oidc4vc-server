@@ -423,8 +423,10 @@ def getAll(workspace_contract,mode) :
 	else :
 		return None
 
+"""
 ##################################################################
 #    get Email from identity 
+# DEPRECATED email is encypted wuth RSA 
 ##################################################################
 def getEmail(workspace_contract, mode) :
 
@@ -441,7 +443,7 @@ def getEmail(workspace_contract, mode) :
 		return email
 	else :
 		return None	
-
+"""
 
 ##################################################################
 #    get Picture from identity 
@@ -631,6 +633,8 @@ def savepictureProfile(address_from, workspace_contract_from, address_to, worksp
 	if synchronous == True :
 		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	return picturehash
+
+
 
  
 ############################################################

@@ -81,7 +81,7 @@ def whatisthisaddress(thisaddress,mode) :
 
 
 #########################################################################################
-# return profil comme dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
+# DEPRECATED return profil comme dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
 ###########################################################################################
 # return un couple (dict dictionaire,int category)
 
