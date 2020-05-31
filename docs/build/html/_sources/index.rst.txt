@@ -10,7 +10,6 @@ Welcome to Talao's documentation!
    readme
    test
    :maxdepth: 2
-   :caption: Contents:
 	
 
 
