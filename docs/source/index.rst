@@ -7,22 +7,14 @@ Welcome to Talao's documentation!
 =================================
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   
    contents
    starter
    starter_company
    resume
    other_features
    api
-   :maxdepth: 2
-   :caption: Contents:
+  
 	
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
