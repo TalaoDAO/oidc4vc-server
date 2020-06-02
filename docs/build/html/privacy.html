@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Others Features &mdash; Talao 0.9 documentation</title>
+  <title>Privacy &mdash; Talao - Professional Decentralized Identity 0 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API" href="api.html" />
-    <link rel="prev" title="Resume" href="resume.html" /> 
+    <link rel="next" title="Professional Identity" href="resume.html" />
+    <link rel="prev" title="Overview" href="contents.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -46,11 +46,11 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search"  style="background: Blue" >
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> Talao
+            <a href="index.html" class="icon icon-home"> Talao - Professional Decentralized Identity
           
 
           
@@ -58,6 +58,10 @@
 
           
             
+            
+              <div class="version">
+                0.9
+              </div>
             
           
 
@@ -83,18 +87,21 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="contents.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="starter.html">Starter Guide for Talents</a></li>
-<li class="toctree-l1"><a class="reference internal" href="starter_company.html">Starter Guide for Companies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="resume.html">Resume</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Others Features</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#alias">Alias</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#issuer">Issuer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#partner">Partner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#white-list">White List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#digital-vault">Digital Vault</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Privacy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#level-of-privacy">Level of privacy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#public">Public</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#private">Private</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#secret">Secret</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="resume.html">Professional Identity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="starter.html">Starter Guide for Talents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="starter_company.html">Starter Guide for Companies</a></li>
 </ul>
 
             
@@ -109,7 +116,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Talao</a>
+          <a href="index.html">Talao - Professional Decentralized Identity</a>
         
       </nav>
 
@@ -140,13 +147,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Others Features</li>
+      <li>Privacy</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/other_features.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/privacy.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -159,22 +166,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="others-features">
-<h1>Others Features<a class="headerlink" href="#others-features" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="alias">
-<h2>Alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="privacy">
+<h1>Privacy<a class="headerlink" href="#privacy" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="level-of-privacy">
+<h2>Level of privacy<a class="headerlink" href="#level-of-privacy" title="Permalink to this headline">¶</a></h2>
+<p>There are 3 levels of privacy for data :</p>
+<ul class="simple">
+<li><p>Public</p></li>
+<li><p>Private</p></li>
+<li><p>Secret</p></li>
+</ul>
+<p>Private and Secret data are protected by RSA and AES encrypted keys.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Those keys are determined at Identity creation and cannot be changed later on.</p>
 </div>
-<div class="section" id="issuer">
-<h2>Issuer<a class="headerlink" href="#issuer" title="Permalink to this headline">¶</a></h2>
+<p>At creation users can decide what level of privacy for :</p>
+<ul class="simple">
+<li><p>Personal data.</p></li>
+<li><p>File (Digital Vault).</p></li>
+</ul>
+<p>Experiences, Certificates and Education are always Public data.</p>
 </div>
-<div class="section" id="partner">
-<h2>Partner<a class="headerlink" href="#partner" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="public">
+<h2>Public<a class="headerlink" href="#public" title="Permalink to this headline">¶</a></h2>
+<p>Data is available for anybody :</p>
+<ul class="simple">
+<li><p>For Talents, by default Firstname and Lastname are Public.</p></li>
+<li><p>For Companies, by default all profil data are Public.</p></li>
+</ul>
 </div>
-<div class="section" id="white-list">
-<h2>White List<a class="headerlink" href="#white-list" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="private">
+<h2>Private<a class="headerlink" href="#private" title="Permalink to this headline">¶</a></h2>
+<p>Data are only available for your Partners. Read more on <a class="reference internal" href="resume.html"><span class="doc">Professional Identity</span></a> .
+By default for Talents, Contact Email and Contact Name are private.</p>
 </div>
-<div class="section" id="digital-vault">
-<h2>Digital Vault<a class="headerlink" href="#digital-vault" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="secret">
+<h2>Secret<a class="headerlink" href="#secret" title="Permalink to this headline">¶</a></h2>
+<p>Data are only available for yourself.
+Users can store encypted data on decentralized support as IPFS through this option.</p>
 </div>
 </div>
 
@@ -186,10 +216,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="resume.html" class="btn btn-neutral float-right" title="Professional Identity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="resume.html" class="btn btn-neutral float-left" title="Resume" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="contents.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -198,7 +228,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Thierry Thevenet
+        &copy; Copyright 2020, Talao
 
     </p>
   </div>
@@ -223,18 +253,6 @@
 
   
   
-    
-    <!-- Theme Analytics -->
-    <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-XXXXXXX-1', 'auto');
-    ga('send', 'pageview');
-    </script>
-
     
    
 

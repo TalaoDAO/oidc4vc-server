@@ -308,6 +308,7 @@ class Experience(Document) :
 		
 	def relay_get_experience(self, identity_workspace_contract, doc_id, mode) :
 		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
+		self.topic = "Experience"
 		self.title = data['title']
 		self.description = data['description']
 		self.end_date = data['end_date']

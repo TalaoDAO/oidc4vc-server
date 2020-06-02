@@ -7,24 +7,20 @@ by providing a basic explanation of how to do it easily.
 Look how easy it is to use:
 
     Create a new identity
-    # Get your stuff done
-    project.do_stuff()
 
-Create a New Identity
----------------------
+Create a New Company Identity
+-----------------------------
 
-- Be awesome
-- Make things faster
+to be done
 
-Issue a Certificate
----------------------
 
-Install $project by running:
-
-    install project
-
-Check and Verify a Certificate
+Issue Certificates for Talents
 ------------------------------
+
+to be done
+
+Check and Verify validity of Certificates
+-----------------------------------------
 
 Contact a Talent
 ----------------
@@ -32,3 +28,5 @@ Contact a Talent
 - Issue Tracker: github.com/$project/$project/issues
 - Source Code: github.com/$project/$project
 
+Integrate within company environment
+------------------------------------

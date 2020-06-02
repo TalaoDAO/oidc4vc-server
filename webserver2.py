@@ -258,7 +258,7 @@ def data(dataId) :
 	if support == 'document' : 
 		doc_id = int(dataId.split(':')[5])			
 		my_data = Experience()
-		my_data.relay_get(workspace_contract, doc_id, mode) 
+		my_data.relay_get_experience(workspace_contract, doc_id, mode) 
 		my_topic = my_data.topic	
 		ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
 		expires = my_data.expires
@@ -308,7 +308,7 @@ def data(dataId) :
 					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+my_data.issuer['username'] + """ >
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a><br>
-					<a class="text-warning">This issuer is not in my Whitelist</a>
+					<a class="text-warning">This issuer is not in my White List</a>
 				</span>"""
 		
 	
@@ -319,6 +319,7 @@ def data(dataId) :
 	(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""	
 	myadvanced = """
+				<b>Document Id</b> : """ + str(doc_id) + """<br>
 				<b>Privacy</b> : """ + myvisibility + """<br>
 				<b>Created</b> : """ + my_data.created + """<br>	
 				<b>Expires</b> : """ + expires + """<br>
@@ -1034,9 +1035,6 @@ def update_company_settings() :
 			form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
 
 			if 	form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
-				print(form_value[topicname])
-				print(form_privacy[topicname])
-				print('passage')
 				(claim_id,a,b) = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
 				change = True
 				session['personal'][topicname]['claim_value'] = form_value[topicname]
@@ -1064,8 +1062,6 @@ def store_file() :
 		filename = secure_filename(myfile.filename)
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 		privacy = request.form['privacy']
-		print(privacy)
-		print(filename)
 		user_file = File()
 		(doc_id, ipfs_hash, transaction_hash) =user_file.add(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, filename, privacy, mode)
 		new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(doc_id),

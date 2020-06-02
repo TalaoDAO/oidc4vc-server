@@ -13,8 +13,8 @@ Look how easy it is to use:
 Create a New Identity
 ---------------------
 
-- Be awesome
-- Make things faster
+.. note::
+   Be aware of the use of your Private Key
 
 Request a Certificate
 ---------------------

@@ -1,24 +1,30 @@
 Overview
 ========
 
-Talao markets its professional data certification solution on the Ethereum Blockchain to companies and other organizations such as schools or training centers.
+Talao markets its professional data certification solution on the Ethereum Blockchain to Talents, Companies and other organizations such as schools or training centers.
 
-Our marketing and sales actions are therefore primarily aimed at companies, which is why we communicate little with talent directly. These companies directly offer their talents (either employees, trainees or freelancers) to issue certificates related to a successful mission, and to open a Blockchain CV — Freedapp — to store these certificates and associate them with experiences or competencies. The acquisition of talent to use our protocol is therefore carried out via our customers directly. 
+The Talo protocol is based on a Decentralized IDentity focused on professional data. Talents and Companies are the only owner of their data. No centralized operator can decide the use or update of your data.
 
-To date, several commercial leads have been brought to us by members of our community, with a business contributor remuneration scheme.
 
-Objectives 
+Objectives
 ----------
 
 For Companies and Talents, the issuance of certificates on the blockchain with Talao protocol has several interests:
 
 - Attracting the new talents by allowing them to value the experience they will have with the company (including during the recruitment process), and thus their future employability
-
 - Spreading the image of an innovative and modern company through the use of blockchain technology, which is adopted above all by the younger generations
-
 - Mastering what the talents say about their mission and their activity in the company, and in particular avoiding the dissemination of confidential, sensitive or erroneous information
-
 - Valuing their own talents externally, for example with their clients, by presenting them with CVs with certificates signed by former clients. This is particularly relevant for service companies.
+
+
+Talao Professional Identity Relay
+---------------------------------
+
+The Talao Professional Identity Relay (http://talao.co:5000) is an intermediary between users and their Identity. 
+The objective of this centralized platform is to simplify the onboarding process which is so far still quite difficult for non technical experts.
+
+.. note:: Depending on user choice the Talao Professional Identity Relay will have parts of information about cryptographic keys. Read more on :doc:`/privacy`.  
+
 
 Distributed Identity vs Centralized
 -----------------------------------

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Resume &mdash; Talao 0.9 documentation</title>
+  <title>Professional Identity &mdash; Talao - Professional Decentralized Identity 0 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Others Features" href="other_features.html" />
-    <link rel="prev" title="Starter Guide for Companies" href="starter_company.html" /> 
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Privacy" href="privacy.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -46,11 +46,11 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search"  style="background: Blue" >
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> Talao
+            <a href="index.html" class="icon icon-home"> Talao - Professional Decentralized Identity
           
 
           
@@ -58,6 +58,10 @@
 
           
             
+            
+              <div class="version">
+                0.9
+              </div>
             
           
 
@@ -83,17 +87,27 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="contents.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="starter.html">Starter Guide for Talents</a></li>
-<li class="toctree-l1"><a class="reference internal" href="starter_company.html">Starter Guide for Companies</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Resume</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="privacy.html">Privacy</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Professional Identity</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#personal">Personal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#experience">Experience</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#education">Education</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#certificates">Certificates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alias">Alias</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#issuer">Issuer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#partner">Partner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#white-list">White List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#digital-vault">Digital Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced">Advanced</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="other_features.html">Others Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="starter.html">Starter Guide for Talents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="starter_company.html">Starter Guide for Companies</a></li>
 </ul>
 
             
@@ -108,7 +122,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Talao</a>
+          <a href="index.html">Talao - Professional Decentralized Identity</a>
         
       </nav>
 
@@ -139,7 +153,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Resume</li>
+      <li>Professional Identity</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -158,10 +172,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="resume">
-<h1>Resume<a class="headerlink" href="#resume" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="professional-identity">
+<h1>Professional Identity<a class="headerlink" href="#professional-identity" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="personal">
 <h2>Personal<a class="headerlink" href="#personal" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Firstname</p></li>
+<li><p>Lastname</p></li>
+<li><p>Contact Email</p></li>
+<li><p>Contact Phone</p></li>
+<li><p>Birthdate</p></li>
+<li><p>Address</p></li>
+</ul>
 </div>
 <div class="section" id="experience">
 <h2>Experience<a class="headerlink" href="#experience" title="Permalink to this headline">¶</a></h2>
@@ -171,6 +193,51 @@
 </div>
 <div class="section" id="certificates">
 <h2>Certificates<a class="headerlink" href="#certificates" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="alias">
+<h2>Alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h2>
+<p>An Alias is a new Username/email for authentification for the Relay (This web application).</p>
+<p>At Identity creation, one smart contract is crated and one authentification email is encrypted and stored within this smart contract on the Ethereum Blockchain.
+The address of the smart contract is the Decentralized IDentifier (DID) of your Identity.
+When you sign-in if the first time, you register a 3sernane to have a readable identifier associated to the smart contract address.</p>
+<p>An Alias alias is another Username you can use with another email to access the Relay.</p>
+<p>You can add as many Alias you want, for instance you can use an Alias for each of your device.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The email assciated with your Username is public.</p>
+</div>
+</div>
+<div class="section" id="issuer">
+<h2>Issuer<a class="headerlink" href="#issuer" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="partner">
+<h2>Partner<a class="headerlink" href="#partner" title="Permalink to this headline">¶</a></h2>
+<p>A Partner is a Company or a Person with whom you share Private data.</p>
+<p>A partnership is the relationship you share with your Partner. You can request a partnership but it has to be accepted by other party to be effective.</p>
+<p>Any party can cancel a partnership at anytime.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When a partnership is established you share your private data.
+After cancellation the other party can eventualky keep on using your private key to access your private data.</p>
+</div>
+</div>
+<div class="section" id="white-list">
+<h2>White List<a class="headerlink" href="#white-list" title="Permalink to this headline">¶</a></h2>
+<p>The White List is made up of reliable issuers from your standpoint.
+You can add a new issuer in your White List through the White List menu.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default Relay is not a White List issuer. As your device could be used by others always check the issuer of your data.</p>
+</div>
+</div>
+<div class="section" id="digital-vault">
+<h2>Digital Vault<a class="headerlink" href="#digital-vault" title="Permalink to this headline">¶</a></h2>
+<p>The Digital Vault is decentralized support to store data you either want to share with others (public privacy) or only witht Praners (private privacy) or you want to keep secret for everybody.</p>
+<p>If you want to change the nature of the privacy you firtst need to remove the file and create a new one. The document will be encrypted at creation.</p>
+</div>
+<div class="section" id="advanced">
+<h2>Advanced<a class="headerlink" href="#advanced" title="Permalink to this headline">¶</a></h2>
+<p>Those data can be used to check and track your data through other means as ‘Ethereum Explorer &lt;<a class="reference external" href="https://etherscan.io/">https://etherscan.io/</a>&gt;’.</p>
 </div>
 </div>
 
@@ -182,10 +249,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="other_features.html" class="btn btn-neutral float-right" title="Others Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="starter_company.html" class="btn btn-neutral float-left" title="Starter Guide for Companies" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="privacy.html" class="btn btn-neutral float-left" title="Privacy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -194,7 +261,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Thierry Thevenet
+        &copy; Copyright 2020, Talao
 
     </p>
   </div>
@@ -219,18 +286,6 @@
 
   
   
-    
-    <!-- Theme Analytics -->
-    <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-XXXXXXX-1', 'auto');
-    ga('send', 'pageview');
-    </script>
-
     
    
 

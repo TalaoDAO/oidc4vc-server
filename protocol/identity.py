@@ -25,6 +25,7 @@ from .claim import Claim
 from .document import Experience, Education
 from .file import File
  
+ 
 class Identity() :
 	
 	def __init__(self, workspace_contract, mode, authenticated=False):
@@ -43,6 +44,8 @@ class Identity() :
 			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 			client.get(self.picture)
 			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
+		
+		self.get_all_documents()
 		
 		self.get_identity_file()
 				
@@ -76,6 +79,8 @@ class Identity() :
 			self.get_identity_certificate()
 			self.get_language()
 			self.get_identity_education()
+		
+		print('education dans user init =', self.education)
 		
 	def has_relay_private_key(self) :
 		fname = self.mode.BLOCKCHAIN +"_Talao_Identity.csv"
@@ -291,20 +296,38 @@ class Identity() :
 		self.language = (context, lang1, lang2, lang3)
 		return self.language
 	
+	
+	def get_all_documents(self) :
+		self.file_list = []
+		self.experience_list = []
+		self.education_list = []
+		self.other_list = []
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		for doc_id in contract.functions.getDocuments().call() :
+			doctype = contract.functions.getDocument(doc_id).call()[0]
+			if doctype in [30000, 30001, 30002] : # doctype
+				self.file_list.append(doc_id)
+			elif doctype in [50000, 50001, 50002] :
+				self.experience_list.append(doc_id)
+			elif doctype in [40000, 40001, 40002] :
+				self.education_list.append(doc_id)
+			else :
+				self.other_list.append(doc_id)
+		return
+	
 	# always available
 	def get_identity_education(self) :
-		self.education = get_education(self.workspace_contract, self.mode)
-		return self.education
+		self.education = []
+		return
 	
 	# always available
 	def get_identity_experience(self) :	
 		self.experience = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
-		for doc_id in contract.functions.getDocuments().call() :
-			if contract.functions.getDocument(doc_id).call()[0] in [50000, 50001, 50002] : # doctype
-				experience = Experience()
-				experience.relay_get_experience(self.workspace_contract, doc_id, self.mode)
-				new_experience = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(experience.doc_id),
+		for doc_id in self.experience_list  :
+			experience = Experience()
+			experience.relay_get_experience(self.workspace_contract, doc_id, self.mode)
+			new_experience = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(experience.doc_id),
 									'title' : experience.title,
 									'doc_id' : experience.doc_id,
 									'description' : experience.description,
@@ -318,20 +341,18 @@ class Identity() :
 									'certificate_link' : experience.certificate_link,
 									'skills' : experience.skills
 									}	
-				self.experience.append(new_experience)
+			self.experience.append(new_experience)
 		return True	
 	
 	
-	
+		
 	def get_identity_file(self) :	
 		self.identity_file = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
-		for doc_id in contract.functions.getDocuments().call() :
-			if contract.functions.getDocument(doc_id).call()[0] in [30000, 30001, 30002] : # doctype
-				this_file = File()
-				this_file.get(self.workspace_contract, doc_id, "", self.mode)
-				
-				new_file = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(this_file.doc_id),
+		for doc_id in self.file_list :
+			this_file = File()
+			this_file.get(self.workspace_contract, doc_id, "", self.mode)			
+			new_file = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(this_file.doc_id),
 									'filename' : this_file.filename,
 									'doc_id' : this_file.doc_id,
 									'created' : this_file.created,
@@ -340,7 +361,7 @@ class Identity() :
 									'issuer' : this_file.issuer,
 									'transaction_hash' : this_file.transaction_hash
 									}	
-				self.identity_file.append(new_file)
+			self.identity_file.append(new_file)
 		return True		
 		
 	# always available

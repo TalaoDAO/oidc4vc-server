@@ -11,10 +11,26 @@ Welcome to Talao's documentation!
    :caption: Contents:
    
    contents
-   starter
-   starter_company
+   privacy
    resume
-   other_features
    api
   
 	
+.. toctree::
+   :maxdepth: 2
+   :caption: Getting Started:
+   
+   quick
+   starter
+   starter_company
+  
+
+	
+.. toctree::
+   :maxdepth: 2
+   :caption: How-To:
+   
+   request_a_certificate
+
+   
+  
