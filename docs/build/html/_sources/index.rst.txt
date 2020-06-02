@@ -33,4 +33,10 @@ Welcome to Talao's documentation!
    request_a_certificate
 
    
-  
+  	
+.. toctree::
+   :maxdepth: 2
+   :caption: API:
+   
+   api
+   

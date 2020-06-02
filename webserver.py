@@ -27,17 +27,18 @@ from werkzeug.utils import secure_filename
 import Talao_message
 import constante
 from protocol import Identity, Data
-from protocol import getresolver, getresume, load_register_from_file, getEmail, getPrivatekey, data_from_publickey
+from protocol import getresolver, getresume, load_register_from_file, getPrivatekey, data_from_publickey
 from protocol import ownersToContracts, contractsToOwners, readProfil, isdid
 from protocol import deleteName, deleteDocument, deleteClaim, getdata, destroyWorkspace, addcertificate, canRegister_email, updateName, addkey, addName, delete_key
 from protocol import username_and_email_list, deleteName, username_to_data, getUsername
 from protocol import createdocument, savepictureProfile, partnershiprequest, remove_partnership
+from protocol import Experience, Claim, Education, File
 import environment
 import hcode
 # Centralized  route
 import web_create_identity
 import web_certificate
-import web_guest
+#import web_guest
 
 # environment setup
 mode=environment.currentMode()
@@ -60,15 +61,15 @@ fa = FontAwesome(app)
 
 # Centralized @route pour web_create_identity
 """
-lacces web permet a un user de creer une identité et de recuperer par email les informations de la cle privée et cle RSA
+lacces web permet a un user/company de creer une identité et de recuperer par email les informations de la cle privée et cle RSA
 Par la suite le user peut creer par lui meme une addresse et ethereum et demander le transfert de l identité. 
+
 Si Talao conserve une copie de la cle RSA et une cle de type 1 le user peut continuer a utiliser l acces web.
 
 """
-app.add_url_rule('/talao/register/',  view_func=web_create_identity.authentification)
-app.add_url_rule('/talao/register/', view_func=web_create_identity.POST_authentification_1, methods = ['POST'])
-app.add_url_rule('/talao/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'])
-app.add_url_rule('/talao/register/code/', view_func=web_create_identity.POST_authentification_3, methods = ['GET'])
+app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
+app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'])
+#app.add_url_rule('/talao/register/code/', view_func=web_create_identity.POST_authentification_3, methods = ['GET'])
 
 
 """
@@ -83,13 +84,13 @@ app.add_url_rule('/certificate/verify/<dataId>',  view_func=web_certificate.cert
 
 """
 Gestion des access anonyme 
-"""
+
 # centralized route for Guest
 app.add_url_rule('/guest/',  view_func=web_guest.guest , methods = ['GET'])
 app.add_url_rule('/guest_data/<dataId>',  view_func=web_guest.guest_data, methods = ['GET'])
 app.add_url_rule('/talent-connect/',  view_func=web_guest.anonymous, methods = ['GET', 'POST'])
 app.add_url_rule('/guest/issuer_explore/',  view_func=web_guest.guest_issuer_explore, methods = ['GET'])
-
+"""
 
 
 def check_login(username) :
@@ -177,14 +178,13 @@ def starter() :
 			if start == 'user' :
 				return redirect(mode.server + 'login/')
 			elif start == 'quick' :
-				return redirect(mode.server + 'talao/register/')
+				return redirect(mode.server + 'register/')
 			elif start == 'advanced' :
-				return redirect(mode.server + 'starter/')
+				return redirect(mode.server + 'starter/') # tobe done
 			else :
 				pass
 
 @app.route('/login/', methods = ['GET', 'POST'])
-#@app.route('/user/login/', methods = ['GET'])
 def login() :
 	session.clear()
 	if request.method == 'GET' :
@@ -248,31 +248,53 @@ def logout() :
 
 
 @app.route('/data/<dataId>', methods=['GET'])
-def data2(dataId) :
+def data(dataId) :
 	username = check_login(session.get('username'))
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
 	my_event_html, my_counter =  event_display(session['events'])
-				
-	mydata = Data(dataId,mode)		
-	mytopic = mydata.topic.capitalize()
-	myvisibility = mydata.encrypted.capitalize()
+	workspace_contract = '0x' + dataId.split(':')[3]
+	support = dataId.split(':')[4]
+		
+	if support == 'document' : 
+		doc_id = int(dataId.split(':')[5])			
+		my_data = Experience()
+		my_data.relay_get_experience(workspace_contract, doc_id, mode) 
+		my_topic = my_data.topic	
+		ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
+		expires = my_data.expires
+		my_topic = my_data.topic.capitalize()
+	
+	if support == 'claim' :
+		claim_id = dataId.split(':')[5]
+		my_data = Claim().relay_get_by_id(workspace_contract, claim_id, mode) 
+		my_topic = ""
+		ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':claim:'+ my_data.claim_id
+		expires = 'Unlimited'
+		my_topic = 'Personal'
+		
+	myvisibility = my_data.privacy
 	issuer_is_white = False
 	for issuer in session['whitelist'] :
-		if issuer['username'] == mydata.issuer_username :
+		if issuer['username'] == my_data.issuer['username'] :
 			issuer_is_white = True 		
-	if mydata.issuer_username == session['username']:					
+	
+	issuer_name = my_data.issuer['name'] if my_data.issuer['type'] == 'Company' else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
+	
+	
+	if my_data.issuer['username'] == session['username']:					
 		myissuer = """
 				<span>
-				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username +"""<br>
+				<b>Name</b> : """ + issuer_name + """<br>
+				<b>Username</b> : """ + my_data.issuer['username'] +"""<br>
 				</span>"""
+	
 	elif issuer_is_white :					
 		myissuer = """
 				<span>
-				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username +"""<br>
-				<b>Type</b> : """ + mydata.issuer_type + """<br>
-				<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+mydata.issuer_username+""" >
+				<b>Name</b> : """ + issuer_name + """<br>
+				<b>Username</b> : """ + my_data.issuer['username'] +"""<br>
+				<b>Type</b> : """ + my_data.issuer['type'] + """<br>
+				<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+my_data.issuer['username']+""" >
 					<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 				</a><br>
 				  <a class="text-info">This issuer is in my White List</a>			
@@ -280,76 +302,77 @@ def data2(dataId) :
 	else :	
 		myissuer = """
 				<span>
-				<b>Name</b> : """ + mydata.issuer_name + """<br>
-				<b>Username</b> : """ + mydata.issuer_username +"""<br>
-				<b>Type</b> : """ + mydata.issuer_type + """<br>				
-					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+mydata.issuer_username+""" >
+				<b>Name</b> : """ + issuer_name + """<br>
+				<b>Username</b> : """ + my_data.issuer['username'] +"""<br>
+				<b>Type</b> : """ + my_data.issuer['type'] + """<br>				
+					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+my_data.issuer['username'] + """ >
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a><br>
-					<a class="text-warning">This issuer is not in my Whitelist</a>
+					<a class="text-warning">This issuer is not in my White List</a>
 				</span>"""
 		
-	myprivacy = """ <b>Privacy</b> : """ + mydata.encrypted + """<br>"""
 	
-	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
-
+	
+	
+	
+	""" advanced """
+	(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
+	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""	
 	myadvanced = """
-		<!--		<b>Data Id</b> : """ + mydata.id + """<br>  -->
-				<b>Created</b> : """ + mydata.created + """<br>	
-				<b>Expires</b> : """ + mydata.expires + """<br>
-				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + mydata.transaction_hash + """>"""+ mydata.transaction_hash + """</a><br>					
-				<b>Data storage</b> : <a class="card-link" href=""" + mydata.data_location + """>""" + mydata.data_location + """</a>"""
+				<b>Document Id</b> : """ + str(doc_id) + """<br>
+				<b>Privacy</b> : """ + myvisibility + """<br>
+				<b>Created</b> : """ + my_data.created + """<br>	
+				<b>Expires</b> : """ + expires + """<br>
+				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br>	
+				<b>Transaction Fee</b> : """ + str(my_data.transaction_fee/1000000000000000000) + """ ETH<br>
+				<b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a>"""
 	
 	
 	""" topic = Experience """
-	if mydata.topic.capitalize() == "Experience"  :
-		mytitle = mydata.value['position']
-		mysummary = mydata.value['summary']		
+	if my_topic == "Experience"  :
+		mytitle = my_data.title
+		mysummary = my_data.description	
 		myvalue = """ 
-				<b>Title</b> : """+mydata.value['position']+"""<br>
-				<b>Company</b> : """+mydata.value['company']['name']+"""<br>
-				<b>Manager</b> : """+mydata.value['company']['manager']+"""<br>
-				<b>Manager Email</b> : """+mydata.value['company']['manager_email']+"""<br>
-				<b>Start Date</b> : """+mydata.value['startDate']+"""<br>		
-				<b>End Date</b> : """+mydata.value['endDate']+"""<br>
-				<b>Skills</b> : """+ " ".join(mydata.value['skills'])
+				<b>Title</b> : """+my_data.title + """<br>
+				<b>Company Name</b> : """+my_data.company['name']+"""<br>
+				<b>Contact Name</b> : """+my_data.company['contact_name']+"""<br>
+				<b>Contact Email</b> : """+my_data.company['contact_email']+"""<br>
+				<b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br>
+				<b>Start Date</b> : """+my_data.start_date + """<br>		
+				<b>End Date</b> : """+my_data.end_date+"""<br>
+				<b>Skills</b> : """+ " ".join(my_data.skills)
 				
-	elif mydata.topic.capitalize() == "Education" :
+	elif my_topic == "Education" :
 		return 'work in progress'
 	
-	elif mydata.topic.capitalize() == "Employability" :
-		return 'work in progress'		
-	
-	elif mydata.topic.capitalize() == "Certificate" :
-		mytitle = mydata.value['position']
-		mysummary = mydata.value['summary']		
-		print(mydata.value)
+	elif my_topic == "Certificate" :
+		mytitle = my_data.title
+		mysummary = my_data.description		
 		myvalue = """ 
-				<b>Title</b> : """ + mydata.value['position'] + """<br>
-				<b>Company</b> : """ + mydata.value['company']['name'] + """<br>
-				<b>Manager</b> : """+ mydata.value['company'].get('manager', 'Unknown') + """<br>
-				<b>Manager Email</b> : """+ mydata.value['company'].get('manager_email', 'Unknown') + """<br>
-				<b>Start Date</b> : """+ mydata.value['startDate'] + """<br>		
-				<b>End Date</b> : """+ mydata.value['endDate'] + """<br>
-				<b>Skills</b> : """+ mydata.value['skills'] 
-	else :
+				<b>Title</b> : """ + my_data.title + """<br>
+				<b>Company Name</b> : """ + my_data.company['name'] + """<br>
+				<b>Contact Name</b> : """+ my_data.company['contact_name'] + """<br>
+				<b>Contact Email</b> : """+ my_data.company['contact_email'] + """<br>
+				<b>Start Date</b> : """+ my_data.start_date + """<br>		
+				<b>End Date</b> : """+ my_data.end_date + """<br>
+				<b>Skills</b> : """+ my_data.skills 
+	elif my_topic == 'Personal' :
 		mytitle = 'Profil'
 		mysummary = ''		
-		myvalue = """<b>"""+mydata.topic.capitalize()+"""</b> : """+mydata.value
+		myvalue = """<b>Data</b> : """+ my_data.claim_value 
 
 			
 	mydelete_link = "/talao/api/data/delete/"
 	
-	myusername = mydata.issuer_username
+	myusername = my_data.issuer['username']
 		
 	return render_template('data.html',
-							topic = mytopic,
+							topic = my_topic,
 							visibility = myvisibility,
 							issuer = myissuer,
 							title = mytitle,
 							summary = mysummary,
 							value = myvalue,
-							privacy = myprivacy,
 							advanced = myadvanced,
 							delete_link = mydelete_link,
 							event = my_event_html,
@@ -379,26 +402,26 @@ def user() :
 		session['workspace_contract'] = user.workspace_contract
 		session['events']=  user.eventslist
 		#session['controller'] = user.managementkeys
-		session['issuer'] = user.claimkeys
-		session['whitelist'] = user.whitekeys
+		session['issuer'] = user.issuer_keys
+		session['whitelist'] = user.white_keys
 		session['partner'] = user.partners
 		session['did'] = user.did
 		session['eth'] = user.eth
 		session['token'] = user.token
 		session['rsa_key'] = user.rsa_key
-		session['web_relay_activated'] = user.web_relay_activated
+		session['private_key'] = user.private_key
+		session['relay_activated'] = user.relay_activated
 		session['personal'] = user.personal
+		session['identity_file'] = user.identity_file
 		session['name'] = user.name
-		
+		session['picture'] = "anonymous1.png" if user.picture is None else user.picture
+
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
-			session['contact'] = user.contact
 			session['language'] = user.language
 			session['education'] = user.education	
-			session['picture'] = "anonymous1.png" if user.picture is None else user.picture
-			#(radio, mylang1, mylang2, mylang3)= session['language']
-		
+			#(radio, mylang1, mylang2, mylang3)= session['language']	
 		if user.type == 'company' :
 			pass
 	
@@ -412,12 +435,14 @@ def user() :
 	issuer_list = session['issuer']
 	white_list = session['whitelist']
 	partners_list = session['partner']		
-	web_relay = 'Activated' if session['web_relay_activated'] else 'Not Activated'
+	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
 	my_rsa_key = session['rsa_key']
 	my_name = session['name']
-	
+	my_picture = session['picture']
+	my_private_key = session['private_key']
+	identity_file_list = session['identity_file']
+
 	if session['type'] == 'person' :	
-		my_picture = session['picture']
 		experience_list = session['experience']
 		certificate_list = session['certificate']
 		education_list = session['education']
@@ -425,38 +450,29 @@ def user() :
 		pass
 	
 	# advanced
-	relay_rsa_key = 'No' if my_rsa_key is None else 'Yes'
+	relay_rsa_key = 'Yes' if my_rsa_key  else 'No'
+	relay_private_key = 'Yes' if my_private_key else 'No'
 	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	my_advanced = """
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
-					<b>Authentification Email</b> : """ + getEmail(session['workspace_contract'], mode) + """<br>
+					<b>Authentification Email</b> : """ + "to be done " + """<br>
 					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
 					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>					
-					<b>Web Relay : </b>""" + web_relay + """<br>
-					<b>RSA Key</b> : """ + relay_rsa_key
+					<b>Relay Status : </b>""" + relay + """<br>
+					<b>RSA Key</b> : """ + relay_rsa_key + """<br>
+					<b>Private Key</b> : """ + relay_private_key
+	my_advanced = my_advanced + """<hr><a href="">Delete Identity</a>"""
+	if my_private_key :
+		my_advanced = my_advanced + """<br><a href="">Transfer Ownership</a>"""
 
+					
 	
-	# access/username
-	my_access_start = """<a href="/user/add_access/">Add a Username</a><hr> """
-	my_access = ""
-	access_list = username_and_email_list(session['workspace_contract'], mode)
-	for access in access_list :
-		if access['username'] == session['username'] :
-			access_html = """
-				<span>""" + session['username'] + """ (logged)					
-				</span>"""
-		else :
-			access_html = """
-				<span>""" + access['username'] + """ : """ +  access['email'] +"""
-					<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
-					</a>
-				</span>"""	
-		my_access = my_access + access_html + """<br>""" 
-	my_access = my_access_start + my_access
 	
-	# partner
-	if web_relay == 'Activated' and my_rsa_key is not None  :
+	
+	
+	""" partnership
+	"""
+	if relay == 'Activated' and my_rsa_key   :
 		my_partner_start = """<a href="/user/request_partnership/">Request a Partnership</a><hr> """
 	else :
 		my_partner_start = ""				
@@ -475,12 +491,15 @@ def user() :
 	my_partner = my_partner_start + my_partner 	
 	
 	
-	# issuer	
-	if web_relay == 'Activated':
+	
+	
+	""" issuer for document, they have an ERC725 key 20002	
+	"""
+	if relay == 'Activated':
 		my_issuer_start = """<a href="/user/add_issuer/">Authorize an Issuer</a><hr> """
 	else :
 		my_issuer_start = ""	
-	my_claim_issuer = ""		
+	my_issuer = ""		
 	for issuer in issuer_list :
 		issuer_html = """
 				<span>""" + issuer['username'] + """
@@ -491,12 +510,14 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span>"""
-		my_claim_issuer = my_claim_issuer + issuer_html + """<br>"""
-	my_claim_issuer = my_issuer_start + my_claim_issuer
+		my_issuer = my_issuer + issuer_html + """<br>"""
+	my_issuer = my_issuer_start + my_issuer
 	
 	
+	
+
 	# whitelist	
-	if web_relay  == 'Activated':
+	if relay  == 'Activated':
 		my_white_start = """<a href="/user/add_white_issuer/">Add a new Issuer</a><hr> """
 	else :
 		my_white_start = ""	
@@ -519,6 +540,26 @@ def user() :
 	my_account = """
 					<b>Balance ETH</b> : """ + str(my_eth)+"""<br>				
 					<b>Balance TALAO</b> : """ + str(my_token)
+	
+	
+	# file
+	my_file = """<a href="/user/store_file/">Store Data</a>"""
+
+	for one_file in identity_file_list :
+		file_html = """<hr> 
+				<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
+				<b>Created</b> : """+ one_file['created'] + """<br>
+				<p>
+					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + one_file['id'] + """&experience_title="""+ one_file['filename'] + """">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+					</a>
+					
+					<a class="text-secondary" href=/user/donload/""" + one_file['id'] + """>
+						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
+					</a>
+				</p>"""	
+		my_file = my_file + file_html
+	
 						
 ####################################################################################################
 	# specific to person
@@ -529,7 +570,7 @@ def user() :
 		my_experience = ''
 		for experience in experience_list :
 			exp_html = """<hr> 
-				<b>Company</b> : """+experience['organization']['name']+"""<br>			
+				<b>Company</b> : """+experience['company']['name']+"""<br>			
 				<b>Title</b> : """+experience['title']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
 				<p>
@@ -544,37 +585,41 @@ def user() :
 			my_experience = my_experience + exp_html
 	
 		# personal
-		my_personal_start = """<a href="/user/picture/">Change Picture</a>"""
-		my_personal = """ 
-				<span><b>Firstname</b> : """+session['personal']['firstname']['data']+"""								
-					<a class="text-secondary" href=/data/"""+session['personal']['firstname']['id'] + """>
+		my_personal = """<a href="/user/picture/">Change Picture</a><br>"""
+		for topicname in session['personal'].keys() :
+			if session['personal'][topicname]['claim_value'] is not None :
+				topicname_value = session['personal'][topicname]['claim_value']
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
+				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
+				my_personal = my_personal + """ 
+				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""								
+					<a class="text-secondary" href=/data/""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</span><br>		
-				<span><b>Lastname</b> : """+session['personal']['lastname']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['lastname']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				"""
-		my_personal = my_personal + my_personal_start
+				</span><br>"""				
+		my_personal = my_personal + """<a href="/user/update_personal_settings/">Update Data</a>"""
 		
-		# contact
-		if session['contact'] is None :
-			my_contact =  """ <a class="card-link" href="">Add Contact</a>"""
-		else :
-			my_contact = """<span>
-					<b>Contact Email</b> : """ + session['contact']['data']['email'] + """<br>						
-					<b>Contact Phone</b> : """ + session['contact']['data']['phone'] + """<br>				
-					<b>Contact Twitter</b> : """ + session['contact']['data']['twitter'] + """<br>				
-						
-						<a class="text-secondary" href=/data/"""+session['contact']['id'] + """>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-						</a>
-					</span>"""	
 	
+		# alias, cf NameService which is a stand alone tool.
+		my_access_start = """<a href="/user/add_access/">Add an Alias</a><hr> """
+		my_access = ""
+		access_list = username_and_email_list(session['workspace_contract'], mode)
+		for access in access_list :
+			if access['username'] == session['username'] :
+				access_html = """
+				<span>""" + session['username'] + """ (logged)					
+				</span>"""
+			else :
+				access_html = """
+				<span>""" + access['username'] + """ : """ +  access['email'] +"""
+					<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
+					</a>
+				</span>"""	
+			my_access = my_access + access_html + """<br>""" 
+		my_access = my_access_start + my_access
+		
+		
 		# education
 		my_education = ""
 		for education in education_list :
@@ -618,7 +663,6 @@ def user() :
 		return render_template('person_identity.html',
 							name=my_name,
 							personal=my_personal,
-							contact=my_contact,
 							experience=my_experience,
 							education=my_education,
 							languages=my_languages,
@@ -626,13 +670,14 @@ def user() :
 							certificates=my_certificates,
 							access=my_access,
 							partner=my_partner,
-							claimissuer=my_claim_issuer,
+							issuer=my_issuer,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
 							event=my_event_html,
 							counter=my_counter,
 							account=my_account,
 							picturefile=my_picture,
+							digitalvault= my_file,
 							username=my_username)	
 
 ####################################################################################################
@@ -640,47 +685,59 @@ def user() :
 ####################################################################################################	
 
 	else :
-		# personal
-		my_personal = """ 
-				<span><b>Name</b> : """+session['personal']['name']['data'] + """				
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['name']['id'] + """>
+		
+		""" username, cf NameService which is a stand alone tool.
+		"""
+		my_access_start = """<a href="/user/add_access/">Add a Manager</a><hr> """
+		my_access = ""
+		access_list = username_and_email_list(session['workspace_contract'], mode)
+		for access in access_list :
+			if access['username'] == session['username'] :
+				access_html = """
+				<span>""" + session['username'] + """ (logged)					
+				</span>"""
+			else :
+				access_html = """
+				<span>""" + access['username'] + """ : """ +  access['email'] +"""
+					<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
+					</a>
+				</span>"""	
+			my_access = my_access + access_html + """<br>""" 
+		my_access = my_access_start + my_access
+		
+		
+		
+		# company settings
+		
+		my_personal = """<a href="/user/picture/">Change Picture</a><br>"""
+		for topicname in session['personal'].keys() :
+			if session['personal'][topicname]['claim_value'] is not None :
+				topicname_value = session['personal'][topicname]['claim_value']
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
+				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
+				my_personal = my_personal + """ 
+				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""								
+					<a class="text-secondary" href=/data/""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</span><br>
-				
-				<span><b>Website</b> : """+session['personal']['website']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['website']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Contact</b> : """+session['personal']['contact']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['contact']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Email</b> : """+session['personal']['email']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+session['personal']['email']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>"""
+				</span><br>"""				
+		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Data</a>"""
+		
 		
 		return render_template('company_identity.html',
 							access=my_access,
 							name = my_name,
 							personal=my_personal,
 							partner=my_partner,
-							claimissuer=my_claim_issuer,
+							issuer=my_issuer,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
 							event=my_event_html,
 							account=my_account,
 							counter=my_counter,
+							picturefile=my_picture,
+							digitalvault=my_file,
 							username=my_username)	
 		
 		
@@ -707,12 +764,14 @@ def photo() :
 		session['picture'] = filename			
 		return redirect(mode.server + 'user/?username=' + username)
 
-# a faire
-@app.route('/user/contact_settings/', methods=['POST'])
-def contact_settings() :	
-	return redirect(mode.server + 'user/?username=' + user.username)
-
-
+@app.route('/faq/', methods=['GET'])
+def faq() :
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		return render_template('faq.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 
 # issuer explore On ne met rien en session
 @app.route('/user/issuer_explore/', methods=['GET'])
@@ -720,46 +779,46 @@ def issuer_explore() :
 	username = check_login(session.get('username'))	
 	issuer_username = request.args['issuer_username']
 	issuer_workspace_contract = username_to_data(issuer_username, mode)['workspace_contract']
+	
 	issuer = Identity(issuer_workspace_contract, mode)
+	
 	# do something common
 	my_event_html, my_counter =  event_display(session['events'])
 	my_name = session['name']
 	issuer_name = issuer.name
-	my_picture = session['picture'] if session['type'] == 'person' else ""  
+	my_picture = session['picture'] 
 	
 	# advanced
+	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	issuer_advanced = """
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
 					<b>Username</b> : """ + issuer_username + """<br>										
-					<b>DID</b> : """ + issuer.did 				
+					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + issuer.workspace_contract + """>"""+ issuer.workspace_contract + """</a><br>					
+					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + issuer.address + """>"""+ issuer.address + """</a>"""					
+
 	
 	if issuer.type == 'person' :
 		# do something specifc	
 		issuer_picture = "anonymous1.png" if issuer.picture is None else issuer.picture
-
+	
 		# personal
-		issuer_personal = """ 
-				<span><b>Firstname</b> : """+ issuer.personal['firstname']['data']+"""				
+		issuer_personal = """ <span><b>Username : </b> : """ + getUsername(issuer.workspace_contract, mode)+"""<br>"""			
+		for topic_name in issuer.personal.keys() : 
+			if issuer.personal[topic_name]['claim_value'] is not None :
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer.workspace_contract[2:] + ':claim:' + issuer.personal[topic_name]['claim_id']
+				issuer_personal = issuer_personal + """ 
+				<span><b>"""+ key +"""</b> : """+ issuer.personal[topic_name]['claim_value']+"""				
 					
-					<a class="text-secondary" href=/data/""" + issuer.personal['firstname']['id'] + """>
+					<a class="text-secondary" href=/data/""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
-				</span><br>
-				
-				<span><b>Lastname</b> : """+ issuer.personal['lastname']['data']+"""
-					
-					<a class="text-secondary" href=/data/""" + issuer.personal['lastname']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Picture</b>  	
-					
+				</span><br>"""				
+		issuer_personal = issuer_personal +	"""	<span><b>Picture</b>  	
 					<a class="text-secondary" href=/data/"""+ issuer_picture + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span>"""
-		
+
 		# experience
 		issuer_experience = ''
 		for experience in issuer.experience :
@@ -808,35 +867,19 @@ def issuer_explore() :
 		# do something specific
 		
 		# personal
-		issuer_personal = """ 
-				<span><b>Name</b> : """ + issuer.personal['name']['data'] + """				
+		issuer_personal = """ <span><b>Username : </b> : """ + getUsername(issuer.workspace_contract, mode)	+ """<br>"""		
+		for topic_name in issuer.personal.keys() :
+			if issuer.personal[topic_name]['claim_value'] is not None :
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer.workspace_contract[2:] + ':claim:' + issuer.personal[topic_name]['claim_id']
+				issuer_personal = issuer_personal + """ 
+				<span><b>"""+ topic_name +"""</b> : """+ issuer.personal[topic_name]['claim_value']+"""				
 					
-					<a class="text-secondary" href=/data/"""+ issuer.personal['name']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Website</b> : """+ issuer.personal['website']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+ issuer.personal['website']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Contact</b> : """+ issuer.personal['contact']['data']+"""
-					
-					<a class="text-secondary" href=/data/"""+ issuer.personal['contact']['id'] + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>
-				
-				<span><b>Email</b> : """+ issuer.personal['email']['data']+"""
-					
-					<a class="text-secondary" href=/data/""" + issuer.personal['email']['id'] + """>
+					<a class="text-secondary" href=/data/""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span><br>"""
-		
+					
+					
 		return render_template('company_issuer_identity.html',
 							issuer_name=issuer_name,
 							name=my_name,
@@ -862,6 +905,177 @@ def search() :
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + username_to_search)
 
 
+@app.route('/user/update_personal_settings/', methods=['GET', 'POST'])
+def update_personal_settings() :	
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		privacy=dict()
+		for topicname in session['personal'].keys() :
+			if session['personal'][topicname]['privacy']=='secret' :
+				(p1,p2,p3) = ("", "", "selected") 
+			if session['personal'][topicname]['privacy']=='private' :
+				(p1,p2,p3) = ("", "selected", "") 
+			if session['personal'][topicname]['privacy']=='public' :
+				(p1,p2,p3) = ("selected", "", "") 
+			if session['personal'][topicname]['privacy'] is None :
+				(p1,p2,p3) = ("", "", "") 
+			
+			privacy[topicname] = """
+					<optgroup """ +  """ label="Select">
+					<option """+ p1 + """ value="public">Public</option>
+					<option """ + p2 +""" value="private">Private</option>
+					<option """ + p3 + """ value="secret">Secret</option>
+					</opgroup>"""
+					
+		return render_template('update_personal_settings.html',
+								picturefile=my_picture,
+								event=my_event_html,
+								counter=my_counter,
+								username=username,
+								firstname=session['personal']['firstname']['claim_value'],
+								firstname_privacy=privacy['firstname'],
+								lastname=session['personal']['lastname']['claim_value'],
+								lastname_privacy=privacy['lastname'],
+								contact_email=session['personal']['contact_email']['claim_value'],
+								contact_email_privacy=privacy['contact_email'],
+								contact_phone=session['personal']['contact_phone']['claim_value'],
+								contact_phone_privacy=privacy['contact_phone'],
+								birthdate=session['personal']['birthdate']['claim_value'],
+								birthdate_privacy=privacy['birthdate'],
+								postal_address=session['personal']['postal_address']['claim_value'],
+								postal_address_privacy=privacy['postal_address']
+								)
+	if request.method == 'POST' :
+		form_privacy = dict()
+		form_value = dict()
+		form_privacy['firstname'] = request.form['firstname_select']
+		form_privacy['lastname'] = request.form['lastname_select']
+		form_privacy['contact_phone'] = request.form['contact_phone_select']
+		form_privacy['contact_email'] = request.form['contact_email_select']
+		form_privacy['birthdate'] = request.form['birthdate_select']
+		form_privacy['postal_address'] = request.form['postal_address_select']
+
+		change = False	
+		for topicname in session['personal'].keys() :
+			form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
+
+			if 	form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
+				print(form_value[topicname])
+				print(form_privacy[topicname])
+				print('passage')
+				(claim_id,a,b) = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
+				change = True
+				session['personal'][topicname]['claim_value'] = form_value[topicname]
+				session['personal'][topicname]['privacy'] = form_privacy[topicname]
+				session['personal'][topicname]['claim_id'] = claim_id[2:]
+			
+		if change :
+			flash('personal has been updated', 'success')
+		return redirect(mode.server + 'user/?username=' + username)
+
+
+
+@app.route('/user/update_company_settings/', methods=['GET', 'POST'])
+def update_company_settings() :	
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		privacy=dict()
+		for topicname in session['personal'].keys() :
+		#for topicname in ['name', 'contact_name', 'contact_email', 'contact_phone', 'website'] :
+			if session['personal'][topicname]['privacy']=='secret' :
+				(p1,p2,p3) = ("", "", "selected") 
+			if session['personal'][topicname]['privacy']=='private' :
+				(p1,p2,p3) = ("", "selected", "") 
+			if session['personal'][topicname]['privacy']=='public' :
+				(p1,p2,p3) = ("selected", "", "") 
+			if session['personal'][topicname]['privacy'] is None :
+				(p1,p2,p3) = ("", "", "") 
+			
+			privacy[topicname] = """
+					<optgroup """ +  """ label="Select">
+					<option """+ p1 + """ value="public">Public</option>
+					<option """ + p2 +""" value="private">Private</option>
+					<option """ + p3 + """ value="secret">Secret</option>
+					</opgroup>"""
+					
+		return render_template('update_company_settings.html',
+								picturefile=my_picture,
+								event=my_event_html,
+								counter=my_counter,
+								username=username,
+								name=session['personal']['name']['claim_value'],
+								name_privacy=privacy['name'],
+								contact_name=session['personal']['contact_name']['claim_value'],
+								contact_name_privacy=privacy['contact_name'],
+								contact_email=session['personal']['contact_email']['claim_value'],
+								contact_email_privacy=privacy['contact_email'],
+								contact_phone=session['personal']['contact_phone']['claim_value'],
+								contact_phone_privacy=privacy['contact_phone'],
+								website=session['personal']['website']['claim_value'],
+								website_privacy=privacy['website'],
+								)
+	if request.method == 'POST' :
+		form_privacy = dict()
+		form_value = dict()
+		form_privacy['name'] = request.form['name_select']
+		form_privacy['contact_name'] = request.form['contact_name_select']
+		form_privacy['contact_phone'] = request.form['contact_phone_select']
+		form_privacy['contact_email'] = request.form['contact_email_select']
+		form_privacy['website'] = request.form['website_select']
+
+		change = False	
+		for topicname in session['personal'].keys() :
+		#for topicname in ['name', 'contact_name', 'contact_email', 'contact_phone', 'website'] :
+			form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
+
+			if 	form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
+				(claim_id,a,b) = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
+				change = True
+				session['personal'][topicname]['claim_value'] = form_value[topicname]
+				session['personal'][topicname]['privacy'] = form_privacy[topicname]
+				session['personal'][topicname]['claim_id'] = claim_id[2:]			
+		if change :
+			flash('Company Settings has been updated', 'success')
+		return redirect(mode.server + 'user/?username=' + username)
+
+
+# diigitalvault
+@app.route('/user/store_file/', methods=['GET', 'POST'])
+def store_file() :
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		return render_template('store_file.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+	if request.method == 'POST' :
+		if 'file' not in request.files :
+			print('No file ')
+			return
+		myfile = request.files['file']
+		filename = secure_filename(myfile.filename)
+		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+		privacy = request.form['privacy']
+		user_file = File()
+		(doc_id, ipfs_hash, transaction_hash) =user_file.add(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, filename, privacy, mode)
+		new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(doc_id),
+									'filename' : filename,
+									'doc_id' : doc_id,
+									'created' : str(datetime.utcnow()),
+									'privacy' : privacy,
+									'doctype' : "",
+									'issuer' : mode.relay_address,
+									'transaction_hash' : transaction_hash
+									}	
+		session['identity_file'].append(new_file)				
+		flash(filename + ' uploaded', "success")
+		return redirect(mode.server + 'user/?username=' + username)
 
 
 # add experience
@@ -874,53 +1088,24 @@ def add_experience() :
 	if request.method == 'GET' :
 		return render_template('add_experience.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
-		experience = {"documentType":55000,
-						"version":2,
-						"recipient": {"givenName": "",
-									"familyName": "",
-									"title": "",
-									"email": "",
-									"ethereum_account": session['address'],
-									"ethereum_contract": session['workspace_contract']
-									},
-						"issuer": {"organization": {"email": request.form['contact_email'],
-													'name' : request.form['company_name'],
-													"url":"",
-													"image":"",
-													"ethereum_account":"",
-													"ethereum_contract":""},
-									"responsible":{"name": request.form['contact_name'],
-													"title":"",
-													"image":""},
-									"partner":{"name":"",
-												"text":""}
-									},												
-						"certificate":{"title": request.form['title'],
-										"description": request.form['description'],
-										"from": request.form['from'],
-										"to": request.form['to'],
-										"skills": request.form['skills'].split(' '),
-										"ratings":[]
-										}
-					}
-		encrypted = False if request.form['privacy'] == 'public' else True							
-		doc_id = createdocument(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, 55000, experience, 0, encrypted, mode, synchronous=True) 
+		my_experience = Experience()
+		experience = dict()
+		experience['company'] = {'contact_email' : request.form['contact_email'],
+								'name' : request.form['company_name'],
+								'contact_name' : request.form['contact_name'],
+								'contact_phone' : request.form['contact_phone']}
+		experience['title'] = request.form['title']
+		experience['description'] = request.form['description']
+		experience['start_date'] = request.form['from']
+		experience['end_date'] = request.form['to']
+		experience['skills'] = request.form['skills'].split(' ')  		
+		privacy = request.form['privacy']
+		(doc_id, ipfshash, transaction_hash) = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)		
 		# add experience in session
-		new_experience = {'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id),
-						'title' : experience['certificate']['title'],
-						'description' : experience['certificate']['description'],
-						'from' : experience['certificate']['from'],
-						'to' : experience['certificate']['to'],
-						'organization' : {"name" : experience['issuer']['organization']['name'], 
-										"contact_name" : experience['issuer']['responsible']["name"],
-										"contact_email" : experience["issuer"]["organization"]["email"]
-										},
-						"certification_link" : "",
-						'skills' : experience['certificate']['skills']
-						}	
-		
-		session['experience'].append(new_experience)			
-		flash('New experience added')
+		experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
+		experience['doc_id'] = doc_id
+		session['experience'].append(experience)			
+		flash('New experience added', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
 @app.route('/user/remove_experience/', methods=['GET', 'POST'])
 def remove_experience() :
@@ -928,8 +1113,6 @@ def remove_experience() :
 	if request.method == 'GET' :
 		session['experience_to_remove'] = request.args['experience_id']
 		session['experience_title'] = request.args['experience_title']
-		print(session['experience_to_remove'])
-		print(session['experience_title'])
 		my_picture = session['picture']
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
@@ -938,12 +1121,12 @@ def remove_experience() :
 		session['experience'] = [experience for experience in session['experience'] if experience['id'] != session['experience_to_remove']]
 		Id = session['experience_to_remove'].split(':')[5]
 		if session['experience_to_remove'].split(':')[4] == 'document' :
-			deleteDocument(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, Id, mode)
+			Experience().relay_delete(session['workspace_contract'], int(Id), mode)
 		else :
 			deleteClaim(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, Id, mode)
 		del session['experience_to_remove']
 		del session['experience_title']
-		flash('The experience has been removed')
+		flash('The experience has been removed', 'success')
 		return redirect (mode.server +'user/?username=' + username)
 
 
@@ -1025,7 +1208,7 @@ def request_certificate() :
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter)
+		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	else :
 		issuer_username = request.form['issuer_username']
 		certificate_type = request.form['certificate_type']
@@ -1062,13 +1245,12 @@ def add_access() :
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
 		return render_template('add_access.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
-	else :
-		workspace_contract = session['workspace_contract']
-		address = session['address']
-		access_username = request.form['access_username']
-		access_email = request.form['access_email']
-		addName(access_username, address, mode, workspace_contract=workspace_contract, email=access_email)
-		flash('Username added for '+access_username, 'success')
+	if request.method == 'POST' :
+		if username_to_data(request.form['access_username'],mode) is not None :
+			flash('Username already used' , 'warning')
+			return redirect (mode.server +'user/?username=' + username)
+		addName(request.form['access_username'], session['address'], session['workspace_contract'], request.form['access_email'], mode)
+		flash('Username added for '+ request.form['access_username'] , 'success')
 		return redirect (mode.server +'user/?username=' + username)
 # remove Username
 @app.route('/user/remove_access/', methods=['GET'])
@@ -1082,7 +1264,8 @@ def remove_access() :
 
 
 
-# add issuer
+""" Issuer, they have an ERC725 key with purpose 20002 (or 1) to issue Document (Experience, Certificate)
+"""
 @app.route('/user/add_issuer/', methods=['GET', 'POST'])
 def add_issuer() :	
 	username = check_login(session.get('username'))	
@@ -1097,7 +1280,7 @@ def add_issuer() :
 			flash(issuer_username + ' is already authorized', 'warning')
 			return redirect (mode.server +'user/?username=' + username)	
 		issuer_address = username_to_data(issuer_username,mode)['address']
-		addkey(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 3, mode, synchronous=True) 
+		addkey(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
 		# update issuer list in session
 		issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
@@ -1118,7 +1301,7 @@ def remove_issuer() :
 		return render_template('remove_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, issuer_name=session['issuer_username_to_remove'])
 	elif request.method == 'POST' :
 		address_partner = session['issuer_address_to_remove']
-		delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 3, mode) 
+		delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 20002, mode) 
 		session['issuer'] = [ issuer for issuer in session['issuer'] if issuer['address'] != session['issuer_address_to_remove']]
 		flash('The Issuer '+session['issuer_username_to_remove']+ '  has been removed', 'success')
 		del session['issuer_username_to_remove']
@@ -1130,7 +1313,9 @@ def remove_issuer() :
 
 
 
-# add white issuer
+""" White Issuer or WhiteList
+They all have an ERC725 key with purpose 5
+"""
 @app.route('/user/add_white_issuer/', methods=['GET', 'POST'])
 def add_white_issuer() :	
 	username = check_login(session.get('username'))	
@@ -1250,7 +1435,7 @@ def identityRemove_2() :
 		mymessage = 'Your are not the owner of this Identity, you cannot delete it.'
 		return render_template("remove3.html", message=mymessage)
 	
-	email=getEmail(workspace_contract,mode)
+	email = uername_to_data(username, mode)['email']
 	if email == False :
 		mymessage="Your email for authentification is not registered"
 		return render_template('remove3.html', message=mymessage)			
