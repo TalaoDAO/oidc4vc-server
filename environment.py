@@ -14,7 +14,7 @@ import sys
 
 class currentMode() :
 	
-	myenv='airbox'  # test ou airbox ou prod
+	myenv='airbox'  # test(avec acces smartphone) ou airbox ou prod
 	mychain='rinkeby'
 	password='suc2cane'
 	apiport = '3000'
@@ -104,7 +104,8 @@ class currentMode() :
 			self.IP = '217.128.135.206' # external
 			self.server = 'http://217.128.135.206:5000/' # external
 			self.port = 4000
-			self.debug = False	
+			self.flaskserver = "127.0.0.1"
+			self.debug = True	
 		
 		if self.myenv == 'airbox' :  # sur portable et airbox
 			self.server = 'http://127.0.0.1:3000/' # external

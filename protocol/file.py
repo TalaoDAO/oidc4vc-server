@@ -114,7 +114,6 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	print('doc_id =', documentId)
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
-	print(contract.functions.getDocument(documentId).call())
 	(doctype, doctypeversion, expires, issuer, checksum, engine, ipfshash, encrypted, related) = contract.functions.getDocument(documentId).call()
 	if doctype == 30000  :
 		privacy = 'public'
@@ -145,7 +144,6 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 
 	# recuperation du msg 
 	data = ipfs_get(ipfshash.decode('utf-8'))
-	print('data= ', data)
 	# calcul de la date
 	expires = 'Unlimited' if expires == 0 else str(datetime.fromtimestamp(expires))
 

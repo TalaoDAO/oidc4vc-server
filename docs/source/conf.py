@@ -62,15 +62,15 @@ def get_git_branch():
 
 
 # -- Project information -----------------------------------------------------
-project = 'Talao - Professional Decentralized Identity'
+project = 'Talao Professional Identity Relay'
 copyright = '2020, Talao'
 author = 'Thierry Thevenet'
 
 
 # The short X.Y version
-version = u'0.9'
+version = '0.9'
 # The full version, including alpha/beta/rc tags
-release = u'0'
+release = '0.2'
 
 
 # -- General configuration ---------------------------------------------------

@@ -86,7 +86,3 @@ def POST_authentification_2() :
 
 	return render_template("create3.html", message=mymessage)
 
-"""		
-def POST_authentification_3() :
-	return redirect(mode.server+'talao/register/')
-"""	

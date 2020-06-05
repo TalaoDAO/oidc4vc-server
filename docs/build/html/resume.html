@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Professional Identity &mdash; Talao - Professional Decentralized Identity 0 documentation</title>
+  <title>Professional Identity &mdash; Talao Professional Identity Relay 0.2 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API" href="api.html" />
+    <link rel="next" title="Quick Start" href="quick.html" />
     <link rel="prev" title="Privacy" href="privacy.html" /> 
 </head>
 
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Talao - Professional Decentralized Identity
+            <a href="index.html" class="icon icon-home"> Talao Professional Identity Relay
           
 
           
@@ -90,6 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="privacy.html">Privacy</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Professional Identity</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#personal">Personal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proof-of-identity">Proof of Identity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#experience">Experience</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#education">Education</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#certificates">Certificates</a></li>
@@ -101,13 +102,21 @@
 <li class="toctree-l2"><a class="reference internal" href="#advanced">Advanced</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="starter.html">Starter Guide for Talents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="starter_company.html">Starter Guide for Companies</a></li>
+</ul>
+<p class="caption"><span class="caption-text">How-To:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="request_a_certificate.html">How To Request a Certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">How To Get a Proof of Identity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
 </ul>
 
             
@@ -122,7 +131,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Talao - Professional Decentralized Identity</a>
+          <a href="index.html">Talao Professional Identity Relay</a>
         
       </nav>
 
@@ -184,19 +193,36 @@
 <li><p>Birthdate</p></li>
 <li><p>Address</p></li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>By default those personal data are given by user through the Relay which is an automatic ‘Issuer’. They are eventually not reliable for third parties as data are not checked.</p>
+</div>
+</div>
+<div class="section" id="proof-of-identity">
+<h2>Proof of Identity<a class="headerlink" href="#proof-of-identity" title="Permalink to this headline">¶</a></h2>
+<p>This is one of the most important feature of the Identity.</p>
+<p>In order to get reliable data, one has to prove the belonging of the Identiy and the veracity of personal data.
+This process is today manage only by Talao through a KYC process for Talents and Companies.
+Read more on <a class="reference internal" href="proof_of_identity.html"><span class="doc">How To Get a Proof of Identity</span></a></p>
 </div>
 <div class="section" id="experience">
 <h2>Experience<a class="headerlink" href="#experience" title="Permalink to this headline">¶</a></h2>
+<p>To be completed</p>
+<p>Experience data are always Public.</p>
 </div>
 <div class="section" id="education">
 <h2>Education<a class="headerlink" href="#education" title="Permalink to this headline">¶</a></h2>
+<p>Education data are always Public.
+to be completed</p>
 </div>
 <div class="section" id="certificates">
 <h2>Certificates<a class="headerlink" href="#certificates" title="Permalink to this headline">¶</a></h2>
+<p>Certficates are always Public.</p>
+<p>To be completed</p>
 </div>
 <div class="section" id="alias">
 <h2>Alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h2>
-<p>An Alias is a new Username/email for authentification for the Relay (This web application).</p>
+<p>An Alias is a new couple of Username+Email for authentification through the <a class="reference external" href="http://talao.co:50000/login/">Relay</a></p>
 <p>At Identity creation, one smart contract is crated and one authentification email is encrypted and stored within this smart contract on the Ethereum Blockchain.
 The address of the smart contract is the Decentralized IDentifier (DID) of your Identity.
 When you sign-in if the first time, you register a 3sernane to have a readable identifier associated to the smart contract address.</p>
@@ -209,6 +235,7 @@ When you sign-in if the first time, you register a 3sernane to have a readable i
 </div>
 <div class="section" id="issuer">
 <h2>Issuer<a class="headerlink" href="#issuer" title="Permalink to this headline">¶</a></h2>
+<p>To be completed</p>
 </div>
 <div class="section" id="partner">
 <h2>Partner<a class="headerlink" href="#partner" title="Permalink to this headline">¶</a></h2>
@@ -237,7 +264,10 @@ You can add a new issuer in your White List through the White List menu.</p>
 </div>
 <div class="section" id="advanced">
 <h2>Advanced<a class="headerlink" href="#advanced" title="Permalink to this headline">¶</a></h2>
-<p>Those data can be used to check and track your data through other means as ‘Ethereum Explorer &lt;<a class="reference external" href="https://etherscan.io/">https://etherscan.io/</a>&gt;’.</p>
+<p>This information is usefull to check and track your data through other means as <a class="reference external" href="https://etherscan.io">Ethereum Explorer</a></p>
+<p>Relay Status : Activated if user has given to the Relay the right to sign on behalf the Identity. If Relaus does not have this right, no data can be updated through the Relay application.</p>
+<p>Private Key : Yes  or No. If True the Relay has a copy of the Ethereum private key og the Identity. This is the case when the Identity is created through the Relay (Quick Start).</p>
+<p>RSA Key : Yes or No. If No Relay cannot crate Private or Secret data.</p>
 </div>
 </div>
 
@@ -249,7 +279,7 @@ You can add a new issuer in your White List through the White List menu.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="quick.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="privacy.html" class="btn btn-neutral float-left" title="Privacy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

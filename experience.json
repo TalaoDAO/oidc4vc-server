@@ -1,4 +1,0 @@
-{"documentType":50000,"version":2,
-	"recipient":{"givenName":_givenName,"familyName":_familyName,"title":_jobTitle,"email":_email,"ethereum_account": address,"ethereum_contract": workspace_contract},
-	"issuer":{"organization":{"email":"","url":"","image":"","ethereum_account":"","ethereum_contract":""},"responsible":{"name":"","title":"","image":""},"partner":{"name":"","text":""}},
-	"certificate":{"title":_experienceTitle,"description":_experienceDescription,"from":_fromdate,"to":_todate,"skills":[],"ratings":[]}}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+				
+                                            {% include 'user_nav_bar.html' %}    
+
+            
+            
+            
+            <div class="container-fluid">                 
+            <div class="row mb-3">
+                <div class="col-lg-8 col-xl-4 offset-xl-4">
+                        
+                                <div class="card shadow mb-3">
+                                    <div class="card-header py-3">
+                                        <div class="row">
+                                            <div class="col-xl-6">
+                                                <p class="text-primary m-0 font-weight-bold">&nbsp;Education</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="/user/add_education/" method="POST">
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <div class="form-group"><label><strong>Organization</strong><br></label><input class="form-control" type="text" placeholder="Organization Name" name="company_name" required ></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group"><label ><strong>Title</strong><br></label><input class="form-control" type="text" placeholder="Education Title" required name="title"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label><strong>Start Date</strong><br></label><input class="form-control" id="startdate" type="date" required="" name="from"></div>
+                                                </div>
+                                                <div class="col-xl-3">
+                                                    <div class="form-group"><label><strong>End Date</strong><br></label><input class="form-control" type="date" required="" name="to"></div>
+                                                </div>
+                                                <div class="col-xl-6 offset-xl-0">
+                                                    <div class="form-group"><label><strong>Privacy</strong></label>
+                                                    <select class="form-control" name="privacy">
+														<optgroup label="Privacy">
+															<option value="public" selected >Public</option>
+														<!--	<option value="private">Private</option>
+															<option value="secret">Secret</option>  -->
+														</optgroup>
+													</select></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <div class="form-group"><label for="username"><strong>Contact Name</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="Name of your contact wthin the organization" name="contact_name" title="Texte"></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group"><label for="email"><strong>Contact Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="user@example.com" name="contact_email" title="Texte"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col" >
+                                                    <div class="form-group"><label><strong>Skills</strong><br></label><textarea class="form-control" row="2" name="skills" placeholder="skill1 skill2 skill3 ..."></textarea></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group"><label><strong>Contact Phone</strong><br></label><input class="form-control" type="tel" name="contact_phone" placeholder = "Your contact within the organization"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            
+              
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <div class="form-group"><label ><strong>Summary</strong></label><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" placeholder ="Short description of the education subject" required="" title="texte"></textarea></div>
+                                                    <div class="form-group"><label ><strong>Diploma Link</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="URL" name="certificate_link" title="Texte"></div>
+                                                </div>
+                                            </div>
+                                            
+                                             <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add Education</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+										<a href="/user/?username={{username}}">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+                                        </a>
+                                    </div>
+                                </div>
+                                            
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+                               {% include 'user_footer.html' %}    
+
+        
+        
+        
+    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   
+  
+</body>
+
+</html>

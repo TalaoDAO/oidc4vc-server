@@ -270,8 +270,9 @@ def get_claim(identity_workspace_contract, topicname, mode) :
 			identity_workspace_contract = transaction['to'] 
 			block_number = transaction['blockNumber']
 			block = mode.w3.eth.getBlock(block_number)
-			date = datetime.fromtimestamp(block['timestamp'])				
-			gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
+			date = datetime.fromtimestamp(block['timestamp'])
+			gas_used = 1000				
+			#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 			created = str(date)
 	
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
@@ -377,6 +378,10 @@ class Claim() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)			
 		return create_claim(mode.relay_address,mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, topicname, data, privacy, mode, synchronous = True) 
 	
+	def add(self, address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
+		return create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True)
+	
+	
 	def relay_delete(self, identity_workspace_contract, claim_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return  delete_claim(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, claim_id, mode)	
@@ -390,27 +395,26 @@ class Claim() :
 		else :
 			issuer_workspace_contract = None
 			(profil, category) = (dict(), 1001) # pb
-		this_claim=dict()
-		this_claim['created'] = created
-		this_claim['topic_name'] = topic_name
-		this_claim['topic_value'] = topic_value
-		this_claim['claim_value'] = data
-		this_claim['issuer']= {'address' : issuer_address,
+		
+		self.created = created
+		self.topic_name = topic_name
+		self.topic_value = topic_value
+		self.claim_value = data
+		self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : category}
-		this_claim['issuer']['type'] = 'Person' if category == 1001 else 'Company'
-		this_claim['issuer']['username'] = get_username(issuer_workspace_contract, mode)
-		this_claim['issuer'].update(profil)
-		this_claim['transaction_hash'] = transaction_hash
-		this_claim['transaction_fee'] = transaction_fee
-		this_claim['ipfs_hash'] = ipfs_hash
-		this_claim['data_location'] = 'https://ipfs.infura.io/ipfs/'+ ipfs_hash
-		this_claim['privacy'] = privacy
-		this_claim['claim_id'] = claim_id
-		this_claim['identity']= {'address' : contracts_to_owners(identity_workspace_contract, mode),
+		self.issuer['type'] = 'Person' if category == 1001 else 'Company'
+		self.issuer['username'] = get_username(issuer_workspace_contract, mode)
+		self.issuer.update(profil)
+		self.transaction_hash = transaction_hash
+		self.transaction_fee = transaction_fee
+		self.ipfs_hash = ipfs_hash
+		self.data_location = 'https://ipfs.infura.io/ipfs/'+ ipfs_hash
+		self.privacy = privacy
+		self.claim_id = claim_id
+		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
 								'workspace_contract' : identity_workspace_contract}
-		this_claim['transaction_fee'] = transaction_fee
-		return Claim(**this_claim)
+		return 
 			
 	def get_by_id(self, identity_workspace_contract, claim_id, mode) :		
 		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topic_value, created) = get_claim_by_id(identity_workspace_contract, claim_id, mode)
@@ -420,25 +424,24 @@ class Claim() :
 		else :
 			issuer_workspace_contract = None
 			(profil, category) = (dict(), 1001)
-		this_claim=dict()
-		this_claim['created'] = created
-		this_claim['topic_name'] = topicvalue2topicname(topic_value)
-		this_claim['topic_value'] = topic_value
-		this_claim['claim_value'] = data
-		this_claim['issuer']= {'address' : issuer_address,
+		
+		self.created = created
+		self.topic_name = topicvalue2topicname(topic_value)
+		self.topic_value = topic_value
+		self.claim_value = data
+		self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : category}
-		this_claim['issuer']['type'] = 'Person' if category == 1001 else 'Company'
-		this_claim['issuer']['username'] = get_username(issuer_workspace_contract, mode)
-		this_claim['issuer'].update(profil)
-		this_claim['transaction_hash'] = transaction_hash
-		this_claim['transaction_fee'] = transaction_fee
-		this_claim['ipfs_hash'] = ipfs_hash
-		this_claim['data_location'] = 'https://ipfs.infura.io/ipfs/'+ ipfs_hash
-		this_claim['privacy'] = privacy
-		this_claim['claim_id'] = claim_id
-		this_claim['identity']= {'address' : contracts_to_owners(identity_workspace_contract, mode),
+		self.issuer['type'] = 'Person' if category == 1001 else 'Company'
+		self.issuer['username'] = get_username(issuer_workspace_contract, mode)
+		self.issuer.update(profil)
+		self.transaction_hash = transaction_hash
+		self.transaction_fee = transaction_fee
+		self.ipfs_hash = ipfs_hash
+		self.data_location = 'https://ipfs.infura.io/ipfs/'+ ipfs_hash
+		self.privacy = privacy
+		self.claim_id = claim_id
+		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
 								'workspace_contract' : identity_workspace_contract}
-		this_claim['transaction_fee'] = transaction_fee
-		return Claim(**this_claim)
+		return 
 	

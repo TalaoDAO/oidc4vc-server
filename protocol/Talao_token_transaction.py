@@ -130,18 +130,7 @@ def token_transfer(address_to, value, mode) :
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	
 	return hash1.hex()
-	"""
 	
-	#sign transaction with TalaoGen wallet
-	private_key_TalaoGen = '0xbbfea0f9ed22445e7f5fb1c4ca780e96c73da3c74fbce9a6972c45730a855460'
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_TalaoGen)
-	
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000)		
-	return hash
-"""
 
 ###############################################################
 # Transfert d'ether depuis le portefuille TalaoGen
@@ -317,45 +306,61 @@ def authorizepartnership(address_from, workspace_contract_from, address_to, work
 #       5 identityInformation.symetricEncryptionEncryptedKey = _symetricEncryptionEncryptedKey;
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
 
-def partnershiprequest(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, partner_workspace_contract, partner_rsa_key, mode, synchronous= True) :
-#moi = address_to
-#lui = partner_address
-	
+def partnershiprequest(address_from, workspace_contract_from, identity_address, identity_workspace_contract, private_key_from, partner_workspace_contract, identity_rsa_key, mode, synchronous= True) :
+
 	w3 = mode.w3
 	partner_address = contractsToOwners(partner_workspace_contract, mode)	
+		
+	# if partner has a claim 3 key, it has to be removed first. 
+	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
+	key = mode.w3.soliditySha3(['address'], [partner_address])
+	has_key = contract.functions.keyHasPurpose(key, 3).call()
+	print(' key ', has_key)
+	if has_key :
+		nonce = w3.eth.getTransactionCount(address_from)  
+		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
+		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		print('talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
+		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
+		if receipt['status'] == 0 :
+			return False	
+		print( 'claim key removed')
 	
-	#recuperer ma cle AES cryptée
-	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
+	#recuperer la cle AES cryptée de l identitté
+	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
-	my_aes_encrypted=data[5]
+	identity_aes_encrypted = data[5]
 	
-	#recuperer sa cle RSA publique
+	#recuperer la cle RSA publique du partner
 	contract = w3.eth.contract(partner_workspace_contract, abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
-	his_rsa_key = data[4]
+	partner_rsa_key = data[4]
 	
-	my_rsa_key = partner_rsa_key
-	
-	# decrypt my AES key avec my RSA key
-	key = RSA.importKey(my_rsa_key)
+	# decrypt AES key de l identité avec la RSA key
+	key = RSA.importKey(identity_rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
-	my_aes = cipher.decrypt(my_aes_encrypted)
+	identity_aes = cipher.decrypt(identity_aes_encrypted)
 	
-	# encryption de ma cle AES avec sa cle RSA
-	key = RSA.importKey(his_rsa_key)	
+	# encryption de la cle AES de lidentité avec la cle RSA du partner
+	
+	key = RSA.importKey(partner_rsa_key)	
 	cipher = PKCS1_OAEP.new(key)
-	my_aes_encrypted_with_his_key = cipher.encrypt(my_aes)
+	identity_aes_encrypted_with_partner_key = cipher.encrypt(identity_aes)
 
 	# build, sign and send transaction
-	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	contract = w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)  
-	txn = contract.functions.requestPartnership(partner_workspace_contract, my_aes_encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
+	txn = contract.functions.requestPartnership(partner_workspace_contract, identity_aes_encrypted_with_partner_key).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	print('talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
 	if synchronous :
-		w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)		
+		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
+		if receipt['status'] == 0 :
+			return False	
 	return True
 
 
@@ -379,7 +384,7 @@ def remove_partnership(address_from, workspace_contract_from, address_to, worksp
 	return True
 
 
-
+"""
 #################################################################
 #  get Privatkey
 #################################################################
@@ -399,8 +404,8 @@ def getPrivatekey(workspace_contract,mode) :
 		return private_key
 	else :
 		return None
-
-
+"""
+"""
 #################################################################
 #  get Privatekey, aes and SECRET
 #################################################################
@@ -422,7 +427,7 @@ def getAll(workspace_contract,mode) :
 		return private_key, SECRET, AES_key
 	else :
 		return None
-
+"""
 """
 ##################################################################
 #    get Email from identity 
@@ -730,50 +735,51 @@ def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchrono
 #       5 identityInformation.symetricEncryptionEncryptedKey = _symetricEncryptionEncryptedKey;
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
 
-def readWorkspaceInfo (address,mode) : 
-	w3=mode.initProvider()
-
-	# read la cle privee RSA sur le fichier
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	with open(filename,"r") as fp :
-		rsa_private_key=fp.read()	
-		fp.close()   	
+def read_workspace_info (address, rsa_key, mode) : 
+	w3 = mode.w3
+		
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract=ownersToContracts(address,mode)
-	print('Adresse du Workspace', workspace_contract)
 
-	# recuperation du login du backend sur le workspace
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	claim=contract.functions.getClaimIdsByTopic(101109097105108).call()
-	claimId=claim[0].hex()
-	data = contract.functions.getClaim(claimId).call()
-	login=data[4].decode('utf-8')
-	print('login = ', login)
+	# recuperation du email 
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	claim = contract.functions.getClaimIdsByTopic(101109097105108).call()
+	claim_id = claim[-1].hex()
+	data = contract.functions.getClaim(claim_id).call()
+	scheme = data[1]
+	if scheme == 1 : # freedap creation
+		email = data[4].decode('utf-8')
+	elif scheme == 2 :
+		# decoder l 'email cryptée avec la cle RSA privée
+		key = RSA.importKey(rsa_key)
+		cipher = PKCS1_OAEP.new(key)	
+		bemail = cipher.decrypt(secret_encrypted)			
+		email = bemail.hex()
+	else :
+		print('erreur email ', scheme)
 
-	#recuperer le secret crypté (password du backend)
+
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
-	secret_encrypted=data[6]
 	
+	category = data[1]
+	
+	#recuperer le secret crypté
+	secret_encrypted=data[6]	
 	# decoder le secret cryptée avec la cle RSA privée
-	key = RSA.importKey(rsa_private_key)
+	key = RSA.importKey(rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
-	SECRET=cipher.decrypt(secret_encrypted)			
-	password = SECRET.hex()
-	print('password = ', password)
+	secret = cipher.decrypt(secret_encrypted).hex()			
+	
 	
 	#recuperer la clé AES cryptée 
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	data = contract.functions.identityInformation().call()
 	aes_encrypted=data[5]
-	
 	# decoder le secret cryptée avec la cle RSA privée
-	key = RSA.importKey(rsa_private_key)
+	key = RSA.importKey(rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
-	aes=cipher.decrypt(secret_encrypted)				
-	print('AES key = ', aes)
+	aes = cipher.decrypt(aes_encrypted)				
 	
-	return workspace_contract, login, password, aes 
+	return workspace_contract, category, email , secret, aes 
 
  
 ############################################################
@@ -884,7 +890,7 @@ def getDocumentIndex(address, _doctype,mode) :
 			index=index+1			
 	return index
 
-
+"""
 ######################################################	
 # read Talao experience or diploma
 ######################################################
@@ -906,7 +912,9 @@ def getDocument(address, _doctype,_index,mode) :
 				return Talao_ipfs.IPFS_get(ipfs_hash)
 			else :
 				index=index+1				
+"""
 
+"""
 #####################################
 #authentication d'un json de type str
 #####################################
@@ -956,7 +964,7 @@ def authenticate(docjson, address, private_key,mode) :
 	auth_docjson=json.dumps(objectdata,indent=4)
 		
 	return auth_docjson
-
+"""
 
 #################################################
 #  add claim

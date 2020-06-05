@@ -47,14 +47,14 @@
                                 <div class="col-lg-9 col-xl-10 offset-lg-4 offset-xl-1">
                                     <div class="card shadow mb-3">
                                         <div class="card-header py-3">
-                                            <p class="text-primary m-0 font-weight-bold"><strong>{{firstname}} {{name}}&nbsp;</strong>Professional Certificate</p>
+                                            <p class="text-primary m-0 font-weight-bold"><strong>{{firstname}} {{lastname}}&nbsp;</strong>Professional Experienc Certificate</p>
                                         </div>
                                         <div class="card-body">
                                             <form action="/user/user_settings/" method="POST">
                                                 <div class="form-row">
                                                     <div class="col-xl-7">
-                                                        <p class="text-center"><strong>{{position}}</strong><br></p>
-                                                        <p class="text-center" style="font-size: 12px;">from {{startDate}} to {{endDate}}</p><textarea class="form-control" row="5" style="font-size: 12px;">{{summary}}</textarea>
+                                                        <p class="text-center"><strong>{{title}}</strong><br></p>
+                                                        <p class="text-center" style="font-size: 12px;">from {{start_date}} to {{end_date}}</p><textarea class="form-control" row="5" style="font-size: 12px;">{{description}}</textarea>
                                                         <hr>
                                                         <div>
                                                             <p class="text-center"><strong>{{skills}}</strong><br></p>
@@ -100,10 +100,10 @@
                                                     <div class="col-xl-5">
                                                         <div>
                                                             <p class="text-center"><strong>Issued by</strong><br></p>
-                                                            <div></div><img id="company" class="mx-auto d-block" src="{{ url_for('send_file', filename=companylogo) }}" height="80" width="200"></div>
+                                                            <div></div><img id="company" class="mx-auto d-block" src="{{ url_for('send_file', filename=logo) }}" height="80" width="200"></div>
                                                         <div><br><br><br>
                                                             <p class="text-center"><strong>Signed by {{manager}}</strong><br></p>
-                                                            <div></div><img id="signature" class="mx-auto d-block" src="{{ url_for('send_file', filename=managersignature) }}" height="150" width="150"></div>
+                                                            <div></div><img id="signature" class="mx-auto d-block" src="{{ url_for('send_file', filename=signature) }}" height="150" width="150"></div>
                                                     </div>
                                                 </div>
                                             </form>
@@ -115,42 +115,8 @@
                     </div>
                 </div>
             </div>
-               <div class="footer-clean">
+                                              {% include 'user_footer.html' %}    
 
-             <footer>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Services</h3>
-                        <ul>
-                            <li><a href="#">Certification</a></li>
-                            <li><a href="#">Development</a></li>
-                            <li></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>About</h3>
-                        <ul>
-                            <li><a href="https;//talao.io">Company</a></li>
-                            <li><a href="#">CGU</a></li>
-                            <li></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Careers</h3>
-                        <ul>
-                            <li><a href="#">Job openings</a></li>
-                            <li><a href="#">Employee success</a></li>
-                            <li></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-3 item social"><a href="#"><i class="fa fa-facebook"></i></a><a href="https://twitter.com/talaodao?lang=fr"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-telegram"></i></a><a href="mailto:contact@talao.io"><i class="fa fa-envelope-o"></i></a>
-                        <p
-                            class="copyright">Talao © 2020</p>
-                    </div>
-                </div>
-            </div>
-        </footer>
         
         
      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

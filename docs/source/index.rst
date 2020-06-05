@@ -13,7 +13,6 @@ Welcome to Talao's documentation!
    contents
    privacy
    resume
-   api
   
 	
 .. toctree::
@@ -31,6 +30,7 @@ Welcome to Talao's documentation!
    :caption: How-To:
    
    request_a_certificate
+   proof_of_identity
 
    
   	
@@ -40,3 +40,4 @@ Welcome to Talao's documentation!
    
    api
    
+  

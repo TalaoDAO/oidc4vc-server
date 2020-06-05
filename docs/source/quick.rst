@@ -1,7 +1,8 @@
 Quick Start
 ===========
 
- 
+You can access to this Guide trough the navigation bar if you use a large device screen or through the right dropdown menu on your smartphone. 
+
 
 Beginners
 ---------

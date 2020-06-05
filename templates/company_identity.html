@@ -73,11 +73,11 @@
                                        
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0"><i class="fa fa-phone"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Certificate of Incorpation</a></h5>
+                                                <h5 class="mb-0"><i class="fa fa-industry"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Proof of Identity</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body"><a href="#"></a>
-                                                    <p class="card-text">{{contact|safe}}</p>
+                                                    <p class="card-text">{{kbis|safe}}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -114,7 +114,9 @@
                                                 <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
                                             </div>
                                         </div>
-                                        
+                                
+                                
+                                <!--        
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">
@@ -125,7 +127,7 @@
                                             </div>
                                         </div>
                                                                     
-                                       
+                                   -->    
                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
@@ -147,6 +149,17 @@
                                             <div class="collapse item-5" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body">
                                                     <p class="card-text">{{account|safe}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
+                                                <h5 class="mb-0"><i class="fa fa-gears"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; API Credentials</a></h5>
+                                            </div>
+                                            <div class="collapse item-7" role="tabpanel" data-parent="#accordion-2">
+                                                <div class="card-body">
+                                                    <p class="card-text">{{api|safe}}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -176,40 +189,11 @@
         </div>
     </div>
     </div>
-    <div class="footer-clean">
-        <footer>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Services</h3>
-                        <ul>
-                            <li><a href="#">Web design</a></li>
-                            <li><a href="#">Development</a></li>
-                            <li><a href="#">Hosting</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>About</h3>
-                        <ul>
-                            <li><a href="#">Company</a></li>
-                            <li><a href="#">Team</a></li>
-                            <li><a href="#">Legacy</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Careers</h3>
-                        <ul>
-                            <li><a href="#">Job openings</a></li>
-                            <li><a href="#">Employee success</a></li>
-                            <li><a href="#">Benefits</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-3 item social"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-telegram"></i></a><a href="mailto:contact@talao.io"><i class="fa fa-envelope-o"></i></a>
-                        <p class="copyright">Talao © 2020</p>
-                    </div>
-                </div>
-            </div>
-        </footer>
+  
+  
+  
+                                    {% include 'user_footer.html' %}    
+
     </div>
    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

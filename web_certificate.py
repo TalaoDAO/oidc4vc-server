@@ -17,7 +17,8 @@ from flask_fontawesome import FontAwesome
 # dependances
 import Talao_message
 import createidentity
-from protocol import canRegister_email, Data
+from protocol import canRegister_email
+from protocol import Certificate
 import environment
 import constante
 
@@ -37,28 +38,20 @@ def getclaimipfs (claim_id, workspace_contract) :
 	else :
 		return False
 
-""" fonction appelée par la route app.add_url_rule('/certificate/<data>',  view_func=web_show_certificate.show_certificate)
-"""
-# display certificate for anybody. Stand alone routin
+# fonction appelée par la route app.add_url_rule('/certificate/<data>',  view_func=web_show_certificate.show_certificate)
+# display experience certificate for anybody. Stand alone routine
 def show_certificate(data):
-	
-	# TEST
-	#data="did:talao:rinkeby:ab6d2bAE5ca59E4f5f729b7275786979B17d224b:claim:abf370997a7b240f56c62b8b33cc8976f9808d3889f3eed865c79e4622d90af4"
 
-	claimId=data.split(':')[5]
-	workspace_contract= '0x'+data.split(':')[3]
-	certificate=getclaimipfs(claimId, workspace_contract)
+	doc_id = data.split(':')[5]
+	identity_workspace_contract = '0x'+data.split(':')[3]
+	certificate = Certificate()
+	download = certificate.relay_get_certificate(self, identity_workspace_contract, doc_id, mode)
 	
-	if certificate == False :
+	if not download :
 		return {"ERROR" : "No Certificate"}
 	
 	ok="color: rgb(251,211,5); font-size: 10px;"
 	ko="color: rgb(0,0,0);font-size: 10px;"
-	context=certificate.copy()
-	context["manager"]=certificate["company"]["manager"]
-	context["managersignature"]=certificate["company"]["managersignature"]
-	context["companylogo"]=certificate["company"]["companylogo"]
-	
 	
 	# gestion des "fa-star" 
 	score=[]
@@ -72,81 +65,27 @@ def show_certificate(data):
 		for i in range(score[q],5) :
 			context ["star"+str(q)+str(i)]=ko
 
-	return render_template('certificate.html', **context, data=data)
-
-
-# A deplacer dans webserver.py
-# certificate input
-# app.add_url_rule('/certificate/experience/<did>',  view_func=web_certificate.input_certificate, methods = ['GET']) 
-def input_certificate(did):
-	# recuperation des information sur le user
-	workspace_contract='0x'+did.split(':')[3]
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	address = contract.functions.contractsToOwners(workspace_contract).call()
-	profil =readProfil(address,mode)
-	username=profil['givenName']+' '+profil['familyName']
-	myresumelink='http://vault.talao.io:4011/visit/'+workspace_contract
-	return render_template("certificaterequest.html",name=username, resumelink= myresumelink, myuser_did=did)
-
-# app.add_url_rule('/certificate/experience/',  view_func=web_certificate.input_certificate_1, methods = ['POST'])
-def input_certificate_1():
-	#issuer
-	workspace_contract_from = request.form['key'] # c est le workspace contract de l issuer
-	
-	issuer_did='did:talao:'+mode.BLOCKCHAIN+':'+workspace_contract_from[2:]
-	secret=request.form['secret'] # c ets le secret de creation du workspace
-	if secret != 'talao' :
-		mymessage ="secret is incorrect "
-		return render_template("certificaterequest_1.html", message = mymessage)
-	
-	issuer=identity(workspace_contract_from,mode)
-	if issuer.islive == False :
-		mymessage ="Key is incorrect "
-		return render_template("certificaterequest_1.html", message = mymessage)
-	
-	# user
-	userdid = request.form['user_did']
-	workspace_contract_to='0x'+userdid.split(':')[3]
-	user=identity(workspace_contract_to,mode)
-	address_to = user.address
-	profil = user.profil
-	username = user.username
-	#user.printIdentity()
-	
-	certificate=dict()
-	certificate={"did_issuer" : issuer_did, 
-	"did_user" : request.form['user_did'],
-	"topicname" : request.form['topicname'],
-	"type" : "experience",	
-	"firstname" : profil['givenName'],
-	"name" : profil['familyName'],
-	"company" : {"name" : "Thales", "manager" : request.form['issuedby'], "managersignature" : "experingsignature.png",
-		"companylogo" : "thaleslogo.jpeg", 'manager_email' : "jean.permet@thales.com"},
-	"startDate" : request.form['startDate'],
-	"endDate" :request.form['endDate'],
-	"summary" :  request.form['summary'],
-	"skills" : "Optoelectronics			IRST system		CAO/DAO",
-	"position" : request.form['position'],
-	"score_recommendation" : int(request.form['score1']),
-	"score_delivery" : int(request.form['score2']),
-	"score_schedule" : int(request.form['score3']),
-	"score_communication" : int(request.form['score4'])}
-	# issue certificate
-	(resultat, msg) =addcertificate(issuer.address, issuer.private_key, user.workspace_contract, certificate,mode)
-	if resultat == True :
-		mymessage = "certification link = "+msg
-	else :
-		mymessage =msg	
-	return render_template("certificaterequest_1.html", message = mymessage)
-
+	return render_template('certificate.html',
+							manager= certificate.manager,
+							title = certificate.title,
+							description=certificate.description,
+							firstname=certificate.firstname,
+							lastname=certificate.lastname,
+							signature=certificate.signature,
+							logo=certificate.logo,
+							**context)
 
 
 #         verify certificate
-""" on ne gere aucune information des data en session """
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify(dataId) :
 	workspace_contract = '0x'+dataId.split(':')[3]
-	his_data = Data(dataId,mode)
+	
+	doc_id = data.split(':')[5]
+	identity_workspace_contract = '0x'+data.split(':')[3]
+	certificate = Certificate()
+	download = certificate.relay_get_certificate(self, identity_workspace_contract, doc_id, mode)
+	
 	his_topic = his_data.topic.capitalize()	
 	his_visibility = his_data.encrypted.capitalize()
 	
@@ -208,7 +147,6 @@ def certificate_verify(dataId) :
 				<b>End Date</b> : """+his_data.value['endDate'] + """<br>
 				<b>Skills</b> : """+his_data.value['skills'] 
 				
-				#<b>certificate</b> : <a href= """ + mode.server +  """certificate/did:talao:""" + mode.BLOCKCHAIN + """:""" + workspace_contract[2:] + """:claim:""" + his_data.value.get('certificate_link', 'N0') + """>Link</a>"""
 
 	else :
 		his_title = 'Profil'

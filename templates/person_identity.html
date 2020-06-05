@@ -62,9 +62,10 @@
                                    
                                     
                                     <div role="tablist" id="accordion-1">
+                                       
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
-                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal</a></h5>
+                                                <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -72,6 +73,19 @@
                                                 </div>
                                             </div>
                                         </div>
+                                     
+                                  
+                                        <div class="card">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
+                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Proof of Identity</a></h5>
+                                            </div>
+                                            <div class="collapse item-12" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body">
+                                                    <p class="card-text">{{kyc|safe}}</p>
+                                                </div>
+                                            </div>
+                                        </div>    
+                                     
                                      
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
@@ -84,13 +98,15 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text edication"><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4" href="#accordion-1 .item-4">&nbsp;Education</a></h5>
                                             </div>
                                             <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-													<a href="#">Add Education</a>
+													<a href="/user/add_education/">Add Education</a>
                                                     <p class="card-text">{{education|safe}}</p>
                                                 </div>
                                             </div>

@@ -135,7 +135,7 @@ def creationworkspacefromscratch(username, email,mode):
 
 	# management key issued to Web Relay (agent)
 	addkey(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
-	# rewrite email with scheme 2 to differenciate from freedapp createworkspace call
+	# rewrite email with scheme 2 to differenciate from freedapp email that are not encrypted
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address)  
 	txn = contract.functions.addClaim(101109097105108,2,address, '', email_encrypted, "" ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
