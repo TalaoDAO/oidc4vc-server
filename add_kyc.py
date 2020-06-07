@@ -6,55 +6,37 @@ topicID = 107121099
 """
 
 import constante
-import Talao_ipfs
-import ipfshttpclient
-import addclaim
 import environment
-
-# SETUP
-mode=environment.currentMode('test', 'rinkeby')
-mode.print_mode()
-w3=mode.initProvider()
+from protocol import Kyc, addkey
 
 
+# environment setup
+mode=environment.currentMode()
+w3=mode.w3
 
-private_key_onfido="0xdd6a47a3f324d8375850104c0c41a473dabdc1742666f4c63e28cb7ff0e26bbf"
-address_onfido = "0xdBEcB7f4A6f322444640b0173C81f9B0DECe0E07"
-workspace_contract_pierre = "0xab6d2bAE5ca59E4f5f729b7275786979B17d224b"
-address_pierre = "0xe7Ff2f6c271266DC7b354c1B376B57c9c93F0d65"
-private_key_pierre = "0xf73c5085c32410657f78851386d78e84042076e762c0d1360b4b972045817e2a"
+identity_workspace_contract = '0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF' # pascalet
+identity_address = '0x048D19e72030a9D7a949517D5a9E3844b4533fc2'
+identity_private_key = '0xbde83886a9830b00616cd4877e434f61bab8307a050e0d081fa869f41073de62'
 
+# add key 20002 to talao
 
-
-workspace_contract_to= workspace_contract_pierre
-address_from = address_onfido
-private_key_from = private_key_onfido
-issuer = address_onfido
-
-
+addkey(identity_address, identity_workspace_contract, identity_address, identity_workspace_contract, identity_private_key, mode.owner_talao, 20002,mode)
 
 topicname="kyc"
+
+kyc_jean = Kyc()
+
 kyc= {
 	"country" : "FRA3",
-	"id" : "15CA98225",
-	"surname" : "Houlle",
-	"givenname" : "Pierre david",
+	"id" : "15CA98365",
+	"firstname" : "Jean",
+	"lastname" : "Pascalet",
 	"sex" : "M",
 	"nationality" : "Francaise",
-	"date_of_birth" : "1980-1212",
-	"date_of_issue" : "2012-02-13",
-	"date_of-expiration" : "2022-02-12",
+	"birthdate" : "1972/12/12",
+	"date_of_issue" : "2012/02/13",
+	"date_of_expiration" : "2022/02/12",
 	"authority" : "Prefecture de Police de Paris"
 }
 
-client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-ipfshash=client.add_json(kyc)
-client.pin.add(ipfshash)
-print(ipfshash)
-
-data=""
-
-h=addclaim.addClaim(workspace_contract_to, address_from,private_key_from, topicname, issuer, data, ipfshash,mode) 
-
-print(h)
-
+kyc_jean.talao_add(identity_workspace_contract, kyc, mode) 

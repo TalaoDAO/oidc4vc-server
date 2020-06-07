@@ -17,10 +17,7 @@ import constante
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, addclaim, partnershiprequest, whatisthisaddress
 from .Talao_token_transaction import  updateSelfclaims, savepictureProfile, getpicture, deleteDocument, deleteClaim, read_workspace_info
 from .nameservice import namehash, getUsername, updateName, data_from_publickey, username_to_data
-#from .GETresolver import getresolver
-#from .GETresume import getresume, getlanguage, setlanguage, get_education, get_certificate
 from .key import addkey
-#from .ADDdocument import createdocument
 from .claim import Claim
 from .document import Experience, Education, Kbis, Certificate, Kyc, read_profil
 from .file import File
@@ -157,17 +154,16 @@ class Identity() :
 		self.eventslist = alert
 		return True
 	
-	
 	def is_relay_activated(self):
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		key = self.mode.w3.soliditySha3(['address'], [self.mode.relay_address])
 		if 1 in contract.functions.getKeyPurposes(key).call() :
 			self.relay_activated = True
+			return False
 		else :
 			self.relay_activated = False
-		return
+			return True
 	
-	# Not used today
 	# always available
 	def get_management_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
@@ -180,7 +176,6 @@ class Identity() :
 		return True
 	
 	
-		
 	# always available
 	def get_issuer_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
@@ -188,11 +183,14 @@ class Identity() :
 		issuer_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			issuer = data_from_publickey(key[2].hex(), self.mode)
+			issuer = data_from_publickey(key[2].hex(), self.mode) # most important part of the function.....see what it implies ! 
 			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
 				pass
 			else :	
-				issuer_keys.append({"address": issuer['address'], 	"publickey": key[2].hex(), "workspace_contract" : issuer['workspace_contract'] , 'username' : issuer['username'] } )
+				issuer_keys.append({"address": issuer['address'],
+									"publickey": key[2].hex(),
+									"workspace_contract" : issuer['workspace_contract'],
+									'username' : issuer['username'] } )
 		self.issuer_keys = issuer_keys
 		return True
 	
@@ -209,9 +207,9 @@ class Identity() :
 				pass
 			else :	
 				white_keys.append({"address": issuer['address'],
-								"publickey": key[2].hex(),
-								 "workspace_contract" : issuer['workspace_contract'],
-								  'username' : issuer['username'] } )
+									"publickey": key[2].hex(),
+									"workspace_contract" : issuer['workspace_contract'],
+									'username' : issuer['username'] } )
 		self.white_keys = white_keys
 		return True
 		
@@ -249,13 +247,12 @@ class Identity() :
 		return True
 	
 	def topicname2topicvalue(topicname) :
-		topicvaluestr =''
+		topicvalue_str =''
 		for i in range(0, len(topicname))  :
 			a = str(ord(topicname[i]))
-			if int(a) < 100 :
-				a='0'+a
-			topicvaluestr = topicvaluestr + a
-		return int(topicvaluestr)
+			a = '0'+ a  if int(a) < 100 else a
+			topicvalue_str += a
+		return int(topicvalue_str)
 	
 		# always available
 	def get_identity_personal(self) :
@@ -264,23 +261,21 @@ class Identity() :
 		company = ['name','contact_name','contact_email','contact_phone','website',]
 
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		category = contract.functions.identityInformation().call()[1]	
-		personal = dict()
+		self.category = contract.functions.identityInformation().call()[1]	
+		self.personal = dict()
 		
-		if category == 1001 : 
+		if self.category == 1001 : 
 			for topicname in person :
 				claim = Claim()
 				claim.get_by_topic_name(self.workspace_contract, topicname, self.mode)
-				personal[topicname] = claim.__dict__
+				self.personal[topicname] = claim.__dict__
 	
-		if category == 2001 : 
+		if self.category == 2001 : 
 			for topicname in company :
 				claim = Claim()
 				claim.get_by_topic_name(self.workspace_contract, topicname, self.mode)
-				personal[topicname] = claim.__dict__ 
+				self.personal[topicname] = claim.__dict__ 
 		
-		self.personal = personal
-		self.category = category
 		return True
 	
 	# always available
@@ -346,18 +341,8 @@ class Identity() :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kyc_list  :
 			kyc = Kyc()
-			kyc.relay_get_kbis(self.workspace_contract, doc_id, self.mode)
-			new_kyc = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(kbis.doc_id),
-									'country' : kyc.country,
-									'doc_id' : kyc.doc_id,
-									'firstname' : kyc.firstname,
-									'lastname' : kyc.lastname,
-									'sex' : kyc.sex,
-									'date_of_birth' : kyc.date_of_birth,
-									'date_of_issue' : kyc.date_of_issue,									
-									'date_of_expiration' : kyc.date_of_expiration,
-									'authority' : kyc.authority
-									}	
+			kyc.get_kyc(self.workspace_contract, doc_id, self.mode)
+			new_kyc = kyc.__dict__
 			self.kyc.append(new_kyc)
 		return True	
 	
@@ -367,34 +352,10 @@ class Identity() :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.certificate_list  :
 			certificate = Certificate()
-			certificate.relay_get_kbis(self.workspace_contract, doc_id, self.mode)
-			new_certificate = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(certificate.doc_id),
-									'type' : certificate.type,
-									'doc_id' : certificate.doc_id,
-									'firstname' : certificate.firstname,
-									'lastname' : certificate.lastname,
-									'logo' : certificate.logo,
-									'signature' : certificate.signature,
-									'start_date' : certificate.star_date,									
-									'end_date' : certificate.end_date,
-									'company' : {'name' : certificate.company['name'], 
-												'contact_name' : certificate.company['contact_name'],
-												'contact_email' : certificate.company['contact_email'],
-												'contact_phone' : certificate.company['contact_phone']
-												},
-									'manager' : certificate.manager,
-									'title' : certiificate.title,
-									'description' : certificate.description,
-									'skills' : certificate.skills,
-									'score_delivery' : certificate.score_delivery,
-									'score_recommendation' : certificate.score_recommendation,
-									'score_communication' : certificate.score_communication,
-									'score_schedule' : certificate.score_schedule
-									 }	
+			certificate.get_certificate(self.workspace_contract, doc_id, self.mode)
+			new_certificate = certificate.__dict__
 			self.certificate.append(new_certificate)
 		return True	
-	
-
 	
 	
 	def get_identity_kbis(self) :
@@ -402,51 +363,23 @@ class Identity() :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kbis_list  :
 			kbis = Kbis()
-			kbis.relay_get_kbis(self.workspace_contract, doc_id, self.mode)
-			new_kbis = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(kbis.doc_id),
-									'siret' : kbis.siret,
-									'doc_id' : kbis.doc_id,
-									'name' : kbis.name,
-									'date' : kbis.date,
-									'legal_form' : kbis.legal_form,
-									'namf' : kbis.naf,
-									'capital' : kbis.capital,
-									'address' : kbis.address,
-									'activity' : kbis.activity,
-									'ceo' : kbis.ceo,
-									'managing_director' : kbis.managing_director
-									}	
+			kbis.get_kbis(self.workspace_contract, doc_id, self.mode)
+			new_kbis = kbis.__dict__
 			self.kbis.append(new_kbis)
 		return True	
 	
 	
-	
-	# always available
 	def get_identity_education(self) :
 		self.education = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.education_list  :
 			education = Education()
 			education.relay_get_education(self.workspace_contract, doc_id, self.mode)
-			new_education = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(education.doc_id),
-									'title' : education.title,
-									'doc_id' : education.doc_id,
-									'description' : education.description,
-									'start_date' : education.start_date,
-									'end_date' : education.end_date,
-									'organization' : {'name' : education.organization['name'], 
-												'contact_name' : education.organization['contact_name'],
-												'contact_email' : education.organization['contact_email'],
-												'contact_phone' : education.organization['contact_phone'],
-												},
-									'certificate_link' : education.certificate_link,
-									'skills' : education.skills
-									}	
+			new_education = education.__dict__
 			self.education.append(new_education)
 		return True	
 		
 	
-	# always available
 	def get_identity_experience(self) :	
 		self.experience = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
@@ -454,57 +387,21 @@ class Identity() :
 			experience = Experience()
 			experience.relay_get_experience(self.workspace_contract, doc_id, self.mode)
 			new_experience = experience.__dict__ 
-			"""
-			new_experience = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(experience.doc_id),
-									'title' : experience.title,
-									'doc_id' : experience.doc_id,
-									'description' : experience.description,
-									'start_date' : experience.start_date,
-									'end_date' : experience.end_date,
-									'company' : {'name' : experience.company['name'], 
-												'contact_name' : experience.company['contact_name'],
-												'contact_email' : experience.company['contact_email'],
-												'contact_phone' : experience.company.get('contact_phone', 'unknown') # a retirer
-												},
-									'certificate_link' : experience.certificate_link,
-									'skills' : experience.skills
-									}"""	
 			self.experience.append(new_experience)
 		return True	
 	
 	
-		
 	def get_identity_file(self) :	
 		self.identity_file = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.file_list :
 			this_file = File()
 			this_file.get(self.workspace_contract, doc_id, "", self.mode)			
-			new_file = {'id' : 'did:talao:'+ self.mode.BLOCKCHAIN+':'+ self.workspace_contract[2:]+':document:'+ str(this_file.doc_id),
-									'filename' : this_file.filename,
-									'doc_id' : this_file.doc_id,
-									'created' : this_file.created,
-									'privacy' : this_file.privacy,
-									'doctype' : this_file.doctype,
-									'issuer' : this_file.issuer,
-									'transaction_hash' : this_file.transaction_hash
-									}	
+			new_file = this_file.__dict__
 			self.identity_file.append(new_file)
 		return True		
 	
-	
-	
-	# all setters need web_relay_authorized = True
 
-	"""def deleteExperience(self, experienceId) :			
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		claimdocId=experienceId.split(':')[5]
-		if experienceId.split(':')[4] == 'document' :
-			deleteDocument(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key,claimdocId,self.mode)
-		else :
-			deleteClaim(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, '0x'+claimdocId,self.mode)
-		self.getExperience()
-		return True"""
 		
 	def uploadPicture(self,picturefile) :
 		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	
@@ -516,12 +413,12 @@ class Identity() :
 		return updateName(self.username, newusername, self.mode)
 	
 	
-	
-	""" Key Management  """
+	"""
+	# Key Management 
 	def addKey(self, address_partner, purpose) :
 		return addkey(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, address_partner,purpose,self.mode, synchronous=self.wait)	
 		
-	""" Parnership management""" 	
+	# Parnership management 	
 	def requestPartnership (self, workspace_contract_partner) : 
 		partnershiprequest(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key,workspace_contract_partner,self.mode, synchronous=self.wait)
 		return True
@@ -529,18 +426,5 @@ class Identity() :
 	def authorizePartnership (self, workspace_contract_partner) :
 		authorizepartnership(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key,workspace_contract_partner,self.mode, synchronous=self.wait) 
 		return True
-	"""
-	# liste des nouvaux workspace_contract demandant un partnership
-	def partnershipRequested(self) :
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		myfilter = contract.events.PartnershipRequested.createFilter(fromBlock= 5800000,toBlock = 'latest')
-		eventlist = myfilter.get_all_entries()
-		partnershipRequestedList = []
-		for event in range(0, len(eventlist)) :
-			transactionhash = eventlist[event]['transactionHash']
-			transaction = self.mode.w3.eth.getTransaction(transactionhash)
-			partner = transaction['to']
-			partnershipRequestedList.append(partner)
-		return list(set(partnershipRequestedList)-set(self.partnershiplist))	
-	"""
 	
+	"""

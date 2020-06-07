@@ -111,7 +111,6 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 
 	
 def get_file(workspace_contract_from, private_key_from, workspace_contract_user, documentId, new_filename, mode) :
-	print('doc_id =', documentId)
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
 	(doctype, doctypeversion, expires, issuer, checksum, engine, ipfshash, encrypted, related) = contract.functions.getDocument(documentId).call()
@@ -216,6 +215,7 @@ class File() :
 		self.filename = data['filename']
 		self.new_filename = new_filename
 		self.doc_id = doc_id
+		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + self.identity_workspace_contract[2:] + ':document:' + str(doc_id)
 		
 		return
 		

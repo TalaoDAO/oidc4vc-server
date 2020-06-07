@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview &mdash; Talao Professional Identity Relay 0.2 documentation</title>
+  <title>Talent Connect APIs &mdash; Talao Professional Identity Relay 0.2 documentation</title>
   
 
   
@@ -102,12 +102,14 @@
 </ul>
 <p class="caption"><span class="caption-text">API:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#talent-connect">Talent Connect</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#erc735-interface">ERC735 Interface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#user">user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#topicname">topicname</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#option">option</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exemples">Exemples</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#restfull-api">RESTfull API</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="#internal">Internal</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#json">JSON</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#doctype">Doctype</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#kbis">Kbis</a></li>
@@ -164,7 +166,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Overview</li>
+      <li>Talent Connect APIs</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -183,359 +185,178 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>To be completed</p>
+  <div class="section" id="talent-connect-apis">
+<h1>Talent Connect APIs<a class="headerlink" href="#talent-connect-apis" title="Permalink to this headline">¶</a></h1>
+<p>The Talent Connect APIs are a set of APIs to get public data of a Professional Identity (Talent or Company) to eventually start an onboardind process.</p>
+<p>For companies it is an easy way to get reliable data about Talents.</p>
+<p>For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.</p>
+<p>Each parcel of data can be explored to get</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>issuer information, signature, name,</p></li>
+<li><p>date of creation and expiration,</p></li>
+<li><p>data location,</p></li>
+<li><p>proofs of validity.</p></li>
+</ul>
+</div></blockquote>
+<p>General use :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H &quot;Content-Type: application/json&quot; \
+-d user=......
+-d topicname=....
+-d option=....
+</pre></div>
 </div>
-<div class="section" id="talent-connect">
-<h1>Talent Connect<a class="headerlink" href="#talent-connect" title="Permalink to this headline">¶</a></h1>
-<p>The Talent Connect APIs are a set of APIs to manage sata exchange and onboardind process with Talents who have a Distributed Professional Identiy.
-It is an easy way for companies to get reliable data about their professional activities without downloading data to a centralized Database.</p>
-<p>Furthermore each parcel of data can be temperproofed through imutable transactions.</p>
-<div class="section" id="erc735-interface">
-<h2>ERC735 Interface<a class="headerlink" href="#erc735-interface" title="Permalink to this headline">¶</a></h2>
-<p>Those APIs are based on the EIP735 standard. They are build with topicnames according to an ascci to integer <a class="reference external" href="https://github.com/ethereum/EIPs/issues/735#issuecomment-450647097">translation</a>.
-Read more about the technical aspect on <a class="reference external" href="https://github.com/ethereum/EIPs/issues/735">EIP735</a>
-Username and Topicname must be provided.</p>
-<p>Exemple :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://192.168.0.34:3000/api/claim/  -d username=bnp -d topicname=name
+<div class="section" id="user">
+<h2>user<a class="headerlink" href="#user" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>a username (jean.pascalet,….)</p></li>
+<li><p>or a Decentalized IDentifiant (did:talao:rinkeby:did:talao:rinkebyD6679Be1FeDD66e9313b9358D89E521325e37683,…)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="topicname">
+<h2>topicname<a class="headerlink" href="#topicname" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>for a person : firstname, lastname, contact_email, contact_phone, birthdate, postal_address (self declared)</p></li>
+<li><p>for a company : name, contact_name, contact_phone, contact_email, website (self declared)</p></li>
+<li><p>resume : full resume of a user</p></li>
+<li><p>analysis : resume data analysis</p></li>
+<li><p>kyc or kbis (issued by third parties)</p></li>
+<li><p>experience : list of all experiences (self declaration)</p></li>
+<li><p>certificate : list of all certificates issued by third paries</p></li>
+<li><p>education : list of diplomas (self declaration)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="option">
+<h2>option<a class="headerlink" href="#option" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>to be completed</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="exemples">
+<h2>Exemples<a class="headerlink" href="#exemples" title="Permalink to this headline">¶</a></h2>
+<p>To get access to the “firstname” parcel of information of a Talent :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H &quot;Content-Type: application/json&quot; -d user=jean.pascalet -d topicname=firstname
 </pre></div>
 </div>
 <p>Return of call (JSON)</p>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">110097109101</span><span class="p">,</span>
-<span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-<span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-27 10:32:46&quot;</span><span class="p">,</span>
-<span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xb948f9d02c53c37b4da93d68bed1cbf9219f64e8094a642e32ac53c3b4cccc5f&quot;</span><span class="p">,</span>
+<span class="nt">&quot;topicvalue&quot;</span><span class="p">:</span> <span class="mi">102105114115116110097109101</span><span class="p">,</span>
+<span class="nt">&quot;topicname&quot;</span><span class="p">:</span> <span class="s2">&quot;firstname&quot;</span><span class="p">,</span>
+<span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 16:02:00&quot;</span><span class="p">,</span>
+<span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xf669fae0cbbf20e20e7d05ef0b089e20b77fc23ca9f1f0a1b8e4976efee6bdc3&quot;</span><span class="p">,</span>
 <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
   <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
   <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
   <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-  <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkebyD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;company&quot;</span><span class="p">,</span>
   <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
   <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
   <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
   <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
   <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
+  <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span>
 <span class="p">},</span>
-<span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">503392000000000</span><span class="p">,</span>
-<span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;dbbbd3f44051315cf3c7e5821570063265ef86fd370ae491a094dd42748ec1b5&quot;</span><span class="p">,</span>
+<span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
+<span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1be33b54289ed1cb918ea9327e1c79be80e55cfda6e830e3ffbb3c21f53b0c9d&quot;</span><span class="p">,</span>
 <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/&quot;</span><span class="p">,</span>
 <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
 <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x8AF132eEb947459Bc56FCc64Ae8c41f42F6AbA05&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4&quot;</span>
+  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkebyEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
 <span class="p">},</span>
-<span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;BNP&quot;</span>
+<span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;Jean&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Topicname standard list :</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>for a person : firstname, lastname, url, email</p></li>
-<li><p>for a company : name, contact_name, contact_phone, contact_email, website, email</p></li>
-</ul>
-</div></blockquote>
-<p>To get a full resume :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">3000</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">resume</span><span class="o">/</span>  <span class="o">-</span><span class="n">GET</span> <span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Content-Type: application/json&quot;</span> <span class="o">-</span><span class="n">d</span> <span class="n">username</span><span class="o">=</span><span class="n">jean</span><span class="o">.</span><span class="n">pascalet</span>
+<p>To get access to the kbis of a Company :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H &quot;Content-Type: application/json&quot; -d user=bnp -d topicname=kbis
 </pre></div>
 </div>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+<span class="nt">&quot;topic&quot;</span><span class="p">:</span> <span class="s2">&quot;kbis&quot;</span><span class="p">,</span>
+<span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-06-02 23:10:05&quot;</span><span class="p">,</span>
+<span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0xE7d045966ABf7cAdd026509fc485D1502b1843F1&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xfafDe7ae75c25d32ec064B804F9D83F24aB14341&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:fafDe7ae75c25d32ec064B804F9D83F24aB14341&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Talao&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Thierry Thevenet&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="s2">&quot;www.talao.io&quot;</span>
+<span class="p">},</span>
+<span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x05398cf146309d98df452f1859fe27001e4fb8ebf8bbd618fdb89bc4d0025450&quot;</span><span class="p">,</span>
+<span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
+<span class="nt">&quot;doctypeversion&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="nt">&quot;ipfshash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmQUjGw9U2ifze5PLb4Dpx5cdwRSXVGEGXTYE8mH7wP9SQ&quot;</span><span class="p">,</span>
+<span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gateway.ipfs.io/ipfs/QmQUjGw9U2ifze5PLb4Dpx5cdwRSXVGEGXTYE8mH7wP9SQ&quot;</span><span class="p">,</span>
+<span class="nt">&quot;expires&quot;</span><span class="p">:</span> <span class="s2">&quot;Unlimited&quot;</span><span class="p">,</span>
+<span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
+<span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4:document:1&quot;</span><span class="p">,</span>
+<span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x8AF132eEb947459Bc56FCc64Ae8c41f42F6AbA05&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4&quot;</span>
+<span class="p">},</span>
+<span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
+<span class="nt">&quot;siret&quot;</span><span class="p">:</span> <span class="s2">&quot;662 042 449 00014&quot;</span><span class="p">,</span>
+<span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;1966-09-23&quot;</span><span class="p">,</span>
+<span class="nt">&quot;capital&quot;</span><span class="p">:</span> <span class="s2">&quot;2 499 597 122 EUROS&quot;</span><span class="p">,</span>
+<span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;16 BOULEVARD DES ITALIENS, 75009 PARIS&quot;</span><span class="p">,</span>
+<span class="nt">&quot;legal_form&quot;</span><span class="p">:</span> <span class="s2">&quot;SA&quot;</span><span class="p">,</span>
+<span class="nt">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Servics financiers&quot;</span><span class="p">,</span>
+<span class="nt">&quot;naf&quot;</span><span class="p">:</span> <span class="s2">&quot;6419Z&quot;</span><span class="p">,</span>
+<span class="nt">&quot;ceo&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+<span class="nt">&quot;managing_director&quot;</span><span class="p">:</span> <span class="kc">null</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To get a full resume of a talent through his username :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H &quot;Content-Type: application/json&quot; -d user=jean.pascalet -d topicname=resume
+</pre></div>
+</div>
+<p>To get a full resume through Talent DID :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H &quot;Content-Type: application/json&quot; -d user=did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF -d topicname=resume
+</pre></div>
+</div>
+<p>To get an Analysis :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H &quot;Content-Type: application/json&quot; -d user=jean.pascalet -d topicname=analysis
+</pre></div>
+</div>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+<span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
 <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-<span class="nt">&quot;synchronous&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-<span class="nt">&quot;authenticated&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-<span class="nt">&quot;did&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-<span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-<span class="nt">&quot;personal&quot;</span><span class="p">:</span> <span class="p">{</span>
-  <span class="nt">&quot;firstname&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">102105114115116110097109101</span><span class="p">,</span>
-    <span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;firstname&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 16:02:00&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xf669fae0cbbf20e20e7d05ef0b089e20b77fc23ca9f1f0a1b8e4976efee6bdc3&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-    <span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1be33b54289ed1cb918ea9327e1c79be80e55cfda6e830e3ffbb3c21f53b0c9d&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;Jean&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;lastname&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">108097115116110097109101</span><span class="p">,</span>
-    <span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;lastname&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 10:42:00&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xbd2076918b614813684f2b9a40bc69b8add39830b4326f891e376e08cdaf051d&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-    <span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;f36fed1314df0a371e26ee654537a8cc3429af4cdb0bb85856b0d9bb4f52c4c8&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;Pascalet&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">99111110116097099116095101109097105108</span><span class="p">,</span>
-    <span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_email&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 16:43:30&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x8c8d7e08248be105c6431b3826ca091079814fb61f35f2cf60f708348756ddc8&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-    <span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;ba2071118d839a7ffac6278f94dd7bbc027d6e677313b88463b9c59f12ed9a7c&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmXymZBkpeDAAPxn1cUcKy6aW55HmaroLBn5PDHWMpu6Ns&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/QmXymZBkpeDAAPxn1cUcKy6aW55HmaroLBn5PDHWMpu6Ns&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;private&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;pascalet@talao.io&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">99111110116097099116095112104111110101</span><span class="p">,</span>
-    <span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_phone&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 16:02:45&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xc7ac7603bdc58f94be62fd3ba76d5571647aad674353f5a505cc0effc2de7b18&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-    <span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;30c0ff295b07d0ed47e8fd8495260d81efe0c21b85c21a03566caaa5c898bdfa&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmdchiBov3am9cLWZiP6yR1QGBjpXLKkPRPeAv6UoB8XK2&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/QmdchiBov3am9cLWZiP6yR1QGBjpXLKkPRPeAv6UoB8XK2&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;private&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;birthdate&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">98105114116104100097116101</span><span class="p">,</span>
-    <span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;birthdate&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 21:21:45&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x11900bd583f0d324a886af6abb730847c31c3b39a85d4cfb5f985ecd30d5a072&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-    <span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;c6f20e948ac612389d1e2bb82705197c5739a898197b5045e8e36e239034efcd&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmdzT27KrkauBwZJhSHjErhJhNGcn16wfbrAqbLpNYSJPq&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/QmdzT27KrkauBwZJhSHjErhJhNGcn16wfbrAqbLpNYSJPq&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;private&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;1980-06-11&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;postal_address&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;topic_value&quot;</span><span class="p">:</span> <span class="mi">112111115116097108095097100100114101115115</span><span class="p">,</span>
-    <span class="nt">&quot;topic_name&quot;</span><span class="p">:</span> <span class="s2">&quot;postal_address&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 21:22:00&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x9cd9f69d5fff467e0c07b024352f45abb23deb38884a874c4d207916a1070745&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-    <span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;dedf63f44a04a65bb22b6e53fdffd58a47d8f449f11dc4cf49749a378d94e5dc&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmY4VpRW1fgo4wboYnuSfKBQa1s9YR7hm1DKAqo5atoNnv&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/QmY4VpRW1fgo4wboYnuSfKBQa1s9YR7hm1DKAqo5atoNnv&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;private&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;112 rue des Tuilleries 28260 St Ouen Marchefroy,&quot;</span>
-  <span class="p">}</span>
-<span class="p">},</span>
-<span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
-<span class="nt">&quot;picture&quot;</span><span class="p">:</span> <span class="s2">&quot;QmcWvTjg2vtgeo6SBL5XXh8M8dn5RrUMS8yUMKzwwwD92b&quot;</span><span class="p">,</span>
-<span class="nt">&quot;file_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="mi">31</span><span class="p">,</span>
-  <span class="mi">34</span>
-<span class="p">],</span>
-<span class="nt">&quot;experience_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="mi">23</span>
-<span class="p">],</span>
-<span class="nt">&quot;education_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="mi">35</span>
-<span class="p">],</span>
-<span class="nt">&quot;other_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="mi">32</span>
-<span class="p">],</span>
-<span class="nt">&quot;kbis_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-
-<span class="p">],</span>
-<span class="nt">&quot;kyc_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-
-<span class="p">],</span>
-<span class="nt">&quot;certificate_list&quot;</span><span class="p">:</span> <span class="p">[</span>
-
-<span class="p">],</span>
-<span class="nt">&quot;identity_file&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:31&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;test.pdf&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">31</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-30 10:46:50&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;doctype&quot;</span><span class="p">:</span> <span class="mi">30000</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x0b24280928e203e765fd96566e92dc56291df2a93e6be386853993a965c4ca99&quot;</span>
-  <span class="p">},</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:34&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;certificate.json&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span>
-    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-31 18:56:50&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;doctype&quot;</span><span class="p">:</span> <span class="mi">30000</span><span class="p">,</span>
-    <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x3e95f3069bff5447231c11081addc0095874cd926410bff5577dc0549af84a1b&quot;</span>
-  <span class="p">}</span>
-<span class="p">],</span>
-<span class="nt">&quot;eventslist&quot;</span><span class="p">:</span> <span class="p">{</span>
-
-<span class="p">},</span>
-<span class="nt">&quot;partners&quot;</span><span class="p">:</span> <span class="p">[</span>
-
-<span class="p">],</span>
-<span class="nt">&quot;private_key&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-<span class="nt">&quot;rsa_key&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-<span class="nt">&quot;relay_activated&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
 <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;person&quot;</span><span class="p">,</span>
 <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Jean Pascalet&quot;</span><span class="p">,</span>
-<span class="nt">&quot;experience&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:23&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;CTO&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
-    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;En charge du projet Blockchain&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-01&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;company&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;basil@bnp.com&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;certificate_link&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;skills&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="s2">&quot;Java&quot;</span>
-    <span class="p">]</span>
-  <span class="p">}</span>
-<span class="p">],</span>
-<span class="nt">&quot;certificate&quot;</span><span class="p">:</span> <span class="p">[</span>
-
-<span class="p">],</span>
-<span class="nt">&quot;education&quot;</span><span class="p">:</span> <span class="p">[</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:35&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Javascript Course&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
-    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Javascript Course level 1 and level 2&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-02-01&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;organization&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Skill Value&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Pierre&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;pierre@skillvalue.com&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;certificate_link&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;skills&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="s2">&quot;Javascript&quot;</span>
-    <span class="p">]</span>
-  <span class="p">}</span>
-<span class="p">],</span>
-<span class="nt">&quot;kyc&quot;</span><span class="p">:</span> <span class="p">[</span>
-
-<span class="p">]</span>
+<span class="nt">&quot;nb_data&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="nt">&quot;nb_data_self_declared&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+<span class="nt">&quot;nb_data_whitelist_issuer&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="nt">&quot;nb_data_unknown_issuer&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="nt">&quot;kyc&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+<span class="nt">&quot;kbis&quot;</span><span class="p">:</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+<span class="nt">&quot;nb_experience&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="nt">&quot;nb_words_per_experience&quot;</span><span class="p">:</span> <span class="mf">33.5</span><span class="p">,</span>
+<span class="nt">&quot;nb_certificate&quot;</span><span class="p">:</span> <span class="mi">0</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="section" id="restfull-api">
-<h1>RESTfull API<a class="headerlink" href="#restfull-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="internal">
+<h1>Internal<a class="headerlink" href="#internal" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="json">
 <h2>JSON<a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h2>
 <p>JSON format is used to organized data within Talao Documents.</p>
@@ -619,12 +440,6 @@ Username and Topicname must be provided.</p>
 <div class="section" id="certificate">
 <h3>Certificate<a class="headerlink" href="#certificate" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
-<span class="nt">&quot;firstname&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean&quot;</span><span class="p">,</span>
-<span class="nt">&quot;lastname&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pascalet&quot;</span>
-<span class="s2">&quot;company&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;contact_email&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre@bnp.com&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Thales&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;contact_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;contact_phone&quot;</span> <span class="p">:</span> <span class="s2">&quot;0607254589&quot;</span><span class="p">},</span>
 <span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
 <span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
 <span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
@@ -636,7 +451,8 @@ Username and Topicname must be provided.</p>
 <span class="nt">&quot;score_communication&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
 <span class="nt">&quot;logo&quot;</span> <span class="p">:</span> <span class="s2">&quot;thales.png&quot;</span><span class="p">,</span>
 <span class="nt">&quot;signature&quot;</span> <span class="p">:</span> <span class="s2">&quot;permet.png&quot;</span><span class="p">,</span>
-<span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">}</span>
+<span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">,</span>
+<span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Paul Jacques&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>

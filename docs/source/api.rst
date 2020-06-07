@@ -1,82 +1,193 @@
-Overview
-========
 
-To be completed
+Talent Connect APIs
+===================
 
+The Talent Connect APIs are a set of APIs to get public data of a Professional Identity (Talent or Company) to eventually start an onboardind process.
 
-Talent Connect
-==============
+For companies it is an easy way to get reliable data about Talents. 
 
-The Talent Connect APIs are a set of APIs to manage sata exchange and onboardind process with Talents who have a Distributed Professional Identiy.
-It is an easy way for companies to get reliable data about their professional activities without downloading data to a centralized Database. 
+For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.
 
-Furthermore each parcel of data can be temperproofed through imutable transactions. 
+Each parcel of data can be explored to get
+
+  * issuer information, signature, name,
+  * date of creation and expiration,
+  * data location,
+  * proofs of validity. 
   
 
-ERC735 Interface
-----------------
-
-Those APIs are based on the EIP735 standard. They are build with topicnames according to an ascci to integer `translation <https://github.com/ethereum/EIPs/issues/735#issuecomment-450647097>`_.
-Read more about the technical aspect on `EIP735 <https://github.com/ethereum/EIPs/issues/735>`_
-Username and Topicname must be provided.
-
-Exemple :
+General use :
 
 .. code:: 
    
-   $ curl -GET http://192.168.0.34:3000/api/claim/  -d username=bnp -d topicname=name
+   $ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H "Content-Type: application/json" \
+   -d user=......
+   -d topicname=....
+   -d option=....
+   
+user 
+-----
+   
+   * a username (jean.pascalet,....)
+   * or a Decentalized IDentifiant (did:talao:rinkeby:did:talao:rinkebyD6679Be1FeDD66e9313b9358D89E521325e37683,...) 
+
+topicname
+---------
+
+   * for a person : firstname, lastname, contact_email, contact_phone, birthdate, postal_address (self declared)
+   * for a company : name, contact_name, contact_phone, contact_email, website (self declared)
+   * resume : full resume of a user
+   * analysis : resume data analysis
+   * kyc or kbis (issued by third parties)
+   * experience : list of all experiences (self declaration)
+   * certificate : list of all certificates issued by third paries
+   * education : list of diplomas (self declaration)
+    
+option
+------
+
+   * to be completed
+ 
+   
+Exemples
+---------
+   
+To get access to the "firstname" parcel of information of a Talent :
+
+.. code:: 
+   
+   $ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H "Content-Type: application/json" -d user=jean.pascalet -d topicname=firstname
 
 Return of call (JSON)
 
 .. code-block:: JSON
 
   {
-  "topic_value": 110097109101,
-  "topic_name": "name",
-  "created": "2020-05-27 10:32:46",
-  "transaction_hash": "0xb948f9d02c53c37b4da93d68bed1cbf9219f64e8094a642e32ac53c3b4cccc5f",
+  "topicvalue": 102105114115116110097109101,
+  "topicname": "firstname",
+  "created": "2020-05-26 16:02:00",
+  "transaction_hash": "0xf669fae0cbbf20e20e7d05ef0b089e20b77fc23ca9f1f0a1b8e4976efee6bdc3",
   "issuer": {
     "address": "0x18bD40F878927E74a807969Af2e3045170669c71",
     "workspace_contract": "0xD6679Be1FeDD66e9313b9358D89E521325e37683",
     "category": 2001,
-    "type": "Company",
+    "id": "did:talao:rinkebyD6679Be1FeDD66e9313b9358D89E521325e37683",
+    "type": "company",
     "username": "web.relay.talao",
     "name": "Relay",
     "contact_name": null,
     "contact_email": null,
     "contact_phone": null,
-    "website": null,
-    "email": "thierry.thevenet@talao.io"
+    "website": null
   },
-  "transaction_fee": 503392000000000,
-  "claim_id": "dbbbd3f44051315cf3c7e5821570063265ef86fd370ae491a094dd42748ec1b5",
+  "transaction_fee": 2000000000000,
+  "claim_id": "1be33b54289ed1cb918ea9327e1c79be80e55cfda6e830e3ffbb3c21f53b0c9d",
   "ipfs_hash": "",
   "data_location": "https://ipfs.infura.io/ipfs/",
   "privacy": "public",
   "identity": {
-    "address": "0x8AF132eEb947459Bc56FCc64Ae8c41f42F6AbA05",
-    "workspace_contract": "0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4"
+    "address": "0x048D19e72030a9D7a949517D5a9E3844b4533fc2",
+    "workspace_contract": "0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF",
+    "category": null,
+    "id": "did:talao:rinkebyEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF"
   },
-  "claim_value": "BNP"
+  "claim_value": "Jean"
+  }
+ 
+
+To get access to the kbis of a Company :
+
+.. code:: 
+   
+   $ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H "Content-Type: application/json" -d user=bnp -d topicname=kbis
+
+
+.. code-block:: JSON
+
+   {
+  "topic": "kbis",
+  "created": "2020-06-02 23:10:05",
+  "issuer": {
+    "address": "0xE7d045966ABf7cAdd026509fc485D1502b1843F1",
+    "workspace_contract": "0xfafDe7ae75c25d32ec064B804F9D83F24aB14341",
+    "category": 2001,
+    "id": "did:talao:rinkeby:fafDe7ae75c25d32ec064B804F9D83F24aB14341",
+    "name": "Talao",
+    "contact_name": "Thierry Thevenet",
+    "contact_email": "thierry.thevenet@talao.io",
+    "contact_phone": "0607182594",
+    "website": "www.talao.io"
+  },
+  "transaction_hash": "0x05398cf146309d98df452f1859fe27001e4fb8ebf8bbd618fdb89bc4d0025450",
+  "transaction_fee": 2000000000000,
+  "doctypeversion": 2,
+  "ipfshash": "QmQUjGw9U2ifze5PLb4Dpx5cdwRSXVGEGXTYE8mH7wP9SQ",
+  "data_location": "https://gateway.ipfs.io/ipfs/QmQUjGw9U2ifze5PLb4Dpx5cdwRSXVGEGXTYE8mH7wP9SQ",
+  "expires": "Unlimited",
+  "privacy": "public",
+  "doc_id": 1,
+  "id": "did:talao:rinkeby:4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4:document:1",
+  "identity": {
+    "address": "0x8AF132eEb947459Bc56FCc64Ae8c41f42F6AbA05",
+    "workspace_contract": "0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4",
+    "category": 2001,
+    "id": "did:talao:rinkeby:4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4"
+  },
+  "name": "BNP",
+  "siret": "662 042 449 00014",
+  "date": "1966-09-23",
+  "capital": "2 499 597 122 EUROS",
+  "address": "16 BOULEVARD DES ITALIENS, 75009 PARIS",
+  "legal_form": "SA",
+  "activity": "Servics financiers",
+  "naf": "6419Z",
+  "ceo": null,
+  "managing_director": null
   }
 
-Topicname standard list :
-
-	* for a person : firstname, lastname, url, email 
-	* for a company : name, contact_name, contact_phone, contact_email, website, email
-				
-
-To get a full resume :
+To get a full resume of a talent through his username :
 
 .. code:: 
 
-   $ curl http://127.0.0.1:3000/api/resume/  -GET -H "Content-Type: application/json" -d username=jean.pascalet
+   $ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H "Content-Type: application/json" -d user=jean.pascalet -d topicname=resume
+
+
+To get a full resume through Talent DID :
+
+.. code:: 
+
+   $ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H "Content-Type: application/json" -d user=did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF -d topicname=resume
+
+
+To get an Analysis :
+
+.. code:: 
+
+   $ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H "Content-Type: application/json" -d user=jean.pascalet -d topicname=analysis
+
+
+.. code-block:: JSON
+
+   {
+  "id": "did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF",
+  "workspace_contract": "0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF",
+  "type": "person",
+  "name": "Jean Pascalet",
+  "nb_data": 10,
+  "nb_data_self_declared": 9,
+  "nb_data_whitelist_issuer": 1,
+  "nb_data_unknown_issuer": 0,
+  "kyc": true,
+  "kbis": "N/A",
+  "nb_experience": 2,
+  "nb_words_per_experience": 33.5,
+  "nb_certificate": 0
+  }
 
 
 
-
-RESTfull API
-============
+Internal 
+=========
 
 JSON
 ----
@@ -152,12 +263,6 @@ ___________
 .. code-block:: JSON
 
 	{"type" : "experience",	
-	"firstname" : "Jean",
-	"lastname" : "Pascalet"
-	"company" : {"contact_email" : "Pierre@bnp.com",
-				"name" : "Thales",
-				"contact_name" : "Jean Dujardin",
-				"contact_phone" : "0607254589"},
 	"title" : "Chef de projet Blockchain",
 	"description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
 	"start_date" : "2018/02/22",

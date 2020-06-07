@@ -14,11 +14,6 @@ from base64 import b64encode, b64decode
 #dependances
 import constante
 
-def get_username(workspace_contract,mode) :
-	for a in mode.register  :
-		if mode.register[a].get('workspace_contract') == workspace_contract :
-			return  mode.register[a].get('username')
-	return None
 
 			
 def contracts_to_owners(workspace_contract, mode) :
@@ -63,16 +58,17 @@ def read_profil (workspace_contract, mode) :
 	# setup constante person
 	person= {'firstname' : 102105114115116110097109101,
 			'lastname' : 108097115116110097109101,
-			'url' : 117114108,
-			'email' : 101109097105108
+			'contact_email' : 99111110116097099116095101109097105108,
+			'contact_phone' : 101109097105108,
+			'postal_address' : 112111115116097108095097100100114101115115,
+			'birthdate' : 98105114116104100097116101,
 			}
 	# setup constant company
 	company = {'name' : 110097109101,
 				'contact_name' : 99111110116097099116095110097109101,
 				'contact_email' : 99111110116097099116095101109097105108,
 				'contact_phone' : 99111110116097099116095112104111110101,
-				'website' : 119101098115105116101,
-				'email' : 101109097105108
+				'website' : 119101098115105116101,			
 				}
 
 	profil = dict()
@@ -347,8 +343,8 @@ def delete_claim(address_from, workspace_contract_from, address_to, workspace_co
 		
 class Claim() :
 	def __init__(self,
-				topic_value=None,
-				topic_name=None,
+				topicvalue=None,
+				topicname=None,
 				created=None,
 				transaction_hash=None,
 				issuer = None,
@@ -361,8 +357,8 @@ class Claim() :
 				claim_value = None
 				) :		
 		
-		self.topic_value = topic_value
-		self.topic_name = topic_name
+		self.topicvalue = topicvalue
+		self.topicname = topicname
 		self.created = created
 		self.transaction_hash = transaction_hash
 		self.issuer = issuer
@@ -386,62 +382,76 @@ class Claim() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return  delete_claim(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, claim_id, mode)	
 	
-	def get_by_topic_name(self, identity_workspace_contract, topic_name, mode) :	
+	def get_by_topic_name(self, identity_workspace_contract, topicname, mode) :	
 		
-		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topic_value, created) = get_claim( identity_workspace_contract, topic_name, mode)
+		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim( identity_workspace_contract, topicname, mode)
 		if issuer_address is not None :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(profil, category) = read_profil(issuer_workspace_contract, mode)
+			(profil, issuer_category) = read_profil(issuer_workspace_contract, mode)
+			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :
 			issuer_workspace_contract = None
-			(profil, category) = (dict(), 1001) # pb
+			(profil, issuer_category, issuer_id) = (dict(), 0, None)
 		
 		self.created = created
-		self.topic_name = topic_name
-		self.topic_value = topic_value
+		self.topicname = topicname
 		self.claim_value = data
 		self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
-						'category' : category}
-		self.issuer['type'] = 'Person' if category == 1001 else 'Company'
-		self.issuer['username'] = get_username(issuer_workspace_contract, mode)
+						'category' : issuer_category,
+						'id' : issuer_id }
 		self.issuer.update(profil)
 		self.transaction_hash = transaction_hash
 		self.transaction_fee = transaction_fee
 		self.ipfs_hash = ipfs_hash
-		self.data_location = 'https://ipfs.infura.io/ipfs/'+ ipfs_hash
+		self.data_location = mode.BLOCKCHAIN if ipfs_hash == "" else 'https://gateway.ipfs.io/ipfs/' + ipfs_hash
 		self.privacy = privacy
 		self.claim_id = claim_id
+		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':claim:' + str(claim_id)
+		
+		contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
+		identity_category = contract.functions.identityInformation().call()[1]
+		
 		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
-								'workspace_contract' : identity_workspace_contract}
+								'workspace_contract' : identity_workspace_contract,
+								'category' : identity_category,
+								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
 		return 
 			
 	def get_by_id(self, identity_workspace_contract, claim_id, mode) :		
-		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topic_value, created) = get_claim_by_id(identity_workspace_contract, claim_id, mode)
+		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim_by_id(identity_workspace_contract, claim_id, mode)
 		if issuer_address is not None :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(profil, category) = read_profil(issuer_workspace_contract, mode)
+			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode)
+			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
+
 		else :
 			issuer_workspace_contract = None
-			(profil, category) = (dict(), 1001)
-		
+			(issuer_profil, issuer_category) = (dict(), 0)
+			issuer_id = None
+			
 		self.created = created
-		self.topic_name = topicvalue2topicname(topic_value)
-		self.topic_value = topic_value
+		self.topicname = topicvalue2topicname(self.topicvalue)
 		self.claim_value = data
 		self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
-						'category' : category}
-		self.issuer['type'] = 'Person' if category == 1001 else 'Company'
-		self.issuer['username'] = get_username(issuer_workspace_contract, mode)
-		self.issuer.update(profil)
+						'category' : category,
+						'id' : issuer_id}
+		self.issuer.update(issuer_profil)
 		self.transaction_hash = transaction_hash
 		self.transaction_fee = transaction_fee
 		self.ipfs_hash = ipfs_hash
-		self.data_location = 'https://ipfs.infura.io/ipfs/'+ ipfs_hash
+		self.data_location = mode.BLOCKCHAIN if ipfs_hash == "" else 'https://gateway.ipfs.io/ipfs/' + ipfs_hash
 		self.privacy = privacy
 		self.claim_id = claim_id
+		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':claim:' + str(claim_id)
+		
+		contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
+		category = contract.functions.identityInformation().call()[1]
+		
 		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
-								'workspace_contract' : identity_workspace_contract}
+								'workspace_contract' : identity_workspace_contract,
+								'category' : category,
+								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
 		return 
 	
