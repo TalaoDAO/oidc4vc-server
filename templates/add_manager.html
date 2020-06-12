@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->
 </head>
 
 <body id="page-top">
@@ -25,37 +24,29 @@
             <div id="content">
                
                
-                            {% include 'user_nav_bar.html' %}    
+               
+               
+                                           {% include 'company_nav_bar.html' %}    
 
-        
-        
-        
+               
         <div class="container-fluid">
             <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-xl-4">
+                <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Create a new Username</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Manager</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/add_access/" method="post">
+                            <form action="/user/add_manager/" method="post">
+                                <p>Allows you to give an acces to a new manager who will get the right to issue certificates an sign them on behalf of the company.<br><br>This manager MUST have his own Identity as a person to be added here. His signature
+                                    will be used for certification.<br><br></p>
+                                <div class="form-group"><label title="The Manager username of his own Identity"><strong>Identity Manager Username</strong><br></label>
+                                <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required="" title="The Manager username of his own Identity"  name="manager_username" pattern="[a-z0-9]"></div>
+                                <div class="form-group"><label title="wallet texte"><strong>Authentification Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" required="" name="manager_email" title="Email for authentification"></div>
+                                
                                 <div class="form-row">
-                                    <div class="col">
-                                        <p>Allows you to acces and manage your Identity through different Username and Email. You can for instance create a new access for each of your devices (Smartphone, PC,...) or for your customers...</p>
-                                        <div class="form-group"><label><strong>New Userame</strong><br></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="john.doe.smartphone, ..." required="" title="text pour acces username"
-                                                name="access_username"></div>
-                                        <div class="form-group"><label><strong>Authentification Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="Your email" required="" title="Text pour access email"
-                                                name="access_email"></div>
-									</div>
-                                </div>
-                                
-                                
-                              <!--  <div class="form-group">							
-									<button class="btn btn-primary btn-sm" type="submit">Add a new Access</button></div>
-									-->
-								<div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit"  value="send">Add an Access</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit"  value="send">Add</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
 										   <a href="/user/?username={{username}}">
@@ -63,11 +54,7 @@
 											</a>
                                     </div>
                                 </div>	
-									
-									
-									
-                            </form>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -75,11 +62,14 @@
     </div>
     </div>
     </div>
-    
-                       {% include 'user_footer.html' %}    
+    </div>
+   
+   
+                          {% include 'user_footer.html' %}    
 
     </div>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+   
+   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

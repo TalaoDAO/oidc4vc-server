@@ -6,14 +6,65 @@ from flask import request, Response
 import json
 
 # dependances
-from protocol import  username_to_data, getUsername
-from protocol import Identity, Claim, Experience, Kbis, Kyc, Certificate, Education
+from protocol import  username_to_data, getUsername, contractsToOwners, read_workspace_info
+from protocol import Identity, Claim, Document
 import environment
 import constante
 
 # environment setup
 mode=environment.currentMode()
 w3=mode.w3
+
+
+#@app.route('/api/talent-connect/auth/', methods = ['POST'])
+def auth() :
+	if request.authorization is None :
+		content = json.dumps({'username' : None, 'password' : None})
+		response = Response(content, status=401, mimetype='application/json')
+		return response
+	workspace_contract = request.authorization.get("username")
+	secret_received = request.authorization.get("password")
+
+	address = contractsToOwners(workspace_contract, mode)
+	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+	try :
+		fp = open(filename,"r")
+		rsa_key = fp.read()
+		fp.close()   
+	except IOError :
+		content = json.dumps({'topic' : 'error', 'msg' : 'Cannot verify login/secret'})
+		response = Response(content, status=406, mimetype='application/json')
+		return response
+	
+	(workspace_contract, category, email , secret, aes)  = read_workspace_info (address, rsa_key, mode) 
+	if secret_received != secret :
+		content = json.dumps({'topic' : 'error', 'msg' : 'Wrong secret'})
+		response = Response(content, status=401, mimetype='application/json')
+		return response
+	
+	data = request.get_json(silent=True)
+	
+	if data['action'] == 'call_back' :
+		pass
+		# send a message
+	elif data['action'] == 'do something' :
+		pass
+		# do something
+	
+	
+	
+	else :
+		content = json.dumps({'topic' : 'error', 'msg' : 'action '+ data['action'] +' is not implemented'})
+		response = Response(content, status=406, mimetype='application/json')
+		return response
+	
+	username =getUsername(workspace_contract, mode)
+	content = json.dumps({'User' : username, 'msg' : "ok"})
+	response = Response(content, status=200, mimetype='application/json')
+	return response
+    
+
+
 
 # Talent-Connect API
 #@app.route('/api/talent-connect/', methods = ['GET'])
@@ -47,7 +98,9 @@ def get() :
 		return response
 	
 	elif topicname == 'analysis' :
-		my_analysis = analysis(workspace_contract)
+		user = Identity(workspace_contract, mode)
+		resume = user.__dict__
+		my_analysis = analysis(workspace_contract, resume, mode)
 		content = json.dumps(my_analysis)
 		response = Response(content, status=200, mimetype='application/json')
 		return response
@@ -57,30 +110,10 @@ def get() :
 		user = Identity(workspace_contract, mode)
 		resume = user.__dict__
 		
-		if topicname == 'kyc' and len(resume.get('kyc', [])) != 0  :
-			content = json.dumps(resume['kyc'][0])
+		if len(resume.get(topicname, [])) != 0  :		
+			content = json.dumps(resume[topicname])
 			response = Response(content, status=200, mimetype='application/json')
 			return response
-		
-		if topicname == 'kbis' and len(resume.get('kbis',[])) != 0 :
-			content = json.dumps(resume['kbis'][0])
-			response = Response(content, status=200, mimetype='application/json')
-			return response
-
-		if topicname == 'experience' and len(resume.get('experience', [])) != 0 :
-			content = json.dumps(resume['experience'])
-			response = Response(content, status=200, mimetype='application/json')
-			return response
-	
-		if topicname == 'certificate' and len(resume.get('certificate', [])) != 0 :
-			content = json.dumps(resume['certificate'])
-			response = Response(content, status=200, mimetype='application/json')
-			return response
-			
-		if topicname == 'education' and len(resume.get('education', [])) != 0 :
-			content = json.dumps(resume['education'])
-			response = Response(content, status=200, mimetype='application/json')
-			return response	
 			
 		else :
 			content = json.dumps({'topic' : 'error', 'msg' : topicname +' not found'})
@@ -126,8 +159,8 @@ def get_resume(workspace_contract) :
 	return json_data
 
 
-def analysis(workspace_contract) :
-	
+def analysis(workspace_contract,resume, mode) :
+	""" external call available """
 	nb_issuer_none = 0 
 	nb_issuer_self_declared = 0
 	nb_issuer_is_relay = 0
@@ -135,7 +168,9 @@ def analysis(workspace_contract) :
 	nb_issuer_in_whitelist = 0
 	is_kbis = "N/A"
 	is_kyc = "N/A"
-	nb_doc_experience = 0
+	nb_doc_description = 0
+	nb_experience = 0
+	nb_certificate = 0
 	description = ""	
 	average_experience = 0
 	talao = '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'.lower()
@@ -145,8 +180,7 @@ def analysis(workspace_contract) :
 	doc_name = ['file', 'experience', 'education', 'kbis', 'kyc', 'certificate']
 	claim_name = ['name', 'firstname', 'lastname', 'contact_email', 'contact_phone', 'contact_name', 'birthdate', 'postal_address', 'website']
 
-	user = Identity(workspace_contract, mode)
-	resume = user.__dict__
+	
 
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
@@ -189,35 +223,19 @@ def analysis(workspace_contract) :
 	else :
 		is_kbis = True if len(resume['kbis']) != 0 else False
 
+	nb_experience = len(resume['experience'])
+	nb_certificate = len (resume['certificate'])
 	
 	if resume.get('experience') is not None :
-		for i in range(0, len(resume['experience'])) :
-			nb_doc_experience +=1	
-			description += resume['experience'][i]['description']			 
-			average_experience = len(description.split())/nb_doc_experience			
+		for exp in resume['experience'] :
+			nb_doc_description +=1	
+			description += exp['description']			 
+	if resume.get('certificate') is not None :
+		for cert in resume['certificate'] :
+			nb_doc_description +=1	
+			description += cert['description']			 
 	
-	
-	nb_certificate = len(resume.get('certificate'))	
-	
-	
-	
-	print('')
-	print('Resume of ', getUsername(workspace_contract, mode))
-	print(' ')
-	print('nombre de doc = ', nb_doc)	 
-	print('---------------------')
-	print('nombre de doc sans issuer = ' , nb_issuer_none)
-	print('nombre de doc self = ', nb_issuer_self_declared) 
-	print('nombre de doc whitlist = ', nb_issuer_in_whitelist)
-	print('nombre issuer unknown = ', nb_issuer_external)
-	print('----------------------')
-	print('Is there a kbis ', is_kbis)
-	print('Is there a kyc ', is_kyc)
-	print('----------------------')
-
-	print('There are', nb_doc_experience, 'experiences detailed')
-	print('Average nb of words per experience = ', average_experience)
-	print('There are ', nb_certificate, ' certificates')
+	average_description = len(description.split())/nb_doc_description		
 
 	my_analysis = {'topic' : 'analysis', 
 					'id' : 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:],
@@ -229,9 +247,9 @@ def analysis(workspace_contract) :
 					'nb_data_whitelist_issuer' : nb_issuer_in_whitelist,
 					'nb_data_unknown_issuer' : nb_issuer_external,
 					'kyc' : is_kyc,
-					'kbis' : is_kbis,
-					'nb_experience' : nb_doc_experience,
-					'nb_words_per_experience' : average_experience,
-					'nb_certificate' : nb_certificate}
+					'nb_description' : nb_doc_description,
+					'nb_words_per_description' : average_description,
+					'nb_certificate' : nb_certificate,
+					'nb_experience' : nb_experience }
 	return my_analysis				
 				

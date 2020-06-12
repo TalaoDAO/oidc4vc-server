@@ -10,7 +10,7 @@ import constante
 # address_to : key issuer
 # address_partner = key receiver
 
-def addkey(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner,purpose,mode, synchronous=True) :
+def add_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner,purpose,mode, synchronous=True) :
 		
 	w3 = mode.w3
 	

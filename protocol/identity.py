@@ -2,6 +2,8 @@
 A la creation, si les informatiosn ne sont pas données, l instance de classe va les chercher
 
 les signatures sont réalisée par le Relay
+uniquemet utilisé en lecture.
+
 
 """
 from datetime import datetime
@@ -11,15 +13,12 @@ from eth_account import Account
 import ipfshttpclient
 import os
 import csv 
-# dependances
-import constante
 
-from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, addclaim, partnershiprequest, whatisthisaddress
-from .Talao_token_transaction import  updateSelfclaims, savepictureProfile, getpicture, deleteDocument, deleteClaim, read_workspace_info
+import constante
+from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, get_image,  read_workspace_info
 from .nameservice import namehash, getUsername, updateName, data_from_publickey, username_to_data
-from .key import addkey
 from .claim import Claim
-from .document import Experience, Education, Kbis, Certificate, Kyc, read_profil
+from .document import Document, read_profil
 from .file import File
  
  
@@ -36,13 +35,20 @@ class Identity() :
 		self.address = contractsToOwners(self.workspace_contract,mode)
 				
 		#self.get_management_keys()
-		self.get_identity_personal()	
+		self.get_identity_personal()
 		
-		self.picture = getpicture(self.workspace_contract, self.mode)
+		#donload pictures on server
+		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
 		if self.picture is not None :
 			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 			client.get(self.picture)
-			os.system('mv '+ self.picture+' ' +'photos/'+self.picture)	
+			os.system('mv '+ self.picture + ' ' + 'photos/' + self.picture)	
+		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
+		if self.signature is not None :
+			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+			client.get(self.signature)
+			os.system('mv '+ self.signature + ' ' + 'photos/' + self.picture)	
+		
 		
 		self.get_all_documents()
 		
@@ -78,6 +84,7 @@ class Identity() :
 			self.get_identity_kbis()
 			
 		if self.category == 1001 :
+			self.profil_title = "" if self.personal['profil_title']['claim_value'] is None else self.personal['profil_title']['claim_value']
 			self.type = "person"
 			firstname = "" if self.personal['firstname']['claim_value'] is None else self.personal['firstname']['claim_value']
 			lastname = "" if self.personal['lastname']['claim_value'] is None else self.personal['lastname']['claim_value']
@@ -127,7 +134,7 @@ class Identity() :
 				transaction = self.mode.w3.eth.getTransaction(transactionhash)
 				issuer = transaction['from']
 				issuer_workspace_contract = ownersToContracts(issuer,self.mode)
-				profil, category = read_profil(issuer_workspace_contract, self.mode)
+				profil, category = read_profil(issuer_workspace_contract, self.mode, loading='light')
 				
 				if category == 1001:
 					firstname = "Unnknown" if profil['firstname'] is None else profil['firstname']					
@@ -195,22 +202,22 @@ class Identity() :
 		return True
 	
 	
-	# always available
+	# always available	
 	def get_white_keys(self) :
+		self.white_keys = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(5).call()
 		white_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = data_from_publickey(key[2].hex(), self.mode)
-			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
+			if issuer is None :
 				pass
 			else :	
-				white_keys.append({"address": issuer['address'],
+				self.white_keys.append({"address": issuer['address'],
 									"publickey": key[2].hex(),
 									"workspace_contract" : issuer['workspace_contract'],
 									'username' : issuer['username'] } )
-		self.white_keys = white_keys
 		return True
 		
 		
@@ -257,25 +264,21 @@ class Identity() :
 		# always available
 	def get_identity_personal(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)	
-		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address']
-		company = ['name','contact_name','contact_email','contact_phone','website',]
+		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education']
+		company = ['name','contact_name','contact_email','contact_phone','website', 'about']
 
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		self.category = contract.functions.identityInformation().call()[1]	
 		self.personal = dict()
 		
 		if self.category == 1001 : 
-			for topicname in person :
-				claim = Claim()
-				claim.get_by_topic_name(self.workspace_contract, topicname, self.mode)
-				self.personal[topicname] = claim.__dict__
-	
-		if self.category == 2001 : 
-			for topicname in company :
-				claim = Claim()
-				claim.get_by_topic_name(self.workspace_contract, topicname, self.mode)
-				self.personal[topicname] = claim.__dict__ 
-		
+			topiclist = person
+		if self.category == 2001 :
+			topiclist = company	
+		for topicname in topiclist :
+			claim = Claim()
+			claim.get_by_topic_name(self.workspace_contract, topicname, self.mode)
+			self.personal[topicname] = claim.__dict__
 		return True
 	
 	# always available
@@ -340,8 +343,8 @@ class Identity() :
 		self.kyc = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kyc_list  :
-			kyc = Kyc()
-			kyc.get_kyc(self.workspace_contract, doc_id, self.mode)
+			kyc = Document('kyc')
+			kyc.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
 			new_kyc = kyc.__dict__
 			self.kyc.append(new_kyc)
 		return True	
@@ -351,8 +354,8 @@ class Identity() :
 		self.certificate = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.certificate_list  :
-			certificate = Certificate()
-			certificate.get_certificate(self.workspace_contract, doc_id, self.mode)
+			certificate = Document('certificate')
+			certificate.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
 			new_certificate = certificate.__dict__
 			self.certificate.append(new_certificate)
 		return True	
@@ -362,8 +365,8 @@ class Identity() :
 		self.kbis = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kbis_list  :
-			kbis = Kbis()
-			kbis.get_kbis(self.workspace_contract, doc_id, self.mode)
+			kbis = Document('kbis')
+			kbis.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
 			new_kbis = kbis.__dict__
 			self.kbis.append(new_kbis)
 		return True	
@@ -373,8 +376,8 @@ class Identity() :
 		self.education = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.education_list  :
-			education = Education()
-			education.relay_get_education(self.workspace_contract, doc_id, self.mode)
+			education = Document('education')
+			education.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
 			new_education = education.__dict__
 			self.education.append(new_education)
 		return True	
@@ -384,8 +387,8 @@ class Identity() :
 		self.experience = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.experience_list  :
-			experience = Experience()
-			experience.relay_get_experience(self.workspace_contract, doc_id, self.mode)
+			experience = Document('experience')
+			experience.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
 			new_experience = experience.__dict__ 
 			self.experience.append(new_experience)
 		return True	
@@ -406,25 +409,6 @@ class Identity() :
 	def uploadPicture(self,picturefile) :
 		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	
 		return self.picture
-	
 
-	# update le username
-	def updateUsername(self, newusername) : 
-		return updateName(self.username, newusername, self.mode)
 	
 	
-	"""
-	# Key Management 
-	def addKey(self, address_partner, purpose) :
-		return addkey(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, address_partner,purpose,self.mode, synchronous=self.wait)	
-		
-	# Parnership management 	
-	def requestPartnership (self, workspace_contract_partner) : 
-		partnershiprequest(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key,workspace_contract_partner,self.mode, synchronous=self.wait)
-		return True
-	
-	def authorizePartnership (self, workspace_contract_partner) :
-		authorizepartnership(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key,workspace_contract_partner,self.mode, synchronous=self.wait) 
-		return True
-	
-	"""

@@ -53,7 +53,7 @@ def topicvalue2topicname(topic_value) :
 		word = word + letter
 	return word		
 
-def read_profil (workspace_contract, mode) :
+def read_profil (workspace_contract, mode, loading) :
 	w3=mode.w3
 	# setup constante person
 	person= {'firstname' : 102105114115116110097109101,
@@ -62,15 +62,27 @@ def read_profil (workspace_contract, mode) :
 			'contact_phone' : 101109097105108,
 			'postal_address' : 112111115116097108095097100100114101115115,
 			'birthdate' : 98105114116104100097116101,
+			'about' : 97098111117116,
+			'education' : 101100117099097116105111110,
+			'profil_title' : 112114111102105108095116105116108101
 			}
 	# setup constant company
 	company = {'name' : 110097109101,
 				'contact_name' : 99111110116097099116095110097109101,
 				'contact_email' : 99111110116097099116095101109097105108,
 				'contact_phone' : 99111110116097099116095112104111110101,
-				'website' : 119101098115105116101,			
+				'website' : 119101098115105116101,
+				'about' : 97098111117116,			
 				}
-
+	if loading != 'full' : 
+		person_topicnames = {'firstname' : 102105114115116110097109101,
+							'lastname' : 108097115116110097109101,
+							}
+			
+		# setup constant company
+		company_topicnames = {'name' : 110097109101,
+							}
+	
 	profil = dict()
 	# category
 	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -180,7 +192,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	for i in range(0, len(topicname))  :
 		a = str(ord(topicname[i]))
 		if int(a) < 100 :
-			a='0'+a
+			a='0'+ a
 		topicvaluestr = topicvaluestr + a
 	topic_value = int(topicvaluestr)
 	
@@ -228,6 +240,7 @@ def get_claim(identity_workspace_contract, topicname, mode) :
 	a = contract.functions.getClaimIdsByTopic(topic_value).call()
 	if len(a) == 0 :
 	 return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
+	
 	claim_id = a[-1].hex()
 	claim = contract.functions.getClaim(claim_id).call()
 	data = claim[4].decode('utf-8') 	# data public
@@ -382,12 +395,12 @@ class Claim() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return  delete_claim(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, claim_id, mode)	
 	
-	def get_by_topic_name(self, identity_workspace_contract, topicname, mode) :	
+	def get_by_topic_name(self, identity_workspace_contract, topicname, mode, loading='full') :	
 		
 		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim( identity_workspace_contract, topicname, mode)
 		if issuer_address is not None :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(profil, issuer_category) = read_profil(issuer_workspace_contract, mode)
+			(profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :
 			issuer_workspace_contract = None
@@ -418,11 +431,11 @@ class Claim() :
 								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
 		return 
 			
-	def get_by_id(self, identity_workspace_contract, claim_id, mode) :		
+	def get_by_id(self, identity_workspace_contract, claim_id, mode, loading='full') :		
 		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim_by_id(identity_workspace_contract, claim_id, mode)
 		if issuer_address is not None :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode)
+			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 
 		else :

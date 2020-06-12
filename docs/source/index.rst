@@ -29,6 +29,7 @@ Welcome to Talao's documentation!
    :maxdepth: 2
    :caption: How-To:
    
+   create_an_identity
    request_a_certificate
    proof_of_identity
 
@@ -36,8 +37,15 @@ Welcome to Talao's documentation!
   	
 .. toctree::
    :maxdepth: 2
-   :caption: API:
+   :caption: Talent Connect:
    
    api
+   
+ 	
+.. toctree::
+   :maxdepth: 2
+   :caption: Internal:
+   
+   internal
    
   

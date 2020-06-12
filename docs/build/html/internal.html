@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Internal &mdash; Talao Professional Identity Relay 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Talent Connect APIs" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Talao Professional Identity Relay
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contents.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="privacy.html">Privacy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume.html">Professional Identity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="starter.html">Starter Guide for Talents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="starter_company.html">Starter Guide for Companies</a></li>
+</ul>
+<p class="caption"><span class="caption-text">How-To:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="create_an_identity.html">Create an Identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_a_certificate.html">Request a Certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">Proof of Identity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Talent Connect:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Talent Connect APIs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Internal:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Internal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#name-service">Name Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#talao-keys">Talao Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#talao-documents">Talao Documents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#doctype">Doctype</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kbis">Kbis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kyc">Kyc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#certificate">Certificate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#experience">Experience</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#education">Education</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Talao Professional Identity Relay</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Internal</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/internal.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="internal">
+<h1>Internal<a class="headerlink" href="#internal" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name-service">
+<h2>Name Service<a class="headerlink" href="#name-service" title="Permalink to this headline">¶</a></h2>
+<p>Name Service (NS) is an independant routine to provide a readable identifier to DID.
+NS is supported by a Company Identity (nameservice) and claims issued within the Identity. Each user has a claim issued with a claim id calculated with his “namehash”.
+Namehash are deducted from username according to the <a class="reference external" href="https://docs.ens.domains/dapp-developer-guide/resolving-names">Ethereum Name Service algorithm</a> .</p>
+<p>Claim Id are defined with address = namehash and topic = 117115101114110097109101 (username) with SHA3.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">claim_id</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">solidityKeccak</span><span class="p">([</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;uint256&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">namehash</span><span class="p">,</span> <span class="mi">117115101114110097109101</span> <span class="p">])</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>claims data are stored on IPFS as a JSON :</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>{ &quot;namehash&#39; : namehash,
+      &#39;identity&quot; : { &quot;wokspace_contract&quot; : address,
+                              &quot;hosts&quot; :  [address],
+                              &quot;publickey&quot; : sha3_address,
+                              }
+ }
+</pre></div>
+</div>
+</div>
+<div class="section" id="talao-keys">
+<h2>Talao Keys<a class="headerlink" href="#talao-keys" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Keys</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Management Key, do everything</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Not used  (see ERC725)</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Issue Claims</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>Issuer White List</p></td>
+</tr>
+<tr class="row-even"><td><p>20002</p></td>
+<td><p>Issue Documents</p></td>
+</tr>
+<tr class="row-odd"><td><p>20003</p></td>
+<td><p>Member</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="talao-documents">
+<h2>Talao Documents<a class="headerlink" href="#talao-documents" title="Permalink to this headline">¶</a></h2>
+<p>JSON format is used to organized data within Talao Documents.</p>
+<p>Read more technical information on <a class="reference external" href="https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/content/Documents.sol">Talao Documents</a>.</p>
+<div class="section" id="doctype">
+<h3>Doctype<a class="headerlink" href="#doctype" title="Permalink to this headline">¶</a></h3>
+<p>One document is defined through is ‘doctype’ (int). A document can be <strong>Public</strong>, <strong>Private</strong> or <strong>Secret</strong>. By default most documents are Public.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>doctype</p></th>
+<th class="head"><p>Public</p></th>
+<th class="head"><p>Private</p></th>
+<th class="head"><p>Secret</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>kbis</p></td>
+<td><p>10000</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-odd"><td><p>kyc</p></td>
+<td><p>15000</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-even"><td><p>certificate</p></td>
+<td><p>20000</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-odd"><td><p>education</p></td>
+<td><p>40000</p></td>
+<td><p>40001</p></td>
+<td><p>40002</p></td>
+</tr>
+<tr class="row-even"><td><p>experience</p></td>
+<td><p>50000</p></td>
+<td><p>50001</p></td>
+<td><p>50002</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="kbis">
+<h3>Kbis<a class="headerlink" href="#kbis" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="nt">&quot;siret&quot;</span> <span class="p">:</span> <span class="s2">&quot;662 042 449 00014&quot;</span><span class="p">,</span>
+<span class="nt">&quot;date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1966-09-23&quot;</span><span class="p">,</span>
+<span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
+<span class="nt">&quot;legal_form&quot;</span> <span class="p">:</span> <span class="s2">&quot;SA&quot;</span><span class="p">,</span>
+<span class="nt">&quot;naf&quot;</span> <span class="p">:</span> <span class="s2">&quot;6419Z&quot;</span><span class="p">,</span>
+<span class="nt">&quot;capital&quot;</span> <span class="p">:</span> <span class="s2">&quot;2 499 597 122 EUROS&quot;</span><span class="p">,</span>
+<span class="nt">&quot;address&quot;</span> <span class="p">:</span> <span class="s2">&quot;16 BOULEVARD DES ITALIENS, 75009 PARIS&quot;</span><span class="p">,</span>
+<span class="nt">&quot;activity&quot;</span> <span class="p">:</span> <span class="s2">&quot;Servics financiers&quot;</span><span class="p">,</span>
+<span class="nt">&quot;ceo&quot;</span> <span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+<span class="nt">&quot;managing_director&quot;</span> <span class="p">:</span> <span class="kc">null</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="kyc">
+<h3>Kyc<a class="headerlink" href="#kyc" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;country&quot;</span> <span class="p">:</span> <span class="s2">&quot;FRA3&quot;</span><span class="p">,</span>
+<span class="nt">&quot;id&quot;</span> <span class="p">:</span> <span class="s2">&quot;15CA98225&quot;</span><span class="p">,</span>
+<span class="nt">&quot;lastname&quot;</span> <span class="p">:</span> <span class="s2">&quot;Houlle&quot;</span><span class="p">,</span>
+<span class="nt">&quot;firstname&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre david&quot;</span><span class="p">,</span>
+<span class="nt">&quot;sex&quot;</span> <span class="p">:</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span>
+<span class="nt">&quot;nationality&quot;</span> <span class="p">:</span> <span class="s2">&quot;Francaise&quot;</span><span class="p">,</span>
+<span class="nt">&quot;date_of_birth&quot;</span> <span class="p">:</span> <span class="s2">&quot;1980-1212&quot;</span><span class="p">,</span>
+<span class="nt">&quot;date_of_issue&quot;</span> <span class="p">:</span> <span class="s2">&quot;2012-02-13&quot;</span><span class="p">,</span>
+<span class="nt">&quot;date_of-expiration&quot;</span> <span class="p">:</span> <span class="s2">&quot;2022-02-12&quot;</span><span class="p">,</span>
+<span class="nt">&quot;authority&quot;</span> <span class="p">:</span> <span class="s2">&quot;Prefecture de Police de Paris&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="certificate">
+<h3>Certificate<a class="headerlink" href="#certificate" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
+<span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
+<span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
+<span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
+<span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2019/01/25&quot;</span><span class="p">,</span>
+<span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ethereum&quot;</span><span class="p">,</span> <span class="s2">&quot;Solidity&quot;</span><span class="p">],</span>
+<span class="nt">&quot;score_recommendation&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="nt">&quot;score_delivery&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+<span class="nt">&quot;score_schedule&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="nt">&quot;score_communication&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="nt">&quot;logo&quot;</span> <span class="p">:</span> <span class="s2">&quot;thales.png&quot;</span><span class="p">,</span>
+<span class="nt">&quot;signature&quot;</span> <span class="p">:</span> <span class="s2">&quot;permet.png&quot;</span><span class="p">,</span>
+<span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">,</span>
+<span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Paul Jacques&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="experience">
+<h3>Experience<a class="headerlink" href="#experience" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;company&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;contact_email&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre@bnp.com&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Thales&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;contact_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;contact_phone&quot;</span> <span class="p">:</span> <span class="s2">&quot;0607254589&quot;</span><span class="p">},</span>
+<span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
+<span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
+<span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
+<span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2019/01/25&quot;</span><span class="p">,</span>
+<span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ethereum&quot;</span><span class="p">,</span> <span class="s2">&quot;Solidity&quot;</span><span class="p">],</span>
+<span class="nt">&quot;certificate_link&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="education">
+<h3>Education<a class="headerlink" href="#education" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;organization&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;contact_email&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre@bnp.com&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Ensam&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;contact_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Meleze&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;contact_phone&quot;</span> <span class="p">:</span> <span class="s2">&quot;0607255656&quot;</span><span class="p">},</span>
+<span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Master Engineer&quot;</span><span class="p">,</span>
+<span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;General Study&quot;</span><span class="p">,</span>
+<span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1985/02/22&quot;</span><span class="p">,</span>
+<span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1988/01/25&quot;</span><span class="p">,</span>
+<span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[],</span>
+<span class="nt">&quot;certificate_link&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="api.html" class="btn btn-neutral float-left" title="Talent Connect APIs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Talao
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

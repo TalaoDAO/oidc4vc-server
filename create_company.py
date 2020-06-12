@@ -23,7 +23,7 @@ from eth_account.messages import encode_defunct
 
 
 # dependances
-from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, addkey, addName
+from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, addName
 import Talao_ipfs
 import constante
 import environment
@@ -66,7 +66,6 @@ def my_rand(n):
 
 
 def _creationworkspacefromscratch(email): 
-""" l email est crypté """
 
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
@@ -137,52 +136,42 @@ def _creationworkspacefromscratch(email):
 	return eth_a, eth_p, SECRET, workspace_contract_address, email, SECRET, AES_key
 
 
-##############################################################
-#             MAIN
-##############################################################
-# tous les claims sont signe par Talao qui cré les companies
+def create_company(email, username, mode) :
 
-# Ouverture du fichier d'archive Talao_Identity.csv
-fname= mode.BLOCKCHAIN +"_Talao_Identity.csv"
-identityfile = open(fname, "a")
-writer = csv.writer(identityfile)
+	# Ouverture du fichier d'archive Talao_Identity.csv
+	fname= mode.BLOCKCHAIN +"_Talao_Identity.csv"
+	identityfile = open(fname, "a")
+	writer = csv.writer(identityfile)
 
-# setup
-email = ""
-username = ""
-
-if username_to_data(username, mode) is not None :
-	print('username already used')
-	sys.exit(0)
+	if username_to_data(username, mode) is not None :
+		print('username already used')
+		return False
 	 
-# calcul du temps de process
-time_debut=datetime.now()
+	# calcul du temps de process
+	time_debut=datetime.now()
 
-# CREATION DU WORKSPACE MINIMUM
-email = company['profil']["contact"]['email'] # base pour la construction du registre de nameservice
-(address, private_key,password, workspace_contract, email, SECRET, AES_key)=_creationworkspacefromscratch(email)
+	# CREATION DU WORKSPACE MINIMUM
+	email = company['profil']["contact"]['email'] # base pour la construction du registre de nameservice
+	(address, private_key,password, workspace_contract, email, SECRET, AES_key)=_creationworkspacefromscratch(email)
 
-# management key (1) issued to Web Relay (agent)
-addkey(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
+	# management key (1) issued to Web Relay (agent)
+	addkey(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
 
+	# update Register
+	addName(username, address, workspace_contract, email, mode)
 
+	# calcul de la duree de transaction et du cout
+	time_fin=datetime.now()
+	time_delta=time_fin-time_debut
+	print('Durée des transactions = ', time_delta)
+	a=w3.eth.getBalance(address)
+	cost=0.06-a/1000000000000000000	
+	print('Cout des transactions =', cost)	
 
-# update Register
-addName(username, address, workspace_contract, email, mode)
+	# mise a jour du fichier archive Talao_Identity.csv
+	status="Compnay Identity createcompany.py"
+	writer.writerow(( datetime.today(), username, "", email, status, address, private_key, workspace_contract, "", email, SECRET, AES_key,cost) )
 
-# calcul de la duree de transaction et du cout
-time_fin=datetime.now()
-time_delta=time_fin-time_debut
-print('Durée des transactions = ', time_delta)
-a=w3.eth.getBalance(address)
-cost=0.06-a/1000000000000000000	
-print('Cout des transactions =', cost)	
-
-
-# mise a jour du fichier archive Talao_Identity.csv
-status="Compnay Identity createcompany.py"
-writer.writerow(( datetime.today(), username, "", email, status, address, private_key, workspace_contract, "", email, SECRET, AES_key,cost) )
-
-# fermeture des fichiers
-identityfile.close()
-sys.exit(0)
+	# fermeture des fichiers
+	identityfile.close()
+	return True

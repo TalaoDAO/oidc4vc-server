@@ -36,22 +36,35 @@ def owners_to_contracts(address, mode) :
 	return contract.functions.ownersToContracts(address).call()
 	
 
-def read_profil (workspace_contract, mode) :
+def read_profil (workspace_contract, mode, loading) :
 	w3 = mode.w3
 	# setup constante person
 	person_topicnames = {'firstname' : 102105114115116110097109101,
-			'lastname' : 108097115116110097109101,
-			'contact_email' : 99111110116097099116095101109097105108,
-			'contact_phone' : 101109097105108,
-			'postal_address' : 112111115116097108095097100100114101115115,
-			'birthdate' : 98105114116104100097116101}
+						'lastname' : 108097115116110097109101,
+						'contact_email' : 99111110116097099116095101109097105108,
+						'contact_phone' : 101109097105108,
+						'postal_address' : 112111115116097108095097100100114101115115,
+						'birthdate' : 98105114116104100097116101,
+						'about' : 97098111117116,
+						'education' : 101100117099097116105111110,
+						'profil_title' : 112114111102105108095116105116108101}
 			
 	# setup constant company
 	company_topicnames = {'name' : 110097109101,
-				'contact_name' : 99111110116097099116095110097109101,
-				'contact_email' : 99111110116097099116095101109097105108,
-				'contact_phone' : 99111110116097099116095112104111110101,
-				'website' : 119101098115105116101,}
+						'contact_name' : 99111110116097099116095110097109101,
+						'contact_email' : 99111110116097099116095101109097105108,
+						'contact_phone' : 99111110116097099116095112104111110101,
+						'website' : 119101098115105116101,
+						'about' : 97098111117116,}
+
+	if loading != 'full' : 
+		person_topicnames = {'firstname' : 102105114115116110097109101,
+							'lastname' : 108097115116110097109101,
+							}
+			
+		# setup constant company
+		company_topicnames = {'name' : 110097109101,
+							}
 
 	profil = dict()
 	# category
@@ -126,8 +139,6 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	# stocke sur ipfs les data attention on archive des bytes
 	ipfs_hash = ipfs_add(data)
 	
-	
-	
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
@@ -151,22 +162,13 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	
 	
 def get_document(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
+	
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
 	try :
 		(doctype, doctypeversion, expires, issuer, checksum, engine, ipfshash, encrypted, related) = contract.functions.getDocument(documentId).call()
 	except :
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
-	
-	"""
-	50000..... for experience
-	30000..... for files (not managed here)
-	40000..... for education
-	10000..... for kbis
-	15000......for kyc
-	20000......for certificate
-	experience and education should be always public but in case ....
-	"""
 	
 	if doctype in [50000,40000,10000,15000,20000] :
 		privacy = 'public'
@@ -206,11 +208,10 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	if privacy  == 'public' :
 		return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 	
-	if encrypted != 'public' and private_key_from == None : 
+	if encrypted != 'public' and private_key_from is None : 
 		print ("document is  encrypted and no keys has been given ")
-		return None
-	
-	
+		return None, None, None, None, None, None, None, None, None, None, None , None, None
+
 	#recuperer la cle AES cryptée
 		contract = w3.eth.contract(workspace_contract_user,abi = constante.workspace_ABI)
 		mydata = contract.functions.identityInformation().call()
@@ -222,9 +223,13 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	# read la cle privee RSA sur le fichier
 	address_user = contracts_to_owners(workspace_contract_user, mode)
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_from+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	with open(filename,"r") as fp :
-		rsa_key=fp.read()	
-		fp.close()   
+	try :
+		fp = open(filename,"r")
+		rsa_key = fp.read()
+		fp.close()  
+	except IOError :
+		print ("RSA key file not found")
+		return None, None, None, None, None, None, None, None, None, None, None , None, None	
 					
 	# decoder ma cle AES128 cryptée avec ma cle RSA privée
 	key = RSA.importKey(rsa_key)
@@ -243,9 +248,9 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		return issuer, identity_workspace_contract, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
 			
 	except ValueError :
-		print("data Decryption error")
-		return None
-	
+		print("Data Decryption error")
+		return None, None, None, None, None, None, None, None, None, None, None , None, None
+
 				
 def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
 	w3 = mode.w3
@@ -272,185 +277,69 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 class Document() :
 	def __init__(self, topic) :		
 		self.topic = topic
+		""" Only public data """
+		if self.topic == 'education' :
+			self.doctype = 40000
+		if self.topic == 'experience' :
+			self.doctype = 50000		
+		if self.topic == 'kbis' :
+			self.doctype = 10000
+		if self.topic == 'kyc' :
+			self.doctype = 15000
+		if self.topic == 'certificate' :
+			self.doctype = 20000
+							
+	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True) :			 			
+		return create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous)
 							
 	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
-		""" Only public data """
-		if self.topic == 'education' :
-			doctype = 40000
-		if self.topic == 'experience' :
-			doctype = 50000		
-		if self.topic == 'kbis' :
-			doctype = 10000
-		if self.topic == 'kyc' :
-			doctype = 15000
-		if self.topic == 'certificate' :
-			doctype = 20000
-						 			
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doctype, data, mydays, privacy, mode, synchronous)
+		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
 	
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
-		""" Only public data """
-		if self.topic == 'education' :
-			doctype = 40000
-		if self.topic == 'experience' :
-			doctype = 50000		
-		if self.topic == 'kbis' :
-			doctype = 10000
-		if self.topic == 'kyc' :
-			doctype = 15000
-		if self.topic == 'certificate' :
-			doctype = 20000
-						 			
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, doctype, data, mydays, privacy, mode, synchronous)
+		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
 	
-	
-	def relay_get(self, identity_workspace_contract, doc_id, mode) :	
+	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :	
 		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 		
-		if issuer_address is not None :
+		if issuer_address is None :
+			return False
+		else :	
+			self.__dict__.update(data)
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode)
+			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
-		else :
-			issuer_workspace_contract = None
-			(issuer_profil, issuer_category, issuer_id) = (dict(), 0, None)
-	
-		self.created = created
-		self.issuer = {'address' : issuer_address,
+		
+			self.created = created
+			self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : issuer_category,
 						'id' : issuer_id}
-		self.issuer.update(issuer_profil)
-		self.transaction_hash = transaction_hash
-		self.transaction_fee = transaction_fee
-		self.doctypeversion = doctypeversion
-		self.ipfshash = ipfshash
-		self.data_location = 'https://gateway.ipfs.io/ipfs/'+ ipfshash
-		self.expires = expires
-		self.privacy = privacy
-		self.doc_id = doc_id
-		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
+			self.issuer.update(issuer_profil)
+			self.transaction_hash = transaction_hash
+			self.transaction_fee = transaction_fee
+			self.doctypeversion = doctypeversion
+			self.ipfshash = ipfshash
+			self.data_location = 'https://gateway.ipfs.io/ipfs/'+ ipfshash
+			self.expires = expires
+			self.privacy = privacy
+			self.doc_id = doc_id
+			self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
 		
-		contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
-		identity_category = contract.functions.identityInformation().call()[1]
+			contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
+			identity_category = contract.functions.identityInformation().call()[1]
 		
-		self.identity= {'address' : contracts_to_owners(identity_workspace_contract, mode),
+			self.identity= {'address' : contracts_to_owners(identity_workspace_contract, mode),
 						'workspace_contract' : identity_workspace_contract,
 						'category' : identity_category,
 						'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] }
-		self.transaction_fee = transaction_fee
-		return data
+			self.transaction_fee = transaction_fee
+			
+		return True
+
 			
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return delete_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)
 	
-
-
-class Education(Document) :
-	def __init__(self) :		
-		Document.__init__(self, 'education')
-		
-	def relay_get_education(self, identity_workspace_contract, doc_id, mode) :
-		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
-		if data is None :
-			return False
-		self.topic = "education"
-		self.title = data['title']
-		self.description = data['description']
-		self.end_date = data['end_date']
-		self.start_date = data['start_date']
-		self.organization = data['organization']
-		self.certificate_link = data.get('certificate_link', "") # a retirer
-		self.skills = data['skills']
-		return True
-		
-class Experience(Document) :
-	def __init__(self) :	
-		Document.__init__(self, 'experience')	
-		
-	def relay_get_experience(self, identity_workspace_contract, doc_id, mode) :
-		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
-		if data is None :
-			return False
-		self.topic = "experience"
-		self.title = data['title']
-		self.description = data['description']
-		self.end_date = data['end_date']
-		self.start_date = data['start_date']
-		self.company = data['company']
-		self.certificate_link = data.get('certificate_link', "") # a retirer
-		self.skills = data['skills']
-		return True
-		
-class Kbis(Document) :	
-	def __init__(self) :	
-		Document.__init__(self, 'kbis')	
-
-	def get_kbis(self, identity_workspace_contract, doc_id, mode) :
-		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
-		if data is None :
-			return False
-		self.topic = "kbis"
-		self.name = data['name']
-		self.siret = data['siret']
-		self.date = data['date']
-		self.capital = data['capital']
-		self.address = data['address']
-		self.legal_form = data['legal_form']
-		self.activity = data['activity'] 
-		self.naf = data['naf']
-		self.ceo = data['ceo']
-		self.managing_director = data['managing_director']
-		return True
-
-		
-class Kyc(Document) :	
-	def __init__(self) :	
-		Document.__init__(self, 'kyc')	
-	
-	def get_kyc(self, identity_workspace_contract, doc_id, mode) :
-		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
-		if data is None :
-			return False
-		self.topic = "kyc"
-		self.lastname = data['lastname']
-		self.firstname = data['firstname']
-		self.birthdate = data['birthdate']
-		self.sex = data['sex']
-		self.nationality = data['nationality']
-		self.date_of_issue = data['date_of_issue']
-		self.date_of_expiration = data['date_of_expiration'] 
-		self.authority = data['authority']
-		self.country = data['country']
-		self.id = data['id']
-		return True
-	
-
-		
-class Certificate(Document) :	
-	def __init__(self) :	
-		Document.__init__(self, 'certificate')	
-		
-	def get_certificate(self, identity_workspace_contract, doc_id, mode) :
-		data = Document.relay_get(self, identity_workspace_contract, doc_id, mode)
-		if data is None :
-			return False
-		self.topic = "certificate"
-		self.type = data['type']
-		self.title = data['title']
-		self.description = data['description']
-		self.start_date = data['start_date']
-		self.end_date = data['end_date']
-		self.skills = data['skills'] 
-		self.score_delivery = data['score_delievery']
-		self.score_recommendation = data['score_recommendation']
-		self.score_schedule = data['score_schedule']
-		self.score_communication = data['score_communication']
-		self.logo = data['logo']
-		self.signature = data['signature']
-		self.reviewer = data['reviewer']
-		self.manager = data['manager']		
-		return True

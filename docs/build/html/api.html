@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Internal" href="internal.html" />
     <link rel="prev" title="How To Get a Proof of Identity" href="proof_of_identity.html" /> 
 </head>
 
@@ -100,27 +101,31 @@
 <li class="toctree-l1"><a class="reference internal" href="request_a_certificate.html">How To Request a Certificate</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">How To Get a Proof of Identity</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API:</span></p>
+<p class="caption"><span class="caption-text">Talent Connect:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect APIs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#user">user</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#topicname">topicname</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#option">option</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#exemples">Exemples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-request-and-response">Data Request and Response</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-request">General Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#header">Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#payload">Payload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#response">Response</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#internal">Internal</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#json">JSON</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#doctype">Doctype</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#kbis">Kbis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#kyc">Kyc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#certificate">Certificate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#experience">Experience</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#education">Education</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exchange-data-with-user">Exchange data with User</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">General Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authentification">Authentification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Payload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Example</a></li>
 </ul>
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption"><span class="caption-text">Internal:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
 </ul>
 
             
@@ -199,24 +204,32 @@
 <li><p>proofs of validity.</p></li>
 </ul>
 </div></blockquote>
-<p>General use :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H &quot;Content-Type: application/json&quot; \
--d user=......
--d topicname=....
--d option=....
+<div class="section" id="data-request-and-response">
+<h2>Data Request and Response<a class="headerlink" href="#data-request-and-response" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="general-request">
+<h3>General Request<a class="headerlink" href="#general-request" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span>
 </pre></div>
 </div>
-<div class="section" id="user">
-<h2>user<a class="headerlink" href="#user" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="header">
+<h3>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Content-Type: application/json&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="payload">
+<h3>Payload<a class="headerlink" href="#payload" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul>
+<li><p>user</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>a username (jean.pascalet,….)</p></li>
-<li><p>or a Decentalized IDentifiant (did:talao:rinkeby:did:talao:rinkebyD6679Be1FeDD66e9313b9358D89E521325e37683,…)</p></li>
+<li><p>a username or a Decentalized IDentifiant</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="topicname">
-<h2>topicname<a class="headerlink" href="#topicname" title="Permalink to this headline">¶</a></h2>
+</li>
+<li><p>topicname</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>for a person : firstname, lastname, contact_email, contact_phone, birthdate, postal_address (self declared)</p></li>
@@ -227,262 +240,172 @@
 <li><p>experience : list of all experiences (self declaration)</p></li>
 <li><p>certificate : list of all certificates issued by third paries</p></li>
 <li><p>education : list of diplomas (self declaration)</p></li>
+<li><p>search : (to be completed)</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="option">
-<h2>option<a class="headerlink" href="#option" title="Permalink to this headline">¶</a></h2>
+</li>
+<li><p>option (optional)</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>to be completed</p></li>
 </ul>
 </div></blockquote>
+</li>
+</ul>
+</div></blockquote>
 </div>
-<div class="section" id="exemples">
-<h2>Exemples<a class="headerlink" href="#exemples" title="Permalink to this headline">¶</a></h2>
-<p>To get access to the “firstname” parcel of information of a Talent :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H &quot;Content-Type: application/json&quot; -d user=jean.pascalet -d topicname=firstname
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ \
+-H &quot;Content-Type: application/json&quot; \
+-d user=jean.pascalet \
+-d topicname=experience
 </pre></div>
 </div>
-<p>Return of call (JSON)</p>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="nt">&quot;topicvalue&quot;</span><span class="p">:</span> <span class="mi">102105114115116110097109101</span><span class="p">,</span>
-<span class="nt">&quot;topicname&quot;</span><span class="p">:</span> <span class="s2">&quot;firstname&quot;</span><span class="p">,</span>
-<span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-26 16:02:00&quot;</span><span class="p">,</span>
-<span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xf669fae0cbbf20e20e7d05ef0b089e20b77fc23ca9f1f0a1b8e4976efee6bdc3&quot;</span><span class="p">,</span>
-<span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkebyD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;company&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;web.relay.talao&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span>
+</div>
+<div class="section" id="response">
+<h3>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="p">{</span>
+  <span class="nt">&quot;topic&quot;</span><span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-25 10:07:22&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:D6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x49dc98ad487a33a4e066e8e05758870e7972466c5e74c261ea5b4ebe091003de&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
+  <span class="nt">&quot;doctypeversion&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="nt">&quot;ipfshash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmThxo5shaJSDCYZprXzwknqgCoPja5rUW3528qNFHCKft&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gateway.ipfs.io/ipfs/QmThxo5shaJSDCYZprXzwknqgCoPja5rUW3528qNFHCKft&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;expires&quot;</span><span class="p">:</span> <span class="s2">&quot;Unlimited&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:23&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;CTO&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;En charge du projet Blockchain&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-01&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;company&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;basil@bnp.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="kc">null</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;certificate_link&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&quot;skills&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;Java&quot;</span>
+  <span class="p">]</span>
 <span class="p">},</span>
-<span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-<span class="nt">&quot;claim_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1be33b54289ed1cb918ea9327e1c79be80e55cfda6e830e3ffbb3c21f53b0c9d&quot;</span><span class="p">,</span>
-<span class="nt">&quot;ipfs_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ipfs.infura.io/ipfs/&quot;</span><span class="p">,</span>
-<span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-<span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkebyEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-<span class="p">},</span>
-<span class="nt">&quot;claim_value&quot;</span><span class="p">:</span> <span class="s2">&quot;Jean&quot;</span>
+<span class="p">{</span>
+  <span class="nt">&quot;topic&quot;</span><span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-06-06 18:54:35&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:D6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xb3c181a2490ebf9a18e875cbb47e14041c5f7a34854cd8e9ca9f2016d092696c&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
+  <span class="nt">&quot;doctypeversion&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="nt">&quot;ipfshash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmdWCKBVybPRQvWmY7hAbkRHFRXvvPPqKAi8ieZBm2WtEd&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gateway.ipfs.io/ipfs/QmdWCKBVybPRQvWmY7hAbkRHFRXvvPPqKAi8ieZBm2WtEd&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;expires&quot;</span><span class="p">:</span> <span class="s2">&quot;Unlimited&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:36&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;CTO&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;We are working to deliver software solutions and consulting services to businesses worldwide, and help our clients to create innovative and technological products in various areas.\r\n\r\nInnowise Group team is divided into several departments and structural units responsible for certain areas of company\u2019s activities.\r\nSeamless collaboration between all of them on a daily basis helps us achieve short term objectives and strategic goals.&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-11-01&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-07-01&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;company&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;pierre@bnp.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Pierre&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;01 607182594&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Covea&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;certificate_link&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;skills&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;Business&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Management,&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;consulting&quot;</span>
+  <span class="p">]</span>
 <span class="p">}</span>
-</pre></div>
-</div>
-<p>To get access to the kbis of a Company :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ -H &quot;Content-Type: application/json&quot; -d user=bnp -d topicname=kbis
-</pre></div>
-</div>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
-<span class="nt">&quot;topic&quot;</span><span class="p">:</span> <span class="s2">&quot;kbis&quot;</span><span class="p">,</span>
-<span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-06-02 23:10:05&quot;</span><span class="p">,</span>
-<span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0xE7d045966ABf7cAdd026509fc485D1502b1843F1&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xfafDe7ae75c25d32ec064B804F9D83F24aB14341&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:fafDe7ae75c25d32ec064B804F9D83F24aB14341&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Talao&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Thierry Thevenet&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="s2">&quot;www.talao.io&quot;</span>
-<span class="p">},</span>
-<span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x05398cf146309d98df452f1859fe27001e4fb8ebf8bbd618fdb89bc4d0025450&quot;</span><span class="p">,</span>
-<span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-<span class="nt">&quot;doctypeversion&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-<span class="nt">&quot;ipfshash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmQUjGw9U2ifze5PLb4Dpx5cdwRSXVGEGXTYE8mH7wP9SQ&quot;</span><span class="p">,</span>
-<span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gateway.ipfs.io/ipfs/QmQUjGw9U2ifze5PLb4Dpx5cdwRSXVGEGXTYE8mH7wP9SQ&quot;</span><span class="p">,</span>
-<span class="nt">&quot;expires&quot;</span><span class="p">:</span> <span class="s2">&quot;Unlimited&quot;</span><span class="p">,</span>
-<span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-<span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-<span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4:document:1&quot;</span><span class="p">,</span>
-<span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-  <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x8AF132eEb947459Bc56FCc64Ae8c41f42F6AbA05&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4&quot;</span>
-<span class="p">},</span>
-<span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
-<span class="nt">&quot;siret&quot;</span><span class="p">:</span> <span class="s2">&quot;662 042 449 00014&quot;</span><span class="p">,</span>
-<span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;1966-09-23&quot;</span><span class="p">,</span>
-<span class="nt">&quot;capital&quot;</span><span class="p">:</span> <span class="s2">&quot;2 499 597 122 EUROS&quot;</span><span class="p">,</span>
-<span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;16 BOULEVARD DES ITALIENS, 75009 PARIS&quot;</span><span class="p">,</span>
-<span class="nt">&quot;legal_form&quot;</span><span class="p">:</span> <span class="s2">&quot;SA&quot;</span><span class="p">,</span>
-<span class="nt">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Servics financiers&quot;</span><span class="p">,</span>
-<span class="nt">&quot;naf&quot;</span><span class="p">:</span> <span class="s2">&quot;6419Z&quot;</span><span class="p">,</span>
-<span class="nt">&quot;ceo&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-<span class="nt">&quot;managing_director&quot;</span><span class="p">:</span> <span class="kc">null</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>To get a full resume of a talent through his username :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H &quot;Content-Type: application/json&quot; -d user=jean.pascalet -d topicname=resume
-</pre></div>
-</div>
-<p>To get a full resume through Talent DID :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H &quot;Content-Type: application/json&quot; -d user=did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF -d topicname=resume
-</pre></div>
-</div>
-<p>To get an Analysis :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl http://talao.co:5000/api/v1/talent-connect/  -GET -H &quot;Content-Type: application/json&quot; -d user=jean.pascalet -d topicname=analysis
-</pre></div>
-</div>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
-<span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-<span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-<span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;person&quot;</span><span class="p">,</span>
-<span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Jean Pascalet&quot;</span><span class="p">,</span>
-<span class="nt">&quot;nb_data&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
-<span class="nt">&quot;nb_data_self_declared&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
-<span class="nt">&quot;nb_data_whitelist_issuer&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-<span class="nt">&quot;nb_data_unknown_issuer&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<span class="nt">&quot;kyc&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-<span class="nt">&quot;kbis&quot;</span><span class="p">:</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
-<span class="nt">&quot;nb_experience&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-<span class="nt">&quot;nb_words_per_experience&quot;</span><span class="p">:</span> <span class="mf">33.5</span><span class="p">,</span>
-<span class="nt">&quot;nb_certificate&quot;</span><span class="p">:</span> <span class="mi">0</span>
-<span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="section" id="internal">
-<h1>Internal<a class="headerlink" href="#internal" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="json">
-<h2>JSON<a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h2>
-<p>JSON format is used to organized data within Talao Documents.</p>
-<p>Read more technical information on <a class="reference external" href="https://github.com/TalaoDAO/talao-contracts/blob/master/contracts/content/Documents.sol">Talao Documents</a>.</p>
-<div class="section" id="doctype">
-<h3>Doctype<a class="headerlink" href="#doctype" title="Permalink to this headline">¶</a></h3>
-<p>One document is defined through is ‘doctype’ (int). A document can be <strong>Public</strong>, <strong>Private</strong> or <strong>Secret</strong>. By default most documents are Public.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 38%" />
-<col style="width: 21%" />
-<col style="width: 21%" />
-<col style="width: 21%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>doctype</p></th>
-<th class="head"><p>Public</p></th>
-<th class="head"><p>Private</p></th>
-<th class="head"><p>Secret</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>kbis</p></td>
-<td><p>10000</p></td>
-<td><p>N/A</p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-odd"><td><p>kyc</p></td>
-<td><p>15000</p></td>
-<td><p>N/A</p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-even"><td><p>certificate</p></td>
-<td><p>20000</p></td>
-<td><p>N/A</p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-odd"><td><p>education</p></td>
-<td><p>40000</p></td>
-<td><p>40001</p></td>
-<td><p>40002</p></td>
-</tr>
-<tr class="row-even"><td><p>experience</p></td>
-<td><p>50000</p></td>
-<td><p>50001</p></td>
-<td><p>50002</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="kbis">
-<h3>Kbis<a class="headerlink" href="#kbis" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="nt">&quot;siret&quot;</span> <span class="p">:</span> <span class="s2">&quot;662 042 449 00014&quot;</span><span class="p">,</span>
-<span class="nt">&quot;date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1966-09-23&quot;</span><span class="p">,</span>
-<span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
-<span class="nt">&quot;legal_form&quot;</span> <span class="p">:</span> <span class="s2">&quot;SA&quot;</span><span class="p">,</span>
-<span class="nt">&quot;naf&quot;</span> <span class="p">:</span> <span class="s2">&quot;6419Z&quot;</span><span class="p">,</span>
-<span class="nt">&quot;capital&quot;</span> <span class="p">:</span> <span class="s2">&quot;2 499 597 122 EUROS&quot;</span><span class="p">,</span>
-<span class="nt">&quot;address&quot;</span> <span class="p">:</span> <span class="s2">&quot;16 BOULEVARD DES ITALIENS, 75009 PARIS&quot;</span><span class="p">,</span>
-<span class="nt">&quot;activity&quot;</span> <span class="p">:</span> <span class="s2">&quot;Servics financiers&quot;</span><span class="p">,</span>
-<span class="nt">&quot;ceo&quot;</span> <span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-<span class="nt">&quot;managing_director&quot;</span> <span class="p">:</span> <span class="kc">null</span><span class="p">}</span>
+<div class="section" id="exchange-data-with-user">
+<h2>Exchange data with User<a class="headerlink" href="#exchange-data-with-user" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>General Request<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Authenticating using a login and secret through HTTP Basic Authentication.
+Check your your API credentials.</p>
+<p>Access can be also secured through a specific White List to limit the client domains.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">POST</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="kyc">
-<h3>Kyc<a class="headerlink" href="#kyc" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;country&quot;</span> <span class="p">:</span> <span class="s2">&quot;FRA3&quot;</span><span class="p">,</span>
-<span class="nt">&quot;id&quot;</span> <span class="p">:</span> <span class="s2">&quot;15CA98225&quot;</span><span class="p">,</span>
-<span class="nt">&quot;lastname&quot;</span> <span class="p">:</span> <span class="s2">&quot;Houlle&quot;</span><span class="p">,</span>
-<span class="nt">&quot;firstname&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre david&quot;</span><span class="p">,</span>
-<span class="nt">&quot;sex&quot;</span> <span class="p">:</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span>
-<span class="nt">&quot;nationality&quot;</span> <span class="p">:</span> <span class="s2">&quot;Francaise&quot;</span><span class="p">,</span>
-<span class="nt">&quot;date_of_birth&quot;</span> <span class="p">:</span> <span class="s2">&quot;1980-1212&quot;</span><span class="p">,</span>
-<span class="nt">&quot;date_of_issue&quot;</span> <span class="p">:</span> <span class="s2">&quot;2012-02-13&quot;</span><span class="p">,</span>
-<span class="nt">&quot;date_of-expiration&quot;</span> <span class="p">:</span> <span class="s2">&quot;2022-02-12&quot;</span><span class="p">,</span>
-<span class="nt">&quot;authority&quot;</span> <span class="p">:</span> <span class="s2">&quot;Prefecture de Police de Paris&quot;</span><span class="p">}</span>
+<div class="section" id="id2">
+<h3>Header<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Content-Type: application/json&quot;</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="certificate">
-<h3>Certificate<a class="headerlink" href="#certificate" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
-<span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
-<span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
-<span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
-<span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2019/01/25&quot;</span><span class="p">,</span>
-<span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ethereum&quot;</span><span class="p">,</span> <span class="s2">&quot;Solidity&quot;</span><span class="p">],</span>
-<span class="nt">&quot;score_recommendation&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-<span class="nt">&quot;score_delivery&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-<span class="nt">&quot;score_schedule&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-<span class="nt">&quot;score_communication&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-<span class="nt">&quot;logo&quot;</span> <span class="p">:</span> <span class="s2">&quot;thales.png&quot;</span><span class="p">,</span>
-<span class="nt">&quot;signature&quot;</span> <span class="p">:</span> <span class="s2">&quot;permet.png&quot;</span><span class="p">,</span>
-<span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">,</span>
-<span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Paul Jacques&quot;</span><span class="p">}</span>
+<div class="section" id="authentification">
+<h3>Authentification<a class="headerlink" href="#authentification" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">login</span><span class="p">:</span><span class="n">secret</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="experience">
-<h3>Experience<a class="headerlink" href="#experience" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;company&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;contact_email&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre@bnp.com&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Thales&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;contact_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;contact_phone&quot;</span> <span class="p">:</span> <span class="s2">&quot;0607254589&quot;</span><span class="p">},</span>
-<span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
-<span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
-<span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
-<span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2019/01/25&quot;</span><span class="p">,</span>
-<span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ethereum&quot;</span><span class="p">,</span> <span class="s2">&quot;Solidity&quot;</span><span class="p">],</span>
-<span class="nt">&quot;certificate_link&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+<div class="section" id="id3">
+<h3>Payload<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;action&quot;</span> <span class="p">:</span> <span class="n">xxxx</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span> <span class="p">:</span> <span class="n">xxxxx</span><span class="p">}</span>
 </pre></div>
 </div>
+<p>action :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>call_back : send an email</p></li>
+<li><p>to be completed</p></li>
+</ul>
+</div></blockquote>
 </div>
-<div class="section" id="education">
-<h3>Education<a class="headerlink" href="#education" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;organization&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;contact_email&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pierre@bnp.com&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Ensam&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;contact_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Meleze&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;contact_phone&quot;</span> <span class="p">:</span> <span class="s2">&quot;0607255656&quot;</span><span class="p">},</span>
-<span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Master Engineer&quot;</span><span class="p">,</span>
-<span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;General Study&quot;</span><span class="p">,</span>
-<span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1985/02/22&quot;</span><span class="p">,</span>
-<span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1988/01/25&quot;</span><span class="p">,</span>
-<span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[],</span>
-<span class="nt">&quot;certificate_link&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+<div class="section" id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">0.34</span><span class="p">:</span><span class="mi">3000</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>  \
+<span class="o">-</span><span class="n">u</span> <span class="mh">0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4</span><span class="p">:</span><span class="mi">3042</span><span class="n">d4704a513b3ffb4a2adb78e73446</span>   \
+<span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;action&quot; : &quot;call_back&quot;}&#39;</span> \
+<span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Content-Type: application/json&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -496,6 +419,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="internal.html" class="btn btn-neutral float-right" title="Internal" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="proof_of_identity.html" class="btn btn-neutral float-left" title="How To Get a Proof of Identity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

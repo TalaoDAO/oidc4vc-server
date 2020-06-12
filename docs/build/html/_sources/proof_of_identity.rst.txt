@@ -1,5 +1,5 @@
-How To Get a Proof of Identity
-==============================
+Proof of Identity
+=================
 
 So far Proof of Identty are only delivered by Talao.
 

@@ -23,7 +23,7 @@ import Talao_message
 #import Talao_ipfs
 import constante
 import environment
-from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, addkey
+from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
 from protocol import addName
 
 master_key = ""
@@ -98,14 +98,14 @@ def creationworkspacefromscratch(username, email,mode):
 	
 	# Email encrypted with RSA Key
 	bemail = bytes(email , 'utf-8')	
-	email_encrypted = cipher_ras.encrypt(bemail)
+	email_encrypted = cipher_rsa.encrypt(bemail)
 	print('email encrypted =' ,email_encrypted)
 	
 	# ether transfer from TalaoGen wallet
 	hash1 = ether_transfer(address, mode.ether2transfer,mode)
 	balance_avant = w3.eth.getBalance(address)/1000000000000000000
 	
-	# 100 Talao tokens transfer from TalaoGen wallet
+	# 101 Talao tokens transfer from TalaoGen wallet
 	token_transfer(address,101,mode)
 		
 	# createVaultAccess call in the token
@@ -126,26 +126,25 @@ def creationworkspacefromscratch(username, email,mode):
 	# issuer backend setup
 	firstname = ""
 	lastname = ""
-	#backend_Id = Talao_backend_transaction.backend_register(address,workspace_contract,firstname, lastname, email, SECRET,mode)
 
+	# management key(1) issued to Web Relay to act as agent.
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
+	# rewrite email with scheme 2 to differenciate from freedapp email that are not encrypted
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	nonce = w3.eth.getTransactionCount(address)  
+	txn = contract.functions.addClaim(101109097105108,2,address, '', email_encrypted, "" ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = w3.eth.account.signTransaction(txn,private_key)
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	email_transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+		
+	# add username to register
+	addName(username, address, workspace_contract, email, mode) 
+	
 	# emails send to user and admin
 	status = " createidentity.py"
 	Talao_message.messageLog(lastname, firstname, username, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
 	Talao_message.messageUser(lastname, firstname, username, email, address, private_key, workspace_contract, mode)	
-
-	# management key issued to Web Relay (agent)
-	addkey(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
-	# rewrite email with scheme 2 to differenciate from freedapp email that are not encrypted
-	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	nonce = w3.eth.getTransactionCount(address)  
-	txn = contract.functions.addClaim(101109097105108,2,address, '', email_encrypted, "" ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	email_transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	
-	# add username to register
-	addName(username, address, workspace_contract, email, mode) 
 	
 	# process duration and cost
 	time_fin = datetime.now()

@@ -40,3 +40,12 @@ With these constraints in mind, we then propose a decentralized, standards-based
 to facilitate many-to-many relationships among providers of key services. 
  
 Our proposal for digital identity differs from others in its approach to trust in that we do not seek to bind credentials to each other or to a mutually trusted authority to achieve strong non-transferability. Because the system does not implicitly encourage its users to maintain a single aggregated identity that can potentially be constrained or reconstructed against their interests, individuals and organizations are free to embrace the system and share in its benefits.
+
+Decentralized IDentifiers (DID)
+-------------------------------
+
+[`w3.org <https://www.w3.org/TR/did-core/>`_] "Decentralized identifiers (DIDs) are a new type of identifier that enables verifiable, decentralized digital identity. A DID identifies any subject (e.g., a person, organization, thing, data model, abstract entity, etc.) that the controller of the DID decides that it identifies.
+These new identifiers are designed to enable the controller of a DID to prove control over it and to be implemented independently of any centralized registry, identity provider, or certificate authority.
+DIDs are URLs that associate a DID subject with a DID document allowing trustable interactions associated with that subject.
+Each DID document can express cryptographic material, verification methods, or service endpoints, which provide a set of mechanisms enabling a DID controller to prove control of the DID. Service endpoints enable trusted interactions associated with the DID subject.
+A DID document might contain semantics about the subject that it identifies. A DID document might contain the DID subject itself (e.g. a data model)."

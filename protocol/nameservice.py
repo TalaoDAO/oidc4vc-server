@@ -24,14 +24,6 @@ import random
 import constante
 
 
-"""
-def owners_to_contracts(address, mode) :
-	w3=mode.initProvider()
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	workspace_address = contract.functions.ownersToContracts(address).call()
-	return workspace_address
-"""	
-
 ####################################################
 # Namehash
 ####################################################
@@ -51,25 +43,6 @@ def namehash(name) :
 		label, _, remainder = name.partition('.')
 		a =sha3( namehash(remainder) + sha3(label) )
 		return a
-
-####################################################
-# verifier que l email n'existe pas deja
-####################################################
-def canRegister_email (email,mode) :
-	for a in mode.register  :
-		if mode.register[a].get('email') == email :
-			return False
-	return True 
-	
-#####################################################	
-# DEPRECATED obtenir le workspace_contract depuis un username 
-######################################################
-def address(username,register) :
-	if register.get(namehash(username.lower())) != None :
-		return register.get(namehash(username.lower()))['workspace_contract']
-	else :
-		return None
-
 
 	
 #####################################################	

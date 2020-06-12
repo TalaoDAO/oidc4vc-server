@@ -65,48 +65,7 @@ def contractsToOwners(workspace_contract, mode) :
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address	
 
-###############################################################
-# DEPRECATED cf ReadProfil de GetResume read Talao profil
-###############################################################
-# return a dictionnaire {'givenName' ; 'Jean', 'familyName' ; 'Pascal'.....
-# https://fr.wikibooks.org/wiki/Les_ASCII_de_0_%C3%A0_127/La_table_ASCII
-# ord('a')=97...attention ajouté un 0 au dessus dessous de 99....
 
-def readProfil (address,mode) :
-
-	w3=mode.w3
-
-	# liste des claim topic , 
-	givenName = 103105118101110078097109101
-	familyName = 102097109105108121078097109101
-	jobTitle = 106111098084105116108101
-	worksFor = 119111114107115070111114
-	workLocation = 119111114107076111099097116105111110
-	url = 117114108
-	email = 101109097105108
-	description = 100101115099114105112116105111110
-	
-	topicvalue =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-	topicname =['givenName', 'familyName', 'jobTitle', 'worksFor', 'workLocation', 'url', 'email', 'description']
-	
-	workspace_contract=ownersToContracts(address,mode)
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	profil=dict()
-	index=0
-	for i in topicvalue :
-		try :
-			claim=contract.functions.getClaimIdsByTopic(i).call()
-		except :
-			claim=[]
-		if len(claim) != 0 : # uniquement si les information ont ete entrées a la creation de l identité
-			claimId = claim[len(claim)-1].hex()
-			data = contract.functions.getClaim(claimId).call()
-			profil[topicname[index]]=data[4].decode('utf-8')
-		#else :
-		#	profil[topicname[index]]=None
-		index = index+1
-	return profil
-	
 
 ############################################################
 # Transfert de tokens  Talao depuis le portefeuille TalaoGen 
@@ -384,243 +343,45 @@ def remove_partnership(address_from, workspace_contract_from, address_to, worksp
 	return True
 
 
-"""
-#################################################################
-#  get Privatkey
-#################################################################
-def getPrivatekey(workspace_contract,mode) :
-
-	w3 = mode.initProvider()
-	fichiercsv = mode.BLOCKCHAIN+'_Talao_Identity.csv'
-	csvfile = open(fichiercsv,newline='')
-	reader = csv.DictReader(csvfile) 
-	search = False
-	for row in reader :
-		if row['workspace_contract'] == workspace_contract :
-			private_key=row.get('private_key')
-			search = True
-	csvfile.close()
-	if search :
-		return private_key
-	else :
-		return None
-"""
-"""
-#################################################################
-#  get Privatekey, aes and SECRET
-#################################################################
-def getAll(workspace_contract,mode) :
-
-	w3 = mode.initProvider()
-	fichiercsv = mode.BLOCKCHAIN+'_Talao_Identity.csv'
-	csvfile = open(fichiercsv,newline='')
-	reader = csv.DictReader(csvfile) 
-	search = False
-	for row in reader :
-		if row['workspace_contract'] == workspace_contract :
-			private_key=row.get('private_key')
-			AES_key=row.get('aes')
-			SECRET=row.get('password')
-			search = True
-	csvfile.close()
-	if search :
-		return private_key, SECRET, AES_key
-	else :
-		return None
-"""
-"""
 ##################################################################
-#    get Email from identity 
-# DEPRECATED email is encypted wuth RSA 
+#    get image from identity 
 ##################################################################
-def getEmail(workspace_contract, mode) :
-
-	w3=mode.initProvider()
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	try :
-		a = contract.functions.getClaimIdsByTopic(101109097105108).call()
-	except :
-		return None	
-	if len(a) != 0:
-		# always the last one
-		claim_Id = a[len(a)-1].hex()
-		email = contract.functions.getClaim(claim_Id).call()[4].decode('utf-8')
-		return email
-	else :
-		return None	
-"""
-
-##################################################################
-#    get Picture from identity 
-##################################################################
-def getpicture(workspace_contract, mode) :
+def get_image(workspace_contract, image_type, mode) :
+### image(profil picture) = 105109097103101  signature = 115105103110097116117114101
 
 	w3 = mode.w3
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	topicvalue = 105109097103101 if image_type in ['photo', 'logo', 'image', 'picture'] else 115105103110097116117114101
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)	
 	try :
-		a = contract.functions.getClaimIdsByTopic(105109097103101).call()
-	except :
+		a = contract.functions.getClaimIdsByTopic(topicvalue).call() 
+	except Exception as res :
+		print('get picture in talao_transaction ', res)
 		return None	
 	if len(a) != 0:
-		claim_Id = a[len(a)-1].hex()
+		claim_Id = a[-1].hex()
 		picture_hash = contract.functions.getClaim(claim_Id).call()[5]
 		return picture_hash
 	else :
 		return None	
-		
-##################################################################
-# Delete document
-##################################################################
-def deleteDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from,documentId, mode):
-#     solidity	  function deleteDocument (uint _id) external onlyIdentityPurpose(20002)
-	
-	w3=mode.initProvider()
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token
-	nonce = w3.eth.getTransactionCount(address_from)  
 
-	# Build transaction
-	txn = contract.functions.deleteDocument(int(documentId)).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-		
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
-	return hash
-
-
-##################################################################
-# Delete claim
-##################################################################
-def deleteClaim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claimId, mode):
-#     solidity	  removeClaim(Id)
-	
-	w3=mode.initProvider()
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token, ici my_address
-	nonce = w3.eth.getTransactionCount(address_from)
-
-	# Build transaction
-	txn = contract.functions.removeClaim(claimId).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-		
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
-	return hash
-
-###################################################################
-# Création de document 250000 000 gas
-# @data = dictionnaire = {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }}
-# @encrypted = False ici
-# location engine = 1 pour IPFS, doctypeversion = 1, expire =Null, 
-###################################################################
-
-# DEPRECATED !!!!!!!
-
-def createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, encrypted,mode, synchronous = True) :
-
-	w3=mode.initProvider()
-	
-	encrypted = False
-
-	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-
-	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen
-	nonce = w3.eth.getTransactionCount(address_from)  
-
-	# stocke sur ipfs (un dictionnaire)
-	hash=Talao_ipfs.IPFS_add(data)
-	print('ipfshash = ', hash)
-	
-	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
-	_data= json.dumps(data)
-	checksum=hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
-	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
-
-	# Build transaction
-	txn = contract.functions.createDocument(doctype,1,0,checksum,1, bytes(hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	
-	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-	
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(hash)		
-	return hash
-
-
-
-###################################################################
-# issue certifica 250000 000 gas
-# @data = dictionnaire = {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }}
-# @encrypted = False ou True => AES
-# location engine = 1 pour IPFS, doctypeversion = 1, expire =Null, 
-###################################################################
-#   
-#      function issueCertificate(
-#        uint16 _docType,
-#        uint16 _docTypeVersion,
-#        bytes32 _fileChecksum,
-#        uint16 _fileLocationEngine,
-#        bytes _fileLocationHash,
-#        bool _encrypted,
-#        uint16 _related
-
-def createCertificate(address_to, address_from, private_key_from, doctype, data, encrypted, related,mode, synchronous = True) :
-	w3=mode.initProvider()
-	
-	
-	# lecture de l'adresse du workspace contract dans la fondation
-	workspace_contract_to=ownersToContracts(address_to,mode)
-
-	#envoyer la transaction sur le contrat
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-
-	# calcul du nonce de l envoyeur de token
-	nonce = w3.eth.getTransactionCount(address_from)  
-
-	# stocke sur ipfs (un dictionnaire)
-	ipfshash=Talao_ipfs.IPFS_add(data)
-	
-	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
-	_data= json.dumps(data)
-	checksum=hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
-	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
-
-	# Build transaction
-	txn = contract.functions.issueCertificate(doctype,1,checksum,1, bytes(ipfshash, 'utf-8'), encrypted, related).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	
-	#sign transaction
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-	
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(hash1)		
-	return hash1
  
 ############################################################
-#  Mise a jour de la photo
+#  Mise a jour de la photo/signature
 ############################################################
 #
 #  @picturefile : type str, nom fichier de la phooto avec path ex  './cvpdh.json'
 # claim topic 105109097103101
     
 
-def savepictureProfile(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, picturefile,mode, synchronous = True) :
-	w3=mode.initProvider()
+def save_image(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, picturefile, picture_type, mode, synchronous = True) :
+	
+	w3 = mode.w3
 
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	response=client.add(picturefile)
 	picturehash=response['Hash']	
-	image= 105109097103101 
+	
+	image = 105109097103101 if picture_type in ['image', 'picture', 'photo'] else 115105103110097116117114101
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 
 	# calcul du nonce de l envoyeur de token . Ici le caller
@@ -692,17 +453,7 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 # 	@chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
 #	@topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
 # 	@offset [len(_givenName), len(_familyName), len(_jobTitle), len(_worksFor), len(_workLocation), len(_url), len(_email), len(_description)]
-"""
-	givenName = 103105118101110078097109101
-	familyName = 102097109105108121078097109101
-	jobTitle = 106111098084105116108101
-	worksFor = 119111114107115070111114
-	workLocation = 119111114107076111099097116105111110
-	url = 117114108
-	email = 101109097105108
-	description = 100101115099114105112116105111110
-	image= 105109097103101
-	"""
+
 def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchronous=True) :
 	
 	w3=mode.w3
@@ -747,127 +498,31 @@ def read_workspace_info (address, rsa_key, mode) :
 	claim_id = claim[-1].hex()
 	data = contract.functions.getClaim(claim_id).call()
 	scheme = data[1]
-	if scheme == 1 : # freedap creation
+	
+	key = RSA.importKey(rsa_key)
+	cipher = PKCS1_OAEP.new(key)
+		
+	if scheme == 1 : # freedap creation , email non crypté
 		email = data[4].decode('utf-8')
+	
 	elif scheme == 2 :
 		# decoder l 'email cryptée avec la cle RSA privée
-		key = RSA.importKey(rsa_key)
-		cipher = PKCS1_OAEP.new(key)	
-		bemail = cipher.decrypt(secret_encrypted)			
+		bemail = cipher.decrypt(data[4])			
 		email = bemail.hex()
-	else :
-		print('erreur email ', scheme)
-
 
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
-	
 	category = data[1]
 	
-	#recuperer le secret crypté
+	#recuperer et decoder le secret crypté
 	secret_encrypted=data[6]	
-	# decoder le secret cryptée avec la cle RSA privée
-	key = RSA.importKey(rsa_key)
-	cipher = PKCS1_OAEP.new(key)	
 	secret = cipher.decrypt(secret_encrypted).hex()			
 	
-	
-	#recuperer la clé AES cryptée 
+	#recuperer et decoder la clé AES cryptée 
 	aes_encrypted=data[5]
-	# decoder le secret cryptée avec la cle RSA privée
-	key = RSA.importKey(rsa_key)
-	cipher = PKCS1_OAEP.new(key)	
 	aes = cipher.decrypt(aes_encrypted)				
 	
 	return workspace_contract, category, email , secret, aes 
-
- 
-############################################################
-#  Create and publish experience in one step
-############################################################
-# experience={ 'experience':{'title': _experienceTitle, 'description': _experienceDescription, 'from': _fromdate, 'to': _todate, 'location': '', 'remote': True, 'organization_name': 'Talao','skills': [] }}
-	
-
-def createandpublishExperience(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, exprience, mode, synchronous = True) :
-	w3 = mode.w3
-
-	# recuperer les infos du compte sur le workspace
-	(workspace_contract_to,_email, _password, aes)=readWorkspaceInfo(address_to,mode)
-	
-	# recuperer les info du profil
-	profile = readProfil(address_to,mode)
-	#	topicname =['givenName', 'familyName', 'jobTitle', 'worksFor', 'workLocation', 'url', 'email', 'description']
-	_familyName = profile["familyName"]
-	_givenName = profile["givenName"]
-	_jobTitle = profile["jobTitle"]
-
-	#recuperer le token sur le backend
-	conn = http.client.HTTPConnection(mode.ISSUER)
-	if constante.BLOCKCHAIN == 'ethereum' :
-		conn = http.client.HTTPSConnection(constante.ISSUER)
-	headers = {'Accept': 'application/json','Content-type': 'application/json'}
-	payload = {"email" : _email ,"password" : _password}
-	data = json.dumps(payload)
-	conn.request('POST', '/login',data, headers)
-	response = conn.getresponse()
-	res = response.read()
-	token = json.loads(res)["token"]
-
-	# creation experience sur le backend
-	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
-	payload = experience
-	data = json.dumps(payload)
-	conn.request('POST', '/experiences',data, headers)
-	response = conn.getresponse()
-	res = response.read()
-	experience_id = json.loads(res)['experience']['id']	
-	conn.close()
-
-	# publish experience sur ipfs et la blockchain
-	data = {"documentType":50000,
-			"version":2,
-			"recipient": {"givenName":_givenName,
-						"familyName":_familyName,
-						"title": _jobTitle,
-						"email":_email[5:],
-						"ethereum_account": address_to,
-						"ethereum_contract": workspace_contract_to},
-			"issuer":{"organization":{"email":"",
-									"url":"",
-									"image":"",
-									"ethereum_account":"",
-									"ethereum_contract":""},
-									"responsible":{"name":"",
-													"title":"",
-													"image":""},
-			"partner":{"name":"",
-						"text":""}},
-			"certificate":{"title":_experienceTitle,
-							"description":_experienceDescription,
-							"from":_fromdate,
-							"to":_todate,
-							"skills":[],
-							"ratings":[]}}
-
-	createDocument(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, 50000, data, False, mode, synchronous = True)
-
-	# recuperer l iD du document sur le dernier event DocumentAdded
-	mycontract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	myfilter = mycontract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
-	eventlist = myfilter.get_all_entries()
-	document_id = eventlist[-1]['args']['id']
-
-	# update de l experience sur la backend . on change le status et on donne le numero du doc 
-	token = Talao_backend_transaction.login(_email, _password)
-	headers = {'Accept': 'application/json','Content-type': 'application/json',  'Authorization':'Bearer '+token}
-	payload = {"experience":{"blockchain_experience_id":document_id,"blockchain_status":1},"action":"SET_DRAFT"}
-	data = json.dumps(payload)
-	conn.request('PUT', '/experiences/' + str(experience_id),data, headers)
-	response = conn.getresponse()
-	res = response.read()
-	print(json.loads(res))	
-	conn.close()
-	return
 
 
 #########################################################	
@@ -889,128 +544,6 @@ def getDocumentIndex(address, _doctype,mode) :
 		if doc[0]==_doctype :
 			index=index+1			
 	return index
-
-"""
-######################################################	
-# read Talao experience or diploma
-######################################################
-# @_doctype = integer, 40000 = Diploma, 50000 = experience, 60000 certificate
-# return dictionnaire
-
-def getDocument(address, _doctype,_index,mode) :
-	w3=mode.initProvider()
-
-	workspace_contract=ownersToContracts(address,mode)
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	docindex=contract.functions.getDocuments().call() # la liste de tous les doc_id actifs
-	index=0
-	for i in docindex :
-		doc=contract.functions.getDocument(i).call()
-		if doc[0] ==_doctype :
-			if index==_index :
-				ipfs_hash=doc[6].decode('utf-8')
-				return Talao_ipfs.IPFS_get(ipfs_hash)
-			else :
-				index=index+1				
-"""
-
-"""
-#####################################
-#authentication d'un json de type str
-#####################################
-def authenticate(docjson, address, private_key,mode) :
-# @docjson : type str au format json
-# @address, @private_key  : le Creator est celui qui signe
-# return le str json authentifié
-# pour decoder :
-# message = encode_defunct(text=msg)
-# address=w3.eth.account.recover_message(message, signature=signature)
-#
-# cf : https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
-
-	w3=mode.initProvider()
-
-	# conversion en Dict python
-	objectdata=json.loads(docjson)
-
-	# mise a jour du Dict avec les infos d authentication
-	objectdata.update({'Authentication' : 
-	{'@context' : 'this Key can be used to authenticate the creator of this doc. Ownernership of did can be checked at https://rinkeby.etherscan.io/address/0xde4cf27d1cefc4a6fa000a5399c59c59da1bf253#readContract',
-	'type' : 'w3.eth.account.sign_message',
-	'PublicKey' : address,
-	'Created' : str(datetime.today()),
-	"Creator" : address,
-	'message' : 'to be added',
-	'signature' : 'to be added' }
-	}) 
-	
-	# upload et pin sur ipfs
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-	response=client.add_json(objectdata)
-	client.pin.add(response)
-
-	# le lien sur le fichier IPFS est le message	
-	msg='https://ipfs.io/ipfs/'+response
-	message = encode_defunct(text=msg)
-	# signature du messaga avec web3 compatible avce solidity erocover 
-	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
-	signature=signed_message.signature.hex()
-	
-	# complement du Dict
-	objectdata["Authentication"]["message"]=msg
-	objectdata["Authentication"]["signature"]=signature
-	
-	# conversion du Dict en str json
-	auth_docjson=json.dumps(objectdata,indent=4)
-		
-	return auth_docjson
-"""
-
-#################################################
-#  add claim
-#################################################
-# @data : str
-# @topicname : type str , 'contact'
-# @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8') 
-# signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
-
-def addclaim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, issuer, data, ipfshash, mode, synchronous = True) :
-	
-	w3=mode.w3
-	
-	# on va chercher topicvalue dans le dict existant (constante.py) si il n existe pas on le calcule
-	topicvalue=constante.topic.get(topicname)
-	if topicvalue== None :
-		topicvaluestr =''
-		for i in range(0, len(topicname))  :
-			a = str(ord(topicname[i]))
-			if int(a) < 100 :
-				a='0'+a
-			topicvaluestr=topicvaluestr+a
-		topicvalue=int(topicvaluestr)
-	
-	nonce = w3.eth.getTransactionCount(address_from)  
-	
-	# calcul de la signature
-	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
-	message = encode_defunct(text=msg.hex())
-	signed_message = w3.eth.account.sign_message(message, private_key=private_key_from)
-	signature=signed_message['signature']
-	
-	# Build transaction
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, bytes(data, 'utf-8'),ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	
-	#sign transaction with caller wallet
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
-	
-	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-	print('hash de addclaim =', hash1)	
-	return hash1
 
 #################################################
 #  add self claim

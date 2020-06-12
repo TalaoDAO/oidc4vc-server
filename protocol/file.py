@@ -138,7 +138,8 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			block_number = transaction['blockNumber']
 			block = mode.w3.eth.getBlock(block_number)
 			date = datetime.fromtimestamp(block['timestamp'])				
-			gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
+			#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
+			gas_used = 1000
 			created = str(date)
 
 	# recuperation du msg 

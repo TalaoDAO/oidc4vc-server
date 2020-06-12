@@ -28,7 +28,7 @@ kyc_jean = Kyc()
 
 kyc= {
 	"country" : "FRA3",
-	"id" : "15CA98365",
+	"card_id" : "15CA98365",
 	"firstname" : "Jean",
 	"lastname" : "Pascalet",
 	"sex" : "M",

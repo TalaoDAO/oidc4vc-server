@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+				
+	                                           {% include 'company_nav_bar.html' %}    
+			
+				
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">{{name}}</h3>
+                <div class="row mb-3">
+                    <div class="col-lg-8 col-xl-6 offset-xl-3">
+                        <div class="row">
+                            <div class="col-xl-10 offset-xl-1">
+                                <div class="card shadow mb-3">
+                                    <div class="card-header py-3">
+                                        <div class="row">
+                                            <div class="col-xl-6">
+                                                <p class="text-primary m-0 font-weight-bold">&nbsp;Create Kyc</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="/user/create_kyc/" method="POST">
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Username</strong><br></label><input class="form-control" type="text" name="username" required=""></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Firstname</strong></label><input class="form-control" type="text" name="firtname" required=""></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Lastname</strong></label><input class="form-control" type="text" name="lastname" required=""></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Country</strong></label><select class="form-control"><optgroup label="This is a group"><option value="12" selected="">This is item 1</option><option value="13">This is item 2</option><option value="14">This is item 3</option></optgroup></select></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Birthdate</strong><br></label><input class="form-control" type="date" name="birthdate" requitred=""></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Issue Date</strong><br></label><input class="form-control" type="date" required="" name="issue_date"></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Expires Date</strong></label><input class="form-control" type="date" name="expires_date"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Sexe</strong><br></label><select class="form-control" name="sex" required=""><option value="m" selected="">M</option><option value="f">F</option></select></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Nationality</strong><br></label><select class="form-control" name="nationality" required=""><optgroup label="This is a group"><option value="12" selected="">This is item 1</option><option value="13">This is item 2</option><option value="14">This is item 3</option></optgroup></select></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Authority</strong><br></label><input class="form-control" type="text" name="authority" required=""></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label for="username"><strong>Card Id</strong></label><input class="form-control" type="text" name="card_id" required=""></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="form-row">
+                                                    <div class="col-xl-3"><button class="btn btn-primary btn-sm" type="submit">Create Kyc</button></div>
+                                                      <a href="/user/?username={{username}}">
+												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" value="cancel">Cancel</button></div>
+											</a>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+                                  {% include 'user_footer.html' %}    
+
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

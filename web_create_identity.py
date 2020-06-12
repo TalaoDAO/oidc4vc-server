@@ -1,8 +1,6 @@
 
 """	
-#####################################################
-#   CREATION IDENTITE ONLINE (html) pour le site talao.io
-#####################################################
+
 
 le user reçoit par email les informations concernant son identité
 Talao dispose d'une copie de la clé
@@ -74,7 +72,7 @@ def POST_authentification_2() :
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(username, email, mode)
 		print("appel de createindentty")
-		#TEST   exporting_threads[thread_id].start() 
+		exporting_threads[thread_id].start() 
 		mymessage = 'Registation in progress. You will receive an email with details soon.' 
 	else :
 		if session['try_number'] > 3 :
