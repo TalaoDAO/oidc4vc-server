@@ -1,8 +1,9 @@
 
 
+from flask import Flask, session, send_from_directory, flash, send_file
+from flask import request, redirect, render_template,abort, Response
+from flask_session import Session
 
-from flask import request, redirect, render_template, Response, session
-from flask_api import FlaskAPI
 from flask_fontawesome import FontAwesome
 import json
 
@@ -17,23 +18,28 @@ w3 = mode.w3
 
 
 # display experience certificate for anybody. Stand alone routine
-def show_certificate(data):
-
-	doc_id = int(data.split(':')[5])
-	identity_workspace_contract = '0x'+data.split(':')[3]
-
-	if not 'displayed_certificate' in session  :
+def show_certificate():
+	
+	certificate_id = request.args['certificate_id']
+	call_from = request.args.get('call_from')
+	
+	doc_id = int(certificate_id.split(':')[5])
+	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+	
+	if session.get('certificate_id') != certificate_id :
 		certificate = Document('certificate')
-		exist = certificate.relay_get(identity_workspace_contract, doc_id, mode)	
+		exist = certificate.relay_get(identity_workspace_contract, doc_id, mode, loading = 'full')	
 		if not exist :
 			content = json.dumps({'topic' : 'error', 'msg' : 'Certificate Not Found'})
 			response = Response(content, status=406, mimetype='application/json')
 			return response
-		
+		session['certificate_id'] = certificate_id
 		session['displayed_certificate'] = certificate.__dict__
 		session['profil'], session['category'] = read_profil(identity_workspace_contract, mode, 'light')
-		print('displayed certificate  = ', session['displayed_certificate'])
 	
+	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
+	identity_username = None if 'username' not in session else session['username']
+		
 	ok="color: rgb(251,211,5); font-size: 10px;" # yellow
 	ko="color: rgb(0,0,0);font-size: 10px;" # black
 	
@@ -66,7 +72,10 @@ def show_certificate(data):
 							end_date=session['displayed_certificate']['end_date'],
 							signature=session['displayed_certificate']['signature'],
 							logo=session['displayed_certificate']['logo'],
-							data=data,
+							certificate_id=certificate_id,
+							identity_username=identity_username,
+							issuer_username=issuer_username,
+							call_from=call_from,
 							**context)
 
 def convert(obj):
@@ -84,13 +93,14 @@ def convert(obj):
 
 #         verify certificate
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
-def certificate_verify(dataId) :
+def certificate_verify() :
 	
+	certificate_id = request.args['certificate_id']
+	call_from = request.args.get('call_from')
 	certificate = session['displayed_certificate']
 	convert(certificate)
 	
-	
-	if dataId != certificate['id'] :
+	if certificate_id != certificate['id'] :
 		content = json.dumps({'topic' : 'error', 'msg' : 'Certificate Not Found'})
 		response = Response(content, status=406, mimetype='application/json')
 		return response
@@ -98,7 +108,6 @@ def certificate_verify(dataId) :
 	
 	issuer_type = 'Person' if certificate['issuer']['category'] == 1001 else 'Company' 
 	
-
 	# issuer
 	if issuer_type == 'Company' :
 		issuer = """
@@ -132,7 +141,8 @@ def certificate_verify(dataId) :
 		
 	
 	return render_template('new_verify_certificate.html',
-							data= dataId,
+							certificate_id=certificate_id,
+							call_from=call_from,
 							topic = certificate['topic'].capitalize(),
 							verif=my_verif,
 							)

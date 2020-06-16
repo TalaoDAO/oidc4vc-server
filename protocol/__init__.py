@@ -8,9 +8,6 @@ from .Talao_token_transaction import partnershiprequest, authorizepartnership, r
 from .Talao_token_transaction import ownersToContracts, createWorkspace, save_image, get_image
 from .Talao_token_transaction import token_transfer, createVaultAccess, ether_transfer, read_workspace_info
 
-from .nameservice import addName, deleteName,  getUsername,updateName
-from .nameservice import namehash, load_register_from_file, workspaceFromPublickeyhex, data_from_publickey, username_and_email_list, username_to_data
-
 from .key import add_key, delete_key, has_key_purpose
 
 from .document import Document, read_profil

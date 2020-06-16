@@ -24,7 +24,8 @@ import Talao_message
 import constante
 import environment
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
-from protocol import addName
+
+import ns
 
 master_key = ""
 salt = ""
@@ -139,7 +140,7 @@ def creationworkspacefromscratch(username, email,mode):
 	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		
 	# add username to register
-	addName(username, address, workspace_contract, email, mode) 
+	ns.add_identity(username, workspace_contract, email, mode)
 	
 	# emails send to user and admin
 	status = " createidentity.py"

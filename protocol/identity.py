@@ -16,11 +16,11 @@ import csv
 
 import constante
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, get_image,  read_workspace_info
-from .nameservice import namehash, getUsername, updateName, data_from_publickey, username_to_data
 from .claim import Claim
 from .document import Document, read_profil
 from .file import File
  
+import ns
  
 class Identity() :
 	
@@ -56,21 +56,25 @@ class Identity() :
 				
 		if self.authenticated :
 			self.has_relay_rsa_key()
-			
 			if self.rsa_key :
 				self.get_email_secret()
 			else :
 				self.email = 'Encrypted'
 				self.secret = 'Encrypted'
+				self.aes = 'Encrypted'
 					
 			self.has_relay_private_key()
+			if self.private_key :
+				self.get_partners()				
+			else :
+				self .partners = []
+				
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated()
 			self.get_issuer_keys()
 			self.get_white_keys()
 			self.get_events()
-			self.get_partners()				
 		else :
 			self.eventslist = dict()
 			self.partners = []
@@ -104,6 +108,8 @@ class Identity() :
 		fname = self.mode.BLOCKCHAIN +"_Talao_Identity.csv"
 		identity_file = open(fname, newline='')
 		reader = csv.DictReader(identity_file)
+		self.private_key = False
+		self.private_key_value = None
 		for row in reader :
 			if row['ethereum_address'] == self.address :
 				self.private_key = False if row.get('private_key', '')[:2] != '0x'  else True				
@@ -190,7 +196,7 @@ class Identity() :
 		issuer_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			issuer = data_from_publickey(key[2].hex(), self.mode) # most important part of the function.....see what it implies ! 
+			issuer = ns.get_data_from_publickey(key[2].hex(), self.mode) # most important part of the function.....see what it implies ! 
 			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
 				pass
 			else :	
@@ -210,7 +216,7 @@ class Identity() :
 		white_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			issuer = data_from_publickey(key[2].hex(), self.mode)
+			issuer = ns.get_data_from_publickey(key[2].hex(), self.mode)
 			if issuer is None :
 				pass
 			else :	
@@ -235,16 +241,17 @@ class Identity() :
 				authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
 			except Exception as ex:
 				print(ex)
-			partner_username = getUsername(partner_workspace_contract, self.mode)
-			partner_address = contractsToOwners(partner_workspace_contract, self.mode)	
-			partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
-			self.partners.append({"address": partner_address,
+			partner_username = ns.get_username_from_resolver(partner_workspace_contract)
+			if partner_username is not None :
+				partner_address = contractsToOwners(partner_workspace_contract, self.mode)	
+				partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
+				self.partners.append({"address": partner_address,
 								"publickey": partner_publickey,
 								 "workspace_contract" : partner_workspace_contract,
 								  'username' : partner_username,
 								  'authorized' : liste[authorization_index],
 								  'status' : 'Not available'})
-		# on met a jour le status avec un acces par le owner au parnership  dand le contract du partner
+		# on met a jour le status avec un acces par le owner au parnership  dans le contract du partner
 		if self.private_key :
 			acct = Account.from_key(self.private_key_value)
 			self.mode.w3.eth.defaultAccount = acct.address	

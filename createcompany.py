@@ -23,25 +23,26 @@ from eth_account.messages import encode_defunct
 
 
 # dependances
-from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, addName
+from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key
 import Talao_ipfs
 import constante
 import environment
 
-
+import ns
 # initialisation de l'environnement
-mode=environment.currentMode()
-w3=mode.w3
+#mode=environment.currentMode()
+#w3=mode.w3
 
 # variable pour calcul RSA
-password = mode.password
 master_key = ""
 salt = ""
 
 
 
 def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
-
+	
+	w3 = mode.w3
+	
 	contract=w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 
 	# calcul du nonce de l envoyeur de token . Ici le caller
@@ -65,8 +66,9 @@ def my_rand(n):
     return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
 
 
-def _creationworkspacefromscratch(email): 
-
+def _creationworkspacefromscratch(email, mode): 
+	w3 = mode.w3
+	
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
 	eth_a=account.address
@@ -79,6 +81,7 @@ def _creationworkspacefromscratch(email):
 	global salt
 	global master_key
 	salt = eth_p
+	password = mode.password
 	master_key = PBKDF2(password, salt, count=10000)  # bigger count = better
 	my_rand.counter = 0
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
@@ -109,7 +112,7 @@ def _creationworkspacefromscratch(email):
 	
 	# Email encrypted with RSA Key
 	bemail = bytes(email , 'utf-8')	
-	email_encrypted = cipher_ras.encrypt(bemail)
+	email_encrypted = cipher_rsa.encrypt(bemail)
 	print('email encrypted =' ,email_encrypted)
 	
 	# Transaction pour le transfert de 0.06 ethers depuis le portfeuille TalaoGen
@@ -118,7 +121,7 @@ def _creationworkspacefromscratch(email):
 	
 	# Transaction pour le transfert de 101 tokens Talao depuis le portfeuille TalaoGen
 	hash2=token_transfer(eth_a,101,mode)
-	print('hash de transfert de 100 TALAO = ', hash2)
+	print('hash de transfert de 101 TALAO = ', hash2)
 	
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
 	hash3=createVaultAccess(eth_a,eth_p,mode)
@@ -143,7 +146,7 @@ def create_company(email, username, mode) :
 	identityfile = open(fname, "a")
 	writer = csv.writer(identityfile)
 
-	if username_to_data(username, mode) is not None :
+	if ns.get_data_from_username(username, mode) is not None :
 		print('username already used')
 		return False
 	 
@@ -151,15 +154,15 @@ def create_company(email, username, mode) :
 	time_debut=datetime.now()
 
 	# CREATION DU WORKSPACE MINIMUM
-	email = company['profil']["contact"]['email'] # base pour la construction du registre de nameservice
-	(address, private_key,password, workspace_contract, email, SECRET, AES_key)=_creationworkspacefromscratch(email)
+	(address, private_key,password, workspace_contract, email, SECRET, AES_key)=_creationworkspacefromscratch(email,mode)
 
 	# management key (1) issued to Web Relay (agent)
-	addkey(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
 
-	# update Register
-	addName(username, address, workspace_contract, email, mode)
-
+	# update resolver and create local database for manager
+	ns.add_identity(username, workspace_contract, email, mode)
+	ns.init_host(username)
+	
 	# calcul de la duree de transaction et du cout
 	time_fin=datetime.now()
 	time_delta=time_fin-time_debut

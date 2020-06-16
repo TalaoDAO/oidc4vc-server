@@ -17,8 +17,9 @@ import random
 # dependances
 import Talao_message
 import createidentity
-from protocol import username_to_data, namehash
 import environment
+
+import ns
 
 # environment setup
 mode = environment.currentMode()
@@ -45,7 +46,7 @@ def authentification() :
 		username = request.form['username']
 		session['username'] = username
 		session['email'] = email
-		if namehash(username) in  mode.register :	
+		if ns.get_data_from_username(username,mode) is not None  :	
 			return render_template("create.html", message = 'Username already used')	
 		code = str(random.randint(100000, 999999))
 		session['try_number'] = 1

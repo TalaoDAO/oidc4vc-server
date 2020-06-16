@@ -15,8 +15,8 @@ import environment
 
 
 # environment setup
-mode=environment.currentMode()
-w3=mode.w3
+#mode=environment.currentMode()
+#w3=mode.w3
 
 def ipfs_add(json_data) :
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=1000000)
@@ -29,7 +29,7 @@ def ipfs_get(ipfs_hash) :
 	return(client.get_json(ipfs_hash))
 
 def add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, file_name, mydays, privacy, mode, synchronous) :
-	w3=mode.w3	
+	w3 = mode.w3	
 	
 	try :
 		this_file = open(file_name, mode='rb')  # b is important -> binary

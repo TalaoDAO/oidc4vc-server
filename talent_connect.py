@@ -2,11 +2,16 @@
 gestion des api 
 """
 
+from flask import Flask, session, send_from_directory, flash, send_file
+from flask import request, redirect, render_template,abort, Response
+from flask_session import Session
+
+
 from flask import request, Response
 import json
 
 # dependances
-from protocol import  username_to_data, getUsername, contractsToOwners, read_workspace_info
+from protocol import contractsToOwners, read_workspace_info
 from protocol import Identity, Claim, Document
 import environment
 import constante
@@ -58,7 +63,7 @@ def auth() :
 		response = Response(content, status=406, mimetype='application/json')
 		return response
 	
-	username =getUsername(workspace_contract, mode)
+	username = get_username_from_resolver(workspace_contract)
 	content = json.dumps({'User' : username, 'msg' : "ok"})
 	response = Response(content, status=200, mimetype='application/json')
 	return response
@@ -80,7 +85,7 @@ def get() :
 	only workspace_contract is needed anyway """
 	if user[:10] != 'did:talao:' :
 		username = user
-		data = username_to_data(username, mode)
+		data = ns.get_data_from_username(username, mode)
 		if data is None :
 			content = json.dumps({'topic' : 'error', 'msg' : 'Username not found'})
 			response = Response(content, status=401, mimetype='application/json')
@@ -161,11 +166,15 @@ def get_resume(workspace_contract) :
 
 def analysis(workspace_contract,resume, mode) :
 	""" external call available """
+	
+	print('session dans anlysis = ', session['username'])
+	
 	nb_issuer_none = 0 
 	nb_issuer_self_declared = 0
 	nb_issuer_is_relay = 0
 	nb_issuer_external = 0
 	nb_issuer_in_whitelist = 0
+	nb_claim = 0
 	is_kbis = "N/A"
 	is_kyc = "N/A"
 	nb_doc_description = 0
@@ -178,43 +187,42 @@ def analysis(workspace_contract,resume, mode) :
 	nb_doc = 0
 	
 	doc_name = ['file', 'experience', 'education', 'kbis', 'kyc', 'certificate']
-	claim_name = ['name', 'firstname', 'lastname', 'contact_email', 'contact_phone', 'contact_name', 'birthdate', 'postal_address', 'website']
+	company_claim_name = ['name', 'contact_email', 'contact_phone', 'contact_name', 'postal_address', 'website']
+	person_claim_name = ['firstname', 'lastname', 'birthdate', 'postal_address', 'about','education', 'profil_title', 'contact_email', 'contact_phone']
 
-	
+	if resume['type'] == 'person' :
+		claim_name = person_claim_name
+	else :
+		claim_name = company_claim_name
 
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
 				nb_doc +=1			
-				issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']
-			
+				issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']			
 				if issuer_workspace_contract == None :
 					nb_issuer_none +=1
-				else :	
-					issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract'].lower()	
-					if issuer_workspace_contract ==  workspace_contract.lower() or issuer_workspace_contract ==  mode.relay_workspace_contract.lower() :
-						nb_issuer_self_declared +=1				
-					elif issuer_workspace_contract in whitelist :
-						nb_issuer_in_whitelist += 1			
-					else  :
-						nb_issuer_external +=1	
+				elif issuer_workspace_contract.lower() ==  workspace_contract.lower() or issuer_workspace_contract.lower() ==  mode.relay_workspace_contract.lower() :
+					nb_issuer_self_declared +=1				
+				else  :
+					nb_issuer_external +=1	
 
 
 	for doctype in claim_name :	
-		if resume['personal'].get(doctype) is not None :
-				nb_doc +=1
-				issuer_workspace_contract = resume['personal'][doctype]['issuer']['workspace_contract']
-				if issuer_workspace_contract == None :
-					nb_issuer_none +=1
-				else : 	
-					issuer_workspace_contract = resume['personal'][doctype]['issuer']['workspace_contract'].lower()	
-					if issuer_workspace_contract ==  workspace_contract.lower() or issuer_workspace_contract ==  mode.relay_workspace_contract.lower():
-						nb_issuer_self_declared +=1
-				
-					elif issuer_workspace_contract in whitelist :
-						nb_issuer_in_whitelist += 1
-					else  :
-						nb_issuer_external +=1	
+		if resume['personal'][doctype]['issuer'] is None :
+			pass	
+		elif resume['personal'][doctype]['issuer']['workspace_contract'].lower == workspace_contract.lower() :
+			nb_claim += 1
+			nb_doc +=1
+			nb_issuer_self_declared +=1
+		elif  resume['personal'][doctype]['issuer']['workspace_contract'].lower ==  mode.relay_workspace_contract.lower():
+			nb_doc += 1
+			nb_claim +=1
+			nb_issuer_self_declared +=1
+		else  :
+			nb_doc +=1
+			nb_claim +=1
+			nb_issuer_external +=1	
 
 	
 
@@ -234,9 +242,16 @@ def analysis(workspace_contract,resume, mode) :
 		for cert in resume['certificate'] :
 			nb_doc_description +=1	
 			description += cert['description']			 
+	if resume['personal']['about']['claim_value'] is not None :
+		nb_doc_description +=1
+		description += resume['personal']['about']['claim_value'] 
 	
-	average_description = len(description.split())/nb_doc_description		
-
+	if nb_doc_description != 0 :
+		average_description = len(description.split())/nb_doc_description		
+	else : average_description = 0
+	
+	claim_rate = nb_claim/10
+		
 	my_analysis = {'topic' : 'analysis', 
 					'id' : 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:],
 					'workspace_contract' : workspace_contract,
@@ -244,9 +259,9 @@ def analysis(workspace_contract,resume, mode) :
 					'name' : resume['name'],
 					'nb_data' : nb_doc,
 					'nb_data_self_declared' : nb_issuer_self_declared,
-					'nb_data_whitelist_issuer' : nb_issuer_in_whitelist,
-					'nb_data_unknown_issuer' : nb_issuer_external,
+					'nb_data_with_issuer' : nb_issuer_external,
 					'kyc' : is_kyc,
+					'personal_data' : claim_rate,
 					'nb_description' : nb_doc_description,
 					'nb_words_per_description' : average_description,
 					'nb_certificate' : nb_certificate,

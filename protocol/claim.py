@@ -206,7 +206,6 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	nonce = w3.eth.getTransactionCount(address_from)  
 	issuer = address_from
 	# calcul de la signature
-	print (topicname, issuer, data, ipfs_hash)
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key_from)
@@ -403,8 +402,7 @@ class Claim() :
 			(profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :
-			issuer_workspace_contract = None
-			(profil, issuer_category, issuer_id) = (dict(), 0, None)
+			return False
 		
 		self.created = created
 		self.topicname = topicname
@@ -413,7 +411,7 @@ class Claim() :
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : issuer_category,
 						'id' : issuer_id }
-		self.issuer.update(profil)
+		self.issuer.update(profil)		
 		self.transaction_hash = transaction_hash
 		self.transaction_fee = transaction_fee
 		self.ipfs_hash = ipfs_hash
@@ -429,7 +427,7 @@ class Claim() :
 								'workspace_contract' : identity_workspace_contract,
 								'category' : identity_category,
 								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
-		return 
+		return True
 			
 	def get_by_id(self, identity_workspace_contract, claim_id, mode, loading='full') :		
 		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim_by_id(identity_workspace_contract, claim_id, mode)
@@ -439,16 +437,14 @@ class Claim() :
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 
 		else :
-			issuer_workspace_contract = None
-			(issuer_profil, issuer_category) = (dict(), 0)
-			issuer_id = None
+			return False
 			
 		self.created = created
 		self.topicname = topicvalue2topicname(self.topicvalue)
 		self.claim_value = data
 		self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,
-						'category' : category,
+						'category' : issuer_category,
 						'id' : issuer_id}
 		self.issuer.update(issuer_profil)
 		self.transaction_hash = transaction_hash
@@ -466,5 +462,5 @@ class Claim() :
 								'workspace_contract' : identity_workspace_contract,
 								'category' : category,
 								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
-		return 
+		return True
 	

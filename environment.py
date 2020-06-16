@@ -107,7 +107,7 @@ class currentMode() :
 			self.flaskserver = "127.0.0.1"
 			self.debug = True	
 		
-		if self.myenv == 'airbox' :  # sur portable et airbox
+		elif self.myenv == 'airbox' :  # sur portable et airbox
 			self.server = 'http://127.0.0.1:3000/' # external
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
@@ -127,20 +127,8 @@ class currentMode() :
 		#self.w3.geth.personal.unlockAccount(self.owner_talao,self.password,0)
 		self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0) # faire >>>personal.importRawKey(relay, "suc2cane") avec address sans '0x'
 	
-		lecture = True		
-		try :
-			myfile = open(self.BLOCKCHAIN+'_register.json', 'r') 
-		except :
-			print('erreur de lecture du fichier register')
-			lecture = False
-		try :
-			self.register = json.load(myfile)
-		except :	
-			print('contenu du fichier register erroné')
-			lecture = False
-		if lecture != False :
-			print('upload de register.json')
-			myfile.close()	
+			
+		
 
 			
 	def initProvider(self) :

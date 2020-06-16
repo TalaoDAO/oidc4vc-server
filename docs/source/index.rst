@@ -32,6 +32,7 @@ Welcome to Talao's documentation!
    create_an_identity
    request_a_certificate
    proof_of_identity
+   create_a_manager
 
    
   	

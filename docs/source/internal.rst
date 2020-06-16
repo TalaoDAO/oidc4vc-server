@@ -2,31 +2,53 @@
 Internal 
 =========
 
-Name Service
-------------
+Name Service (NS)
+-----------------
 
-Name Service (NS) is an independant routine to provide a readable identifier to DID.
-NS is supported by a Company Identity (nameservice) and claims issued within the Identity. Each user has a claim issued with a claim id calculated with his "namehash".
-Namehash are deducted from username according to the `Ethereum Name Service algorithm <https://docs.ens.domains/dapp-developer-guide/resolving-names>`_ .
+Name Service (NS) is an independant routine to provide a readable identifier for DID and an easy way to log to company and person Identity through Relay.
+One can use NS to setup Manager for companies. THe Managers have the right to use the Relay to sign transaction on behalf of the Identity.
 
-Claim Id are defined with address = namehash and topic = 117115101114110097109101 (username) with SHA3.
+It supports :
+
+   * Identity_name : a readable name for a DID (an identity workspace contract).
+   * Alias Name : for a person it is a readable name to log its own identity an an email to authentify.
+   * Manager Name : a readable name/email to log to a company identity. 
+
+Manager have a username made up of 2 parts example 'johndoe.generalmotors". A manager MUST have is own identity.
+Identity and Alias are one part names : "johndoe"
+
+At Identity creation, 2 statements are written :
+
+   * in the Resolver Table (identity_name/identity_workspace_contract/date)
+   * in the Alias Table (alias_name/identity_name/email/date).
+
+At Manager creation, one stament is written :
+
+   * in the Manager Table of the company (manager_name/alias_name/email/date). 
+
+To log to the company Identity through Relay the manager will use a 2 parts username as  "manager_name.company_identity_name".
 
 
+NS is supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias.
+	
 .. code-block:: python
 
-   claim_id = w3.solidityKeccak(['address', 'uint256'], [namehash, 117115101114110097109101 ]).hex()
-
-
-claims data are stored on IPFS as a JSON :
-
-.. code-block:: JSON
-
-
-  { "namehash' : namehash,
-	"wokspace_contract" : address,
-	"hosts" :  [address],
-	"publickey" : sha3_address,
-	} 
+   def init():
+	  conn = sqlite3.connect('nameservice.db')
+	  cur = conn.cursor()
+	  cur.execute('create table alias(alias_name text, identity_name text, email text, date real)')
+	  cur.execute('create table resolver(identity_name text, identity_workspace_contract text, date real)')
+	  cur.execute('create table publickey(address text, key text)')
+	  conn.commit()
+	  cur.close()
+	  return
+	
+   def init_host(host_name) :
+	  conn = sqlite3.connect(host_name + '.db')
+	  cur = conn.cursor()
+	  cur.execute('create table manager(manager_name text, alias_name text, email text, date real)')
+	  conn.commit()
+	  cur.close()
 
 
 Talao ERC725 Keys
@@ -38,17 +60,17 @@ Talao ERC725 Keys
 +====================+===================================+
 | 1                  |   Management Key, do everything   |
 +--------------------+-----------------------------------+
-| 2                  |   Not used  (see ERC725)          |    
+| 2                  |   Action (Not used)               |    
 +--------------------+-----------------------------------+
-| 3                  |   Not used                        |
+| 3                  |   Claims (Not used)               |
 +--------------------+-----------------------------------+
-| 4                  |   Not Used                        |
+| 4                  |   Crypto (Not used)               |
 +--------------------+-----------------------------------+
 | 5                  |   Issuer White List               |
 +--------------------+-----------------------------------+
 | 20002              |   Issuer Documents                |
 +--------------------+-----------------------------------+
-| 20003              |   Member                          |
+| 20003              |   Member (Not used)               |
 +--------------------+-----------------------------------+
 
 

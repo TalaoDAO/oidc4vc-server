@@ -99,7 +99,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="create_an_identity.html">Create an Identity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_a_certificate.html">Request a Certificate</a></li>
-<li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">Proof of Identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">Get a Proof of Identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_a_manager.html">Create a Manager</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Talent Connect:</span></p>
 <ul>
@@ -108,8 +109,8 @@
 <p class="caption"><span class="caption-text">Internal:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Internal</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#name-service">Name Service</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#talao-keys">Talao Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#name-service-ns">Name Service (NS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#talao-erc725-keys">Talao ERC725 Keys</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#talao-documents">Talao Documents</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#doctype">Doctype</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#kbis">Kbis</a></li>
@@ -187,27 +188,55 @@
             
   <div class="section" id="internal">
 <h1>Internal<a class="headerlink" href="#internal" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="name-service">
-<h2>Name Service<a class="headerlink" href="#name-service" title="Permalink to this headline">¶</a></h2>
-<p>Name Service (NS) is an independant routine to provide a readable identifier to DID.
-NS is supported by a Company Identity (nameservice) and claims issued within the Identity. Each user has a claim issued with a claim id calculated with his “namehash”.
-Namehash are deducted from username according to the <a class="reference external" href="https://docs.ens.domains/dapp-developer-guide/resolving-names">Ethereum Name Service algorithm</a> .</p>
-<p>Claim Id are defined with address = namehash and topic = 117115101114110097109101 (username) with SHA3.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">claim_id</span> <span class="o">=</span> <span class="n">w3</span><span class="o">.</span><span class="n">solidityKeccak</span><span class="p">([</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;uint256&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">namehash</span><span class="p">,</span> <span class="mi">117115101114110097109101</span> <span class="p">])</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+<div class="section" id="name-service-ns">
+<h2>Name Service (NS)<a class="headerlink" href="#name-service-ns" title="Permalink to this headline">¶</a></h2>
+<p>Name Service (NS) is an independant routine to provide a readable identifier for DID and an easy way to log to company and person Identity through Relay.
+One can use NS to setup Manager for companies. THe Managers have the right to use the Relay to sign transaction on behalf of the Identity.</p>
+<p>It supports :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Identity_name : a readable name for a DID (an identity workspace contract).</p></li>
+<li><p>Alias Name : for a person it is a readable name to log its own identity an an email to authentify.</p></li>
+<li><p>Manager Name : a readable name/email to log to a company identity.</p></li>
+</ul>
+</div></blockquote>
+<p>Managers have a username within the company as “manager_username.company_username”. A manager MUST have is own identity.</p>
+<p>At Identity creation, 2 statements are written :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>in the Resolver Table (identity_name/identity_workspace_contract/date)</p></li>
+<li><p>in the Alias Table (alias_name/identity_name/email/date).</p></li>
+</ul>
+</div></blockquote>
+<p>At Manager creation, one stament is written :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>in the Manager Table of the company (manager_name/alias_name/email/date).</p></li>
+</ul>
+</div></blockquote>
+<p>To log to the company Identity through Relay the manager will use a 2 parts username as  “manager_name.company_identity_name”.</p>
+<p>NS is supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
+       <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;nameservice.db&#39;</span><span class="p">)</span>
+       <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+       <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;create table alias(alias_name text, identity_name text, email text, date real)&#39;</span><span class="p">)</span>
+       <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;create table resolver(identity_name text, identity_workspace_contract text, date real)&#39;</span><span class="p">)</span>
+       <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;create table publickey(address text, key text)&#39;</span><span class="p">)</span>
+       <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+       <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+       <span class="k">return</span>
+
+<span class="k">def</span> <span class="nf">init_host</span><span class="p">(</span><span class="n">host_name</span><span class="p">)</span> <span class="p">:</span>
+       <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">host_name</span> <span class="o">+</span> <span class="s1">&#39;.db&#39;</span><span class="p">)</span>
+       <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+       <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;create table manager(manager_name text, alias_name text, email text, date real)&#39;</span><span class="p">)</span>
+       <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+       <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>claims data are stored on IPFS as a JSON :</p>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>{ &quot;namehash&#39; : namehash,
-      &#39;identity&quot; : { &quot;wokspace_contract&quot; : address,
-                              &quot;hosts&quot; :  [address],
-                              &quot;publickey&quot; : sha3_address,
-                              }
- }
-</pre></div>
 </div>
-</div>
-<div class="section" id="talao-keys">
-<h2>Talao Keys<a class="headerlink" href="#talao-keys" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="talao-erc725-keys">
+<h2>Talao ERC725 Keys<a class="headerlink" href="#talao-erc725-keys" title="Permalink to this headline">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 36%" />
@@ -226,15 +255,18 @@ Namehash are deducted from username according to the <a class="reference externa
 <td><p>Not used  (see ERC725)</p></td>
 </tr>
 <tr class="row-even"><td><p>3</p></td>
-<td><p>Issue Claims</p></td>
+<td><p>Not used</p></td>
 </tr>
-<tr class="row-odd"><td><p>5</p></td>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Not Used</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
 <td><p>Issuer White List</p></td>
 </tr>
-<tr class="row-even"><td><p>20002</p></td>
-<td><p>Issue Documents</p></td>
+<tr class="row-odd"><td><p>20002</p></td>
+<td><p>Issuer Documents</p></td>
 </tr>
-<tr class="row-odd"><td><p>20003</p></td>
+<tr class="row-even"><td><p>20003</p></td>
 <td><p>Member</p></td>
 </tr>
 </tbody>
