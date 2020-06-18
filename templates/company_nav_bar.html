@@ -12,8 +12,8 @@
 							
 							<!-- Menu -->
 							{% if session['username'] == 'talao' %}
-							      <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/add_key/" style="color: rgb(133,135,150);">Add Key</a></li>  
-							      <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/create_company/" style="color: rgb(133,135,150);">Create Company</a></li>  
+							      <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/create_person/" style="color: rgb(133,135,150);">Create a Talent</a></li>  
+							      <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/create_company/" style="color: rgb(133,135,150);">Create a Company</a></li>  
 							      <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_kbis/" style="color: rgb(133,135,150);">Issue a Kbis</a></li>  
 							      <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_kyc/" style="color: rgb(133,135,150);">Issue a Kyc</a></li>  
 							
@@ -21,8 +21,16 @@
 							       <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_certificate/" style="color: rgb(133,135,150);">Issue a Certificate</a></li>  
 									<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="http://talao.rtfd.io/" style="color: rgb(133,135,150);">Guide</a></li>  
 							{% endif %}
-									<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/search/" style="color: rgb(133,135,150);">Search</a></li>  
-
+						<!--			<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/search/" style="color: rgb(133,135,150);">Search</a></li>  -->
+									<!-- Search  -->
+                        <form action="/user/search/" method="POST" class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+								<div class="input-group">
+									<input class="bg-light form-control border-0 small" name="username_to_search" required="" pattern="[a-z0-9]{3,12}" type="text" placeholder="Search for Identity..." />
+									<div class="input-group-append">
+										<button class="btn btn-primary btn-sm " type="submit"><i class="fas fa-search"></i></button>
+									</div>
+								</div>
+							</form>
                             
                             <!-- Events -->
                             <li class="nav-item dropdown no-arrow mx-1" role="presentation">								
@@ -56,7 +64,8 @@
                                         <div class="dropdown-divider"></div>
                        		{% if session['username'] == 'talao' %}
                  
-										<a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>                 
+										<a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a Company&nbsp;</a>                 
+										<a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a Talent&nbsp;</a>                 
 										<a class="dropdown-item" role="presentation" href="/user/issue_kyc/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kyc&nbsp;</a>                 
 										<a class="dropdown-item" role="presentation" href="/user/issue_kbis/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kbis&nbsp;</a>                 
                                         <div class="dropdown-divider"></div>

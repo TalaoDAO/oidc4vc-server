@@ -17,8 +17,8 @@ import environment
 import constante
 
 # environment setup
-mode=environment.currentMode()
-w3=mode.w3
+mode = environment.currentMode()
+w3 = mode.w3
 
 
 #@app.route('/api/talent-connect/auth/', methods = ['POST'])
@@ -55,9 +55,6 @@ def auth() :
 	elif data['action'] == 'do something' :
 		pass
 		# do something
-	
-	
-	
 	else :
 		content = json.dumps({'topic' : 'error', 'msg' : 'action '+ data['action'] +' is not implemented'})
 		response = Response(content, status=406, mimetype='application/json')

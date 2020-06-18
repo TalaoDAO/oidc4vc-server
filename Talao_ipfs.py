@@ -1,20 +1,27 @@
 import ipfshttpclient
 import json
 
-# retourne une chaine str
-# en entrée un dictionnaire {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }}
-def IPFS_add(json_data) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=35000)
-	response=client.add_json(json_data)
-	response2=client.pin.add(response)
-	return response
+def ipfs_add(json_dict) :
+	""" add a json file as a dict example : ipfs_add({ 'data' : 123}) """
+	#client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=3500)
+	client = ipfshttpclient.connect('/dns/127.0.0.1/tcp/5001/http', chunk_size=35000)
+	try : 
+		response=client.add_json(json_dict)
+		response2=client.pin.add(response)
+		return response
+	except :
+		print('ipfs http error dans document.py')
+		return None
 
 
-
-def IPFS_get(ipfs_hash) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+def ipfs_get(ipfs_hash) :
+	#client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+	client = ipfshttpclient.connect('/dns/127.0.0.1/tcp/5001/http', chunk_size=3500)
 	return(client.get_json(ipfs_hash))
 
-#res=client.get_json('QmSifSzujmUq2w9nAJFLuAS9BVGDyM2jqw7dCgkD47igL3')
-#res = client.add_json( {"user": { "ethereum_account": '123' , "ethereum_contract": '234' ,"first_name" : 'Jean' ,"last_name" : 'Pierre' }} )
 
+
+
+	
+if __name__ == '__main__':
+	print(IPFS_add({'data' : 123}))	

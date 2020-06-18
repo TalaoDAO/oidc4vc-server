@@ -29,7 +29,8 @@ def _init_nameservice():
 	cur.close()
 	return
 	
-def _init_host(host_name) :
+def init_host(host_name) :
+	""" This function is only used in createcompany """
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
 	cur.execute('create table manager(manager_name text, identity_name text, email text, date real)')
@@ -40,11 +41,11 @@ def setup() :
 	
 	_init_nameservice()
 	
-	_init_host('talao')
-	_init_host('thales')
-	_init_host('skillvalue')
-	_init_host('relay')
-	_init_host('bnp')
+	init_host('talao')
+	init_host('thales')
+	init_host('skillvalue')
+	init_host('relay')
+	init_host('bnp')
 	
 	add_identity('talao', '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341', 'contact@talao.io',mode)
 	add_identity('bnp', '0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4', 'contact@bnp.talao.io', mode)
@@ -279,7 +280,7 @@ def get_data_from_publickey(publickey, mode) :
 			'username' : username}
 
 
-def _get_data_for_login(username) :
+def get_data_for_login(username) :
 	call = _get_data(username)
 	if call is None :
 		return None
@@ -290,14 +291,16 @@ def _get_data_for_login(username) :
 		return host, email 
 
 def get_data_from_username(username, mode) :
-	call = _get_data_for_login(username)
+	""" It is almost the same as get_data_for_login but with dict as return """
+	call = get_data_for_login(username)
 	if call is None :
 		return None
 	workspace_contract, email = call
 	address = _contractsToOwners(workspace_contract,mode)
 	return {'email' : email,
 			'address' : address,
-			'workspace_contract' : workspace_contract}
+			'workspace_contract' : workspace_contract,
+			'username' : username}
 
 def get_alias_list(workspace_contract) :
 	call = get_username_from_resolver(workspace_contract)

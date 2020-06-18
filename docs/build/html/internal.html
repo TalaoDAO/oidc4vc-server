@@ -110,6 +110,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Internal</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#name-service-ns">Name Service (NS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#identity-vs-keys">Identity vs keys</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#talao-erc725-keys">Talao ERC725 Keys</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#talao-documents">Talao Documents</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#doctype">Doctype</a></li>
@@ -200,7 +201,8 @@ One can use NS to setup Manager for companies. THe Managers have the right to us
 <li><p>Manager Name : a readable name/email to log to a company identity.</p></li>
 </ul>
 </div></blockquote>
-<p>Managers have a username within the company as “manager_username.company_username”. A manager MUST have is own identity.</p>
+<p>Manager have a username made up of 2 parts example ‘johndoe.generalmotors”. A manager MUST have is own identity.
+Identity and Alias are one part names : “johndoe”</p>
 <p>At Identity creation, 2 statements are written :</p>
 <blockquote>
 <div><ul class="simple">
@@ -235,6 +237,12 @@ One can use NS to setup Manager for companies. THe Managers have the right to us
 </pre></div>
 </div>
 </div>
+<div class="section" id="identity-vs-keys">
+<h2>Identity vs keys<a class="headerlink" href="#identity-vs-keys" title="Permalink to this headline">¶</a></h2>
+<p>Company Identities are always created by Talao which has a copy of the private key and RSA key</p>
+<p>For User Identity, it depends on the way it has been created. Talao might have nothing or only a Management key to sign transactions or a Management Key + RSA key or the private key.
+If user Identity has been created by Relay, Talao has a copy of the private key, RSA key and secret key.</p>
+</div>
 <div class="section" id="talao-erc725-keys">
 <h2>Talao ERC725 Keys<a class="headerlink" href="#talao-erc725-keys" title="Permalink to this headline">¶</a></h2>
 <table class="docutils align-default">
@@ -252,13 +260,13 @@ One can use NS to setup Manager for companies. THe Managers have the right to us
 <td><p>Management Key, do everything</p></td>
 </tr>
 <tr class="row-odd"><td><p>2</p></td>
-<td><p>Not used  (see ERC725)</p></td>
+<td><p>Action (Not used)</p></td>
 </tr>
 <tr class="row-even"><td><p>3</p></td>
-<td><p>Not used</p></td>
+<td><p>Claims (Not used)</p></td>
 </tr>
 <tr class="row-odd"><td><p>4</p></td>
-<td><p>Not Used</p></td>
+<td><p>Crypto (Not used)</p></td>
 </tr>
 <tr class="row-even"><td><p>5</p></td>
 <td><p>Issuer White List</p></td>
@@ -267,7 +275,7 @@ One can use NS to setup Manager for companies. THe Managers have the right to us
 <td><p>Issuer Documents</p></td>
 </tr>
 <tr class="row-even"><td><p>20003</p></td>
-<td><p>Member</p></td>
+<td><p>Member (Not used)</p></td>
 </tr>
 </tbody>
 </table>

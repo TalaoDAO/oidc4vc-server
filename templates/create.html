@@ -67,7 +67,7 @@
 									<small>{{message}}</small> 
 								</div> 
                                     <form class="user" action="/register/" method="post">
-                                        <div class="form-group"><input class="form-control" type="text" placeholder="username" name="username" pattern="[a-z0-9]+" style="color: rgb(133,135,150);" required></div>
+                                        <div class="form-group"><input class="form-control" type="text" placeholder="lowercase only" name="username" pattern="[a-z0-9]{3,12}" style="color: rgb(133,135,150);" required="" ></div>
                                         <div class="form-group"><input class="form-control" type="email" placeholder="Email for authentification" name="email" required></div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Start the process</button>
                                         
                                         

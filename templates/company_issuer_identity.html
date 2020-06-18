@@ -22,29 +22,38 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                                              {% include 'user_nav_bar.html' %}    
+                
+        {% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+                
+                
+                               {% include 'user_nav_bar.html' %}    
 
             
             
             
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{issuer_name}}</h3>
-        <!--         <h6 class="text-info">{{get_flashed_messages()[0]}}</h6>  -->
-       
                 <div class="row">
-					
-                    <div class="col-xl-3 offset-xl-4">
+                    <div class="col-xl-6 offset-xl-3">
                         <div class="card-deck">
-                    
-                    
                             <div class="card shadow mb-5">
                                 <div class="card-body">
+                                    <h4><img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}"></h4>
                                     <div role="tablist" id="accordion-1">
-                                        
-                                        
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
-                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company</a></h5>
+                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company Details</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -52,43 +61,44 @@
                                                 </div>
                                             </div>
                                         </div>
-                                       
-                                      <div class="card">
+                                     
+                                        
+                                        <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0"><i class="fa fa-file-text-o"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-2" href="#accordion-1 .item-2">&nbsp; Proof of Identity</a></h5>
+                                                <h5 class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Proof of Identity</a></h5>
                                             </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body"><a href="#"></a>
+                                            <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body">
                                                     <p class="card-text">{{kbis|safe}}</p>
                                                 </div>
                                             </div>
                                         </div>
-                                                        
-                                           <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
-                                                <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-3" href="#accordion-1 .item-3">&nbsp; Advanced</a></h5>
-                                            </div>
-                                            <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{advanced|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
                                        
+                             
+                         
+                                 
                                         
-                                         </div>
-                                    <a class="card-link" href="#" onclick="history.go(-1)">Back</a>
-                                    </div>
+                                        
                                         
                                     </div>
                                 </div>
                             </div>
                            
                          
-                           
-                
-                
+                            <div class="card shadow mb-5">
+                                <div class="card-body">
+                                    <h4 class="text-dark mb-4">Services</h4>
+											
+											{{services|safe}}
+											
+											<a class="card-link" href="/user/?username={{username}}"><div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div></a>
+										</div>  
+                                 
+                                     
+                                        
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,7 +106,7 @@
     </div>
     
     
-                            {% include 'user_footer.html' %}    
+                        {% include 'user_footer.html' %}    
 
     </div>
    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>

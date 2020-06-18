@@ -34,16 +34,16 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Create a new Username</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Create a new Alias for Login</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/add_alias/" method="POST">
                                 <div class="form-row">
                                     <div class="col">
                                         <p>Allows you to acces and manage your Identity through different Username and Email. You can for instance create a new access for each of your devices (Smartphone, PC,...) or for your customers...</p>
-                                        <div class="form-group"><label><strong>New Userame</strong><br></label><input class="form-control" pattern="[a-z0-9]" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="john.doe.smartphone, ..." required="" title="text pour acces username"
+                                        <div class="form-group"><label><strong>New Userame</strong><br></label><input class="form-control" pattern="[a-z0-9]{3-8}" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="alias" required="" title="3 to 12 lowercase letters/numbers"
                                                 name="access_username"></div>
-                                        <div class="form-group"><label><strong>Authentification Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="Your email" required="" title="Text pour access email"
+                                        <div class="form-group"><label><strong>Authentification Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="your email" required="" title="An email to log"
                                                 name="access_email"></div>
 									</div>
                                 </div>
@@ -51,7 +51,7 @@
                             
 								<div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit"  value="send">Add an Access</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit"  value="send">Add an Alias</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
 										   <a href="/user/?username={{username}}">

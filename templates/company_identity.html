@@ -61,7 +61,7 @@
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
-                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company</a></h5>
+                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company Details</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -97,6 +97,7 @@
                                     <h4></h4>
                                     <div role="tablist" id="accordion-2">
                                         
+                       {% if display_manager == True %}
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">
@@ -106,7 +107,7 @@
 													<div class="card-body"><p class="card-text">{{manager|safe}}</p></div>                                                  
                                             </div>
                                         </div>
-                                        
+                         {% endif %}
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">

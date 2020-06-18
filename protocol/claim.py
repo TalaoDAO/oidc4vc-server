@@ -3,7 +3,6 @@ import hashlib
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
-import ipfshttpclient
 from base64 import b64encode
 from datetime import datetime, timedelta
 from eth_account import Account
@@ -13,7 +12,7 @@ from base64 import b64encode, b64decode
 
 #dependances
 import constante
-
+from Talao_ipfs import ipfs_add, ipfs_get
 
 			
 def contracts_to_owners(workspace_contract, mode) :
@@ -26,17 +25,6 @@ def owners_to_contracts(address, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
-	
-def ipfs_add(json_data) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=35000)
-	response=client.add_json(json_data)
-	response2=client.pin.add(response)
-	return response
-
-
-def ipfs_get(ipfs_hash) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-	return(client.get_json(ipfs_hash))
 
 
 def topicvalue2topicname(topic_value) :
@@ -201,6 +189,8 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	else : 
 		data_encrypted = encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
 		ipfs_hash = ipfs_add(data_encrypted)
+		if ipfs_hash is None :
+			return None
 		data = privacy
 		
 	nonce = w3.eth.getTransactionCount(address_from)  

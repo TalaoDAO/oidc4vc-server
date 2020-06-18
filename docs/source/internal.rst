@@ -51,6 +51,15 @@ NS is supported by SQLite3 with one DB per company for Managers and one DB for D
 	  cur.close()
 
 
+Identity vs keys
+----------------
+
+Company Identities are always created by Talao which has a copy of the private key and RSA key
+
+For User Identity, it depends on the way it has been created. Talao might have nothing or only a Management key to sign transactions or a Management Key + RSA key or the private key.
+If user Identity has been created by Relay, Talao has a copy of the private key, RSA key and secret key. 
+
+
 Talao ERC725 Keys
 -----------------
 

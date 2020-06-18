@@ -3,25 +3,15 @@ import hashlib
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
-import ipfshttpclient
 from eth_account import Account
 from base64 import b64encode
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 
+from Talao_ipfs import ipfs_add, ipfs_get
 
 #dependances
 import constante
-
-def ipfs_add(json_data) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=100000)
-	response=client.add_json(json_data)
-	response2=client.pin.add(response)
-	return response
-
-def ipfs_get(ipfs_hash) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-	return(client.get_json(ipfs_hash))
 
  
 def contracts_to_owners(workspace_contract, mode) :
@@ -138,6 +128,8 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	
 	# stocke sur ipfs les data attention on archive des bytes
 	ipfs_hash = ipfs_add(data)
+	if ipfs_hash is None :
+		return None
 	
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	_data = json.dumps(data)

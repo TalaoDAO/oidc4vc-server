@@ -122,6 +122,7 @@ pygments_style = 'sphinx'
 
 # Maps git branches to Sphinx themes
 default_html_theme = 'sphinx_rtd_theme'
+
 branch_to_theme_mapping = {
     # 3rd party themes
     'master': default_html_theme,

@@ -5,7 +5,6 @@ pour la validation du bearer token https://auth0.com/docs/quickstart/backend/pyt
 
 interace wsgi https://www.bortzmeyer.org/wsgi.html
 
-import ipfshttpclient
 
 request : http://blog.luisrei.com/articles/flaskrest.html
 """
@@ -13,7 +12,6 @@ import os
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
-import ipfshttpclient
 from flask_fontawesome import FontAwesome
 import http.client
 import random
@@ -25,13 +23,13 @@ from werkzeug.utils import secure_filename
 # dependances
 import Talao_message
 import createcompany
+import createidentity
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership
+from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership
 from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
 import environment
 import hcode
-
 import ns
 
 # Centralized  route
@@ -120,19 +118,12 @@ def check_login(username) :
 	else :
 		return username
 
-"""
-def is_username_in_list(my_list, username) :
-	new_list = [user for user in my_list if user['username'] == username]
-	if len(new_list) != 0 :
-		return True
-	else :
-		return False
-"""
-
 
 def is_username_in_list(my_list, username) :
-	return len([user for user in my_list if user['username'] == username]) != 0
-	
+	for user in my_list :
+		if user['username'] == username :
+			return True
+	return False	
 
 # Starter with 3 options, login and logout
 @app.route('/starter/', methods = ['GET', 'POST'])
@@ -165,6 +156,7 @@ def login() :
 		# secret code to send by email
 		if session.get('code') is None :
 			session['code'] = str(random.randint(100000, 999999))
+			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
 			Talao_message.messageAuth(email_to_log, str(session['code']))
 			print('secret code sent = ', session['code'])
@@ -184,13 +176,17 @@ def login_2() :
 	session['try_number'] +=1
 	print('code retourné = ', code)
 	
-	if code == session['code'] or code == "123456": # pour les tests
+	if code in [session['code'], "123456"] and datetime.now() < session['code_delay'] : # pour les tests
 		session['username_logged'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']
 		del session['code'] 
 		return redirect(mode.server + 'user/?username=' + session['username_logged'])		
 	
+	elif session['code_delay'] < datetime.now() :
+		flash("Code expired")
+		return render_template("login.html")
+		
 	elif session['try_number'] > 3 :
 		flash("Too many trials (3 max)")
 		return render_template("login.html")
@@ -227,7 +223,6 @@ def photo() :
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 		picturefile = UPLOAD_FOLDER + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
-		print('picture file = ',picturefile)
 		session['picture'] = filename			
 		return redirect(mode.server + 'user/?username=' + username)
 
@@ -249,7 +244,6 @@ def signature() :
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 		picturefile = UPLOAD_FOLDER + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'signature', mode, synchronous = False)	
-		print('signature file = ',picturefile)
 		session['signature'] = filename			
 		return redirect(mode.server + 'user/?username=' + username)
 
@@ -279,25 +273,16 @@ def issuer_explore() :
 	if 'issuer_username' not in session or session['issuer_username'] != issuer_username :
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode).__dict__.copy()
+	
 		del session['issuer_explore']['mode']
-		print('session issuer = ', session['issuer_explore'])
 		session['issuer_username'] = issuer_username
-		
+	
 	# do something common
 	my_event_html, my_counter =  event_display(session['events'])
-	my_name = session['name']
 	issuer_name = session['issuer_explore']['name']
 	my_picture = session['picture'] 
-	
-	# advanced
-	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
-	issuer_advanced = """
-					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>										
-					<b>Username</b> : """ + issuer_username + """<br>										
-					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['issuer_explore']['workspace_contract'] + """>"""+ session['issuer_explore']['workspace_contract'] + """</a><br>					
-					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['issuer_explore']['address'] + """>"""+ session['issuer_explore']['address'] + """</a>"""					
-
-	
+	issuer_picture = "anonymous1.png" if session['issuer_explore']['picture'] is None else session['issuer_explore']['picture']
+						
 	if session['issuer_explore']['type'] == 'person' :
 		# do something specifc	
 		issuer_picture = "anonymous1.png" if session['issuer_explore']['picture'] is None else session['issuer_explore']['picture']
@@ -324,6 +309,34 @@ def issuer_explore() :
 					</a>
 				</span><br>"""				
 		
+		
+		# kyc
+		if len (session['issuer_explore']['kyc']) == 0:
+			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
+					<a class="text-danger">No Proof of Identity available</a>"""
+		else :	
+			my_kyc = ""
+			for kyc in session['issuer_explore']['kyc'] :
+				kyc_html = """
+				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>				
+				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>				
+				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>				
+				
+				<b>Sex</b> : """+ kyc['sex'] +"""<br>			
+				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
+				<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
+				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
+				<b>Authority</b> : """+ kyc['authority']+"""<br>
+				<b>Country</b> : """+ kyc['country']+"""<br>				
+				<b>Id</b> : """+ kyc['id']+"""<br>				
+				<p>		
+					
+					<a class="text-secondary" href=/data/"""+ kyc['id'] + """:kyc>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					</a>
+				</p>"""	
+				my_kyc = my_kyc + kyc_html		
+	
 
 		# experience
 		issuer_experience = ''
@@ -376,16 +389,60 @@ def issuer_explore() :
 						</a>
 					</p>"""	
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
+				
+				
+				
+					
+		#services 
+		services = ""
+		if session['type'] == 'person' :
+			if not is_username_in_list(session['issuer'], issuer_username) :
+				services = """<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Issuer List to request him a recommendation.</a><br>"""
+			else :
+				services = """<a class="text-success">This Talent is in your Issuer List.</a><br>
+							<a href="/user/issue_referral/">Request this Talent a recommendation.</a><br>"""
+				
+			if not is_username_in_list(session['whitelist'], issuer_username) :
+				services = services + """<br><a class="text-warning">This Talent is not in your White List.</a><br>
+							<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Talent in your White List</a><br>"""
+			else :
+				services = services + """<br><a class="text-success">This Talent is in your White list.</a><br>"""
 		
+			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
+				services = services + """<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a Recommendation</a><br>"""
+			else :
+				services = services + """<br><br>"""
+		
+		
+		if not is_username_in_list(session['partner'], issuer_username) :
+			services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a>
+			<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private data.</a><br>"""
+		else :
+			services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
+		
+		
+		if session['type'] == 'company' :
+		
+			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
+				services = services + """ <br><a class="text-success">Talent has authorized the Company to issue Certificates.</a>
+										<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a new Certificate</a><br>"""
+			else :
+				services = services + """<br><br>"""
+			
+			services = services + """<br><br><br><br><br><br><br><br><br><br><br><br>"""					
+		
+		services = services + """<br><br><br><br><br><br>"""
+											
 		return render_template('person_issuer_identity.html',
 							issuer_name=issuer_name,
 							username=username,
-							name=my_name,
-							advanced=issuer_advanced,
+							name=session['name'],
+							kyc=my_kyc,
 							personal=issuer_personal,
 							experience=issuer_experience,
 							certificates=issuer_certificates,
 							education=issuer_education,
+							services=services,
 							event=my_event_html,
 							counter=my_counter,
 							picturefile = my_picture,
@@ -430,16 +487,45 @@ def issuer_explore() :
 				</span><br>"""
 		
 		
+		#services 
+		if not is_username_in_list(session['issuer'], issuer_username) :
+			services = """<a class="text-warning">This Company is not in your Issuer List.</a><br>
+						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Issuer List to request Certificates.</a><br>"""
+		else :
+			services = """<a class="text-success">This Company is in your Issuer List.</a><br>
+						<a href="/user/request_certificate/">You can request a certificate.</a><br>"""
+		
+		if not is_username_in_list(session['whitelist'], issuer_username) :
+			services = services + """<br><a class="text-warning">This Company is not in your White List.</a><br>
+						<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Company in your White List to increase your rating.</a><br>"""
+		else :
+			services = services + """<br><a class="text-success">This Companyt is in your White list.</a><br>"""
+		
+		if not is_username_in_list(session['partner'], issuer_username) :
+			services = services + """<br><a class="text-warning">This Comapny is not in your Partner List.</a>
+			<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to access private information.</a><br>"""
+		else :
+			services = services + """<br><a class="text-success">This Company is in your Partner list.</a><br>"""
+		
+		if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
+			services = services + """<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a Recommendation</a><br>"""
+		else :
+			services = services + """<br><br>"""
+								
+		services = services + """<br><br><br><br><br><br>"""
+		
+		
 		return render_template('company_issuer_identity.html',
 							issuer_name=issuer_name,
 							username=username,
-							name=my_name,
+							name= session['name'],
 							kbis=my_kbis,
-							advanced=issuer_advanced,
+							services=services,
 							personal=issuer_personal,
 							event=my_event_html,
 							counter=my_counter,
-							picturefile=my_picture)
+							picturefile=my_picture,
+							issuer_picturefile=issuer_picture)
 
 
 
@@ -543,8 +629,46 @@ def issue_experience_certificate():
 	
 
 
-
-
+		
+# issue referral for person
+@app.route('/user/issue_referral/', methods=['GET', 'POST'])
+def issue_referral():
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		issuer_username = request.args['issuer_username']
+		issuer_name = request.args['issuer_name']
+		session['talent_to_issue_certificate_username'] = issuer_username
+		return render_template('issue_referral.html',
+								picturefile=my_picture,
+								event=my_event_html,
+								counter=my_counter,
+								name=session['name'],
+								issuer_username=issuer_username,
+								issuer_name = issuer_name)
+	if request.method == 'POST' :
+		issuer_username = session['talent_to_issue_certificate_username']
+		referral = {
+					"type" : "referral",	
+					"description" : request.form['description'],
+					"relationship" : request.form['relationship']}	
+		print('referral = ', referral)					
+		workspace_contract_to = ns.get_data_from_username(session['talent_to_issue_certificate_username'], mode)['workspace_contract']
+		address_to = contractsToOwners(workspace_contract_to, mode)
+		my_referral = Document('certificate')
+		
+		execution = my_referral.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], referral, mode, mydays=0, privacy='public', synchronous=True) 
+		if execution is None :
+			flash('Operation failed ', 'danger')
+		else : 
+			(doc_id, ipfshash, transaction_hash) = execution	
+			# add certificate in session
+			flash('Certificate has been issued', 'success')
+		del session['talent_to_issue_certificate_username']
+		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)		
+	
 
 
 
@@ -741,11 +865,30 @@ def create_company() :
 		company_username = request.form['company_username'].lower()
 		done = createcompany.create_company(company_email, company_username, mode)
 		if done :
-			flash('New company added ' + company_username, 'success')
+			flash(company_username + ' has been created as company', 'success')
 		else :
 			flash('Creation failed, username ' + company_username + ' already exists ?', 'danger')
 		return redirect(mode.server + 'user/?username=' + username)
 
+
+# create a person 
+@app.route('/user/create_person/', methods=['GET', 'POST'])
+def create_person() :
+	username = check_login(session.get('username'))	
+	my_picture = session['picture']
+	my_event = session.get('events')
+	my_event_html, my_counter =  event_display(session['events'])
+	if request.method == 'GET' :
+		return render_template('create_person.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+	if request.method == 'POST' :
+		person_email = request.form['person_email']
+		person_username = request.form['person_username']
+		done = createidentity.create_user(person_username, person_email, mode)
+		if done :
+			flash(person_username + ' has been created as a person', 'success')
+		else :
+			flash('Creation failed, username ' + person_username + ' already exists ?', 'danger')
+		return redirect(mode.server + 'user/?username=' + username)
 
 # add experience
 @app.route('/user/add_experience/', methods=['GET', 'POST'])
@@ -1000,7 +1143,6 @@ def remove_partner() :
 		remove_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_remove'], mode, synchronous= True)
 		session['partner'] = [ partner for partner in session['partner'] if partner['workspace_contract'] != session['partner_workspace_contract_to_remove']]
 		flash('The partnership with '+session['partner_username_to_remove']+ '  has been removed', 'success')
-		print('partner w =', session['partner_workspace_contract_to_remove'])
 		del session['partner_username_to_remove']
 		del session['partner_workspace_contract_to_remove']
 		return redirect (mode.server +'user/?username=' + username)
@@ -1056,7 +1198,7 @@ def add_alias() :
 		if ns.get_data_from_username(request.form['access_username'],mode) is not None :
 			flash('Username already used' , 'warning')
 			return redirect (mode.server +'user/?username=' + username)
-		alias_username = request.form['access_username'] + '.' + session['username']
+		alias_username = request.form['access_username']
 		ns.add_alias(alias_username, username, request.form['access_email'])
 		flash('Alias added for '+ alias_username , 'success')
 		return redirect (mode.server +'user/?username=' + username)
@@ -1066,8 +1208,15 @@ def add_alias() :
 def remove_access() :	
 	username = check_login(session.get('username'))	
 	username_to_remove = request.args['username_to_remove']
-	#deleteName(username_to_remove, mode)
-	flash('Username removed for '+username_to_remove, 'success')
+	manalias_name,s,host_name = username_to_remove.partition('.')
+	if host_name != "" :
+		execution = ns.remove_manager(manalias_name, host_name)
+	else :
+		execution = ns.remove_alias(manalias_name)
+	if execution :
+		flash(username_to_remove + ' has been removed', 'success')
+	else :
+		flash('Operation failed', 'danger')
 	return redirect (mode.server +'user/?username=' + username)
 
 
@@ -1085,22 +1234,13 @@ def add_manager() :
 		if ns.get_data_from_username(request.form['manager_username'].lower(),mode) is None :
 			flash('Username not found' , 'warning')
 			return redirect (mode.server +'user/?username=' + username)
-		manager_username = request.form['manager_username'].lower()
+		manager_username = request.form['manager_username']
 		ns.add_manager(manager_username, manager_username, username, request.form['manager_email'])
 		flash('Manager added for '+ manager_username.lower() , 'success')
 		return redirect (mode.server +'user/?username=' + username)
 		
 		add_manager(manager_name, alias_name, host_name, email)
-		
-"""# remove
-@app.route('/user/remove_access/', methods=['GET'])
-def remove_access() :	
-	username = check_login(session.get('username'))	
-	username_to_remove = request.args['username_to_remove']
-	deleteName(username_to_remove, mode)
-	flash('Username removed for '+username_to_remove, 'success')
-	return redirect (mode.server +'user/?username=' + username)
-"""
+
 
 
 
@@ -1127,26 +1267,20 @@ def request_proof_of_identity() :
 @app.route('/user/add_issuer/', methods=['GET', 'POST'])
 def add_issuer() :	
 	username = check_login(session.get('username'))	
-	if request.method == 'GET' :				
-		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('add_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
-	elif request.method == 'POST' :
-		issuer_username = request.form['issuer_username']
-		if is_username_in_list(session['issuer'], issuer_username) :
-			flash(issuer_username + ' is already authorized', 'warning')
-			return redirect (mode.server +'user/?username=' + username)	
-		issuer_workspace_contract = ns.get_data_from_username(issuer_username,mode)['workspace_contract']
-		issuer_address = contractToOwners(issuer_workspace_contract, mode)
-		addkey(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
-		# update issuer list in session
-		issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
-		contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
-		issuer_workspace_contract = ownersToContracts(issuer_address, mode)
-		session['issuer'].append(ns.get_data_from_username(issuer_username, mode))	
-		flash(issuer_username + ' has been added as Issuer', 'success')
-		return redirect (mode.server +'user/?username=' + username)	
+	issuer_username = request.args['issuer_username']	
+	issuer_workspace_contract = ns.get_data_from_username(issuer_username,mode)['workspace_contract']
+	issuer_address = contractsToOwners(issuer_workspace_contract, mode)
+	
+	add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
+	
+	# update issuer list in session
+	issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
+	issuer_workspace_contract = ownersToContracts(issuer_address, mode)
+	session['issuer'].append(ns.get_data_from_username(issuer_username, mode))	
+	flash(issuer_username + ' has been added as Issuer', 'success')
+	return redirect (mode.server +'user/?username=' + username)	
+
 # remove issuer
 @app.route('/user/remove_issuer/', methods=['GET', 'POST'])
 def remove_issuer() :
@@ -1188,7 +1322,7 @@ def add_white_issuer() :
 				return redirect(mode.server + 'user/?username=' + username)
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username,mode)['workspace_contract']
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
-		addkey(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 5, mode, synchronous=True) 
+		add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 5, mode, synchronous=True) 
 		# update issuer list in session
 		issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
@@ -1246,95 +1380,6 @@ def send_file(filename):
 def send_fonts(filename):
 	UPLOAD_FOLDER='templates/assets/fonts'
 	return send_from_directory(UPLOAD_FOLDER, filename)		
-
-"""
-##################################################
-# Remove Identity
-##################################################
-@app.route('/talao/api/did/remove/<did>', methods=['GET'])
-def identityRemove_1(did) :
-	session['did'] = did
-	session['endtime'] = datetime.now() + timedelta(minutes=3)
-	return render_template('remove1.html', message="", myusername="")
-	
-@app.route('/talao/api/did/remove/', methods=['POST'])
-def identityRemove_2() :
-	if datetime.now() > session['endtime'] :
-		mymessage="time out"
-		return render_template('remove3.html', message=mymessage)	
-	
-	username= request.form.get('username')
-	if username_to_data(username, mode)['workspace_contract']is None :
-		mymessage="Your username is not registered"
-		return render_template('remove1.html', message=mymessage)
-	
-	did=session['did']	
-	workspace_contract_did='0x'+did.split(':')[3]
-	workspace_contract = username_to_data(username, mode)['workspace_contract']
-	if workspace_contract_did != workspace_contract :
-		mymessage = 'Your are not the owner of this Identity, you cannot delete it.'
-		return render_template("remove3.html", message=mymessage)
-	
-	email = uername_to_data(username, mode)['email']
-	if email == False :
-		mymessage="Your email for authentification is not registered"
-		return render_template('remove3.html', message=mymessage)			
-	session['username'] = username
-	# secret code is sent by email
-	code = str(random.randint(100000, 999999))
-	print('code secret = ', code)
-	session['code'] = code
-	session['try_number'] = 0
-	Talao_message.messageAuth(email, code)
-	mymessage="Code has been sent"
-	return render_template("remove2.html", message=mymessage)
-
-
-@app.route('/talao/api/did/remove/code/', methods=['POST'])
-def identityRemove_3() :
-	if 'username' not in session :
-		mymessage="session is over"
-		return render_template('remove3.html', message= mymessage)	
-	
-	if datetime.now() > session['endtime'] :
-		mymessage="time out"
-		return render_template('remove3.html', message= mymessage)	
-	
-	session['try_number'] += 1
-	if session['try_number'] > 3 :
-		mymessage = "Too many trials (3 max)"
-		return render_template("remove3.html", message = mymessage)
-	
-	mycode = request.form['mycode']	
-	if mycode == session['code'] :
-		did=session['did']
-		workspace_contract='0x'+did.split(':')[3]
-		private_key=getPrivatekey(workspace_contract,mode)
-		if not private_key :
-			mymessage = "Talao does not have the private key of this Identity"
-			return render_template("remove3.html", message=mymessage)	
-		
-		# on detruit le workspace et on efface la cle du registre
-		destroyWorkspace(workspace_contract, private_key, mode)
-		username=session['username']
-		deleteName(username,mode)
-		mymessage = 'Identity has been removed and data deleted' 
-		return render_template("remove3.html", message=mymessage)
-
-	else : # code incorrect
-		mymessage = 'This code is incorrect'	
-		return render_template("remove2.html", message=mymessage)
-"""
-
-"""
-# sortie et retour vers resolver
-@app.route('/talao/api/did/remove/code/', methods=['GET'])
-def identityRemove_4() :
-	did=session['did']
-	session.clear()
-	return redirect(mode.server+'resume/')
-"""	
-
 
 
 

@@ -15,6 +15,7 @@ import Talao_ipfs
 import Talao_message
 import constante
 
+
 ############################################################
 # appel de ownersToContracts de la fondation
 ############################################################
@@ -492,24 +493,9 @@ def read_workspace_info (address, rsa_key, mode) :
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract=ownersToContracts(address,mode)
 
-	# recuperation du email 
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	claim = contract.functions.getClaimIdsByTopic(101109097105108).call()
-	claim_id = claim[-1].hex()
-	data = contract.functions.getClaim(claim_id).call()
-	scheme = data[1]
-	
 	key = RSA.importKey(rsa_key)
 	cipher = PKCS1_OAEP.new(key)
-		
-	if scheme == 1 : # freedap creation , email non crypté
-		email = data[4].decode('utf-8')
 	
-	elif scheme == 2 :
-		# decoder l 'email cryptée avec la cle RSA privée
-		bemail = cipher.decrypt(data[4])			
-		email = bemail.hex()
-
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	category = data[1]
@@ -522,7 +508,7 @@ def read_workspace_info (address, rsa_key, mode) :
 	aes_encrypted=data[5]
 	aes = cipher.decrypt(aes_encrypted)				
 	
-	return workspace_contract, category, email , secret, aes 
+	return category, secret, aes 
 
 
 #########################################################	

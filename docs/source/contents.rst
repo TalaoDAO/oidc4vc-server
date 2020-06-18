@@ -26,6 +26,16 @@ The objective of this centralized platform is to simplify the onboarding process
 .. note:: Depending on user choice the Talao Professional Identity Relay will have parts of information about cryptographic keys. Read more on :doc:`/privacy`.  
 
 
+Dynamic Password
+----------------
+
+The Talao Relay uses dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login, 
+instead of entering their usual static password every time, they would simply input a unique, machine generated password.
+This dynamic password is received on the user's mobile phone.
+
+Dynamic passwords are convenient because they don’t have to be remembered, and because the password is never the same, they serve as a major roadblock for hackers
+who may be looking to break into user accounts.
+
 Distributed Identity vs Centralized
 -----------------------------------
 Current architectures to validate, certify, and manage identity are based on centralized, top-down approaches that rely on trusted authorities and third-party operators. 

@@ -51,15 +51,14 @@ class Identity() :
 		
 		
 		self.get_all_documents()
-		
 		self.get_identity_file()
-				
+		self.get_issuer_keys()
+			
 		if self.authenticated :
 			self.has_relay_rsa_key()
 			if self.rsa_key :
-				self.get_email_secret()
+				self.get_secret()
 			else :
-				self.email = 'Encrypted'
 				self.secret = 'Encrypted'
 				self.aes = 'Encrypted'
 					
@@ -72,7 +71,7 @@ class Identity() :
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated()
-			self.get_issuer_keys()
+			
 			self.get_white_keys()
 			self.get_events()
 		else :
@@ -95,13 +94,12 @@ class Identity() :
 			self.name = firstname.capitalize() + ' ' + lastname.capitalize()
 			self.get_identity_experience()
 			self.get_identity_certificate()
-			#self.get_language()
 			self.get_identity_education()
 			self.get_identity_kyc()
 			self.get_identity_certificate()
 	
-	def get_email_secret(self) :
-		(workspace_contract, category, self.email , self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, self.mode)
+	def get_secret(self) :
+		(self.category, self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, self.mode)
 		return
 					
 	def has_relay_private_key(self) :
@@ -193,18 +191,17 @@ class Identity() :
 	def get_issuer_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(20002).call()
-		issuer_keys = []
-		for i in keylist :
+		self.issuer_keys = []
+		for i in keylist :		
 			key = contract.functions.getKey(i).call()
-			issuer = ns.get_data_from_publickey(key[2].hex(), self.mode) # most important part of the function.....see what it implies ! 
-			if issuer is None or issuer['address'] is None or issuer['username'] is None : 
+			issuer = ns.get_data_from_publickey('0x' +key[2].hex(), self.mode) # most important part of the function.....see what it implies ! 
+			if issuer is None : 
 				pass
 			else :	
-				issuer_keys.append({"address": issuer['address'],
+				self.issuer_keys.append({"address": issuer['address'],
 									"publickey": key[2].hex(),
 									"workspace_contract" : issuer['workspace_contract'],
 									'username' : issuer['username'] } )
-		self.issuer_keys = issuer_keys
 		return True
 	
 	
@@ -216,7 +213,7 @@ class Identity() :
 		white_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
-			issuer = ns.get_data_from_publickey(key[2].hex(), self.mode)
+			issuer = ns.get_data_from_publickey('0x' + key[2].hex(), self.mode)
 			if issuer is None :
 				pass
 			else :	

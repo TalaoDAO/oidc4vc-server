@@ -34,7 +34,7 @@ class ExportingThread(threading.Thread):
 		self.email = email
 		self.mode = mode
 	def run(self):
-		createidentity.creationworkspacefromscratch(self.username, self.email,self.mode)	
+		createidentity.create_user(self.username, self.email,self.mode)	
 
 # centralized URL in webserver.py https://flask.palletsprojects.com/en/1.1.x/patterns/lazyloading/
 def authentification() :
