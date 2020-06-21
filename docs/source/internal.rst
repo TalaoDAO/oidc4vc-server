@@ -50,6 +50,16 @@ NS is supported by SQLite3 with one DB per company for Managers and one DB for D
 	  conn.commit()
 	  cur.close()
 
+IPFS
+----
+
+We use IPFS and `Pinata <https://pinata.cloud>`_ pin services for data persistence.
+
+To add data to IPFS we first add to PInata Node and pin to local node.
+To get data , we first get from local and after timeout of 5s we get from pinata.
+Our Pin Policy at Pinata is to have 2 replications in Europe. 
+
+
 
 Identity vs keys
 ----------------

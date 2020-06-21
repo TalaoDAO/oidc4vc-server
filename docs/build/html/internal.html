@@ -110,6 +110,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Internal</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#name-service-ns">Name Service (NS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ipfs">IPFS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#identity-vs-keys">Identity vs keys</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#talao-erc725-keys">Talao ERC725 Keys</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#talao-documents">Talao Documents</a><ul>
@@ -236,6 +237,13 @@ Identity and Alias are one part names : “johndoe”</p>
        <span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="ipfs">
+<h2>IPFS<a class="headerlink" href="#ipfs" title="Permalink to this headline">¶</a></h2>
+<p>We use IPFS and <a class="reference external" href="https://pinata.cloud">Pinata</a> pin services for data persistence.</p>
+<p>To add data to IPFS we first add to PInata Node and pin to local node.
+To get data , we first get from local and after timeout of 5s we get from pinata.
+Our Pin Policy at Pinata is to have 2 replications in Europe.</p>
 </div>
 <div class="section" id="identity-vs-keys">
 <h2>Identity vs keys<a class="headerlink" href="#identity-vs-keys" title="Permalink to this headline">¶</a></h2>

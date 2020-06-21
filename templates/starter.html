@@ -68,15 +68,22 @@
                                                 <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="quick" required><label class="form-check-label"  for="formCheck-2">Quick Start</label></div>
                                             </div>
                                         </div>
+                                        
+                                   {% if not True %}
+									   
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
                                                 <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="advanced" required><label class="form-check-label" for="formCheck-2">Advanced or Curious</label></div>
                                             </div>
                                         </div>
+                                     {% endif %}
+                                        
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
                                                 <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="user" required><label class="form-check-label"  for="formCheck-2">I already have an Identity</label></div>
                                             </div>
+                                            
+                                            <br><br>
                                         </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Let's start</button>
                                       </form>
                                 </div>

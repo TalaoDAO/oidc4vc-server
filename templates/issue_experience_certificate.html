@@ -16,76 +16,74 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                     {% include 'company_nav_bar.html' %}    
+               
+                                                   {% include 'company_nav_bar.html' %}    
+           
+               
         <div class="container-fluid">
             <div class="row">
                 <div class="col-xl-4 offset-xl-4">
                     <div class="card shadow">
                         <div class="card-body">
                             <h4 class="card-title">Professional Certificate</h4>
-                            <h6><strong>Certificate to issue to {{talent_name}}</strong></h6>
-                      <!--      <p class="card-text">This certificate is signed by {{company_name}}.</p>  -->
+                            <p class="card-text">This certificate will be signed by {{manager_name}} on behalf of {{name}}.</p>
                         </div>
                         <form method="post" action="/user/issuer_experience_certificate/">
                             <div class="container shadow-sm" style="background-color: #ffffff;">
-                                
-                                
-                                
-                                <div class="form-row" style="height: 60px;">
-                                    
-                                    <div class="col-xl-6">	
-                                        <div class="form-group">
-											<input class="form-control" type="text" placeholder="Project name" required="" name="title"></div>
-										</div>
-										
-                               
-
-								</div>
-                               
+                                <div class="form-row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group"><label>Project Name</label><input class="form-control" type="text" name="title"></div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group"><label>Talent Username</label><input class="form-control" type="text" name="issuer_username" readonly="" value="{{issuer_username}}"></div>
+                                    </div>
+                                </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" placeholder="Project description" name="description" required="" title="Description of the project (5 lines max)"></textarea></div>
+                                        <div class="form-group"><label>Project Description</label><textarea name ="description" class="form-control"></textarea></div>
                                     </div>
                                 </div>
-                               
-                               
                                 <div class="form-row">
-                                    <div class="col-xl-12" style="height: 60px;">
-                                        <div class="form-group"><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="Skill1, skill2, skill3,..." name="skills" title="Highlighted skills"></div>
+                                    <div class="col-xl-12">
+                                        <div class="form-group"><label>Skills</label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="skill1, skill2, skill3,..." name="skills" title="Highlighted skills"></div>
                                     </div>
                                 </div>
-                               
-                               
                                 <div class="form-row">
-                                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                                    <div class="col-md-12 col-lg-6 col-xl-6 order-2 order-xl-1">
                                         <div class="form-row">
                                             <div class="col-xl-3"><label class="col-form-label">From :</label></div>
                                             <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" type="date" name="start_date" placeholder="From" required=""></div>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-xl-6 order-2 order-xl-1" style="height: 60px;">
+                                    <div class="col-md-12 col-lg-6 col-xl-6 order-2 order-xl-1">
                                         <div class="form-row">
                                             <div class="col-xl-3"><label class="col-form-label">To :</label></div>
-                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" type="date"  name="end_date" placeholder="To" required=""></div>
+                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" type="date" name="end_date" placeholder="From" required=""></div>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <hr>
+                                    </div>
+                                </div>
+                                
+                                
                                 
                                 <div class="form-row">
-                                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
                                             <p style="font-size: 12px;">How satisfied are you with the overall freelance delivery ?</p>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-xl-6 order-1">
-                                        <div class="form-group">
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+										<div class="form-group">    
 											<input  class="form-control-range" type="range" name="score_delivery" id="score_delivery" value="3" min="0" max="5" step="1" oninput="score_delivery_disp.value = score_delivery.value">
 											<output  id="score_delivery_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
@@ -93,55 +91,66 @@
                                     </div>
                                 </div>
                                 
+                                
+                                
+                                
                                 <div class="form-row">
-                                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
                                             <p style="font-size: 12px;">How likely are you to recommend this talent to others ?</p>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
-										
-										<input  class="form-control-range" type="range" name="score_recommendation" id="score_recommendation" value="3" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+										<div class="form-group">    
+											<input  class="form-control-range" type="range" name="score_recommendation" id="score_recommendation" value="3" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
 											<output  id="score_recommendation_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
-											
-												
+										</div>
                                     </div>
                                 </div>
+                                
+                                
+                                
                                 <div class="form-row">
-                                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
                                             <p style="font-size: 12px;">How would you rate his/her ability to deliver to schedule ?</p>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-xl-6 order-1">
-										
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+										<div class="form-group">    
 											<input  class="form-control-range" type="range" name="score_schedule" id="score_schedule" value="3" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
 											<output  id="score_schedule_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
-                                    
-                                    
+										</div>
                                     </div>
                                 </div>
+                                
+                                
+                                
                                 <div class="form-row">
-                                    <div class="col-md-12 col-xl-6 offset-xl-0 order-1">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
                                         <div class="form-group">
                                             <p style="font-size: 12px;">How would you rate his/her overall communication skills ?</p>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-xl-6 order-1" style="height: 60px;">
-                                        <input  class="form-control-range" type="range" name="score_communication" id="score_communication" value="3" min="0" max="5" step="1" oninput="score_communication_disp.value = score_communication.value">
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">    
+											<input  class="form-control-range" type="range" name="score_communication" id="score_communication" value="3" min="0" max="5" step="1" oninput="score_communication_disp.value = score_communication.value">
 											<output  id="score_communication_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
-                                        
+										</div>
+                                   
                                     </div>
+                                
+                                
                                 </div>
                                 <div class="form-row">
-                                    <div class="col-xl-6">
-                                        <div class="form-group"><input class="form-control" type="text" placeholder="Reviewer Name" name="reviewer"></div>
+                                    <div class="col-lg-6 col-xl-6">
+                                        <div class="form-group"><label>Reviewer Name</label><input class="form-control" type="text" placeholder="Reviewer Name" name="reviewer_name"></div>
                                     </div>
-                                    <div class="col-xl-6">
-                                        <div class="form-group"><input class="form-control" type="text" placeholder="Manager Name" name="manager"></div>
+                                    <div class="col-lg-6 col-xl-6">
+                                        <div class="form-group"><label>Manager Name</label><input class="form-control" type="text" placeholder="Manager Name" readonly="" value="{{manager_name}}"></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -149,11 +158,9 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Issue&nbsp;</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3 order-xl-1">
-										
-										<a href="/user/?username={{username}}">
+										<a href="/user/issuer_explore/?issuer_username={{issuer_username}}">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
-                                        </a>
-                                        
+                                        </a> 
                                     </div>
                                 </div>
                             </div>
@@ -165,16 +172,14 @@
     </div>
     </div>
     </div>
-    
-    
-      {% include 'user_footer.html' %}    
-      
-      
-  
+                               {% include 'user_footer.html' %}    
+
     </div>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
+   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>

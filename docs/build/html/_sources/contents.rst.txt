@@ -29,9 +29,9 @@ The objective of this centralized platform is to simplify the onboarding process
 Dynamic Password
 ----------------
 
-The Talao Relay uses dynamic password – a machine generated, random string that is used once to authenticate. Every time an end user wants to login, 
+The Talao Relay uses dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login, 
 instead of entering their usual static password every time, they would simply input a unique, machine generated password.
-This dynamic password is received on a mobile phone or made.
+This dynamic password is received on the user's mobile phone.
 
 Dynamic passwords are convenient because they don’t have to be remembered, and because the password is never the same, they serve as a major roadblock for hackers
 who may be looking to break into user accounts.

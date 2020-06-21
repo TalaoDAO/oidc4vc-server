@@ -39,15 +39,18 @@ class Identity() :
 		
 		#donload pictures on server
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
+		print('picture =', self.picture)
 		if self.picture is not None :
 			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 			client.get(self.picture)
 			os.system('mv '+ self.picture + ' ' + 'photos/' + self.picture)	
+		
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
+		print('signature = ', self.signature)
 		if self.signature is not None :
 			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 			client.get(self.signature)
-			os.system('mv '+ self.signature + ' ' + 'photos/' + self.picture)	
+			os.system('mv '+ self.signature + ' ' + 'photos/' + self.signature)	
 		
 		
 		self.get_all_documents()

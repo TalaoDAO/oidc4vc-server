@@ -382,14 +382,14 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 	response=client.add(picturefile)
 	picturehash=response['Hash']	
 	
-	image = 105109097103101 if picture_type in ['image', 'picture', 'photo'] else 115105103110097116117114101
+	topic = 105109097103101 if picture_type == 'picture' else 115105103110097116117114101
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 
 	# calcul du nonce de l envoyeur de token . Ici le caller
 	nonce = w3.eth.getTransactionCount(address_from)  
 
 	# Build transaction
-	txn=contract.functions.addClaim(image,1,address_from, '0x', '0x01',picturehash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn=contract.functions.addClaim(topic,1,address_from, '0x', '0x01',picturehash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)

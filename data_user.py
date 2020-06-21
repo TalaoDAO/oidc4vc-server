@@ -13,7 +13,6 @@ import os
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
-import ipfshttpclient
 from flask_fontawesome import FontAwesome
 #import http.client
 #import random
@@ -45,25 +44,6 @@ import talent_connect
 # environment setup
 mode = environment.currentMode()
 w3 = mode.w3
-
-"""
-UPLOAD_FOLDER = './uploads'
-
-# Flask and Session setup	
-#app = FlaskAPI(__name__)
-app = Flask(__name__)
-app.config['SESSION_PERMANENT'] = True
-app.config['SESSION_TYPE'] = 'redis'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=100)
-app.config['SESSION_FILE_THRESHOLD'] = 100  
-app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-Session(app)
-"""
-#fa = FontAwesome(app)
-
-
-
 
 def check_login(username) :
 	if username is None or session.get('username_logged') is None or username != session.get('username_logged') :
@@ -158,9 +138,10 @@ def data(dataId) :
 	
 	myissuer = """
 				<span>
-				<b>Name</b> : """ + issuer_name + """<br>
-				<b>Username</b> : """ + issuer_username +"""<br>
-				<b>Type</b> : """ + issuer_type + """<br>"""
+				<b>Issuer</b>
+				<li><b>Name</b> : """ + issuer_name + """<br></li>
+				<li><b>Username</b> : """ + issuer_username +"""<br></li>
+				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
 	
 	if my_data.issuer['workspace_contract'] == session['workspace_contract'] :					
 		myissuer = myissuer + """
@@ -188,23 +169,25 @@ def data(dataId) :
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""	
 	if support == 'document' :
 		myadvanced = """
-				<b>Document Id</b> : """ + str(doc_id) + """<br>
-				<b>Privacy</b> : """ + myvisibility + """<br>
-				<b>Created</b> : """ + my_data.created + """<br>	
-				<b>Expires</b> : """ + expires + """<br>
-				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br>	
-				<b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a>"""
+				<b>Advanced</b>
+				<li><b>Document Id</b> : """ + str(doc_id) + """<br></li>
+				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
+				<li><b>Created</b> : """ + my_data.created + """<br></li>	
+				<li><b>Expires</b> : """ + expires + """<br></li>
+				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>	
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
 		path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""	
 		myadvanced = """
-				<b>Claim Id</b> : """ + str(claim_id) + """<br>
-				<b>Topic</b> : """ + str(my_data.topicname) + """<br>				
-				<b>Privacy</b> : """ + myvisibility + """<br>
-				<b>Created</b> : """ + my_data.created + """<br>	
-				<b>Expires</b> : """ + expires + """<br>
-				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br>	
-				<b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a>"""
+				<b>Advanced</b>		
+				<li><b>Claim Id</b> : """ + str(claim_id) + """<br></li>
+				<li><b>Topic</b> : """ + str(my_data.topicname) + """<br></li>				
+				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
+				<li><b>Created</b> : """ + my_data.created + """<br></li>	
+				<li><b>Expires</b> : """ + expires + """<br></li>
+				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>	
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 		
 	
 	# value
@@ -212,28 +195,30 @@ def data(dataId) :
 		mytitle = my_data.title
 		mysummary = my_data.description	
 		myvalue = """ 
-				<b>Title</b> : """+my_data.title + """<br>
-				<b>Company Name</b> : """+my_data.company['name']+"""<br>
-				<b>Contact Name</b> : """+my_data.company['contact_name']+"""<br>
-				<b>Contact Email</b> : """+my_data.company['contact_email']+"""<br>
-				<b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br>
-				<b>Start Date</b> : """+my_data.start_date + """<br>		
-				<b>End Date</b> : """+my_data.end_date+"""<br>
-				<b>Skills</b> : """+ " ".join(my_data.skills)
+				<b>Data Content</b>
+				<li><b>Title</b> : """+my_data.title + """<br></li>
+				<li><b>Company Name</b> : """+my_data.company['name']+"""<br></li>
+				<li><b>Contact Name</b> : """+my_data.company['contact_name']+"""<br></li>
+				<li><b>Contact Email</b> : """+my_data.company['contact_email']+"""<br></li>
+				<li><b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br></li>
+				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>		
+				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
+				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
 				
 	elif my_topic.lower() == "education" :
 		mytitle = my_data.title
 		mysummary = my_data.description	
 		myvalue = """ 
-				<b>Title</b> : """+my_data.title + """<br>
-				<b>Organiation Name</b> : """+my_data.organization['name']+"""<br>
-				<b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br>
-				<b>Contact Email</b> : """+my_data.organization['contact_email']+"""<br>
-				<b>Contact Phone</b> : """+my_data.organization['contact_phone']+"""<br>
-				<b>Start Date</b> : """+my_data.start_date + """<br>		
-				<b>End Date</b> : """+my_data.end_date+"""<br>
-				<b>Skills</b> : """+ " ".join(my_data.skills) +"""<br>
-				<b>Diploma Link</b> : """+  my_data.certificate_link
+				<b>Data Content</b>
+				<li><b>Title</b> : """+my_data.title + """<br>
+				<li><b>Organiation Name</b> : """+my_data.organization['name']+"""<br></li>
+				<li><b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br></li>
+				<li><b>Contact Email</b> : """+my_data.organization['contact_email']+"""<br></li>
+				<li><b>Contact Phone</b> : """+my_data.organization['contact_phone']+"""<br></li>
+				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>		
+				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
+				<li><b>Skills</b> : """+ " ".join(my_data.skills) +"""<br></li>
+				<li><b>Diploma Link</b> : """+  my_data.certificate_link+"""</li>"""
 	
 	
 	elif my_topic.lower() == "certificate" :
@@ -244,16 +229,17 @@ def data(dataId) :
 		issuer_name = "Unknown" if profil['name'] is None else profil['name']
 
 		myvalue = """ 
-				<b>Title</b> : """ + my_data.title + """<br>
-				<b>Company Name</b> : """ + issuer_name + """<br>
-				<b>Start Date</b> : """+ my_data.start_date + """<br>		
-				<b>End Date</b> : """+ my_data.end_date + """<br>
-				<b>Skills</b> : """+ "".join(my_data.skills) + """<br>
-				<b>Delivery Quality</b> : """+ my_data.score_delivery + """<br>
-				<b>Schedule Respect</b> : """+ my_data.score_schedule + """<br>
-				<b>Communication Skill</b> : """+ my_data.score_communication + """<br>
-				<b>Recommendation</b> : """+ my_data.score_recommendation + """<br>
-				<b>Manager</b> : """+ my_data.manager
+				<b>Data Content</b>
+				<li><b>Title</b> : """ + my_data.title + """<br></li>
+				<li><b>Company Name</b> : """ + issuer_name + """<br></li>
+				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>		
+				<li><b>End Date</b> : """+ my_data.end_date + """<br></li>
+				<li><b>Skills</b> : """+ "".join(my_data.skills) + """<br></li>
+				<li><b>Delivery Quality</b> : """+ my_data.score_delivery + """<br></li>
+				<li><b>Schedule Respect</b> : """+ my_data.score_schedule + """<br></li>
+				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
+				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>
+				<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
 
 				
 				
@@ -262,14 +248,15 @@ def data(dataId) :
 		mytitle = "Kbis validated"
 		mysummary = ""		
 		myvalue = """ 
-				<b>Name</b> : """ + my_data.name+ """<br>
-				<b>Siret</b> : """ + my_data.siret + """<br>
-				<b>Created</b> : """+ my_data.date + """<br>
-				<b>Address</b> : """+ my_data.address + """<br>	
-				<b>Legal Form</b> : """+ my_data.legal_form + """<br>
-				<b>Capital</b> : """+ my_data.capital + """<br>		
-				<b>Naf</b> : """+ my_data.naf + """<br>	
-				<b>Activity</b> : """+ my_data.activity 
+				<b>Data Content</b>
+				<li><b>Name</b> : """ + my_data.name+ """<br></li>
+				<li><b>Siret</b> : """ + my_data.siret + """<br></li>
+				<li><b>Created</b> : """+ my_data.date + """<br></li>
+				<li><b>Address</b> : """+ my_data.address + """<br></li>
+				<li><b>Legal Form</b> : """+ my_data.legal_form + """<br></li>
+				<li><b>Capital</b> : """+ my_data.capital + """<br></li>		
+				<li><b>Naf</b> : """+ my_data.naf + """<br></li>	
+				<li><b>Activity</b> : """+ my_data.activity+"""</li>""" 
 
 
 
@@ -277,15 +264,16 @@ def data(dataId) :
 		mytitle = "ID validated by Talao"
 		mysummary = ""		
 		myvalue = """ 
-				<b>Firstname</b> : """+ my_data.firstname + """<br>
-				<b>Lastname</b> : """ + my_data.lastname + """<br>
-				<b>Sex</b> : """+ my_data.sex + """<br>
-				<b>Nationality</b> : """+ my_data.nationality + """<br>		
-				<b>Birth Date</b> : """+ my_data.birthdate + """<br>
-				<b>Date of Issue</b> : """+ my_data.date_of_issue + """<br>
-				<b>Date of Expiration/b> : """+ my_data.date_of_expiration + """<br>
-				<b>Authority</b> : """+ my_data.authority + """<br>
-				<b>Country</b> : """+ my_data.country
+				<b>Data Content</b>
+				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
+				<li><b>Lastname</b> : """ + my_data.lastname + """<br></li>
+				<li><b>Sex</b> : """+ my_data.sex + """<br></li>
+				<li><b>Nationality</b> : """+ my_data.nationality + """<br></li>		
+				<li><b>Birth Date</b> : """+ my_data.birthdate + """<br></li>
+				<li><b>Date of Issue</b> : """+ my_data.date_of_issue + """<br></li>
+				<li><b>Date of Expiration/b> : """+ my_data.date_of_expiration + """<br></li>
+				<li><b>Authority</b> : """+ my_data.authority + """<br></li>
+				<li><b>Country</b> : """+ my_data.country+"""</li>"""
 			
 				 
 
@@ -300,8 +288,20 @@ def data(dataId) :
 			
 	mydelete_link = "/talao/api/data/delete/"
 	
+	call_from = "/user/?username="+username
+	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
+	
+	return render_template('data_check.html',
+							event = my_event_html,
+							counter = my_counter,
+							picturefile = mypicture,
+							name = session['name'],
+							username = username,
+							call_from=call_from,
+							verif=my_verif,
+							)
 		
-	return render_template('data.html',
+	"""return render_template('data.html',
 							topic = my_topic,
 							visibility = myvisibility,
 							issuer = myissuer,
@@ -314,7 +314,7 @@ def data(dataId) :
 							counter = my_counter,
 							picturefile = mypicture,
 							name = session['name'],
-							username = username)
+							username = username)"""
 
 
 
@@ -362,7 +362,7 @@ def user() :
 		session['name'] = user.name
 		session['picture'] = "anonymous1.png" if user.picture is None else user.picture
 		session['signature'] = "picasso.jpg" if user.signature is None else user.signature
-
+		print('dans user  ', session['picture'])
 		session['secret'] = user.secret
 		
 		if user.type == 'person' :
@@ -412,7 +412,7 @@ def user() :
 	
 	# Partners
 	if session['partner'] == [] :
-		my_partner = """<a class="text-info">No partner available</a>"""
+		my_partner = """<a class="text-warning">No partner available</a>"""
 	else :
 		my_partner = ""	 
 		for partner in session['partner'] :
@@ -442,7 +442,7 @@ def user() :
 	
 	# Issuer for document, they have an ERC725 key 20002	
 	if session['issuer'] == [] :
-		my_issuer = """  <a class="text-info">No data available</a>"""
+		my_issuer = """  <a class="text-warning">No data available</a>"""
 	else :
 		my_issuer = ""		
 		for one_issuer in session['issuer'] :
@@ -462,7 +462,7 @@ def user() :
 
 	# whitelist	
 	if session['whitelist'] == [] :
-		my_white_issuer = """  <a class="text-info">No data available</a>"""
+		my_white_issuer = """  <a class="text-warning">No data available</a>"""
 	else :
 		my_white_issuer = ""		
 		for issuer in session['whitelist'] :
@@ -519,9 +519,13 @@ def user() :
 	if session['type'] == 'person' :
 	
 	# experience
-		my_experience = ''
-		for experience in session['experience'] :
-			exp_html = """<hr> 
+		if len (session['experience']) == 0:
+			my_experience = """<a href="/user/add_experience/">Add Experience</a><hr>
+					<a class="text-danger">No Data Available</a>"""
+		else :
+			my_experience = ''
+			for experience in session['experience'] :
+				exp_html = """<hr> 
 				<b>Company</b> : """+experience['company']['name']+"""<br>			
 				<b>Title</b> : """+experience['title']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
@@ -534,13 +538,17 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</p>"""	
-			my_experience = my_experience + exp_html
+				my_experience = my_experience + exp_html
 			
 			
 		# education
-		my_education = ""
-		for education in session['education'] :
-			edu_html = """<hr> 
+		if len (session['education']) == 0:
+			my_education = """<a href="/user/add_education/">Add Education</a><hr>
+					<a class="text-danger">No Data Available</a>"""
+		else :
+			my_education = ""
+			for education in session['education'] :
+				edu_html = """<hr> 
 				<b>Organization</b> : """+education['organization']['name']+"""<br>			
 				<b>Title</b> : """+education['title'] + """<br>
 				<b>Start Date</b> : """+education['start_date']+"""<br>
@@ -553,7 +561,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</p>"""	
-			my_education = my_education + edu_html		
+				my_education = my_education + edu_html		
 	
 	
 		# personal
@@ -646,11 +654,14 @@ def user() :
 		my_skills = ""
 		
 		# certificates
-		my_certificates = ""
-		for certificate in session['certificate'] :
-			organization_name = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
-			organization_name = 'Unknon' if organization_name is None else organization_name
-			cert_html = """<hr> 
+		if len (session['certificate']) == 0:
+			my_certificates = """<a class="text-danger">No Data Available</a>"""
+		else :
+			my_certificates = ""
+			for certificate in session['certificate'] :
+				organization_name = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				organization_name = 'Unknon' if organization_name is None else organization_name
+				cert_html = """<hr> 
 				<b>Company</b> : """ + organization_name +"""<br>			
 				<b>Title</b> : """ + certificate['title']+"""<br>
 				<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
@@ -666,7 +677,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</p>"""	
-			my_certificates = my_certificates + cert_html
+				my_certificates = my_certificates + cert_html
 	
 		
 		return render_template('person_identity.html',

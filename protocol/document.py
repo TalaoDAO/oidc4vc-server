@@ -313,7 +313,7 @@ class Document() :
 			self.transaction_fee = transaction_fee
 			self.doctypeversion = doctypeversion
 			self.ipfshash = ipfshash
-			self.data_location = 'https://gateway.ipfs.io/ipfs/'+ ipfshash
+			self.data_location = 'https://gateway.pinata.cloud/ipfs/'+ ipfshash
 			self.expires = expires
 			self.privacy = privacy
 			self.doc_id = doc_id

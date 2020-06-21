@@ -14,7 +14,7 @@ import sys
 
 class currentMode() :
 	
-	myenv='airbox'  # test(avec acces smartphone) ou airbox(pour wireless) ou prod
+	myenv='test'  # test(avec acces smartphone) ou airbox(pour wireless) ou prod
 	mychain='rinkeby'
 	password='suc2cane'
 	apiport = '3000'

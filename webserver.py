@@ -13,7 +13,6 @@ from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
-import http.client
 import random
 import csv
 from datetime import timedelta, datetime
@@ -208,7 +207,7 @@ def logout() :
 
 # picture
 @app.route('/user/picture/', methods=['GET', 'POST'])
-def photo() :
+def picture() :
 	username = check_login(session.get('username'))	
 	my_picture = session['picture']
 	my_event = session.get('events')
@@ -231,19 +230,20 @@ def photo() :
 @app.route('/user/signature/', methods=['GET', 'POST'])
 def signature() :
 	username = check_login(session.get('username'))	
-	my_picture = session['signature']
+	my_picture = session['picture']
+	my_signature = session['signature']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('picture.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('signature.html', picturefile=my_picture, signaturefile=my_signature,event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
 		if 'image' not in request.files :
 			print('No file ')
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-		picturefile = UPLOAD_FOLDER + '/' + filename
-		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'signature', mode, synchronous = False)	
+		signaturefile = UPLOAD_FOLDER + '/' + filename
+		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)	
 		session['signature'] = filename			
 		return redirect(mode.server + 'user/?username=' + username)
 
@@ -279,8 +279,8 @@ def issuer_explore() :
 	
 	# do something common
 	my_event_html, my_counter =  event_display(session['events'])
-	issuer_name = session['issuer_explore']['name']
-	my_picture = session['picture'] 
+	#issuer_name = session['issuer_explore']['name']
+	#my_picture = session['picture'] 
 	issuer_picture = "anonymous1.png" if session['issuer_explore']['picture'] is None else session['issuer_explore']['picture']
 						
 	if session['issuer_explore']['type'] == 'person' :
@@ -393,48 +393,63 @@ def issuer_explore() :
 				
 				
 					
-		#services 
+		#services : le reader est une persone, le profil vu est celui dune personne
 		services = ""
 		if session['type'] == 'person' :
+			
 			if not is_username_in_list(session['issuer'], issuer_username) :
-				services = """<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Issuer List to request him a recommendation.</a><br>"""
+				services = """<a class="text-warning">This Talent is not in your Issuer List.</a><br>
+							<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Issuer List to request him a recommendation.</a><br><br>"""
 			else :
 				services = """<a class="text-success">This Talent is in your Issuer List.</a><br>
-							<a href="/user/issue_referral/">Request this Talent a recommendation.</a><br>"""
+							<a href="/user/issue_referral/">Request this Talent a recommendation to increase your rating.</a><br><br>"""
+			
 				
 			if not is_username_in_list(session['whitelist'], issuer_username) :
-				services = services + """<br><a class="text-warning">This Talent is not in your White List.</a><br>
-							<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Talent in your White List</a><br>"""
+				services = services + """<a class="text-warning">This Talent is not in your White List.</a><br>
+							<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Talent in your White List to increase your rating.</a><br><br>"""
 			else :
-				services = services + """<br><a class="text-success">This Talent is in your White list.</a><br>"""
+				services = services + """<a class="text-success">This Talent is in your White list.</a><br><br>"""
+		
 		
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
-				services = services + """<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a Recommendation</a><br>"""
+				services = services + """<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + session['issuer_explore']['name'] + """ ">Issue a Recommendation</a><br><br>"""
 			else :
 				services = services + """<br><br>"""
 		
-		
-		if not is_username_in_list(session['partner'], issuer_username) :
-			services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a>
-			<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private data.</a><br>"""
-		else :
-			services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
+			services = services + """<br><br><br><br><br><br><br><br>"""					
+
 		
 		
+		#services : les reader est une company, le profil vu est celui d une personne
 		if session['type'] == 'company' :
-		
+			if ns.does_manager_exist(issuer_username, username) :
+				services = """<a class="text-success">This Talent is a Manager.</a><br>"""
+			else : 
+				services = ""
+			
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
 				services = services + """ <br><a class="text-success">Talent has authorized the Company to issue Certificates.</a>
-										<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a new Certificate</a><br>"""
+										<a href="/user/issue_certificate/?issuer_username="""+ issuer_username + """&issuer_name=""" + session['issuer_explore']['name'] + """ ">Issue a new Certificate.</a><br>"""
 			else :
 				services = services + """<br><br>"""
+			
+			
+			
+			if not is_username_in_list(session['partner'], issuer_username) :
+				services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a>
+										<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private data.</a><br>"""
+			else :
+				services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
+		
 			
 			services = services + """<br><br><br><br><br><br><br><br><br><br><br><br>"""					
 		
 		services = services + """<br><br><br><br><br><br>"""
 											
 		return render_template('person_issuer_identity.html',
-							issuer_name=issuer_name,
+							issuer_name=session['issuer_explore']['name'],
+							profil_title = session['issuer_explore']['profil_title'],
 							username=username,
 							name=session['name'],
 							kyc=my_kyc,
@@ -445,7 +460,7 @@ def issuer_explore() :
 							services=services,
 							event=my_event_html,
 							counter=my_counter,
-							picturefile = my_picture,
+							picturefile = session['picture'],
 							issuer_picturefile=issuer_picture)
 	
 	
@@ -488,6 +503,9 @@ def issuer_explore() :
 		
 		
 		#services 
+		
+		
+				
 		if not is_username_in_list(session['issuer'], issuer_username) :
 			services = """<a class="text-warning">This Company is not in your Issuer List.</a><br>
 						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Issuer List to request Certificates.</a><br>"""
@@ -512,11 +530,11 @@ def issuer_explore() :
 		else :
 			services = services + """<br><br>"""
 								
-		services = services + """<br><br><br><br><br><br>"""
+		services = services + """<br><br><br><br><br><br><br>"""
 		
 		
 		return render_template('company_issuer_identity.html',
-							issuer_name=issuer_name,
+							issuer_name=session['issuer_explore']['name'],
 							username=username,
 							name= session['name'],
 							kbis=my_kbis,
@@ -524,7 +542,7 @@ def issuer_explore() :
 							personal=issuer_personal,
 							event=my_event_html,
 							counter=my_counter,
-							picturefile=my_picture,
+							picturefile=session['picture'],
 							issuer_picturefile=issuer_picture)
 
 
@@ -567,8 +585,11 @@ def search() :
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('search.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
-	else :
+	if request.method == 'POST' :
 		username_to_search = request.form['username_to_search']
+		if username_to_search == username :
+			flash('You are You !', 'warning')
+			return redirect(mode.server + 'user/?username=' + username)	
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + username_to_search)
 		
 		
@@ -581,29 +602,29 @@ def issue_certificate():
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('issue_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, name=session['name'], username=username)
+		return render_template('issue_certificate.html',
+								picturefile=my_picture,
+								event=my_event_html,
+								counter=my_counter,
+								name=session['name'],
+								username=username,
+								issuer_username=session['issuer_username'])
 	if request.method == 'POST' :
-		talent_username = request.form['talent_username']
-		data  = ns.get_data_from_username(talent_username, mode)
-		if data is None :
-			flash('Username not found', 'warning')
-			return redirect(mode.server + 'user/?username=' + username)		
-		# tester si on a le droit d emettre un cerrtificate
-		if not has_key_purpose(data['workspace_contract'], session['address'],20002, mode) : 
-			flash('Company is not authorized to issue', 'warning')
-			return redirect(mode.server + 'user/?username=' + username)	
-		session['talent_to_issue_certificate'] = talent_username
 		if request.form['certificate_type'] == 'experience' :
-			return render_template("issue_experience_certificate.html", picturefile=my_picture, event=my_event, counter=my_counter, username=username, name=session['name'], talent_name=talent_username)	
+			return render_template("issue_experience_certificate.html",
+									picturefile=my_picture,
+									event=my_event,
+									counter=my_counter,
+									username=username,
+									name=session['name'],
+									manager_name=session['name'],
+									issuer_username=session['issuer_username'])	
 		else :
 			flash('This certificate is not implemented yet !', 'warning')
-			return redirect(mode.server + 'user/?username=' + username)	
+			return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])	
 @app.route('/user/issuer_experience_certificate/', methods=['POST'])
 def issue_experience_certificate():
 	username = check_login(session.get('username'))	
-	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	certificate = {
 					"type" : "experience",	
 					"title" : request.form['title'],
@@ -616,16 +637,14 @@ def issue_experience_certificate():
 					"score_schedule" : request.form['score_schedule'],
 					"score_communication" : request.form['score_communication'],
 					"logo" : session['picture'],
-					"signature" : "permet.png",
-					"manager" : request.form['manager'],}
-	workspace_contract_to = ns.get_data_from_username(session['talent_to_issue_certificate'], mode)['workspace_contract']
-	address_to = contractsToOwners(workdpace_contract, mode)
+					"signature" : session['signature'],
+					"manager" : username,}
+	workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
+	address_to = contractsToOwners(workspace_contract_to, mode)
 	my_certificate = Document('certificate')
 	(doc_id, ipfshash, transaction_hash) = my_certificate.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], certificate, mode, mydays=0, privacy='public', synchronous=True) 
-	# add certificate in session
-	del session['talent_to_issue_certificate']
 	flash('Certificate has been issued', 'success')
-	return redirect(mode.server + 'user/?username=' + username)		
+	return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])		
 	
 
 

@@ -40,8 +40,8 @@ def show_certificate():
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
 		
-	ok="color: rgb(251,211,5); font-size: 10px;" # yellow
-	ko="color: rgb(0,0,0);font-size: 10px;" # black
+	yellow_star = "color: rgb(251,211,5); font-size: 16px;" # yellow
+	black_star = "color: rgb(0,0,0);font-size: 16px;" # black
 	
 	# Icon "fa-star" treatment 
 	score = []
@@ -52,13 +52,14 @@ def show_certificate():
 	score.append(int(session['displayed_certificate']['score_communication']))
 	for q in range(0,4) :
 		for i in range(0,score[q]) :
-			context["star"+str(q)+str(i)]=ok
+			context["star"+str(q)+str(i)] = yellow_star
 		for i in range(score[q],5) :
-			context ["star"+str(q)+str(i)]=ko
+			context ["star"+str(q)+str(i)] = black_star
 			
 	my_badge = ""
-	for skill in session['displayed_certificate']['skills'] :		
-		my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px;"> """+ skill + """</span>"""
+	for skill in session['displayed_certificate']['skills'] :	
+		skill_to_display = skill.replace(" ", "").capitalize()
+		my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px;"> """+ skill_to_display + """</span>"""
 																	
 
 	return render_template('newcertificate.html',

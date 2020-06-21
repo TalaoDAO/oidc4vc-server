@@ -12,21 +12,11 @@ from base64 import b64encode, b64decode
 #dependances
 import constante
 import environment
-
+from Talao_ipfs import ipfs_add, ipfs_get
 
 # environment setup
 #mode=environment.currentMode()
 #w3=mode.w3
-
-def ipfs_add(json_data) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', chunk_size=1000000)
-	response=client.add_json(json_data)
-	response2=client.pin.add(response)
-	return response
-
-def ipfs_get(ipfs_hash) :
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-	return(client.get_json(ipfs_hash))
 
 def add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, file_name, mydays, privacy, mode, synchronous) :
 	w3 = mode.w3	
