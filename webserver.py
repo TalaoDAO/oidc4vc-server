@@ -24,7 +24,7 @@ import Talao_message
 import createcompany
 import createidentity
 import constante
-from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership
+from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image
 from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
 import environment
@@ -222,7 +222,8 @@ def picture() :
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 		picturefile = UPLOAD_FOLDER + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
-		session['picture'] = filename			
+		session['picture'] = filename	
+		flash('Your picture has been updated', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
 
 
@@ -244,7 +245,8 @@ def signature() :
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 		signaturefile = UPLOAD_FOLDER + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)	
-		session['signature'] = filename			
+		session['signature'] = filename	
+		flash('Your signature has been updated', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
 
 
@@ -421,14 +423,16 @@ def issuer_explore() :
 
 		
 		
-		#services : les reader est une company, le profil vu est celui d une personne
+		#services : les reader est une company, le profil vu est celui d une personne. Attention au "jean.bnp"
 		if session['type'] == 'company' :
-			if ns.does_manager_exist(issuer_username, username) :
+			
+			host_name = username if len(username.split('.')) == 1 else username.split('.')[1]  
+			if ns.does_manager_exist(issuer_username, host_name) :
 				services = """<a class="text-success">This Talent is a Manager.</a><br>"""
 			else : 
 				services = ""
 			
-			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
+			if is_username_in_list(session['issuer_explore']['issuer_keys'], host_name) :
 				services = services + """ <br><a class="text-success">Talent has authorized the Company to issue Certificates.</a>
 										<a href="/user/issue_certificate/?issuer_username="""+ issuer_username + """&issuer_name=""" + session['issuer_explore']['name'] + """ ">Issue a new Certificate.</a><br>"""
 			else :
@@ -617,14 +621,17 @@ def issue_certificate():
 									counter=my_counter,
 									username=username,
 									name=session['name'],
-									manager_name=session['name'],
+									manager_name=username,
 									issuer_username=session['issuer_username'])	
 		else :
 			flash('This certificate is not implemented yet !', 'warning')
 			return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])	
 @app.route('/user/issuer_experience_certificate/', methods=['POST'])
 def issue_experience_certificate():
-	username = check_login(session.get('username'))	
+	username = check_login(session.get('username'))
+	manager_username = username if len(username.split('.')) == 1 else username.split('.')[0] 
+	manager_workspace_contract = ns.get_data_from_username(manager_username, mode)['workspace_contract']
+	signature = get_image(manager_workspace_contract, 'signature', mode)
 	certificate = {
 					"type" : "experience",	
 					"title" : request.form['title'],
@@ -637,7 +644,7 @@ def issue_experience_certificate():
 					"score_schedule" : request.form['score_schedule'],
 					"score_communication" : request.form['score_communication'],
 					"logo" : session['picture'],
-					"signature" : session['signature'],
+					"signature" : signature,
 					"manager" : username,}
 	workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 	address_to = contractsToOwners(workspace_contract_to, mode)
@@ -1066,7 +1073,7 @@ def add_education() :
 		# add experience in session
 		education['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 		education['doc_id'] = doc_id
-		session['experience'].append(education)			
+		session['education'].append(education)			
 		flash('New Education added', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
 @app.route('/user/remove_education/', methods=['GET', 'POST'])
@@ -1078,9 +1085,9 @@ def remove_education() :
 		my_picture = session['picture']
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_education.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, experience_title=session['education_title'])
+		return render_template('remove_education.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, education_title=session['education_title'])
 	elif request.method == 'POST' :	
-		session['experience'] = [experience for experience in session['experience'] if experience['id'] != session['education_to_remove']]
+		session['education'] = [education for education in session['education'] if education['id'] != session['education_to_remove']]
 		Id = session['education_to_remove'].split(':')[5]
 		my_education = Document('education')
 		my_education.relay_delete(session['workspace_contract'], int(Id), mode)

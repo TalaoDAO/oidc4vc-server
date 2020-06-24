@@ -256,13 +256,15 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	transaction = w3.eth.getTransaction(transaction_hash)
-	gas_price = transaction['gasPrice']
-	block_number = transaction['blockNumber']
-	block = mode.w3.eth.getBlock(block_number)
-	date = datetime.fromtimestamp(block['timestamp'])				
+	#transaction = w3.eth.getTransaction(transaction_hash)
+	#gas_price = transaction['gasPrice']
+	#block_number = transaction['blockNumber']
+	#block = mode.w3.eth.getBlock(block_number)
+	#date = datetime.fromtimestamp(block['timestamp'])				
 	#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 	gas_used = 10000
+	gas_price = 1
+	date= datetime.now()
 	deleted = date.strftime("%y/%m/%d")		
 	return transaction_hash, gas_used*gas_price, deleted
 

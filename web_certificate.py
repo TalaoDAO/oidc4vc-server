@@ -3,7 +3,8 @@
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
-
+import requests
+import shutil
 from flask_fontawesome import FontAwesome
 import json
 
@@ -60,8 +61,16 @@ def show_certificate():
 	for skill in session['displayed_certificate']['skills'] :	
 		skill_to_display = skill.replace(" ", "").capitalize()
 		my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px;"> """+ skill_to_display + """</span>"""
-																	
-
+	
+	signature = session['displayed_certificate']['signature']
+	print('signature = ', signature)
+	if signature is not None :
+			url='https://gateway.pinata.cloud/ipfs/'+ signature
+			response = requests.get(url, stream=True)
+			with open('./photos/' + signature, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
+	
 	return render_template('newcertificate.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,

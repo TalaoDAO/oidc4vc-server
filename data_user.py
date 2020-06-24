@@ -519,13 +519,14 @@ def user() :
 	if session['type'] == 'person' :
 	
 	# experience
+	
+		my_experience = """<a href="/user/add_experience/">Add Experience</a><hr>"""
+		
 		if len (session['experience']) == 0:
-			my_experience = """<a href="/user/add_experience/">Add Experience</a><hr>
-					<a class="text-danger">No Data Available</a>"""
+			my_experience = """<a class="text-danger">No Data Available</a>"""
 		else :
-			my_experience = ''
 			for experience in session['experience'] :
-				exp_html = """<hr> 
+				exp_html = """
 				<b>Company</b> : """+experience['company']['name']+"""<br>			
 				<b>Title</b> : """+experience['title']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
@@ -535,33 +536,32 @@ def user() :
 					</a>
 					
 					<a class="text-secondary" href=/data/"""+ experience['id'] + """:experience>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""	
-				my_experience = my_experience + exp_html
+				my_experience = my_experience + exp_html + "<hr>"
 			
 			
 		# education
+		my_education = """<a href="/user/add_education/">Add Education</a><hr>"""
 		if len (session['education']) == 0:
-			my_education = """<a href="/user/add_education/">Add Education</a><hr>
-					<a class="text-danger">No Data Available</a>"""
+			my_education = my_education + """<a class="text-danger">No Data Available</a>"""
 		else :
-			my_education = ""
 			for education in session['education'] :
-				edu_html = """<hr> 
+				edu_html = """
 				<b>Organization</b> : """+education['organization']['name']+"""<br>			
 				<b>Title</b> : """+education['title'] + """<br>
 				<b>Start Date</b> : """+education['start_date']+"""<br>
 				<b>End Date</b> : """+education['end_date']+"""<br>				
 				<p>		
-					<a class="text-secondary" href="/user/remove_education/?experience_id=""" + education['id'] + """&experience_title="""+ education['title'] + """">
+					<a class="text-secondary" href="/user/remove_education/?education_id=""" + education['id'] + """&education_title="""+ education['title'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href=/data/"""+ education['id'] + """:education>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""	
-				my_education = my_education + edu_html		
+				my_education = my_education + edu_html	+ "<hr>"
 	
 	
 		# personal
@@ -585,7 +585,7 @@ def user() :
 				my_personal = my_personal + """ 
 				<span><b>""" + Topic[topicname] + """</b> : """+ topicname_value + topicname_privacy +"""								
 					<a class="text-secondary" href=/data/""" + topicname_id + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""				
 		my_personal = my_personal + """<a href="/user/update_personal_settings/">Update Data</a>"""
@@ -616,7 +616,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href=/data/"""+ kyc['id'] + """:kyc>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""	
 				my_kyc = my_kyc + kyc_html		
@@ -674,7 +674,7 @@ def user() :
 					
 					
 					<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""	
 				my_certificates = my_certificates + cert_html

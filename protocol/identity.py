@@ -10,9 +10,11 @@ from datetime import datetime
 from operator import itemgetter, attrgetter
 import random
 from eth_account import Account
-import ipfshttpclient
+#import ipfshttpclient
 import os
 import csv 
+import requests
+import shutil
 
 import constante
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, get_image,  read_workspace_info
@@ -41,17 +43,27 @@ class Identity() :
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
 		print('picture =', self.picture)
 		if self.picture is not None :
+			"""
 			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-			client.get(self.picture)
+			print(client.get(self.picture))
 			os.system('mv '+ self.picture + ' ' + 'photos/' + self.picture)	
+			"""
+			url='https://gateway.pinata.cloud/ipfs/'+ self.picture
+			response = requests.get(url, stream=True)
+			with open('./photos/' + self.picture, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
 		
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
-		print('signature = ', self.signature)
 		if self.signature is not None :
-			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
+			"""client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 			client.get(self.signature)
-			os.system('mv '+ self.signature + ' ' + 'photos/' + self.signature)	
-		
+			os.system('mv '+ self.signature + ' ' + 'photos/' + self.signature)	"""
+			url='https://gateway.pinata.cloud/ipfs/'+ self.signature
+			response = requests.get(url, stream=True)
+			with open('./photos/' + self.signature, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
 		
 		self.get_all_documents()
 		self.get_identity_file()
