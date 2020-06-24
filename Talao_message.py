@@ -58,7 +58,7 @@ def messageAuth (email_to, random) :
 	s.starttls() 
 
 	# Authentication 
-	s.login(fromaddr, "Mishoosh2") 
+	s.login(fromaddr, "Suc2cane22") 
 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 
@@ -113,7 +113,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# start TLS for security 
 	s.starttls() 
 	# Authentication de thierry.thevenet1963@gmail.com
-	s.login(fromaddr, "Mishoosh2") 
+	s.login(fromaddr, "Suc2cane22") 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 
 	# sending the mail 
@@ -183,7 +183,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	s.starttls() 
 
 	# Authentication 
-	s.login(fromaddr, "Mishoosh2") 
+	s.login(fromaddr, "Suc2cane22") 
 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 
@@ -233,7 +233,7 @@ def messageAdmin (subject, messagetext,mode) :
 	s.starttls() 
 
 	# Authentication 
-	s.login(fromaddr, "Mishoosh2") 
+	s.login(fromaddr, "Suc2cane22") 
 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 
@@ -282,7 +282,7 @@ def message_perso (subject, to, messagetext,mode) :
 	s.starttls() 
 
 	# Authentication 
-	s.login(fromaddr, "Mishoosh2") 
+	s.login(fromaddr, "Suc2cane22") 
 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 

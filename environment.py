@@ -12,31 +12,64 @@ from web3 import Web3
 import json
 import sys
 
+# test(avec acces smartphone) ou airbox(pour wireless) ou prod ou aws
+
+
+
 class currentMode() :
 	
-	myenv='test'  # test(avec acces smartphone) ou airbox(pour wireless) ou prod
-	mychain='rinkeby'
-	password='suc2cane'
-	apiport = '3000'
-	flaskserver = '127.0.0.1'
-		
 	def __init__(self):
+		
+		self.mychain = 'rinkeby'
+		self.myenv = 'airbox'
+		self.password = 'suc2cane'
+		print('debut init environment')
+		print('Chain = ', self.mychain)
+		print('Environnement =', self.myenv)			
 			
-		print('debut init')			
+		if self.myenv == 'prod' :  # sur rasbperry et Livebox Houdan		
+			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.IP = '217.128.135.206' # external
+			self.server = 'http://217.128.135.206:5000/' # external
+			self.port = 4000
+			self.flaskserver = "127.0.0.1"
+			self.debug = True	
+
+		elif self.myenv == 'aws' :
+			self.IPCProvider = "/home/admin/rinkeby/geth.ipc"
+			self.w3 = Web3(Web3.IPCProvider("/home/admin/rinkeby/geth.ipc"))
+			self.IP = '18.190.21.227' # external talao.co
+			self.server = 'http://18.190.21.227:5000/' # external
+			self.port = 4000
+			self.flaskserver = "127.0.0.1"
+			self.debug = True	
+		
+		elif self.myenv == 'airbox' :  # sur portable connecté avec airbox
+			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.server = 'http://127.0.0.1:3000/' # external
+			self.flaskserver = "127.0.0.1"
+			self.port = 3000
+			self.debug = True
+						
+		elif self.myenv == 'test' : # sur portable avec acces internet par reseau (pour les test depuis un smartphone)
+			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.server = 'http://192.168.0.34:3000/' 
+			self.flaskserver = "192.168.0.34"
+			self.port = 3000
+			self.debug = True
+	
 		if self.mychain == 'rinkeby' :
-			
 			self.start_block = 6400000
 			self.ether2transfer = 40	
 			self.talao_to_transfer = 101
 			self.talao_bonus = 10
 			
-			""" provider """
-			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
-			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
-			# gestion des extra bytes POA
 			self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-		
-			self.datadir = "/mnt/ssd/rinkeby" 						
+
+			#self.datadir = "/mnt/ssd/rinkeby" 						
 			self.BLOCKCHAIN = "rinkeby"		
 			self.Talao_token_contract = '0xb8a0a9eE2E780281637bd93C13076cc5E342c9aE' # Talao token
 			self.CHAIN_ID = 4
@@ -61,7 +94,7 @@ class currentMode() :
 			self.WORKSPACE_LINK='http://vault.talao.io:4011/visit/'
 			self.GASPRICE='2'		
 		
-		elif self.mychain == 'ethereum' or self.mychain == 'mainet' :
+		elif self.mychain == 'ethereum'  :
 			
 			self.ether2transfer = 20
 			self.talao_to_transfer = 101
@@ -70,7 +103,8 @@ class currentMode() :
 			
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	
-			self.datadir="/mnt/ssd/ethereum"
+			#self.datadir="/mnt/ssd/ethereum"
+			
 			self.BLOCKCHAIN = "ethereum"
 			self.Talao_token_contract='0x1D4cCC31dAB6EA20f461d329a0562C1c58412515' # Talao token
 			self.CHAIN_ID = 1
@@ -93,33 +127,11 @@ class currentMode() :
 			self.DAPP_LINK = '\r\nDapp Link : https://my.freedapp.io/visit/'
 			self.WORKSPACE_LINK = 'https://my.freedapp.io/visit/'
 			self.GASPRICE = '2'			
-		else :
-			print('error chain ->', self.mychain)
-		
+	
+			
 		if self.w3.isConnected()== False :
 			print("Not Connected, network problem")
 			sys.exit()	
-		
-		if self.myenv == 'production' or self.myenv == 'prod' :  # sur rasbperry et Livebox Houdan
-			self.IP = '217.128.135.206' # external
-			self.server = 'http://217.128.135.206:5000/' # external
-			self.port = 4000
-			self.flaskserver = "127.0.0.1"
-			self.debug = True	
-		
-		elif self.myenv == 'airbox' :  # sur portable et airbox
-			self.server = 'http://127.0.0.1:3000/' # external
-			self.flaskserver = "127.0.0.1"
-			self.port = 3000
-			self.debug = True
-						
-		elif self.myenv == 'test' : # sur portable avec acces reseau pour les test depuis un smartphone
-			self.server = 'http://192.168.0.34:3000/' 
-			self.flaskserver = "192.168.0.34"
-			self.port = 3000
-			self.debug = True
-		else : 
-			print('error env ->', self.myenv)
 		
 		print('debut unlock')
 		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
@@ -127,9 +139,4 @@ class currentMode() :
 		#self.w3.geth.personal.unlockAccount(self.owner_talao,self.password,0)
 		self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0) # faire >>>personal.importRawKey(relay, "suc2cane") avec address sans '0x'
 	
-			
-		
-
-			
-	def initProvider(self) :
-		return self.w3
+	

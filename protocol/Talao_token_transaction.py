@@ -24,7 +24,7 @@ import constante
 #   mapping(address => address) public ownersToContracts;
 
 def ownersToContracts(address, mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
@@ -38,7 +38,7 @@ def ownersToContracts(address, mode) :
 #            selfdestruct(msg.sender);	
 
 def destroyWorkspace(workspace_contract, private_key, mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 	address=contractsToOwners(workspace_contract, mode)
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	
@@ -61,7 +61,7 @@ def destroyWorkspace(workspace_contract, private_key, mode) :
 ############################################################
 #
 def contractsToOwners(workspace_contract, mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address	
@@ -74,7 +74,7 @@ def contractsToOwners(workspace_contract, mode) :
 
 def token_transfer(address_to, value, mode) :
 	
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 
@@ -100,7 +100,7 @@ def token_transfer(address_to, value, mode) :
 
 def ether_transfer(address_to, value, mode) :
 	
-	w3=mode.initProvider()
+	w3 = mode.w3
 	
 	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen	
 	talaoGen_nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key) 
@@ -138,7 +138,7 @@ def ether_transfer(address_to, value, mode) :
 ###############################################################
 
 def token_balance(address,mode) :
-	w3=mode.w3
+	w3 = mode.w3
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 	raw_balance = contract.functions.balanceOf(address).call()
 	balance=raw_balance//10**18
@@ -149,7 +149,7 @@ def token_balance(address,mode) :
 ############################################################
 
 def createVaultAccess(address,private_key,mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
 
@@ -174,7 +174,7 @@ def createVaultAccess(address,private_key,mode) :
 ############################################################
 
 def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	contract=w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 
@@ -206,7 +206,7 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 def authorizepartnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner,mode, synchronous = True) :
 	
 	# user = address_to
-	w3=mode.initProvider()
+	w3 = mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	
 	# calcul du nonce de l envoyeur de token . Ici le from
@@ -414,7 +414,7 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 #        uint256[] _offsets
 
 def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitle, _worksFor, _workLocation, _url, _email, _description,mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	givenName = 103105118101110078097109101
 	familyName = 102097109105108121078097109101
@@ -457,10 +457,10 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 
 def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchronous=True) :
 	
-	w3=mode.w3
-	bchaine=bytes(chaine, 'utf-8')
-	workspace_contract=ownersToContracts(address,mode)
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	w3 = mode.w3
+	bchaine = bytes(chaine, 'utf-8')
+	workspace_contract = ownersToContracts(address,mode)
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le caller
 	nonce = w3.eth.getTransactionCount(address)  
 	# Build transaction
@@ -519,7 +519,7 @@ def read_workspace_info (address, rsa_key, mode) :
 # attention cela retourne le nombre de doc mais pas les docuements actifs !!!!
 
 def getDocumentIndex(address, _doctype,mode) :
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	workspace_contract=ownersToContracts(address,mode)
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -541,7 +541,7 @@ def getDocumentIndex(address, _doctype,mode) :
 
 def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash,mode, synchronous=True) :
 	
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	topicvalue=constante.topic[topicname]
 	
@@ -579,7 +579,7 @@ def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfsh
 
 def whatisthisaddress(thisaddress,mode) :
 
-	w3=mode.initProvider()
+	w3 = mode.w3
 
 	# est ce une addresse Ethereum ?
 	if w3.isAddress(thisaddress) == False :
