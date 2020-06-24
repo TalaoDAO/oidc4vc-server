@@ -1184,26 +1184,22 @@ def request_certificate() :
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
-	else :
-		issuer_username = request.form['issuer_username']
-		certificate_type = request.form['certificate_type']
-		if issuer_username == 'new' :
-			return render_template('request_certificate_new_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+	if request.method == 'POST' :
+		issuer_email = request.form['issuer_email']
+		if request.form['certificate_type'] == 'experience' :
+			return render_template('request_experience_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 		else :
-			# something to do
+			flash('Certificate not implemented yet', 'warning')
 			return redirect(mode.server + 'user/?username=' + username)
-@app.route('/user/request_certificate_new_issuer/', methods=['POST'])
-def request_certificate_new_issuer() :
+@app.route('/user/request_experience_certificate/', methods=['POST'])
+def request_experience_certificate() :
 	username = check_login(session.get('username'))	
-	choice = request.form['choice']
-	if choice == 'cancel' :
-		return redirect(mode.server + 'user/?username=' + username)
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	project_description = request.form['project_description']
 	issuer_type = request.form['type']
-	issuer_memo = request.form['issuer_memo']
+	issuer_memo = request.form['memo']
 	issuer_email = request.form['issuer_email']
 	# to do send  email
 	flash('Certificate Request sent to '+issuer_email, 'success')

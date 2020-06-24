@@ -761,7 +761,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href=/data/"""+ kbis['id'] + """:kbis>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""	
 				my_kbis = my_kbis + kbis_html		
@@ -777,7 +777,7 @@ def user() :
 				my_personal = my_personal + """ 
 				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""								
 					<a class="text-secondary" href=/data/""" + topicname_id + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""				
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
