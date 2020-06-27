@@ -39,31 +39,7 @@ class Identity() :
 		#self.get_management_keys()
 		self.get_identity_personal()
 		
-		#donload pictures on server
-		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
-		print('picture =', self.picture)
-		if self.picture is not None :
-			"""
-			client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-			print(client.get(self.picture))
-			os.system('mv '+ self.picture + ' ' + 'photos/' + self.picture)	
-			"""
-			url='https://gateway.pinata.cloud/ipfs/'+ self.picture
-			response = requests.get(url, stream=True)
-			with open('./photos/' + self.picture, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
 		
-		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
-		if self.signature is not None :
-			"""client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-			client.get(self.signature)
-			os.system('mv '+ self.signature + ' ' + 'photos/' + self.signature)	"""
-			url='https://gateway.pinata.cloud/ipfs/'+ self.signature
-			response = requests.get(url, stream=True)
-			with open('./photos/' + self.signature, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
 		
 		self.get_all_documents()
 		self.get_identity_file()
@@ -112,6 +88,28 @@ class Identity() :
 			self.get_identity_education()
 			self.get_identity_kyc()
 			self.get_identity_certificate()
+			
+		#download pictures on server
+		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
+		if self.picture is None :
+			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' if self.category == 1001 else "QmXRD2utp6yNaBwE8BEbWvZh7azgRFB1iRh7WhpHyM6Jcy"
+		else  :
+			url='https://gateway.pinata.cloud/ipfs/'+ self.picture
+			response = requests.get(url, stream=True)
+			with open('./photos/' + self.picture, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response	
+		
+		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
+		if self.signature is None :
+			self.signature = "QmcAGXcMpQMvz3kHCqsBJcVgaDVQxRhjQjZjygPB2L4Hsh" # picasso
+		else :
+			url='https://gateway.pinata.cloud/ipfs/'+ self.signature
+			response = requests.get(url, stream=True)
+			with open('./photos/' + self.signature, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response	
+			
 	
 	def get_secret(self) :
 		(self.category, self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, self.mode)

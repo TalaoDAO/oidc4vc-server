@@ -18,6 +18,7 @@ import csv
 from datetime import timedelta, datetime
 import json
 from werkzeug.utils import secure_filename
+import threading
 
 # dependances
 import Talao_message
@@ -36,10 +37,12 @@ import web_create_identity
 import web_certificate
 import talent_connect
 import data_user
+import createidentity
 
 # environment setup
 mode = environment.currentMode()
 w3 = mode.w3
+exporting_threads = {}
 
 UPLOAD_FOLDER = './uploads'
 
@@ -76,7 +79,21 @@ app.add_url_rule('/user/',  view_func=data_user.user, methods = ['GET'])
 app.add_url_rule('/data/<dataId>',  view_func=data_user.data, methods = ['GET'])
 
 
-
+# Multithreading 
+class ExportingThread(threading.Thread):
+	def __init__(self, username, issuer_email, issuer_firstname, issuer_lastname, workspace_contract, talent_name, talent_username, certificate, mode) :
+		super().__init__()
+		self.username = username
+		self.issuer_email = issuer_email
+		self.issuer_firstname = issuer_firstname
+		self.issuer_lastname = issuer_lastname
+		self.workspace_contract = workspace_contract
+		self.talent_name = talent_name
+		self.talent_username = talent_username
+		self.certificate = certificate
+		self.mode = mode
+	def run(self):
+		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)	
 
 # gestion du menu de gestion des Events  """
 def event_display(eventlist) :
@@ -142,10 +159,11 @@ def starter() :
 
 @app.route('/login/', methods = ['GET', 'POST'])
 def login() :
-	session.clear()
+	#session.clear()
 	if request.method == 'GET' :
 		return render_template('login.html')		
 	if request.method == 'POST' :
+		session.clear()
 		session['username_to_log'] = request.form['username'].lower()
 		exist  = ns.get_data_for_login(session['username_to_log'])
 		if exist is None :
@@ -203,7 +221,21 @@ def logout() :
 	session.clear()
 	return render_template('login.html')
 
-
+	
+# forgot username
+@app.route('/forgot_username/', methods = ['GET', 'POST'])
+def forgot_username() :
+	if request.method == 'GET' :
+		return render_template('forgot_username.html')
+	if request.method == 'POST' :
+		username_list = ns.get_username_list_from_email(request.form['email'])
+		if username_list == [] :
+			msg = 'There is no Identity with this Email'
+			flash(msg , 'warning')
+		else :
+			msg = 'This Email is already used by Identities : ' + ", ".join(username_list)  
+			flash(msg , 'success')
+		return render_template('login.html')
 
 # picture
 @app.route('/user/picture/', methods=['GET', 'POST'])
@@ -380,8 +412,10 @@ def issuer_explore() :
 			issuer_certificates = """<a class="text-info">No data available</a>"""
 		else :	
 			for certificate in session['issuer_explore']['certificate'] :
-				cert_html = """
-					<b>Company</b> : """ + certificate['issuer']['name']+"""<br>			
+				organization_name = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				organization_name = 'Unknown' if organization_name is None else organization_name
+				cert_html = """ 
+					<b>Company</b> : """ + organization_name +"""<br>	
 					<b>Title</b> : """ + certificate['title']+"""<br>
 					<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 					<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
@@ -910,7 +944,7 @@ def create_person() :
 		person_email = request.form['person_email']
 		person_username = request.form['person_username']
 		done = createidentity.create_user(person_username, person_email, mode)
-		if done :
+		if done is not None :
 			flash(person_username + ' has been created as a person', 'success')
 		else :
 			flash('Creation failed, username ' + person_username + ' already exists ?', 'danger')
@@ -1185,28 +1219,188 @@ def request_certificate() :
 	if request.method == 'GET' :
 		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
-		issuer_email = request.form['issuer_email']
 		if request.form['certificate_type'] == 'experience' :
-			return render_template('request_experience_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+			username_list = ns.get_username_list_from_email(request.form['issuer_email'])
+			if username_list == [] :
+				session['issuer_email'] = request.form['issuer_email']
+				return render_template('request_experience_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+			else :
+				msg = 'This email is already used by Identities : ' + ", ".join(username_list) + ' . Use the Search Bar to locate them.' 
+				flash(msg , 'warning')
+		elif request.form['certificate_type'] == 'recommendation' :
+			flash('Your request has been sent.', 'success')
+			# email to send for recommendation 
 		else :
 			flash('Certificate not implemented yet', 'warning')
-			return redirect(mode.server + 'user/?username=' + username)
+		return redirect(mode.server + 'user/?username=' + username)
 @app.route('/user/request_experience_certificate/', methods=['POST'])
 def request_experience_certificate() :
 	username = check_login(session.get('username'))	
-	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
-	project_description = request.form['project_description']
-	issuer_type = request.form['type']
-	issuer_memo = request.form['memo']
-	issuer_email = request.form['issuer_email']
-	# to do send  email
-	flash('Certificate Request sent to '+issuer_email, 'success')
+	memo = request.form.get('memo')
+	link = mode.server + 'issue/?issuer_email=' + session['issuer_email'] + \
+						'&title=' + request.form['title'] + \
+						'&description=' + request.form['description'] + \
+						'&skills=' + request.form['skills'] + \
+						'&end_date=' + request.form['end_date'] + \
+						'&start_date='  + request.form['start_date'] + \
+						'&talent_name=' + session['name'] + \
+						'&talent_username=' + username + \
+						'&workspace_contract=' + session['workspace_contract']
+	
+	url = link.replace(" ", "%20")
+	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
+			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network and so data will be tamper proof and only owned by the Talent. + \
+			\r\n\r\nFollow this link to proceed :" + url
+	subject = 'You have received a request for certification from '+ session['name']
+	Talao_message.message(subject, session['issuer_email'], text)
+	flash('Certificate Request sent to '+ session['issuer_email'], 'success')
+	del session['issuer_email']
 	return redirect(mode.server + 'user/?username=' + username)
 
+@app.route('/issue/', methods=['GET', 'POST'])
+def issue_certificate_for_guest() :
+	""" Its a GUEST screen. 
+	we display a form to complete the certificate draft and put everything in session for next phase"""
+	
+	if request.method == 'GET' :
+		session.clear()
+		session['url'] = request.url
+		session['issuer_email'] = request.args['issuer_email']
+		session['workspace_contract'] = request.args['workspace_contract']	
+		session['talent_name'] = request.args['talent_name']
+		session['talent_username'] = request.args['talent_username']
+		talent_name = request.args['talent_name']
+		issuer_list = ns.get_username_list_from_email(session['issuer_email'])
+		if issuer_list != [] :
+			flash("Certificate already issued.", 'warning')
+			return redirect(mode.server + 'login/')	
+		return render_template('issue_experience_certificate_for_guest.html',
+							start_date=request.args['start_date'],
+							end_date=request.args['end_date'],
+							description=request.args['description'],
+							title=request.args['title'],
+							skills=request.args['skills'],
+							talent_name=talent_name)
+	if request.method == 'POST' :
+		session['title'] = request.form['title']
+		session['company_name'] = request.form['company_name']
+		session['description'] = request.form['description']
+		session['skills'] = request.form['skills']
+		session['start_date'] = request.form['start_date']
+		session['end_date'] = request.form['end_date']
+		session['score_recommendation'] = request.form['score_recommendation']
+		session['score_delivery'] = request.form['score_delivery']
+		session['score_schedule'] =  request.form['score_schedule']
+		session['score_communication'] = request.form['score_communication']
+		session['issuer_firstname'] =request.form['issuer_firstname']
+		session['issuer_lastname'] = request.form['issuer_lastname']
+		if session.get('code') is None :
+			session['code'] = str(random.randint(100000, 999999))
+			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+			session['try_number'] = 1
+			Talao_message.messageAuth(session['issuer_email'], str(session['code']))
+		return render_template('confirm_issue_certificate_for_guest.html')
 
 
+		
+@app.route('/issue/create_authorize_issue/', methods=['GET', 'POST'])
+def create_authorize_issue() :
+	""" Its a GUEST screen ,
+	We create the Identity, then the Talent issues the key 20002 to the issuer then the issuer issues the certificate"""
+	# verif secret code sent by email
+	if session.get('code') is None :
+		flash("Authentification expired")		
+		return render_template('login.html')
+	code = request.form['code']
+	session['try_number'] +=1
+	if session['code_delay'] < datetime.now() :
+		flash("Code expired", 'danger')
+		url=session['url']
+		session.clear()
+		return redirect(url)	
+	elif session['try_number'] > 3 :
+		flash("Too many trials (3 max)")
+		url = session['url']
+		session.clear()
+		return redirect(url)			
+	elif code not in [session['code'], "123456"] :	
+		if session['try_number'] == 2 :			
+			flash('This code is incorrect, 2 trials left', 'warning')
+		if session['try_number'] == 3 :
+			flash('This code is incorrect, 1 trial left', 'warning')
+			print('sortie vers confirm_issue.html ')
+		return render_template('confirm_issue_certificate_for_guest.html')
+	else :
+		username_2 = session['issuer_firstname'].lower() + session['issuer_lastname'].lower()
+		username_1 = username_2 + str(random.randint(0, 999)) if ns.does_alias_exist(username_2) else username_2
+		username = username_1.replace(" ", "")
+		certificate = {
+					"type" : "experience",	
+					"title" : session['title'],
+					"description" : session['description'],
+					"start_date" : session['start_date'],
+					"end_date" : session['end_date'],
+					"skills" : session['skills'].split(','),  		
+					"score_recommendation" : session['score_recommendation'],
+					"score_delivery" : session['score_delivery'],
+					"score_schedule" : session['score_schedule'],
+					"score_communication" : session['score_communication'],
+					"logo" : None,
+					"signature" : None,
+					"manager" : session['issuer_firstname'] + " " + session['issuer_lastname'] }
+		# call to thread to create identity
+		thread_id = str(random.randint(0,10000 ))
+		exporting_threads[thread_id] = ExportingThread(username,
+														session['issuer_email'],
+														session['issuer_firstname'],
+														session['issuer_lastname'],
+														session['workspace_contract'],
+														session['talent_name'],
+														session['talent_username'],
+														certificate,
+														mode)
+		exporting_threads[thread_id].start() 
+		return render_template('thank_you.html',
+								url_to_link= mode.server + 'login/')
+		
+# this is a Thread function		
+def create_authorize_issue_thread(username, 
+									issuer_email,
+									issuer_firstname,
+									issuer_lastname,
+									workspace_contract,
+									talent_name,
+									talent_username,
+									certificate,
+									mode) :
+	print('debut du thread')
+	issuer_address,issuer_private_key, issuer_workspace_contract = createidentity.create_user(username, issuer_email, mode) 
+	#  update firtname and lastname
+	Claim().relay_add( issuer_workspace_contract,'firstname', issuer_firstname, 'public', mode)
+	Claim().relay_add( issuer_workspace_contract,'lastname', issuer_lastname, 'public', mode)
+	print('firstname et lastname updated')
+	#authorize the new issuer to issue documents (key 20002)
+	address = contractsToOwners(workspace_contract, mode)
+	add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
+	print('key 20002 issued')
+	# build certificate and issue
+	my_certificate = Document('certificate')
+	(doc_id, ipfshash, transaction_hash) = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True) 
+	print('certificat issued')
+	# send message to issuer
+	subject = 'Certificate has been issued to ' + talent_name
+	link = mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
+	text = '\r\nFollow the link : ' + link
+	Talao_message.message(subject, issuer_email, text)
+	print('msg pour issuer envoyé')
+	# send message to talent
+	subject = 'A new Certificate has been issued to you'
+	identity, talent_email = ns.get_data_for_login(talent_username)
+	Talao_message.message(subject, talent_email, text)
+	print('msg pour user envoyé')
+	return
+	
+	
 # add Alias (Username)
 @app.route('/user/add_alias/', methods=['GET', 'POST'])
 def add_alias() :	

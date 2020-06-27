@@ -317,6 +317,16 @@ def get_alias_list(workspace_contract) :
 		alias.append({'username' : row[0], 'email' : row[1]})	
 	return alias
 
+def get_username_list_from_email(email) :
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data ={'email' : email}
+	c.execute("SELECT identity_name FROM alias WHERE email = :email" , data)
+	select = c.fetchall()
+	username_list = list()
+	for row in select :
+		username_list.append(row[0])	
+	return username_list
 
 def get_manager_list(workspace_contract) :
 	call = get_username_from_resolver(workspace_contract)

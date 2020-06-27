@@ -30,7 +30,7 @@ import ns
 
 master_key = ""
 salt = ""
-
+Identity_store = 5
 
 # deterministic RSA rand function
 def my_rand(n):
@@ -87,7 +87,7 @@ def create_user(username, email,mode):
 	
 	if ns.does_alias_exist(username)  :
 		print('username already used')
-		return False
+		return None
 	
 	
 	# process duration
@@ -156,9 +156,12 @@ def create_user(username, email,mode):
 	workspace_contract = ownersToContracts(address,mode)
 	print('workspace_contract = ',workspace_contract)	
 
-	# management key(1) issued to Web Relay to act as agent.
+	# key(1) issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
 	
+	# key 5 to Talao as White List
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode, synchronous=True) 
+
 	# rewrite email with scheme 2 to differenciate from freedapp email that are not encrypted
 	email2(address, workspace_contract, private_key, email, AES_key, mode)
 		
@@ -187,4 +190,4 @@ def create_user(username, email,mode):
 	identityfile.close()
 
 	print("createidentity is OK")
-	return True
+	return address, private_key, workspace_contract

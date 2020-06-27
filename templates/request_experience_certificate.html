@@ -35,38 +35,36 @@
                             <form action="/user/request_experience_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Complete this request as precisely as possible to help to draft the final Certificate.</p>
+                                        <p>Complete this request form as precisely as possible to help us to draft the final Certificate.</p>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-6">
-                                        <div class="form-group"><label>Project Name</label><input class="form-control" type="text" name="project_name"></div>
+                                        <div class="form-group"><label>Project Name</label><input required="" class="form-control" type="text" name="title"></div>
                                     </div>
-                                    <div class="col-xl-6">
-                                        <div class="form-group"><label>Talent Name</label><input class="form-control" type="text" readonly="" value="{{talent_name}}"></div>
-                                    </div>
+                                  
                                 </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Project Description</label><textarea class="form-control" name="project_description"></textarea></div>
+                                        <div class="form-group"><label>Project Description</label><textarea required="" class="form-control" name="description"></textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-6">
-                                        <div class="form-group"><label>Start Date</label><input class="form-control" type="date" name="start_date"></div>
+                                        <div class="form-group"><label>Start Date</label><input class="form-control" required="" type="date" name="start_date"></div>
                                     </div>
                                     <div class="col-xl-6">
-                                        <div class="form-group"><label>End Date</label><input class="form-control" type="date" name="end_date"></div>
+                                        <div class="form-group"><label>End Date</label><input class="form-control" required="" type="date" name="end_date"></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-12">
-                                        <div class="form-group"><label>Skills</label><input class="form-control" type="text" name="skills"></div>
+                                        <div class="form-group"><label>Skills</label><input placeholder="skill1, skill2, ..." class="form-control" type="text" name="skills"></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Memo</label><textarea class="form-control" name="memo"></textarea></div>
+                                        <div class="form-group"><label>Memo (Optional)</label><textarea class="form-control" placeholder="Leave a message to the Issuer" name="memo"></textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">

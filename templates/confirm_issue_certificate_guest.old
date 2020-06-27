@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                                                                   {% include 'company_nav_bar.html' %}    
+
+        <div class="container-fluid">
+            <div class="row mb-3">
+                <div class="col-lg-8 col-xl-4 offset-xl-4">
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Invit a Friend</p>
+                        </div>
+                        <div class="card-body">
+                            <form action="/user/add_controller/" method="post">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <p>Invit a friend to setup his/her own Decentralized Professional Identity and you will receive a bonus of 10 TALAO tokens after registration.</p>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Friend Email</strong><br></label><input class="form-control" type="email" required="" name="friend_email"></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Memo</strong><br></label><input class="form-control" type="text" name="friend_memo"></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Invit</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Cancel</button></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+                                 {% include 'user_footer.html' %}    
+
+    </div>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
+</body>
+
+</html>

@@ -56,8 +56,8 @@ class currentMode() :
 		elif self.myenv == 'test' : # sur portable avec acces internet par reseau (pour les test depuis un smartphone)
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
-			self.server = 'http://192.168.0.34:3000/' 
-			self.flaskserver = "192.168.0.34"
+			self.server = 'http://192.168.0.6:3000/' 
+			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 			self.debug = True
 	

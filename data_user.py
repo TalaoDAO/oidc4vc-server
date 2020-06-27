@@ -33,14 +33,6 @@ import ns
 
 
 
-"""
-# Centralized  route
-import web_create_identity
-import web_certificate
-import talent_connect
-#import web_guest
-"""
-
 # environment setup
 mode = environment.currentMode()
 w3 = mode.w3
@@ -226,7 +218,10 @@ def data(dataId) :
 		mytitle = my_data.title
 		mysummary = my_data.description	
 		profil,category  = read_profil(my_data.issuer['workspace_contract'], mode, 'full')	
-		issuer_name = "Unknown" if profil['name'] is None else profil['name']
+		if category == 'company' :
+			issuer_name = "Unknown" if profil['name'] is None else profil['name']
+		else :
+			issuer_name = "Unknown" # cas du request certifiacte to guest
 
 		myvalue = """ 
 				<b>Data Content</b>
@@ -360,9 +355,8 @@ def user() :
 		session['personal'] = user.personal
 		session['identity_file'] = user.identity_file
 		session['name'] = user.name
-		session['picture'] = "anonymous1.png" if user.picture is None else user.picture
-		session['signature'] = "picasso.jpg" if user.signature is None else user.signature
-		print('dans user  ', session['picture'])
+		session['picture'] = user.picture
+		session['signature'] = user.signature
 		session['secret'] = user.secret
 		
 		if user.type == 'person' :
@@ -660,7 +654,7 @@ def user() :
 			my_certificates = ""
 			for certificate in session['certificate'] :
 				organization_name = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
-				organization_name = 'Unknon' if organization_name is None else organization_name
+				organization_name = 'Unknown' if organization_name is None else organization_name
 				cert_html = """<hr> 
 				<b>Company</b> : """ + organization_name +"""<br>			
 				<b>Title</b> : """ + certificate['title']+"""<br>

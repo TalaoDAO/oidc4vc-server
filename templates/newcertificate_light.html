@@ -2,7 +2,7 @@
 <html>
 
 <head>
-   <meta charset="utf-8">
+      <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -16,64 +16,45 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                
-                                                                                                       {% include 'guest_nav_bar.html' %}    
-                
+                                                                                                             {% include 'guest_nav_bar.html' %}    
+
                 <div class="container-fluid">
                     <div class="row mb-3">
-						
-						
-                        <div class="col-lg-8 col-xl-8 offset-xl-2">
+                        <div class="col-lg-8 col-xl-4 offset-xl-4">
                             <div class="row">
-                                <div class="col-lg-9 col-xl-10 offset-lg-4 offset-xl-1">
-                                   
-                          
-                                   
-                                    <div class="card shadow mb-3">                                    
+                                <div class="col-lg-9 col-xl-12 offset-lg-4 offset-xl-0">
+                                    <div class="card shadow mb-3">
                                         <div class="card-header py-3">
                                             <div class="row">
-                                                <div class="col-xl-6">
-                                                    <p class="text-secondary m-0 font-weight-bold"><strong>{{firstname}} {{lastname}}&nbsp;</strong>Professional Certificate</p>
+                                                <div class="col-xl-9">
+                                                    <p class="text-primary m-0 font-weight-bold"><strong>{{firstname}} {{lastname}}&nbsp;</strong>Professional Certificate issued by {{manager}}.</p>
                                                 </div>
-                                                
-												<div class="col">
-                                                    <p class="text-right">
-                                                  {% if call_from == 'user' %}
-														<a href="/user/?username={{identity_username}}" ><strong>Back &nbsp; </strong></a>
-                                                  {% endif %}  
-                                                   {% if call_from == 'explore' %}
-														<a href="/user/issuer_explore/?issuer_username={{issuer_username}}" ><strong>Back &nbsp; </strong></a>
-                                                  {% endif %} 
-                                                    <a href="/certificate/verify/?certificate_id={{certificate_id}}&call_from={{call_from}}"><strong>Verify</strong></a></p>
+                                                <div class="col">
+                                                    <p class="text-right">&nbsp;<a href="/certificate/verify/?certificate_id={{certificate_id}}&call_from={{call_from}}"><strong>Check data</strong></a></p>
                                                 </div>
-                                                
                                             </div>
                                         </div>
-                                        
-                                        
-                                        
-                                        
                                         <div class="card-body">
                                             <form action="/user/user_settings/" method="POST">
                                                 <div class="form-row">
-                                                    <div class="col-xl-7">
+                                                    <div class="col-xl-12 offset-xl-0">
                                                         <p class="text-center"><strong>{{title}}</strong><br></p>
-                                                        <p class="text-center" style="font-size: 16px;">from {{start_date}} to {{end_date}}</p><textarea class="form-control" rows="4" style="font-size: 16px;">{{description}}</textarea>
+                                                        <p class="text-center" style="font-size: 12px;">from {{start_date}} to {{end_date}}</p>
+                                                        <textarea class="form-control" row="5" style="font-size: 16-px;">{{description}}</textarea>
                                                         <hr>
                                                         <div>
                                                             <div class="text-center">
-																{{badge|safe}}
-															</div>
+                                                                  		{{badge|safe}}  
+                                                            </div>
                                                             <hr>
                                                             
-                                                            
+                                                               
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
@@ -114,39 +95,24 @@
                                                             </div>
                                                             
                                                             
-                                                            
                                                         </div>
                                                     </div>
-                                                    
-                                                    <div class="col-xl-5">
-                                                        <div>
-                                                            <p class="text-center"><strong>Issued by </strong><br></p>
-                                                            <img id="company" class="mx-auto d-block" src="{{ url_for('send_file', filename=logo) }}" height="150" width="150">
-                                                        </div>
-                                                        <div><br><br><br><br>
-                                                            <p class="text-center"><strong>Signed by {{manager}}</strong><br></p>
-                                                             <img id="signature" class="mx-auto d-block" src="{{ url_for('send_file', filename=signature) }}" height="150" width="150">
-                                                        </div>
-                                                     </div>
-                                                     
                                                 </div>
                                             </form>
                                         </div>
-                                 <!--   </div>
-                                </div> -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-                                                        {% include 'user_footer.html' %}    
-
-        <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+               {% include 'user_footer.html' %} 
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>     
-       
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
 </body>
 
 </html>
