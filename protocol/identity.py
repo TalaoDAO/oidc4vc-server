@@ -89,26 +89,24 @@ class Identity() :
 			self.get_identity_kyc()
 			self.get_identity_certificate()
 			
-		#download pictures on server
+		#download pictures on server dir /uploads/
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
 		if self.picture is None :
-			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' if self.category == 1001 else "QmXRD2utp6yNaBwE8BEbWvZh7azgRFB1iRh7WhpHyM6Jcy"
-		else  :
-			url='https://gateway.pinata.cloud/ipfs/'+ self.picture
-			response = requests.get(url, stream=True)
-			with open('./photos/' + self.picture, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response	
+			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' # if self.type == "person" else "Qmd4UpYjiamVXf3YUE7SJcWbyMcsEGwFQPxGf7Zy4q7Fo5"
+		url = 'https://ipfs.io/ipfs/'+ self.picture
+		response = requests.get(url, stream=True)
+		with open('./uploads/' + self.picture, 'wb') as out_file:
+			shutil.copyfileobj(response.raw, out_file)
+		del response	
 		
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
 		if self.signature is None :
-			self.signature = "QmcAGXcMpQMvz3kHCqsBJcVgaDVQxRhjQjZjygPB2L4Hsh" # picasso
-		else :
-			url='https://gateway.pinata.cloud/ipfs/'+ self.signature
-			response = requests.get(url, stream=True)
-			with open('./photos/' + self.signature, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response	
+			self.signature = "QmeMfck3z6K5p8xmCqQpjH3R7s3YddR5DsMNLewWvzQrFS" # macron
+		url = 'https://ipfs.io/ipfs/'+ self.signature
+		response = requests.get(url, stream=True)
+		with open('./uploads/' + self.signature, 'wb') as out_file:
+			shutil.copyfileobj(response.raw, out_file)
+		del response	
 			
 	
 	def get_secret(self) :

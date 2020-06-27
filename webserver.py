@@ -167,7 +167,7 @@ def login() :
 		session['username_to_log'] = request.form['username'].lower()
 		exist  = ns.get_data_for_login(session['username_to_log'])
 		if exist is None :
-			flash('Username not found')		
+			flash('Username not found', 'warning')		
 			return render_template('login.html')
 		(identity,email_to_log) = exist
 		# secret code to send by email
@@ -741,6 +741,8 @@ def update_personal_settings() :
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
+	personal = session['personal']
+	convert(personal)
 	if request.method == 'GET' :
 		privacy=dict()
 		for topicname in session['personal'].keys() :
@@ -766,18 +768,18 @@ def update_personal_settings() :
 								counter=my_counter,
 								name=session['name'],
 								username=username,
-								firstname=session['personal']['firstname']['claim_value'],
-								lastname=session['personal']['lastname']['claim_value'],
-								about=session['personal']['about']['claim_value'],
-								education=session['personal']['education']['claim_value'],							
-								profil_title=session['personal']['profil_title']['claim_value'],
-								contact_email=session['personal']['contact_email']['claim_value'],
+								firstname=personal['firstname']['claim_value'],
+								lastname=personal['lastname']['claim_value'],
+								about=personal['about']['claim_value'],
+								education=personal['education']['claim_value'],							
+								profil_title=personal['profil_title']['claim_value'],
+								contact_email=personal['contact_email']['claim_value'],
 								contact_email_privacy=privacy['contact_email'],
-								contact_phone=session['personal']['contact_phone']['claim_value'],
+								contact_phone=personal['contact_phone']['claim_value'],
 								contact_phone_privacy=privacy['contact_phone'],
-								birthdate=session['personal']['birthdate']['claim_value'],
+								birthdate=personal['birthdate']['claim_value'],
 								birthdate_privacy=privacy['birthdate'],
-								postal_address=session['personal']['postal_address']['claim_value'],
+								postal_address=personal['postal_address']['claim_value'],
 								postal_address_privacy=privacy['postal_address']
 								)
 	if request.method == 'POST' :
@@ -810,6 +812,17 @@ def update_personal_settings() :
 		return redirect(mode.server + 'user/?username=' + username)
 
 
+def convert(obj):
+    if type(obj) == list:
+        for x in obj:
+            convert(x)
+    elif type(obj) == dict:
+        for k, v in obj.items():
+            if v is None:
+                obj[k] = ''
+            else:
+                convert(v)
+
 # company settings
 @app.route('/user/update_company_settings/', methods=['GET', 'POST'])
 def update_company_settings() :	
@@ -817,6 +830,8 @@ def update_company_settings() :
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
+	personal = session['personal'].copy()
+	convert(personal)
 	if request.method == 'GET' :
 		privacy=dict()
 		for topicname in session['personal'].keys() :
@@ -841,15 +856,15 @@ def update_company_settings() :
 								event=my_event_html,
 								counter=my_counter,
 								username=username,
-								name=session['personal']['name']['claim_value'],
+								name=personal['name']['claim_value'],
 								name_privacy=privacy['name'],
-								contact_name=session['personal']['contact_name']['claim_value'],
+								contact_name=personal['contact_name']['claim_value'],
 								contact_name_privacy=privacy['contact_name'],
-								contact_email=session['personal']['contact_email']['claim_value'],
+								contact_email=personal['contact_email']['claim_value'],
 								contact_email_privacy=privacy['contact_email'],
-								contact_phone=session['personal']['contact_phone']['claim_value'],
+								contact_phone=personal['contact_phone']['claim_value'],
 								contact_phone_privacy=privacy['contact_phone'],
-								website=session['personal']['website']['claim_value'],
+								website=personal['website']['claim_value'],
 								website_privacy=privacy['website'],
 								)
 	if request.method == 'POST' :
@@ -863,7 +878,6 @@ def update_company_settings() :
 
 		change = False	
 		for topicname in session['personal'].keys() :
-		#for topicname in ['name', 'contact_name', 'contact_email', 'contact_phone', 'website'] :
 			form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
 
 			if 	form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
@@ -1588,7 +1602,7 @@ def languages() :
 # photos upload for certificates
 @app.route('/uploads/<filename>')
 def send_file(filename):
-	UPLOAD_FOLDER = 'photos'
+	UPLOAD_FOLDER = './uploads'
 	return send_from_directory(UPLOAD_FOLDER, filename)
 	
 # fonts upload

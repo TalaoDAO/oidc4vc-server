@@ -776,7 +776,7 @@ def user() :
 				</span><br>"""				
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 		
-		
+		print('picture = ', session['picture'])
 		return render_template('company_identity.html',
 							manager=my_access,
 							display_manager= display_manager,
