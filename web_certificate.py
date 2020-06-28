@@ -102,7 +102,7 @@ def show_certificate():
 							start_date=session['displayed_certificate']['start_date'],
 							end_date=session['displayed_certificate']['end_date'],
 							signature=signature,
-							logo=signature,
+							logo=logo,
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,

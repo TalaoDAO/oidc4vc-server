@@ -654,6 +654,8 @@ def user() :
 			my_certificates = ""
 			for certificate in session['certificate'] :
 				organization_name = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+			
+				organization_name = certificate['issuer']['name']
 				organization_name = 'Unknown' if organization_name is None else organization_name
 				cert_html = """<hr> 
 				<b>Company</b> : """ + organization_name +"""<br>			
@@ -762,7 +764,8 @@ def user() :
 	
 		
 		# company settings
-		my_personal = """<a href="/user/picture/">Change Logo</a><br>"""
+		my_personal = """<a href="/user/picture/">Change Logo</a><br>
+						<a href="/user/signature/">Change Signature</a><br>"""
 		for topicname in session['personal'].keys() :
 			if session['personal'][topicname]['claim_value'] is not None :
 				topicname_value = session['personal'][topicname]['claim_value']

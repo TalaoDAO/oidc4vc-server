@@ -175,7 +175,8 @@ def login() :
 			session['code'] = str(random.randint(100000, 999999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
-			Talao_message.messageAuth(email_to_log, str(session['code']))
+			if not mode.test :
+				Talao_message.messageAuth(email_to_log, str(session['code']))
 			print('secret code sent = ', session['code'])
 			flash('Secret Code sent')
 		else :
@@ -649,23 +650,36 @@ def issue_certificate():
 								issuer_username=session['issuer_username'])
 	if request.method == 'POST' :
 		if request.form['certificate_type'] == 'experience' :
+			if len(username.split('.')) == 2 :
+				# look for signature of manager
+				manager_username = username.split('.')[0] 
+				manager_workspace_contract = ns.get_data_from_username(manager_username, mode)['workspace_contract']
+				session['certificate_signature'] = get_image(manager_workspace_contract, 'signature', mode)
+				# look for firstname, lasname and name of manager
+				firstname_claim = Claim()
+				lastname_claim = Claim()
+				firstname_claim.get_by_topic_name(manager_workspace_contract, 'firstname', mode)
+				lastname_claim.get_by_topic_name(manager_workspace_contract, 'lastname', mode)
+				session['certificate_signatory'] = firstname_claim.claim_value + ' ' + lastname_claim.claim_value
+			else : 
+				session['certificate_signature'] = session['signature']
+				session['certificate_signatory'] = 'Director'
+			
 			return render_template("issue_experience_certificate.html",
 									picturefile=my_picture,
 									event=my_event,
 									counter=my_counter,
 									username=username,
 									name=session['name'],
-									manager_name=username,
+									manager_name=session['certificate_signatory'],
 									issuer_username=session['issuer_username'])	
 		else :
 			flash('This certificate is not implemented yet !', 'warning')
 			return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])	
 @app.route('/user/issuer_experience_certificate/', methods=['POST'])
 def issue_experience_certificate():
+	""" The signature is the manager's signature except if the issuer is the company """ 
 	username = check_login(session.get('username'))
-	manager_username = username if len(username.split('.')) == 1 else username.split('.')[0] 
-	manager_workspace_contract = ns.get_data_from_username(manager_username, mode)['workspace_contract']
-	signature = get_image(manager_workspace_contract, 'signature', mode)
 	certificate = {
 					"type" : "experience",	
 					"title" : request.form['title'],
@@ -678,13 +692,15 @@ def issue_experience_certificate():
 					"score_schedule" : request.form['score_schedule'],
 					"score_communication" : request.form['score_communication'],
 					"logo" : session['picture'],
-					"signature" : signature,
-					"manager" : username,}
+					"signature" : session['certificate_signature'],
+					"manager" : session['certificate_signatory'],}
 	workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 	address_to = contractsToOwners(workspace_contract_to, mode)
 	my_certificate = Document('certificate')
 	(doc_id, ipfshash, transaction_hash) = my_certificate.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], certificate, mode, mydays=0, privacy='public', synchronous=True) 
 	flash('Certificate has been issued', 'success')
+	del session['certificate_signature']
+	del session['certificate_signatory']
 	return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])		
 	
 
@@ -1082,7 +1098,7 @@ def remove_certificate() :
 		my_picture = session['picture']
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, experience_title=session['experience_title'])
+		return render_template('remove_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, certificate_title=session['certificate_title'])
 	elif request.method == 'POST' :	
 		session['certificate'] = [certificate for certificate in session['certificate'] if certificate['id'] != session['certificate_to_remove']]
 		Id = session['certificate_to_remove'].split(':')[5]
@@ -1263,8 +1279,8 @@ def request_experience_certificate() :
 	
 	url = link.replace(" ", "%20")
 	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
-			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network and so data will be tamper proof and only owned by the Talent. + \
-			\r\n\r\nFollow this link to proceed :" + url
+			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent. + \
+			\r\n\r\nFollow this link to proceed : " + url
 	subject = 'You have received a request for certification from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
 	flash('Certificate Request sent to '+ session['issuer_email'], 'success')

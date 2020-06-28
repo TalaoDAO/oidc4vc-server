@@ -20,8 +20,9 @@ class currentMode() :
 	
 	def __init__(self):
 		
+		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'airbox'
+		self.myenv = 'test'
 		self.password = 'suc2cane'
 		print('debut init environment')
 		print('Chain = ', self.mychain)
@@ -52,6 +53,7 @@ class currentMode() :
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
 			self.debug = True
+			self.test = True
 						
 		elif self.myenv == 'test' : # sur portable avec acces internet par reseau (pour les test depuis un smartphone)
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
@@ -60,6 +62,7 @@ class currentMode() :
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 			self.debug = True
+			self.test = True
 	
 		if self.mychain == 'rinkeby' :
 			self.start_block = 6400000
