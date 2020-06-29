@@ -35,14 +35,15 @@
                             <form action="/user/issue_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>The company has been authorized to issued certificates. Choose the type of certificate :</p>
+                                        <p>You habe been authorized to issued certificates. Select the type of certificate :</p>
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Certificate Type</strong><br></label>
                                         <select class="form-control" name="certificate_type">
 											<option value="experience" selected="">Experience Certificate</option>
-											<option value="skill">Skill Certificate</option>
-											<option value="training">Training Certificate</option>
-											<option value="referral">Referral</option>
+								<!--			<option value="skill">Skill Certificate</option>
+											<option value="training">Training Certificate</option> -->
+											<option value="recommendation">Recommendation</option>
 										</select></div>
+										
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -50,7 +51,8 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Next</button></div>
                                     </div>
                                     <div class="col-xl-3">
-										<a href="/user/issuer_explore/?issuer_username={{issuer_username}}">
+										
+										<a href="{{goback}}">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
                                         </a>
                                     </div>

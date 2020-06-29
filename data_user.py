@@ -203,7 +203,7 @@ def data(dataId) :
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Title</b> : """+my_data.title + """<br>
-				<li><b>Organiation Name</b> : """+my_data.organization['name']+"""<br></li>
+				<li><b>Organization Name</b> : """+my_data.organization['name']+"""<br></li>
 				<li><b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br></li>
 				<li><b>Contact Email</b> : """+my_data.organization['contact_email']+"""<br></li>
 				<li><b>Contact Phone</b> : """+my_data.organization['contact_phone']+"""<br></li>
@@ -214,27 +214,19 @@ def data(dataId) :
 	
 	
 	elif my_topic.lower() == "certificate" :
-		
 		mytitle = my_data.title
 		mysummary = my_data.description	
-		profil,category  = read_profil(my_data.issuer['workspace_contract'], mode, 'full')	
-		if category == 'company' :
-			issuer_name = "Unknown" if profil['name'] is None else profil['name']
-		else :
-			issuer_name = "Unknown" # cas du request certifiacte to guest
-
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Title</b> : """ + my_data.title + """<br></li>
-				<li><b>Company Name</b> : """ + issuer_name + """<br></li>
 				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>		
 				<li><b>End Date</b> : """+ my_data.end_date + """<br></li>
 				<li><b>Skills</b> : """+ "".join(my_data.skills) + """<br></li>
 				<li><b>Delivery Quality</b> : """+ my_data.score_delivery + """<br></li>
 				<li><b>Schedule Respect</b> : """+ my_data.score_schedule + """<br></li>
 				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
-				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>
-				<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
+				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
+				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
 
 				
 				
@@ -652,13 +644,20 @@ def user() :
 			my_certificates = """<a class="text-danger">No Data Available</a>"""
 		else :
 			my_certificates = ""
-			for certificate in session['certificate'] :
-				organization_name = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
-			
-				organization_name = certificate['issuer']['name']
-				organization_name = 'Unknown' if organization_name is None else organization_name
+			for certificate in session['certificate'] :		
+				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				if certificate['issuer']['category'] == 2001 :
+					issuer_name = certificate['issuer']['name']
+					issuer_type = 'Company'
+				elif  certificate['issuer']['category'] == 1001 :
+					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
+					issuer_type = 'Person'
+				else :
+					print ('issuer category error, data_user.py')
 				cert_html = """<hr> 
-				<b>Company</b> : """ + organization_name +"""<br>			
+				<b>Issuer Name</b> : """ + issuer_name +"""<br>			
+				<b>Issuer Username</b> : """ + issuer_username +"""<br>
+				<b>Issuer Type</b> : """ + issuer_type + """<br>
 				<b>Title</b> : """ + certificate['title']+"""<br>
 				<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 

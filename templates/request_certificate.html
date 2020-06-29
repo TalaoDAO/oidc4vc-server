@@ -37,7 +37,9 @@
                                 <div class="form-row">
                                     <div class="col">
                                         <p>To request a Certificate the Issuer needs to have an Identity and your authorization to issue. We will contact him through his email.<br></p>
+                                        {% if display_email == True %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Email</strong><br></label><input class="form-control" name ="issuer_email" required="" type="email"></div>
+                                        {% endif %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Certificate Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
 												<option value="experience" selected="">Experience Certificate</option>
@@ -53,7 +55,7 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" value="send">Next</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><a href="/user/?username={{username}}"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Cancel</button></a></div>
+                                        <div class="form-group"><a href="{{goback}}"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Cancel</button></a></div>
                                     </div>
                                 </div>
                             </form>

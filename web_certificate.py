@@ -1,5 +1,7 @@
 
 
+import os.path
+from os import path
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
@@ -74,24 +76,30 @@ def show_certificate():
 	for skill in session['displayed_certificate']['skills'] :	
 		skill_to_display = skill.replace(" ", "").capitalize()
 		my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px;"> """+ skill_to_display + """</span>"""
+
 	
-	signature = session['displayed_certificate']['signature']
-	logo = session['displayed_certificate']['logo']
-	print('signature = ', signature, ' logo = ', logo)
-	
-	if signature is not None and logo is not None :
-		url='https://gateway.pinata.cloud/ipfs/'+ signature
-		response = requests.get(url, stream=True)
-		with open('./photos/' + signature, 'wb') as out_file:
-			shutil.copyfileobj(response.raw, out_file)
-		del response
-		
-		url='https://gateway.pinata.cloud/ipfs/'+ logo
-		response = requests.get(url, stream=True)
-		with open('./photos/' + logo, 'wb') as out_file:
-			shutil.copyfileobj(response.raw, out_file)
-		del response
-		
+	if session['displayed_certificate']['issuer']['category'] == 2001 : # company
+		signature = session['displayed_certificate']['signature']
+		logo = session['displayed_certificate']['logo']
+		folder = './uploads/' 
+		if not path.exists(folder + signature) :
+			url='https://gateway.pinata.cloud/ipfs/'+ signature
+			response = requests.get(url, stream=True)
+			with open('./photos/' + signature, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
+		else :
+			print('signature on disk')
+			
+		if not path.exists(folder + logo) :
+			url='https://gateway.pinata.cloud/ipfs/'+ logo
+			response = requests.get(url, stream=True)
+			with open('./photos/' + logo, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
+		else :
+			print('logo on disk')
+				
 		return render_template('newcertificate.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
@@ -110,7 +118,7 @@ def show_certificate():
 							**context)
 
 
-	else :
+	else : # issuer is a person
 		return render_template('newcertificate_light.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,

@@ -6,6 +6,9 @@ uniquemet utilisé en lecture.
 
 
 """
+
+import os.path
+from os import path
 from datetime import datetime
 from operator import itemgetter, attrgetter
 import random
@@ -72,12 +75,12 @@ class Identity() :
 			self.rsa_key = False
 			self.relay_activated = False
 		
-		if self.category  == 2001 :
+		if self.category  == 2001 : # company 
 			self.type = "company"
 			self.name = self.personal['name']['claim_value']			
 			self.get_identity_kbis()
 			
-		if self.category == 1001 :
+		if self.category == 1001 : # person
 			self.profil_title = "" if self.personal['profil_title']['claim_value'] is None else self.personal['profil_title']['claim_value']
 			self.type = "person"
 			firstname = "" if self.personal['firstname']['claim_value'] is None else self.personal['firstname']['claim_value']
@@ -89,25 +92,30 @@ class Identity() :
 			self.get_identity_kyc()
 			self.get_identity_certificate()
 			
-		#download pictures on server dir /uploads/
+		#download pictures on server dir /uploads/ if picrures not already on disk
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
 		if self.picture is None :
-			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' # if self.type == "person" else "Qmd4UpYjiamVXf3YUE7SJcWbyMcsEGwFQPxGf7Zy4q7Fo5"
-		url = 'https://ipfs.io/ipfs/'+ self.picture
-		response = requests.get(url, stream=True)
-		with open('./uploads/' + self.picture, 'wb') as out_file:
-			shutil.copyfileobj(response.raw, out_file)
-		del response	
-		
+			self.picture = 'anonymous_picture.png' if self.type == "person" else "anonymous_logo.png"
+		elif not path.exists('./uploads/' + self.picture) :
+			url = 'https://ipfs.io/ipfs/'+ self.picture
+			response = requests.get(url, stream=True)
+			with open('./uploads/' + self.picture, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response	
+		else :
+			print('picture already on disk Identity')
+			
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
 		if self.signature is None :
-			self.signature = "QmeMfck3z6K5p8xmCqQpjH3R7s3YddR5DsMNLewWvzQrFS" # macron
-		url = 'https://ipfs.io/ipfs/'+ self.signature
-		response = requests.get(url, stream=True)
-		with open('./uploads/' + self.signature, 'wb') as out_file:
-			shutil.copyfileobj(response.raw, out_file)
-		del response	
-			
+			self.signature = 'anonymous_signature.png' 
+		elif not path.exists('./uploads/' + self.signature) :
+			url = 'https://ipfs.io/ipfs/'+ self.signature
+			response = requests.get(url, stream=True)
+			with open('./uploads/' + self.signature, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response	
+		else :
+			print('signature already on disk Identity')
 	
 	def get_secret(self) :
 		(self.category, self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, self.mode)
