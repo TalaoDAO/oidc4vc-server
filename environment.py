@@ -22,7 +22,7 @@ class currentMode() :
 		
 		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'test'
+		self.myenv = 'airbox'
 		self.password = 'suc2cane'
 		print('debut init environment')
 		print('Chain = ', self.mychain)

@@ -23,29 +23,8 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                
-               
-               <nav class="navbar navbar-light navbar-expand bg-white shadow d-flex mb-4 topbar static-top">
-                    <div class="container-fluid">
-						<a href="https://talao.io"><img src="/uploads/talao3.png" style="width: 30px;height: 30px;"></a>
-                        <h6 class="text-secondary flex-nowrap ml-auto" style="color: rgb(133,135,150);">Talao Professional Identity</h6>
-                        <ul class="nav navbar-nav flex-nowrap ml-auto">
-                            <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="http://talao.rtfd.io/" style="color: rgb(133,135,150);">How-To</a></li> <!-- menu vide -->
-                            <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="" style="color: rgb(133,135,150);"></a></li>
-                            
-                               
-                            <li class="nav-item dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><i class="fa fa-navicon fa-sm fa-fw mr-2 text-gray-400"></i><!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><!--retrer dropdown-toggle de la class du nav linkComment--></a>
-                                    <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-										<a class="dropdown-item" role="presentation" href="http://talao.rtfd.io/" ><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;How-To</a>
-                                </div>
-                            </li>	
-						</ul>
-					</div>
-				</nav>
-            
+                                                        {% include 'guest_nav_bar.html' %}    
 
-	
-	
 	
     <div class="container">
         <div class="row justify-content-center">
@@ -55,7 +34,9 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;"><br><br>Enter a username and an email for authentification. This email will be encrypted and used only for authentification.<br><br>Your username will be needed to request certificates and contact companies.<br></p>
+                                    <p class="text-center" style="margin: 75px 50px 0px;"><br><br>Enter your firstname, lastname and an email for authentification.<br>
+                                    <br> This email will be encrypted and used only for authentification.<br>
+                                    <br>You will receive by email your username needed to request certificates and contact companies.<br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -67,8 +48,9 @@
 									<small>{{message}}</small> 
 								</div> 
                                     <form class="user" action="/register/" method="post">
-                                        <div class="form-group"><input class="form-control" type="text" placeholder="lowercase only" name="username" pattern="[a-z0-9]{3,12}" style="color: rgb(133,135,150);" required="" ></div>
-                                        <div class="form-group"><input class="form-control" type="email" placeholder="Email for authentification" name="email" required></div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Start the process</button>
+                                        <div class="form-group"><input class="form-control" type="text" placeholder="Your firstname" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
+                                         <div class="form-group"><input class="form-control" type="text" placeholder="Your lastname" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
+                                        <div class="form-group"><input class="form-control" type="email" placeholder="Email for authentification" name="email" required="" ></div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Start the process</button>
                                         
                                         
                                     </form>
@@ -84,40 +66,8 @@
         
         
         
-           <div class="footer-clean">
-         <footer>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Services</h3>
-                        <ul>
-                            <li><a href="#">Web design</a></li>
-                            <li><a href="#">Development</a></li>
-                            <li><a href="#">Hosting</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>About</h3>
-                        <ul>
-                            <li><a href="#">Company</a></li>
-                            <li><a href="#">Team</a></li>
-                            <li><a href="#">Legacy</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-4 col-md-3 item">
-                        <h3>Careers</h3>
-                        <ul>
-                            <li><a href="#">Job openings</a></li>
-                            <li><a href="#">Employee success</a></li>
-                            <li><a href="#">Benefits</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-3 item social"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-telegram"></i></a><a href="mailto:contact@talao.io"><i class="fa fa-envelope-o"></i></a>
-                        <p class="copyright">Talao © 2020</p>
-                    </div>
-                </div>
-            </div>
-        </footer>   
+                                     {% include 'user_footer.html' %}    
+
         
     </div>
     

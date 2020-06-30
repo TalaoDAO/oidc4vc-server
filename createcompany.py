@@ -109,7 +109,7 @@ def create_company(email, username, mode) :
 	
 	if ns.does_alias_exist(username)  :
 		print('username already used')
-		return False
+		return None
 	 
 	# calcul du temps de process
 	time_debut=datetime.now()
@@ -203,4 +203,4 @@ def create_company(email, username, mode) :
 	writer.writerow(( datetime.today(), username, "", "",email, status, address, private_key, workspace_contract, "", email, SECRET, AES_key,cost) )
 	identityfile.close()
 
-	return True
+	return address, private_key, workspace_contract

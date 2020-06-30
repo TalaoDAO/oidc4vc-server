@@ -104,8 +104,8 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = 'Your professional Identity by Talao'
 	# string to store the body of the mail 
-	body = 'A new Professional Identity has been deployed for you. \r\nYour username for login  : ' +username+'\r\n\r\nEmail : '+email+'\r\nBlockchain : '+ mode.BLOCKCHAIN +'\r\nYour Blockchain Address : ' + str(eth_a) +'\r\nYour Private Key : '+ str(eth_p)+'\r\nYour Distributed ID : did:talao:'+mode.BLOCKCHAIN+':'+str(workspace_contract_address)[2:]
-	footer='\r\n\r\n\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
+	body = 'A new Professional Identity has been deployed for you. \r\nYour username for login  : ' +username+'\r\n\r\nEmail : '+email+'\r\nBlockchain : '+ mode.BLOCKCHAIN +'\r\nYour Blockchain Address : ' + str(eth_a) +'\r\nYour Private Key : '+ str(eth_p)+'\r\nYour Decentralized IDentitier (DID) : did:talao:'+mode.BLOCKCHAIN+':'+str(workspace_contract_address)[2:]
+	footer='\r\n\r\nA RSA key is attached to this email, Keep it with your Private Key secretely.\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
 	body= body + footer
 	msg.attach(MIMEText(body, 'plain')) 
 

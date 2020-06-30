@@ -37,14 +37,13 @@ import ns
 mode = environment.currentMode()
 w3 = mode.w3
 
-def check_login(username) :
-	if username is None or session.get('username_logged') is None or username != session.get('username_logged') :
-		print('session aborted = ', session)
-		session.clear()
-		abort(403, description="Authentification required")
+def check_login() :
+	username = session.get('username_logged')
+	if username is None  :
+		flash('session aborted', 'warning')
+		return render_template('login.html')
 	else :
 		return username
-
 
 
 # gestion du menu de gestion des Events  """
@@ -87,7 +86,7 @@ def event_display(eventlist) :
 
 #@app.route('/data/<dataId>', methods=['GET'])
 def data(dataId) :
-	username = check_login(session.get('username'))
+	username = check_login()
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
 	my_event_html, my_counter =  event_display(session['events'])
 	workspace_contract = '0x' + dataId.split(':')[3]
@@ -143,14 +142,14 @@ def data(dataId) :
 	elif issuer_is_white :					
 		myissuer = myissuer + """
 				<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username +""" >
-					<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+					<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 				</a><br>
 				  <a class="text-info">This issuer is in my White List</a>			
 				</span>"""		
 	else :	
 		myissuer = myissuer + """				
 					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username + """ >
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a><br>
 					<a class="text-warning">This issuer is not in my White List</a>
 				</span>"""
@@ -275,7 +274,7 @@ def data(dataId) :
 			
 	mydelete_link = "/talao/api/data/delete/"
 	
-	call_from = "/user/?username="+username
+	goback = "/user/"
 	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
 	
 	return render_template('data_check.html',
@@ -284,24 +283,11 @@ def data(dataId) :
 							picturefile = mypicture,
 							name = session['name'],
 							username = username,
-							call_from=call_from,
+							goback=goback,
 							verif=my_verif,
 							)
 		
-	"""return render_template('data.html',
-							topic = my_topic,
-							visibility = myvisibility,
-							issuer = myissuer,
-							title = mytitle,
-							summary = mysummary,
-							value = myvalue,
-							advanced = myadvanced,
-							delete_link = mydelete_link,
-							event = my_event_html,
-							counter = my_counter,
-							picturefile = mypicture,
-							name = session['name'],
-							username = username)"""
+	
 
 
 
@@ -313,7 +299,7 @@ def data(dataId) :
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user() :
-	username = check_login(request.args.get('username'))
+	username = check_login()
 	if session.get('uploaded') is None :
 		print('start first instanciation user')		
 		user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
@@ -440,7 +426,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
@@ -460,7 +446,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span>"""
 			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
