@@ -160,7 +160,7 @@ def starter() :
 
 @app.route('/login/', methods = ['GET', 'POST'])
 def login() :
-	#session.clear()
+	session.clear()
 	if request.method == 'GET' :
 		return render_template('login.html')		
 	if request.method == 'POST' :
@@ -171,9 +171,10 @@ def login() :
 			flash('Username not found', 'warning')		
 			return render_template('login.html')
 		(identity,email_to_log) = exist
+		print('email to log : ', email_to_log)
 		# secret code to send by email
 		if session.get('code') is None :
-			session['code'] = str(random.randint(100000, 999999))
+			session['code'] = str(random.randint(1000, 9999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
 			if not mode.test :
@@ -1417,7 +1418,7 @@ def issue_certificate_for_guest() :
 		session['issuer_firstname'] =request.form['issuer_firstname']
 		session['issuer_lastname'] = request.form['issuer_lastname']
 		if session.get('code') is None :
-			session['code'] = str(random.randint(100000, 999999))
+			session['code'] = str(random.randint(1000, 9999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
 			Talao_message.messageAuth(session['issuer_email'], str(session['code']))

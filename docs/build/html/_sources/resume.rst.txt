@@ -13,7 +13,11 @@ Personal
 - Birthdate
 - Address
  
-.. warning:: By default those personal data are given by user through the Relay which is an automatic 'Issuer'. They are eventually not reliable for third parties as data are not checked.
+.. warning:: By default those personal data are given by user through the Relay which is an automatic 'Issuer'. 
+
+They are eventually not reliable for third parties as data are issued on your behalf. 
+
+They are however an essential part of a standard resume.
 
 
 Proof of Identity
@@ -27,22 +31,30 @@ Read more on :doc:`/proof_of_identity`
 
 Experience
 ----------
-To be completed
 
-Experience data are always Public.
+Experience data are always Public. Those Experience are issued by yourself. They are an essential part of a standard resume.
 
 Education
 ---------
 
-Education data are always Public.
-to be completed
+Education data are always Public. Those Education are issued by yourself only. They are an essential part of a standard resume.
+
 
 Certificates
 ------------
 
-Certficates are always Public.
+Certficates are always Public. 
 
-To be completed
+They have a strong added value as they are signed by third parties and data can be checked for reliability and proof of issuance.
+
+There are several types of certificates :
+
+   * Experience Certificates issued by companies
+   * Trainng Certifocate issues by companies
+   * Recommendation issued by Companies or Persons
+
+One can make a copy of the link to insert them anywhere in digital presentation.
+
 
 Alias
 -----
@@ -63,7 +75,8 @@ You can add as many Alias you want, for instance you can use an Alias for each o
 Issuer
 ------
 
-To be completed
+An Issuer is a Company or a Person you have authorized to issue claims as Certificate, Recommendation, etc.
+You are the obly one to appoint Issuers.
 
 Partner
 -------
@@ -84,15 +97,18 @@ White List
 
 The White List is made up of reliable issuers from your standpoint.
 You can add a new issuer in your White List through the White List menu. 
+It is likely your own Issuer and Parners are reliable but you have to add them anyway, you can also add other Issuers even if they are not in your Issuer List.
 
-.. note:: By default Relay is not a White List issuer. As your device could be used by others always check the issuer of your data.
+This White List allowed you to have better view of others certificates.
+
+.. note:: By default Relay is not a White List issuer, but Talao is as Talao is at start teh only company to issue Proof of Identity. 
 
 
 
-Digital Vault
+Data Store
 -------------
 
-The Digital Vault is decentralized support to store data you either want to share with others (public privacy) or only witht Praners (private privacy) or you want to keep secret for everybody.
+The Data Store is decentralized support to store data you either want to share with others (public privacy) or only witht Praners (private privacy) or you want to keep secret for everybody.
 
 If you want to change the nature of the privacy you firtst need to remove the file and create a new one. The document will be encrypted at creation.
 

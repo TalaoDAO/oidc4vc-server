@@ -20,8 +20,7 @@ Welcome to Talao's documentation!
    :caption: Getting Started:
    
    quick
-   starter
-   starter_company
+
   
 
 	
@@ -29,10 +28,9 @@ Welcome to Talao's documentation!
    :maxdepth: 2
    :caption: How-To:
    
-   create_an_identity
    request_a_certificate
    proof_of_identity
-   create_a_manager
+
 
    
   	

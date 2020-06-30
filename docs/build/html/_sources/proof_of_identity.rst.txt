@@ -3,12 +3,8 @@ Get a Proof of Identity
 
 So far Proof of Identty are only delivered by Talao.
 
-For Talents :
 
-* Go to the Request a Proof of Identity menu
-* Note the secret code
-* Send an email (authentification email) to contact@talao.io with 3 pictures
+Send an email with your authentification email to contact@talao.io with 2 pictures
 
 	* your Identity Card or Passport
-	* a selfie with your Identity Card orPassport
-	* a selfi with the secret code written on a piece of paper
+	* a selfie with your Identity Card or Passport in hand. We must see your face and Identy Card Picture.

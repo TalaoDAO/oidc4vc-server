@@ -11,7 +11,7 @@ def messageAuth (email_to, random) :
 
 	# debut de la fonction
 	fromaddr = "thierry.thevenet1963@gmail.com"
-	toaddr = [email_to, 'thevenet_thierry@yahoo.fr']
+	toaddr = [email_to, ]
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
 	# instance of MIMEMultipart 
@@ -97,7 +97,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contract_address,mode)  :
 
 	fromaddr = "thierry.thevenet1963@gmail.com"
-	toaddr = [email, "thierry.thevenet@talao.io"]
+	toaddr = [email]
 
 	msg = MIMEMultipart() 
 	msg['From'] = fromaddr 
@@ -173,7 +173,7 @@ def messageAdmin (subject, messagetext,mode) :
 def message(subject, to, messagetext) :
 
 	fromaddr = "thierry.thevenet1963@gmail.com"
-	toaddr = [to, 'thierry.thevenet@talao.io']
+	toaddr = [to]
 
 	msg = MIMEMultipart() 
 	msg['From'] = fromaddr 

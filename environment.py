@@ -22,7 +22,7 @@ class currentMode() :
 		
 		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'airbox'
+		self.myenv = 'test'
 		self.password = 'suc2cane'
 		print('debut init environment')
 		print('Chain = ', self.mychain)
@@ -62,7 +62,7 @@ class currentMode() :
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 			self.debug = True
-			self.test = True
+			self.test = False
 	
 		if self.mychain == 'rinkeby' :
 			self.start_block = 6400000
