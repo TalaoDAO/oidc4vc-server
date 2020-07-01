@@ -43,11 +43,10 @@
                                                 </div>
                                                 
 												<div class="col">
-                                                    <p class="text-right">
+                                                    <a class="text-right">
                                                   
-                                                 
-                                                 
-                                                    <a href="/certificate/?certificate_id={{certificate_id}}&call_from={{call_from}}"><strong>Certificate</strong></a></p>
+                                                 <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                                   </a>
                                                 </div>
                                                 
                                             </div>
@@ -116,6 +115,7 @@
    
    
     </div>
+    <script>function goBack() {  window.history.back();}</script>
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

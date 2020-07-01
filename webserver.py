@@ -68,6 +68,10 @@ app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentif
 # Centralized @route to display certificates
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate)
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'])
+app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'])
+app.add_url_rule('/certificate/data/<dataId>',  view_func=web_certificate.certificate_data, methods = ['GET'])
+
+
 
 # Centralized @route to Talent Connect APIs
 app.add_url_rule('/api/v1/talent-connect/',  view_func=talent_connect.get, methods = ['GET'])
@@ -168,7 +172,7 @@ def login() :
 		session['username_to_log'] = request.form['username'].lower()
 		exist  = ns.get_data_for_login(session['username_to_log'])
 		if exist is None :
-			flash('Username not found', 'warning')		
+			flash('Username not found', "warning")		
 			return render_template('login.html')
 		(identity,email_to_log) = exist
 		print('email to log : ', email_to_log)
@@ -180,17 +184,16 @@ def login() :
 			if not mode.test :
 				Talao_message.messageAuth(email_to_log, str(session['code']))
 			print('secret code sent = ', session['code'])
-			flash('Secret Code sent')
+			#flash('Secret Code sent', 'success')
 		else :
-			print("secret code already sent")
-			flash("Secret Code already sent")
+			flash("Secret Code already sent", 'warning')
 		return render_template("login_2.html")
 
 # recuperation du code saisi
 @app.route('/login/authentification/', methods = ['POST'])
 def login_2() :
 	if session.get('username_to_log') is None or session.get('code') is None :
-		flash("Authentification expired")		
+		flash("Authentification expired", "warning")		
 		return render_template('login.html')
 	code = request.form['code']
 	session['try_number'] +=1
@@ -204,18 +207,18 @@ def login_2() :
 		return redirect(mode.server + 'user/')		
 	
 	elif session['code_delay'] < datetime.now() :
-		flash("Code expired")
+		flash("Code expired", "warning")
 		return render_template("login.html")
 		
 	elif session['try_number'] > 3 :
-		flash("Too many trials (3 max)")
+		flash("Too many trials (3 max)", "warning")
 		return render_template("login.html")
 		
 	else :	
 		if session['try_number'] == 2 :			
-			flash('This code is incorrect, 2 trials left')
+			flash('This code is incorrect, 2 trials left', 'warning')
 		if session['try_number'] == 3 :
-			flash('This code is incorrect, 1 trial left')
+			flash('This code is incorrect, 1 trial left', 'warning')
 		return render_template("login_2.html")	
 	
 # logout

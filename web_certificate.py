@@ -1,5 +1,5 @@
 
-
+import copy
 import os.path
 from os import path
 from flask import Flask, session, send_from_directory, flash, send_file
@@ -11,16 +11,15 @@ from flask_fontawesome import FontAwesome
 import json
 
 # dependances
-from protocol import Document, read_profil
+from protocol import Document, read_profil, Identity, Claim
 import environment
 import constante
+import ns
 
 # environment setup
 mode = environment.currentMode()
 w3 = mode.w3
 
-
-# 
 def convert(obj):
     if type(obj) == list:
         for x in obj:
@@ -37,7 +36,8 @@ def show_certificate():
 	""" Its sometimes a GUEST screen 
 	"""
 	certificate_id = request.args['certificate_id']
-	call_from = request.args.get('call_from')
+	call_back = request.args.get('call_back', 'no')
+	print('call_back = ', call_back)
 	
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
@@ -51,8 +51,8 @@ def show_certificate():
 			return response
 		session['certificate_id'] = certificate_id
 		session['displayed_certificate'] = certificate.__dict__
-		session['profil'], session['category'] = read_profil(identity_workspace_contract, mode, 'light')
 	
+	identity_profil, identity_category = read_profil(identity_workspace_contract, mode, 'light')
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
 		
@@ -100,12 +100,12 @@ def show_certificate():
 		else :
 			print('logo on disk')
 				
-		return render_template('newcertificate.html',
+		return render_template('./certificate/certificate.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
 							title = session['displayed_certificate']['title'],
-							firstname=session['profil']['firstname'],
-							lastname=session['profil']['lastname'],
+							identity_firstname=identity_profil['firstname'],
+							identity_lastname=identity_profil['lastname'],
 							description=session['displayed_certificate']['description'],
 							start_date=session['displayed_certificate']['start_date'],
 							end_date=session['displayed_certificate']['end_date'],
@@ -114,24 +114,24 @@ def show_certificate():
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							call_from=call_from,
+							call_back =call_back,
 							**context)
 
 
 	else : # issuer is a person
-		return render_template('newcertificate_light.html',
+		return render_template('./certificate/certificate_light.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
 							title = session['displayed_certificate']['title'],
-							firstname=session['profil']['firstname'],
-							lastname=session['profil']['lastname'],
+							identity_firstname=identity_profil['firstname'],
+							identity_lastname=identity_profil['lastname'],
 							description=session['displayed_certificate']['description'],
 							start_date=session['displayed_certificate']['start_date'],
 							end_date=session['displayed_certificate']['end_date'],
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							call_from=call_from,
+							call_back=call_back,
 							**context)
 
 
@@ -140,10 +140,11 @@ def show_certificate():
 #         verify certificate
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify() :
-	
 	certificate_id = request.args['certificate_id']
+	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract'] 
 	call_from = request.args.get('call_from')
-	certificate = session['displayed_certificate'].copy()
+	certificate = copy.deepcopy(session['displayed_certificate'])
 	convert(certificate)
 	
 	if certificate_id != certificate['id'] :
@@ -151,41 +152,85 @@ def certificate_verify() :
 		response = Response(content, status=406, mimetype='application/json')
 		return response
 	
-	
 	issuer_type = 'Person' if certificate['issuer']['category'] == 1001 else 'Company' 
 	
+	user_profil, user_category = read_profil(identity_workspace_contract, mode, 'full')
+	user_type = 'Person' if user_category == 1001 else 'Company' 
+	convert(user_profil)
+
 	# issuer
 	if issuer_type == 'Company' :
 		issuer = """
 				<span>
-				<b>Issuer Identity</b> : """ + certificate['issuer']['id'] + """<br>
-				<b>Name</b> : """ + certificate['issuer']['name'] + """<br>
-				<b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """<br>
-				<b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """<br>
-				<b>Contact Phone</b> : """ + certificate['issuer']['contact_phone'] + """<br>"""
+				<b>Issuer</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
+				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
+				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li>
+				<li><b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """</li>
+				<li><b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """</li>
+				<li><b>Contact Phone</b> : """ + certificate['issuer']['contact_phone'] + """</li>"""
 	
 	
-	else :
+	if issuer_type == 'Person' :
 		issuer = """
 				<span>
-				<b>Issuer Identity</b> : """ + certificate['issuer']['id'] + """<br>
-				<b>Firstname</b> : """ + certificate['issuer']['firstname'] + """<br>
-				<b>Lastname</b> : """ + certificate['issuer']['lastname'] + """<br>
-				<b>Issuer Email</b> : """ + certificate['issuer']['contact_email'] + """<br>
-				<b>Issuer Phone</b> : """ + certificate['issuer']['contact_phone'] + """<br>"""
+				<hr>
+				<b>Issuer</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
+				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
+				<li><b>Firstname</b> : """ + certificate['issuer']['firstname'] + """</li>
+				<li><b>Lastname</b> : """ + certificate['issuer']['lastname'] + """</li>
+				<li><b>Email</b> : """ + certificate['issuer']['contact_email'] + """</li>
+				<li><b>Phone</b> : """ + certificate['issuer']['contact_phone'] + """</li>"""
 		
 		
 	company_website = certificate['issuer'].get('website')
 	if  company_website not in [ 'Unknown', None] :
-		website = """
+		issuer_website = """
 				<b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a><br>			
 				</span>"""
 	else :
-		website = ""
+		issuer_website = ""
+	
+	
+	# user
+	if user_type == 'Company' :
+		user = """
+				<span>
+				<hr>
+				<b>User</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
+				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """<li><br>
+				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li><br>
+				<li><b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """</li><br>
+				<li><b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """</li><br>
+				<li><b>Contact Phone</b> : """ + certificate['issuer']['contact_phone'] + """</li><br>"""
+	
+	
+	if user_type == 'Person' :
+		user = """
+				<span>
+				<hr>
+				<b>User</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
+				<li><b>Identity</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + """</li>
+				<li><b>Firstname</b> : """ + user_profil['firstname'] + """</li>
+				<li><b>Lastname</b> : """ + user_profil['lastname'] + """</li>
+				<li><b>Email</b> : """ + user_profil['contact_email'] + """</li>
+				<li><b>Phone</b> : """ + user_profil['contact_phone'] + """</li>"""
+		
+		
+	company_website = certificate['issuer'].get('website')
+	if  company_website not in [ 'Unknown', None] :
+		user_website = """
+				<b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a><br>			
+				</span>"""
+	else :
+		user_website = ""
 	
 	# advanced
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
-	advanced = """
+	advanced = """<hr>
 		<!--	<b>Data Id</b> : """ + certificate['id'] + """<br>  -->
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>	
 				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
@@ -193,15 +238,401 @@ def certificate_verify() :
 				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a>"""
 	
 	
-	my_verif = issuer + website  + advanced
+	my_verif = issuer + issuer_website  + user + user_website +advanced
 	
 		
 	
-	return render_template('new_verify_certificate.html',
+	return render_template('./certificate/verify_certificate.html',
 							certificate_id=certificate_id,
 							call_from=call_from,
 							topic = certificate['topic'].capitalize(),
 							verif=my_verif,
+							goback=request.environ['HTTP_REFERER']
 							)
 
 
+
+
+# issuer explore 
+#@app.route('/certificate/issuer_explore/', methods=['GET'])
+def certificate_issuer_explore() :
+	issuer_workspace_contract = request.args['workspace_contract']
+	certificate_id = request.args.get('certificate_id')
+	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
+	
+	# do something common
+	
+	if issuer_explore.type == 'person' :
+		# personal
+		Topic = {'firstname' : 'Firstname',
+				'lastname' : 'Lastname',
+				'about' : 'About',
+				'profil_title' : 'Title',
+				'birthdate' : 'Birth Date',
+				'contact_email' : 'Contact Email',
+				'contact_phone' : 'Contact Phone',
+				'postal_address' : 'Postal Address',
+				'education' : 'Education'}	
+		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract)			
+		issuer_username = 'Unknown' if issuer_username is None else issuer_username
+		issuer_personal = """<span><b>Username</b> : """ + issuer_username +"""<br>"""			
+		for topic_name in issuer_explore.personal.keys() : 
+			if issuer_explore.personal[topic_name]['claim_value'] is not None :
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
+				issuer_personal = issuer_personal + """ 
+				<span><b>"""+ Topic[topic_name] +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""				
+					
+					<a class="text-secondary" href=/certificate/data/""" + topicname_id + """:personal>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</span><br>"""				
+		
+		
+		# kyc
+		if len (issuer_explore.kyc) == 0:
+			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
+					<a class="text-danger">No Proof of Identity available</a>"""
+		else :	
+			my_kyc = ""
+			for kyc in issuer_explore.kyc :
+				kyc_html = """
+				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>				
+				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>				
+				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>				
+				
+				<b>Sex</b> : """+ kyc['sex'] +"""<br>			
+				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
+				<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
+				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
+				<b>Authority</b> : """+ kyc['authority']+"""<br>
+				<b>Country</b> : """+ kyc['country']+"""<br>				
+				<b>Id</b> : """+ kyc['id']+"""<br>				
+				<p>		
+					
+					<a class="text-secondary" href=/certificate/data/"""+ kyc['id'] + """:kyc>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>"""	
+				my_kyc = my_kyc + kyc_html		
+	
+
+		# experience
+		issuer_experience = ''
+		if issuer_explore.experience == [] :
+			issuer_experience = """  <a class="text-info">No data available</a>"""
+		else :	
+			for experience in issuer_explore.experience :
+				exp_html = """ 
+					<b>Company</b> : """+experience['company']['name']+"""<br>			
+					<b>Title</b> : """+experience['title']+"""<br>
+					<b>Description</b> : """+experience['description'][:100]+"""...<br>
+					<p>
+						<a class="text-secondary" href=/certificate/data/"""+experience['id'] + """:experience>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						</a>
+					</p>"""	
+				issuer_experience = issuer_experience + exp_html + """<hr>"""
+		
+		# education
+		issuer_education = ''
+		if issuer_explore.education == [] :
+			issuer_education = """  <a class="text-info">No data available</a>"""
+		else :	
+			for education in issuer_explore.education :
+				edu_html = """
+					<b>Company</b> : """+education['organization']['name']+"""<br>			
+					<b>Title</b> : """+education['title']+"""<br>
+					<b>Description</b> : """+education['description'][:100]+"""...<br>
+					<p>
+						<a class="text-secondary" href=/certificate/data/"""+experience['id'] + """:education>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						</a>
+					</p>"""	
+				issuer_education = issuer_education + edu_html + """<hr>"""
+		
+		# certificates
+		issuer_certificates = ""
+		if issuer_explore.certificate == [] :
+			issuer_certificates = """<a class="text-info">No data available</a>"""
+		else :	
+			for certificate in issuer_explore.certificate :
+				
+				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				certificate_issuer_username = 'Unknown' if certificate_issuer_username is None else certificate_issuer_username 
+				if certificate['issuer']['category'] == 2001 :
+					certificate_issuer_name = certificate['issuer']['name']
+					certificate_issuer_type = 'Company'
+				elif  certificate['issuer']['category'] == 1001 :
+					certificate_issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
+					certificate_issuer_type = 'Person'
+				else :
+					print ('issuer category error, data_user.py')
+					
+				cert_html = """ 
+					<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>	
+					<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>	
+					<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
+					<b>Title</b> : """ + certificate['title']+"""<br>
+					<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+					<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+					<p>
+						<a class="text-secondary" href=/certificate/data/""" + certificate['id'] + """:certificate>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						</a>
+					</p>"""	
+				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
+				
+		services ="""<a class="text-warning">No services available here.<br> Register to get access to services.</a><br><br>"""
+											
+		
+		
+		return render_template('./certificate/certificate_person_issuer_identity.html',
+							issuer_name=issuer_explore.name,
+							profil_title = issuer_explore.profil_title,
+							name=issuer_explore.name,
+							kyc=my_kyc,
+							personal=issuer_personal,
+							experience=issuer_experience,
+							certificates=issuer_certificates,
+							education=issuer_education,
+							services=services,
+							issuer_picturefile=issuer_explore.picture,
+							certificate_id= certificate_id,)
+	
+	
+	if issuer_explore.type == 'company' :
+		# do something specific
+
+		# kbis
+		kbis_list = issuer_explore.kbis
+		if len (kbis_list) == 0:
+			my_kbis = """<a class="text-danger">No Proof of Identity available</a>"""
+		else :	
+			my_kbis = ""
+			for kbis in kbis_list :
+				kbis_html = """
+				<b>Name</b> : """+ kbis['name'] +"""<br>				
+				<b>Siret</b> : """+ kbis['siret'] +"""<br>			
+				<b>Creation</b> : """+ kbis['date'] + """<br>
+				<b>Capital</b> : """+ kbis['capital']+"""<br>
+				<b>Address</b> : """+ kbis['address']+"""<br>				
+				<p>		
+					
+					<a class="text-secondary" href=/certificate/data/"""+ kbis['id'] + """:kbis>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>"""	
+				my_kbis = my_kbis + kbis_html		
+		
+		# personal
+		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract)			
+		issuer_username = 'Unknown' if issuer_username is None else issuer_username
+		issuer_personal = """ <span><b>Username</b> : """ + issuer_username	+ """<br>"""		
+		for topic_name in issuer_explore.personal.keys() :
+			if issuer_explore.personal[topic_name]['claim_value'] is not None :
+				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
+				issuer_personal = issuer_personal + """ 
+				<span><b>"""+ topic_name +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""				
+					
+					<a class="text-secondary" href=/certificate/data/""" + topicname_id + """:personal>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</span><br>"""
+		
+		services ="""<a class="text-warning">No services available here.<br> Register to get access to services.</a><br><br>"""
+		
+		return render_template('./certificate/certificate_company_issuer_identity.html',
+							issuer_name=issuer_explore.name,
+							kbis=my_kbis,
+							services=services,
+							personal=issuer_personal,
+							issuer_picturefile=issuer_explore.picture,
+							certificate_id=certificate_id,)
+
+
+
+#@app.route('/certificate/data/<dataId>', methods=['GET'])
+def certificate_data(dataId) :
+	
+	workspace_contract = '0x' + dataId.split(':')[3]
+	support = dataId.split(':')[4]
+	
+	if support == 'document' : 
+		doc_id = int(dataId.split(':')[5])			
+		my_topic = dataId.split(':')[6]
+		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education'] :
+			my_data = Document(my_topic)
+			exist = my_data.relay_get(workspace_contract, doc_id, mode) 	
+		else :
+			print('Error data in webserver.py, Class instance needed')	
+			return
+			
+		expires = my_data.expires
+		my_topic = my_data.topic.capitalize()
+	
+	if support == 'claim' :
+		claim_id = dataId.split(':')[5]
+		my_data = Claim()
+		my_data.get_by_id(workspace_contract, claim_id, mode) 
+		expires = 'Unlimited'
+		my_topic = 'Personal'
+		
+	myvisibility = my_data.privacy
+	issuer_is_white = False
+		
+	
+	
+	# issuer
+	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
+	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'])
+	issuer_username = 'Unknown' if issuer_username is None else issuer_username 
+	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
+	
+	
+	
+	if my_data.issuer['workspace_contract'] == workspace_contract :					
+		front =  """
+				 <a class="text-warning">Sel Declaration</a>	
+				</span>"""
+	
+	else :	
+		front =  """				
+					<a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract="""+ my_data.issuer['workspace_contract'] + """ >
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a><br>
+					
+				</span>"""
+	
+	myissuer = """
+				<span>
+				<b>Issuer</b>""" + front + """
+				<li><b>Name</b> : """ + issuer_name + """<br></li>
+				<li><b>Username</b> : """ + issuer_username +"""<br></li>
+				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
+	
+	# advanced """
+	(location, link) = (my_data.data_location, my_data.data_location)
+	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""	
+	if support == 'document' :
+		myadvanced = """
+				<b>Advanced</b>
+				<li><b>Document Id</b> : """ + str(doc_id) + """<br></li>
+				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
+				<li><b>Created</b> : """ + my_data.created + """<br></li>	
+				<li><b>Expires</b> : """ + expires + """<br></li>
+				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>	
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+	else :
+		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
+		path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""	
+		myadvanced = """
+				<b>Advanced</b>		
+				<li><b>Claim Id</b> : """ + str(claim_id) + """<br></li>
+				<li><b>Topic</b> : """ + str(my_data.topicname) + """<br></li>				
+				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
+				<li><b>Created</b> : """ + my_data.created + """<br></li>	
+				<li><b>Expires</b> : """ + expires + """<br></li>
+				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>	
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+		
+	
+	# value
+	if my_topic.lower() == "experience"  :
+		mytitle = my_data.title
+		mysummary = my_data.description	
+		myvalue = """ 
+				<b>Data Content</b>
+				<li><b>Title</b> : """+my_data.title + """<br></li>
+				<li><b>Company Name</b> : """+my_data.company['name']+"""<br></li>
+				<li><b>Contact Name</b> : """+my_data.company['contact_name']+"""<br></li>
+				<li><b>Contact Email</b> : """+my_data.company['contact_email']+"""<br></li>
+				<li><b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br></li>
+				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>		
+				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
+				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
+				
+	elif my_topic.lower() == "education" :
+		mytitle = my_data.title
+		mysummary = my_data.description	
+		myvalue = """ 
+				<b>Data Content</b>
+				<li><b>Title</b> : """+my_data.title + """<br>
+				<li><b>Organization Name</b> : """+my_data.organization['name']+"""<br></li>
+				<li><b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br></li>
+				<li><b>Contact Email</b> : """+my_data.organization['contact_email']+"""<br></li>
+				<li><b>Contact Phone</b> : """+my_data.organization['contact_phone']+"""<br></li>
+				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>		
+				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
+				<li><b>Skills</b> : """+ " ".join(my_data.skills) +"""<br></li>
+				<li><b>Diploma Link</b> : """+  my_data.certificate_link+"""</li>"""
+	
+	
+	elif my_topic.lower() == "certificate" :
+		mytitle = my_data.title
+		mysummary = my_data.description	
+		myvalue = """ 
+				<b>Data Content</b>
+				<li><b>Title</b> : """ + my_data.title + """<br></li>
+				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>		
+				<li><b>End Date</b> : """+ my_data.end_date + """<br></li>
+				<li><b>Skills</b> : """+ "".join(my_data.skills) + """<br></li>
+				<li><b>Delivery Quality</b> : """+ my_data.score_delivery + """<br></li>
+				<li><b>Schedule Respect</b> : """+ my_data.score_schedule + """<br></li>
+				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
+				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
+				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
+
+				
+				
+
+	elif my_topic.lower() == "kbis" :
+		mytitle = "Kbis validated"
+		mysummary = ""		
+		myvalue = """ 
+				<b>Data Content</b>
+				<li><b>Name</b> : """ + my_data.name+ """<br></li>
+				<li><b>Siret</b> : """ + my_data.siret + """<br></li>
+				<li><b>Created</b> : """+ my_data.date + """<br></li>
+				<li><b>Address</b> : """+ my_data.address + """<br></li>
+				<li><b>Legal Form</b> : """+ my_data.legal_form + """<br></li>
+				<li><b>Capital</b> : """+ my_data.capital + """<br></li>		
+				<li><b>Naf</b> : """+ my_data.naf + """<br></li>	
+				<li><b>Activity</b> : """+ my_data.activity+"""</li>""" 
+
+
+
+	elif my_topic.lower() == "kyc" :
+		mytitle = "ID validated by Talao"
+		mysummary = ""		
+		myvalue = """ 
+				<b>Data Content</b>
+				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
+				<li><b>Lastname</b> : """ + my_data.lastname + """<br></li>
+				<li><b>Sex</b> : """+ my_data.sex + """<br></li>
+				<li><b>Nationality</b> : """+ my_data.nationality + """<br></li>		
+				<li><b>Birth Date</b> : """+ my_data.birthdate + """<br></li>
+				<li><b>Date of Issue</b> : """+ my_data.date_of_issue + """<br></li>
+				<li><b>Date of Expiration</b> : """+ my_data.date_of_expiration + """<br></li>
+				<li><b>Authority</b> : """+ my_data.authority + """<br></li>
+				<li><b>Country</b> : """+ my_data.country+"""</li>"""
+			
+				 
+
+	elif my_topic.lower() == 'personal' :
+		mytitle = 'Profil'
+		mysummary = ''		
+		myvalue = """<b>Data</b> : """+ my_data.claim_value 
+
+	else :
+		print('erreur my_topic dans data de webserver.py')
+		return
+			
+	mydelete_link = "/talao/api/data/delete/"
+	
+	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
+	
+	return render_template('./certificate/certificate_data_check.html',
+							verif=my_verif,
+							)
+		
+	

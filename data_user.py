@@ -632,6 +632,7 @@ def user() :
 			my_certificates = ""
 			for certificate in session['certificate'] :		
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				issuer_username = 'Unknown' if issuer_username is None else issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					issuer_name = certificate['issuer']['name']
 					issuer_type = 'Company'
@@ -647,7 +648,7 @@ def user() :
 				<b>Title</b> : """ + certificate['title']+"""<br>
 				<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
-				<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=user>Display Certificate</a><br>
+				<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_back=yes>Display Certificate</a><br>
 				<p>
 					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>

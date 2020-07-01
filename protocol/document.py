@@ -32,7 +32,7 @@ def read_profil (workspace_contract, mode, loading) :
 	person_topicnames = {'firstname' : 102105114115116110097109101,
 						'lastname' : 108097115116110097109101,
 						'contact_email' : 99111110116097099116095101109097105108,
-						'contact_phone' : 101109097105108,
+						'contact_phone' : 99111110116097099116095112104111110101,
 						'postal_address' : 112111115116097108095097100100114101115115,
 						'birthdate' : 98105114116104100097116101,
 						'about' : 97098111117116,
@@ -61,13 +61,12 @@ def read_profil (workspace_contract, mode, loading) :
 	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	category = contract.functions.identityInformation().call()[1]	
 	
-	if category == 1001 : 
-		topic_dict = person_topicnames
-	if category == 2001 :
-		topic_dict = company_topicnames
+	topic_dict = person_topicnames if category == 1001 else company_topicnames
+
 		 	
 	for topicname, topic in topic_dict.items() :
 		claim = contract.functions.getClaimIdsByTopic(topic).call()
+		print('topicname = ', topicname, 'claim = ', claim)
 		if len(claim) == 0 :
 			profil[topicname] = None			
 		else :
