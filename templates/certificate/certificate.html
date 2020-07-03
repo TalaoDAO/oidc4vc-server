@@ -23,9 +23,13 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                
-                                                                                                       {% include 'guest_nav_bar.html' %}    
-                
+            
+            {% if viewer == 'guest' %}    
+                 {% include 'guest_nav_bar.html' %}    
+             {% else %} 
+                 {% include 'user_nav_bar.html' %} 
+             {% endif %}
+             
                 <div class="container-fluid">
                     <div class="row mb-3">
 						
@@ -48,7 +52,7 @@
         										
 												<div class="col">
                                                     <p class="text-right">
-                                                 {% if call_back ==  'yes' %}
+                                                 {% if viewer ==  'user' %}
                                                  
 														<button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button>
                                                 {% endif %}

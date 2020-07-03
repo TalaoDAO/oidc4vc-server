@@ -1,183 +1,18 @@
-"""
-gestion des api 
-"""
 
-from flask import Flask, session, send_from_directory, flash, send_file
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
-
-"""
 import math
 import numpy as np
 import nltk
+import os
 import nltk.corpus
 from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
-#from nltk.corpus import stopwords
-"""
-
-import os
-
-from flask import request, Response
-import json
-
-# dependances
-from protocol import contractsToOwners, read_workspace_info
-from protocol import Identity, Claim, Document
-import environment
-import constante
-import analysis
-
-# environment setup
-mode = environment.currentMode()
-w3 = mode.w3
+import random
+from datetime import datetime
 
 
-#@app.route('/api/talent-connect/auth/', methods = ['POST'])
-def auth() :
-	if request.authorization is None :
-		content = json.dumps({'username' : None, 'password' : None})
-		response = Response(content, status=401, mimetype='application/json')
-		return response
-	workspace_contract = request.authorization.get("username")
-	secret_received = request.authorization.get("password")
-
-	address = contractsToOwners(workspace_contract, mode)
-	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
-	try :
-		fp = open(filename,"r")
-		rsa_key = fp.read()
-		fp.close()   
-	except IOError :
-		content = json.dumps({'topic' : 'error', 'msg' : 'Cannot verify login/secret'})
-		response = Response(content, status=406, mimetype='application/json')
-		return response
+def dashboard(workspace_contract,resume, mode) :
+	""" external call available """
 	
-	(workspace_contract, category, email , secret, aes)  = read_workspace_info (address, rsa_key, mode) 
-	if secret_received != secret :
-		content = json.dumps({'topic' : 'error', 'msg' : 'Wrong secret'})
-		response = Response(content, status=401, mimetype='application/json')
-		return response
-	
-	data = request.get_json(silent=True)
-	
-	if data['action'] == 'call_back' :
-		pass
-		# send a message
-	elif data['action'] == 'do something' :
-		pass
-		# do something
-	else :
-		content = json.dumps({'topic' : 'error', 'msg' : 'action '+ data['action'] +' is not implemented'})
-		response = Response(content, status=406, mimetype='application/json')
-		return response
-	
-	username = get_username_from_resolver(workspace_contract)
-	content = json.dumps({'User' : username, 'msg' : "ok"})
-	response = Response(content, status=200, mimetype='application/json')
-	return response
-    
-
-
-
-# Talent-Connect API
-#@app.route('/api/talent-connect/', methods = ['GET'])
-def get() :
-	print('ok talent connect')
-	user = request.args.get('user')
-	topicname = request.args.get('topicname')
-	""" liste des options possibles"""
-	whitelist = request.args.get('whitelist')
-	check = request.args.get('check')
-	
-	""" user = username or user = did
-	only workspace_contract is needed anyway """
-	if user[:10] != 'did:talao:' :
-		username = user
-		data = ns.get_data_from_username(username, mode)
-		if data is None :
-			content = json.dumps({'topic' : 'error', 'msg' : 'Username not found'})
-			response = Response(content, status=401, mimetype='application/json')
-			return response
-			 
-		workspace_contract = data['workspace_contract']
-	
-	else :
-		workspace_contract = '0x' + user.split(':')[3]
-	
-	if topicname == 'resume' :
-		resume = get_resume(workspace_contract)
-		content = json.dumps(resume)
-		response = Response(content, status=200, mimetype='application/json')
-		return response
-	
-	elif topicname == 'analysis' :
-		user = Identity(workspace_contract, mode)
-		resume = user.__dict__
-		my_analysis = analysis.dashboard(workspace_contract, resume, mode)
-		content = json.dumps(my_analysis)
-		response = Response(content, status=200, mimetype='application/json')
-		return response
-	
-	
-	elif topicname in ['experience', 'kyc', 'kbis', 'certificate', 'education'] :
-		user = Identity(workspace_contract, mode)
-		resume = user.__dict__
-		
-		if len(resume.get(topicname, [])) != 0  :		
-			content = json.dumps(resume[topicname])
-			response = Response(content, status=200, mimetype='application/json')
-			return response
-			
-		else :
-			content = json.dumps({'topic' : 'error', 'msg' : topicname +' not found'})
-			response = Response(content, status=401, mimetype='application/json')
-			return response	
-			
-	else :		
-		claim = Claim()
-		claim.get_by_topic_name(data['workspace_contract'], topicname, mode)
-		print(claim.transaction_hash)
-		if claim.transaction_hash is None :
-			content = json.dumps({'topic' : 'error', 'msg' : topicname + ' not found'})
-			response = Response(content, status=401, mimetype='application/json')
-			return response 
-		else :
-			content = json.dumps(claim.__dict__)
-			response = Response(content, status=200, mimetype='application/json')
-			return response	
-
-
-def get_resume(workspace_contract) :
-	user = Identity(workspace_contract, mode)
-	json_data = user.__dict__
-	""" clean up """
-	del json_data['mode']
-	del json_data['file_list']
-	del json_data['experience_list']
-	del json_data['education_list']
-	del json_data['other_list']
-	del json_data['kbis_list']
-	del json_data['kyc_list']
-	del json_data['certificate_list']
-	del json_data['eventslist']
-	del json_data['partners']
-	del json_data['synchronous']
-	del json_data['authenticated']
-	del json_data['rsa_key']
-	del json_data['relay_activated']
-	del json_data['private_key']
-	del json_data['category']
-	del json_data['identity_file']
-	json_data['topic'] = 'resume'
-	return json_data
-
-"""
-def analysis(workspace_contract,resume, mode) :
-	
-	
-	#TALAO = '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'.lower()
-	#whitelist = [TALAO]
 	
 	# global
 	nb_doc = 0
@@ -186,17 +21,14 @@ def analysis(workspace_contract,resume, mode) :
 	is_kyc = "N/A"
 	nb_description = 0
 	nb_experience = 0
+	update = []
 	
 	# Issuers
-	nb_issuer_none = 0 
+	nb_issuer_none = 0
 	nb_issuer_self = 0
 	nb_issuer_person = 0
 	nb_issuer_company = 0
-	
-	#nb_issuer_is_relay = 0
-	#nb_issuer_external = 0
-	#nb_issuer_in_whitelist = 0
-	
+	issuer_list = []
 	
 	# Certificate indicators
 	nb_certificate = 0
@@ -214,8 +46,6 @@ def analysis(workspace_contract,resume, mode) :
 	# Calculation
 	average_experience = 0 
 	
-	
-	
 	doc_name = ['file', 'experience', 'education', 'kbis', 'kyc', 'certificate']
 	company_claim_name = ['name', 'contact_email', 'contact_phone', 'contact_name',  'website', 'about']
 	person_claim_name = ['firstname', 'lastname', 'birthdate', 'postal_address', 'about','education', 'profil_title', 'contact_email', 'contact_phone']
@@ -229,29 +59,38 @@ def analysis(workspace_contract,resume, mode) :
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
+				created = datetime.fromisoformat(resume[doctype][i]['created'])
+				update.append(created)
 				nb_doc +=1			
-				issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']			
+				issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']	
 				if issuer_workspace_contract == None :
 					nb_issuer_none +=1
 				elif issuer_workspace_contract.lower() ==  workspace_contract.lower() or issuer_workspace_contract.lower() ==  mode.relay_workspace_contract.lower() :
 					nb_issuer_self +=1				
 				elif  resume[doctype][i]['issuer']['category'] == 2001 :
+					issuer_list.append(issuer_workspace_contract)
 					nb_issuer_company +=1
 				else :
-					nb_issuer_person +=1	
+					nb_issuer_person +=1
+					issuer_list.append(issuer_workspace_contract)	
 	
 	for doctype in claim_name :		# 0,2 pt/ topicname	
 		if resume['personal'][doctype]['issuer'] is not None :
-			issuer_workspace_contract = resume['personal'][doctype]['issuer']['workspace_contract']	
+			issuer_workspace_contract = resume['personal'][doctype]['issuer']['workspace_contract']
+			created = datetime.fromisoformat(resume['personal'][doctype]['created'])
+			update.append(created)
 			if issuer_workspace_contract is None :
 				pass
 			elif issuer_workspace_contract.lower() == workspace_contract.lower() or issuer_workspace_contract.lower() ==  mode.relay_workspace_contract.lower() :
 				nb_claim += 1
 				nb_doc += 0.2
-				nb_issuer_self += 0.2
+				#nb_issuer_self += 0.2
 			else  :
 				nb_doc += 0.2
 				nb_claim +=1
+	
+	issuer_list = list(dict.fromkeys(issuer_list))
+	nb_issuer = len(issuer_list)
 		
 	self_completion_value = math.floor(100*nb_issuer_self/nb_doc)
 	self_completion = str(self_completion_value) + '%'
@@ -261,7 +100,16 @@ def analysis(workspace_contract,resume, mode) :
 
 	company_completion_value = math.floor(100*nb_issuer_company/nb_doc)
 	company_completion = str(company_completion_value) + '%'
+	
+	# update
+	sorted_update = sorted(update, reverse=True)
+	last_update = sorted_update[0]
+	update_number = len(sorted_update)
+	update_duration = datetime.now() - last_update
+	update_duration_value = int(divmod(update_duration.total_seconds(), 86400)[0])
 
+	update_duration_string = str(update_duration_value) + ' days' 
+	
 	
 	# Kyc et Kbis
 	if resume['type'] == 'person' :	
@@ -269,17 +117,27 @@ def analysis(workspace_contract,resume, mode) :
 	else :
 		is_kbis = 'Yes' if len(resume['kbis']) != 0 else 'No'
 
-	# Experience, Education, Language, Skills, etc
+
 	nb_experience = len(resume['experience'])
-	nb_certificate = len (resume['certificate'])
+	nb_certificate = len (resume['certificate'])	
 	
+	# Experience (duration, etc)
+	experiences= dict()
+	key_experiences = dict()
 	if resume.get('experience') is not None :
 		for exp in resume['experience'] :
 			nb_description +=1	
 			description += exp['description']
 			position += exp['title'] + ' '
 			skills += exp['skills']			 
+			duration = datetime.fromisoformat(exp['end_date']) - datetime.fromisoformat(exp['start_date'])
+			duration_in_days = divmod(duration.total_seconds(), 86400)   
+			experiences[exp['title']+ ', ' +exp['company']['name']] = duration_in_days
+	sorted_experiences = sorted(experiences.items(), key=lambda x: x[1], reverse = True)
+	for count,item in enumerate(sorted_experiences, start=0) :
+		key_experiences.update({'exp_name'+ str(count) : item[0], 'exp_dur'+str(count) : str(item[1][0]) + ' days'})	
 	
+	#Education	
 	if resume.get('education') is not None :
 		for edu in resume['education'] :
 			nb_description +=1	
@@ -294,7 +152,8 @@ def analysis(workspace_contract,resume, mode) :
 			if cert['issuer']['category'] == 2001 :
 				name = cert['issuer']['name'].capitalize()
 			else :
-				name = cert['issuer']['firstname'].capitalize() + ' ' + cert['issuer']['lastname'].capitalize()				
+				name = cert['issuer']['firstname'].capitalize() + ' ' + cert['issuer']['lastname'].capitalize()			
+					
 			issuers[name] = issuers.get(name, 0) + 1
 			
 			if cert['type'].lower() == 'experience' :
@@ -347,13 +206,11 @@ def analysis(workspace_contract,resume, mode) :
 		cert_language = '0%'
 		cert_recommendation = '0%'
 	
-	# top issuers
+	# top certificate issuers
 	key_issuers = dict()
 	sorted_issuers = sorted(issuers.items(), key=lambda x: x[1], reverse = True)
 	for count,item in enumerate(sorted_issuers, start=0) :
-		key_issuers.update({'issuer_word'+ str(count) : item[0].capitalize(), 'issuer_freq'+str(count) : item[1]/nb_certificate})
-	print(key_issuers)
-	
+		key_issuers.update({'issuer_word'+ str(count) : item[0], 'issuer_freq'+str(count) : item[1]/nb_certificate})
 	
 	# finalisation du texte "description"			
 	if resume['personal']['about']['claim_value'] is not None :
@@ -367,8 +224,6 @@ def analysis(workspace_contract,resume, mode) :
 	# resume completion
 	completion_value = math.floor(100*nb_claim/10)
 	completion = str(completion_value) + '%'
-	
-	
 	
 	# NLP
 	english_no_words = list(set(nltk.corpus.stopwords.words("english")))
@@ -418,16 +273,92 @@ def analysis(workspace_contract,resume, mode) :
 	position_key_words = {}
 	for count,item in enumerate(position_word_list, start=0) :
 		position_key_words.update({'pos_word'+ str(count) : item[0].capitalize(), 'pos_freq'+str(count) : item[1]})
+	
+	# Ups and Downs
+	up = ['This resume is based on the Talao protocol and data are tamper proof.' ]
+	down = []
+	
+	if update_duration_value < 15  :
+		up.append("This resume has been updated less than " + update_duration_string + " ago. This strengthens the resume as it brings more trust to data." )
+	else :
+		down.append("The resume has benn update more than 15 days agos. This may be an issue.")
+				 
+	if self_completion_value < 40  and nb_doc > 10 :
+		up.append("A large part of the information of this resume are provided by third parties. This strengthens the resume and brings more reliability to data." )
+	else :
+		down.append("Most of the information are self declared. This weakens the resume.")
+	
+	if person_completion_value > 40  :
+		down.append("Most of the certificates are provided by Individuals. This weakens the resume.")
+	
+	if company_completion_value > 40  :
+		up.append("Most of the certificates are provided by Companies. This provides very reliable data for third parties.")
+		
+	if nb_certificate != 0 and sorted_issuers[0][1]/nb_certificate < 0.15  :
+		up.append("Certicates are issued by several different issuers. This brings more reliability to data.")
+	else :
+		down.append("Most Certificates are issued by the same issuers. This weakens the resume.")
+	
+	if is_kyc == 'Yes' :
+		up.append("Proof of Identity is available. Third party can now rely on this Identity.")
+	else :
+		down.append("No proof of Identity. Third party cannot rely on this Identity. Contact Talao to get your Proof of Identity and improve your rating.")
+	
+	if completion_value > 60 :
+		up.append("Personal data are numerous.")
+	else :
+		down.append("Weak Personal information.This resume is not sufficiently detailed to be efficient.")
+	
+	if nb_certificate > 10 :
+		up.append("The profil is has numerous cerificates. This brings more reliability to data.")
+	else :
+		down.append("Weak number of certificates. The resume needs more referrals.")
+	
+	if nb_experience > 10 :
+		up.append("The profil has numerous experiences. This brings more information to the resume.")
+	else :
+		down.append("Weak number of experience. This does not provide enough information to third parties.")
+	
+	if average_description > 30 :
+		up.append("Descriptions are precise. This strengthen the resume")
+	else :
+		down.append("Descriptions are weak because not very precise.")
+	
+	
+	if nb_doc < 3 :
+		down = up = []
+		for i in range(3) :
+			up.append("Sorry, there are not enough data")
+			down.append("Sorry, there are not enough data")
+	elif len(up) == 1 :
+		up.append("Sorry, only 1 good news here !")
+		up.append("Sorry, only 1 good news here !")
+	elif len(up) == 2 :
+		up.append("Sorry, only 2 good news here !")
+	
+	else :
+		up = random.sample(up, 3)
+		down = random.sample(down, 3)
+	up_down = {'word0' : up[0],
+				'word1' : up[1],
+				'word2' : up[2],
+				'word3' : down[0],
+				'word4' : down[1],
+				'word5' : down[2]
+				} 
+	
+		 
+	
 		
 	my_analysis = {'topic' : 'analysis', 
 					'id' : 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:],
-					'workspace_contract' : workspace_contract,
 					'self_completion' : self_completion,
 					'person_completion' : person_completion,
 					'company_completion' : company_completion,
-					'issuers' : len(resume['issuer_keys']),
+					'issuers' : nb_issuer,
 					'nb_data' : math.floor(nb_doc)+1,
 					'completion' : completion,
+					'last_update' : last_update,
 					'kyc' : is_kyc,
 					'nb_description' : nb_description,
 					'nb_words_per_description' : average_description,
@@ -441,8 +372,9 @@ def analysis(workspace_contract,resume, mode) :
 					**description_key_words,
 					**key_issuers,
 					**position_key_words,
+					**up_down,
+					**key_experiences
 					}
-	#print('my analysis = ', my_analysis)				
 	return my_analysis
 			
-	"""
+				

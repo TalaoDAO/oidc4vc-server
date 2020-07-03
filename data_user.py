@@ -311,7 +311,7 @@ def user() :
 		del user_dict['eventslist']
 		del user_dict['partners']
 		session['resume'] = user_dict
-		
+		print('resume au niveau du user = ', session['resume'])
 	
 		session['uploaded'] = True
 		session['type'] = user.type
@@ -372,12 +372,10 @@ def user() :
 					<b>RSA Key</b> : """ + relay_rsa_key + """<br>
 					<b>Private Key</b> : """ + relay_private_key +"""<hr>"""
 	
-	if session['type'] == 'person' :
-		my_advanced = my_advanced + """<a href="/user/data_analysis/">Data Analysis</a>"""
 	
 	# TEST only
-	if session['username'] != 'talao' :
-		my_advanced = my_advanced + """<hr><br><a href="/user/test/">Test Only</a>"""
+	if mode.debug :
+		my_advanced = my_advanced + """<br><a href="/user/test/">For Test Only</a>"""
 
 	
 	
@@ -721,8 +719,8 @@ def user() :
 		my_api = """ 
 				<b>Login</b> : """+ session['workspace_contract'] +"""<br>				
 				<b>Secret</b> : """+ session['secret'] + """<br>
-				<b>Client White List</b> : to completed <br>	
-				<br><a href="/user/api_whitelist/">Add client to your White List for APIs</a>"""		
+		<!--		<b>Client White List</b> : to completed <br>	
+				<br><a href="/user/api_whitelist/">Add client to your White List for APIs</a>  --> """		
 				
 		
 		# kbis
@@ -738,14 +736,14 @@ def user() :
 				<b>Creation</b> : """+ kbis['date'] + """<br>
 				<b>Capital</b> : """+ kbis['capital']+"""<br>
 				<b>Address</b> : """+ kbis['address']+"""<br>				
-				<p>		
+						
 					<a class="text-secondary" href="/user/remove_education/?experience_id=""" + kbis['id'] + """&experience_title="""+ kbis['name'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href=/data/"""+ kbis['id'] + """:kbis>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
-				</p>"""	
+				"""	
 				my_kbis = my_kbis + kbis_html		
 	
 		

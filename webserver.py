@@ -32,6 +32,7 @@ from protocol import Claim, File, Identity, Document, read_profil
 import environment
 import hcode
 import ns
+import analysis
 
 # Centralized  route
 import web_create_identity
@@ -70,6 +71,7 @@ app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate)
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'])
 app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'])
 app.add_url_rule('/certificate/data/<dataId>',  view_func=web_certificate.certificate_data, methods = ['GET'])
+app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'])
 
 
 
@@ -617,9 +619,14 @@ def data_analysis() :
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		data = talent_connect.analysis(session['workspace_contract'],session['resume'], mode)
-		analysis = json.dumps(data, indent=4)
-		return render_template('data_analysis.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, analysis=analysis)
+		my_analysis = analysis.dashboard(session['workspace_contract'],session['resume'], mode)
+		
+		return render_template('dashboard.html',
+								picturefile=my_picture,
+								event=my_event_html,
+								counter=my_counter,
+								username=username,
+								**my_analysis)
 
 
 
@@ -728,6 +735,7 @@ def issue_experience_certificate():
 	workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 	address_to = contractsToOwners(workspace_contract_to, mode)
 	my_certificate = Document('certificate')
+	print('private key = ',session['private_key_value'])
 	(doc_id, ipfshash, transaction_hash) = my_certificate.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], certificate, mode, mydays=0, privacy='public', synchronous=True) 
 	flash('Certificate has been issued', 'success')
 	del session['certificate_signature']

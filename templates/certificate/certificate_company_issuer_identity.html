@@ -37,8 +37,11 @@
 		{% endwith %}
                 
                 
-                               {% include 'guest_nav_bar.html' %}    
-
+               {% if viewer == 'guest' %}    
+                 {% include 'guest_nav_bar.html' %}    
+             {% else %} 
+                 {% include 'user_nav_bar.html' %} 
+             {% endif %}
             
             
             

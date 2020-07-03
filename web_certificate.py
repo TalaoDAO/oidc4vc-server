@@ -15,10 +15,43 @@ from protocol import Document, read_profil, Identity, Claim
 import environment
 import constante
 import ns
+import analysis
 
 # environment setup
 mode = environment.currentMode()
 w3 = mode.w3
+
+# gestion du menu de gestion des Events  """
+def event_display(eventlist) :
+	event_html = ""
+	index = 0
+	for key in sorted(eventlist, reverse=True) :
+		index += 1
+		date= key.strftime("%y/%m/%d")
+		texte = eventlist[key]['alert']
+		doc_id = eventlist[key]['doc_id']
+		event_type = eventlist[key]['event']
+		if doc_id is None :
+			href = " "
+		else :
+			href = "href= /data/"+doc_id
+		icon = 'class="fas fa-file-alt text-white"'
+		background = 'class="bg-success icon-circle"'
+		
+		if event_type == 'DocumentRemoved' or event_type == 'ClaimRemoved' :
+			icon = 'class="fas fa-trash-alt text-white"'
+			background = 'class="bg-warning icon-circle"'	
+		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """>
+							<div class="mr-3"> <div """ + background + """><i """ + icon + """></i></div></div>
+							<div>
+								<span class="small text-gray-500">""" + date + """</span><br>
+								<div class = "text-truncate">
+                                <span>""" + texte + """</span></div>
+                            </div>
+                        </a>"""	
+		event_html = event_html + thisevent 
+	return event_html, index
+
 
 def convert(obj):
     if type(obj) == list:
@@ -35,10 +68,18 @@ def convert(obj):
 def show_certificate():
 	""" Its sometimes a GUEST screen 
 	"""
-	certificate_id = request.args['certificate_id']
-	call_back = request.args.get('call_back', 'no')
-	print('call_back = ', call_back)
+	username = session.get('username_logged')
+	if username is None  :
+		viewer = 'guest'
+		my_picture = ""
+		my_event_html = ""
+		my_counter = 0
+	else :
+		viewer = 'user'
+		my_picture = session['picture']
+		my_event_html, my_counter =  event_display(session['events'])
 	
+	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	
@@ -114,7 +155,11 @@ def show_certificate():
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							call_back =call_back,
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,
 							**context)
 
 
@@ -131,7 +176,11 @@ def show_certificate():
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							call_back=call_back,
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,
 							**context)
 
 
@@ -140,6 +189,18 @@ def show_certificate():
 #         verify certificate
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify() :
+	
+	username = session.get('username_logged')
+	if username is None  :
+		viewer = 'guest'
+		my_picture = ""
+		my_event_html = ""
+		my_counter = 0
+	else :
+		viewer = 'user'
+		my_picture = session['picture']
+		my_event_html, my_counter =  event_display(session['events'])
+		
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract'] 
@@ -247,7 +308,11 @@ def certificate_verify() :
 							call_from=call_from,
 							topic = certificate['topic'].capitalize(),
 							verif=my_verif,
-							goback=request.environ['HTTP_REFERER']
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,
 							)
 
 
@@ -256,9 +321,44 @@ def certificate_verify() :
 # issuer explore 
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
 def certificate_issuer_explore() :
+	
+	username = session.get('username_logged')
+	if username is None  :
+		viewer = 'guest'
+		my_picture = ""
+		my_event_html = ""
+		my_counter = 0
+	else :
+		viewer = 'user'
+		my_picture = session['picture']
+		my_event_html, my_counter =  event_display(session['events'])
+	
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
 	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
+	
+	
+	if issuer_explore.type == 'person' :
+		session['resume']= issuer_explore.__dict__
+		""" clean up """
+		del session['resume']['mode']
+		del session['resume']['file_list']
+		del session['resume']['experience_list']
+		del session['resume']['education_list']
+		del session['resume']['other_list']
+		del session['resume']['kbis_list']
+		del session['resume']['kyc_list']
+		del session['resume']['certificate_list']
+		del session['resume']['eventslist']
+		del session['resume']['partners']
+		del session['resume']['synchronous']
+		del session['resume']['authenticated']
+		del session['resume']['rsa_key']
+		del session['resume']['relay_activated']
+		del session['resume']['private_key']
+		del session['resume']['category']
+		del session['resume']['identity_file']
+		session['resume']['topic'] = 'resume'
 	
 	# do something common
 	
@@ -382,7 +482,11 @@ def certificate_issuer_explore() :
 					</p>"""	
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
 				
-		services ="""<a class="text-warning">No services available here.<br> Register to get access to services.</a><br><br>"""
+		services ="""
+				<a class="text-success" href="/certificate/certificate_data_analysis/" >Resume Analysis</a></br>
+							
+						
+				<a class="text-warning"><br> Register to get access to other services.</a><br><br>"""
 											
 		
 		
@@ -397,7 +501,12 @@ def certificate_issuer_explore() :
 							education=issuer_education,
 							services=services,
 							issuer_picturefile=issuer_explore.picture,
-							certificate_id= certificate_id,)
+							certificate_id= certificate_id,
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,)
 	
 	
 	if issuer_explore.type == 'company' :
@@ -447,13 +556,29 @@ def certificate_issuer_explore() :
 							services=services,
 							personal=issuer_personal,
 							issuer_picturefile=issuer_explore.picture,
-							certificate_id=certificate_id,)
+							certificate_id=certificate_id,
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,)
 
 
 
 #@app.route('/certificate/data/<dataId>', methods=['GET'])
 def certificate_data(dataId) :
 	
+	username = session.get('username_logged')
+	if username is None  :
+		viewer = 'guest'
+		my_picture = ""
+		my_event_html = ""
+		my_counter = 0
+	else :
+		viewer = 'user'
+		my_picture = session['picture']
+		my_event_html, my_counter =  event_display(session['events'])
+		
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
 	
@@ -633,6 +758,34 @@ def certificate_data(dataId) :
 	
 	return render_template('./certificate/certificate_data_check.html',
 							verif=my_verif,
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,
 							)
+
+# Analysis
+#@app.route('/certificate/data_analysis/', methods=['GET'])
+def certificate_data_analysis() :
+	
+	username = session.get('username_logged')
+	if username is None  :
+		viewer = 'guest'
+		my_picture = ""
+		my_event_html = ""
+		my_counter = 0
+	else :
+		viewer = 'user'
+		my_picture = session['picture']
+		my_event_html, my_counter =  event_display(session['events'])
+	
+	certificate_id = session['certificate_id']
+	identity_workspace_contract = '0x' + certificate_id.split(':')[3]
+	if request.method == 'GET' :
+		my_analysis = analysis.dashboard(identity_workspace_contract, session['resume'], mode)
 		
+		return render_template('dashboard.html',
+								viewer= viewer,
+								**my_analysis)
 	

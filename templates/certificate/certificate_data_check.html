@@ -26,7 +26,12 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 
-                                                           {% include 'guest_nav_bar.html' %}    
+                 {% if viewer == 'guest' %}    
+                 {% include 'guest_nav_bar.html' %}    
+             {% else %} 
+                 {% include 'user_nav_bar.html' %} 
+             {% endif %}
+                                                      
     
         
         <div class="container-fluid">
