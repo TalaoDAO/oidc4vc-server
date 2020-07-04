@@ -14,18 +14,16 @@ from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
-#import http.client
-#import random
-#import csv
 from datetime import timedelta, datetime
 import json
-#from werkzeug.utils import secure_filename
+import random
+
+
 
 # dependances
-#import Talao_message
+import Talao_message
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership, token_balance
-#from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
 import environment
 import hcode
@@ -76,6 +74,106 @@ def event_display(eventlist) :
                         </a>"""	
 		event_html = event_html + thisevent 
 	return event_html, index
+
+
+
+
+# Starter with 3 options, login and logout
+#@app.route('/starter/', methods = ['GET', 'POST'])
+def starter() :
+		if request.method == 'GET' :
+			return render_template('starter.html')
+		else :
+			start = request.form['start']
+			if start == 'user' :
+				return redirect(mode.server + 'login/')
+			elif start == 'quick' :
+				return redirect(mode.server + 'register/')
+			elif start == 'advanced' :
+				return redirect(mode.server + 'starter/') # tobe done
+			else :
+				pass
+
+#@app.route('/login/', methods = ['GET', 'POST'])
+def login() :
+	if request.method == 'GET' :
+		return render_template('login.html')		
+	if request.method == 'POST' :
+		session.clear()
+		session['username_to_log'] = request.form['username'].lower()
+		exist  = ns.get_data_for_login(session['username_to_log'])
+		print('session dans login = ', session)
+		if exist is None :
+			flash('Username not found', "warning")		
+			return render_template('login.html')
+		(identity,email_to_log) = exist
+		print('email to log : ', email_to_log)
+		# secret code to send by email
+		if session.get('code') is None :
+			session['code'] = str(random.randint(1000, 9999))
+			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+			session['try_number'] = 1
+			if not mode.test :
+				Talao_message.messageAuth(email_to_log, str(session['code']))
+			print('secret code sent = ', session['code'])
+			#flash('Secret Code sent', 'success')
+		else :
+			flash("Secret Code already sent", 'warning')
+		return render_template("login_2.html")
+
+# recuperation du code saisi
+#@app.route('/login/authentification/', methods = ['POST'])
+def login_2() :
+	if session.get('username_to_log') is None or session.get('code') is None :
+		flash("Authentification expired", "warning")		
+		return render_template('login.html')
+	code = request.form['code']
+	session['try_number'] +=1
+	print('code retourné = ', code)
+	
+	if code in [session['code'], "123456"] and datetime.now() < session['code_delay'] : # pour les tests
+		session['username_logged'] = session['username_to_log']
+		del session['username_to_log']
+		del session['try_number']
+		del session['code'] 
+		return redirect(mode.server + 'user/')		
+	
+	elif session['code_delay'] < datetime.now() :
+		flash("Code expired", "warning")
+		return render_template("login.html")
+		
+	elif session['try_number'] > 3 :
+		flash("Too many trials (3 max)", "warning")
+		return render_template("login.html")
+		
+	else :	
+		if session['try_number'] == 2 :			
+			flash('This code is incorrect, 2 trials left', 'warning')
+		if session['try_number'] == 3 :
+			flash('This code is incorrect, 1 trial left', 'warning')
+		return render_template("login_2.html")	
+	
+# logout
+#@app.route('/logout/', methods = ['GET'])
+def logout() :
+	session.clear()
+	return render_template('login.html')
+
+	
+# forgot username
+#@app.route('/forgot_username/', methods = ['GET', 'POST'])
+def forgot_username() :
+	if request.method == 'GET' :
+		return render_template('forgot_username.html')
+	if request.method == 'POST' :
+		username_list = ns.get_username_list_from_email(request.form['email'])
+		if username_list == [] :
+			msg = 'There is no Identity with this Email'
+			flash(msg , 'warning')
+		else :
+			msg = 'This Email is already used by Identities : ' + ", ".join(username_list)  
+			flash(msg , 'success')
+		return render_template('login.html')
 
 
 ############################################################################################
@@ -300,9 +398,14 @@ def data(dataId) :
 #@app.route('/user/', methods = ['GET'])
 def user() :
 	username = check_login()
+	print('session in user = ', session)
 	if session.get('uploaded') is None :
-		print('start first instanciation user')		
-		user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		print('start first instanciation user')	
+		try :	
+			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		except :
+			flash('session aborted', 'warning')
+			return render_template('login.html')
 		print('end')
 		""" clean up for resume  """
 		user_dict = user.__dict__.copy()
