@@ -10,10 +10,11 @@ import random
 from datetime import datetime
 
 
+	
+
 def dashboard(workspace_contract,resume, mode) :
 	""" external call available """
-	
-	
+		
 	# global
 	nb_doc = 0
 	nb_claim = 0
@@ -135,7 +136,7 @@ def dashboard(workspace_contract,resume, mode) :
 			experiences[exp['title']+ ', ' +exp['company']['name']] = duration_in_days
 	sorted_experiences = sorted(experiences.items(), key=lambda x: x[1], reverse = True)
 	for count,item in enumerate(sorted_experiences, start=0) :
-		key_experiences.update({'exp_name'+ str(count) : item[0], 'exp_dur'+str(count) : str(item[1][0]) + ' days'})	
+		key_experiences.update({'exp_name'+ str(count) : item[0], 'exp_dur'+str(count) : str(item[1][0]).split('.')[0] + ' days'})	
 	
 	#Education	
 	if resume.get('education') is not None :
@@ -256,7 +257,9 @@ def dashboard(workspace_contract,resume, mode) :
 	skills_word_list =  [ (a,b/skills_counter)  for (a,b) in fdist_skills]
 	skills_key_words = {}
 	for count,item in enumerate(skills_word_list, start=0) :
-		skills_key_words.update({'ski_word'+ str(count) : item[0].capitalize(), 'ski_freq'+str(count) : item[1]})
+		skills_key_words.update({'ski_word'+ str(count) : item[0].capitalize(),
+								'ski_freq'+str(count) : float("{:.4f}".format(item[1])) })
+
 
 	description_counter = 0
 	for (a,b) in fdist_description :
@@ -264,7 +267,7 @@ def dashboard(workspace_contract,resume, mode) :
 	description_word_list =  [ (a,b/description_counter)  for (a,b) in fdist_description]	
 	description_key_words = {}
 	for count,item in enumerate(description_word_list, start=0) :
-		description_key_words.update({'des_word'+ str(count) : item[0].capitalize(), 'des_freq'+str(count) : item[1]})
+		description_key_words.update({'des_word'+ str(count) : item[0].capitalize(), 'des_freq'+str(count) : float("{:.4f}".format(item[1]))})
 
 	position_counter = 0
 	for (a,b) in fdist_position :
@@ -272,7 +275,7 @@ def dashboard(workspace_contract,resume, mode) :
 	position_word_list =  [ (a,b/position_counter)  for (a,b) in fdist_position]	
 	position_key_words = {}
 	for count,item in enumerate(position_word_list, start=0) :
-		position_key_words.update({'pos_word'+ str(count) : item[0].capitalize(), 'pos_freq'+str(count) : item[1]})
+		position_key_words.update({'pos_word'+ str(count) : item[0].capitalize(), 'pos_freq'+str(count) : float("{:.4f}".format(item[1]))})
 	
 	# Ups and Downs
 	up = ['This resume is based on the Talao protocol and data are tamper proof.' ]
@@ -295,9 +298,9 @@ def dashboard(workspace_contract,resume, mode) :
 		up.append("Most of the certificates are provided by Companies. This provides very reliable data for third parties.")
 		
 	if nb_certificate != 0 and sorted_issuers[0][1]/nb_certificate < 0.15  :
-		up.append("Certicates are issued by several different issuers. This brings more reliability to data.")
+		up.append("Certicates are issued by several different referents. This brings more reliability to data.")
 	else :
-		down.append("Most Certificates are issued by the same issuers. This weakens the resume.")
+		down.append("Most Certificates are issued by the same referents. This weakens the resume.")
 	
 	if is_kyc == 'Yes' :
 		up.append("Proof of Identity is available. Third party can now rely on this Identity.")
@@ -312,7 +315,7 @@ def dashboard(workspace_contract,resume, mode) :
 	if nb_certificate > 10 :
 		up.append("The profil is has numerous cerificates. This brings more reliability to data.")
 	else :
-		down.append("Weak number of certificates. The resume needs more referrals.")
+		down.append("Weak number of certificates, few reliable Data.")
 	
 	if nb_experience > 10 :
 		up.append("The profil has numerous experiences. This brings more information to the resume.")
@@ -347,7 +350,24 @@ def dashboard(workspace_contract,resume, mode) :
 				'word5' : down[2]
 				} 
 	
-		 
+	# index/rating
+	if update_duration_value < 20 :
+		quality_update = 10
+	if nb_certificate < 20 :
+		quality_certificate  = nb_certificate 
+	else :
+		quality_certificate = 20
+	if is_kyc == 'Yes' :
+		quality_kyc = 20
+	else :
+		quality_kyc = 0
+	quality_completion = 10 * completion_value/100
+	if nb_issuer < 20 :
+		quality_issuer = nb_issuer
+	else :
+		quality_issuer = 20				
+	quality = quality_issuer + quality_completion + quality_certificate + quality_kyc + quality_update
+	index = float("{:.2f}".format(quality))
 	
 		
 	my_analysis = {'topic' : 'analysis', 
@@ -355,10 +375,11 @@ def dashboard(workspace_contract,resume, mode) :
 					'self_completion' : self_completion,
 					'person_completion' : person_completion,
 					'company_completion' : company_completion,
+					'index' : index,
 					'issuers' : nb_issuer,
 					'nb_data' : math.floor(nb_doc)+1,
 					'completion' : completion,
-					'last_update' : last_update,
+					'last_update' : last_update.strftime("%Y/%m/%d") + " (" + update_duration_string + ")",
 					'kyc' : is_kyc,
 					'nb_description' : nb_description,
 					'nb_words_per_description' : average_description,

@@ -85,7 +85,7 @@ class Identity() :
 			self.type = "person"
 			firstname = "" if self.personal['firstname']['claim_value'] is None else self.personal['firstname']['claim_value']
 			lastname = "" if self.personal['lastname']['claim_value'] is None else self.personal['lastname']['claim_value']
-			self.name = firstname.capitalize() + ' ' + lastname.capitalize()
+			self.name = firstname + ' ' + lastname
 			self.get_identity_experience()
 			self.get_identity_certificate()
 			self.get_identity_education()

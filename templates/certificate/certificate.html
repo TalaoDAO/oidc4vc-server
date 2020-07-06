@@ -51,12 +51,7 @@
                                                 
         										
 												<div class="col">
-                                                    <p class="text-right">
-                                                 {% if viewer ==  'user' %}
-                                                 
-														<button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button>
-                                                {% endif %}
-                                                    </p>
+                                                   
                                                 </div>
                                                 
                                             </div>
@@ -82,7 +77,7 @@
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <p style="font-size: 16px;">How satisfied are you with the overall elivery ?</p>
+                                                                        <p style="font-size: 16px;">How satisfied are you with the overall delivery ?</p>
                                                                     </div>
                                                                 </div>
                                                                  <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star" style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
@@ -136,9 +131,13 @@
                                                      
                                                 </div>
                                             </form>
+                                            <div class="row">
+												{% if viewer == 'user' %}
+												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+													{% endif %}
+										</div>
                                         </div>
-                                 <!--   </div>
-                                </div> -->
+                               
                             </div>
                         </div>
                     </div>

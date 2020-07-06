@@ -44,24 +44,14 @@
                                                 
                                                 
 												<div class="col">
-                                                    <p class="text-right">
-													{% if viewer == 'user' %}
-														<button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button>
-													{% endif %}
-                                                    </p>
+                                
+                                                   
                                                 </div>
                                                 
                                             </div>
                                         </div>
                                                 
-                                   <!--             <div class="col">
-                                                    <p class="text-right">&nbsp;<a href="/certificate/verify/?certificate_id={{certificate_id}}&call_from={{call_from}}"><strong>Check data</strong></a></p>
-                                                </div>
-                                            </div>
-                                        </div>   -->
-                                        
-                                        
-                                        
+                                       
                                         <div class="card-body">
                                             <form action="/user/user_settings/" method="POST">
                                                 <div class="form-row">
@@ -121,12 +111,17 @@
                                                     </div>
                                                 </div>
                                             </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+										<div class="row">
+												{% if viewer == 'user' %}
+												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+													{% endif %}
+										</div>                   
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
                 </div>
             </div>
                {% include 'user_footer.html' %} 

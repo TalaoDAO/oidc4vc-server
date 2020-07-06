@@ -227,7 +227,9 @@ def data(dataId) :
 	
 	myissuer = """
 				<span>
-				<b>Issuer</b>
+				<b>Issuer</b><a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username + """ >
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
 				<li><b>Name</b> : """ + issuer_name + """<br></li>
 				<li><b>Username</b> : """ + issuer_username +"""<br></li>
 				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
@@ -239,16 +241,12 @@ def data(dataId) :
 	
 	elif issuer_is_white :					
 		myissuer = myissuer + """
-				<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username +""" >
-					<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-				</a><br>
-				  <a class="text-info">This issuer is in my White List</a>			
+				<br>
+				  <a class="text-success">This issuer is in my White List</a>			
 				</span>"""		
 	else :	
 		myissuer = myissuer + """				
-					<a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username + """ >
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a><br>
+					<br>
 					<a class="text-warning">This issuer is not in my White List</a>
 				</span>"""
 	
@@ -672,7 +670,7 @@ def user() :
 		else :	
 			my_kyc = ""
 			for kyc in session['kyc'] :
-				kyc_html = """<hr> 
+				kyc_html = """ 
 				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>				
 				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>				
 				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>				
@@ -744,22 +742,27 @@ def user() :
 					print ('issuer category error, data_user.py')
 				cert_html = """<hr> 
 				<b>Issuer Name</b> : """ + issuer_name +"""<br>			
-				<b>Issuer Username</b> : """ + issuer_username +"""<br>
+			<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
 				<b>Issuer Type</b> : """ + issuer_type + """<br>
 				<b>Title</b> : """ + certificate['title']+"""<br>
 				<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
-				<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_back=yes>Display Certificate</a><br>
+				<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 				<p>
 					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					
-					
 					<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 					</a>
-				</p>"""	
+					   
+					<!-- <button onclick="copyToClipboard('#p1')">Copy TEXT 1</button> -->
+					<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
+						<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+					</a>
+				</p><p hidden id="p1" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+	
 				my_certificates = my_certificates + cert_html
 	
 		

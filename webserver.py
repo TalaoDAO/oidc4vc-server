@@ -87,7 +87,7 @@ app.add_url_rule('/talent-connect/auth/',  view_func=talent_connect.auth, method
 app.add_url_rule('/user/',  view_func=data_user.user, methods = ['GET'])
 app.add_url_rule('/data/<dataId>',  view_func=data_user.data, methods = ['GET'])
 app.add_url_rule('/logout/',  view_func=data_user.logout, methods = ['GET'])
-app.add_url_rule('/forgot_username/',  view_func=data_user.forgot_username, methods = ['GET'])
+app.add_url_rule('/forgot_username/',  view_func=data_user.forgot_username, methods = ['GET', 'POST'])
 app.add_url_rule('/login/authentification/',  view_func=data_user.login_2, methods = ['POST'])
 app.add_url_rule('/login/',  view_func=data_user.login, methods = ['GET', 'POST'])
 app.add_url_rule('/starter/',  view_func=data_user.starter, methods = ['GET', 'POST'])
@@ -580,6 +580,9 @@ def search() :
 @app.route('/user/issue_certificate/', methods=['GET', 'POST'])
 def issue_certificate():
 	username = check_login()	
+	if not session['private_key'] :
+		flash('Relay does not have your Private Key to issue a Certificate', 'warning')
+		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])	
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1255,8 +1258,36 @@ def request_certificate() :
 		
 		""" This is to treat Recommendation Certificate request """
 		if request.form['certificate_type'] == 'recommendation' :
-			flash('Your request has been sent.', 'success')
-			return redirect(mode.server + 'user/')
+			session['issuer_email'] = request.form['issuer_email']
+			return render_template('request_recommendation_certificate.html',
+										picturefile=my_picture,
+										event=my_event_html,
+										counter=my_counter,
+										username=username)
+			
+
+
+@app.route('/user/request_recommendation_certificate/', methods=['POST'])
+def request_recommendation_certificate() :
+	""" This is to sed the email with link """
+	username = check_login()	
+	memo = request.form.get('memo')
+	relationship = request.form.get('relationship')
+	issuer_username = 'null' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+	link = mode.server + 'issue/?issuer_email=' + session['issuer_email'] + \
+						'&relationship='+ relationship
+	
+	url = link.replace(" ", "%20")
+	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
+			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent." + \
+			"\r\n\r\nFollow this link to proceed : " + url
+	subject = 'You have received a request for recommendation from '+ session['name']
+	Talao_message.message(subject, session['issuer_email'], text)
+	flash('Your Recommendation Request has been sent.', 'success')
+	del session['issuer_email']
+	if session.get('certificate_issuer_username') is not None :
+		del session['certificate_issuer_username']
+	return redirect(mode.server + 'user/')
 
 @app.route('/user/request_experience_certificate/', methods=['POST'])
 def request_experience_certificate() :
@@ -1432,6 +1463,8 @@ def create_authorize_issue() :
 					break 
 		if issuer_private_key is None :
 			print('erreur , Private kay not found for ', session['issuer_username'])
+			flash('Sorry, the Certificate cant issued, No Private Key', 'danger')
+			return render_template('login.html')
 		workspace_contract = session['workspace_contract']
 		address = contractsToOwners(session['workspace_contract'],mode)
 		(doc_id, ipfshash, transaction_hash) = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True) 

@@ -55,7 +55,8 @@ def authentification() :
 		email = request.form['email']
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
-		username = session['firstname'].lower() + session['lastname'].lower()
+		_username = session['firstname'].lower() + session['lastname'].lower()
+		username = username_.replace(" ", "")
 		if ns.get_data_from_username(username, mode) is not None  :
 			username = username + str(random.randint(1, 100))
 		session['username'] = username

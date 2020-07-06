@@ -3,18 +3,30 @@ Overview
 
 Talao markets its professional data certification solution on the Ethereum Blockchain to Talents, Companies and other organizations such as schools or training centers.
 
-The Talo protocol is based on a Decentralized IDentity focused on professional data. Talents and Companies are the only owner of their data. No centralized operator can decide the use or update of your data.
+The Talo protocol is based on a Decentralized IDentity focused on professional data. Talents and Companies are the only owner of their data.
+No centralized operator can decide the use or update of your data.
 
+Main difference with other certificates solutions are :    
+
+	- Certificate Data are tamper proof and tracable.
+	- Issuers are identified.
+	- Recipents are identified.
+     
 
 Objectives
 ----------
 
-For Companies and Talents, the issuance of certificates on the blockchain with Talao protocol has several interests:
+For Talent, it is the opportunity to use a new technology to get tamper proof professional certificates while kkeping the ownership of data.
+Those certificate can be displayed anywhere on digital plateforms, social media, wensites,etc. They provide to third parties reliable data about professional experiences, skills, education.
 
-- Attracting the new talents by allowing them to value the experience they will have with the company (including during the recruitment process), and thus their future employability
-- Spreading the image of an innovative and modern company through the use of blockchain technology, which is adopted above all by the younger generations
-- Mastering what the talents say about their mission and their activity in the company, and in particular avoiding the dissemination of confidential, sensitive or erroneous information
-- Valuing their own talents externally, for example with their clients, by presenting them with CVs with certificates signed by former clients. This is particularly relevant for service companies.
+For Companies, the issuance of certificates on the blockchain has several interests:
+
+  - Attracting the new talents by allowing them to value the experience they will have with the company (including during the recruitment process), and thus their future employability
+  - Spreading the image of an innovative and modern company through the use of blockchain technology, which is adopted above all by the younger generations
+  - Mastering what the talents say about their mission and their activity in the company, and in particular avoiding the dissemination of confidential, sensitive or erroneous information
+  - Valuing their own talents externally, for example with their clients, by presenting them with CVs with certificates signed by former clients. This is particularly relevant for service companies.
+
+
 
 
 Talao Professional Identity Relay

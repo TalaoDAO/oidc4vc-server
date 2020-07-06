@@ -43,8 +43,8 @@
 
             
             <div class="container-fluid">
-                <h3 class="text-dark mb-4">{{name}}</h3>
-                 <p class="text-dark mb-4">{{profil_title}}</p>
+                </div><h3 class="text-dark mb-4">{{name}}</h3>
+                 <h6 class="text-dark mb-4">{{profil_title}}</h6>
       
           
 
@@ -111,6 +111,8 @@
                                             </div>
                                         </div>
                                         
+                                
+                                        
                                     <!--    
                                         
                                         <div class="card">
@@ -142,7 +144,7 @@
                  
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp;Certificates</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-certificate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp;Certificates</a></h5>
                                             </div>
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -166,7 +168,7 @@
                              {% if display_alias == True %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="An Alias allows you to manage your Identity through different username and email. It may be usefull to contact companies."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Alias</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="An Alias allows you to manage your Identity through different username and email."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Alias</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">					
 													<div class="card-body"><p class="card-text">{{access|safe}}</p></div>                                                  
@@ -177,28 +179,25 @@
                                         
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text partner"><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner List</a></h5>
-                                            </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
-                                            </div>
-                                        </div>
-                                        
-                                        
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Certificate Issuer is an individual or a company which is authorized to issue certificates confirming your skills, experience or abilities."><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; Issuer List</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Referent is an individual or a company you have authorized to issue certificates confirming your skills, experience or abilities."><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; Referent List</a></h5>
                                             </div>                               
                                             <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{issuer|safe}}</p></div>
                                             </div>
                                         </div>
                                                                     
-                                       
+                                        <div class="card">
+                                            <div class="card-header" role="tab">
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Partner is a Referent with which you aggree to exchange private data. It is the highest ranking."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner List</a></h5>
+                                            </div>
+                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
+                                                <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
+                                            </div>
+                                        </div>
                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="This the list of all the issuers you consider as realiable."><i class="fa fa-check-circle"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; White List</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="This is the list of Individuals and Companies you consider as reliable to issue Certificates."><i class="fa fa-user-o"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; White List</a></h5>
                                             </div>                               
                                             <div class="collapse  item-4" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{whitelist|safe}}</p></div>
@@ -208,7 +207,7 @@
                                        
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Digital Vault is a solution to store your public (cv, ...)  or private data encrypted (ID Card, Passport, Invoices, Payslip..."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-5">&nbsp; Data Store</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="The Data Store is a digital personal storage to save your files (public or encrypted). Much more secured than traditional Cloud Services."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-5">&nbsp; Data Store</a></h5>
                                             </div>                               
                                             <div class="collapse  item-5" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>
@@ -222,7 +221,7 @@
                                        
                                        
                                         <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your crypto accounts.">
                                                 <h5 class="mb-0"><i class="fa fa-euro"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Account</a></h5>
                                             </div>
                                             <div class="collapse item-6" role="tabpanel" data-parent="#accordion-2">
@@ -234,7 +233,7 @@
                                      
                                          
                                           <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced information about your Profesionnal Identity ">
                                                 <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; Advanced</a></h5>
                                             </div>
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-2">
@@ -247,6 +246,9 @@
                                                     
                                                                                                                      
                                     </div>
+                                 
+  
+                                    
                                <!--     <a class="card-link" href="#">Delete my Identity</a> -->
                                     </div>
                             </div>
@@ -268,6 +270,14 @@
 
    
     </div>
+    <script>function copyToClipboard(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
+}</script>
+
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

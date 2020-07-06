@@ -1,13 +1,28 @@
 Request a Certificate
 =====================
 
-There are 2 ways to request a certificate :
+If you are new and you do not have an Identity, it takes about 5 minutes :
 
-   - Through the "Request Certificate" of the Menu Bar if you have an email of the issuer.
-   - Through the Search Bar if the issuer has his own Identity.
+  - First, create your own Identity. Go to http://talao.co:5000/register/ and enter your firstname, lastname and an email for authentification.
+  - When you receive your username and private keys go to http://talao.co:5000/login/ to log and acces your Identity
+  - Then clic on  "Request Certificate" of the Menu Bar and follow the process.
+  
 
-In the first case the Issuer Identity will be setup at the same time he will issue your certificate.
-One needs to have the Issuer Identity to provide proof of existence of your Certificate.  
+.. note:: To request a Certificate, you will need to have and email of your referent. He/Her will receive an email with a link to setup your certificate. 
+   In order to have reliable data, the referent will also setup his/her own Identity during the process (5 minutes in total). 
+
+
+
+Types of Certificates
+---------------------
+
+So far there are 2 type of Certificates :
+
+   - Experience Certificates
+   - Recommendations
+
+Experience Certificates
+-----------------------
 
 Fill the form to issue the Certificate as precisely as possible. It will be used by the Issuer to draft your Certificate.
 
@@ -24,3 +39,4 @@ All the data of this Certificate will be tamper proof. The certificate will be v
 You can copy this link to your social media or send it to your future employeer or you can delete it. 
 
 In order to strengthen your Certificate best is to get a Proof of the Issuer Identity and yours. See Next.
+

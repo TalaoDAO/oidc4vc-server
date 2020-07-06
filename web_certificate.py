@@ -548,7 +548,7 @@ def certificate_issuer_explore() :
 					</a>
 				</span><br>"""
 		
-		services ="""<a class="text-warning">No services available here.<br> Register to get access to services.</a><br><br>"""
+		services ="""<a class="text-warning">Register to get access to services.</a><br><br>"""
 		
 		return render_template('./certificate/certificate_company_issuer_identity.html',
 							issuer_name=issuer_explore.name,
