@@ -47,4 +47,9 @@ Welcome to Talao's documentation!
    
    internal
    
-  
+ 	
+.. toctree::
+   :maxdepth: 2
+   :caption: Beta Test:
+   
+   betatest

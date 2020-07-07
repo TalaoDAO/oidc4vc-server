@@ -232,6 +232,8 @@ def dashboard(workspace_contract,resume, mode) :
 	a = ['.', '(', ')', ',', ':'] + english_no_words + french_no_words
 	
 	token_description = word_tokenize(description.lower())
+	#print(nltk.pos_tag(token_description))
+	
 	token_skills = word_tokenize(" ".join(skills).lower())
 	token_position = word_tokenize(position.lower())
 	
@@ -277,80 +279,8 @@ def dashboard(workspace_contract,resume, mode) :
 	for count,item in enumerate(position_word_list, start=0) :
 		position_key_words.update({'pos_word'+ str(count) : item[0].capitalize(), 'pos_freq'+str(count) : float("{:.4f}".format(item[1]))})
 	
-	# Ups and Downs
-	up = ['This resume is based on the Talao protocol and data are tamper proof.' ]
-	down = []
 	
-	if update_duration_value < 15  :
-		up.append("This resume has been updated less than " + update_duration_string + " ago. This strengthens the resume as it brings more trust to data." )
-	else :
-		down.append("The resume has benn update more than 15 days agos. This may be an issue.")
-				 
-	if self_completion_value < 40  and nb_doc > 10 :
-		up.append("A large part of the information of this resume are provided by third parties. This strengthens the resume and brings more reliability to data." )
-	else :
-		down.append("Most of the information are self declared. This weakens the resume.")
-	
-	if person_completion_value > 40  :
-		down.append("Most of the certificates are provided by Individuals. This weakens the resume.")
-	
-	if company_completion_value > 40  :
-		up.append("Most of the certificates are provided by Companies. This provides very reliable data for third parties.")
-		
-	if nb_certificate != 0 and sorted_issuers[0][1]/nb_certificate < 0.15  :
-		up.append("Certicates are issued by several different referents. This brings more reliability to data.")
-	else :
-		down.append("Most Certificates are issued by the same referents. This weakens the resume.")
-	
-	if is_kyc == 'Yes' :
-		up.append("Proof of Identity is available. Third party can now rely on this Identity.")
-	else :
-		down.append("No proof of Identity. Third party cannot rely on this Identity. Contact Talao to get your Proof of Identity and improve your rating.")
-	
-	if completion_value > 60 :
-		up.append("Personal data are numerous.")
-	else :
-		down.append("Weak Personal information.This resume is not sufficiently detailed to be efficient.")
-	
-	if nb_certificate > 10 :
-		up.append("The profil is has numerous cerificates. This brings more reliability to data.")
-	else :
-		down.append("Weak number of certificates, few reliable Data.")
-	
-	if nb_experience > 10 :
-		up.append("The profil has numerous experiences. This brings more information to the resume.")
-	else :
-		down.append("Weak number of experience. This does not provide enough information to third parties.")
-	
-	if average_description > 30 :
-		up.append("Descriptions are precise. This strengthen the resume")
-	else :
-		down.append("Descriptions are weak because not very precise.")
-	
-	
-	if nb_doc < 3 :
-		down = up = []
-		for i in range(3) :
-			up.append("Sorry, there are not enough data")
-			down.append("Sorry, there are not enough data")
-	elif len(up) == 1 :
-		up.append("Sorry, only 1 good news here !")
-		up.append("Sorry, only 1 good news here !")
-	elif len(up) == 2 :
-		up.append("Sorry, only 2 good news here !")
-	
-	else :
-		up = random.sample(up, 3)
-		down = random.sample(down, 3)
-	up_down = {'word0' : up[0],
-				'word1' : up[1],
-				'word2' : up[2],
-				'word3' : down[0],
-				'word4' : down[1],
-				'word5' : down[2]
-				} 
-	
-	# index/rating
+	# index/rating max 70 today
 	if update_duration_value < 20 :
 		quality_update = 10
 	if nb_certificate < 20 :
@@ -369,7 +299,20 @@ def dashboard(workspace_contract,resume, mode) :
 	quality = quality_issuer + quality_completion + quality_certificate + quality_kyc + quality_update
 	index = float("{:.2f}".format(quality))
 	
-		
+	#ups and downs 	
+	up_down = ups_and_downs(update_duration_value,
+				self_completion_value,
+				person_completion_value,
+				company_completion_value,
+				nb_certificate,
+				is_kyc,
+				completion_value,
+				nb_experience,
+				average_description,
+				update_duration_string,
+				nb_doc,
+				sorted_issuers) 
+	
 	my_analysis = {'topic' : 'analysis', 
 					'id' : 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:],
 					'self_completion' : self_completion,
@@ -397,5 +340,118 @@ def dashboard(workspace_contract,resume, mode) :
 					**key_experiences
 					}
 	return my_analysis
+
 			
-				
+def ups_and_downs(update_duration_value,
+				self_completion_value,
+				person_completion_value,
+				company_completion_value,
+				nb_certificate,
+				is_kyc,
+				completion_value,
+				nb_experience,
+				average_description,
+				update_duration_string,
+				nb_doc,
+				sorted_issuers) :
+	
+	# Identity update limit, days 
+	UPDATE_LIMIT = 15
+	
+	# Source of data, base 100
+	PERSON_COMPLETION_THRESHOLD = 40
+	SELF_COMPLETION_THRESHOLD = 40
+	COMPANY_COMPLETION_THRESHOLD = 40
+
+	# Document, absolut
+	DOCUMENT_THRESHOLD = 10
+	
+	# Certificate, absolut
+	CERTIFICATE_THRESHOLD = 10
+	
+	# Exprience, absolut
+	EXPERIENCE_THRESHOLD = 10
+	
+	# Profil completion, base 100
+	COMPLETION_THRESHOLD = 60
+	
+	# Average description, words
+	DESCRIPTION_THRESHOLD = 30
+	
+	# Setup
+	up = ['This resume is based on the Talao protocol and data are tamper proof.' ]
+	down = []
+	
+	# Rules 
+	
+	if update_duration_value < UPDATE_LIMIT :
+		up.append("This resume has been updated less than " + update_duration_string + " ago. This strengthens the resume as it brings more trust to data." )
+	else :
+		down.append("The resume has benn update more than 15 days agos. This may be an issue.")
+				 
+	if self_completion_value < SELF_COMPLETION_THRESHOLD  and nb_doc > DOCUMENT_THRESHOLD :
+		up.append("A large part of the information of this resume are provided by third parties. This strengthens the resume and brings more reliability to data." )
+	else :
+		down.append("Most of the information are self declared. This weakens the resume.")
+	
+	if person_completion_value > PERSON_COMPLETION_THRESHOLD  :
+		down.append("Most of the certificates are provided by Individuals. This weakens the resume.")
+	
+	if company_completion_value > COMPANY_COMPLETION_THRESHOLD  :
+		up.append("Most of the certificates are provided by Companies. This provides very reliable data for third parties.")
+		
+	if nb_certificate != 0 and sorted_issuers[0][1]/nb_certificate < 0.15  :
+		up.append("Certicates are issued by several different referents. This brings more reliability to data.")
+	else :
+		down.append("Most Certificates are issued by the same referents. This weakens the resume.")
+	
+	if is_kyc == 'Yes' :
+		up.append("Proof of Identity is available. Third party can now rely on this Identity.")
+	else :
+		down.append("No proof of Identity. Third party cannot rely on this Identity. Contact Talao to get your Proof of Identity and improve your rating.")
+	
+	if completion_value > COMPLETION_THRESHOLD :
+		up.append("Personal data are numerous.")
+	else :
+		down.append("Weak Personal information.This resume is not sufficiently detailed to be efficient.")
+	
+	if nb_certificate > CERTIFICATE_THRESHOLD :
+		up.append("The profil is has numerous cerificates. This brings more reliability to data.")
+	else :
+		down.append("Weak number of certificates, few reliable Data.")
+	
+	if nb_experience > EXPERIENCE_THRESHOLD :
+		up.append("The profil has numerous experiences. This brings more information to the resume.")
+	else :
+		down.append("Weak number of experience. This does not provide enough information to third parties.")
+	
+	if average_description > DESCRIPTION_THRESHOLD  :
+		up.append("Descriptions are precise. This strengthen the resume")
+	else :
+		down.append("Descriptions are weak because not very precise.")
+	
+	# Fill up if weak
+	if nb_doc < 3 :
+		down = up = []
+		for i in range(3) :
+			up.append("Sorry, there are not enough data")
+			down.append("Sorry, there are not enough data")
+	elif len(up) == 1 :
+		up.append("Sorry, only 1 good news there !")
+		up.append("Sorry, only 1 good news there !")
+	elif len(up) == 2 :
+		up.append("Sorry, only 2 good news there !")
+	else :
+		up = random.sample(up, 3)
+		down = random.sample(down, 3)
+	
+	# packing
+	up_down = {'word0' : up[0],
+				'word1' : up[1],
+				'word2' : up[2],
+				'word3' : down[0],
+				'word4' : down[1],
+				'word5' : down[2]
+				} 
+	
+	return up_down

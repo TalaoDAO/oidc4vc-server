@@ -2,7 +2,7 @@
 <html>
 
 <head>
-     <meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -22,47 +22,39 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                                                                                          {% include 'user_nav_bar.html' %}    
-
-        <div class="container-fluid">
+                       {% include 'company_nav_bar.html' %}    
+       <div class="container-fluid">
             <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
+                <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a Recommendation</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Invit a Talent</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/request_recommendation_certificate/" method="post">
+                            <form action="/user/invit_talent/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Complete this request. Your referent will receive an email with this information.</p>
+                                        <p>Invit a Talent to setup his/her own Decentralized Professional Identity. He/Her will receive an email with your memo.</p>
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text">How do you know him/her ?<br></label>
-                                    <select name="relationship" class="form-control">
-										<optgroup label="Select a relationship">
-										<option value="You managed him/her directly">You managed him/her directly</option>
-										<option value="You reported directly to him/her">You reported directly to him/her</option>
-										<option value="You worked with him/her in the same company">You worked with him/her in the same company</option>
-										<option value="He/She was a client of yours">He/She was a client of yours</option>
-										<option value="You were a client of him/her">You were a client of him/her</option>
-										<option value="You studied together">You studied together</option>
-										<option value="None">None</option>
-										
-										</optgroup></select></div>
+                                    <div class="col-md-6 col-xl-6">
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Email</strong><br></label><input class="form-control" type="email" required="" name="email"></div>
+                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Memo (Optional, it will be added on top of the email.)</label><textarea class="form-control" name="memo" rows="5"></textarea></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Memo (Optional)</strong><br></label><textarea class="form-control" rows="5" name="memo"></textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" value="send">Send</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Invit</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><a href="/user/"><button class="btn btn-primary btn-sm" type="button" value="cancel">Cancel</button></a></div>
+										<a href="/user/">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+                                        </a>
                                     </div>
                                 </div>
                             </form>
@@ -74,13 +66,13 @@
     </div>
     </div>
     </div>
-                                                                {% include 'user_footer.html' %}    
+                                      {% include 'user_footer.html' %}    
 
     </div>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 

@@ -463,7 +463,7 @@ def user() :
 	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	my_advanced = """
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
-					<b>Authentification Email</b> : """ + "to be done " + """<br>
+			<!--		<b>Authentification Email</b> : """ + "to be done " + """<br> -->
 					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
 					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""					
 	
@@ -567,7 +567,7 @@ def user() :
 					
 	
 	# file
-	my_file = """<a href="/user/store_file/">Store Data</a><hr>"""
+	my_file = """<a href="/user/store_file/">add Files</a><hr>"""
 	for one_file in session['identity_file'] :
 		file_html = """
 				<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
@@ -681,7 +681,7 @@ def user() :
 				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
 				<b>Authority</b> : """+ kyc['authority']+"""<br>
 				<b>Country</b> : """+ kyc['country']+"""<br>				
-				<b>Id</b> : """+ kyc['id']+"""<br>				
+				<b>Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>				
 				<p>		
 					<a class="text-secondary" href="/user/remove_education/?experience_id=""" + kyc['id'] + """&experience_title="""+ kyc['firstname'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>

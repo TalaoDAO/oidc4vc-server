@@ -92,6 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#dynamic-password">Dynamic Password</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#distributed-identity-vs-centralized">Distributed Identity vs Centralized</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#decentralized-identifiers-did">Decentralized IDentifiers (DID)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#credits">Credits</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="privacy.html">Privacy</a></li>
@@ -113,6 +114,10 @@
 <p class="caption"><span class="caption-text">Internal:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Beta Test:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="betatest.html">Organisation des tests</a></li>
 </ul>
 
             
@@ -179,10 +184,10 @@
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>Talao markets its professional data certification solution on the Ethereum Blockchain to Talents, Companies and other organizations such as schools or training centers.</p>
-<p>The Talo protocol is based on a Decentralized IDentity focused on professional data. Talents and Companies are the only owner of their data.
-No centralized operator can decide the use or update of your data.</p>
-<p>Main difference with other certificates solutions are :</p>
+<p>Talao markets its professional data certification solution on the Ethereum Blockchain to Talents, Companies and other organizations such as Schools or Training Centers.</p>
+<p>The Talo protocol is based on a Decentralized IDentity focused on professional data. Talents and Companies are the owners of their data.
+No centralized operator can decide to update or delete data. No one can access to encrypted Data.</p>
+<p>Main differences with other certificates solutions are :</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Certificate Data are tamper proof and tracable.</p></li>
@@ -192,22 +197,22 @@ No centralized operator can decide the use or update of your data.</p>
 </div></blockquote>
 <div class="section" id="objectives">
 <h2>Objectives<a class="headerlink" href="#objectives" title="Permalink to this headline">¶</a></h2>
-<p>For Talent, it is the opportunity to use a new technology to get tamper proof professional certificates while kkeping the ownership of data.
-Those certificate can be displayed anywhere on digital plateforms, social media, wensites,etc. They provide to third parties reliable data about professional experiences, skills, education.</p>
+<p>For Talent, it is the opportunity to use a new technology to get tamper proof professional certificates while keping the ownership of their data.
+Those certificate can be displayed anywhere on digital plateforms, social media, websites,etc. They provide to third parties reliable data about professional experiences, skills, education.</p>
 <p>For Companies, the issuance of certificates on the blockchain has several interests:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Attracting the new talents by allowing them to value the experience they will have with the company (including during the recruitment process), and thus their future employability</p></li>
+<li><p>Attracting new Talents by allowing them to value the experience they will have with the company (including during the recruitment process), and thus their future employability</p></li>
 <li><p>Spreading the image of an innovative and modern company through the use of blockchain technology, which is adopted above all by the younger generations</p></li>
-<li><p>Mastering what the talents say about their mission and their activity in the company, and in particular avoiding the dissemination of confidential, sensitive or erroneous information</p></li>
-<li><p>Valuing their own talents externally, for example with their clients, by presenting them with CVs with certificates signed by former clients. This is particularly relevant for service companies.</p></li>
+<li><p>Mastering what the Talents say about their missions and their activities in the company, and in particular avoiding the dissemination of confidential, sensitive or erroneous information</p></li>
+<li><p>Valuing their own Talents externally, for example with their clients, by presenting them with CVs with certificates signed by former clients. This is particularly relevant for service companies.</p></li>
 </ul>
 </div></blockquote>
 </div>
 <div class="section" id="talao-professional-identity-relay">
 <h2>Talao Professional Identity Relay<a class="headerlink" href="#talao-professional-identity-relay" title="Permalink to this headline">¶</a></h2>
-<p>The Talao Professional Identity Relay (<a class="reference external" href="http://talao.co:5000">http://talao.co:5000</a>) is an intermediary between users and their Identity.
-The objective of this centralized platform is to simplify the onboarding process which is so far still quite difficult for non technical experts.</p>
+<p>The Talao Professional Identity Relay (<a class="reference external" href="http://talao.co:5000">http://talao.co:5000</a>) is a website available for users (Individuals or Companies) to manage their Identity.
+The objective of this centralized platform is to simplify the onboarding process which is so far quite difficult for non technical experts.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Depending on user choice the Talao Professional Identity Relay will have parts of information about cryptographic keys. Read more on <a class="reference internal" href="privacy.html"><span class="doc">Privacy</span></a>.</p>
@@ -217,19 +222,16 @@ The objective of this centralized platform is to simplify the onboarding process
 <h2>Dynamic Password<a class="headerlink" href="#dynamic-password" title="Permalink to this headline">¶</a></h2>
 <p>The Talao Relay uses dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login,
 instead of entering their usual static password every time, they would simply input a unique, machine generated password.
-This dynamic password is received on the user’s mobile phone.</p>
+This dynamic password is received on the user’s Email provided for registration (Authentificaton Email).</p>
 <p>Dynamic passwords are convenient because they don’t have to be remembered, and because the password is never the same, they serve as a major roadblock for hackers
 who may be looking to break into user accounts.</p>
 </div>
 <div class="section" id="distributed-identity-vs-centralized">
 <h2>Distributed Identity vs Centralized<a class="headerlink" href="#distributed-identity-vs-centralized" title="Permalink to this headline">¶</a></h2>
-<p>Current architectures to validate, certify, and manage identity are based on centralized, top-down approaches that rely on trusted authorities and third-party operators.
-We approach the problem of digital identity starting from a human rights perspective, with a primary focus on identity systems in the developed world.</p>
+<p>Current architectures to validate, certify, and manage identities are based on centralized, top-down approaches that rely on trusted authorities and third-party operators.
+Talao approaches the problem of digital identity starting from a human rights perspective, with a focus on professional data.</p>
 <p>We assert that individual persons must be allowed to manage their personal information in a multitude of different ways in different contexts and that to do so,
 each individual must be able to create multiple unrelated identities.</p>
-<p>Therefore, we first define a set of fundamental constraints that digital identity systems must satisfy to preserve and promote privacy as required for individual autonomy.</p>
-<p>With these constraints in mind, we then propose a decentralized, standards-based approach, using a combination of distributed ledger technology and thoughtful regulation,
-to facilitate many-to-many relationships among providers of key services.</p>
 <p>Our proposal for digital identity differs from others in its approach to trust in that we do not seek to bind credentials to each other or to a mutually trusted authority to achieve strong non-transferability. Because the system does not implicitly encourage its users to maintain a single aggregated identity that can potentially be constrained or reconstructed against their interests, individuals and organizations are free to embrace the system and share in its benefits.</p>
 </div>
 <div class="section" id="decentralized-identifiers-did">
@@ -239,6 +241,13 @@ These new identifiers are designed to enable the controller of a DID to prove co
 DIDs are URLs that associate a DID subject with a DID document allowing trustable interactions associated with that subject.
 Each DID document can express cryptographic material, verification methods, or service endpoints, which provide a set of mechanisms enabling a DID controller to prove control of the DID. Service endpoints enable trusted interactions associated with the DID subject.
 A DID document might contain semantics about the subject that it identifies. A DID document might contain the DID subject itself (e.g. a data model).”</p>
+</div>
+<div class="section" id="credits">
+<h2>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h2>
+<p>Thanks to the awesome Ethereum community which provide us with great tools, Solidity code and inspiration.
+Special thanks to <a class="reference external" href="https://www.originprotocol.com">OriginProtocol</a> for their implementation of <a class="reference external" href="https://erc725alliance.org/">ERC 725 and ERC 735</a>, which we use with slight modifications.</p>
+<p>Thanks to the NLTK team and community for their Natural Language Programming work we used in the Dashboard panel is based on the python librairy <a class="reference external" href="https://www.nltk.org/">NLTK</a>.
+For more information Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.</p>
 </div>
 </div>
 

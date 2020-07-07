@@ -214,7 +214,7 @@ Identity and Alias are one part names : “johndoe”</p>
 </ul>
 </div></blockquote>
 <p>To log to the company Identity through Relay the manager will use a 2 parts username as  “manager_name.company_identity_name”.</p>
-<p>NS is supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias.</p>
+<p>NS is today supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias (Migration to a decentralied support in progress).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;nameservice.db&#39;</span><span class="p">)</span>
        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -256,21 +256,21 @@ If user Identity has been created by Relay, Talao has a copy of the private key,
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Keys</p></th>
-<th class="head"><p>Type</p></th>
+<th class="head"><p>Usage</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>1</p></td>
-<td><p>Management Key, do everything</p></td>
+<td><p>Relay if activated</p></td>
 </tr>
 <tr class="row-odd"><td><p>2</p></td>
-<td><p>Action (Not used)</p></td>
+<td><p>Not Used</p></td>
 </tr>
 <tr class="row-even"><td><p>3</p></td>
-<td><p>Claims (Not used)</p></td>
+<td><p>Personal/Company settings</p></td>
 </tr>
 <tr class="row-odd"><td><p>4</p></td>
-<td><p>Crypto (Not used)</p></td>
+<td><p>Not used</p></td>
 </tr>
 <tr class="row-even"><td><p>5</p></td>
 <td><p>Issuer White List</p></td>
@@ -279,7 +279,7 @@ If user Identity has been created by Relay, Talao has a copy of the private key,
 <td><p>Issuer Documents</p></td>
 </tr>
 <tr class="row-even"><td><p>20003</p></td>
-<td><p>Member (Not used)</p></td>
+<td><p>Not used</p></td>
 </tr>
 </tbody>
 </table>
@@ -360,7 +360,8 @@ If user Identity has been created by Relay, Talao has a copy of the private key,
 <span class="nt">&quot;date_of_birth&quot;</span> <span class="p">:</span> <span class="s2">&quot;1980-1212&quot;</span><span class="p">,</span>
 <span class="nt">&quot;date_of_issue&quot;</span> <span class="p">:</span> <span class="s2">&quot;2012-02-13&quot;</span><span class="p">,</span>
 <span class="nt">&quot;date_of-expiration&quot;</span> <span class="p">:</span> <span class="s2">&quot;2022-02-12&quot;</span><span class="p">,</span>
-<span class="nt">&quot;authority&quot;</span> <span class="p">:</span> <span class="s2">&quot;Prefecture de Police de Paris&quot;</span><span class="p">}</span>
+<span class="nt">&quot;authority&quot;</span> <span class="p">:</span> <span class="s2">&quot;Prefecture de Police de Paris&quot;</span><span class="p">,</span>
+<span class="nt">&quot;card_id&quot;</span> <span class="p">:</span> <span class="s2">&quot;xxxxxxxx&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>

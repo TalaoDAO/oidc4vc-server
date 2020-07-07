@@ -29,7 +29,7 @@ At Manager creation, one stament is written :
 To log to the company Identity through Relay the manager will use a 2 parts username as  "manager_name.company_identity_name".
 
 
-NS is supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias.
+NS is today supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias (Migration to a decentralied support in progress).
 	
 .. code-block:: python
 
@@ -70,26 +70,26 @@ For User Identity, it depends on the way it has been created. Talao might have n
 If user Identity has been created by Relay, Talao has a copy of the private key, RSA key and secret key. 
 
 
-Talao ERC725 Keys
+Talao ERC725 Keys 
 -----------------
 
 
 +--------------------+-----------------------------------+
-|       Keys         |               Type                |
+|       Keys         |               Usage               |
 +====================+===================================+
-| 1                  |   Management Key, do everything   |
+| 1                  |   Relay if activated              |
 +--------------------+-----------------------------------+
-| 2                  |   Action (Not used)               |    
+| 2                  |   Not Used                        |    
 +--------------------+-----------------------------------+
-| 3                  |   Claims (Not used)               |
+| 3                  |   Personal/Company settings       |
 +--------------------+-----------------------------------+
-| 4                  |   Crypto (Not used)               |
+| 4                  |   Not used                        |
 +--------------------+-----------------------------------+
 | 5                  |   Issuer White List               |
 +--------------------+-----------------------------------+
 | 20002              |   Issuer Documents                |
 +--------------------+-----------------------------------+
-| 20003              |   Member (Not used)               |
+| 20003              |   Not used                        |
 +--------------------+-----------------------------------+
 
 
@@ -158,7 +158,8 @@ ___
 	"date_of_birth" : "1980-1212",
 	"date_of_issue" : "2012-02-13",
 	"date_of-expiration" : "2022-02-12",
-	"authority" : "Prefecture de Police de Paris"}
+	"authority" : "Prefecture de Police de Paris",
+	"card_id" : "xxxxxxxx"}
 
 
 

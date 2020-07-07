@@ -166,8 +166,9 @@ def messageAdmin (subject, messagetext,mode) :
 		s.sendmail(msg['from'],  msg["To"].split(","), text) 
 	except:
 		print ('error sending mail')
+		return False
 	s.quit()
-	return
+	return True
 
 
 def message(subject, to, messagetext) :
@@ -194,5 +195,6 @@ def message(subject, to, messagetext) :
 		s.sendmail(msg['from'],  msg["To"].split(","), text) 
 	except:
 		print ('error sending mail')
+		return False
 	s.quit()
-	return
+	return True

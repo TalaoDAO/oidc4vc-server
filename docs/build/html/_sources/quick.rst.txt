@@ -9,17 +9,17 @@ Setup
 
 - Go to http://talao.co:5000/starter/
 - Choose the "Quick Start" option (first option) to create a new Professional Identity
-- Enter Firstname, Lastname and an Email for authentification. Your Firstname and Lastname will be public, your email will be encrypted and used only for authentificaion.
+- Enter firstname, lastname and an email for authentification purpose. Your firstname and lastname will be public, your email will be encrypted and used only for authentificaion.
 
-.. note :: This Email is encrypted and only used for authentification in the early process.
-   it wont be displayed to public. Later on you will options to setup public Emails for contact. Read more in :doc:`/resume`.
+.. note :: This email is encrypted and only used for authentification in the early process.
+   it wont be displayed to public. Later on you will get options to setup public emails for contact. Read more in :doc:`/resume`.
    
-The process to create an Identoty will take a couple of minytes depending of the load of the Ethereum Network.
-A username will be setup based on your Firstname and Lastname and you will receive an email with all information and cryptographic keys of your Identity.
+The process to create an Identity will take a couple of minutes depending of the load of the Ethereum Network.
+A username will be setup based on your firstname and lastname and you will receive an email with all information and cryptographic keys of your Identity.
 In particular store your Private Key and RSA Key secretly.
 
 
-.. warning:: Never use your Identity to store crypto money (ETH or orthers). Best option is to used cold wallet for funds. 
+.. warning:: Never use your Identity Ethereum address to store crypto money (ETH or others). Best option is to use cold wallet for funds with speciific Ethereum addresses. 
 
 
 
@@ -27,8 +27,9 @@ In particular store your Private Key and RSA Key secretly.
 Login
 -----
  
-   - Go to http://talao.co:5000/login/ and enter you username .Your will receive a dynamic password by Email.
-   - Check your Email and enter the password (3 trials maximum, 3 minutes maximum).
+   - Go to http://talao.co:5000/login/ and enter you username .Your will receive a dynamic password by email.
+   - Check your email and enter the password (3 trials maximum, 3 minutes maximum). Your are logged.
+   - Complete your profil as much as possible and request certificates to Companies or Individuals. Read more in :doc:`/request_a_certificate`
 
 
 

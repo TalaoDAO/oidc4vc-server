@@ -89,13 +89,13 @@
 <li class="toctree-l1"><a class="reference internal" href="contents.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="privacy.html">Privacy</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Professional Identity</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#personal">Personal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#personal-settings">Personal settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#proof-of-identity">Proof of Identity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#experience">Experience</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#education">Education</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#certificates">Certificates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#alias">Alias</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#issuer">Issuer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#referent">Referent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#partner">Partner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#white-list">White List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-store">Data Store</a></li>
@@ -119,6 +119,10 @@
 <p class="caption"><span class="caption-text">Internal:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Beta Test:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="betatest.html">Organisation des tests</a></li>
 </ul>
 
             
@@ -185,69 +189,71 @@
             
   <div class="section" id="professional-identity">
 <h1>Professional Identity<a class="headerlink" href="#professional-identity" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="personal">
-<h2>Personal<a class="headerlink" href="#personal" title="Permalink to this headline">¶</a></h2>
+<p>A professional Decentralized Identity is made up of data relating to individuals career, skills and experience.</p>
+<div class="section" id="personal-settings">
+<h2>Personal settings<a class="headerlink" href="#personal-settings" title="Permalink to this headline">¶</a></h2>
+<p>They are traditional information one can get in a resume :</p>
 <ul class="simple">
-<li><p>Firstname</p></li>
-<li><p>Lastname</p></li>
-<li><p>Contact Email</p></li>
-<li><p>Contact Phone</p></li>
-<li><p>Birthdate</p></li>
-<li><p>Address</p></li>
+<li><p>Firstname, lastname, contact email, contact phone, bithdate, about, postal address</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>By default those personal data are given by user through the Relay which is an automatic ‘Issuer’.</p>
 </div>
-<p>They are eventually not reliable for third parties as data are issued on your behalf.</p>
-<p>They are however an essential part of a standard resume.</p>
+<p>They are eventually not reliable for third parties as data are either self declared or issued on user behalf.</p>
 </div>
 <div class="section" id="proof-of-identity">
 <h2>Proof of Identity<a class="headerlink" href="#proof-of-identity" title="Permalink to this headline">¶</a></h2>
 <p>This is one of the most important feature of the Identity.</p>
-<p>In order to get reliable data, one has to prove the belonging of the Identiy and the veracity of personal data.
-This process is today manage only by Talao through a KYC process for Talents and Companies.
+<p>In order to get reliable data, one has to prove the user belonging of the Identiy and the liability of personal data.</p>
+<p>This process is today manage only by Talao through a KYC process for Talents and Companies.
 Read more on <a class="reference internal" href="proof_of_identity.html"><span class="doc">Get a Proof of Identity</span></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We strongly suggest to ask Talao for a Proof of Identity as soon as possible. They are currently free of charge</p>
+</div>
 </div>
 <div class="section" id="experience">
 <h2>Experience<a class="headerlink" href="#experience" title="Permalink to this headline">¶</a></h2>
-<p>Experience data are always Public. Those Experience are issued by yourself. They are an essential part of a standard resume.</p>
+<p>Experience data are always Public. Those Experiences are issued by yourself. They are an essential part of a standard resume.
+Those data are self declared.</p>
 </div>
 <div class="section" id="education">
 <h2>Education<a class="headerlink" href="#education" title="Permalink to this headline">¶</a></h2>
-<p>Education data are always Public. Those Education are issued by yourself only. They are an essential part of a standard resume.</p>
+<p>Education data are always Public. Those Educations are issued by yourself only. They are an essential part of a strandard resume.
+Those data are self declared.</p>
 </div>
 <div class="section" id="certificates">
 <h2>Certificates<a class="headerlink" href="#certificates" title="Permalink to this headline">¶</a></h2>
-<p>Certficates are always Public.</p>
-<p>They have a strong added value as they are signed by third parties and data can be checked for reliability and proof of issuance.</p>
+<p>Certificates are always public.</p>
+<p>They have a strong added value as they are issued (signed) by third parties and so data can be checked for reliability and proof of issuance.</p>
 <p>There are several types of certificates :</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Experience Certificates issued by companies</p></li>
-<li><p>Trainng Certifocate issues by companies</p></li>
+<li><p>Skills and Trainng Certificates issues by companies (Not implemented yet in July 2020)</p></li>
 <li><p>Recommendation issued by Companies or Persons</p></li>
 </ul>
 </div></blockquote>
-<p>One can make a copy of the link to insert them anywhere in digital presentation.</p>
+<p>One can check the issuer of each of those certificates. For each issuer one can check its proof of identity and its own certificates.
+This process can be done as long as one find strong proofs of evidence.</p>
+<p>One can make a copy of the certificate link to insert them anywhere in digital presentation. Certificate links can be deleted by user from his/her Identity.
+However if the link is deleted the certificate is always “live” on its decentralized support as data are tamper proof.</p>
 </div>
 <div class="section" id="alias">
 <h2>Alias<a class="headerlink" href="#alias" title="Permalink to this headline">¶</a></h2>
 <p>An Alias is a new couple of Username+Email for authentification through the <a class="reference external" href="http://talao.co:50000/login/">Relay</a></p>
-<p>At Identity creation, one smart contract is crated and one authentification email is encrypted and stored within this smart contract on the Ethereum Blockchain.
-The address of the smart contract is the Decentralized IDentifier (DID) of your Identity.
-When you sign-in if the first time, you register a 3sernane to have a readable identifier associated to the smart contract address.</p>
-<p>An Alias alias is another Username you can use with another email to access the Relay.</p>
+<p>At setup, one smart contract is created for each identity and one authentification email is encrypted and stored within this smart contract on the Ethereum Blockchain.
+The address of the smart contract is the Decentralized IDentifier (DID) of the Identity. Unfortunaltly theis address is quite difficult to memorize (ex : 0xfC6acd13F07bcCFB7563908f717377806e0Ed92E).
+So when user signs in the first time, he registers a “username” to have a readable identifier associated to his smart contract address.</p>
+<p>An Alias is another Username you can use with another email to access yous Identity through the Relay.</p>
 <p>You can add as many Alias you want, for instance you can use an Alias for each of your device.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The email assciated with your Username is public.</p>
 </div>
-</div>
-<div class="section" id="issuer">
-<h2>Issuer<a class="headerlink" href="#issuer" title="Permalink to this headline">¶</a></h2>
-<p>An Issuer is a Company or a Person you have authorized to issue claims as Certificate, Recommendation, etc.
-You are the obly one to appoint Issuers.</p>
+<div class="section" id="referent">
+<h2>Referent<a class="headerlink" href="#referent" title="Permalink to this headline">¶</a></h2>
+<p>A Referent is a Company or a Person the user has authorized to issue certificates.
+The user is the only one able to appoint Referents. User does not need the Referent authoriation to appoint him/her.
+In the other hand the Referent is not obliged to issue any certificate to the user.</p>
 </div>
 <div class="section" id="partner">
 <h2>Partner<a class="headerlink" href="#partner" title="Permalink to this headline">¶</a></h2>
@@ -264,17 +270,17 @@ After cancellation the other party can eventualky keep on using your private key
 <h2>White List<a class="headerlink" href="#white-list" title="Permalink to this headline">¶</a></h2>
 <p>The White List is made up of reliable issuers from your standpoint.
 You can add a new issuer in your White List through the White List menu.
-It is likely your own Issuer and Parners are reliable but you have to add them anyway, you can also add other Issuers even if they are not in your Issuer List.</p>
+It is likely your own Referent and Partners are reliable but you have to add them anyway, you can also add other Issuers even if they are not in your Referent List.</p>
 <p>This White List allowed you to have better view of others certificates.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>By default Relay is not a White List issuer, but Talao is as Talao is at start teh only company to issue Proof of Identity.</p>
+<p>By default Relay is not a White List issuer, but Talao is. At start Talao is the only company to issue Proof of Identity.</p>
 </div>
 </div>
 <div class="section" id="data-store">
 <h2>Data Store<a class="headerlink" href="#data-store" title="Permalink to this headline">¶</a></h2>
-<p>The Data Store is decentralized support to store data you either want to share with others (public privacy) or only witht Praners (private privacy) or you want to keep secret for everybody.</p>
-<p>If you want to change the nature of the privacy you firtst need to remove the file and create a new one. The document will be encrypted at creation.</p>
+<p>The Data Store is decentralized support to store data you either want to share with others (public privacy) or only with Partners (private privacy) or you want to keep secret for everybody.</p>
+<p>If you want to change the nature of the privacy you firtst need to remove the file and create a new one. The document will be encrypted at creation and stored on a decentralized support (IPFS today).</p>
 </div>
 <div class="section" id="advanced">
 <h2>Advanced<a class="headerlink" href="#advanced" title="Permalink to this headline">¶</a></h2>

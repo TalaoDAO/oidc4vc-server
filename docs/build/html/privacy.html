@@ -88,10 +88,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="contents.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Privacy</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#level-of-privacy">Level of privacy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#public">Public</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#private">Private</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#secret">Secret</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview-about-encryption-and-privacy">Overview about encryption and privacy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-and-privacy">Data and privacy</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="resume.html">Professional Identity</a></li>
@@ -112,6 +110,10 @@
 <p class="caption"><span class="caption-text">Internal:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Beta Test:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="betatest.html">Organisation des tests</a></li>
 </ul>
 
             
@@ -178,43 +180,162 @@
             
   <div class="section" id="privacy">
 <h1>Privacy<a class="headerlink" href="#privacy" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="level-of-privacy">
-<h2>Level of privacy<a class="headerlink" href="#level-of-privacy" title="Permalink to this headline">¶</a></h2>
-<p>There are 3 levels of privacy for data :</p>
-<ul class="simple">
-<li><p>Public</p></li>
-<li><p>Private</p></li>
+<div class="section" id="overview-about-encryption-and-privacy">
+<h2>Overview about encryption and privacy<a class="headerlink" href="#overview-about-encryption-and-privacy" title="Permalink to this headline">¶</a></h2>
+<p>An Identity is a smart contract on the Ethereum Blockchain, it is defined by its own Ethereum address.
+This smart contract is created at setup by his owner (person or company) through the owner Ethereum address and his associated private key.</p>
+<p>In order to get strong privacy, the Talao protocol uses 2 specific AES encryptions keys (one for private data, one for secret data) to encrypt user data.
+Those 2 keys are stored within the Identity encrypted with a RSA key.</p>
+<p>Consequently for Individuals there are several ways of using the Relay platform depending of who can access to the owner Ethereum private key and his RSA key :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the Identity has been setup by the Relay itself, the Relay has a copy of the Ethereum Private key and RSA key. They are stored on a Centralized server.
+We say that the Identity is <strong>managed on behalf of the owner</strong>. All services are available through the Relay which is a classic webserver application.</p></li>
+<li><p>If the Identity has been setup by the user externally (see <a class="reference external" href="https://freedapp.io/">freepdapp</a>), the Relay is  <strong>Fully or partially activated</strong> (with ERC725 Keys) to be able to sign transactions on behalf of the owner.
+In this case the Relay does not have a copy of the Ethereum private and RSA keys but the user has limited access to the Relay services.
+For instance certificate issuance and Partnership services are not available.</p></li>
+<li><p>An other solution is to do a <strong>Change of ownership</strong> : The Identity is setup by the Relay and later on the Identity is transfered to an Ethereum address setup secretly by the owner.
+In this case the Relay does not have a copy of the Ethereum private key. This solution has the advantage to not requiring the setup of an Identity externally.
+Certificate issuance services are not available.</p></li>
+</ul>
+</div></blockquote>
+<p>For information company Identities are always managed on behalf of the company as they usally do not want to be involved in thoses tasks.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For users who mainly want to request certificates, the easiest solution is to get an Identity <strong>managed on behalf of the owner</strong> by Talao.</p>
+</div>
+<p>List of Relay Services :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Request certificates,</p></li>
+<li><p>Edit personal settings,</p></li>
+<li><p>Edit resume (Experience, Education, …)</p></li>
+<li><p>Issue certificates,</p></li>
+<li><p>Manage Partnership,</p></li>
+<li><p>Manage Alias,</p></li>
+<li><p>Manage Referent,</p></li>
+<li><p>Manage White List,</p></li>
+</ul>
+<p>‘ Store files.</p>
+</div></blockquote>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 14%" />
+<col style="width: 13%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>Priv.key</p></th>
+<th class="head"><p>RSA Key</p></th>
+<th class="head"><p>Services and Relay rights</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Managed on behalf of the owner</p></td>
+<td><ul class="simple">
+<li><p>Relay has
+copy</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>Relay has
+copy</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>User can access all services through Relay</p></li>
+<li><p>Relays has acces to all data</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Fully activated (Key=1)</p></td>
+<td><ul class="simple">
 <li><p>Secret</p></li>
 </ul>
-<p>Private and Secret data are protected by RSA and AES encrypted keys.</p>
+</td>
+<td><ul class="simple">
+<li><p>Secret</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>User cannot issue certificates</p></li>
+<li><p>Relay can edit personal settings and resume</p></li>
+<li><p>Relay can add Referent and Alias</p></li>
+<li><p>Relay can issue public data</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>Partially activated (key=20002)</p></td>
+<td><ul class="simple">
+<li><p>Secret</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>Secret</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>User cannot issue certificates</p></li>
+<li><p>User cannot edit Resume and  personal settings</p></li>
+<li><p>User cannot add Alias and Referent</p></li>
+<li><p>User cannot manage partnership</p></li>
+<li><p>Relay  can edit Resume</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Change of ownership</p></td>
+<td><ul class="simple">
+<li><p>Secret</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>Relays has
+copy</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>User cannot issue certificates</p></li>
+<li><p>Relays has access to all data</p></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="data-and-privacy">
+<h2>Data and privacy<a class="headerlink" href="#data-and-privacy" title="Permalink to this headline">¶</a></h2>
+<p>Data are either public, private or secret data</p>
+<p>Private and Secret data are protected by AES encrypted keys which are themselves stored encrypted on Ethereum with an RSA key.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Those keys are determined at Identity creation and cannot be changed later on.</p>
 </div>
 <p>At creation users can decide what level of privacy for :</p>
 <ul class="simple">
-<li><p>Personal data.</p></li>
-<li><p>File (Digital Vault).</p></li>
+<li><p>Personal data (except for firstname and lastname which are always required and public)</p></li>
+<li><p>File (Data store).</p></li>
 </ul>
 <p>Experiences, Certificates and Education are always Public data.</p>
-</div>
-<div class="section" id="public">
-<h2>Public<a class="headerlink" href="#public" title="Permalink to this headline">¶</a></h2>
-<p>Data is available for anybody :</p>
-<ul class="simple">
+<p>Public Data is available for anybody :</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>For Talents, by default Firstname and Lastname are Public.</p></li>
 <li><p>For Companies, by default all profil data are Public.</p></li>
 </ul>
-</div>
-<div class="section" id="private">
-<h2>Private<a class="headerlink" href="#private" title="Permalink to this headline">¶</a></h2>
-<p>Data are only available for your Partners. Read more on <a class="reference internal" href="resume.html"><span class="doc">Professional Identity</span></a> .
-By default for Talents, Contact Email and Contact Name are private.</p>
-</div>
-<div class="section" id="secret">
-<h2>Secret<a class="headerlink" href="#secret" title="Permalink to this headline">¶</a></h2>
-<p>Data are only available for yourself.
-Users can store encypted data on decentralized support as IPFS through this option.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Private Data are only available for your Partners. Read more on <a class="reference internal" href="resume.html"><span class="doc">Professional Identity</span></a> .</dt><dd><ul class="simple">
+<li><p>By default for Talents, Contact Email and Contact Name are private.</p></li>
+</ul>
+</dd>
+<dt>Secret Data are only available for users.</dt><dd><ul class="simple">
+<li><p>Users can store encypted data on decentralized support as IPFS through this option.</p></li>
+<li><p>Authentification Email is always secret (Relay keeps a copy of ths email for authentification)</p></li>
+</ul>
+</dd>
+</dl>
 </div>
 </div>
 

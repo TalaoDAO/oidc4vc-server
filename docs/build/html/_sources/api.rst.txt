@@ -1,6 +1,6 @@
 
-Talent Connect APIs
-===================
+APIs
+====
 
 The Talent Connect APIs are a set of APIs to get public data of a Professional Identity (Talent or Company) to eventually start an onboardind process.
 
