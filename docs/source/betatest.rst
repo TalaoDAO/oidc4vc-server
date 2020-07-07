@@ -86,18 +86,17 @@ Base de test
 user :
 
     - username : "pascalet", code "123456" : pascalet (Jean Pascalet) a comme référent jean
-    - username : "jean", code "123465" : jean (Jean Pierre Roulle) a comme referent BNP, pascalet, jeanpierrevalga. Jean est manager chez BNP
-    - username : "thierry" code "123465" : thierry (Thierry Thevenet) est manager chez Talao 
+    - username : "jean", code "123456" : jean (Jean Pierre Roulle) a comme referent BNP, pascalet, jeanpierrevalga. Jean est manager chez BNP
+    - username : "thierry" code "123456" : thierry (Thierry Thevenet) est manager chez Talao 
     - username : 'jeanpierrevalga" code "123456" : jeanpierrevalga (Jean Pierre Valga)
     
 entreprise :
 
     - username : "bnp", code "123456" : bnp (BNP) a comme manager jean et comme partner thales et talao
     - username : "talao" code "123456" : talao (Talao) a comme manager thierry. Talao dispose de fonctionnalités étendues pour emettre des "proof of identity" (kbis et kyc) et creer des identités.
-    - username : "thales" code "12346"
+    - username : "thales" code "123456"
     - username : "orange" code "123456"
 
-Remarque :
 
 .. note:: Un manager qui veut acceder a l identité de la société ou il est manager doit se connecter avec un username double "person.company". Example jean peut se logger 
           a l identité de bnp avec son username "jean.bnp".  
