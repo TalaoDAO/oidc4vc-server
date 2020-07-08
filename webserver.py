@@ -21,6 +21,7 @@ import json
 from werkzeug.utils import secure_filename
 import threading
 import copy
+import urllib.parse
 
 # dependances
 import Talao_message
@@ -56,7 +57,7 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.1"
+app.jinja_env.globals['Version'] = "0.15"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -100,6 +101,7 @@ app.add_url_rule('/starter/',  view_func=data_user.starter, methods = ['GET', 'P
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'])
 app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'])
+app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout, methods = ['GET', 'POST'])
 
 
 
@@ -138,11 +140,10 @@ def event_display(eventlist) :
 
 def check_login() :
 	username = session.get('username_logged')
+	print('usernam dans checklogin', username)
 	if username is None  :
 		flash('session aborted', 'warning')
-		return render_template('login.html')
-	else :
-		return username
+	return username
 
 
 def is_username_in_list(my_list, username) :
@@ -155,7 +156,10 @@ def is_username_in_list(my_list, username) :
 # picture
 @app.route('/user/picture/', methods=['GET', 'POST'])
 def picture() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
+	print(' username in check_login = ', username)
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -180,7 +184,9 @@ def picture() :
 # signature
 @app.route('/user/signature/', methods=['GET', 'POST'])
 def signature() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_signature = session['signature']
 	my_event = session.get('events')
@@ -205,7 +211,9 @@ def signature() :
 
 @app.route('/faq/', methods=['GET'])
 def faq() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -219,7 +227,9 @@ def faq() :
 @app.route('/user/issuer_explore/', methods=['GET'])
 def issuer_explore() :
 
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	issuer_username = request.args['issuer_username']
 	
 	if 'issuer_username' not in session or session['issuer_username'] != issuer_username :
@@ -340,19 +350,21 @@ def issuer_explore() :
 					certificate_issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
-				print(	certificate['title'], certificate['description'], session['issuer_explore']['workspace_contract'], certificate['doc_id'])
-				cert_html = """ 
-					<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>	
-					<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>	
-					<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
-					<b>Title</b> : """ + certificate['title']+"""<br>
-					<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-					<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
-					<p>
-						<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
-					</p>"""	
+				if certificate['type'] == 'experience' :
+					cert_html = """ 
+						<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>	
+						<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>	
+						<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
+						<b>Title</b> : """ + certificate['title']+"""<br>
+						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+						<p>
+							<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+							</a>
+						</p>"""	
+				else :
+					cert_html = ""
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
 				
 				
@@ -529,7 +541,9 @@ def issuer_explore() :
 # Analysis
 @app.route('/user/data_analysis/', methods=['GET'])
 def data_analysis() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -552,7 +566,9 @@ def data_analysis() :
 # Test only
 @app.route('/user/test/', methods=['GET'])
 def test() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -563,7 +579,9 @@ def test() :
 # search
 @app.route('/user/search/', methods=['GET', 'POST'])
 def search() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -584,7 +602,9 @@ def search() :
 # issue certificate 
 @app.route('/user/issue_certificate/', methods=['GET', 'POST'])
 def issue_certificate():
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if not session['private_key'] :
 		flash('Relay does not have your Private Key to issue a Certificate', 'warning')
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])	
@@ -637,6 +657,8 @@ def issue_certificate():
 def issue_experience_certificate():
 	""" The signature is the manager's signature except if the issuer is the company """ 
 	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')	
 	certificate = {
 					"version" : 1,
 					"type" : "experience",	
@@ -669,7 +691,9 @@ def issue_experience_certificate():
 # issue referral for person
 @app.route('/user/issue_recommendation/', methods=['GET', 'POST'])
 def issue_recommendation():
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -686,21 +710,20 @@ def issue_recommendation():
 								issuer_name = issuer_name)
 	if request.method == 'POST' :
 		issuer_username = session['talent_to_issue_certificate_username']
-		referral = {
+		recommendation = {	"version" : 1,
 					"type" : "recommendation",	
 					"description" : request.form['description'],
 					"relationship" : request.form['relationship']}	
-		print('referral = ', referral)					
+		print('referral = ', recommendation)					
 		workspace_contract_to = ns.get_data_from_username(session['talent_to_issue_certificate_username'], mode)['workspace_contract']
 		address_to = contractsToOwners(workspace_contract_to, mode)
-		my_referral = Document('certificate')
+		my_recommendation = Document('certificate')
 		
-		execution = my_referral.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], referral, mode, mydays=0, privacy='public', synchronous=True) 
+		execution = my_recommendation.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], recommendation, mode, mydays=0, privacy='public', synchronous=True) 
 		if execution is None :
 			flash('Operation failed ', 'danger')
 		else : 
 			(doc_id, ipfshash, transaction_hash) = execution	
-			# add certificate in session
 			flash('Certificate has been issued', 'success')
 		del session['talent_to_issue_certificate_username']
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)		
@@ -713,7 +736,9 @@ def issue_recommendation():
 # personalsettings
 @app.route('/user/update_personal_settings/', methods=['GET', 'POST'])
 def update_personal_settings() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -803,7 +828,9 @@ def convert(obj):
 # company settings
 @app.route('/user/update_company_settings/', methods=['GET', 'POST'])
 def update_company_settings() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -873,7 +900,9 @@ def update_company_settings() :
 # diigitalvault
 @app.route('/user/store_file/', methods=['GET', 'POST'])
 def store_file() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -907,7 +936,9 @@ def store_file() :
 # create company
 @app.route('/user/create_company/', methods=['GET', 'POST'])
 def create_company() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -932,7 +963,9 @@ def create_company() :
 # create a person 
 @app.route('/user/create_person/', methods=['GET', 'POST'])
 def create_person() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -959,7 +992,9 @@ def create_person() :
 # add experience
 @app.route('/user/add_experience/', methods=['GET', 'POST'])
 def add_experience() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -990,7 +1025,9 @@ def add_experience() :
 # create kyc (Talao only)
 @app.route('/user/issue_kyc/', methods=['GET', 'POST'])
 def create_kyc() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1018,7 +1055,9 @@ def create_kyc() :
 # create kbis (Talao only)
 @app.route('/user/issue_kbis/', methods=['GET', 'POST'])
 def create_kbis() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1046,7 +1085,9 @@ def create_kbis() :
 
 @app.route('/user/remove_experience/', methods=['GET', 'POST'])
 def remove_experience() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :
 		session['experience_to_remove'] = request.args['experience_id']
 		session['experience_title'] = request.args['experience_title']
@@ -1067,7 +1108,9 @@ def remove_experience() :
 
 @app.route('/user/remove_certificate/', methods=['GET', 'POST'])
 def remove_certificate() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :
 		session['certificate_to_remove'] = request.args['certificate_id']
 		session['certificate_title'] = request.args['certificate_title']
@@ -1089,7 +1132,9 @@ def remove_certificate() :
 # add education
 @app.route('/user/add_education/', methods=['GET', 'POST'])
 def add_education() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1118,7 +1163,9 @@ def add_education() :
 		return redirect(mode.server + 'user/?username=' + username)
 @app.route('/user/remove_education/', methods=['GET', 'POST'])
 def remove_education() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :
 		session['education_to_remove'] = request.args['education_id']
 		session['education_title'] = request.args['education_title']
@@ -1139,7 +1186,9 @@ def remove_education() :
 # invit friend
 @app.route('/user/invit_talent/', methods=['GET', 'POST'])
 def invit_talent() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1174,7 +1223,9 @@ def invit_talent() :
 # request partnership
 @app.route('/user/request_partnership/', methods=['GET', 'POST'])
 def resquest_partnership() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1213,7 +1264,9 @@ def resquest_partnership() :
 # remove partnership to be completed
 @app.route('/user/remove_partner/', methods=['GET', 'POST'])
 def remove_partner() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :
 		session['partner_username_to_remove'] = request.args['partner_username']
 		session['partner_workspace_contract_to_remove'] = request.args['partner_workspace_contract']
@@ -1235,7 +1288,9 @@ def remove_partner() :
 @app.route('/user/request_certificate/', methods=['GET', 'POST'])
 def request_certificate() :	
 	""" The request comes from the Search Bar or from Menu"""
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')	
 	my_picture = session['picture']
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
@@ -1287,15 +1342,22 @@ def request_certificate() :
 
 @app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate() :
-	""" This is to sed the email with link """
-	username = check_login()	
+	""" This is to send the email with link """
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	memo = request.form.get('memo')
 	relationship = request.form.get('relationship')
-	issuer_username = 'null' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
-	link = mode.server + 'issue/?issuer_email=' + session['issuer_email'] + \
-						'&relationship='+ relationship
-	
-	url = link.replace(" ", "%20")
+	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+	parameters = {'issuer_email' : session['issuer_email'],
+					'issuer_username' : issuer_username,
+					'certificate_type' : 'recommendation',
+					'talent_name' : session['name'],
+					'talent_username' : username,
+					'workspace_contract' : session['workspace_contract']
+					}
+	link = urllib.parse.urlencode(parameters)
+	url = mode.server + 'issue/?' + link
 	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
 			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent." + \
 			"\r\n\r\nFollow this link to proceed : " + url
@@ -1310,21 +1372,25 @@ def request_recommendation_certificate() :
 @app.route('/user/request_experience_certificate/', methods=['POST'])
 def request_experience_certificate() :
 	""" This is to sed the email with link """
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	memo = request.form.get('memo')
-	issuer_username = 'null' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
-	link = mode.server + 'issue/?issuer_email=' + session['issuer_email'] + \
-						'&title=' + request.form['title'] + \
-						'&description=' + request.form['description'] + \
-						'&skills=' + request.form['skills'] + \
-						'&end_date=' + request.form['end_date'] + \
-						'&start_date='  + request.form['start_date'] + \
-						'&talent_name=' + session['name'] + \
-						'&talent_username=' + username + \
-						'&workspace_contract=' + session['workspace_contract'] + \
-						'&issuer_username='+ issuer_username
+	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+	parameters = {'issuer_email' : session['issuer_email'],
+			'certificate_type' : 'experience',
+			'title' : request.form['title'],
+			 'description' : request.form['description'],
+			 'skills' :request.form['skills'],
+			 'end_date' :  request.form['end_date'],
+			 'start_date' : request.form['start_date'],
+			 'talent_name' : session['name'],
+			 'talent_username' : username,
+			 'workspace_contract' : session['workspace_contract'],
+			 'issuer_username' : issuer_username}
 	
-	url = link.replace(" ", "%20")
+	link = urllib.parse.urlencode(parameters)
+	url = mode.server + 'issue/?' + link
 	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
 			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent." + \
 			"\r\n\r\nFollow this link to proceed : " + url
@@ -1341,7 +1407,9 @@ def request_experience_certificate() :
 # add Alias (Username)
 @app.route('/user/add_alias/', methods=['GET', 'POST'])
 def add_alias() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :		
 		my_picture = session['picture']
 		my_event = session.get('events')
@@ -1359,7 +1427,9 @@ def add_alias() :
 # remove
 @app.route('/user/remove_access/', methods=['GET'])
 def remove_access() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	username_to_remove = request.args['username_to_remove']
 	manalias_name,s,host_name = username_to_remove.partition('.')
 	if host_name != "" :
@@ -1377,7 +1447,9 @@ def remove_access() :
 # add Manager (Username)
 @app.route('/user/add_manager/', methods=['GET', 'POST'])
 def add_manager() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :		
 		my_picture = session['picture']
 		my_event = session.get('events')
@@ -1401,7 +1473,9 @@ def add_manager() :
 # request proof of Identity
 @app.route('/user/request_proof_of_identity/', methods=['GET', 'POST'])
 def request_proof_of_identity() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :				
 		my_picture = session['picture']
 		my_event = session.get('events')
@@ -1419,7 +1493,9 @@ def request_proof_of_identity() :
 # add Issuer, they have an ERC725 key with purpose 20002 (or 1) to issue Document (Experience, Certificate)
 @app.route('/user/add_issuer/', methods=['GET', 'POST'])
 def add_issuer() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	issuer_username = request.args['issuer_username']	
 	issuer_workspace_contract = ns.get_data_from_username(issuer_username,mode)['workspace_contract']
 	issuer_address = contractsToOwners(issuer_workspace_contract, mode)
@@ -1437,7 +1513,9 @@ def add_issuer() :
 # remove issuer
 @app.route('/user/remove_issuer/', methods=['GET', 'POST'])
 def remove_issuer() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :
 		session['issuer_username_to_remove'] = request.args['issuer_username']
 		session['issuer_address_to_remove'] = request.args['issuer_address']
@@ -1462,7 +1540,9 @@ def remove_issuer() :
 # add  White Issuer or WhiteList They all have an ERC725 key with purpose 5
 @app.route('/user/add_white_issuer/', methods=['GET', 'POST'])
 def add_white_issuer() :	
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :				
 		my_picture = session['picture']
 		my_event = session.get('events')
@@ -1486,7 +1566,9 @@ def add_white_issuer() :
 # remove white issuer
 @app.route('/user/remove_white_issuer/', methods=['GET', 'POST'])
 def remove_white_issuer() :
-	username = check_login()	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :
 		session['issuer_username_to_remove'] = request.args['issuer_username']
 		session['issuer_address_to_remove'] = request.args['issuer_address']

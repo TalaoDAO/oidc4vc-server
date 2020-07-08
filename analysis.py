@@ -92,16 +92,24 @@ def dashboard(workspace_contract,resume, mode) :
 	
 	issuer_list = list(dict.fromkeys(issuer_list))
 	nb_issuer = len(issuer_list)
-		
-	self_completion_value = math.floor(100*nb_issuer_self/nb_doc)
-	self_completion = str(self_completion_value) + '%'
- 
-	person_completion_value = math.floor(100*nb_issuer_person/nb_doc)
-	person_completion = str(person_completion_value) + '%'
-
-	company_completion_value = math.floor(100*nb_issuer_company/nb_doc)
-	company_completion = str(company_completion_value) + '%'
 	
+	if nb_doc != 0 :	
+		self_completion_value = math.floor(100*nb_issuer_self/nb_doc)
+		self_completion = str(self_completion_value) + '%'
+ 
+		person_completion_value = math.floor(100*nb_issuer_person/nb_doc)
+		person_completion = str(person_completion_value) + '%'
+
+		company_completion_value = math.floor(100*nb_issuer_company/nb_doc)
+		company_completion = str(company_completion_value) + '%'
+	else : 
+		self_completion_value = 0
+		self_completion = '0%'
+		person_completion_value = 0
+		person_completion = '0%'
+		company_completion_value = 0
+		company_completion = '0%'
+		
 	# update
 	sorted_update = sorted(update, reverse=True)
 	last_update = sorted_update[0]

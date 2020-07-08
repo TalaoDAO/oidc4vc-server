@@ -467,19 +467,22 @@ def certificate_issuer_explore() :
 					certificate_issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
-					
-				cert_html = """ 
-					<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>	
-					<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>	
-					<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
-					<b>Title</b> : """ + certificate['title']+"""<br>
-					<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-					<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
-					<p>
-						<a class="text-secondary" href=/certificate/data/""" + certificate['id'] + """:certificate>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
-					</p>"""	
+				
+				if certificate['type'] == 'experience' :	
+					cert_html = """ 
+						<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>	
+						<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>	
+						<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
+						<b>Title</b> : """ + certificate['title']+"""<br>
+						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+						<p>
+							<a class="text-secondary" href=/certificate/data/""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+							</a>
+						</p>"""
+				else :
+					cert_html = ""	
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
 				
 		services ="""

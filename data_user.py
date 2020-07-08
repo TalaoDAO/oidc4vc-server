@@ -39,9 +39,7 @@ def check_login() :
 	username = session.get('username_logged')
 	if username is None  :
 		flash('session aborted', 'warning')
-		return render_template('login.html')
-	else :
-		return username
+	return username
 
 
 # gestion du menu de gestion des Events  """
@@ -102,7 +100,6 @@ def login() :
 		session.clear()
 		session['username_to_log'] = request.form['username'].lower()
 		exist  = ns.get_data_for_login(session['username_to_log'])
-		print('session dans login = ', session)
 		if exist is None :
 			flash('Username not found', "warning")		
 			return render_template('login.html')
@@ -157,6 +154,7 @@ def login_2() :
 #@app.route('/logout/', methods = ['GET'])
 def logout() :
 	session.clear()
+	flash('Thank you for your visit', 'success')
 	return render_template('login.html')
 
 	
@@ -185,6 +183,8 @@ def forgot_username() :
 #@app.route('/data/<dataId>', methods=['GET'])
 def data(dataId) :
 	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')	
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
 	my_event_html, my_counter =  event_display(session['events'])
 	workspace_contract = '0x' + dataId.split(':')[3]
@@ -309,9 +309,10 @@ def data(dataId) :
 	
 	
 	elif my_topic.lower() == "certificate" :
-		mytitle = my_data.title
-		mysummary = my_data.description	
-		myvalue = """ 
+		if my_data.type == 'experience' :
+			mytitle = my_data.title
+			mysummary = my_data.description		
+			myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Title</b> : """ + my_data.title + """<br></li>
 				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>		
@@ -322,7 +323,8 @@ def data(dataId) :
 				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
 				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
 				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
-
+		else :
+			myvalue = ""
 				
 				
 
@@ -396,13 +398,15 @@ def data(dataId) :
 #@app.route('/user/', methods = ['GET'])
 def user() :
 	username = check_login()
-	print('session in user = ', session)
+	if username is None :
+		return redirect(mode.server + 'login/')	
 	if session.get('uploaded') is None :
 		print('start first instanciation user')	
 		try :	
 			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
 		except :
 			flash('session aborted', 'warning')
+			print('pb au niveau de Identity')
 			return render_template('login.html')
 		print('end')
 		""" clean up for resume  """
@@ -412,7 +416,6 @@ def user() :
 		del user_dict['eventslist']
 		del user_dict['partners']
 		session['resume'] = user_dict
-		print('resume au niveau du user = ', session['resume'])
 	
 		session['uploaded'] = True
 		session['type'] = user.type
@@ -740,28 +743,50 @@ def user() :
 					issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
-				cert_html = """<hr> 
-				<b>Issuer Name</b> : """ + issuer_name +"""<br>			
-			<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
-				<b>Issuer Type</b> : """ + issuer_type + """<br>
-				<b>Title</b> : """ + certificate['title']+"""<br>
-				<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+				
+				if certificate['type'] == 'experience':
+					cert_html = """<hr> 
+								<b>Issuer Name</b> : """ + issuer_name +"""<br>			
+								<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
+								<b>Issuer Type</b> : """ + issuer_type + """<br>
+								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+								<b>Title</b> : """ + certificate['title']+"""<br>
+								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
-				<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-				<p>
-					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+								<p>
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
+								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
 					
-					<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
-					</a>
+								<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>
 					   
-					<!-- <button onclick="copyToClipboard('#p1')">Copy TEXT 1</button> -->
-					<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
-						<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
-					</a>
-				</p><p hidden id="p1" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+								<!-- <button onclick="copyToClipboard('#p1')">Copy TEXT 1</button> -->
+								<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
+								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+								</a>
+								</p><p hidden id="p1" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+				else :
+					cert_html = """<hr> 
+								<b>Issuer Name</b> : """ + issuer_name +"""<br>			
+								<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
+								<b>Issuer Type</b> : """ + issuer_type + """<br>
+								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+
+								<p>
+					
+					
+								<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>
+					   
+								<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
+								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+								</a>
+								</p><p hidden id="p1" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 	
 				my_certificates = my_certificates + cert_html
 	
@@ -869,7 +894,6 @@ def user() :
 				</span><br>"""				
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 		
-		print('picture = ', session['picture'])
 		return render_template('company_identity.html',
 							manager=my_access,
 							display_manager= display_manager,

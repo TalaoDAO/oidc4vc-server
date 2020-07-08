@@ -55,9 +55,9 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# storing the receivers email address 
 	msg['To'] = ", ".join(toaddr)
 	# storing the subject 
-	msg['Subject'] = 'Workspace Log : '+firstname+' '+ name + ' - '+ mode.BLOCKCHAIN
+	msg['Subject'] = 'Workspace Log : New Identity '
 	# string to store the body of the mail 
-	body = 'A new Talao workspace has been deployed for '+ firstname+' '+name+'\r\nUsername : '+username+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ mode.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + mode.DAPP_LINK + str(workspace_contract_address)
+	body = 'A new Talao workspace has been deployed\r\nUsername : '+username+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ mode.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + mode.DAPP_LINK + str(workspace_contract_address)
 	# attach the body with the msg instance 
 	msg.attach(MIMEText(body, 'plain')) 
 	# open the file to be sent

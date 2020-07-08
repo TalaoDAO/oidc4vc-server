@@ -42,12 +42,12 @@ class Identity() :
 		#self.get_management_keys()
 		self.get_identity_personal()
 		
-		
+		print('get personal ok')
 		
 		self.get_all_documents()
 		self.get_identity_file()
 		self.get_issuer_keys()
-			
+		print('issuer keys ok ')	
 		if self.authenticated :
 			self.has_relay_rsa_key()
 			if self.rsa_key :
@@ -57,17 +57,23 @@ class Identity() :
 				self.aes = 'Encrypted'
 					
 			self.has_relay_private_key()
+			print('private key = ', self.private_key) 
 			if self.private_key :
-				self.get_partners()				
+				self.get_partners()	
+				print('get parners ', self.get_partners())			
 			else :
-				self .partners = []
-				
+				self.partners = []
+			
+			print('partners = ', self.partners)	
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
+			print('balance eth ok')
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated()
+			print(' is relay activated ok')
 			
 			self.get_white_keys()
 			self.get_events()
+			print('events ok')
 		else :
 			self.eventslist = dict()
 			self.partners = []
@@ -91,6 +97,7 @@ class Identity() :
 			self.get_identity_education()
 			self.get_identity_kyc()
 			self.get_identity_certificate()
+			print('certificate ok')
 			
 		#download pictures on server dir /uploads/ if picrures not already on disk
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
@@ -104,7 +111,8 @@ class Identity() :
 			del response	
 		else :
 			print('picture already on disk Identity')
-			
+		
+		print('picture ok')	
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
 		if self.signature is None :
 			self.signature = 'anonymous_signature.png' 
@@ -129,10 +137,11 @@ class Identity() :
 		self.private_key_value = None
 		for row in reader :
 			if row['ethereum_address'] == self.address :
-				self.private_key = False if row.get('private_key', '')[:2] != '0x'  else True				
-				if self.private_key :
-					self.private_key_value = row['private_key'] 
-				
+				self.private_key_value =row['private_key']
+				self.private_key = True
+				break
+		return			
+					
 	def has_relay_rsa_key(self) :
 		filename = "./RSA_key/" + self.mode.BLOCKCHAIN + '/' + str(self.address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 		try :
@@ -247,6 +256,7 @@ class Identity() :
 	def get_partners(self) :
 		# on obtient la liste des partners avec le Relay qui a une cle 1
 		self.partners = []
+		print('private key = ', self.private_key_value)
 		acct = Account.from_key(self.mode.relay_private_key)
 		self.mode.w3.eth.defaultAccount = acct.address
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
@@ -267,7 +277,7 @@ class Identity() :
 								  'username' : partner_username,
 								  'authorized' : liste[authorization_index],
 								  'status' : 'Not available'})
-		# on met a jour le status avec un acces par le owner au parnership  dans le contract du partner
+		# on met a jour le status avec un acces par le owner au partnership  dans le contract du partner
 		if self.private_key :
 			acct = Account.from_key(self.private_key_value)
 			self.mode.w3.eth.defaultAccount = acct.address	

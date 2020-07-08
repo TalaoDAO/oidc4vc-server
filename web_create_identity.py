@@ -13,6 +13,7 @@ from flask import request, redirect, render_template, session
 #from flask_api import FlaskAPI
 import threading
 import random
+import unidecode
 
 # dependances
 import Talao_message
@@ -37,7 +38,7 @@ class ExportingThread(threading.Thread):
 		self.email = email
 		self.mode = mode
 	def run(self):
-		(a,p,worskspace_contract) = createidentity.create_user(self.username, self.email, self.mode)
+		(a,p,workspace_contract) = createidentity.create_user(self.username, self.email, self.mode)
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
 		claim = Claim()
@@ -53,10 +54,10 @@ def authentification() :
 	
 	if request.method == 'POST' :
 		email = request.form['email']
-		session['firstname'] = request.form['firstname']
-		session['lastname'] = request.form['lastname']
+		session['firstname'] = unidecode.unidecode(request.form['firstname'])
+		session['lastname'] = unidecode.unidecode(request.form['lastname'])
 		_username = session['firstname'].lower() + session['lastname'].lower()
-		username = username_.replace(" ", "")
+		username = _username.replace(" ", "")
 		if ns.get_data_from_username(username, mode) is not None  :
 			username = username + str(random.randint(1, 100))
 		session['username'] = username
