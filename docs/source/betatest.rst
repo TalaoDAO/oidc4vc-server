@@ -61,7 +61,8 @@ L'application est actuellement installée sur un serveur AWS et fonctionne sur l
 
 L'application est accessible au travers d'un browser standard (Chrome, IE, Firefox, safari,...) à partir d'un Smartphone, tablette, PC.
  
-Les problèmes rencontrés sont à documenter sous la forme d'**issues** sur le repository https://github.com/thierrythevenet1963/Talao
+Les problèmes rencontrés sont à documenter sous la forme d'**issues** sur le repository https://github.com/thierrythevenet1963/Talao.
+Pour cela il faudra ouvrir un compte sur https://github.com/. C est gratuit.
 
 La mise à jour de l'application en production est faite habituellement sur une base quotidienne (20h00).
 

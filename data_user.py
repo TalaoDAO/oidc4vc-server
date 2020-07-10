@@ -324,7 +324,10 @@ def data(dataId) :
 				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
 				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
 		else :
-			myvalue = ""
+			myvalue = """
+				<b>Data Content</b>
+				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
+				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""		
 				
 				
 
@@ -597,7 +600,7 @@ def user() :
 		my_experience = """<a href="/user/add_experience/">Add Experience</a><hr>"""
 		
 		if len (session['experience']) == 0:
-			my_experience = """<a class="text-danger">No Data Available</a>"""
+			my_experience = my_experience + """<a class="text-danger">No Data Available</a>"""
 		else :
 			for experience in session['experience'] :
 				exp_html = """
@@ -732,7 +735,7 @@ def user() :
 			my_certificates = """<a class="text-danger">No Data Available</a>"""
 		else :
 			my_certificates = ""
-			for certificate in session['certificate'] :		
+			for counter, certificate in enumerate(session['certificate'],1) :		
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
 				issuer_username = 'Unknown' if issuer_username is None else issuer_username
 				if certificate['issuer']['category'] == 2001 :
@@ -754,6 +757,8 @@ def user() :
 								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+								
+								
 								<p>
 								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
 								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -762,22 +767,25 @@ def user() :
 								<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 								</a>
-					   
-								<!-- <button onclick="copyToClipboard('#p1')">Copy TEXT 1</button> -->
-								<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
+								
+								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')"> 
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
-								</p><p hidden id="p1" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+								</p>
+								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>  """
 				else :
 					cert_html = """<hr> 
 								<b>Issuer Name</b> : """ + issuer_name +"""<br>			
 								<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
 								<b>Issuer Type</b> : """ + issuer_type + """<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
 
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 								<p>
-					
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=Recommendation">
+								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
 					
 								<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate> 
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
@@ -786,7 +794,8 @@ def user() :
 								<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
-								</p><p hidden id="p1" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+								</p>
+								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 	
 				my_certificates = my_certificates + cert_html
 	

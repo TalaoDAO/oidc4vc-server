@@ -94,14 +94,18 @@ def dashboard(workspace_contract,resume, mode) :
 	nb_issuer = len(issuer_list)
 	
 	if nb_doc != 0 :	
-		self_completion_value = math.floor(100*nb_issuer_self/nb_doc)
-		self_completion = str(self_completion_value) + '%'
+		
  
 		person_completion_value = math.floor(100*nb_issuer_person/nb_doc)
 		person_completion = str(person_completion_value) + '%'
 
 		company_completion_value = math.floor(100*nb_issuer_company/nb_doc)
 		company_completion = str(company_completion_value) + '%'
+		
+		nb_issuer_self = nb_doc - nb_issuer_person - nb_issuer_company
+		self_completion_value = math.floor(100*nb_issuer_self/nb_doc)
+		self_completion = str(self_completion_value) + '%'
+		
 	else : 
 		self_completion_value = 0
 		self_completion = '0%'

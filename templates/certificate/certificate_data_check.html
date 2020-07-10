@@ -29,8 +29,13 @@
                  {% if viewer == 'guest' %}    
                  {% include 'guest_nav_bar.html' %}    
              {% else %} 
-                 {% include 'user_nav_bar.html' %} 
-             {% endif %}
+                   {% if session['type'] == "company" %}    
+						{% include 'company_nav_bar.html' %}    
+					{% else %} 
+						{% include 'user_nav_bar.html' %} 
+					{% endif %}
+               
+           
                                                       
     
         

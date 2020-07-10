@@ -45,8 +45,9 @@
 												<option value="experience" >Experience Certificate</option>
 										<!---		<option value="training">Training Certificate</option>
 												<option value="skill">Skill Certificate</option> -->
+												{% if reco %}
 												<option value="recommendation">Recommendation</option> 
-											
+												{% endif %}
 											</select></div>
                                     </div>
                                 </div>
@@ -55,7 +56,7 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" value="send">Next</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><a href="{{goback}}"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Cancel</button></a></div>
+                                        <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
                                     </div>
                                 </div>
                             </form>
@@ -70,6 +71,7 @@
                                                              {% include 'user_footer.html' %}    
 
     </div>
+    <script>function goBack() {  window.history.back();}</script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

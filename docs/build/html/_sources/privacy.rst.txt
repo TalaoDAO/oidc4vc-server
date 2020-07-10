@@ -40,7 +40,7 @@ List of Relay Services :
    - Manage Alias,
    - Manage Referent,
    - Manage White List,
-   ' Store files. 
+   - Store files. 
 
 
 +--------------------------------+-----------------+----------------+-------------------------------------------------------+

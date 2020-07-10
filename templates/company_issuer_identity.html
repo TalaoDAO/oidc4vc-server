@@ -36,8 +36,12 @@
 			{% endif %}
 		{% endwith %}
                 
-                
-                               {% include 'user_nav_bar.html' %}    
+                      {% if session['type'] == "company" %}    
+                 {% include 'company_nav_bar.html' %}    
+             {% else %} 
+                 {% include 'user_nav_bar.html' %} 
+             {% endif %}
+                           
 
             
             

@@ -27,7 +27,12 @@
             {% if viewer == 'guest' %}    
                  {% include 'guest_nav_bar.html' %}    
              {% else %} 
-                 {% include 'user_nav_bar.html' %} 
+                   {% if session['type'] == "company" %}    
+						{% include 'company_nav_bar.html' %}    
+					{% else %} 
+						{% include 'user_nav_bar.html' %} 
+					{% endif %}
+               
              {% endif %}
              
                 <div class="container-fluid">
@@ -135,8 +140,8 @@
 												{% if viewer == 'user' %}
 												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
 													{% endif %}
-										</div>
-                                        </div>
+											</div>
+                                   </div>
                                
                             </div>
                         </div>

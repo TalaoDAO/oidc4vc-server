@@ -57,7 +57,7 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.15"
+app.jinja_env.globals['Version'] = "0.20"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -239,6 +239,7 @@ def issuer_explore() :
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode).__dict__.copy()
+		print('issuer explore identity', session['issuer_explore'])
 		del session['issuer_explore']['mode']
 		session['issuer_username'] = issuer_username
 	
@@ -377,11 +378,11 @@ def issuer_explore() :
 			services = """<a href="/user/data_analysis/?user=issuer_explore">Data Analysis</a><br><br>"""
 			
 			if not is_username_in_list(session['issuer'], issuer_username) : # est ce que ce talent est dans mon issuer list ?
-				services = services + """<a class="text-warning">This Talent is not in your Issuer List.</a><br>
-							<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Issuer List to request him a certificate.</a><br><br>"""
+				services = services + """<a class="text-warning">This Talent is not in your Referent List.</a><br>
+							<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Referent List to request him certificates.</a><br><br>"""
 			else :
-				services = services + """<a class="text-success">This Talent is in your Issuer List.</a><br>
-							<a href="/user/request_certificate/?goback=/user/issuer_explore/?issuer_username=""" + issuer_username + """&issuer_username="""+ issuer_username + """">Request to this Talent a Certificate to increase your rating.</a><br><br>"""
+				services = services + """<a class="text-success">This Talent is in your Referent List.</a><br>
+							<a href="/user/request_certificate/?issuer_username="""+ issuer_username + """">Request to this Talent a Certificate to increase your rating.</a><br><br>"""
 			
 				
 			if not is_username_in_list(session['whitelist'], issuer_username) : # est ce que ce Talent est dans ma white list ?
@@ -392,10 +393,10 @@ def issuer_explore() :
 		
 		
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) : # est ce que je suis dans l'issuer list de ce Talent ?
-				services = services + """<a class="text-success">You are in this Talent Issuer list.</a><br>
+				services = services + """<a class="text-success">You are in this Talent Referent list.</a><br>
 							<a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username="""+ issuer_username +"""" >Issue a Certificate to this Talent to increase your rating.</a><br><br>"""
 			else :
-				services = services + """<a class="text-warning">You are not in this Talent Issuer list.</a><br>"""
+				services = services + """<a class="text-warning">You are not in this Talent Referent list.</a><br>"""
 		
 			services = services + """<br><br><br><br><br><br><br><br>"""					
 
@@ -490,11 +491,11 @@ def issuer_explore() :
 		if session['type'] == 'person' :		
 			
 			if not is_username_in_list(session['issuer'], issuer_username) :
-				services = """<a class="text-warning">This Company is not in your Issuer List.</a><br>
-						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Issuer List to request Certificates.</a><br>"""
+				services = """<a class="text-warning">This Company is not in your Referent List.</a><br>
+						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Referent List to request Certificates.</a><br>"""
 			else :
-				services = """<a class="text-success">This Company is in your Issuer List.</a><br>
-						<a href="/user/request_certificate/">Request a certificate to this Company.</a><br>"""
+				services = """<a class="text-success">This Company is in your Referent List.</a><br>
+						<a href="/user/request_certificate/?issuer_username="""+ issuer_username +"""">Request a certificate to this Company.</a><br>"""
 		
 			if not is_username_in_list(session['whitelist'], issuer_username) :
 				services = services + """<br><a class="text-warning">This Company is not in your White List.</a><br>
@@ -511,7 +512,7 @@ def issuer_explore() :
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
 				services = services + """<a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a Review.</a><br>"""
 			else :
-				services = services + """<br><a class="text-warning">You are not in this Company Issuer List.</a><br>"""
+				services = services + """<br><a class="text-warning">You are not in this Company Referent List.</a><br>"""
 								
 			services = services + """<br><br><br><br><br><br><br>"""
 		
@@ -1296,66 +1297,88 @@ def request_certificate() :
 	my_event_html, my_counter =  event_display(session['events'])
 	
 	if request.method == 'GET' :
-		goback = request.args['goback']
-		session['certificate_issuer_username'] = request.args.get('issuer_username', None) 
-		if session['certificate_issuer_username'] is None : # From Menu, issuer does not exist, we ask for email
+	
+		session['certificate_issuer_username'] = request.args.get('issuer_username') 
+		# The call comes from Menu, we ask for email
+		if session['certificate_issuer_username'] is None :
 			display_email = True
+			# always recommendation option displayed
+			reco = True
+		
+		# the call comes from search bar and issuer_explore view
 		else :
 			display_email = False
-		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, goback=goback, display_email=display_email)
+			if session['issuer_explore']['type'] == 'person' :
+				# one displays the recommendation option
+				reco = True
+			else :
+				reco = False
+			# Check if issuer has private key 
+			issuer_address = session['issuer_explore']['address']
+			fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
+			identity_file = open(fname, newline='')
+			reader = csv.DictReader(identity_file)
+			check = False
+			for row in reader :
+				if row['ethereum_address'] == issuer_address :
+					check = True
+					break
+			if check == False :	
+				print('erreur , Private kay not found for ', session['certificate_issuer_username'])
+				flash('Sorry, this Referent cannot issue Certificates.', 'warning')
+				return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
+		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, display_email=display_email, reco=reco)
 	
 	if request.method == 'POST' :
-		username_list = ns.get_username_list_from_email(request.form['issuer_email'])
-		if username_list != [] :
-			msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar.' 
-			flash(msg , 'warning')
-			return redirect(mode.server + 'user/')
-
-		""" This is to treat Experience Certificate request """		
-		if request.form['certificate_type'] == 'experience' :
-			if session.get('certificate_issuer_username') is None : # From Menu, issuer has to be created
-				session['issuer_email'] = request.form['issuer_email']
-				return render_template('request_experience_certificate.html',
-										picturefile=my_picture,
-										event=my_event_html,
-										counter=my_counter,
-										username=username)
-														
-			else : # From Search Bar, issuer exist
-				session['issuer_email'] = ns.get_data_from_username(session['certificate_issuer_username'], mode)['email']
-				return render_template('request_experience_certificate.html',
-										picturefile=my_picture,
-										event=my_event_html,
-										counter=my_counter,
-										username=username)
-		
-		""" This is to treat Recommendation Certificate request """
-		if request.form['certificate_type'] == 'recommendation' :
+		# From Menu, if issuer does not exist, he has to be created
+		if session.get('certificate_issuer_username') is None : 
 			session['issuer_email'] = request.form['issuer_email']
+			# One checks if the issuer exists
+			username_list = ns.get_username_list_from_email(request.form['issuer_email'])
+			if username_list != [] :
+				msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar.' 
+				flash(msg , 'warning')
+				return redirect(mode.server + 'user/')
+			
+		# From Search Bar, issuer exist		
+		else :
+			session['issuer_email'] = ns.get_data_from_username(session['certificate_issuer_username'], mode)['email']	
+		
+		if request.form['certificate_type'] == 'experience' :
+			return render_template('request_experience_certificate.html',
+										picturefile=my_picture,
+										event=my_event_html,
+										counter=my_counter,
+										username=username)
+		elif request.form['certificate_type'] == 'recommendation' :
 			return render_template('request_recommendation_certificate.html',
 										picturefile=my_picture,
 										event=my_event_html,
 										counter=my_counter,
 										username=username)
-			
+										
+		
 
 
 @app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate() :
-	""" This is to send the email with link """
+	""" With his vie one send the email with link to the Referent"""
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	memo = request.form.get('memo')
-	relationship = request.form.get('relationship')
-	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session['certificate_issuer_username']
+	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
+
 	parameters = {'issuer_email' : session['issuer_email'],
 					'issuer_username' : issuer_username,
+					'issuer_workspace_contract' : issuer_workspace_contract,
 					'certificate_type' : 'recommendation',
 					'talent_name' : session['name'],
 					'talent_username' : username,
-					'workspace_contract' : session['workspace_contract']
+					'talent_workspace_contract' : session['workspace_contract']
 					}
+	print('parameters = ', parameters) 
 	link = urllib.parse.urlencode(parameters)
 	url = mode.server + 'issue/?' + link
 	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
@@ -1363,20 +1386,22 @@ def request_recommendation_certificate() :
 			"\r\n\r\nFollow this link to proceed : " + url
 	subject = 'You have received a request for recommendation from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
-	flash('Your Recommendation Request has been sent.', 'success')
+	flash('Your request for Recommendation has been sent.', 'success')
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
 		del session['certificate_issuer_username']
+		return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
 	return redirect(mode.server + 'user/')
 
 @app.route('/user/request_experience_certificate/', methods=['POST'])
 def request_experience_certificate() :
-	""" This is to sed the email with link """
+	""" This is to send the email with link """
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	memo = request.form.get('memo')
 	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
 	parameters = {'issuer_email' : session['issuer_email'],
 			'certificate_type' : 'experience',
 			'title' : request.form['title'],
@@ -1386,8 +1411,9 @@ def request_experience_certificate() :
 			 'start_date' : request.form['start_date'],
 			 'talent_name' : session['name'],
 			 'talent_username' : username,
-			 'workspace_contract' : session['workspace_contract'],
-			 'issuer_username' : issuer_username}
+			 'talent_workspace_contract' : session['workspace_contract'],
+			 'issuer_username' : issuer_username,
+			 'issuer_workspace_contract' : issuer_workspace_contract}
 	
 	link = urllib.parse.urlencode(parameters)
 	url = mode.server + 'issue/?' + link
@@ -1396,10 +1422,11 @@ def request_experience_certificate() :
 			"\r\n\r\nFollow this link to proceed : " + url
 	subject = 'You have received a request for certification from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
-	flash('Your Certificate Request has been sent.', 'success')
+	flash('Your request for an Experience Certificate has been sent.', 'success')
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
 		del session['certificate_issuer_username']
+		return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
 	return redirect(mode.server + 'user/')
 
 
@@ -1507,8 +1534,8 @@ def add_issuer() :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 	issuer_workspace_contract = ownersToContracts(issuer_address, mode)
 	session['issuer'].append(ns.get_data_from_username(issuer_username, mode))	
-	flash(issuer_username + ' has been added as Issuer', 'success')
-	return redirect (mode.server +'user/?username=' + username)	
+	flash(issuer_username + ' has been added as a referent', 'success')
+	return redirect (mode.server +'user/issuer_explore/?issuer_username=' + issuer_username)	
 
 # remove issuer
 @app.route('/user/remove_issuer/', methods=['GET', 'POST'])

@@ -22,9 +22,13 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
+                     {% if session['type'] == "company" %}    
+                 {% include 'company_nav_bar.html' %}    
+             {% else %} 
+                 {% include 'user_nav_bar.html' %} 
+             {% endif %}
                
-               
-                        {% include 'user_nav_bar.html' %}    
+                    
 
             
             

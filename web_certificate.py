@@ -74,6 +74,7 @@ def show_certificate():
 		my_picture = ""
 		my_event_html = ""
 		my_counter = 0
+		session['type'] = ""
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
@@ -96,52 +97,53 @@ def show_certificate():
 	identity_profil, identity_category = read_profil(identity_workspace_contract, mode, 'light')
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
-		
-	yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
-	black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 	
-	# Icon "fa-star" treatment 
-	score = []
-	context = dict()
-	score.append(int(session['displayed_certificate']['score_recommendation']))
-	score.append(int(session['displayed_certificate']['score_delivery']))
-	score.append(int(session['displayed_certificate']['score_schedule']))
-	score.append(int(session['displayed_certificate']['score_communication']))
-	for q in range(0,4) :
-		for i in range(0,score[q]) :
-			context["star"+str(q)+str(i)] = yellow_star
-		for i in range(score[q],5) :
-			context ["star"+str(q)+str(i)] = black_star
-			
-	my_badge = ""
-	for skill in session['displayed_certificate']['skills'] :	
-		skill_to_display = skill.replace(" ", "").capitalize()
-		my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px;"> """+ skill_to_display + """</span>"""
-
+	#dispatch
+	if session['displayed_certificate']['type'] == 'experience' :	
+		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
+		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 	
-	if session['displayed_certificate']['issuer']['category'] == 2001 : # company
-		signature = session['displayed_certificate']['signature']
-		logo = session['displayed_certificate']['logo']
-		folder = './uploads/' 
-		if not path.exists(folder + signature) :
-			url='https://gateway.pinata.cloud/ipfs/'+ signature
-			response = requests.get(url, stream=True)
-			with open('./photos/' + signature, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
-		else :
-			print('signature on disk')
+		# Icon "fa-star" treatment 
+		score = []
+		context = dict()
+		score.append(int(session['displayed_certificate']['score_recommendation']))
+		score.append(int(session['displayed_certificate']['score_delivery']))
+		score.append(int(session['displayed_certificate']['score_schedule']))
+		score.append(int(session['displayed_certificate']['score_communication']))
+		for q in range(0,4) :
+			for i in range(0,score[q]) :
+				context["star"+str(q)+str(i)] = yellow_star
+			for i in range(score[q],5) :
+				context ["star"+str(q)+str(i)] = black_star
 			
-		if not path.exists(folder + logo) :
-			url='https://gateway.pinata.cloud/ipfs/'+ logo
-			response = requests.get(url, stream=True)
-			with open('./photos/' + logo, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
-		else :
-			print('logo on disk')
+		my_badge = ""
+		for skill in session['displayed_certificate']['skills'] :	
+			skill_to_display = skill.replace(" ", "").capitalize()
+			my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px;"> """+ skill_to_display + """</span>"""
+	
+		if session['displayed_certificate']['issuer']['category'] == 2001 : # company
+			signature = session['displayed_certificate']['signature']
+			logo = session['displayed_certificate']['logo']
+			folder = './uploads/' 
+			if not path.exists(folder + signature) :
+				url='https://gateway.pinata.cloud/ipfs/'+ signature
+				response = requests.get(url, stream=True)
+				with open('./photos/' + signature, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+				del response
+			else :
+				print('signature on disk')
+			
+			if not path.exists(folder + logo) :
+				url='https://gateway.pinata.cloud/ipfs/'+ logo
+				response = requests.get(url, stream=True)
+				with open('./photos/' + logo, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+				del response
+			else :
+				print('logo on disk')
 				
-		return render_template('./certificate/certificate.html',
+			return render_template('./certificate/certificate.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
 							title = session['displayed_certificate']['title'],
@@ -163,8 +165,8 @@ def show_certificate():
 							**context)
 
 
-	else : # issuer is a person
-		return render_template('./certificate/certificate_light.html',
+		else : # issuer is a person
+			return render_template('./certificate/certificate_light.html',
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
 							title = session['displayed_certificate']['title'],
@@ -184,6 +186,40 @@ def show_certificate():
 							**context)
 
 
+	if session['displayed_certificate']['type'] == 'recommendation' :	
+		issuer_picture = session['displayed_certificate'].get('picture')
+		issuer_title = "" if session['displayed_certificate'].get('title') is None else session['displayed_certificate']['title']
+		
+		folder = './uploads/' 
+		if issuer_picture != None :	
+			if not path.exists(folder + issuer_picture) :
+				url='https://gateway.pinata.cloud/ipfs/'+ logo
+				response = requests.get(url, stream=True)
+				with open('./photos/' + logo, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+				del response
+			else :
+				print('no picture on disk')
+				
+		return render_template('./certificate/recommendation.html',
+							identity_firstname=identity_profil['firstname'],
+							identity_lastname=identity_profil['lastname'],
+							description=session['displayed_certificate']['description'],
+							issuer_picture=issuer_picture,
+							issuer_title=issuer_title,
+							issuer_firstname=session['displayed_certificate']['issuer']['firstname'],
+							issuer_lastname=session['displayed_certificate']['issuer']['lastname'],
+							relationship=session['displayed_certificate']['relationship'],
+							certificate_id=certificate_id,
+							identity_username=identity_username,
+							issuer_username=issuer_username,
+							picturefile=my_picture,
+							event=my_event_html,
+							counter=my_counter,
+							username=username,
+							viewer=viewer,
+							)
+		
 
 
 #         verify certificate

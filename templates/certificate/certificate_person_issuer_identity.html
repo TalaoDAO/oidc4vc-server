@@ -36,13 +36,17 @@
 			{% endif %}
 		{% endwith %}
                 
-                
-                     {% if viewer == 'guest' %}    
+                 {% if viewer == 'guest' %}    
                  {% include 'guest_nav_bar.html' %}    
              {% else %} 
-                 {% include 'user_nav_bar.html' %} 
+                   {% if session['type'] == "company" %}    
+						{% include 'company_nav_bar.html' %}    
+					{% else %} 
+						{% include 'user_nav_bar.html' %} 
+					{% endif %}
+               
              {% endif %}
-
+                   
             
             
             
