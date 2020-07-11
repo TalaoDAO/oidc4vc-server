@@ -358,7 +358,7 @@ def data(dataId) :
 				<li><b>Nationality</b> : """+ my_data.nationality + """<br></li>		
 				<li><b>Birth Date</b> : """+ my_data.birthdate + """<br></li>
 				<li><b>Date of Issue</b> : """+ my_data.date_of_issue + """<br></li>
-				<li><b>Date of Expiration/b> : """+ my_data.date_of_expiration + """<br></li>
+				<li><b>Date of Expiration</b> : """+ my_data.date_of_expiration + """<br></li>
 				<li><b>Authority</b> : """+ my_data.authority + """<br></li>
 				<li><b>Country</b> : """+ my_data.country+"""</li>"""
 			
@@ -617,7 +617,7 @@ def user() :
 					</a>
 				</p>"""	
 				my_experience = my_experience + exp_html + "<hr>"
-			
+		my_experience = """<div style=" font-size: 12px" > """ + my_experience + """</div>"""	
 			
 		# education
 		my_education = """<a href="/user/add_education/">Add Education</a><hr>"""
@@ -639,7 +639,7 @@ def user() :
 					</a>
 				</p>"""	
 				my_education = my_education + edu_html	+ "<hr>"
-	
+		my_education = """<div style=" font-size: 12px" > """ + my_education + """</div>"""
 	
 		# personal
 		
@@ -665,14 +665,14 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""				
-		my_personal = my_personal + """<a href="/user/update_personal_settings/">Update Data</a>"""
+		my_personal = """<div style=" font-size: 12px" >""" + my_personal+ """<a href="/user/update_personal_settings/">Update Data</a></div>"""
 	
 	
 		
 		# kyc
 		if len (session['kyc']) == 0:
-			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
-					<a class="text-danger">No Proof of Identity available</a>"""
+			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a>"""
+					
 		else :	
 			my_kyc = ""
 			for kyc in session['kyc'] :
@@ -697,7 +697,7 @@ def user() :
 					</a>
 				</p>"""	
 				my_kyc = my_kyc + kyc_html		
-	
+		my_kyc = """<div style=" font-size: 12px" > """ + my_kyc + """</div>"""
 	
 		# Alias
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract']) :
@@ -748,10 +748,10 @@ def user() :
 					print ('issuer category error, data_user.py')
 				
 				if certificate['type'] == 'experience':
-					cert_html = """<hr> 
-								<b>Issuer Name</b> : """ + issuer_name +"""<br>			
-								<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
-								<b>Issuer Type</b> : """ + issuer_type + """<br>
+					cert_html = """<hr>
+								<b>Referent Name</b> : """ + issuer_name +"""<br>			
+								<b>Referent Username</b> : """ + issuer_username +"""<br> 
+								<b>Referent Type</b> : """ + issuer_type + """<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
 								<b>Title</b> : """ + certificate['title']+"""<br>
 								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
@@ -772,12 +772,12 @@ def user() :
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
 								</p>
-								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>  """
-				else :
+								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+				if certificate['type'] == 'recommendation':
 					cert_html = """<hr> 
-								<b>Issuer Name</b> : """ + issuer_name +"""<br>			
-								<!--	<b>Issuer Username</b> : """ + issuer_username +"""<br> -->
-								<b>Issuer Type</b> : """ + issuer_type + """<br>
+								<b>Referent Name</b> : """ + issuer_name +"""<br>			
+								<b>Referent Username</b> : """ + issuer_username +"""<br> 
+								<b>Referent Type</b> : """ + issuer_type + """<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
 								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
 
@@ -798,7 +798,7 @@ def user() :
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 	
 				my_certificates = my_certificates + cert_html
-	
+		my_certificates = """<div style=" font-size: 12px" > """ + my_certificates + """</div>"""
 		
 		return render_template('person_identity.html',
 							name=session['name'],

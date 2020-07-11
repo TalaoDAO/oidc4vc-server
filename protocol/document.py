@@ -66,7 +66,6 @@ def read_profil (workspace_contract, mode, loading) :
 		 	
 	for topicname, topic in topic_dict.items() :
 		claim = contract.functions.getClaimIdsByTopic(topic).call()
-		print('topicname = ', topicname, 'claim = ', claim)
 		if len(claim) == 0 :
 			profil[topicname] = None			
 		else :

@@ -66,7 +66,7 @@ def convert(obj):
 
 # display experience certificate for anybody. Stand alone routine
 def show_certificate():
-	""" Its sometimes a GUEST screen 
+	""" Its sometimes a GUEST view 
 	"""
 	username = session.get('username_logged')
 	if username is None  :
@@ -98,7 +98,7 @@ def show_certificate():
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
 	
-	#dispatch
+	# Experience Certificate Display
 	if session['displayed_certificate']['type'] == 'experience' :	
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
@@ -185,7 +185,7 @@ def show_certificate():
 							viewer=viewer,
 							**context)
 
-
+	# Recommendation Certificate Display
 	if session['displayed_certificate']['type'] == 'recommendation' :	
 		issuer_picture = session['displayed_certificate'].get('picture')
 		issuer_title = "" if session['displayed_certificate'].get('title') is None else session['displayed_certificate']['title']
@@ -200,11 +200,11 @@ def show_certificate():
 				del response
 			else :
 				print('no picture on disk')
-				
+		description = """ " """ + session['displayed_certificate']['description'] + """ " """		
 		return render_template('./certificate/recommendation.html',
 							identity_firstname=identity_profil['firstname'],
 							identity_lastname=identity_profil['lastname'],
-							description=session['displayed_certificate']['description'],
+							description=description,
 							issuer_picture=issuer_picture,
 							issuer_title=issuer_title,
 							issuer_firstname=session['displayed_certificate']['issuer']['firstname'],
@@ -259,7 +259,7 @@ def certificate_verify() :
 	if issuer_type == 'Company' :
 		issuer = """
 				<span>
-				<b>Issuer</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
+				<b>Referent</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
 				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
 				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li>
@@ -272,7 +272,7 @@ def certificate_verify() :
 		issuer = """
 				<span>
 				<hr>
-				<b>Issuer</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>Referent</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
 				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
 				<li><b>Firstname</b> : """ + certificate['issuer']['firstname'] + """</li>
@@ -522,7 +522,7 @@ def certificate_issuer_explore() :
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
 				
 		services ="""
-				<a class="text-success" href="/certificate/certificate_data_analysis/" >Resume Analysis</a></br>
+				<a class="text-success" href="/certificate/certificate_data_analysis/" >Dashboard</a></br>
 							
 						
 				<a class="text-warning"><br> Register to get access to other services.</a><br><br>"""

@@ -30,42 +30,7 @@
             
             <div class="container-fluid">
 				
-				<!--
-                <h3 class="text-dark mb-4">{{name}}</h3>
-                <div class="row mb-3">
-                    <div class="col-lg-8 offset-xl-2">
-                        <div class="row mb-3 d-none">
-                            <div class="col">
-                                <div class="card text-white bg-primary shadow">
-                                    <div class="card-body">
-                                        <div class="row mb-2">
-                                            <div class="col">
-                                                <p class="m-0">Peformance</p>
-                                                <p class="m-0"><strong>65.2%</strong></p>
-                                            </div>
-                                            <div class="col-auto"><i class="fas fa-rocket fa-2x"></i></div>
-                                        </div>
-                                        <p class="text-white-50 small m-0"><i class="fas fa-arrow-up"></i>&nbsp;5% since last month</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card text-white bg-success shadow">
-                                    <div class="card-body">
-                                        <div class="row mb-2">
-                                            <div class="col">
-                                                <p class="m-0">Peformance</p>
-                                                <p class="m-0"><strong>65.2%</strong></p>
-                                            </div>
-                                            <div class="col-auto"><i class="fas fa-rocket fa-2x"></i></div>
-                                        </div>
-                                        <p class="text-white-50 small m-0"><i class="fas fa-arrow-up"></i>&nbsp;5% since last month</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    -->
+		
                     
                      
             <div class="row mb-3">
@@ -83,44 +48,35 @@
                                         <form action="/user/add_experience/" method="POST">
                                             <div class="form-row">
                                                 <div class="col">
-                                                    <div class="form-group"><label for="username"><strong>Company</strong><br></label><input class="form-control" type="text" placeholder="Company Name" name="company_name" required ></div>
+                                                    <div class="form-group"><label ><strong>Company</strong><br></label><input class="form-control" type="text" title="Company Name where you worked." name="company_name" required ></div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Position</strong><br></label><input class="form-control" type="text" placeholder="Your position" required name="title"></div>
+                                                    <div class="form-group"><label for="email"><strong>Position</strong><br></label><input class="form-control" type="text" title="Your position within the team." required name="title"></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <div class="col-xl-3">
+                                                <div class="col">
                                                     <div class="form-group"><label for="startdate"><strong>Start Date</strong><br></label><input class="form-control" id="startdate" type="date" required="" name="from"></div>
                                                 </div>
-                                                <div class="col-xl-3">
+                                                <div class="col">
                                                     <div class="form-group"><label for="email"><strong>End Date</strong><br></label><input class="form-control" type="date" required="" name="to"></div>
                                                 </div>
-                                                <div class="col-xl-6 offset-xl-0">
-                                                    <div class="form-group"><label><strong>Privacy</strong></label>
-                                                    <select class="form-control" name="privacy">
-														<optgroup label="Privacy">
-															<option value="public" selected >Public</option>
-															<option value="private">Private</option>
-															<option value="secret">Secret</option>
-														</optgroup>
-													</select></div>
-                                                </div>
+                                                
                                             </div>
                                             <div class="form-row">
                                                 <div class="col">
-                                                    <div class="form-group"><label for="username"><strong>Contact Name</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="Name of your contact wthin the company" name="contact_name" title="Texte"></div>
+                                                    <div class="form-group"><label for="username"><strong>Contact Name (optional)</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" title="Name of your contact wthin the company." name="contact_name" ></div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="user@example.com" name="contact_email" title="Texte"></div>
+                                                    <div class="form-group"><label for="email"><strong>Contact Email (Optional)</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" title="Email of your contact within the company." name="contact_email" ></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
                                                 <div class="col" id="checkbox1">
-                                                    <div class="form-group"><label for="checkbox1"><strong>Skills</strong><br></label><textarea class="form-control" row="2" name="skills" placeholder="skill1 skill2 skill3 ..."></textarea></div>
+                                                    <div class="form-group"><label for="checkbox1"><strong>Skills (With comma separator)</strong><br></label><textarea class="form-control" row="2" name="skills" title="skill1, skill2, skill3, ..." required=""></textarea></div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Phone</strong><br></label><input class="form-control" type="tel" name="contact_phone" placeholder = "Your contact within the company"></div>
+                                                    <div class="form-group"><label for="email"><strong>Contact Phone (Optional)</strong><br></label><input class="form-control" type="tel" name="contact_phone" title = "Phone number of your contact within the company."></div>
                                                 </div>
                                             </div>
                                             
@@ -128,17 +84,17 @@
               
                                             <div class="form-row">
                                                 <div class="col">
-                                                    <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" placeholder ="Short description of the mission" required="" title="texte"></textarea></div>
+                                                    <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" title ="Give a description of the mission." required="" ></textarea></div>
                                                 </div>
                                             </div>
                                             
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add Experience</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-										<a href="/user/?username={{username}}">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+										<a href="/user/">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
                                         </a>
                                     </div>
                                 </div>

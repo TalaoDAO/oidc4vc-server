@@ -35,7 +35,7 @@ import environment
 import hcode
 import ns
 import analysis
-
+import history
 
 # Centralized  route
 import web_create_identity
@@ -57,7 +57,7 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.20"
+app.jinja_env.globals['Version'] = "0.21"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -248,6 +248,7 @@ def issuer_explore() :
 	issuer_picture = session['issuer_explore']['picture'] 
 	
 	if session['issuer_explore']['type'] == 'person' :
+		
 		# personal
 		Topic = {'firstname' : 'Firstname',
 				'lastname' : 'Lastname',
@@ -269,11 +270,11 @@ def issuer_explore() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""				
-		
+		issuer_personal = """<div style=" font-size: 12px" > """ + issuer_personal + """</div>"""
 		
 		# kyc
 		if len (session['issuer_explore']['kyc']) == 0:
-			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
+			my_kyc = """
 					<a class="text-danger">No Proof of Identity available</a>"""
 		else :	
 			my_kyc = ""
@@ -297,7 +298,7 @@ def issuer_explore() :
 					</a>
 				</p>"""	
 				my_kyc = my_kyc + kyc_html		
-	
+		my_kyc = """<div style=" font-size: 12px" > """ + my_kyc + """</div>"""
 
 		# experience
 		issuer_experience = ''
@@ -315,6 +316,7 @@ def issuer_explore() :
 						</a>
 					</p>"""	
 				issuer_experience = issuer_experience + exp_html + """<hr>"""
+		issuer_experience = """<div style=" font-size: 12px" > """ + issuer_experience + """</div>"""
 		
 		# education
 		issuer_education = ''
@@ -332,6 +334,7 @@ def issuer_explore() :
 						</a>
 					</p>"""	
 				issuer_education = issuer_education + edu_html + """<hr>"""
+		issuer_education = """<div style=" font-size: 12px" > """ + issuer_education + """</div>"""
 		
 		# certificates
 		issuer_certificates = ""
@@ -351,11 +354,12 @@ def issuer_explore() :
 					certificate_issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
+				
 				if certificate['type'] == 'experience' :
 					cert_html = """ 
-						<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>	
-						<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>	
-						<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
+						<b>Referent Name</b> : """ + certificate_issuer_name +"""<br>	
+						<b>Referent Username</b> : """ + certificate_issuer_username +"""<br>	
+						<b>Referent Type</b> : """ + certificate_issuer_type +"""<br>	
 						<b>Title</b> : """ + certificate['title']+"""<br>
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
@@ -364,10 +368,22 @@ def issuer_explore() :
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 							</a>
 						</p>"""	
-				else :
-					cert_html = ""
+				elif certificate['type'] == 'recommendation' :
+					cert_html = """
+						<b>Referent Name</b> : """ + certificate_issuer_name +"""<br>	
+						<b>Referent Username</b> : """ + certificate_issuer_username +"""<br>	
+						<b>Referent Type</b> : """ + certificate_issuer_type +"""<br>	
+						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+						<b>Relationship</b> : """ + certificate['relationship']+"""...<br>
+						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+						<p>
+							<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+							</a>
+						</p>"""	
+					
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
-				
+		issuer_certificates = """<div style=" font-size: 12px" > """ + issuer_certificates + """</div>"""		
 				
 				
 					
@@ -375,7 +391,7 @@ def issuer_explore() :
 		services = ""
 		if session['type'] == 'person' :
 			
-			services = """<a href="/user/data_analysis/?user=issuer_explore">Data Analysis</a><br><br>"""
+			services = """<a href="/user/data_analysis/?user=issuer_explore">Dashboard</a><br><br>"""
 			
 			if not is_username_in_list(session['issuer'], issuer_username) : # est ce que ce talent est dans mon issuer list ?
 				services = services + """<a class="text-warning">This Talent is not in your Referent List.</a><br>
@@ -405,7 +421,7 @@ def issuer_explore() :
 		#services : les reader est une company, le profil vu est celui d une personne. Attention au "jean.bnp"
 		if session['type'] == 'company' :
 			
-			services = """<a href="/user/data_analysis/?user=issuer_explore">Data Analysis</a><br><br>"""
+			services = """<a href="/user/data_analysis/?user=issuer_explore">Dashboard</a><br><br>"""
 			
 			host_name = username if len(username.split('.')) == 1 else username.split('.')[1]  
 			if ns.does_manager_exist(issuer_username, host_name) :
@@ -551,14 +567,17 @@ def data_analysis() :
 	if request.method == 'GET' :
 		if request.args.get('user') == 'issuer_explore' :
 			my_analysis = analysis.dashboard(session['issuer_explore']['workspace_contract'],session['issuer_explore'], mode)
+			history_string = history.history_html(session['issuer_explore']['workspace_contract'],10,10, mode)
 		else :
 			my_analysis = analysis.dashboard(session['workspace_contract'],session['resume'], mode)
+			history_string = history.history_html(session['workspace_contract'],15,10, mode) 
 		
 		return render_template('dashboard.html',
 								picturefile=my_picture,
 								event=my_event_html,
 								counter=my_counter,
 								username=username,
+								history=history_string,
 								**my_analysis)
 
 
@@ -911,8 +930,8 @@ def store_file() :
 		return render_template('store_file.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
 		if 'file' not in request.files :
-			print('No file ')
-			return
+			flash('no file', "warning")
+			return redirect(mode.server + 'user/')
 		myfile = request.files['file']
 		filename = secure_filename(myfile.filename)
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -1013,7 +1032,7 @@ def add_experience() :
 		experience['start_date'] = request.form['from']
 		experience['end_date'] = request.form['to']
 		experience['skills'] = request.form['skills'].split(' ')  		
-		privacy = request.form['privacy']
+		privacy = 'public'
 		(doc_id, ipfshash, transaction_hash) = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)		
 		# add experience in session
 		experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
@@ -1152,9 +1171,9 @@ def add_education() :
 		education['description'] = request.form['description']
 		education['start_date'] = request.form['from']
 		education['end_date'] = request.form['to']
-		education['skills'] = request.form['skills'].split(' ')
+		education['skills'] = request.form['skills'].split(',')
 		education['certificate_link'] = request.form['certificate_link']  		
-		privacy = request.form['privacy']
+		privacy = 'public'
 		(doc_id, ipfshash, transaction_hash) = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)		
 		# add experience in session
 		education['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
@@ -1503,17 +1522,29 @@ def request_proof_of_identity() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
+	
 	if request.method == 'GET' :				
 		my_picture = session['picture']
 		my_event = session.get('events')
 		my_event_html, my_counter =  event_display(session['events'])
-		session['request_code'] = str(random.randint(100000, 999999))
-		return render_template('request_proof_of_identity.html', picturefile=my_picture, event=my_event_html, code= session['request_code'], counter=my_counter, username=username)
+		return render_template('request_proof_of_identity.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+	
 	elif request.method == 'POST' :
-		message = 'username = '+ session['username'] + ' secret code = ' + session['request_code'] + 'workspce_contract = ' + session['workspace_contract']
-		subject = 'Request for Proof of Identity'
+		
+		id_file = request.files['id_file']
+		selfie_file = request.files['selfie_file']		
+		
+		id_file_name = secure_filename(id_file.filename)
+		selfie_file_name = secure_filename(selfie_file.filename)
+		
+		id_file.save(os.path.join('./uploads/proof_of_identity', username + "_ID." + id_file_name.split('.')[1]))
+		selfie_file.save(os.path.join('./uploads/proof_of_identity', username + "_selfie." + selfie_file_name.split('.')[1] ))
+	
+		
+		message = 'Request for proof of identity for ' + username
+		subject = 'Request for Proof of Identity for ' + username
 		Talao_message.messageAdmin (subject, message, mode)
-		flash(' Your request has been registered, we are waiting for your email', 'success')
+		flash(' Your request has been registered, we will check your documents soon.', 'success')
 		return redirect (mode.server +'user/?username=' + username)	
 
 

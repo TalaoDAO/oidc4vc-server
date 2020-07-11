@@ -44,44 +44,36 @@
                                         <form action="/user/add_education/" method="POST">
                                             <div class="form-row">
                                                 <div class="col">
-                                                    <div class="form-group"><label><strong>Organization</strong><br></label><input class="form-control" type="text" placeholder="Organization Name" name="company_name" required ></div>
+                                                    <div class="form-group"><label><strong>Organization</strong><br></label><input class="form-control" type="text" title="Name of the School, University or Training Center." name="company_name" required ></div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="form-group"><label ><strong>Title</strong><br></label><input class="form-control" type="text" placeholder="Education Title" required name="title"></div>
+                                                    <div class="form-group"><label ><strong>Title</strong><br></label><input class="form-control" type="text" title="Title of your Education Degree or Course." required name="title"></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <div class="col-xl-3">
+                                                <div class="col">
                                                     <div class="form-group"><label><strong>Start Date</strong><br></label><input class="form-control" id="startdate" type="date" required="" name="from"></div>
                                                 </div>
-                                                <div class="col-xl-3">
+                                                <div class="col">
                                                     <div class="form-group"><label><strong>End Date</strong><br></label><input class="form-control" type="date" required="" name="to"></div>
                                                 </div>
-                                                <div class="col-xl-6 offset-xl-0">
-                                                    <div class="form-group"><label><strong>Privacy</strong></label>
-                                                    <select class="form-control" name="privacy">
-														<optgroup label="Privacy">
-															<option value="public" selected >Public</option>
-														<!--	<option value="private">Private</option>
-															<option value="secret">Secret</option>  -->
-														</optgroup>
-													</select></div>
-                                                </div>
+                                               
+                                              
                                             </div>
                                             <div class="form-row">
                                                 <div class="col">
-                                                    <div class="form-group"><label for="username"><strong>Contact Name</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="Name of your contact wthin the organization" name="contact_name" title="Texte"></div>
+                                                    <div class="form-group"><label for="username"><strong>Contact Name (Optional)</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="" name="contact_name" title="Name of your Referent in the organization."></div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Email</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="user@example.com" name="contact_email" title="Texte"></div>
+                                                    <div class="form-group"><label for="email"><strong>Contact Email (Optional)</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" placeholder="" name="contact_email" title="Email of your Referent in the organization."></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
                                                 <div class="col" >
-                                                    <div class="form-group"><label><strong>Skills</strong><br></label><textarea class="form-control" row="2" name="skills" placeholder="skill1 skill2 skill3 ..."></textarea></div>
+                                                    <div class="form-group"><label><strong>Skills (Comma separator)</strong><br></label><textarea class="form-control" row="2" name="skills" required="" title="skill1, skill2, skill3,..."></textarea></div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="form-group"><label><strong>Contact Phone</strong><br></label><input class="form-control" type="tel" name="contact_phone" placeholder = "Your contact within the organization"></div>
+                                                    <div class="form-group"><label><strong>Contact Phone (Optional)</strong><br></label><input class="form-control" type="tel" name="contact_phone" placeholder = "" title="Phone number of your Referent in the organization."></div>
                                                 </div>
                                             </div>
                                             
@@ -89,17 +81,17 @@
               
                                             <div class="form-row">
                                                 <div class="col">
-                                                    <div class="form-group"><label ><strong>Summary</strong></label><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" placeholder ="Short description of the education subject" required="" title="texte"></textarea></div>
-                                                    <div class="form-group"><label ><strong>Diploma Link</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="URL" name="certificate_link" title="Texte"></div>
+                                                    <div class="form-group"><label ><strong>Summary</strong></label><textarea class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" placeholder ="" required="" title="Description of the educational content and level of certification."></textarea></div>
+                                                    <div class="form-group"><label ><strong>Diploma Link (Optional)</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="" name="certificate_link" title="A link (url) to a published Diploma or Certificate."></div>
                                                 </div>
                                             </div>
                                             
                                              <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add Education</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Add</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-										<a href="/user/?username={{username}}">
+										<a href="/user/">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
                                         </a>
                                     </div>

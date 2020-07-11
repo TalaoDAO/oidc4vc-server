@@ -22,62 +22,75 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-               
-                                                                    {% include 'user_nav_bar.html' %}    
-      
-               
-        <div class="container-fluid">
-            <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-xl-4">
-                    <div class="card shadow mb-3">
-                        <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a Proof of Identity</p>
-                        </div>
-                        <div class="card-body">
-                            <form action="/user/request_proof_of_identity/" method="post">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <p>In order to allows you to provide reliable data, you need to show a Proof of Identity. Those data issued by Talao after a checking process will be shown to public.<br>Note the code below and send an email (Authentification
-                                            Email) to contact@talao.io with 3 pictures :<br>- your ID Card or Passport,<br>- one selfie with your ID Card or Passport,<br>- one selfie with the Secret Code written on a piece of paper.</p>
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Secret Code&nbsp;</strong><br></label>
-                                            <p value="{{code}}">{{code}}</p>
+                  {% if session['type'] == "company" %}    
+                 {% include 'company_nav_bar.html' %}    
+             {% else %} 
+                 {% include 'user_nav_bar.html' %} 
+             {% endif %}
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">{{name}}</h3>
+                <div class="row mb-3">
+					<div class="col-md-10 col-lg-6 col-xl-4 offset-md-1 offset-lg-3 offset-xl-4">
+                        <div class="card mb-3">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">Request a Proof of Identity</p>
+                            </div>
+                            <div class="card-body text-center shadow">
+                                <form action="/user/request_proof_of_identity/" method="POST" enctype="multipart/form-data">
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <p class="text-left">In order to allow you to provide reliable data, you need to give a Proof of Identity. This data issued by Talao after a checking process will be shown to public. Upload one picture of your ID Card/ Passport
+                                                and&nbsp;one selfie with your ID/Passport in hand.&nbsp;&nbsp;</p>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Request</button></div>
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <div class="form-group"><label>Upload your ID or Passport.</label>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile01"></label><input type="file" id="inputGroupFile01" class="custom-file-input" name="id_file"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    
-                                    
-                                    <div class="col-xl-3">
-										<a href="/user/?username={{username}}">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
-                                        </a>
-										
-									</div>
-                                </div>
-                            </form>
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <div class="form-group"><label>Upload your selfie.</label>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile02"></label><input type="file" id="inputGroupFile02" class="custom-file-input" name="selfie_file"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-6 col-xl-3"><button class="btn btn-primary btn-sm" type="submit">Save</button></div>
+                                        <div class="col-6 col-xl-3"><a href="/user/">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                        </a></div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-    </div>
-    
-                                      {% include 'user_footer.html' %}    
+                                  {% include 'user_footer.html' %}    
 
+    </div></div>
     
-    </div>
-   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
-    
-    
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script> 
+     <script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>
 </body>
 
 </html>

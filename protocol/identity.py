@@ -41,13 +41,10 @@ class Identity() :
 				
 		#self.get_management_keys()
 		self.get_identity_personal()
-		
-		print('get personal ok')
-		
+				
 		self.get_all_documents()
 		self.get_identity_file()
 		self.get_issuer_keys()
-		print('issuer keys ok ')	
 		if self.authenticated :
 			self.has_relay_rsa_key()
 			if self.rsa_key :
@@ -57,23 +54,17 @@ class Identity() :
 				self.aes = 'Encrypted'
 					
 			self.has_relay_private_key()
-			print('private key = ', self.private_key) 
 			if self.private_key :
 				self.get_partners()	
-				print('get parners ', self.get_partners())			
 			else :
 				self.partners = []
 			
-			print('partners = ', self.partners)	
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
-			print('balance eth ok')
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated()
-			print(' is relay activated ok')
 			
 			self.get_white_keys()
-			self.get_events()
-			print('events ok')
+			self.eventslist = dict()
 		else :
 			self.eventslist = dict()
 			self.partners = []
@@ -157,8 +148,12 @@ class Identity() :
 	def get_events(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		alert = dict()
-		filter_list = [	contract.events.PartnershipRequested.createFilter(fromBlock= 6200000,toBlock = 'latest'),
-					contract.events.PartnershipAccepted.createFilter(fromBlock= 6200000,toBlock = 'latest')]		
+		block = self.mode.w3.eth.getBlock('latest')
+		block_number = block['number']
+		# 30 days behind, one tranasaction every 15s
+		fromblock = block_number - (30 * 24 * 60 * 4) 
+		filter_list = [	contract.events.PartnershipRequested.createFilter(fromBlock= fromblock,toBlock = 'latest'),
+					contract.events.PartnershipAccepted.createFilter(fromBlock=fromblock,toBlock = 'latest')]		
 		for i in range(0, len(filter_list)) :
 			eventlist = filter_list[i].get_all_entries()
 			for doc in eventlist :
@@ -191,6 +186,7 @@ class Identity() :
 				else :
 					pass								
 		self.eventslist = alert
+		print (' event list = ', alert)
 		return True
 	
 	def is_relay_activated(self):
