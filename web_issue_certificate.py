@@ -14,10 +14,12 @@ import json
 import random
 import threading
 import csv
+import unidecode
 
 import createidentity
 import Talao_message
 import ns
+import privatekey
 import environment
 from protocol import Document, add_key, Claim, contractsToOwners, get_image, read_profil
 
@@ -253,11 +255,9 @@ def create_authorize_issue() :
 	
 	# New user, call to thread to authorize, issue and create	
 	if session['issuer_username'] == "new" :	
-		username_2 = session['issuer_firstname'].lower() + session['issuer_lastname'].lower()
-		username_1 = username_2 + str(random.randint(0, 999)) if ns.does_alias_exist(username_2) else username_2
-		username = username_1.replace(" ", "")
+		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname']) 
 		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(username,
+		exporting_threads[thread_id] = ExportingThread(issuer_username,
 														session['issuer_email'],
 														session['issuer_firstname'],
 														session['issuer_lastname'],
@@ -275,14 +275,7 @@ def create_authorize_issue() :
 		issuer_workspace_contract = session['issuer_workspace_contract']
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
 		# get private key for issuer
-		fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
-		identity_file = open(fname, newline='')
-		reader = csv.DictReader(identity_file)
-		issuer_private_key = None
-		for row in reader :
-			if row['ethereum_address'] == issuer_address :
-				issuer_private_key =row['private_key']
-				break									
+		issuer_private_key = get_key(issuer_address,'private_key') 					
 		if issuer_private_key is None :
 			print('erreur , Private kay not found for ', session['issuer_username'])
 			flash('Sorry, the Certificate cant issued, No Private Key', 'danger')

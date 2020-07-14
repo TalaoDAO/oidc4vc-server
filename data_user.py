@@ -193,7 +193,7 @@ def data(dataId) :
 	if support == 'document' : 
 		doc_id = int(dataId.split(':')[5])			
 		my_topic = dataId.split(':')[6]
-		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education'] :
+		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education', 'skills'] :
 			my_data = Document(my_topic)
 			exist = my_data.relay_get(workspace_contract, doc_id, mode) 	
 		else :
@@ -291,6 +291,14 @@ def data(dataId) :
 				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>		
 				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
 				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
+	
+	elif my_topic.lower() == "skills"  :
+		mytitle = "Skills"
+		mysummary = "" 
+		myvalue = ""
+		#myvalue = """<b>Data</b> : """+ my_data.description 
+	
+				
 				
 	elif my_topic.lower() == "education" :
 		mytitle = my_data.title
@@ -405,12 +413,12 @@ def user() :
 		return redirect(mode.server + 'login/')	
 	if session.get('uploaded') is None :
 		print('start first instanciation user')	
-		try :	
-			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
-		except :
-			flash('session aborted', 'warning')
-			print('pb au niveau de Identity')
-			return render_template('login.html')
+		#try :	
+		user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		#except :
+		#	flash('session aborted', 'warning')
+		#	print('pb au niveau de Identity')
+		#	return render_template('login.html')
 		print('end')
 		""" clean up for resume  """
 		user_dict = user.__dict__.copy()
@@ -443,16 +451,17 @@ def user() :
 		session['picture'] = user.picture
 		session['signature'] = user.signature
 		session['secret'] = user.secret
-		
+	
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
 			#session['language'] = user.language
+			session['skills'] = user.skills
 			session['education'] = user.education	
 			session['kyc'] = user.kyc
 			#(radio, mylang1, mylang2, mylang3)= session['language']
 			session['profil_title'] = user.profil_title	
-		
+			print(' skllls dans user =', session['skills'])
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 	
@@ -617,7 +626,35 @@ def user() :
 					</a>
 				</p>"""	
 				my_experience = my_experience + exp_html + "<hr>"
-		my_experience = """<div style=" font-size: 12px" > """ + my_experience + """</div>"""	
+		
+		# skills
+		# session[skills'] =  {'version' : 1,   description: [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
+		if session['skills'] is None :
+			my_skills =  """<a href="/user/update_skills/">Add Skills</a><hr>
+									<a class="text-danger">No Data Available</a>"""
+		else : 
+			my_skills = """<a href="/user/update_skills/">Update Skills</a><hr>"""
+			for skill in session['skills']['description'] :
+				skill_html = """
+				"""+ skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>			
+	<!--			<b>Domain</b> : """+skill['skill_domain'] + """<br>  
+				<b>Level</b> : """+ skill['skill_level'] + """...<br> 
+				<p>
+					<a class="text-secondary" href="/user/remove_experience/?experience_id="""  + """>
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+					</a>
+					
+					<a class="text-secondary" href=/data/""" + """:experience>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>  -->"""	  
+				my_skills = my_skills + skill_html 
+			my_skills = my_skills + """
+				<p>
+					<a class="text-secondary" href=/data/"""+ session['skills']['id'] + """:skills>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>"""		
 			
 		# education
 		my_education = """<a href="/user/add_education/">Add Education</a><hr>"""
@@ -639,7 +676,7 @@ def user() :
 					</a>
 				</p>"""	
 				my_education = my_education + edu_html	+ "<hr>"
-		my_education = """<div style=" font-size: 12px" > """ + my_education + """</div>"""
+		#my_education = """<div style=" font-size: 12px" > """ + my_education + """</div>"""
 	
 		# personal
 		
@@ -665,7 +702,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""				
-		my_personal = """<div style=" font-size: 12px" >""" + my_personal+ """<a href="/user/update_personal_settings/">Update Data</a></div>"""
+		my_personal = my_personal+ """<a href="/user/update_personal_settings/">Update Data</a>"""
 	
 	
 		
@@ -697,7 +734,7 @@ def user() :
 					</a>
 				</p>"""	
 				my_kyc = my_kyc + kyc_html		
-		my_kyc = """<div style=" font-size: 12px" > """ + my_kyc + """</div>"""
+		#my_kyc = """<div style=" font-size: 12px" > """ + my_kyc + """</div>"""
 	
 		# Alias
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract']) :
@@ -727,9 +764,7 @@ def user() :
 		# languages
 		my_languages = ""
 	
-		# skills
-		my_skills = ""
-		
+	
 		# certificates
 		if len (session['certificate']) == 0:
 			my_certificates = """<a class="text-danger">No Data Available</a>"""
@@ -798,7 +833,6 @@ def user() :
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 	
 				my_certificates = my_certificates + cert_html
-		my_certificates = """<div style=" font-size: 12px" > """ + my_certificates + """</div>"""
 		
 		return render_template('person_identity.html',
 							name=session['name'],

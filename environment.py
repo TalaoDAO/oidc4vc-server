@@ -24,6 +24,7 @@ class currentMode() :
 		self.mychain = 'rinkeby'
 		self.myenv = 'airbox'
 		self.password = 'suc2cane'
+		self.db_path = './db/'
 		print('debut init environment')
 		print('Chain = ', self.mychain)
 		print('Environnement =', self.myenv)			

@@ -26,7 +26,7 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 
-                 {% if viewer == 'guest' %}    
+             {% if viewer == 'guest' %}    
                  {% include 'guest_nav_bar.html' %}    
              {% else %} 
                    {% if session['type'] == "company" %}    
@@ -34,7 +34,7 @@
 					{% else %} 
 						{% include 'user_nav_bar.html' %} 
 					{% endif %}
-               
+             {% endif %}  
            
                                                       
     

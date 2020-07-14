@@ -26,6 +26,7 @@ from .document import Document, read_profil
 from .file import File
  
 import ns
+import privatekey
  
 class Identity() :
 	
@@ -88,6 +89,7 @@ class Identity() :
 			self.get_identity_education()
 			self.get_identity_kyc()
 			self.get_identity_certificate()
+			self.get_identity_skills()
 			print('certificate ok')
 			
 		#download pictures on server dir /uploads/ if picrures not already on disk
@@ -121,16 +123,9 @@ class Identity() :
 		return
 					
 	def has_relay_private_key(self) :
-		fname = self.mode.BLOCKCHAIN +"_Talao_Identity.csv"
-		identity_file = open(fname, newline='')
-		reader = csv.DictReader(identity_file)
-		self.private_key = False
-		self.private_key_value = None
-		for row in reader :
-			if row['ethereum_address'] == self.address :
-				self.private_key_value =row['private_key']
-				self.private_key = True
-				break
+		self.private_key_value =  privatekey.get_key(self.address, 'private_key')
+		print(' private key value dans identity' , self.private_key_value)
+		self.private_key = False if self.private_key_value is None else True
 		return			
 					
 	def has_relay_rsa_key(self) :
@@ -143,51 +138,6 @@ class Identity() :
 			self.rsa_key_value = rsa_key 
 		except IOError :
 			self.rsa_key = False		
-				
-	# filters on external events only, always available
-	def get_events(self) :
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		alert = dict()
-		block = self.mode.w3.eth.getBlock('latest')
-		block_number = block['number']
-		# 30 days behind, one tranasaction every 15s
-		fromblock = block_number - (30 * 24 * 60 * 4) 
-		filter_list = [	contract.events.PartnershipRequested.createFilter(fromBlock= fromblock,toBlock = 'latest'),
-					contract.events.PartnershipAccepted.createFilter(fromBlock=fromblock,toBlock = 'latest')]		
-		for i in range(0, len(filter_list)) :
-			eventlist = filter_list[i].get_all_entries()
-			for doc in eventlist :
-				transactionhash = doc['transactionHash']
-				transaction = self.mode.w3.eth.getTransaction(transactionhash)
-				issuer = transaction['from']
-				issuer_workspace_contract = ownersToContracts(issuer,self.mode)
-				profil, category = read_profil(issuer_workspace_contract, self.mode, loading='light')
-				
-				if category == 1001:
-					firstname = "Unnknown" if profil['firstname'] is None else profil['firstname']					
-					lastname = "Unknown" if profil['lastname'] is None else profil['lastname']
-					issuer_name = firstname + ' ' + lastname
-				if category == 2001 :				
-					issuer_name = 'unknown' if  profil['name'] is None else profil['name']
-				blockNumber = transaction['blockNumber']
-				block = self.mode.w3.eth.getBlock(blockNumber)
-				date = datetime.fromtimestamp(block['timestamp'])			
-				
-				if i == 0 and issuer_workspace_contract != self.workspace_contract :
-					eventType = 'PartnershipRequested' 					
-					doc_id = None
-					helptext= 'Request for partnership from ' + issuer_name
-					alert[date] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
-				elif i == 1 and issuer_workspace_contract != self.workspace_contract :
-					eventType = 'PartnershipAccepted' 					
-					doc_id = None
-					helptext= 'Partnership accepted by ' + issuer_name
-					alert[date] =  {'alert' : helptext, 'event' : eventType, 'doc_id' : doc_id}
-				else :
-					pass								
-		self.eventslist = alert
-		print (' event list = ', alert)
-		return True
 	
 	def is_relay_activated(self):
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
@@ -349,6 +299,7 @@ class Identity() :
 		self.kbis_list = []
 		self.kyc_list = []
 		self.certificate_list=[]
+		self.skills_list = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in contract.functions.getDocuments().call() :
 			doctype = contract.functions.getDocument(doc_id).call()[0]
@@ -364,6 +315,8 @@ class Identity() :
 				self.kyc_list.append(doc_id)
 			elif doctype == 20000 :
 				self.certificate_list.append(doc_id)
+			elif doctype == 11000 :
+				self.skills_list.append(doc_id)
 			else :
 				self.other_list.append(doc_id)
 		return
@@ -411,7 +364,17 @@ class Identity() :
 			self.education.append(new_education)
 		return True	
 		
-	
+	def get_identity_skills(self) :
+		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		if self.skills_list  != [] :
+			skills = Document('skills')
+			skills.relay_get(self.workspace_contract, self.skills_list[-1], self.mode, loading='light')
+			self.skills = skills.__dict__
+			
+		else :
+			self.skills = None
+		return True	
+		
 	def get_identity_experience(self) :	
 		self.experience = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)

@@ -22,6 +22,7 @@ from werkzeug.utils import secure_filename
 import threading
 import copy
 import urllib.parse
+import unidecode
 
 # dependances
 import Talao_message
@@ -37,6 +38,7 @@ import ns
 import analysis
 import history
 
+
 # Centralized  route
 import web_create_identity
 import web_certificate
@@ -44,6 +46,7 @@ import talent_connect
 import data_user
 import createidentity
 import web_issue_certificate
+import skills
 
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
@@ -57,7 +60,7 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.21"
+app.jinja_env.globals['Version'] = "0.3"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -103,6 +106,8 @@ app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_f
 app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'])
 app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout, methods = ['GET', 'POST'])
 
+# Centralized route issuer for skills
+app.add_url_rule('/user/update_skills/',  view_func=skills.update_skills, methods = ['GET', 'POST'])
 
 
 
@@ -219,6 +224,8 @@ def faq() :
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('faq.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+
+
 
 
 
@@ -570,7 +577,7 @@ def data_analysis() :
 			history_string = history.history_html(session['issuer_explore']['workspace_contract'],10,10, mode)
 		else :
 			my_analysis = analysis.dashboard(session['workspace_contract'],session['resume'], mode)
-			history_string = history.history_html(session['workspace_contract'],15,10, mode) 
+			history_string = history.history_html(session['workspace_contract'],15,11, mode) 
 		
 		return render_template('dashboard.html',
 								picturefile=my_picture,
@@ -995,9 +1002,7 @@ def create_person() :
 		person_email = request.form['email']
 		person_firstname = request.form['firstname']
 		person_lastname = request.form['lastname']
-		person_username = person_firstname.lower() + person_lastname.lower()
-		if ns.get_data_from_username(person_username, mode) is not None  :
-			person_username = person_username + str(random.randint(1, 100))
+		person_username = ns.build_username(person_firstname, person_lastname)
 		(a, p, workspace_contract) = createidentity.create_user(person_username, person_email, mode)
 		if workspace_contract is not None :
 			claim=Claim()
@@ -1406,6 +1411,11 @@ def request_recommendation_certificate() :
 	subject = 'You have received a request for recommendation from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
 	flash('Your request for Recommendation has been sent.', 'success')
+	# message to user
+	subject = "Your request for certificate has been sent."
+	text = " You will receive an email when your Referent connects." 
+	user_email = ns.get_data_from_username(username)['email']
+	Talao_message.message(subject, user_email, text)
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
 		del session['certificate_issuer_username']
@@ -1418,6 +1428,7 @@ def request_experience_certificate() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
+	# message to Talent
 	memo = request.form.get('memo')
 	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
 	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
@@ -1441,6 +1452,11 @@ def request_experience_certificate() :
 			"\r\n\r\nFollow this link to proceed : " + url
 	subject = 'You have received a request for certification from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
+	# message to user
+	subject = "Your request for certificate has been sent."
+	text = " You will receive an email when your Referent connects." 
+	user_email = ns.get_data_from_username(username)['email']
+	Talao_message.message(subject, user_email, text)
 	flash('Your request for an Experience Certificate has been sent.', 'success')
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
@@ -1537,8 +1553,8 @@ def request_proof_of_identity() :
 		id_file_name = secure_filename(id_file.filename)
 		selfie_file_name = secure_filename(selfie_file.filename)
 		
-		id_file.save(os.path.join('./uploads/proof_of_identity', username + "_ID." + id_file_name.split('.')[1]))
-		selfie_file.save(os.path.join('./uploads/proof_of_identity', username + "_selfie." + selfie_file_name.split('.')[1] ))
+		id_file.save(os.path.join('./uploads/proof_of_identity', username + "_ID." + id_file_name))
+		selfie_file.save(os.path.join('./uploads/proof_of_identity', username + "_selfie." + selfie_file_name))
 	
 		
 		message = 'Request for proof of identity for ' + username

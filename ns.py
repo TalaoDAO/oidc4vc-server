@@ -2,9 +2,12 @@
 from datetime import datetime
 import environment
 import sqlite3
+import unidecode
+
 import constante
 
-path = constante.db_path
+mode = environment.currentMode()
+path = mode.db_path
 
 def _contractsToOwners(workspace_contract, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -64,6 +67,16 @@ def setup() :
 	add_manager('jp1', 'pascalet', 'bnp', 'jp@bnp.talao.io')
 	add_manager('jp2', 'pascalet', 'bnp', 'jp@bnp.talao.io')
 	
+def build_username(firstname, lastname) :
+	_firstname = firstname.lower()
+	_lastname = lastname.lower()
+	_username = unidecode.unidecode(_firstname) + unidecode.unidecode(_lastname)
+	username = _username.replace(" ", "")
+	if get_data_from_username(username, mode) is not None  :
+		username = username + str(random.randint(1, 100))
+	return username
+
+
 
 def add_identity(identity_name, identity_workspace_contract, email, mode) :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""

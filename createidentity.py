@@ -27,6 +27,7 @@ import constante
 import environment
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
 import ns
+import privatekey
 
 master_key = ""
 salt = ""
@@ -181,13 +182,17 @@ def create_user(username, email,mode):
 	cost = balance_avant-balance_apres
 	print('Cout des transactions =', cost)	
 
-	# update of Talao_Identity.csv	
-	fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
-	identityfile = open(fname, "a")
-	writer = csv.writer(identityfile)
-	status = "createidentity.py, email crypté"
-	writer.writerow(( datetime.today(),username,"", "", email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), cost) )
-	identityfile.close()
-
+	# update private key.db
+	data = { 'created' : datetime.today(),
+			'username' : username,
+			 'email' : email,
+			 'address' : address,
+			 'private_key' :private_key,
+			 'workspace_contract' : workspace_contract,
+			 'secret' : SECRET_key.hex(),
+			 'aes' : AES_key.hex()}
+			 
+	execution =  privatekey.add_identity(data)
+	print('save db = ', execution)
 	print("createidentity is OK")
 	return address, private_key, workspace_contract

@@ -134,13 +134,6 @@ def decrypt_data(identity_workspace_contract, data, privacy, rsa_key, mode) :
 		aes_encrypted = mydata[5]
 	if privacy == 'secret' :
 		aes_encrypted = mydata[6]  
-		
-	# read la cle privee RSA sur le fichier
-	#identity_address = contracts_to_owners(identity_workspace_contract, mode)
-	#filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+identity_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	#with open(filename,"r") as fp :
-	#	my_rsa_key=fp.read()	
-	#	fp.close()   
 					
 	# decoder ma cle AES128 cryptée avec ma cle RSA privée
 	key = RSA.importKey(rsa_key)

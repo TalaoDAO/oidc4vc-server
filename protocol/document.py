@@ -150,6 +150,46 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
 	
+def update_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doc_id, doctype, data, mydays, privacy, mode, synchronous) :
+# @data = dict	
+	w3=mode.w3	
+	privacy = 'public'		
+	# calcul de la date
+	if mydays == 0 :
+		expires = 0
+	else :	
+		myexpires = datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
+		expires = int(myexpires.timestamp())	
+		
+	#envoyer la transaction sur le contrat
+	contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
+	nonce = w3.eth.getTransactionCount(address_from)  
+	
+	# stocke sur ipfs les data attention on archive des bytes
+	ipfs_hash = ipfs_add(data)
+	if ipfs_hash is None :
+		return None
+	
+	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
+	_data = json.dumps(data)
+	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
+	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
+	
+	encrypted = False if privacy == 'public' else True
+	# Transaction
+	txn = contract.functions.updateDocument(doc_id, doctype,2,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	if synchronous == True :
+		w3.eth.waitForTransactionReceipt(transaction_hash)		
+	
+	# recuperer l iD du document sur le dernier event DocumentAdded
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	eventlist = myfilter.get_all_entries()
+	document_id = eventlist[-1]['args']['id']
+	return document_id, ipfs_hash, transaction_hash
 	
 def get_document(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
 	
@@ -160,7 +200,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	except :
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
 	
-	if doctype in [50000,40000,10000,15000,20000] :
+	if doctype in [50000,40000,10000,15000,20000, 11000] :
 		privacy = 'public'
 	if doctype == 50001 or doctype == 40001 :
 		privacy = 'private'
@@ -269,17 +309,22 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 class Document() :
 	def __init__(self, topic) :		
 		self.topic = topic
-		""" Only public data """
-		if self.topic == 'education' :
-			self.doctype = 40000
-		if self.topic == 'experience' :
-			self.doctype = 50000		
-		if self.topic == 'kbis' :
-			self.doctype = 10000
-		if self.topic == 'kyc' :
-			self.doctype = 15000
-		if self.topic == 'certificate' :
-			self.doctype = 20000
+		self.doctype = self.get_doctype(self.topic)
+		
+	# only public data
+	def get_doctype(self, my_topic) :	
+		if my_topic == 'skills' :
+			return 11000
+		if my_topic == 'education' :
+			return 40000
+		if my_topic == 'experience' :
+			return 50000		
+		if my_topic == 'kbis' :
+			return 10000
+		if my_topic == 'kyc' :
+			return 15000
+		if my_topic == 'certificate' :
+			return 20000
 							
 	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True) :			 			
 		return create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous)
@@ -287,6 +332,10 @@ class Document() :
 	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
+	
+	def relay_update(self, identity_workspace_contract, doc_id, data, mode, mydays=0, privacy='public', synchronous=True) :
+		identity_address = contracts_to_owners(identity_workspace_contract, mode)
+		return update_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, self.doctype, data, mydays, privacy, mode, synchronous)
 	
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)

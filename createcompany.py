@@ -195,12 +195,18 @@ def create_company(email, username, mode) :
 	a = w3.eth.getBalance(address)
 	cost=0.06-a/1000000000000000000	
 	
-	# Updare archive Talao_Identity.csv
-	fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
-	identityfile = open(fname, "a")
-	writer = csv.writer(identityfile)
-	status="Company Identity createcompany.py"
-	writer.writerow(( datetime.today(), username, "", "",email, status, address, private_key, workspace_contract, "", email, SECRET, AES_key,cost) )
-	identityfile.close()
+	# update private key.db
+	data = { 'created' : datetime.today(),
+			'username' : username,
+			 'email' : email,
+			 'address' : address,
+			 'private_key' :private_key,
+			 'workspace_contract' : workspace_contract,
+			 'secret' : SECRET.hex(),
+			 'aes' : AES_key.hex()}
+			 
+	execution =  privatekey.add_identity(data)
+	print('save db = ', execution)
+
 
 	return address, private_key, workspace_contract

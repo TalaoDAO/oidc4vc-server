@@ -54,13 +54,9 @@ def authentification() :
 	
 	if request.method == 'POST' :
 		email = request.form['email']
-		session['firstname'] = unidecode.unidecode(request.form['firstname'])
-		session['lastname'] = unidecode.unidecode(request.form['lastname'])
-		_username = session['firstname'].lower() + session['lastname'].lower()
-		username = _username.replace(" ", "")
-		if ns.get_data_from_username(username, mode) is not None  :
-			username = username + str(random.randint(1, 100))
-		session['username'] = username
+		session['firstname'] = request.form['firstname']
+		session['lastname'] = request.form['lastname']
+		session['username'] = ns.build_username(session['firstname'], session['lastname'])
 		session['email'] = email
 		code = str(random.randint(100000, 999999))
 		session['try_number'] = 1
@@ -74,10 +70,10 @@ def POST_authentification_2() :
 	global exporting_threads
 	mycode = request.form['mycode']
 	if not session.get('code') : 
-		return "renvoyer au login"
+		flash('Registration error', 'warning')
+		return redirect(mode.server + 'login/')
 	session['try_number'] +=1
 	print('code retourné = ', mycode)
-	print (session)
 	if mycode == session['code'] or mycode == "123456":
 		print('code correct')
 		thread_id = str(random.randint(0,10000 ))
