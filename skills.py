@@ -52,31 +52,33 @@ def update_skills() :
 		my_picture = session['picture']	
 		if session['skills'] is not None :
 			skills = session['skills']['description']
-			print('skills = ', skills)
+		
 			#description = [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
 			skills_row = ""
 			for counter, skill in enumerate(skills, 0) :
+				skill_level = 'Intermed.' if skill['skill_level'] == 'Intermediate' else skill['skill_level'] 
 				form_row = """
 					<div class="form-row">
-                        <div class="col-sm-3 col-lg-3 col-xl-3">
+						  <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
+                       
                             <div class="form-group">
 								<p> """ + skill['skill_name'] + """</p>
 							</div>
                          </div>
+                           <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
                          
-                         <div class="col-sm-3 col-lg-3 col-xl-3 offset-xl-0">
                              <div class="form-group">
 								<p>""" + skill['skill_domain'] + """</p>
 							</div>
                          </div>
+                           <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
                          
-                         <div class="col-sm-3 col-lg-3 col-xl-3">
                             <div class="form-group">
-								<p> """ + skill['skill_level'] + """</p>
+								<p> """ + skill_level + """</p>
 							</div>	
                          </div>
-                         
-                         <div class="col-sm-3 col-lg-3 col-xl-3">
+                           <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
+                        
                               <div class="form-group">
 								<button title="Delete first if you want to update." class="btn btn-secondary btn-sm" name="choice" value=""" + str(counter) + """ type="submit">Delete</button></div>
 								</div>
@@ -88,7 +90,7 @@ def update_skills() :
 		return render_template('update_skills.html', picturefile=my_picture, username=username, skills_row=skills_row)
 	
 	if request.method == 'POST' :
-		print( ' session(skils) = ', session['skills'])
+	
 		# session[skills'] =  {'version' : 1,   description: [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
 		
 		# add a skill
@@ -127,12 +129,15 @@ def update_skills() :
 			elif session['skills'].get('doc_id') is None :
 				my_skills = Document('skills')
 				data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
-				my_skills.relay_add(session['workspace_contract'], data, mode, mydays=0) 
+				(doc_id, ipfshash, transaction_hash) = my_skills.relay_add(session['workspace_contract'], data, mode)
+				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)  
+				
 			# standard update
 			else :
 				my_skills = Document('skills')
 				data = {'version' : session['skills']['version'], 'description' : session['skills']['description']}
-				my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode, mydays=0)
+				(doc_id, ipfshash, transaction_hash) = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode)
+				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)  
 			flash('Your skills have been updated', 'success')	
 			return redirect( mode.server + 'user/')
 		
@@ -167,10 +172,10 @@ def update_skills_from_elsewhere(skill_list) :
 		if session['skills'].get('doc_id') is None :
 			my_skills = Document('skills')
 			data = {'version' : session['skills']['version'], 'description' : session['skills']['description']}
-			execution =my_skills.relay_add(session['workspace_contract'], data, mode, mydays=0) 
+			(doc_id, ipfshash, transaction_hash) =my_skills.relay_add(session['workspace_contract'], data, mode, mydays=0) 
 		else :
 			my_skills = Document('skills')
 			data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
-			execution = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode, mydays=0)													
+			(doc_id, ipfshash, transaction_hash) = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode, mydays=0)													
 	return execution
 		

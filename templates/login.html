@@ -61,7 +61,7 @@
                                     <form class="user" action="/login/" method="POST">
                                      <!--   <h6 class="text-warning">{{get_flashed_messages()[0]}}</h6>	-->
                                         <div class="form-group"><input class="form-control" type="text" placeholder="Enter your username" name="username" style="color: rgb(133,135,150);" required></div>
-                                        <button class="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
+                                        <button class="btn btn-primary btn-block text-white btn-user" id="loading_button" type="submit">Login</button>
                                     </form>
                                      <div class="text-center"><a class="small" href="/starter/">Back to Starter</a></div>
                                     <div class="text-center"><a class="small" href="/forgot_username/">Forgot Username</a></div>
@@ -76,9 +76,10 @@
                             {% include 'user_footer.html' %}    
 
     </div>
-    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+     <script src="{{ url_for('static', filename='loading_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>

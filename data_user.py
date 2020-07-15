@@ -186,7 +186,7 @@ def data(dataId) :
 	if username is None :
 		return redirect(mode.server + 'login/')	
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
-	my_event_html, my_counter =  event_display(session['events'])
+	#my_event_html, my_counter =  event_display(session['events'])
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
 	
@@ -199,7 +199,7 @@ def data(dataId) :
 		else :
 			print('Error data in webserver.py, Class instance needed')	
 			return
-			
+		print('my data skills', my_data)	
 		#ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
@@ -234,9 +234,12 @@ def data(dataId) :
 				<li><b>Username</b> : """ + issuer_username +"""<br></li>
 				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
 	
-	if my_data.issuer['workspace_contract'] == session['workspace_contract'] :					
+	if my_data.issuer['workspace_contract'] == mode.relay_workspace_contract  :
+		myissuer = myissuer + """<a class="text-warning" >Relay has issued on behalf of """ + session['name'] + """</a>"""
+		
+	elif my_data.issuer['workspace_contract'] == session['workspace_contract'] :					
 		myissuer = myissuer + """
-				 <a class="text-warning">Sel Declaration</a>	
+				 <a class="text-warning">Self Declaration</a>	
 				</span>"""
 	
 	elif issuer_is_white :					
@@ -258,7 +261,7 @@ def data(dataId) :
 		myadvanced = """
 				<b>Advanced</b>
 				<li><b>Document Id</b> : """ + str(doc_id) + """<br></li>
-				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
+				<li><b>Privacy</b> : """ + myvisibility.capitalize() + """<br></li>
 				<li><b>Created</b> : """ + my_data.created + """<br></li>	
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>	
@@ -384,11 +387,9 @@ def data(dataId) :
 	mydelete_link = "/talao/api/data/delete/"
 	
 	goback = "/user/"
-	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
+	my_verif =  myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
 	
 	return render_template('data_check.html',
-							event = my_event_html,
-							counter = my_counter,
 							picturefile = mypicture,
 							name = session['name'],
 							username = username,
@@ -413,12 +414,12 @@ def user() :
 		return redirect(mode.server + 'login/')	
 	if session.get('uploaded') is None :
 		print('start first instanciation user')	
-		#try :	
-		user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
-		#except :
-		#	flash('session aborted', 'warning')
-		#	print('pb au niveau de Identity')
-		#	return render_template('login.html')
+		try :	
+			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		except :
+			flash('session aborted', 'warning')
+			print('pb au niveau de Identity')
+			return render_template('login.html')
 		print('end')
 		""" clean up for resume  """
 		user_dict = user.__dict__.copy()
@@ -855,6 +856,7 @@ def user() :
 							account=my_account,
 							picturefile=session['picture'],
 							digitalvault= my_file,
+							clipboard= mode.server  + "certificate/issuer_explore/?workspace_contract=" + session['workspace_contract'],
 							username=session['username'])	
 
 ####################################################################################################

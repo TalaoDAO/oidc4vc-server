@@ -36,9 +36,12 @@
                             <form action="/user/request_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>To request a Certificate the Issuer needs to have an Identity and your authorization to issue. We will contact him through his email.<br></p>
+                                        <p>To request a Certificate the Issuer needs to have an Identity and your authorization to issue. We will contact him through his email.<br><br>
+                                        There are 2 types of certificates :
+                                        <li> Experience Certificate with details about a specific projet.</li>
+                                        <li>Recommendation Certificate which is a person to person referral.</li></p>
                                         {% if display_email == True %}
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Email</strong><br></label><input class="form-control" name ="issuer_email" required="" type="email"></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Email</strong><br></label><input title="Referent Email" class="form-control" name ="issuer_email" required="" type="email"></div>
                                         {% endif %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Certificate Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
@@ -53,10 +56,10 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" value="send">Next</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Go to the Certificate form." type="submit" name="choice" value="send">Next</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                        <div class="form-group"><button onclick="goBack()" title="Back to previous view" class="btn btn-primary btn-sm" type="button">Back</button></div>
                                     </div>
                                 </div>
                             </form>
