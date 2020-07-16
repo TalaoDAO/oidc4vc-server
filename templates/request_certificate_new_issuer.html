@@ -59,7 +59,7 @@
                                 
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" value="send">Send the Request</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" name="choice" id="sending_button" value="send">Send</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
 										   <a href="/user/?username={{username}}">
@@ -82,7 +82,8 @@
                         {% include 'user_footer.html' %}    
 
     </div>
-   
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='sending_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

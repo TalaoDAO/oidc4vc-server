@@ -48,7 +48,7 @@
                                             <div class="form-group"><label>Upload your ID or Passport.</label>
                                                 <div class="input-group mb-3">
                                                     <div class="input-group-prepend"></div>
-                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile01"></label><input type="file" id="inputGroupFile01" class="custom-file-input" name="id_file"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile01"></label><input title="Data must be readable. " type="file" id="inputGroupFile01" class="custom-file-input" name="id_file"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -58,13 +58,13 @@
                                             <div class="form-group"><label>Upload your selfie.</label>
                                                 <div class="input-group mb-3">
                                                     <div class="input-group-prepend"></div>
-                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile02"></label><input type="file" id="inputGroupFile02" class="custom-file-input" name="selfie_file"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile02"></label><input title="Data must be readable and we must see your face." type="file" id="inputGroupFile02" class="custom-file-input" name="selfie_file"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="col-6 col-xl-3"><button class="btn btn-primary btn-sm" type="submit">Save</button></div>
+                                        <div class="col-6 col-xl-3"><button class="btn btn-primary btn-sm" title="Upload your files." id="loading_button" type="submit">Upload</button></div>
                                         <div class="col-6 col-xl-3"><a href="/user/">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
                                         </a></div>
@@ -79,7 +79,8 @@
                                   {% include 'user_footer.html' %}    
 
     </div></div>
-    
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	  <script src="{{ url_for('static', filename='loading_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

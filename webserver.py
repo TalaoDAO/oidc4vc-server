@@ -37,6 +37,7 @@ import hcode
 import ns
 import analysis
 import history
+import privatekey
 
 
 # Centralized  route
@@ -1317,19 +1318,19 @@ def request_certificate() :
 	if username is None :
 		return redirect(mode.server + 'login/')	
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
+	#my_event = session.get('events')
+	#my_event_html, my_counter =  event_display(session['events'])
 	
 	if request.method == 'GET' :
-	
 		session['certificate_issuer_username'] = request.args.get('issuer_username') 
+		
 		# The call comes from Menu, we ask for email
 		if session['certificate_issuer_username'] is None :
 			display_email = True
 			# always recommendation option displayed
 			reco = True
 		
-		# the call comes from search bar and issuer_explore view
+		# the call comes from search bar (issuer_explore view)
 		else :
 			display_email = False
 			if session['issuer_explore']['type'] == 'person' :
@@ -1339,19 +1340,11 @@ def request_certificate() :
 				reco = False
 			# Check if issuer has private key 
 			issuer_address = session['issuer_explore']['address']
-			fname = mode.BLOCKCHAIN +"_Talao_Identity.csv"
-			identity_file = open(fname, newline='')
-			reader = csv.DictReader(identity_file)
-			check = False
-			for row in reader :
-				if row['ethereum_address'] == issuer_address :
-					check = True
-					break
-			if check == False :	
-				print('erreur , Private kay not found for ', session['certificate_issuer_username'])
+			if privatekey.get_key(issuer_address, 'private_key') is None :
+				print('erreur , Private key not found for ', session['certificate_issuer_username'])
 				flash('Sorry, this Referent cannot issue Certificates.', 'warning')
 				return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
-		return render_template('request_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, display_email=display_email, reco=reco)
+		return render_template('request_certificate.html', picturefile=my_picture, username=username, display_email=display_email, reco=reco)
 	
 	if request.method == 'POST' :
 		# From Menu, if issuer does not exist, he has to be created
@@ -1371,14 +1364,10 @@ def request_certificate() :
 		if request.form['certificate_type'] == 'experience' :
 			return render_template('request_experience_certificate.html',
 										picturefile=my_picture,
-										event=my_event_html,
-										counter=my_counter,
 										username=username)
 		elif request.form['certificate_type'] == 'recommendation' :
 			return render_template('request_recommendation_certificate.html',
 										picturefile=my_picture,
-										event=my_event_html,
-										counter=my_counter,
 										username=username)
 										
 		
@@ -1393,7 +1382,7 @@ def request_recommendation_certificate() :
 	memo = request.form.get('memo')
 	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session['certificate_issuer_username']
 	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
-
+	# email to Referent/issuer
 	parameters = {'issuer_email' : session['issuer_email'],
 					'issuer_username' : issuer_username,
 					'issuer_workspace_contract' : issuer_workspace_contract,
@@ -1402,7 +1391,7 @@ def request_recommendation_certificate() :
 					'talent_username' : username,
 					'talent_workspace_contract' : session['workspace_contract']
 					}
-	print('parameters = ', parameters) 
+	 
 	link = urllib.parse.urlencode(parameters)
 	url = mode.server + 'issue/?' + link
 	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
@@ -1410,11 +1399,12 @@ def request_recommendation_certificate() :
 			"\r\n\r\nFollow this link to proceed : " + url
 	subject = 'You have received a request for recommendation from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
+	# message to user vue
 	flash('Your request for Recommendation has been sent.', 'success')
-	# message to user
+	# email to user/Talent
 	subject = "Your request for certificate has been sent."
 	text = " You will receive an email when your Referent connects." 
-	user_email = ns.get_data_from_username(username)['email']
+	user_email = ns.get_data_from_username(username, mode)['email']
 	Talao_message.message(subject, user_email, text)
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
@@ -1428,7 +1418,7 @@ def request_experience_certificate() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
-	# message to Talent
+	# email to Referent/issuer
 	memo = request.form.get('memo')
 	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
 	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
@@ -1452,11 +1442,12 @@ def request_experience_certificate() :
 			"\r\n\r\nFollow this link to proceed : " + url
 	subject = 'You have received a request for certification from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
-	# message to user
+	# email to user/Talent
 	subject = "Your request for certificate has been sent."
 	text = " You will receive an email when your Referent connects." 
-	user_email = ns.get_data_from_username(username)['email']
+	user_email = ns.get_data_from_username(username, mode)['email']
 	Talao_message.message(subject, user_email, text)
+	# message to user/Talent
 	flash('Your request for an Experience Certificate has been sent.', 'success')
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
@@ -1541,9 +1532,9 @@ def request_proof_of_identity() :
 	
 	if request.method == 'GET' :				
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('request_proof_of_identity.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		#my_event = session.get('events')
+		#my_event_html, my_counter =  event_display(session['events'])
+		return render_template('request_proof_of_identity.html', picturefile=my_picture, username=username)
 	
 	elif request.method == 'POST' :
 		
@@ -1556,11 +1547,17 @@ def request_proof_of_identity() :
 		id_file.save(os.path.join('./uploads/proof_of_identity', username + "_ID." + id_file_name))
 		selfie_file.save(os.path.join('./uploads/proof_of_identity', username + "_selfie." + selfie_file_name))
 	
-		
+		# email to Admin
 		message = 'Request for proof of identity for ' + username
 		subject = 'Request for Proof of Identity for ' + username
 		Talao_message.messageAdmin (subject, message, mode)
-		flash(' Your request has been registered, we will check your documents soon.', 'success')
+		# email to user/Talent
+		subject = "Your request for a proof of Identity has been sent."
+		text = " You will receive an email soon." 
+		user_email = ns.get_data_from_username(username, mode)['email']
+		Talao_message.message(subject, user_email, text)
+		# message to user
+		flash(' Thank you, we will check your documents soon.', 'success')
 		return redirect (mode.server +'user/?username=' + username)	
 
 

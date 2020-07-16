@@ -124,7 +124,6 @@ class Identity() :
 					
 	def has_relay_private_key(self) :
 		self.private_key_value =  privatekey.get_key(self.address, 'private_key')
-		print(' private key value dans identity' , self.private_key_value)
 		self.private_key = False if self.private_key_value is None else True
 		return			
 					

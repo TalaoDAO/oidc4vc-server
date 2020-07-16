@@ -45,7 +45,6 @@ class ExportingThread(threading.Thread):
 	def run(self):
 		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)	
 
-
 #@app.route('/issue/logout/', methods = ['GET'])
 def issue_logout() :
 	session.clear()
@@ -77,7 +76,7 @@ def issue_certificate_for_guest() :
 			flash("Link error, Check the url", 'warning')
 			return redirect(mode.server + 'login/')	
 		
-		# test if certificate has already been issued
+		# test if certificate has already been issued (we only test if the issuer exists.....to be changed later)
 		issuer_list = ns.get_username_list_from_email(session['issuer_email'])
 		if session['issuer_username'] == "new" and issuer_list != [] : 
 			flash("Certificate already issued.", 'warning')
@@ -196,7 +195,9 @@ def get_issuer_personal() :
 #@app.route('/issue/create_authorize_issue/', methods=['GET', 'POST'])
 def create_authorize_issue() :
 	""" Its a GUEST screen ,
+	After confirmation view
 	We create the Identity, then the Talent issues the key 20002 to the issuer then the issuer issues the certificate"""
+	
 	# verif secret code sent by email
 	if session.get('code') is None :
 		flash("Authentification expired")		
@@ -210,21 +211,19 @@ def create_authorize_issue() :
 		session.clear()
 		return redirect(url)	
 	elif session['try_number'] > 3 :	
-		flash("Too many trials (3 max)")
+		flash("Too many trials (3 max)", "danger")
 		url = session['url']
 		session.clear()
-		return redirect(url)			
-	
+		return redirect(url)				
 	elif code not in [session['code'], "123456"] :	
 		if session['try_number'] == 2 :			
 			flash('This code is incorrect, 2 trials left', 'warning')
 		elif session['try_number'] == 3 :
 			flash('This code is incorrect, 1 trial left', 'warning')
-			print('sortie vers confirm_issue.html ')
 		return render_template('confirm_issue_certificate_for_guest.html')
 	
 	
-	# Dispatch
+	# Code if fine we can dispatch
 	if session['certificate_type'] == 'experience' :
 		certificate = {
 			"version" : 1,
@@ -269,21 +268,33 @@ def create_authorize_issue() :
 		exporting_threads[thread_id].start() 
 		return render_template('thank_you.html',
 								url_to_link= mode.server + 'login/')
-	# current user, issue certicate
+	# "Old" user, issue certificate straight
 	else :
 		my_certificate = Document('certificate')
 		issuer_workspace_contract = session['issuer_workspace_contract']
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
 		# get private key for issuer
-		issuer_private_key = get_key(issuer_address,'private_key') 					
+		issuer_private_key = privatekey.get_key(issuer_address,'private_key') 					
 		if issuer_private_key is None :
 			print('erreur , Private kay not found for ', session['issuer_username'])
-			flash('Sorry, the Certificate cant issued, No Private Key', 'danger')
+			flash('Sorry, the Certificate cant be issued, no Private Key found', 'warning')
 			return render_template('login.html')
 		workspace_contract = session['talent_workspace_contract']
 		address = contractsToOwners(session['talent_workspace_contract'],mode)
 		(doc_id, ipfshash, transaction_hash) = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True) 
+		# message to issuer
 		flash('Thank you, the Certificate has been issued', 'success')
+		# Email to issuer
+		subject = 'Certificate has been issued to ' + session['talent_name']
+		link = mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
+		text = '\r\nFollow the link : ' + link
+		Talao_message.message(subject, session['issuer_email'], text)
+		print('msg pour issuer envoyé')
+		# Email to talent
+		subject = 'A new Certificate has been issued to you'
+		identity, talent_email = ns.get_data_for_login(session['talent_username'])
+		Talao_message.message(subject, talent_email, text)
+		print('message pour Talent envoyé')
 		return render_template('login.html')
 								
 # this is a Thread function		
