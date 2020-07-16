@@ -21,37 +21,6 @@ import analysis
 mode = environment.currentMode()
 w3 = mode.w3
 
-# gestion du menu de gestion des Events  """
-def event_display(eventlist) :
-	event_html = ""
-	index = 0
-	for key in sorted(eventlist, reverse=True) :
-		index += 1
-		date= key.strftime("%y/%m/%d")
-		texte = eventlist[key]['alert']
-		doc_id = eventlist[key]['doc_id']
-		event_type = eventlist[key]['event']
-		if doc_id is None :
-			href = " "
-		else :
-			href = "href= /data/"+doc_id
-		icon = 'class="fas fa-file-alt text-white"'
-		background = 'class="bg-success icon-circle"'
-		
-		if event_type == 'DocumentRemoved' or event_type == 'ClaimRemoved' :
-			icon = 'class="fas fa-trash-alt text-white"'
-			background = 'class="bg-warning icon-circle"'	
-		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """>
-							<div class="mr-3"> <div """ + background + """><i """ + icon + """></i></div></div>
-							<div>
-								<span class="small text-gray-500">""" + date + """</span><br>
-								<div class = "text-truncate">
-                                <span>""" + texte + """</span></div>
-                            </div>
-                        </a>"""	
-		event_html = event_html + thisevent 
-	return event_html, index
-
 
 def convert(obj):
     if type(obj) == list:
@@ -66,19 +35,16 @@ def convert(obj):
 
 # display experience certificate for anybody. Stand alone routine
 def show_certificate():
-	""" Its sometimes a GUEST view 
+	""" It cab be an entry point   
 	"""
 	username = session.get('username_logged')
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
-		my_event_html = ""
-		my_counter = 0
 		session['type'] = ""
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
-		my_event_html, my_counter =  event_display(session['events'])
 	
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
@@ -158,8 +124,6 @@ def show_certificate():
 							identity_username=identity_username,
 							issuer_username=issuer_username,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,
 							**context)
@@ -179,8 +143,6 @@ def show_certificate():
 							identity_username=identity_username,
 							issuer_username=issuer_username,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,
 							**context)
@@ -214,8 +176,6 @@ def show_certificate():
 							identity_username=identity_username,
 							issuer_username=issuer_username,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,
 							)
@@ -230,12 +190,11 @@ def certificate_verify() :
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
-		my_event_html = ""
-		my_counter = 0
+		
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
-		my_event_html, my_counter =  event_display(session['events'])
+	
 		
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
@@ -345,8 +304,6 @@ def certificate_verify() :
 							topic = certificate['topic'].capitalize(),
 							verif=my_verif,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,
 							)
@@ -357,18 +314,16 @@ def certificate_verify() :
 # issuer explore 
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
 def certificate_issuer_explore() :
-	
+	""" This can be an entry point too"""
 	username = session.get('username_logged')
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
-		my_event_html = ""
-		my_counter = 0
+	
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
-		my_event_html, my_counter =  event_display(session['events'])
-	
+			
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
 	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
@@ -522,10 +477,11 @@ def certificate_issuer_explore() :
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
 				
 		services ="""
-				<a class="text-success" href="/certificate/certificate_data_analysis/" >Dashboard</a></br>
-							
+				<a class="text-success" href="/certificate/certificate_data_analysis/" >Talent Dashboard</a></br>
+				
+				<a class="text-success" href="" >Send an email to this Talent</a></br>			
 						
-				<a class="text-warning"><br> Register to get access to other services.</a><br><br>"""
+				<a href="/register/" class="text-warning"> Register to get access to other services.</a><br><br>"""
 											
 		
 		
@@ -542,8 +498,6 @@ def certificate_issuer_explore() :
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id= certificate_id,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,)
 	
@@ -597,8 +551,6 @@ def certificate_issuer_explore() :
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id=certificate_id,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,)
 
@@ -611,12 +563,11 @@ def certificate_data(dataId) :
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
-		my_event_html = ""
-		my_counter = 0
+	
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
-		my_event_html, my_counter =  event_display(session['events'])
+	
 		
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
@@ -798,8 +749,6 @@ def certificate_data(dataId) :
 	return render_template('./certificate/certificate_data_check.html',
 							verif=my_verif,
 							picturefile=my_picture,
-							event=my_event_html,
-							counter=my_counter,
 							username=username,
 							viewer=viewer,
 							)
@@ -812,12 +761,11 @@ def certificate_data_analysis() :
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
-		my_event_html = ""
-		my_counter = 0
+		
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
-		my_event_html, my_counter =  event_display(session['events'])
+	
 	
 	certificate_id = session['certificate_id']
 	identity_workspace_contract = '0x' + certificate_id.split(':')[3]

@@ -856,7 +856,7 @@ def user() :
 							account=my_account,
 							picturefile=session['picture'],
 							digitalvault= my_file,
-							clipboard= mode.server  + "certificate/issuer_explore/?workspace_contract=" + session['workspace_contract'],
+							clipboard= mode.server  + "guest/?workspace_contract=" + session['workspace_contract'],
 							username=session['username'])	
 
 ####################################################################################################

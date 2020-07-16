@@ -84,6 +84,7 @@ app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentif
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate)
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'])
 app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'])
+app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET']) # idem previous
 app.add_url_rule('/certificate/data/<dataId>',  view_func=web_certificate.certificate_data, methods = ['GET'])
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'])
 
@@ -570,8 +571,8 @@ def data_analysis() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
+	#my_event = session.get('events')
+	#my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		if request.args.get('user') == 'issuer_explore' :
 			my_analysis = analysis.dashboard(session['issuer_explore']['workspace_contract'],session['issuer_explore'], mode)
@@ -582,8 +583,6 @@ def data_analysis() :
 		
 		return render_template('dashboard.html',
 								picturefile=my_picture,
-								event=my_event_html,
-								counter=my_counter,
 								username=username,
 								history=history_string,
 								**my_analysis)
@@ -1043,6 +1042,8 @@ def add_experience() :
 		# add experience in session
 		experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 		experience['doc_id'] = doc_id
+		experience['created'] = str(datetime.now())
+		experience['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
 		session['experience'].append(experience)			
 		flash('New experience added', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
@@ -1184,6 +1185,8 @@ def add_education() :
 		# add experience in session
 		education['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 		education['doc_id'] = doc_id
+		education['created'] = str(datetime.now())
+		education['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
 		session['education'].append(education)			
 		flash('New Education added', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
@@ -1201,9 +1204,13 @@ def remove_education() :
 		return render_template('remove_education.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, education_title=session['education_title'])
 	elif request.method == 'POST' :	
 		session['education'] = [education for education in session['education'] if education['id'] != session['education_to_remove']]
-		Id = session['education_to_remove'].split(':')[5]
+		doc_id = session['education_to_remove'].split(':')[5]
 		my_education = Document('education')
-		my_education.relay_delete(session['workspace_contract'], int(Id), mode)
+		my_education.relay_delete(session['workspace_contract'], int(doc_id), mode)
+		for counter,edu in enumerate(session['education'], 0) :
+			if edu['doc_id'] == doc_id :
+				del session['education'][counter]
+				break
 		del session['education_to_remove']
 		del session['education_title']
 		flash('The Education has been removed', 'success')
