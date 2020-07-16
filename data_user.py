@@ -856,7 +856,7 @@ def user() :
 							account=my_account,
 							picturefile=session['picture'],
 							digitalvault= my_file,
-							clipboard= mode.server  + "guest/?workspace_contract=" + session['workspace_contract'],
+							clipboard= mode.server  + "guest/?workspace_contract=" + session['workspace_contract']+ "&anonymous=True",
 							username=session['username'])	
 
 ####################################################################################################

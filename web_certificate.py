@@ -316,6 +316,7 @@ def certificate_verify() :
 def certificate_issuer_explore() :
 	""" This can be an entry point too"""
 	username = session.get('username_logged')
+	call = request.args.get('anonymous')
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
@@ -499,6 +500,7 @@ def certificate_issuer_explore() :
 							certificate_id= certificate_id,
 							picturefile=my_picture,
 							username=username,
+							call=call,
 							viewer=viewer,)
 	
 	
