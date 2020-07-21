@@ -56,32 +56,37 @@ def update_skills() :
 			#description = [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
 			skills_row = ""
 			for counter, skill in enumerate(skills, 0) :
-				skill_level = 'Intermed.' if skill['skill_level'] == 'Intermediate' else skill['skill_level'] 
+				#skill_level = 'Intermed.' if skill['skill_level'] == 'Intermediate' else skill['skill_level'] 
+				skill_level = skill['skill_level']
 				form_row = """
 					<div class="form-row">
-						  <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
+						  <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                        
                             <div class="form-group">
 								<p> """ + skill['skill_name'] + """</p>
 							</div>
                          </div>
-                           <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
                          
+                        <!--   <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
                              <div class="form-group">
 								<p>""" + skill['skill_domain'] + """</p>
 							</div>
                          </div>
-                           <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
+                        --> 
+                         
+                           <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                          
                             <div class="form-group">
 								<p> """ + skill_level + """</p>
 							</div>	
                          </div>
-                           <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
+                           <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                         
-                              <div class="form-group">
-								<button title="Delete first if you want to update." class="btn btn-secondary btn-sm" name="choice" value=""" + str(counter) + """ type="submit">Delete</button></div>
+                             <div class="form-group">
+								<div class="text-center">
+									<button title="Delete first if you want to update." class="btn btn-secondary btn-sm" name="choice" value=""" + str(counter) + """ type="submit">Delete</button></div>
 								</div>
+							</div>
                      </div>"""
 				skills_row = form_row + skills_row									
 		else :
@@ -101,7 +106,7 @@ def update_skills() :
 			skill = {'skill_code' : skill_code,
 									'skill_name' : request.form['skill_name'].capitalize(),
 									'skill_level' : request.form['skill_level'],
-									'skill_domain' : request.form['skill_domain']}
+									'skill_domain' : ""}
 			if session['skills'] is None  :
 				session['skills'] = dict()
 				session['skills']['description'] = []
@@ -144,7 +149,6 @@ def update_skills() :
 		# delete the skill 	
 		else :
 			counter = request.form['choice']
-			print(' skill to delete =', session['skills']['description'][int(counter)] )
 			del session['skills']['description'][int(counter)]
 			return redirect (mode.server + 'user/update_skills/')
 			

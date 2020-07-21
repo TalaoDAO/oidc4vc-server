@@ -184,6 +184,9 @@ def create_company(email, username, mode) :
 
 	# rewrite encrypted email with scheme 2 to differenciate from freedapp email that are not encrypted
 	email2(address, workspace_contract, private_key, email, AES_key, mode)
+	
+	# key 20002 to Talao to Issue Proof of Identity
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True) 
 
 	# update resolver and create local database
 	ns.add_identity(username, workspace_contract, email, mode)

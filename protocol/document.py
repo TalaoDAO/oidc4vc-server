@@ -384,3 +384,6 @@ class Document() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return delete_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)
 	
+	def delete(self, identity_workspace_contract, identity_private_key, doc_id, mode) :
+		identity_address = contracts_to_owners(identity_workspace_contract, mode)
+		return delete_document(identity_address, identity_workspace_contract, identity_address, identity_workspace_contract, identity_private_key, doc_id, mode)

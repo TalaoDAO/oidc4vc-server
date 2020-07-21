@@ -16,7 +16,7 @@ Les principaux apports du protocole sont :
 Une première version du protocole Talao a été déployée en Fevrier 2018. Il a été installé avec un accès utilisateur sous la forme d'une `Dapp <https://freedapp.io/>`_.
 Suite à ce déploiement l'équipe Talao s'est concentrée sur la commercialisation de l'offre en B2B auprès des grands comptes sur le secteur des freelances représentant un "use case" relativement simple.
 Plusieurs projets ont été initiés en particulier pour l'émission de certificats pour des entreprises du secteur des ESN qui trouvaient dans un contexte de pénuri de 
-ressources et de fort turn over de leurs personnel un outil de renforcement de leur marque employeur.
+ressources et de fort turn over de leurs personnels un outil de renforcement de leur marque employeur.
 
 Dans ce contexte nous avons en revanche constaté que la mise en euvre de la Dapp et en particulier son adoption par des utilisateurs non experts était difficile compte tenu de la complexité des manipulations.
 Il faut aujourd'hui pour utiliser le protocole non seulement disposer d'un wallet Ethereum et de cryptos mais aussi d'être en mesure de signer des transactions Ethereum avec un outil tel que Metamask.

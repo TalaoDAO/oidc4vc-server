@@ -62,12 +62,10 @@ class Identity() :
 			
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
-			self.is_relay_activated()
-			
+			self.is_relay_activated()			
 			self.get_white_keys()
-			self.eventslist = dict()
+	
 		else :
-			self.eventslist = dict()
 			self.partners = []
 			self.private_key = False
 			self.rsa_key = False

@@ -42,39 +42,6 @@ def check_login() :
 	return username
 
 
-# gestion du menu de gestion des Events  """
-def event_display(eventlist) :
-	event_html = ""
-	index = 0
-	for key in sorted(eventlist, reverse=True) :
-		index += 1
-		date= key.strftime("%y/%m/%d")
-		texte = eventlist[key]['alert']
-		doc_id = eventlist[key]['doc_id']
-		event_type = eventlist[key]['event']
-		if doc_id is None :
-			href = " "
-		else :
-			href = "href= /data/"+doc_id
-		icon = 'class="fas fa-file-alt text-white"'
-		background = 'class="bg-success icon-circle"'
-		
-		if event_type == 'DocumentRemoved' or event_type == 'ClaimRemoved' :
-			icon = 'class="fas fa-trash-alt text-white"'
-			background = 'class="bg-warning icon-circle"'	
-		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """>
-							<div class="mr-3"> <div """ + background + """><i """ + icon + """></i></div></div>
-							<div>
-								<span class="small text-gray-500">""" + date + """</span><br>
-								<div class = "text-truncate">
-                                <span>""" + texte + """</span></div>
-                            </div>
-                        </a>"""	
-		event_html = event_html + thisevent 
-	return event_html, index
-
-
-
 
 # Starter with 3 options, login and logout
 #@app.route('/starter/', methods = ['GET', 'POST'])
@@ -186,7 +153,6 @@ def data(dataId) :
 	if username is None :
 		return redirect(mode.server + 'login/')	
 	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
-	#my_event_html, my_counter =  event_display(session['events'])
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
 	
@@ -425,16 +391,14 @@ def user() :
 		user_dict = user.__dict__.copy()
 		del user_dict['mode']
 		del user_dict['aes']
-		del user_dict['eventslist']
-		del user_dict['partners']
+		del user_dict['partners']	
+		
 		session['resume'] = user_dict
-	
 		session['uploaded'] = True
 		session['type'] = user.type
 		session['username'] = username	
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract
-		session['events']=  user.eventslist
 		#session['controller'] = user.managementkeys
 		session['issuer'] = user.issuer_keys
 		session['whitelist'] = user.white_keys
@@ -456,21 +420,32 @@ def user() :
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
-			#session['language'] = user.language
 			session['skills'] = user.skills
 			session['education'] = user.education	
 			session['kyc'] = user.kyc
-			#(radio, mylang1, mylang2, mylang3)= session['language']
 			session['profil_title'] = user.profil_title	
 			print(' skllls dans user =', session['skills'])
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 	
-	my_event_html, my_counter =  event_display(session['events'])
-	#controller_list = session['controller']
-	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
+
+	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
 	
 	
+	# account	
+	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
+					<b>token TALAO</b> : """ + str(session['token'])
+	if session['username'] == 'talao' :
+		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
+		relay_token = float(token_balance(mode.relay_address,mode))	
+		talaogen_eth = mode.w3.eth.getBalance(mode.Talaogen_public_key)/1000000000000000000
+		talaogen_token = float(token_balance(mode.Talaogen_public_key, mode))
+		my_account = my_account + """<br><br> 
+					<b>Relay ETH</b> : """ + str(relay_eth) + """<br>
+					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
+					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
+					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
+					
 	
 	
 	# advanced
@@ -489,12 +464,16 @@ def user() :
 					<b>RSA Key</b> : """ + relay_rsa_key + """<br>
 					<b>Private Key</b> : """ + relay_private_key +"""<hr>"""
 	
+	# Import Private Key
+	if not session['private_key'] :
+		my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
+	
+	my_advanced = my_advanced + my_account +  "<hr>"
 	
 	# TEST only
 	if mode.debug :
 		my_advanced = my_advanced + """<br><a href="/user/test/">For Test Only</a>"""
 
-	
 	
 	
 	# Partners
@@ -567,20 +546,7 @@ def user() :
 			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
 	
 
-	# account	
-	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
-					<b>token TALAO</b> : """ + str(session['token'])
-	if session['username'] == 'talao' :
-		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
-		relay_token = float(token_balance(mode.relay_address,mode))	
-		talaogen_eth = mode.w3.eth.getBalance(mode.Talaogen_public_key)/1000000000000000000
-		talaogen_token = float(token_balance(mode.Talaogen_public_key, mode))
-		my_account = my_account + """<br><br> 
-					<b>Relay ETH</b> : """ + str(relay_eth) + """<br>
-					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
-					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
-					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
-					
+	
 	
 	# file
 	my_file = """<a href="/user/store_file/">add Files</a><hr>"""
@@ -630,7 +596,7 @@ def user() :
 		
 		# skills
 		# session[skills'] =  {'version' : 1,   description: [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
-		if session['skills'] is None :
+		if session['skills'] is None or session['skills'].get('id') is None :
 			my_skills =  """<a href="/user/update_skills/">Add Skills</a><hr>
 									<a class="text-danger">No Data Available</a>"""
 		else : 
@@ -727,7 +693,7 @@ def user() :
 				<b>Country</b> : """+ kyc['country']+"""<br>				
 				<b>Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>				
 				<p>		
-					<a class="text-secondary" href="/user/remove_education/?experience_id=""" + kyc['id'] + """&experience_title="""+ kyc['firstname'] + """">
+					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc['id'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href=/data/"""+ kyc['id'] + """:kyc>
@@ -735,7 +701,6 @@ def user() :
 					</a>
 				</p>"""	
 				my_kyc = my_kyc + kyc_html		
-		#my_kyc = """<div style=" font-size: 12px" > """ + my_kyc + """</div>"""
 	
 		# Alias
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract']) :
@@ -851,12 +816,9 @@ def user() :
 							issuer=my_issuer, 
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
-							event=my_event_html,
-							counter=my_counter,
-							account=my_account,
 							picturefile=session['picture'],
 							digitalvault= my_file,
-							clipboard= mode.server  + "guest/?workspace_contract=" + session['workspace_contract']+ "&anonymous=True",
+							clipboard= mode.server  + "guest/?workspace_contract=" + session['workspace_contract'],
 							username=session['username'])	
 
 ####################################################################################################
@@ -949,9 +911,6 @@ def user() :
 							api=my_api,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
-							event=my_event_html,
-							account=my_account,
-							counter=my_counter,
 							picturefile=session['picture'],
 							digitalvault=my_file,
 							username=session['username'])	

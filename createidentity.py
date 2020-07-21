@@ -162,6 +162,9 @@ def create_user(username, email,mode):
 	
 	# key 5 to Talao as White List
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode, synchronous=True) 
+	
+	# key 20002 to Talao to Issue Proof of Identity
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True) 
 
 	# rewrite email with scheme 2 to differenciate from freedapp email that are not encrypted
 	email2(address, workspace_contract, private_key, email, AES_key, mode)

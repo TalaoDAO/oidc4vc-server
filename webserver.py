@@ -23,6 +23,9 @@ import threading
 import copy
 import urllib.parse
 import unidecode
+from eth_keys import keys
+from eth_utils import decode_hex
+
 
 # dependances
 import Talao_message
@@ -47,7 +50,7 @@ import talent_connect
 import data_user
 import createidentity
 import web_issue_certificate
-import skills
+import web_skills
 
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
@@ -61,7 +64,7 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.4"
+app.jinja_env.globals['Version'] = "0.45"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -82,6 +85,7 @@ app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentif
 
 # Centralized @route for display certificates
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate)
+app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certificate)  # idem previous
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'])
 app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'])
 app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET']) # idem previous
@@ -109,41 +113,9 @@ app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certific
 app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout, methods = ['GET', 'POST'])
 
 # Centralized route issuer for skills
-app.add_url_rule('/user/update_skills/',  view_func=skills.update_skills, methods = ['GET', 'POST'])
+app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'])
 
 
-
-
-# gestion du menu de gestion des Events  """
-def event_display(eventlist) :
-	event_html = ""
-	index = 0
-	for key in sorted(eventlist, reverse=True) :
-		index += 1
-		date= key.strftime("%y/%m/%d")
-		texte = eventlist[key]['alert']
-		doc_id = eventlist[key]['doc_id']
-		event_type = eventlist[key]['event']
-		if doc_id is None :
-			href = " "
-		else :
-			href = "href= /data/"+doc_id
-		icon = 'class="fas fa-file-alt text-white"'
-		background = 'class="bg-success icon-circle"'
-		
-		if event_type == 'DocumentRemoved' or event_type == 'ClaimRemoved' :
-			icon = 'class="fas fa-trash-alt text-white"'
-			background = 'class="bg-warning icon-circle"'	
-		thisevent = """<a class="d-flex align-items-center dropdown-item" """ + href + """>
-							<div class="mr-3"> <div """ + background + """><i """ + icon + """></i></div></div>
-							<div>
-								<span class="small text-gray-500">""" + date + """</span><br>
-								<div class = "text-truncate">
-                                <span>""" + texte + """</span></div>
-                            </div>
-                        </a>"""	
-		event_html = event_html + thisevent 
-	return event_html, index
 
 def check_login() :
 	username = session.get('username_logged')
@@ -168,8 +140,7 @@ def picture() :
 		return redirect(mode.server + 'login/')		
 	print(' username in check_login = ', username)
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
+	
 	if request.method == 'GET' :
 		return render_template('picture.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
@@ -196,10 +167,12 @@ def signature() :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
 	my_signature = session['signature']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
+	
 	if request.method == 'GET' :
-		return render_template('signature.html', picturefile=my_picture, signaturefile=my_signature,event=my_event_html, counter=my_counter, username=username)
+		return render_template('signature.html',
+								picturefile=my_picture,
+								signaturefile=my_signature,
+								  username=username)
 	if request.method == 'POST' :
 		if 'image' not in request.files :
 			print('No file ')
@@ -225,8 +198,9 @@ def faq() :
 	my_event = session.get('events')
 	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('faq.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
-
+		return render_template('faq.html',
+							picturefile=my_picture,
+							  username=username)
 
 
 
@@ -248,12 +222,11 @@ def issuer_explore() :
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode).__dict__.copy()
-		print('issuer explore identity', session['issuer_explore'])
 		del session['issuer_explore']['mode']
 		session['issuer_username'] = issuer_username
 	
 	# do something common
-	my_event_html, my_counter =  event_display(session['events'])
+
 	issuer_picture = session['issuer_explore']['picture'] 
 	
 	if session['issuer_explore']['type'] == 'person' :
@@ -371,7 +344,7 @@ def issuer_explore() :
 						<b>Referent Type</b> : """ + certificate_issuer_type +"""<br>	
 						<b>Title</b> : """ + certificate['title']+"""<br>
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
 							<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
@@ -384,7 +357,7 @@ def issuer_explore() :
 						<b>Referent Type</b> : """ + certificate_issuer_type +"""<br>	
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 						<b>Relationship</b> : """ + certificate['relationship']+"""...<br>
-						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
 							<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
@@ -466,8 +439,6 @@ def issuer_explore() :
 							certificates=issuer_certificates,
 							education=issuer_education,
 							services=services,
-							event=my_event_html,
-							counter=my_counter,
 							picturefile = session['picture'],
 							issuer_picturefile=issuer_picture)
 	
@@ -554,8 +525,6 @@ def issuer_explore() :
 							kbis=my_kbis,
 							services=services,
 							personal=issuer_personal,
-							event=my_event_html,
-							counter=my_counter,
 							picturefile=session['picture'],
 							issuer_picturefile=issuer_picture)
 
@@ -597,11 +566,12 @@ def test() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		test = json.dumps(session['resume'], indent=4)
-		return render_template('test.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, test=test)
+		return render_template('test.html',
+								picturefile=my_picture,
+								  username=username,
+								   test=test)
 
 # search
 @app.route('/user/search/', methods=['GET', 'POST'])
@@ -610,10 +580,10 @@ def search() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('search.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('search.html',
+								picturefile=my_picture,
+								  username=username)
 	if request.method == 'POST' :
 		username_to_search = request.form['username_to_search']
 		if username_to_search == username :
@@ -636,14 +606,10 @@ def issue_certificate():
 		flash('Relay does not have your Private Key to issue a Certificate', 'warning')
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])	
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		goback= request.args['goback']
 		return render_template('issue_certificate.html',
 								picturefile=my_picture,
-								event=my_event_html,
-								counter=my_counter,
 								name=session['name'],
 								username=username,
 								issuer_username=session['issuer_username'],
@@ -670,8 +636,6 @@ def issue_certificate():
 				
 			return render_template("issue_experience_certificate.html",
 									picturefile=my_picture,
-									event=my_event,
-									counter=my_counter,
 									username=username,
 									name=session['name'],
 									manager_name=session['certificate_signatory'],
@@ -705,7 +669,6 @@ def issue_experience_certificate():
 	workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 	address_to = contractsToOwners(workspace_contract_to, mode)
 	my_certificate = Document('certificate')
-	print('private key = ',session['private_key_value'])
 	(doc_id, ipfshash, transaction_hash) = my_certificate.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], certificate, mode, mydays=0, privacy='public', synchronous=True) 
 	flash('Certificate has been issued', 'success')
 	del session['certificate_signature']
@@ -722,16 +685,12 @@ def issue_recommendation():
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		issuer_username = request.args['issuer_username']
 		issuer_name = request.args['issuer_name']
 		session['talent_to_issue_certificate_username'] = issuer_username
 		return render_template('issue_recommendation.html',
 								picturefile=my_picture,
-								event=my_event_html,
-								counter=my_counter,
 								name=session['name'],
 								issuer_username=issuer_username,
 								issuer_name = issuer_name)
@@ -741,7 +700,6 @@ def issue_recommendation():
 					"type" : "recommendation",	
 					"description" : request.form['description'],
 					"relationship" : request.form['relationship']}	
-		print('referral = ', recommendation)					
 		workspace_contract_to = ns.get_data_from_username(session['talent_to_issue_certificate_username'], mode)['workspace_contract']
 		address_to = contractsToOwners(workspace_contract_to, mode)
 		my_recommendation = Document('certificate')
@@ -767,8 +725,6 @@ def update_personal_settings() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	personal = copy.deepcopy(session['personal'])
 	convert(personal)
 	if request.method == 'GET' :
@@ -792,8 +748,6 @@ def update_personal_settings() :
 					
 		return render_template('update_personal_settings.html',
 								picturefile=my_picture,
-								event=my_event_html,
-								counter=my_counter,
 								name=session['name'],
 								username=username,
 								firstname=personal['firstname']['claim_value'],
@@ -859,11 +813,8 @@ def update_company_settings() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	personal = copy.deepcopy(session['personal'])
 	convert(personal)
-	print(session['personal'])
 	if request.method == 'GET' :
 		privacy=dict()
 		for topicname in session['personal'].keys() :
@@ -885,8 +836,6 @@ def update_company_settings() :
 					
 		return render_template('update_company_settings.html',
 								picturefile=my_picture,
-								event=my_event_html,
-								counter=my_counter,
 								username=username,
 								name=personal['name']['claim_value'],
 								contact_name=personal['contact_name']['claim_value'],
@@ -931,8 +880,6 @@ def store_file() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('store_file.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
@@ -967,8 +914,6 @@ def create_company() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('create_company.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
@@ -994,8 +939,6 @@ def create_person() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('create_identity.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
@@ -1021,8 +964,6 @@ def add_experience() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
 		return render_template('add_experience.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
@@ -1051,45 +992,75 @@ def add_experience() :
 
 # create kyc (Talao only)
 @app.route('/user/issue_kyc/', methods=['GET', 'POST'])
-def create_kyc() :
+def issue_kyc() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('create_kyc.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
-	if request.method == 'POST' :
-		kyc = Document('kyc')
+		return render_template('issue_kyc.html',
+								picturefile=my_picture,
+								  username=username)
+	if request.method == 'POST' :	
 		my_kyc = dict()
 		kyc_username = request.form['username']
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode)['workspace_contract'] 
-		my_kyc['firsname'] = request.form['firstname']
+		my_kyc['firstname'] = request.form['firstname']
 		my_kyc['lastname'] = request.form['lastname']
 		my_kyc['birthdate'] = request.form['birthdate']
 		my_kyc['authority'] = request.form['authority']
 		my_kyc['card_id'] = request.form['card_id']
+		my_kyc['nationality'] = request.form['nationality']
 		my_kyc['date_of_issue'] = request.form['date_of_issue']
 		my_kyc['date_of_expiration'] = request.form['date_of_expiration']
 		my_kyc['sex'] = request.form['sex']
 		my_kyc['country'] = request.form['country']
-		(doc_id, ipfshash, transaction_hash) = kyc.relay_add(kyc_username, my_kyc, mode, privacy='public')		
+		kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
+		kyc = Document('kyc')
+		(doc_id, ipfshash, transaction_hash) = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)		
 		flash('New kyc added for '+ kyc_username, 'success')
-		return redirect(mode.server + 'user/?username=' + username)
-
+		text = 	"\r\n\r\nA Proof of Identity has been issued for you by Talao. Check your Identity.\r\n" + mode.server + 'login/'			
+		subject = 'Your proof of Identity'
+		kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
+		Talao_message.message(subject, kyc_email, text)
+		return redirect(mode.server + 'user/')
+@app.route('/user/remove_kyc/', methods=['GET', 'POST'])
+def remove_kyc() :
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
+	if request.method == 'GET' :
+		session['kyc_to_remove'] = request.args['kyc_id']
+		my_picture = session['picture']
+		return render_template('remove_kyc.html',
+								picturefile=my_picture,
+								  username=username,
+								  )
+	elif request.method == 'POST' :	
+		session['kyc'] = [kyc for kyc in session['kyc'] if kyc['id'] != session['kyc_to_remove']]
+		doc_id = session['kyc_to_remove'].split(':')[5]
+		my_kyc = Document('kyc')
+		if session['private_key'] :
+			my_kyc.delete(session['workspace_contract'], session['private_key_value'], int(doc_id), mode)
+			for counter,kyc in enumerate(session['kyc'], 0) :
+				if kyc['doc_id'] == doc_id :
+					del session['kyc'][counter]
+					break
+			del session['kyc_to_remove']
+			flash('The Education has been removed', 'success')
+		else :
+			flash('You cannot remove theis Proof of Identy (No Private Key found)', 'warning')
+		return redirect (mode.server +'user/')
 
 # create kbis (Talao only)
 @app.route('/user/issue_kbis/', methods=['GET', 'POST'])
-def create_kbis() :
+def issue_kbis() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('create_kbis.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('issue_kbis.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
 	if request.method == 'POST' :
 		kyc = Document('kbis')
 		my_kbis = dict()
@@ -1119,9 +1090,10 @@ def remove_experience() :
 		session['experience_to_remove'] = request.args['experience_id']
 		session['experience_title'] = request.args['experience_title']
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_experience.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, experience_title=session['experience_title'])
+		return render_template('remove_experience.html',
+								picturefile=my_picture,
+								  username=username,
+								   experience_title=session['experience_title'])
 	elif request.method == 'POST' :	
 		session['experience'] = [experience for experience in session['experience'] if experience['id'] != session['experience_to_remove']]
 		Id = session['experience_to_remove'].split(':')[5]
@@ -1142,9 +1114,10 @@ def remove_certificate() :
 		session['certificate_to_remove'] = request.args['certificate_id']
 		session['certificate_title'] = request.args['certificate_title']
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_certificate.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, certificate_title=session['certificate_title'])
+		return render_template('remove_certificate.html',
+								picturefile=my_picture,
+								  username=username,
+								   certificate_title=session['certificate_title'])
 	elif request.method == 'POST' :	
 		session['certificate'] = [certificate for certificate in session['certificate'] if certificate['id'] != session['certificate_to_remove']]
 		Id = session['certificate_to_remove'].split(':')[5]
@@ -1163,10 +1136,10 @@ def add_education() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('add_education.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('add_education.html',
+								picturefile=my_picture,
+								  username=username)
 	if request.method == 'POST' :
 		my_education = Document('education')
 		education  = dict()
@@ -1199,9 +1172,10 @@ def remove_education() :
 		session['education_to_remove'] = request.args['education_id']
 		session['education_title'] = request.args['education_title']
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_education.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, education_title=session['education_title'])
+		return render_template('remove_education.html',
+								picturefile=my_picture,
+								  username=username,
+								   education_title=session['education_title'])
 	elif request.method == 'POST' :	
 		session['education'] = [education for education in session['education'] if education['id'] != session['education_to_remove']]
 		doc_id = session['education_to_remove'].split(':')[5]
@@ -1223,11 +1197,11 @@ def invit_talent() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	
 	if request.method == 'GET' :
-		return render_template('invit_talent.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('invit_talent.html',
+								picturefile=my_picture,
+								  username=username)
 	
 	if request.method == 'POST' :
 		talent_email = request.form['email']
@@ -1260,14 +1234,16 @@ def resquest_partnership() :
 	if username is None :
 		return redirect(mode.server + 'login/')		
 	my_picture = session['picture']
-	my_event = session.get('events')
-	my_event_html, my_counter =  event_display(session['events'])
 	if request.method == 'GET' :
-		return render_template('request_partnership.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('request_partnership.html',
+								picturefile=my_picture,
+								  username=username)
 	if request.method == 'POST' :
 		partner_username = request.form['partner_username']
 		if partner_username == 'new' :
-			return render_template('request_partnership_new.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+			return render_template('request_partnership_new.html',
+									picturefile=my_picture,
+									  username=username)
 		if is_username_in_list(session['partner'], partner_username) :
 			flash(partner_username + ' is already a partner')
 			return redirect(mode.server + 'user/?username=' + username)
@@ -1304,9 +1280,10 @@ def remove_partner() :
 		session['partner_username_to_remove'] = request.args['partner_username']
 		session['partner_workspace_contract_to_remove'] = request.args['partner_workspace_contract']
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_partner.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, partner_name=session['partner_username_to_remove'])
+		return render_template('remove_partner.html',
+								picturefile=my_picture,
+								  username=username,
+								   partner_name=session['partner_username_to_remove'])
 	if request.method == 'POST' :
 		remove_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_remove'], mode, synchronous= True)
 		session['partner'] = [ partner for partner in session['partner'] if partner['workspace_contract'] != session['partner_workspace_contract_to_remove']]
@@ -1325,8 +1302,6 @@ def request_certificate() :
 	if username is None :
 		return redirect(mode.server + 'login/')	
 	my_picture = session['picture']
-	#my_event = session.get('events')
-	#my_event_html, my_counter =  event_display(session['events'])
 	
 	if request.method == 'GET' :
 		session['certificate_issuer_username'] = request.args.get('issuer_username') 
@@ -1348,7 +1323,6 @@ def request_certificate() :
 			# Check if issuer has private key 
 			issuer_address = session['issuer_explore']['address']
 			if privatekey.get_key(issuer_address, 'private_key') is None :
-				print('erreur , Private key not found for ', session['certificate_issuer_username'])
 				flash('Sorry, this Referent cannot issue Certificates.', 'warning')
 				return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
 		return render_template('request_certificate.html', picturefile=my_picture, username=username, display_email=display_email, reco=reco)
@@ -1472,9 +1446,9 @@ def add_alias() :
 		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :		
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('add_alias.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('add_alias.html',
+								picturefile=my_picture,
+								  username=username)
 	if request.method == 'POST' :
 		if ns.get_data_from_username(request.form['access_username'],mode) is not None :
 			flash('Username already used' , 'warning')
@@ -1504,6 +1478,40 @@ def remove_access() :
 
 
 
+	
+# Import private key
+@app.route('/user/import_private_key/', methods=['GET', 'POST'])
+def import_private_key() :	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
+	if request.method == 'GET' :	
+		my_picture = session['picture']
+		return render_template('import_private_key.html',
+								picturefile=my_picture,
+								  username=username)
+	if request.method == 'POST' :
+		data = {'username' : username,
+				'address' : session['address'],
+				'created' : str(datetime.today()),
+				'private_key' : request.form['private_key'],
+				'workspace_contract' : session['workspace_contract'],
+				'email' : ns.get_data_from_username(username, mode)['email'],
+				'secret' : None,
+				'aes' : None} 
+		priv_key_bytes = decode_hex(request.form['private_key'])
+		priv_key = keys.PrivateKey(priv_key_bytes)
+		pub_key = priv_key.public_key
+		address = pub_key.to_checksum_address()
+		if address != session['address'] :
+			flash('Wrong Private Key', 'warning') 
+			return redirect (mode.server +'user/')
+		session['private_key'] = True
+		session['private_key_value'] = request.form['private_key']
+		privatekey.add_identity(data) 
+		flash('Private Key has been imported',  'success')
+		return redirect (mode.server +'user/')
+
 # add Manager (Username)
 @app.route('/user/add_manager/', methods=['GET', 'POST'])
 def add_manager() :	
@@ -1512,9 +1520,9 @@ def add_manager() :
 		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :		
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('add_manager.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('add_manager.html',
+								picturefile=my_picture,
+								  username=username)
 	if request.method == 'POST' :
 		if ns.get_data_from_username(request.form['manager_username'].lower(),mode) is None :
 			flash('Username not found' , 'warning')
@@ -1524,9 +1532,6 @@ def add_manager() :
 		flash('Manager added for '+ manager_username.lower() , 'success')
 		return redirect (mode.server +'user/?username=' + username)
 		
-		add_manager(manager_name, alias_name, host_name, email)
-
-
 
 
 
@@ -1539,8 +1544,7 @@ def request_proof_of_identity() :
 	
 	if request.method == 'GET' :				
 		my_picture = session['picture']
-		#my_event = session.get('events')
-		#my_event_html, my_counter =  event_display(session['events'])
+	
 		return render_template('request_proof_of_identity.html', picturefile=my_picture, username=username)
 	
 	elif request.method == 'POST' :
@@ -1554,18 +1558,19 @@ def request_proof_of_identity() :
 		id_file.save(os.path.join('./uploads/proof_of_identity', username + "_ID." + id_file_name))
 		selfie_file.save(os.path.join('./uploads/proof_of_identity', username + "_selfie." + selfie_file_name))
 	
-		# email to Admin
-		message = 'Request for proof of identity for ' + username
-		subject = 'Request for Proof of Identity for ' + username
-		Talao_message.messageAdmin (subject, message, mode)
 		# email to user/Talent
 		subject = "Your request for a proof of Identity has been sent."
 		text = " You will receive an email soon." 
 		user_email = ns.get_data_from_username(username, mode)['email']
 		Talao_message.message(subject, user_email, text)
+		# email with files to Admin
+		message = 'Request for proof of identity for ' + username
+		filename_list = [username + "_ID." + id_file_name, username + "_selfie." + selfie_file_name]
+		Talao_message.message_file(['thierry.thevenet@talao.io'], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/')
 		# message to user
 		flash(' Thank you, we will check your documents soon.', 'success')
-		return redirect (mode.server +'user/?username=' + username)	
+		return redirect (mode.server +'user/')	
+		
 
 
 # add Issuer, they have an ERC725 key with purpose 20002 (or 1) to issue Document (Experience, Certificate)
@@ -1598,9 +1603,10 @@ def remove_issuer() :
 		session['issuer_username_to_remove'] = request.args['issuer_username']
 		session['issuer_address_to_remove'] = request.args['issuer_address']
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, issuer_name=session['issuer_username_to_remove'])
+		return render_template('remove_issuer.html',
+								picturefile=my_picture,
+								  username=username,
+								   issuer_name=session['issuer_username_to_remove'])
 	elif request.method == 'POST' :
 		address_partner = session['issuer_address_to_remove']
 		delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 20002, mode) 
@@ -1623,9 +1629,9 @@ def add_white_issuer() :
 		return redirect(mode.server + 'login/')		
 	if request.method == 'GET' :				
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('add_white_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username)
+		return render_template('add_white_issuer.html',
+								picturefile=my_picture,
+								  username=username)
 	elif request.method == 'POST' :
 		issuer_username = request.form['white_issuer_username']
 		if is_username_in_list(session['whitelist'], issuer_username) :
@@ -1651,9 +1657,10 @@ def remove_white_issuer() :
 		session['issuer_username_to_remove'] = request.args['issuer_username']
 		session['issuer_address_to_remove'] = request.args['issuer_address']
 		my_picture = session['picture']
-		my_event = session.get('events')
-		my_event_html, my_counter =  event_display(session['events'])
-		return render_template('remove_white_issuer.html', picturefile=my_picture, event=my_event_html, counter=my_counter, username=username, issuer_name=session['issuer_username_to_remove'])
+		return render_template('remove_white_issuer.html',
+								picturefile=my_picture,
+								  username=username,
+								   issuer_name=session['issuer_username_to_remove'])
 	elif request.method == 'POST' :
 		address_partner = session['issuer_address_to_remove']
 		delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 5, mode) 
@@ -1662,24 +1669,6 @@ def remove_white_issuer() :
 		del session['issuer_username_to_remove']
 		del session['issuer_address_to_remove']
 		return redirect (mode.server +'user/?username=' + username)
-
-
-
-@app.route('/user/languages/', methods=['GET'])
-def languages() :
-	username = session['username']
-	lang1 = request.args.get('lang1')
-	lang2 = request.args.get('lang2')
-	lang3 = request.args.get('lang3')
-	fluency1 = request.args.get('radio1')
-	fluency2 = request.args.get('radio2')
-	fluency3 = request.args.get('radio3')
-	workspace_contract = address(username, mode.register)	
-	user = Identity(workspace_contract, mode)
-	language = [{"language": lang1,"fluency": fluency1}, {"language": lang2,"fluency": fluency2}, {"language": lang3,"fluency": fluency3}]
-	#language= [{"language": 'EN',"fluency": '1'}]
-	user.setLanguage(language)
-	return redirect(mode.server + 'user/?username=' + session['username'])
 
 
 # photos upload for certificates

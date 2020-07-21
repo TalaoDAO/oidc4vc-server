@@ -6,6 +6,9 @@ from email import encoders
 
 import constante
 
+signature = '\r\n\r\n\r\n\r\n The Talao team.\r\nhttp://talao.co/'
+
+
 def messageAuth (email_to, random) :
 
 
@@ -106,7 +109,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	# string to store the body of the mail 
 	body = 'A new Professional Identity has been deployed for you. \r\nYour username for login  : ' +username+'\r\n\r\nEmail : '+email+'\r\nBlockchain : '+ mode.BLOCKCHAIN +'\r\nYour Blockchain Address : ' + str(eth_a) +'\r\nYour Private Key : '+ str(eth_p)+'\r\nYour Decentralized IDentitier (DID) : did:talao:'+mode.BLOCKCHAIN+':'+str(workspace_contract_address)[2:]
 	footer='\r\n\r\nA RSA key is attached to this email, Keep it with your Private Key secretely.\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
-	body= body + footer
+	body= body + footer + signature
 	msg.attach(MIMEText(body, 'plain')) 
 
 	# open the file to be sent
@@ -180,7 +183,7 @@ def message(subject, to, messagetext) :
 	msg['From'] = fromaddr 
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] =  subject
-	body = messagetext
+	body = messagetext + signature
 	msg.attach(MIMEText(body, 'plain')) 
 	p = MIMEBase('application', 'octet-stream') 
 
@@ -198,3 +201,60 @@ def message(subject, to, messagetext) :
 		return False
 	s.quit()
 	return True
+
+
+
+def message_file(to, text, subject, filename, path)  :
+	""" @to is list of email, @filename is a list of files """
+
+	# debut de la fonction
+	fromaddr = "thierry.thevenet1963@gmail.com"
+	toaddr = to
+#	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
+
+	# instance of MIMEMultipart 
+	msg = MIMEMultipart() 
+	# storing the senders email address 
+	msg['From'] = fromaddr 
+	# storing the receivers email address 
+	msg['To'] = ", ".join(toaddr)
+	# storing the subject 
+	msg['Subject'] = subject
+	# string to store the body of the mail 
+	body = text
+	# attach the body with the msg instance 
+	msg.attach(MIMEText(body, 'plain')) 
+	
+	for myfile in filename :
+		print(myfile)
+		# open the file to be sent
+		file_with_path = path + myfile
+		filename = myfile
+		print(file_with_path)
+		attachment = open(file_with_path, "rb") 
+		# instance of MIMEBase and named as p 
+		p = MIMEBase('application', 'octet-stream') 
+		# To change the payload into encoded form 
+		p.set_payload((attachment).read()) 
+		# encode into base64 
+		encoders.encode_base64(p) 
+		p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
+		# attach the instance 'p' to instance 'msg' 
+		msg.attach(p) 
+	# creates SMTP session 
+	s = smtplib.SMTP('smtp.gmail.com', 587) 
+	# start TLS for security 
+	s.starttls() 
+	# Authentication de thierry.thevenet1963@gmail.com
+	s.login(fromaddr, "Suc2cane22") 
+	# Converts the Multipart msg into a string 
+	text = msg.as_string() 
+	# sending the mail 
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		print ('email sent')
+	except:
+		print ('error sending mail')
+	s.quit()
+	return
+

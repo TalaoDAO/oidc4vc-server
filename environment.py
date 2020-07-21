@@ -24,7 +24,7 @@ class currentMode() :
 		self.mychain = 'rinkeby'
 		self.myenv = 'airbox'
 		self.password = 'suc2cane'
-		self.db_path = './db/'
+		self.db_path = '/home/thierry/db/'
 		print('debut init environment')
 		print('Chain = ', self.mychain)
 		print('Environnement =', self.myenv)			
@@ -39,6 +39,7 @@ class currentMode() :
 			self.debug = True	
 
 		elif self.myenv == 'aws' :
+			self.db_path = '/home/admin/db/'
 			self.IPCProvider = "/home/admin/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/rinkeby/geth.ipc"))
 			self.IP = '18.190.21.227' # external talao.co

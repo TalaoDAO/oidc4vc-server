@@ -41,59 +41,64 @@
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <form action="/user/create_kyc/" method="POST">
+                                        <form action="/user/issue_kyc/" method="POST">
                                             <div class="form-row">
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Username</strong><br></label><input class="form-control" type="text" name="username" required=""></div>
+                                                    <div class="form-group"><label><strong>Username</strong><br></label><input class="form-control" type="text" name="username" required=""></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Firstname</strong></label><input class="form-control" type="text" name="firtname" required=""></div>
+                                                    <div class="form-group"><label><strong>Firstname</strong></label><input class="form-control" type="text" name="firstname" required=""></div>
                                                 </div>
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Lastname</strong></label><input class="form-control" type="text" name="lastname" required=""></div>
-                                                </div>
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Country</strong></label><select class="form-control"><optgroup label="This is a group"><option value="12" selected="">This is item 1</option><option value="13">This is item 2</option><option value="14">This is item 3</option></optgroup></select></div>
-                                                </div>
-                                                <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Birthdate</strong><br></label><input class="form-control" type="date" name="birthdate" requitred=""></div>
+                                                    <div class="form-group"><label><strong>Lastname</strong></label><input class="form-control" type="text" name="lastname" required=""></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Issue Date</strong><br></label><input class="form-control" type="date" required="" name="issue_date"></div>
+                                                    <div class="form-group"><label><strong>Country</strong></label><input class="form-control" type="text" name="country" required=""></div>
+                                                    
+                                                    
+                                                   
                                                 </div>
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Expires Date</strong></label><input class="form-control" type="date" name="expires_date"></div>
-                                                </div>
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Sexe</strong><br></label><select class="form-control" name="sex" required=""><option value="m" selected="">M</option><option value="f">F</option></select></div>
-                                                </div>
-                                                <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Nationality</strong><br></label><select class="form-control" name="nationality" required=""><optgroup label="This is a group"><option value="12" selected="">This is item 1</option><option value="13">This is item 2</option><option value="14">This is item 3</option></optgroup></select></div>
+                                                    <div class="form-group"><label><strong>Birthdate</strong><br></label><input class="form-control" type="date" name="birthdate" requitred=""></div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Authority</strong><br></label><input class="form-control" type="text" name="authority" required=""></div>
+                                                    <div class="form-group"><label><strong>Issue Date</strong><br></label><input class="form-control" type="date" required="" name="date_of_issue"></div>
                                                 </div>
                                                 <div class="col-xl-6">
-                                                    <div class="form-group"><label for="username"><strong>Card Id</strong></label><input class="form-control" type="text" name="card_id" required=""></div>
+                                                    <div class="form-group"><label><strong>Expires Date</strong></label><input class="form-control" type="date" name="date_of_expiration"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Sexe</strong><br></label><select class="form-control" name="sex" required=""><option value="m" selected="">M</option><option value="f">F</option></select></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Nationality</strong><br></label><input class="form-control" type="text" name="nationality" required=""></div>
+                                                    
+                                                   
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Authority</strong><br></label><input class="form-control" type="text" name="authority" required=""></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Card Id</strong></label><input class="form-control" type="text" name="card_id" required=""></div>
                                                 </div>
                                             </div>
                                            
                                            <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Create Kyc</button></div>
+                                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Issue Kyc</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-										<a href="/user/?username={{username}}">
+										<a href="/user/">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
                                         </a>
                                     </div>
@@ -111,7 +116,9 @@
         
         
                                   {% include 'user_footer.html' %}    
-
+                                  
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

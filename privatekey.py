@@ -35,7 +35,7 @@ def setup(mode) :
 	
 
 def add_identity(data) :
-	#data = {  'username' : username, 'address' : address, 'created' : time.timestamp(now), 'private_key' : private_key, 'workspace_contract' : workspace_contract, 'email' : email, 'secret' : secret, 'aes' : aes} 
+	#data = {  'username' : username, 'address' : address, 'created' : str(datetime.today()), 'private_key' : private_key, 'workspace_contract' : workspace_contract, 'email' : email, 'secret' : secret, 'aes' : aes} 
 	try :
 		conn = sqlite3.connect(path + 'private_key.db')
 	except :

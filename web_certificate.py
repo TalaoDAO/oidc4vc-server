@@ -34,9 +34,15 @@ def convert(obj):
                 convert(v)
 
 # display experience certificate for anybody. Stand alone routine
+# #route/guest/certificate
+#@route /certificate/
 def show_certificate():
-	""" It cab be an entry point   
+	""" It cab be an endpoint   
 	"""
+	if str(request.url_rule) == '/guest/certificate/' :
+		session.clear()
+		session['endpoint'] = 'certificate'
+	
 	username = session.get('username_logged')
 	if username is None  :
 		viewer = 'guest'
@@ -199,7 +205,7 @@ def certificate_verify() :
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract'] 
-	call_from = request.args.get('call_from')
+	#call_from = request.args.get('call_from')
 	certificate = copy.deepcopy(session['displayed_certificate'])
 	convert(certificate)
 	
@@ -300,7 +306,6 @@ def certificate_verify() :
 	
 	return render_template('./certificate/verify_certificate.html',
 							certificate_id=certificate_id,
-							call_from=call_from,
 							topic = certificate['topic'].capitalize(),
 							verif=my_verif,
 							picturefile=my_picture,
@@ -312,11 +317,15 @@ def certificate_verify() :
 
 
 # issuer explore 
+#@app.route('/guest/', methods=['GET'])
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
 def certificate_issuer_explore() :
 	""" This can be an entry point too"""
+	if str(request.url_rule) == '/guest/' :
+		session.clear()
+		session['endpoint'] = 'user_explore'
+	
 	username = session.get('username_logged')
-	call = request.args.get('anonymous')
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
@@ -341,7 +350,6 @@ def certificate_issuer_explore() :
 		del session['resume']['kbis_list']
 		del session['resume']['kyc_list']
 		del session['resume']['certificate_list']
-		del session['resume']['eventslist']
 		del session['resume']['partners']
 		del session['resume']['synchronous']
 		del session['resume']['authenticated']
@@ -467,7 +475,7 @@ def certificate_issuer_explore() :
 						<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>	
 						<b>Title</b> : """ + certificate['title']+"""<br>
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """&call_from=explore>Display Certificate</a><br>
+						<b></b><a href= """ + mode.server +  """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
 							<a class="text-secondary" href=/certificate/data/""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
@@ -480,7 +488,7 @@ def certificate_issuer_explore() :
 		services ="""
 				<a class="text-success" href="/certificate/certificate_data_analysis/" >Talent Dashboard</a></br>
 				
-				<a class="text-success" href="" >Send an email to this Talent</a></br>			
+				<a class="text-success" href="" >Send a memo to this Talent</a></br>			
 						
 				<a href="/register/" class="text-warning"> Register to get access to other services.</a><br><br>"""
 											
@@ -500,7 +508,6 @@ def certificate_issuer_explore() :
 							certificate_id= certificate_id,
 							picturefile=my_picture,
 							username=username,
-							call=call,
 							viewer=viewer,)
 	
 	
