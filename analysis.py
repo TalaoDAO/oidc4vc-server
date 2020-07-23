@@ -297,6 +297,9 @@ def dashboard(workspace_contract,resume, mode) :
 	# index/rating max 70 today
 	if update_duration_value < 20 :
 		quality_update = 10
+	else :
+		quality_update = 0
+		
 	if nb_certificate < 20 :
 		quality_certificate  = nb_certificate 
 	else :

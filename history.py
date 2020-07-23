@@ -5,8 +5,7 @@ import constante
 from web3.contract import ContractEvent
 
 
-def history_html(workspace_contract, days, nb, mode) :
-	print(workspace_contract)
+def history_html(workspace_contract, days, mode) :
 	history = dict()
 	history_string = """ """
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
@@ -68,7 +67,7 @@ def history_html(workspace_contract, days, nb, mode) :
 			else :
 				history[date] = 'unknown ' + doc['event']		
 		
-	sorted_history = sorted(history.items(), key=lambda x: x[0], reverse=True)[:nb]
+	sorted_history = sorted(history.items(), key=lambda x: x[0], reverse=True)
 	
 	
 	for event in sorted_history :

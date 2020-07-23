@@ -165,7 +165,7 @@ def data(dataId) :
 		else :
 			print('Error data in webserver.py, Class instance needed')	
 			return
-		print('my data skills', my_data)	
+	
 		#ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
@@ -380,12 +380,13 @@ def user() :
 		return redirect(mode.server + 'login/')	
 	if session.get('uploaded') is None :
 		print('start first instanciation user')	
-		try :	
-			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
-		except :
-			flash('session aborted', 'warning')
-			print('pb au niveau de Identity')
-			return render_template('login.html')
+		#try :	
+		user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		
+		#except :
+		#	flash('session aborted', 'warning')
+		#	print('pb au niveau de Identity')
+		#	return render_template('login.html')
 		print('end')
 		""" clean up for resume  """
 		user_dict = user.__dict__.copy()
@@ -407,6 +408,7 @@ def user() :
 		session['eth'] = user.eth
 		session['token'] = user.token
 		session['rsa_key'] = user.rsa_key
+		session['rsa_key_value'] = user.rsa_key_value
 		session['private_key'] = user.private_key
 		session['private_key_value'] = user.private_key_value
 		session['relay_activated'] = user.relay_activated
@@ -424,7 +426,7 @@ def user() :
 			session['education'] = user.education	
 			session['kyc'] = user.kyc
 			session['profil_title'] = user.profil_title	
-			print(' skllls dans user =', session['skills'])
+		
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 	
@@ -464,11 +466,13 @@ def user() :
 					<b>RSA Key</b> : """ + relay_rsa_key + """<br>
 					<b>Private Key</b> : """ + relay_private_key +"""<hr>"""
 	
+	my_advanced = my_advanced + my_account +  "<hr>"
+
+	
 	# Import Private Key
 	if not session['private_key'] :
 		my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
 	
-	my_advanced = my_advanced + my_account +  "<hr>"
 	
 	# TEST only
 	if mode.debug :
@@ -482,25 +486,28 @@ def user() :
 	else :
 		my_partner = ""	 
 		for partner in session['partner'] :
-			partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
-			partner_username = 'Unknown' if partner_username is None else partner_username
+			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
+			#partner_username = 'Unknown' if partner_username is None else partner_username
+			partner_username = partner['username']
 			if partner['authorized'] == 'Pending' :
 				partner_html = """
 				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
-					<a class="text-secondary" href="/user/parner_reject/?partner_username=""" + partner_username+"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
-						<i data-toggle="tooltip" class="fa fa-thumbs-o-down" title="Reject">&nbsp&nbsp&nbsp</i>
+					<a class="text-secondary" href="/user/reject_partner/?partner_username=""" + partner_username+"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
+						<i data-toggle="tooltip" class="fa fa-thumbs-o-down" title="Reject this Partnership.">&nbsp&nbsp&nbsp</i>
 					</a>
-					<a class="text-secondary" href="/user/partner_authorize/?partner_username=""" + partner_username + """">
-						<i data-toggle="tooltip" class="fa fa-thumbs-o-up" title="Authorize"></i>
+					<a class="text-secondary" href="/user/authorize_partner/?partner_username=""" + partner_username + """&amp;partner_workspace_contract=""" + partner['workspace_contract']+ """">
+						<i data-toggle="tooltip" class="fa fa-thumbs-o-up" title="Authorize this Parnership."></i>
 					</a>
 				</spn>"""	
 			elif partner['authorized'] == 'Removed' :
-				partner_html = ""		
+				partner_html = """
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  					
+				</spn>"""
 			else :			
 				partner_html = """
 				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
-					<a class="text-secondary" href="/user/partner_remove/?partner_username=""" + partner_username +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+					<a class="text-secondary" href="/user/remove_partner/?partner_username=""" + partner_username +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove this Partnership.">&nbsp&nbsp&nbsp</i>
 					
 				</spn>"""
 			my_partner = my_partner + partner_html + """<br>"""
@@ -555,11 +562,11 @@ def user() :
 				<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
 				<b>Created</b> : """+ one_file['created'] + """<br>
 				<p>
-					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + one_file['id'] + """&experience_title="""+ one_file['filename'] + """">
+					<a class="text-secondary" href="/user/remove_file/?file_id=""" + one_file['id'] + """&filename="""+one_file['filename'] +"""">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					
-					<a class="text-secondary" href=/user/download/""" + one_file['id'] + """>
+					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """+>
 						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
 					</a>
 				</p>"""	

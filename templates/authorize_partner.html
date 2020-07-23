@@ -33,14 +33,14 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Partner</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Authorize a Partnership</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/remove_partner/" method="post">
+                            <form action="/user/authorize_partner/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>A Partner can send you certificates and exchange private data with you.<br><br>Confirm
-                                            the removal of the following Partner</p>
+                                        <p>A Partner can send you certificates or claims and exchange private data with you.<br><br>Confirm
+                                            the  partnership with :</p>
                                         <p><b>{{partner_name}}</b></p>
                                     </div>
                                 </div>
@@ -52,7 +52,7 @@
                                     <div class="col-6 col-xl-3">
 										
                                         <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
-                                      
+                                        
                                     </div>
                                 </div>
                                
@@ -72,7 +72,7 @@
                            {% include 'user_footer.html' %}    
 
     </div>
-      <script>function goBack() {  window.history.back();}</script>
+     <script>function goBack() {  window.history.back();}</script>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

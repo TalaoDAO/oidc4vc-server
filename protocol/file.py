@@ -18,6 +18,13 @@ from Talao_ipfs import ipfs_add, ipfs_get
 #mode=environment.currentMode()
 #w3=mode.w3
 
+
+def contracts_to_owners(workspace_contract, mode) :
+	w3 = mode.w3
+	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	return contract.functions.contractsToOwners(workspace_contract).call()	 
+
+
 def add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, file_name, mydays, privacy, mode, synchronous) :
 	w3 = mode.w3	
 	
@@ -61,6 +68,8 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 		json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 		data = dict(zip(json_k, json_v))
+		data['filename'] = file_name
+		print('data dans add file', data)
 			
 	# calcul de la date
 	if mydays == 0 :
@@ -111,9 +120,9 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	elif doctype == 30002 :
 		privacy = 'secret'
 	else :
-		print('error doctype ')
-		return False
-	
+		print('erreur de doctype dans get_file')
+		return None
+		
 	# get transaction info
 	contract = w3.eth.contract(workspace_contract_user, abi=constante.workspace_ABI)
 	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
@@ -134,34 +143,73 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 
 	# recuperation du msg 
 	data = ipfs_get(ipfshash.decode('utf-8'))
+	filename = data['filename']
+
+	
 	# calcul de la date
 	expires = 'Unlimited' if expires == 0 else str(datetime.fromtimestamp(expires))
-
-	if privacy  != 'public' :		
 	
-		#recuperer les cle AES cryptée
+	print('privacy = ', privacy)
+	if privacy == 'public' :
+		to_be_decrypted = False
+		to_be_stored = True
+						
+	elif workspace_contract_from != workspace_contract_user and privacy == 'private' and private_key_from is not None:
+		#recuperer les cle AES cryptée du user sur son partnership de l identité
+		contract = w3.eth.contract(workspace_contract_from, abi = constante.workspace_ABI)
+		acct = Account.from_key(private_key_from)
+		mode.w3.eth.defaultAccount = acct.address	
+		partnership_data = contract.functions.getPartnership(workspace_contract_user).call()
+		print('his parnership data  = ', partnership_data)
+		# one tests if the user in in partnershipg with identity (pending or authorized)
+		if partnership_data[1] in [1, 2] :
+			his_aes_encrypted = partnership_data[4]
+			to_be_decrypted = True
+			to_be_stored = True
+		else :
+			to_be_decrypted = False
+			to_be_stored = False
+			data =  {'filename': filename, 'content': "Encrypted"}
+			print('data dans get _file', data)
+			
+	elif workspace_contract_from == workspace_contract_user :
+		#recuperer les cle AES cryptée dans l identité
 		contract = w3.eth.contract(workspace_contract_user,abi = constante.workspace_ABI)
 		mydata = contract.functions.identityInformation().call()
 		if privacy == 'private' :
 			his_aes_encrypted = mydata[5]
 		if privacy == 'secret' :
 			his_aes_encrypted = mydata[6]
+		to_be_decrypted = True
+		to_be_stored = True
 		
-		# read la cle privee RSA sur le fichier
+	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
+		to_be_decrypted = False
+		to_be_stored = False 
+		print('workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None')
+		data =  {'filename': filename, 'content': "Encrypted"}
+		
+	if to_be_decrypted :		
+		# read la cle RSA privee sur le fichier de l identité
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-		address_user = contract.functions.contractsToOwners(workspace_contract_user).call()
-		filename = "./RSA_key/"+mode.BLOCKCHAIN+'/' + address_user + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-		with open(filename,"r") as fp :
+		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
+		filename = "./RSA_key/"+mode.BLOCKCHAIN+'/' + address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+		try :
+			fp = open(filename,"r")
 			rsa_key=fp.read()	
 			fp.close()   
-					
-		# decoder la cle AES128 cryptée avec la cle RSA privée
+		except :
+			print('cannot open rsa file')
+			return None
+			 			
+		# decoder la cle AES cryptée avec la cle RSA privée
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)	
 		his_aes = cipher.decrypt(his_aes_encrypted)
 		
 		# decoder les datas
 		try:
+			del data['filename']
 			b64 = data #json.loads(json_input)
 			json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 			jv = {k:b64decode(b64[k]) for k in json_k}
@@ -170,18 +218,43 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 			msg = json.loads(plaintext.decode('utf-8'))
 			data = msg
+			print('data = ', data)
 		except ValueError :
 			print("data Decryption error")
 			return None
 	
-	if new_filename != "" :	
+	if new_filename != "" and to_be_stored :	
 		new_file = open(new_filename, "wb")
 		new_file.write(b64decode(data['content']))
 		new_file.close()
 	
 	return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
 			
-	
+
+				
+def delete_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
+	w3 = mode.w3
+	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token
+	nonce = w3.eth.getTransactionCount(address_from)  
+	# Build transaction
+	txn = contract.functions.deleteDocument(int(documentId)).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
+	# send transaction	
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	#transaction = w3.eth.getTransaction(transaction_hash)
+	#gas_price = transaction['gasPrice']
+	#block_number = transaction['blockNumber']
+	#block = mode.w3.eth.getBlock(block_number)
+	#date = datetime.fromtimestamp(block['timestamp'])				
+	#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
+	gas_used = 10000
+	gas_price = 1
+	date= datetime.now()
+	deleted = date.strftime("%y/%m/%d")		
+	return transaction_hash, gas_used*gas_price, deleted
 	
 
 
@@ -189,7 +262,7 @@ class File() :
 	def __init__(self) :
 		pass
 	
-	def get(self, workspace_contract_user, doc_id, new_filename, mode) :	
+	def get(self, workspace_contract_from, private_key_from, workspace_contract_user, doc_id, new_filename, mode) :	
 		(self.issuer,
 		 self.identity_workspace_contract,
 		 data,
@@ -202,12 +275,13 @@ class File() :
 		 self.expires,
 		 self.issuer_address,
 		 self.privacy,
-		 self.related) = get_file ("", "", workspace_contract_user, doc_id, new_filename, mode) 
+		 self.related) = get_file (workspace_contract_from, private_key_from, workspace_contract_user, doc_id, new_filename, mode) 
+		print('data la class File = ', data)
 		self.filename = data['filename']
 		self.new_filename = new_filename
 		self.doc_id = doc_id
 		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + self.identity_workspace_contract[2:] + ':document:' + str(doc_id)
-		
+		self.content = 'Encrypted' if data['content'] == 'Encrypted' else ''
 		return
 		
 	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, file_name, privacy, mode, synchronous=True) :
@@ -215,7 +289,7 @@ class File() :
 			doctype = 30000
 		if privacy == 'private' :
 			doctype = 30001
-		if privacy == 'private' :
+		if privacy == 'secret' :
 			doctype = 30002
 		mydays = 0
 		(self.document_id, self.ipfs_hash, self.transaction_hash) = add_file(address_from,
@@ -230,3 +304,8 @@ class File() :
 																			mode,
 																			synchronous)
 		return self.document_id, self.ipfs_hash, self.transaction_hash
+
+		
+	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
+		identity_address = contracts_to_owners(identity_workspace_contract, mode)
+		return delete_file(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)

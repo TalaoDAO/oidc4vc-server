@@ -33,38 +33,25 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Issuer in the White List</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Issuer in your White List</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/add_white_issuer/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Your Whitelist is made up of issuers you rely on.<br><br>Those issuers have to have an Identity to prove their own legitimacy.</p>
-                                        <div class="form-group">
-										<label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Username</strong><br></label>     
-                                        <select name="white_issuer_username" class="form-control">
-											<option value="bnp" >BNP</option>
-											<option value="thales">Thales</option>
-											<option value="skill.value">Skill Value</option>
-											<option value="talao" selected>Talao</option>
-											<option value="web.relay.talao">Web Relay Talao</option>
-											<option value="onfido">Onfido</option>
-											
-											
-											
-										</optgroup></select>
-										</div>
+                                        <p>Your Whitelist is made up of issuers you rely on. Those issuers have to have an Identity to prove their own legitimacy.</p>
+                                        <p> You want to add <strong>{{whitelist_username}}</strong> in your White List.</p>
                                     </div>
                                 </div>
                                                                 
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit"  value="send">Add</button></div>
+                                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit"  value="send">Confirm</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-										   <a href="/user/?username={{username}}">
-												<div class="form-group"><button class="btn btn-primary btn-sm" type="button"  value="cancel">Cancel</button></div>
-											</a>
+										   
+												<div class="form-group"><button onclick="goBack()"  class="btn btn-primary btn-sm" type="button" >Back</button></div>
+											
                                     </div>
                                 </div>	
                                 
@@ -83,6 +70,9 @@
                                   {% include 'user_footer.html' %}    
 
     </div>
+      <script>function goBack() {  window.history.back();}</script>
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

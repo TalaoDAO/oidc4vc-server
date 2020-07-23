@@ -71,12 +71,12 @@
                                     <div class="form-group">
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
-													<button class="btn btn-primary btn-sm small" type="submit">Save</button></div>
+													<button id="in_progress_button" class="btn btn-primary btn-sm small" type="submit">Save</button></div>
                                             <div class="custom-file">
 												<label class="custom-file-label" for="inputGroupFile01"></label>
 												<input type="file" id="inputGroupFile01" onchange="loadFile(event)" class="custom-file-input" name="file">
 											</div>
-										  <a href="/user/?username={{username}}"><button class="btn btn-primary text-left" type="button">Back</button></a></div>
+										  <button  onclick="goBack()"  class="btn btn-primary text-left" type="button">Back</button></div>
 
                                         </div>
                                     </div>
@@ -94,6 +94,9 @@
                            {% include 'user_footer.html' %}    
 
        </div> 
+          <script>function goBack() {  window.history.back();}</script>
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

@@ -30,7 +30,7 @@ Welcome to Talao's documentation!
    
    request_a_certificate
    proof_of_identity
-
+   use_its_own_address
 
    
   	

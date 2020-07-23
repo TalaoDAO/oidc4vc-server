@@ -203,11 +203,47 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 #   {
 
 
-def authorizepartnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner,mode, synchronous = True) :
+def authorize_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner, user_rsa_key, mode, synchronous = True) :
 	
 	# user = address_to
 	w3 = mode.w3
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	
+	partner_address = contractsToOwners(workspace_contract_partner, mode)			
+
+	# if partner owner has a claim 3 key, it has to be removed first. 
+	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
+	key = mode.w3.soliditySha3(['address'], [partner_address])
+	has_key = contract.functions.keyHasPurpose(key, 3).call()
+	print(' Partner owner has key 3 = ', has_key)
+	if has_key :
+		nonce = w3.eth.getTransactionCount(address_from)  
+		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
+		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		print('remove key 3 from partner , hash transaction parnership request = ', hash_transaction)
+		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
+		if receipt['status'] == 0 :
+			print(' echec remove key 3')
+			return False	
+			
+	# if partner workspace contract has a claim 3 key, it has to be removed first. 
+	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
+	key = mode.w3.soliditySha3(['address'], [workspace_contract_partner])
+	has_key = contract.functions.keyHasPurpose(key, 3).call()
+	print(' Partner workspace contract has key 3 = ', has_key)
+	if has_key :
+		nonce = w3.eth.getTransactionCount(address_from)  
+		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
+		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		print('remove key 3 from parner workspace contract , hash transaction parnership request = ', hash_transaction)
+		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
+		if receipt['status'] == 0 :
+			print(' echec remove key 3')
+			return False	
+	
 	
 	# calcul du nonce de l envoyeur de token . Ici le from
 	nonce = w3.eth.getTransactionCount(address_from)  
@@ -216,21 +252,12 @@ def authorizepartnership(address_from, workspace_contract_from, address_to, work
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	mydata = contract.functions.identityInformation().call()
 	user_aes_encrypted=mydata[5]
-		
-	# read la cle privee RSA du user sur le fichier
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_to+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	try :
-		fp = open(filename,"r")
-	except :
-		print (filename, " has not been found")
-		return False
-	user_rsa_key=fp.read()	
-	fp.close()   
 
-	# decoder la cle AES128 cryptée du user avec la cle RSA privée du user
+	# decoder la cle AES cryptée du user avec la cle RSA privée du user
 	key = RSA.importKey(user_rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
 	user_aes=cipher.decrypt(user_aes_encrypted)
+	print('user aes =', user_aes)
 	
 	#recuperer la cle RSA publique du partner
 	contract=w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
@@ -250,10 +277,13 @@ def authorizepartnership(address_from, workspace_contract_from, address_to, work
 	
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	h= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	h = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(h, timeout=2000, poll_latency=1)	
-	return h
+		receipt = w3.eth.waitForTransactionReceipt(h, timeout=2000, poll_latency=1)
+		if receipt['status'] == 0 :
+			print('echec transaction de authorize partnership')
+			return False		
+	return True
 	
 	
 	
@@ -275,20 +305,37 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	key = mode.w3.soliditySha3(['address'], [partner_address])
 	has_key = contract.functions.keyHasPurpose(key, 3).call()
-	print(' key ', has_key)
+	print(' Partner owwner has key 3 = ', has_key)
 	if has_key :
 		nonce = w3.eth.getTransactionCount(address_from)  
 		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
 		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-		print('talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
+		print('remove key 3 from partner , hash transaction parnership request = ', hash_transaction)
 		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
 		if receipt['status'] == 0 :
+			print(' echec remove key 3')
 			return False	
-		print( 'claim key removed')
+			
+	# if partner workspace contract has a claim 3 key, it has to be removed first. 
+	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
+	key = mode.w3.soliditySha3(['address'], [partner_workspace_contract])
+	has_key = contract.functions.keyHasPurpose(key, 3).call()
+	print(' Partner workspace contract has key 3 = ', has_key)
+	if has_key :
+		nonce = w3.eth.getTransactionCount(address_from)  
+		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
+		w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		print('remove key 3 from parner workspace contract , hash transaction parnership request = ', hash_transaction)
+		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
+		if receipt['status'] == 0 :
+			print(' echec remove key 3')
+			return False	
 	
-	#recuperer la cle AES cryptée de l identitté
+	#recuperer la cle AES cryptée de l identité
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	identity_aes_encrypted = data[5]
@@ -298,13 +345,12 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	data = contract.functions.identityInformation().call()
 	partner_rsa_key = data[4]
 	
-	# decrypt AES key de l identité avec la RSA key
+	# decrypt AES key de l identité avec la RSA key de l'identite 
 	key = RSA.importKey(identity_rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
 	identity_aes = cipher.decrypt(identity_aes_encrypted)
 	
-	# encryption de la cle AES de lidentité avec la cle RSA du partner
-	
+	# encryption de la cle AES de lidentité avec la cle RSA publique du partner
 	key = RSA.importKey(partner_rsa_key)	
 	cipher = PKCS1_OAEP.new(key)
 	identity_aes_encrypted_with_partner_key = cipher.encrypt(identity_aes)
@@ -320,14 +366,13 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)	
 		if receipt['status'] == 0 :
+			print('echec transaction de request partnership')
 			return False	
 	return True
 
 
-# reject a partnership
+# remove a partnership
 def remove_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, partner_workspace_contract, mode, synchronous= True):
-#     solidity	  function rejectPartnership(address _hisContract)
-
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token
@@ -338,12 +383,37 @@ def remove_partnership(address_from, workspace_contract_from, address_to, worksp
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	print('hash = ', hash1)
+	print('hash de remove partnership = ', hash1)
 	if synchronous :
-		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)		
+		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+		if receipt['status'] == 0 :
+			print('echec transaction de remove partnership')
+			return False			
 	return True
 
 
+# reject a partnership
+def reject_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, partner_workspace_contract, mode, synchronous= True):
+
+	w3 = mode.w3
+	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	# calcul du nonce de l envoyeur de token
+	nonce = w3.eth.getTransactionCount(address_from)
+
+	# Build and send transaction
+	txn = contract.functions.rejectPartnership(partner_workspace_contract).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	print('hash de reject parnership = ', hash1)
+	if synchronous :
+		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+		if receipt['status'] == 0 :
+			print('echec transaction de request partnership')
+			return False				
+	return True 
+ 
+ 
 ##################################################################
 #    get image from identity 
 ##################################################################

@@ -30,7 +30,7 @@ import privatekey
  
 class Identity() :
 	
-	def __init__(self, workspace_contract, mode, authenticated=False):
+	def __init__(self, workspace_contract, mode, authenticated=False, workspace_contract_from = None, private_key_from = None):
 			
 		self.workspace_contract = workspace_contract
 		
@@ -41,11 +41,10 @@ class Identity() :
 		self.address = contractsToOwners(self.workspace_contract,mode)
 				
 		#self.get_management_keys()
-		self.get_identity_personal()
-				
+		self.get_identity_personal()	
 		self.get_all_documents()
-		self.get_identity_file()
 		self.get_issuer_keys()
+		
 		if self.authenticated :
 			self.has_relay_rsa_key()
 			if self.rsa_key :
@@ -64,12 +63,14 @@ class Identity() :
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated()			
 			self.get_white_keys()
-	
+			self.get_identity_file(self.workspace_contract, self.private_key_value)
 		else :
 			self.partners = []
 			self.private_key = False
 			self.rsa_key = False
 			self.relay_activated = False
+			self.get_identity_file(workspace_contract_from,private_key_from) # pb a regler pour passer les parametres
+			
 		
 		if self.category  == 2001 : # company 
 			self.type = "company"
@@ -134,7 +135,8 @@ class Identity() :
 			fp.close()  
 			self.rsa_key_value = rsa_key 
 		except IOError :
-			self.rsa_key = False		
+			self.rsa_key = False
+			self.rsa_key_value = None
 	
 	def is_relay_activated(self):
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
@@ -210,11 +212,14 @@ class Identity() :
 				authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
 			except Exception as ex:
 				print(ex)
+				return False
 			partner_username = ns.get_username_from_resolver(partner_workspace_contract)
-			if partner_username is not None :
-				partner_address = contractsToOwners(partner_workspace_contract, self.mode)	
-				partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
-				self.partners.append({"address": partner_address,
+			
+			#if partner_username is not None :
+			partner_username = "Unknown" if partner_username is None else partner_username
+			partner_address = contractsToOwners(partner_workspace_contract, self.mode)	
+			partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
+			self.partners.append({"address": partner_address,
 								"publickey": partner_publickey,
 								 "workspace_contract" : partner_workspace_contract,
 								  'username' : partner_username,
@@ -227,6 +232,8 @@ class Identity() :
 			for index in range (0, len(self.partners)) :		
 				contract = self.mode.w3.eth.contract(self.partners[index]['workspace_contract'],abi=constante.workspace_ABI)
 				self.partners[index]['status'] = liste[contract.functions.getMyPartnershipStatus().call()]			
+		else :
+			print('status des partnerships impossible a obtenir, private key  not found')
 		return True
 	
 	def topicname2topicvalue(topicname) :
@@ -320,7 +327,7 @@ class Identity() :
 	
 	def get_identity_kyc(self) :
 		self.kyc = []
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kyc_list  :
 			kyc = Document('kyc')
 			kyc.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -331,7 +338,7 @@ class Identity() :
 	
 	def get_identity_certificate(self) :
 		self.certificate = []
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.certificate_list  :
 			certificate = Document('certificate')
 			certificate.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -342,7 +349,7 @@ class Identity() :
 	
 	def get_identity_kbis(self) :
 		self.kbis = []
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kbis_list  :
 			kbis = Document('kbis')
 			kbis.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -353,7 +360,7 @@ class Identity() :
 	
 	def get_identity_education(self) :
 		self.education = []
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.education_list  :
 			education = Document('education')
 			education.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -362,7 +369,7 @@ class Identity() :
 		return True	
 		
 	def get_identity_skills(self) :
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		if self.skills_list  != [] :
 			skills = Document('skills')
 			skills.relay_get(self.workspace_contract, self.skills_list[-1], self.mode, loading='light')
@@ -374,7 +381,7 @@ class Identity() :
 		
 	def get_identity_experience(self) :	
 		self.experience = []
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.experience_list  :
 			experience = Document('experience')
 			experience.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -383,14 +390,15 @@ class Identity() :
 		return True	
 	
 	
-	def get_identity_file(self) :	
+	def get_identity_file(self, workspace_contract_from, private_key_from) :	
 		self.identity_file = []
-		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.file_list :
 			this_file = File()
-			this_file.get(self.workspace_contract, doc_id, "", self.mode)			
+			this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode)			
 			new_file = this_file.__dict__
 			self.identity_file.append(new_file)
+		print('file list =', self.identity_file)
 		return True		
 	
 

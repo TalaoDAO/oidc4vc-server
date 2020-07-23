@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
@@ -23,8 +23,8 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-               
-                                            {% include 'user_nav_bar.html' %}    
+                
+                                                           {% include 'user_nav_bar.html' %}    
 
         
         
@@ -33,31 +33,29 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Partner</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Referent in your White List</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/remove_partner/" method="post">
+                            <form action="/user/add_issuer/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>A Partner can send you certificates and exchange private data with you.<br><br>Confirm
-                                            the removal of the following Partner</p>
-                                        <p><b>{{partner_name}}</b></p>
+                                        <p>Your Refernet List is made up of issuers you rely on. Theyx can issue certificates to you.</p>
+                                        <p> You want to add <strong>{{referent_username}}</strong> in your Referent List.</p>
                                     </div>
                                 </div>
+                                                                
+                                <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit"  value="send">Confirm</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+										   
+												<div class="form-group"><button onclick="goBack()"  class="btn btn-primary btn-sm" type="button" >Back</button></div>
+											
+                                    </div>
+                                </div>	
                                 
-                                    <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
-                                    </div>
-                                    <div class="col-6 col-xl-3">
-										
-                                        <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
-                                      
-                                    </div>
-                                </div>
-                               
-                            
-                            
+                                
                             </form>
                         </div>
                     </div>
@@ -69,17 +67,19 @@
     </div>
    
    
-                           {% include 'user_footer.html' %}    
+                                  {% include 'user_footer.html' %}    
 
     </div>
       <script>function goBack() {  window.history.back();}</script>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script> 
+    
+    
 </body>
 
 </html>
