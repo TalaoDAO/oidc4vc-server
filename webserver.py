@@ -42,6 +42,7 @@ import analysis
 import history
 import privatekey
 import createidentity
+import sms
 
 
 # Centralized  route
@@ -62,7 +63,9 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.4.8"
+if mode.myenv == 'aws' :
+	app.use_x_sendfile = True
+app.jinja_env.globals['Version'] = "0.5.0"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -165,6 +168,37 @@ def picture() :
 		else :
 			flash('Logo has been updated', 'success')
 		return redirect(mode.server + 'user/?username=' + username)
+
+
+@app.route('/user/update_phone/', methods=['GET', 'POST'])
+def update_phone() :
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
+	my_picture = session['picture']
+	
+	if request.method == 'GET' :
+		phone =  ns.get_data_from_username(session['username'], mode)['phone']
+		phone = phone if phone is not None else ""
+		return render_template('update_phone.html',
+								picturefile=my_picture,
+								username=username,
+								phone=phone)
+	if request.method == 'POST' :
+		_phone = request.form['phone']
+		code = request.form['code']
+		phone = code + _phone
+		print('phone = ', phone)
+		return redirect(mode.server + 'user/')
+		if _phone == "" :
+			flash('Your phone number has been deleted.', 'success')
+			ns.update_phone(session['username'], None)
+		elif sms.check_phone(phone) :
+			ns.update_phone(session['username'], phone)
+			flash('Your phone number has been updated.', 'success')
+		else :
+			flash('Incorrect phone number.', 'warning')
+		return redirect(mode.server + 'user/')
 
 
 # signature
@@ -969,7 +1003,7 @@ def store_file() :
 									'transaction_hash' : transaction_hash
 									}	
 		session['identity_file'].append(new_file)				
-		flash(filename + ' uploaded', "success")
+		flash('File ' + filename + ' has been uploaded.', "success")
 		return redirect(mode.server + 'user/?username=' + username)
 
 

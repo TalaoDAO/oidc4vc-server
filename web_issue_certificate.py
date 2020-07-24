@@ -1,6 +1,6 @@
 """
 Issue certificate for guest, Guest have received an email to issue a certificate. They have or they do not have an Identity.
-If they do not have an Identity create one.
+If they do not have an Identity we create one.
 """
 
 
@@ -22,6 +22,7 @@ import ns
 import privatekey
 import environment
 from protocol import Document, add_key, Claim, contractsToOwners, get_image, read_profil
+import sms
 
 exporting_threads = {}
 
@@ -44,6 +45,22 @@ class ExportingThread(threading.Thread):
 		self.mode = mode
 	def run(self):
 		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)	
+
+
+def send_secret_code (username, code) :
+	data = ns.get_data_from_username(username, mode)
+	if data is None :
+		return None
+	if data['phone'] is None :	
+		Talao_message.messageAuth(data['email'], code)
+		print('envoi du code par email')
+		return 'email'
+	else :
+		print('envoi du code par sms')
+		sms.send_code(data['phone'], code)
+	return 'sms'
+
+
 
 #@app.route('/issue/logout/', methods = ['GET'])
 def issue_logout() :
@@ -163,15 +180,23 @@ def issue_certificate_for_guest() :
 			return redirect(mode.server + 'login/')	
 		
 		if session.get('code') is None :
-			session['code'] = str(random.randint(1000, 9999))
+			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
-			Talao_message.messageAuth(session['issuer_email'], str(session['code']))
 		
 		if session['issuer_username'] == 'new' :
+			Talao_message.messageAuth(session['issuer_email'], str(session['code']))
 			return render_template('confirm_issue_certificate_for_guest.html')
 		else :
-			return render_template('confirm_issue_certificate_for_user_as_guest.html')		
+			support = send_secret_code(session['issuer_username'], session['code'])
+			if support is None :
+				flash("Session aborted", 'warning')
+				print('support is None dans web_issue_certificate') 
+				return render_template('login.html')
+			else :
+				print('secret code sent = ', session['code'])
+				flash("Secret Code already sent by " + support, 'success')
+			return render_template('confirm_issue_certificate_for_user_as_guest.html', support=support)		
 				
 def get_issuer_personal() :				
 		 # it is not an issuer creation
@@ -292,7 +317,7 @@ def create_authorize_issue() :
 		print('msg pour issuer envoyé')
 		# Email to talent
 		subject = 'A new Certificate has been issued to you'
-		identity, talent_email = ns.get_data_for_login(session['talent_username'])
+		talent_email = ns.get_data_from_username(session['talent_username'])['email']
 		Talao_message.message(subject, talent_email, text)
 		print('message pour Talent envoyé')
 		return render_template('login.html')
@@ -329,7 +354,7 @@ def create_authorize_issue_thread(username,
 	print('msg pour issuer envoyé')
 	# send message to talent
 	subject = 'A new Certificate has been issued to you'
-	identity, talent_email = ns.get_data_for_login(talent_username)
+	talent_email = ns.get_data_from_username(talent_username)['email']
 	Talao_message.message(subject, talent_email, text)
 	print('msg pour user envoyé')
 	return

@@ -28,7 +28,7 @@ from protocol import Claim, File, Identity, Document, read_profil
 import environment
 import hcode
 import ns
-
+import sms
 
 
 # environment setup
@@ -41,6 +41,20 @@ def check_login() :
 		flash('session aborted', 'warning')
 	return username
 
+
+
+def send_secret_code (username, code) :
+	data = ns.get_data_from_username(username, mode)
+	if data is None :
+		return None
+	if data['phone'] is None :	
+		Talao_message.messageAuth(data['email'], code)
+		print('envoi du code par email')
+		return 'email'
+	else :
+		print('envoi du code par sms')
+		sms.send_code(data['phone'], code)
+	return 'sms'
 
 
 # Starter with 3 options, login and logout
@@ -59,6 +73,8 @@ def starter() :
 			else :
 				pass
 
+
+
 #@app.route('/login/', methods = ['GET', 'POST'])
 def login() :
 	if request.method == 'GET' :
@@ -66,24 +82,24 @@ def login() :
 	if request.method == 'POST' :
 		session.clear()
 		session['username_to_log'] = request.form['username'].lower()
-		exist  = ns.get_data_for_login(session['username_to_log'])
+		exist  = ns.get_data_from_username(session['username_to_log'], mode)
 		if exist is None :
 			flash('Username not found', "warning")		
 			return render_template('login.html')
-		(identity,email_to_log) = exist
-		print('email to log : ', email_to_log)
-		# secret code to send by email
+		# secret code to send by email or sms
 		if session.get('code') is None :
-			session['code'] = str(random.randint(1000, 9999))
+			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
-			if not mode.test :
-				Talao_message.messageAuth(email_to_log, str(session['code']))
-			print('secret code sent = ', session['code'])
-			#flash('Secret Code sent', 'success')
-		else :
-			flash("Secret Code already sent", 'warning')
-		return render_template("login_2.html")
+			# send code by sms if phone exist else email
+			support = send_secret_code(session['username_to_log'], session['code'])
+			if support is None :
+				flash("Problem to send code", 'warning')
+				return render_template('login.html')
+			else :
+				print('secret code sent = ', session['code'])
+				flash("Secret Code already sent by " + support, 'success')
+		return render_template("login_2.html", support=support)
 
 # recuperation du code saisi
 #@app.route('/login/authentification/', methods = ['POST'])
@@ -473,7 +489,11 @@ def user() :
 	if not session['private_key'] :
 		my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
 	
-	
+	# Add/update phone number
+	phone =  ns.get_data_from_username(session['username'], mode)['phone']
+	phone = phone if phone is not None else ""
+	my_advanced = my_advanced + """<br><a href="/user/update_phone/">Add or update your phone number for authentification.</a><br>"""
+		
 	# TEST only
 	if mode.debug :
 		my_advanced = my_advanced + """<br><a href="/user/test/">For Test Only</a>"""
@@ -566,7 +586,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					
-					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """+>
+					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
 						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
 					</a>
 				</p>"""	

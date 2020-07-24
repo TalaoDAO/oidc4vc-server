@@ -47,6 +47,7 @@ class currentMode() :
 			self.port = 4000
 			self.flaskserver = "127.0.0.1"
 			self.debug = True	
+			self.test = False
 		
 		elif self.myenv == 'airbox' :  # sur portable connecté avec airbox
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
