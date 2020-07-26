@@ -61,7 +61,6 @@ def dashboard(workspace_contract,resume, mode) :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
 				print("")
-				print('doctype = ', resume[doctype])
 				created = datetime.fromisoformat(resume[doctype][i]['created'])
 				update.append(created)
 				nb_doc +=1			

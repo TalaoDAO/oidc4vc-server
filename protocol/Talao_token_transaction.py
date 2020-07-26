@@ -5,7 +5,6 @@ import sys
 import time
 import hashlib
 import json
-import ipfshttpclient
 from datetime import datetime
 from eth_account.messages import encode_defunct
 import random
@@ -448,9 +447,8 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 	
 	w3 = mode.w3
 
-	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
-	response=client.add(picturefile)
-	picturehash=response['Hash']	
+	# upload on ipfs
+	picturehash = Talao_ipfs.file_add(picturefile)
 	
 	topic = 105109097103101 if picture_type == 'picture' else 115105103110097116117114101
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)

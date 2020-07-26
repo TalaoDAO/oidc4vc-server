@@ -349,7 +349,6 @@ class Identity() :
 	
 	def get_identity_kbis(self) :
 		self.kbis = []
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kbis_list  :
 			kbis = Document('kbis')
 			kbis.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -360,7 +359,6 @@ class Identity() :
 	
 	def get_identity_education(self) :
 		self.education = []
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.education_list  :
 			education = Document('education')
 			education.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -369,19 +367,16 @@ class Identity() :
 		return True	
 		
 	def get_identity_skills(self) :
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		if self.skills_list  != [] :
 			skills = Document('skills')
 			skills.relay_get(self.workspace_contract, self.skills_list[-1], self.mode, loading='light')
-			self.skills = skills.__dict__
-			
+			self.skills = skills.__dict__		
 		else :
 			self.skills = None
 		return True	
 		
 	def get_identity_experience(self) :	
 		self.experience = []
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.experience_list  :
 			experience = Document('experience')
 			experience.relay_get(self.workspace_contract, doc_id, self.mode, loading='light')
@@ -389,19 +384,15 @@ class Identity() :
 			self.experience.append(new_experience)
 		return True	
 	
-	
 	def get_identity_file(self, workspace_contract_from, private_key_from) :	
 		self.identity_file = []
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.file_list :
 			this_file = File()
 			this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode)			
 			new_file = this_file.__dict__
 			self.identity_file.append(new_file)
-		print('file list =', self.identity_file)
-		return True		
-	
-
+		print ('get identity file = ', self.identity_file)
+		return True
 		
 	def uploadPicture(self,picturefile) :
 		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	

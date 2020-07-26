@@ -98,7 +98,7 @@ def login() :
 				return render_template('login.html')
 			else :
 				print('secret code sent = ', session['code'])
-				flash("Secret Code already sent by " + support, 'success')
+				flash("Secret code already sent by " + support, 'success')
 		return render_template("login_2.html", support=support)
 
 # recuperation du code saisi
@@ -396,13 +396,16 @@ def user() :
 		return redirect(mode.server + 'login/')	
 	if session.get('uploaded') is None :
 		print('start first instanciation user')	
-		#try :	
-		user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		if mode.test :
+			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+		else :
+			try :	
+				user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+			except :
+				flash('session aborted', 'warning')
+				print('pb au niveau de Identity')
+				return render_template('login.html')
 		
-		#except :
-		#	flash('session aborted', 'warning')
-		#	print('pb au niveau de Identity')
-		#	return render_template('login.html')
 		print('end')
 		""" clean up for resume  """
 		user_dict = user.__dict__.copy()
@@ -590,7 +593,7 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
 					</a>
 				</p>"""	
-		my_file = my_file + file_html + """<br>"""
+		my_file = my_file + file_html 
 	
 						
 ####################################################################################################

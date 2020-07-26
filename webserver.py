@@ -63,9 +63,8 @@ UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
-if mode.myenv == 'aws' :
-	app.use_x_sendfile = True
-app.jinja_env.globals['Version'] = "0.5.0"
+
+app.jinja_env.globals['Version'] = "0.5.1"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -188,8 +187,7 @@ def update_phone() :
 		_phone = request.form['phone']
 		code = request.form['code']
 		phone = code + _phone
-		print('phone = ', phone)
-		return redirect(mode.server + 'user/')
+		
 		if _phone == "" :
 			flash('Your phone number has been deleted.', 'success')
 			ns.update_phone(session['username'], None)
@@ -229,24 +227,6 @@ def signature() :
 
 
 
-"""
-
-@app.route('/faq/', methods=['GET'])
-def faq() :
-	username = check_login()
-	if username is None :
-		return redirect(mode.server + 'login/')		
-	my_picture = session['picture']
-	
-	if request.method == 'GET' :
-		return render_template('faq.html',
-							picturefile=my_picture,
-							  username=username)
-
-"""
-
-
-
 # issuer explore 
 @app.route('/user/issuer_explore/', methods=['GET'])
 def issuer_explore() :
@@ -283,16 +263,30 @@ def issuer_explore() :
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}			
 		issuer_personal = """<span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'])+"""<br>"""			
+		is_encrypted = False
 		for topic_name in session['issuer_explore']['personal'].keys() : 
 			if session['issuer_explore']['personal'][topic_name]['claim_value'] is not None :
-				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
-				issuer_personal = issuer_personal + """ 
-				<span><b>"""+ Topic[topic_name] +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""				
+				
+				if session['issuer_explore']['personal'][topic_name]['privacy'] == 'public' or is_username_in_list_for_partnership(session['partner'], issuer_username) :
+					topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
+					issuer_personal = issuer_personal + """ 
+						<span><b>"""+ Topic[topic_name] +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""				
 					
-					<a class="text-secondary" href=/data/""" + topicname_id + """:personal>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</span><br>"""				
+						<a class="text-secondary" href=/data/""" + topicname_id + """:personal>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						</a>
+					</span><br>"""				
+				elif session['issuer_explore']['personal'][topic_name]['privacy'] == 'private' :
+					is_encrypted = True
+					topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
+					issuer_personal = issuer_personal + """ 
+						<span><b>"""+ Topic[topic_name] +"""</b> : Not available - Encrypted				
+					</span><br>"""		
+					
+				elif session['issuer_explore']['personal'][topic_name]['privacy'] == 'secret' :	
+					pass	
+		if is_encrypted :
+			issuer_personal = issuer_personal + """<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
 		
 		# kyc
 		if len (session['issuer_explore']['kyc']) == 0:
@@ -436,16 +430,17 @@ def issuer_explore() :
 		
 		# file
 		my_file = ""
+		is_encrypted = False
 		for one_file in session['issuer_explore']['identity_file'] :
-			privacy = 'Not available' if one_file.get('content') == 'Encrypted' else one_file['privacy']
-			if privacy == 'Not available' :
+			if one_file.get('content') == 'Encrypted' :
+				is_encrypted = True
 				file_html = """
-					<b>File Name</b> : """+one_file['filename']+ """ ( """+ privacy + """ ) <br>			
+					<b>File Name</b> : """+one_file['filename']+ """ ( """+ 'Not available - Encrypted ' + """ ) <br>			
 					<b>Created</b> : """+ one_file['created'] + """<br>		
 					"""	
 			else :
 				file_html = """
-					<b>File Name</b> : """+one_file['filename']+ """ ( """+ privacy + """ ) <br>			
+					<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
 					<b>Created</b> : """+ one_file['created'] + """<br>
 							
 					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
@@ -453,7 +448,8 @@ def issuer_explore() :
 					</a>
 					"""	
 			my_file = my_file + file_html + """<br>"""		
-		
+		if is_encrypted :
+			my_file = my_file + """<a class="text-warning">Request a Partnership to this Talent to access his encrypted Data.</a><br>"""
 		
 					
 		#services : le reader est une persone, le profil vu est celui dune personne
@@ -477,7 +473,7 @@ def issuer_explore() :
 	
 			if not is_username_in_list_for_partnership(session['partner'], issuer_username)  : # est ce qu il est dans ma partnership list
 				services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a><br>
-										<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private data.</a><br>"""
+										<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
 			else :
 				services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
 		
@@ -688,12 +684,14 @@ def search() :
 	if request.method == 'POST' :
 		username_to_search = request.form['username_to_search']
 		if username_to_search == username :
-			flash('You are You !', 'warning')
-			return redirect(mode.server + 'user/?username=' + username)	
-		if not ns.does_alias_exist(username_to_search) :
-			flash('Username not found', 'warning')
-			return redirect(mode.server + 'user/?username=' + username)	
-		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + username_to_search)
+			flash('Here you are !', 'success')
+			return redirect(mode.server + 'user/')	
+		exist  = ns.get_data_from_username(username_to_search, mode)
+		if exist is None :
+			flash('Username not found', "warning")		
+			return redirect(mode.server + 'user/')		
+		else :
+			return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + username_to_search)
 		
 		
 		
@@ -841,7 +839,7 @@ def update_personal_settings() :
 				(p1,p2,p3) = ("", "", "") 
 			
 			privacy[topicname] = """
-					<optgroup """ +  """ label="Select">
+					<optgroup>
 					<option """+ p1 + """ value="public">Public</option>
 					<option """ + p2 +""" value="private">Private</option>
 					<option """ + p3 + """ value="secret">Secret</option>
@@ -886,6 +884,9 @@ def update_personal_settings() :
 			if 	form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
 				if form_value[topicname] is not None :
 					(claim_id,a,b) = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
+					if claim_id is None :
+						flash('Update impossible (RSA not found ?)', 'danger')
+						return redirect(mode.server + 'user/')
 					change = True
 					session['personal'][topicname]['claim_value'] = form_value[topicname]
 					session['personal'][topicname]['privacy'] = form_privacy[topicname]
@@ -993,6 +994,9 @@ def store_file() :
 		privacy = request.form['privacy']
 		user_file = File()
 		(doc_id, ipfs_hash, transaction_hash) =user_file.add(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, filename, privacy, mode)
+		if doc_id is None :
+			flash('File cannot be uploaded.', "danger")
+			return redirect(mode.server + 'user/')
 		new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(doc_id),
 									'filename' : filename,
 									'doc_id' : doc_id,
@@ -1252,7 +1256,7 @@ def remove_file() :
 		my_file.relay_delete(session['workspace_contract'], int(Id), mode)
 		del session['file_id_to_remove']
 		del session['filename_to_remove']
-		flash('The File has been deleted', 'success')
+		flash('The file has been deleted', 'success')
 		return redirect (mode.server +'user/')
 
 # add education
@@ -1911,10 +1915,9 @@ def send_fonts(filename):
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download():
 	filename = request.args['filename']
+	print('dans la route = ', app.config['UPLOAD_FOLDER'], filename)
 	return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename, as_attachment=True)
-	
-    
 
 
 #######################################################

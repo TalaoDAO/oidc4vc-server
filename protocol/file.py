@@ -28,13 +28,13 @@ def contracts_to_owners(workspace_contract, mode) :
 def add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, file_name, mydays, privacy, mode, synchronous) :
 	w3 = mode.w3	
 	
-	try :
-		this_file = open(file_name, mode='rb')  # b is important -> binary
-		this_data = this_file.read()
-	except :
-		print('file error')
-		return False
-		
+	file_path = mode.uploads_path + file_name
+	try : 
+		this_file = open(file_path, mode='rb')  # b is important -> binary
+	except IOError :
+		print('IOEroor open file in File.py')
+		return None, None, None
+	this_data = this_file.read()
 	data = {'filename' : file_name , 'content' : b64encode(this_data).decode('utf_8')}
 	
 	# cryptage des données par le user
@@ -49,11 +49,15 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 			aes_encrypted = mydata[6]
 
 		# read la cle privee RSA sur le fichier
-		filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_to + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
-		with open(filename,"r") as fp :
-			my_rsa_key = fp.read()	
+		RSA_filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_to + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
+		try :
+			fp = open(RSA_filename,"r")
+			rsa_key=fp.read()	
 			fp.close()   
-
+		except :
+			print('cannot open rsa file in add_file.file.py')
+			return None, None, None
+		
 		# decoder la cle AES128 cryptée avec la cle RSA privée
 		key = RSA.importKey(my_rsa_key)
 		cipher = PKCS1_OAEP.new(key)	
@@ -145,11 +149,9 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	data = ipfs_get(ipfshash.decode('utf-8'))
 	filename = data['filename']
 
-	
 	# calcul de la date
 	expires = 'Unlimited' if expires == 0 else str(datetime.fromtimestamp(expires))
 	
-	print('privacy = ', privacy)
 	if privacy == 'public' :
 		to_be_decrypted = False
 		to_be_stored = True
@@ -160,7 +162,6 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		acct = Account.from_key(private_key_from)
 		mode.w3.eth.defaultAccount = acct.address	
 		partnership_data = contract.functions.getPartnership(workspace_contract_user).call()
-		print('his parnership data  = ', partnership_data)
 		# one tests if the user in in partnershipg with identity (pending or authorized)
 		if partnership_data[1] in [1, 2] :
 			his_aes_encrypted = partnership_data[4]
@@ -170,7 +171,6 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			to_be_decrypted = False
 			to_be_stored = False
 			data =  {'filename': filename, 'content': "Encrypted"}
-			print('data dans get _file', data)
 			
 	elif workspace_contract_from == workspace_contract_user :
 		#recuperer les cle AES cryptée dans l identité
@@ -193,9 +193,9 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		# read la cle RSA privee sur le fichier de l identité
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
-		filename = "./RSA_key/"+mode.BLOCKCHAIN+'/' + address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+		RSA_filename = "./RSA_key/"+mode.BLOCKCHAIN+'/' + address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 		try :
-			fp = open(filename,"r")
+			fp = open(RSA_filename,"r")
 			rsa_key=fp.read()	
 			fp.close()   
 		except :
@@ -218,13 +218,13 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 			msg = json.loads(plaintext.decode('utf-8'))
 			data = msg
-			print('data = ', data)
 		except ValueError :
 			print("data Decryption error")
 			return None
 	
-	if new_filename != "" and to_be_stored :	
-		new_file = open(new_filename, "wb")
+	new_filename = filename if new_filename == "" else new_filename
+	if to_be_stored :	
+		new_file = open(mode.uploads_path + new_filename, "wb")
 		new_file.write(b64decode(data['content']))
 		new_file.close()
 	
@@ -276,7 +276,6 @@ class File() :
 		 self.issuer_address,
 		 self.privacy,
 		 self.related) = get_file (workspace_contract_from, private_key_from, workspace_contract_user, doc_id, new_filename, mode) 
-		print('data la class File = ', data)
 		self.filename = data['filename']
 		self.new_filename = new_filename
 		self.doc_id = doc_id
@@ -292,18 +291,8 @@ class File() :
 		if privacy == 'secret' :
 			doctype = 30002
 		mydays = 0
-		(self.document_id, self.ipfs_hash, self.transaction_hash) = add_file(address_from,
-																			workspace_contract_from,
-																			address_to,
-																			workspace_contract_to,
-																			private_key_from,
-																			doctype,
-																			file_name,
-																			mydays,
-																			privacy,
-																			mode,
-																			synchronous)
-		return self.document_id, self.ipfs_hash, self.transaction_hash
+		return  add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype,	file_name,mydays, privacy,mode,synchronous)
+		
 
 		
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :

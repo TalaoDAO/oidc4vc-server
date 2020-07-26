@@ -80,7 +80,6 @@ def read_profil (workspace_contract, mode, loading) :
 		 	
 	for topicname, topic in topic_dict.items() :
 		claim = contract.functions.getClaimIdsByTopic(topic).call()
-		print('topicname = ', topicname, 'claim = ', claim)
 		if len(claim) == 0 :
 			profil[topicname] = None			
 		else :
@@ -104,9 +103,13 @@ def encrypt_data(identity_workspace_contract,data, privacy, mode) :
 	
 	identity_address = contracts_to_owners(identity_workspace_contract, mode)
 	filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + identity_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
-	with open(filename,"r") as fp :
+	try :
+		fp = open(filename,"r")
 		my_rsa_key = fp.read()	
-		fp.close()   
+		fp.close()  
+	except IOError :
+		print('RSA not found')
+		return None 
 
 	# decoder ma cle AES128 cryptée avec ma cle RSA privée
 	key = RSA.importKey(my_rsa_key)
@@ -174,9 +177,12 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 		ipfs_hash = "" 
 	else : 
 		data_encrypted = encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
+		if data_encrypted is None :
+			return None, None, None
 		ipfs_hash = ipfs_add(data_encrypted)
 		if ipfs_hash is None :
-			return None
+			print('ipfs hash error create_claim')
+			return None, None, None
 		data = privacy
 		
 	nonce = w3.eth.getTransactionCount(address_from)  
@@ -215,8 +221,9 @@ def get_claim(identity_workspace_contract, topicname, mode) :
 	a = contract.functions.getClaimIdsByTopic(topic_value).call()
 	if len(a) == 0 :
 	 return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
-	
+	print('topic name = ', topicname)
 	claim_id = a[-1].hex()
+	print('claim id = ', claim_id)
 	claim = contract.functions.getClaim(claim_id).call()
 	data = claim[4].decode('utf-8') 	# data public
 	ipfs_hash = claim[5]
@@ -249,16 +256,23 @@ def get_claim(identity_workspace_contract, topicname, mode) :
 		if claim['args']['claimId'].hex() == claim_id :
 			transactionhash = claim['transactionHash']
 			transaction_hash = transactionhash.hex()
-			transaction = w3.eth.getTransaction(transaction_hash)
-			gas_price = transaction['gasPrice']
-			identity_workspace_contract = transaction['to'] 
-			block_number = transaction['blockNumber']
-			block = mode.w3.eth.getBlock(block_number)
-			date = datetime.fromtimestamp(block['timestamp'])
-			gas_used = 1000				
-			#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
-			created = str(date)
-	
+			try :
+				transaction = w3.eth.getTransaction(transaction_hash)
+				gas_price = transaction['gasPrice']
+				identity_workspace_contract = transaction['to'] 
+				block_number = transaction['blockNumber']
+				block = mode.w3.eth.getBlock(block_number)
+				date = datetime.fromtimestamp(block['timestamp'])
+				gas_used = 1000				
+				#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
+				created = str(date)
+			except :
+				print( 'probleme avec ', topicname, ' dans get claim')
+				gas_price = 0
+				identity_workspace_contract = "Unknown"
+				date = ""
+				gas_used = 1000
+				created = "Unknown"
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 
 def get_claim_by_id(identity_workspace_contract, claim_id, mode) :

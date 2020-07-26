@@ -14,13 +14,13 @@ import shutil
 
 def ipfs_add(json_dict, name=None) :
 	name = 'Unknown' if name is None else name
-	ipfs_hash_pinata = add_to_pinata(json_dict, name)
-	ipfs_hash_local = add_to_local(json_dict)
+	ipfs_hash_pinata = add_dict_to_pinata(json_dict, name)
+	ipfs_hash_local = add_dict_to_local(json_dict)
 	if ipfs_hash_pinata  != ipfs_hash_local :
 		print('hash different')
 	return ipfs_hash_pinata
 
-def add_to_pinata (data_dict, name) :
+def add_dict_to_pinata (data_dict, name) :
 	api_key = '5bbb5c18e623c9b663ab'
 	secret = '3d310e3acc5d1b51b5f20ed89d2ee221e157db8571d0d2f45f58d316f629e5dc'
 	headers = {'Content-Type': 'application/json',
@@ -29,12 +29,46 @@ def add_to_pinata (data_dict, name) :
 	data = { 'pinataMetadata' : {'name' : name}, 'pinataContent' : data_dict}		 
 	response = requests.post('https://api.pinata.cloud/pinning/pinJSONToIPFS', data=json.dumps(data), headers=headers)
 	return response.json()['IpfsHash']
+	
 
-def add_to_local (data_dict) :
+
+def add_dict_to_local (data_dict) :
 	data = {"json" : json.dumps(data_dict, separators=(',', ':'), ensure_ascii=False )}
 	response = requests.post('http://127.0.0.1:5001/api/v0/add', files=data)
 	return response.json()['Hash']
 
+def file_add(filename) :
+	ipfs_hash_pinata = add_file_to_pinata(filename)
+	ipfs_hash_local = add_file_to_local(filename)
+	if ipfs_hash_pinata  != ipfs_hash_local :
+		print('hash different')
+	return ipfs_hash_pinata
+	
+	
+def add_file_to_pinata (filename) :
+	try : 
+		this_file = open(filename, mode='rb')  # b is important -> binary
+	except IOError :
+		print('IOEroor open file ')	
+	file_data = this_file.read()
+	api_key = '5bbb5c18e623c9b663ab'
+	secret = '3d310e3acc5d1b51b5f20ed89d2ee221e157db8571d0d2f45f58d316f629e5dc'
+	headers = {	'pinata_api_key': api_key,
+              'pinata_secret_api_key': secret}
+	payload = { 'file' : file_data}		 
+	response = requests.post('https://api.pinata.cloud/pinning/pinFileToIPFS', files=payload, headers=headers)
+	return response.json()['IpfsHash']
+
+
+def add_file_to_local (filename) :
+	try : 
+		this_file = open(filename, mode='rb')  # b is important -> binary
+	except IOError :
+		print('IOEroor open file ')	
+	file_data = this_file.read()
+	payload = { 'file' : file_data}		 
+	response = requests.post('http://127.0.0.1:5001/api/v0/add', files=payload)
+	return response.json()['Hash']
 
 		
 def ipfs_get_pinata(ipfs_hash) :

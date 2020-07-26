@@ -24,6 +24,7 @@ class currentMode() :
 		self.mychain = 'rinkeby'
 		self.myenv = 'airbox'
 		self.password = 'suc2cane'
+		self.uploads_path = '/home/thierry/Talao/uploads/'
 		self.db_path = '/home/thierry/db/'
 		print('debut init environment')
 		print('Chain = ', self.mychain)
@@ -39,6 +40,7 @@ class currentMode() :
 			self.debug = True	
 
 		elif self.myenv == 'aws' :
+			self.uploads_path = '/home/admin/Talao/uploads/'
 			self.db_path = '/home/admin/db/'
 			self.IPCProvider = "/home/admin/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/rinkeby/geth.ipc"))

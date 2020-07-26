@@ -54,7 +54,7 @@
                                     <div class="form-group">
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
-												<button class="btn btn-primary btn-sm" type="submit">Save</button>
+												<button class="btn btn-primary btn-sm" id="loading_button" type="submit">Save</button>
 											</div>
                                             <div class="custom-file">
 												<label class="custom-file-label" for="file"></label>
@@ -78,7 +78,8 @@
 
         
         
-        
+       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	  <script src="{{ url_for('static', filename='loading_button.js') }}"></script>      
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

@@ -26,10 +26,9 @@ def history_html(workspace_contract, days, mode) :
 	for i in range(0, len(filter_list)) :
 		eventlist = filter_list[i].get_all_entries()
 		for doc in eventlist :
-			print(' event = ', doc)
+			
 			transactionhash = doc['transactionHash']
 			transaction = mode.w3.eth.getTransaction(transactionhash)
-			print('transaction = ', transaction)
 			issuer = transaction['from']
 			issuer_workspace_contract = ownersToContracts(issuer,mode)
 			profil, category = read_profil(issuer_workspace_contract, mode, loading='light')
@@ -49,7 +48,7 @@ def history_html(workspace_contract, days, mode) :
 			issuer_name = 'me' if issuer_workspace_contract == workspace_contract else issuer_name	
 		
 			if i == 4 :
-				history[date] = 'Document ' + str(doc['args']['id']) + ' removed by ' + issuer_name
+				history[date] = 'Document ' + str(doc['args']['id'])  + ' removed by ' + issuer_name
 			elif i == 3 :
 				history[date] = 'Document ' + str(doc['args']['id']) + ' created by ' + issuer_name
 			elif i == 2  and doc['args']['purpose'] == 20002 :

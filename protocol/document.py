@@ -215,7 +215,11 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		if doc['args']['id'] == documentId :
 			transactionhash = doc['transactionHash']
 			transaction_hash = transactionhash.hex()
-			transaction = w3.eth.getTransaction(transaction_hash)
+			try : 
+				transaction = w3.eth.getTransaction(transaction_hash)
+			except :
+				print('error dans document.py, ligne 219', documentId, doctype, privacy, transaction_hash)
+				return None, None, None, None, None, None, None, None, None, None, None , None, None
 			gas_price = transaction['gasPrice']
 			identity_workspace_contract = transaction['to'] 
 			block_number = transaction['blockNumber']
