@@ -242,6 +242,7 @@ def get_claim(identity_workspace_contract, topicname, mode) :
 			data_encrypted = ipfs_get(ipfs_hash)
 			data = decrypt_data(identity_workspace_contract, data_encrypted, privacy, rsa_key, mode)[topicname]
 		except :
+			print('rsa key not found')
 			privacy = data
 	else :
 		privacy = 'public'
@@ -258,21 +259,21 @@ def get_claim(identity_workspace_contract, topicname, mode) :
 			transaction_hash = transactionhash.hex()
 			try :
 				transaction = w3.eth.getTransaction(transaction_hash)
+				print('ok transaction')
 				gas_price = transaction['gasPrice']
 				identity_workspace_contract = transaction['to'] 
 				block_number = transaction['blockNumber']
+				print('avant get block')
 				block = mode.w3.eth.getBlock(block_number)
+				print('apres get block')
 				date = datetime.fromtimestamp(block['timestamp'])
 				gas_used = 1000				
 				#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 				created = str(date)
 			except :
 				print( 'probleme avec ', topicname, ' dans get claim')
-				gas_price = 0
-				identity_workspace_contract = "Unknown"
-				date = ""
-				gas_used = 1000
-				created = "Unknown"
+				return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
+	
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 
 def get_claim_by_id(identity_workspace_contract, claim_id, mode) :

@@ -394,8 +394,10 @@ def user() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')	
+	first_pass = False
 	if session.get('uploaded') is None :
-		print('start first instanciation user')	
+		print('start first instanciation user')
+		first_pass = True	
 		if mode.test :
 			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
 		else :
@@ -449,10 +451,21 @@ def user() :
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 	
-
+	
 	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
 	
-	
+	# welcome message
+	if first_pass :
+		message = ""
+		if not session['private_key'] :
+			message = message + "Private key not found "
+		if not session['rsa_key'] :
+			message = message + "Rsa key not found "
+		if message != "" :
+			flash(message + "Some features will not be available", 'warning')	
+		else :
+			flash('Welcome ! ', 'success')	
+		
 	# account	
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
 					<b>token TALAO</b> : """ + str(session['token'])

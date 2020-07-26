@@ -405,10 +405,11 @@ def has_phone(username) :
 	else :
 		return True
 
-		
+"""		
 
 if __name__ == '__main__':
-
+	
+	import environment
 	# environment setup
 	mode = environment.currentMode()
 	w3 = mode.w3
@@ -426,5 +427,5 @@ if __name__ == '__main__':
 	alter_add_phone_field_manager('relay.db')
 	alter_add_phone_field_manager('bnp.db')
 
-
+"""
 

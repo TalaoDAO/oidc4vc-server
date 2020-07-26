@@ -1,15 +1,12 @@
 
 from datetime import datetime
-import environment
 import sqlite3
 import constante
 import csv
 
-mode = environment.currentMode()
-path = mode.db_path
-
 	
-def init_private_key_db():
+def init_private_key_db(mode):
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'private_key.db')
 	cur = conn.cursor()
 	cur.execute('create table key(created real, username text, address text, private_key text, workspace_contract text, email text, secret text, aes text)')
@@ -34,8 +31,10 @@ def setup(mode) :
 	return			
 	
 
-def add_identity(data) :
+def add_identity(data, mode) :
 	#data = {  'username' : username, 'address' : address, 'created' : str(datetime.today()), 'private_key' : private_key, 'workspace_contract' : workspace_contract, 'email' : email, 'secret' : secret, 'aes' : aes} 
+	path = mode.db_path
+
 	try :
 		conn = sqlite3.connect(path + 'private_key.db')
 	except :
@@ -47,7 +46,9 @@ def add_identity(data) :
 	return True
 	
 	
-def get_key(address,key_type) :	
+def get_key(address,key_type, mode) :	
+	path = mode.db_path
+
 	try :
 		conn = sqlite3.connect(path + 'private_key.db')
 	except :
@@ -70,7 +71,9 @@ def get_key(address,key_type) :
 		return None
 	return select[0]	
 
-def get_email(address) :	
+def get_email(address, mode) :	
+	path = mode.db_path
+
 	try :
 		conn = sqlite3.connect(path + 'private_key.db')
 	except :
@@ -85,6 +88,8 @@ def get_email(address) :
 		return None
 	return select[0]	
 
+
+"""
 if __name__ == '__main__':
 	
 	choice = input ('Do you confirm init setup Yes/No ?')
@@ -94,6 +99,6 @@ if __name__ == '__main__':
 		init_private_key_db()
 		setup(mode) 
 		print(' setup Done')
-	
+"""	
 
 

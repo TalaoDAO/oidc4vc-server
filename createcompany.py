@@ -27,7 +27,7 @@ from base64 import b64encode, b64decode
 from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key
 from Talao_ipfs import ipfs_add, ipfs_get
 import constante
-import environment
+#import environment
 import ns
 
 

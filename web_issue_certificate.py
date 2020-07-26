@@ -299,7 +299,7 @@ def create_authorize_issue() :
 		issuer_workspace_contract = session['issuer_workspace_contract']
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
 		# get private key for issuer
-		issuer_private_key = privatekey.get_key(issuer_address,'private_key') 					
+		issuer_private_key = privatekey.get_key(issuer_address,'private_key', mode) 					
 		if issuer_private_key is None :
 			print('erreur , Private kay not found for ', session['issuer_username'])
 			flash('Sorry, the Certificate cant be issued, no Private Key found', 'warning')

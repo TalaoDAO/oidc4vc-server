@@ -7,6 +7,13 @@ interace wsgi https://www.bortzmeyer.org/wsgi.html
 
 
 request : http://blog.luisrei.com/articles/flaskrest.html
+
+
+
+    $ export FLASK_APP=webserver.py
+    $ export FLASK_ENV=development
+    $ flask run -h 127.0.0.1 -p 3000
+
 """
 import os
 import os.path, time
@@ -41,7 +48,6 @@ import ns
 import analysis
 import history
 import privatekey
-import createidentity
 import sms
 
 
@@ -59,12 +65,13 @@ mode = environment.currentMode()
 w3 = mode.w3
 exporting_threads = {}
 
+
 UPLOAD_FOLDER = './uploads'
 
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.1"
+app.jinja_env.globals['Version'] = "0.5.2"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -449,7 +456,7 @@ def issuer_explore() :
 					"""	
 			my_file = my_file + file_html + """<br>"""		
 		if is_encrypted :
-			my_file = my_file + """<a class="text-warning">Request a Partnership to this Talent to access his encrypted Data.</a><br>"""
+			my_file = my_file + """<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to access his encrypted Data.</a><br>"""
 		
 					
 		#services : le reader est une persone, le profil vu est celui dune personne
@@ -1539,7 +1546,7 @@ def request_certificate() :
 				reco = False
 			# Check if issuer has private key 
 			issuer_address = session['issuer_explore']['address']
-			if privatekey.get_key(issuer_address, 'private_key') is None :
+			if privatekey.get_key(issuer_address, 'private_key', mode) is None :
 				flash('Sorry, this Referent cannot issue Certificates.', 'warning')
 				return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
 		return render_template('request_certificate.html', picturefile=my_picture, username=username, display_email=display_email, reco=reco)
@@ -1725,7 +1732,7 @@ def import_private_key() :
 			return redirect (mode.server +'user/')
 		session['private_key'] = True
 		session['private_key_value'] = request.form['private_key']
-		privatekey.add_identity(data) 
+		privatekey.add_identity(data, mode) 
 		flash('Private Key has been imported',  'success')
 		return redirect (mode.server +'user/')
 
@@ -1929,4 +1936,4 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
-	app.run(host = mode.flaskserver, port= mode.port, debug = mode.debug)
+	app.run(host = mode.flaskserver, port= mode.port, debug = True, processes=1, threaded=False)

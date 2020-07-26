@@ -48,7 +48,7 @@ class currentMode() :
 			self.server = 'http://18.190.21.227:5000/' # external
 			self.port = 4000
 			self.flaskserver = "127.0.0.1"
-			self.debug = True	
+			self.debug = False	
 			self.test = False
 		
 		elif self.myenv == 'airbox' :  # sur portable connecté avec airbox

@@ -13,7 +13,6 @@ from datetime import datetime
 from operator import itemgetter, attrgetter
 import random
 from eth_account import Account
-#import ipfshttpclient
 import os
 import csv 
 import requests
@@ -122,7 +121,7 @@ class Identity() :
 		return
 					
 	def has_relay_private_key(self) :
-		self.private_key_value =  privatekey.get_key(self.address, 'private_key')
+		self.private_key_value =  privatekey.get_key(self.address, 'private_key', self.mode)
 		self.private_key = False if self.private_key_value is None else True
 		return			
 					

@@ -24,7 +24,7 @@ from base64 import b64encode, b64decode
 import Talao_message
 from Talao_ipfs import ipfs_add, ipfs_get
 import constante
-import environment
+#import environment
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
 import ns
 import privatekey
@@ -195,7 +195,7 @@ def create_user(username, email,mode):
 			 'secret' : SECRET_key.hex(),
 			 'aes' : AES_key.hex()}
 			 
-	execution =  privatekey.add_identity(data)
+	execution =  privatekey.add_identity(data, mode)
 	print('save db = ', execution)
 	print("createidentity is OK")
 	return address, private_key, workspace_contract
