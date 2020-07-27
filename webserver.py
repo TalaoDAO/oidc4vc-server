@@ -15,6 +15,8 @@ request : http://blog.luisrei.com/articles/flaskrest.html
     $ flask run -h 127.0.0.1 -p 3000
 
 """
+from Crypto.PublicKey import RSA
+
 import os
 import os.path, time
 from flask import Flask, session, send_from_directory, flash, send_file
@@ -67,6 +69,7 @@ exporting_threads = {}
 
 
 UPLOAD_FOLDER = './uploads'
+RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
 
 # Flask and Session setup	
 app = Flask(__name__)
@@ -81,6 +84,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=100)
 app.config['SESSION_FILE_THRESHOLD'] = 100  
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['RSA_FOLDER'] = RSA_FOLDER
 Session(app)
 
 fa = FontAwesome(app)
@@ -1735,6 +1739,45 @@ def import_private_key() :
 		privatekey.add_identity(data, mode) 
 		flash('Private Key has been imported',  'success')
 		return redirect (mode.server +'user/')
+		
+		
+	
+# Import rsa key
+@app.route('/user/import_rsa_key/', methods=['GET', 'POST'])
+def import_rsa_key() :	
+	username = check_login()
+	if username is None :
+		return redirect(mode.server + 'login/')		
+	if request.method == 'GET' :	
+		my_picture = session['picture']
+		return render_template('import_rsa_key.html',
+								picturefile=my_picture,
+								  username=username)
+	if request.method == 'POST' :
+		if 'file' not in request.files :
+			flash('no file', "warning")
+			return redirect(mode.server + 'user/')
+		myfile = request.files['file']
+		filename = secure_filename(myfile.filename)
+		myfile.save(os.path.join(app.config['RSA_FOLDER'], filename))	
+		filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + filename
+		try :
+			f = open(filename,'r')
+			key = RSA.import_key(f.read())
+			RSA_public = key.publickey().exportKey('PEM')
+		except :
+			flash('RSA key is not found', 'danger')
+			return redirect (mode.server +'user/')	
+		contract=w3.eth.contract(session['workspace_contract'],abi=constante.workspace_ABI)
+		identity_key = contract.functions.identityInformation().call()[4]
+		if RSA_public == identity_key :
+			session['rsa_key'] = True
+			session['rsa_key_value'] = key.exportKey('PEM')
+			flash('RSA Key has been uploaded',  'success')
+		else :
+			flash('RSA key is not correct', 'danger')
+		return redirect (mode.server +'user/')
+
 
 # add Manager (Username)
 @app.route('/user/add_manager/', methods=['GET', 'POST'])
@@ -1936,4 +1979,4 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
-	app.run(host = mode.flaskserver, port= mode.port, debug = False, processes=1, threaded=False)
+	app.run(host = mode.flaskserver, port= mode.port, debug = True, processes=1, threaded=False)

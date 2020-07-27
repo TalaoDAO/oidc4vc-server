@@ -135,6 +135,7 @@ class Identity() :
 			self.rsa_key = False
 			self.rsa_key_value = None
 	
+	# one checks if Relay has a key 1
 	def is_relay_activated(self):
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		key = self.mode.w3.soliditySha3(['address'], [self.mode.relay_address])
@@ -355,10 +356,7 @@ class Identity() :
 		self.identity_file = []
 		for doc_id in self.file_list :
 			this_file = File()
-			this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode)
-			if not this_file :
-				pass			
-			else :
+			if this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode) :
 				new_file = this_file.__dict__
 				self.identity_file.append(new_file)
 		print ('get identity file = ', self.identity_file)

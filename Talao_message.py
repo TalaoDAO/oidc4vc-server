@@ -7,13 +7,13 @@ from email import encoders
 import constante
 
 signature = '\r\n\r\n\r\n\r\n The Talao team.\r\nhttp://talao.co/'
-
+password = 'Reuan;2020'
 
 def messageAuth (email_to, random) :
 
 
 	# debut de la fonction
-	fromaddr = "thierry.thevenet1963@gmail.com"
+	fromaddr = "relay@talao.io"
 	toaddr = [email_to, ]
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
@@ -21,17 +21,17 @@ def messageAuth (email_to, random) :
 	msg = MIMEMultipart() 
 	msg['From'] = fromaddr 
 	msg['To'] = ", ".join(toaddr)
-	msg['Subject'] = 'Talao : Authentification par email  ' 
+	msg['Subject'] = 'Talao : Email authentification  ' 
 
 	# string to store the body of the mail 
-	body = 'Code a saisir : '+ random 
+	body = 'Your verification code is : '+ random 
 	msg.attach(MIMEText(body, 'plain')) 
 	p = MIMEBase('application', 'octet-stream') 
 
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	s.starttls() 
-	s.login(fromaddr, "Suc2cane22") 
+	s.login(fromaddr, password) 
 	text = msg.as_string() 
 
 	# sending the mail 
@@ -47,7 +47,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 
 
 	# debut de la fonction
-	fromaddr = "thierry.thevenet1963@gmail.com"
+	fromaddr = "relay@talao.io"
 	toaddr = ["thierry.thevenet@talao.io"]
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
@@ -80,8 +80,8 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	# start TLS for security 
 	s.starttls() 
-	# Authentication de thierry.thevenet1963@gmail.com
-	s.login(fromaddr, "Suc2cane22") 
+	# Authentication 
+	s.login(fromaddr, password) 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 
 	# sending the mail 
@@ -99,7 +99,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 
 def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contract_address,mode)  :
 
-	fromaddr = "thierry.thevenet1963@gmail.com"
+	fromaddr = "relay@talao.io"
 	toaddr = [email]
 
 	msg = MIMEMultipart() 
@@ -132,7 +132,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	s.starttls() 
-	s.login(fromaddr, "Suc2cane22") 
+	s.login(fromaddr, password) 
 	text = msg.as_string() 
 
 	# sending the mail 
@@ -148,7 +148,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 def messageAdmin (subject, messagetext,mode) :
 
 	# debut de la fonction
-	fromaddr = "thierry.thevenet1963@gmail.com"
+	fromaddr = "relay@talao.io"
 	toaddr = ["thierry.thevenet@talao.io"]
 	msg = MIMEMultipart() 
 	msg['From'] = fromaddr 
@@ -161,7 +161,7 @@ def messageAdmin (subject, messagetext,mode) :
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	s.starttls() 
-	s.login(fromaddr, "Suc2cane22") 
+	s.login(fromaddr, password) 
 	text = msg.as_string() 
 
 	# sending the mail 
@@ -176,7 +176,7 @@ def messageAdmin (subject, messagetext,mode) :
 
 def message(subject, to, messagetext) :
 
-	fromaddr = "thierry.thevenet1963@gmail.com"
+	fromaddr = "relay@talao.io"
 	toaddr = [to]
 
 	msg = MIMEMultipart() 
@@ -190,7 +190,7 @@ def message(subject, to, messagetext) :
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	s.starttls() 
-	s.login(fromaddr, "Suc2cane22") 
+	s.login(fromaddr, password) 
 	text = msg.as_string() 
 
 	# sending the mail 
@@ -208,7 +208,7 @@ def message_file(to, text, subject, filename, path)  :
 	""" @to is list of email, @filename is a list of files """
 
 	# debut de la fonction
-	fromaddr = "thierry.thevenet1963@gmail.com"
+	fromaddr = "relay@talao.io"
 	toaddr = to
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
@@ -245,8 +245,8 @@ def message_file(to, text, subject, filename, path)  :
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	# start TLS for security 
 	s.starttls() 
-	# Authentication de thierry.thevenet1963@gmail.com
-	s.login(fromaddr, "Suc2cane22") 
+	# Authentication 
+	s.login(fromaddr, password) 
 	# Converts the Multipart msg into a string 
 	text = msg.as_string() 
 	# sending the mail 

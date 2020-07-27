@@ -98,7 +98,7 @@ def login() :
 				return render_template('login.html')
 			else :
 				print('secret code sent = ', session['code'])
-				flash("Secret code already sent by " + support, 'success')
+				flash("Secret code sent by " + support, 'success')
 		return render_template("login_2.html", support=support)
 
 # recuperation du code saisi
@@ -452,15 +452,15 @@ def user() :
 			session['kbis'] = user.kbis
 	
 	
-	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
+	
 	
 	# welcome message
 	if first_pass :
 		message = ""
 		if not session['private_key'] :
-			message = message + "Private key not found "
+			message = message + "Private key not found. "
 		if not session['rsa_key'] :
-			message = message + "Rsa key not found "
+			message = message + "Rsa key not found. "
 		if message != "" :
 			flash(message + "Some features will not be available", 'warning')	
 		else :
@@ -483,27 +483,42 @@ def user() :
 	
 	
 	# advanced
+	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
 	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	my_advanced = """
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
-			<!--		<b>Authentification Email</b> : """ + "to be done " + """<br> -->
 					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
 					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""					
 	
 	if session['username'] != 'talao' :
-		my_advanced = my_advanced + """				
-					<hr><b>Relay Status : </b>""" + relay + """<br>
-					<b>RSA Key</b> : """ + relay_rsa_key + """<br>
-					<b>Private Key</b> : """ + relay_private_key +"""<hr>"""
+		if relay == 'Activated' :
+			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
+		else :
+			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<a class ="text-warning" >You cannot store data.</a><br>"""
+			
+		if relay_rsa_key == 'Yes' :
+			my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
+		else :
+			my_advanced = my_advanced +"""<b>RSA Key</b> : """ + relay_rsa_key + """<br><a class ="text-warning" >You cannot store and access private and secret data.</a><br>"""
 	
-	my_advanced = my_advanced + my_account +  "<hr>"
+		if relay_private_key == 'Yes' :
+			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
+		else :
+			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
+	
+	
+	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
 
 	
 	# Import Private Key
 	if not session['private_key'] :
 		my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
+	
+	# upload RSA Key
+	if not session['rsa_key'] :
+		my_advanced = my_advanced + """<br><a href="/user/import_rsa_key/">Import RSA Key</a><br>"""
 	
 	# Add/update phone number
 	phone =  ns.get_data_from_username(session['username'], mode)['phone']
