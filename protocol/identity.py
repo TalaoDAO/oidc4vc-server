@@ -38,13 +38,10 @@ class Identity() :
 		self.authenticated = authenticated
 		self.did = 'did:talao:'+mode.BLOCKCHAIN + ':' + self.workspace_contract[2:]
 		self.address = contractsToOwners(self.workspace_contract,mode)
-				
-		#self.get_management_keys()
-		self.get_identity_personal()	
 		self.get_all_documents()
 		self.get_issuer_keys()
 		
-		if self.authenticated :
+		if self.authenticated :		
 			self.has_relay_rsa_key()
 			if self.rsa_key :
 				self.get_secret()
@@ -62,14 +59,15 @@ class Identity() :
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated()			
 			self.get_white_keys()
+			self.get_identity_personal(self.workspace_contract, self.private_key_value)	
 			self.get_identity_file(self.workspace_contract, self.private_key_value)
 		else :
 			self.partners = []
 			self.private_key = False
 			self.rsa_key = False
 			self.relay_activated = False
-			self.get_identity_file(workspace_contract_from,private_key_from) # pb a regler pour passer les parametres
-			
+			self.get_identity_file(workspace_contract_from,private_key_from)
+			self.get_identity_personal(workspace_contract_from, private_key_from)
 		
 		if self.category  == 2001 : # company 
 			self.type = "company"
@@ -88,7 +86,7 @@ class Identity() :
 			self.get_identity_kyc()
 			self.get_identity_certificate()
 			self.get_identity_skills()
-			print('certificate ok')
+		
 			
 		#download pictures on server dir /uploads/ if picrures not already on disk
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
@@ -244,7 +242,7 @@ class Identity() :
 		return int(topicvalue_str)
 	
 		# always available
-	def get_identity_personal(self) :
+	def get_identity_personal(self,workspace_contract_from, private_key_from) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)	
 		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education']
 		company = ['name','contact_name','contact_email','contact_phone','website', 'about']
@@ -259,39 +257,9 @@ class Identity() :
 			topiclist = company	
 		for topicname in topiclist :
 			claim = Claim()
-			claim.get_by_topic_name(self.workspace_contract, topicname, self.mode)
+			claim.get_by_topic_name(workspace_contract_from, private_key_from, self.workspace_contract, topicname, self.mode)
 			self.personal[topicname] = claim.__dict__
 		return True
-	
-	# always available
-	def get_language(self) :	
-		lang = getlanguage(self.workspace_contract, self.mode)		
-		if lang is None :
-			self.language = ( {}, '', '', '')
-			return self.language
-		context=dict()
-		lang1 = ''
-		lang2 = ''
-		lang3 = ''
-		for i in range (0, len(lang)) :
-			if i == 0:
-				lang1 = lang[i]['language']
-			elif i == 1 :
-				lang2 = lang[i]['language']
-			else :
-				lang3 = lang[i]['language']	
-					 
-			if lang[i]['fluency'] == '5' :		
-				context['radio'+str(i+1)+'1'] = "checked"
-			elif lang[i]['fluency'] == '4' :
-				context['radio'+str(i+1) + '2'] = "checked"
-			elif lang[i]['fluency'] == '3' :
-				context['radio'+str(i+1) + '3'] = "checked"
-			else :
-				context['radio'+str(i+1) + '4'] = "checked"
-	
-		self.language = (context, lang1, lang2, lang3)
-		return self.language
 	
 	
 	def get_all_documents(self) :
@@ -387,9 +355,12 @@ class Identity() :
 		self.identity_file = []
 		for doc_id in self.file_list :
 			this_file = File()
-			this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode)			
-			new_file = this_file.__dict__
-			self.identity_file.append(new_file)
+			this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode)
+			if not this_file :
+				pass			
+			else :
+				new_file = this_file.__dict__
+				self.identity_file.append(new_file)
 		print ('get identity file = ', self.identity_file)
 		return True
 		

@@ -263,6 +263,9 @@ class File() :
 		pass
 	
 	def get(self, workspace_contract_from, private_key_from, workspace_contract_user, doc_id, new_filename, mode) :	
+		result = get_file (workspace_contract_from, private_key_from, workspace_contract_user, doc_id, new_filename, mode) 
+		if result is None :
+			return False
 		(self.issuer,
 		 self.identity_workspace_contract,
 		 data,
@@ -275,13 +278,13 @@ class File() :
 		 self.expires,
 		 self.issuer_address,
 		 self.privacy,
-		 self.related) = get_file (workspace_contract_from, private_key_from, workspace_contract_user, doc_id, new_filename, mode) 
+		 self.related) = result 
 		self.filename = data['filename']
 		self.new_filename = new_filename
 		self.doc_id = doc_id
 		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + self.identity_workspace_contract[2:] + ':document:' + str(doc_id)
 		self.content = 'Encrypted' if data['content'] == 'Encrypted' else ''
-		return
+		return True
 		
 	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, file_name, privacy, mode, synchronous=True) :
 		if privacy == 'public' :

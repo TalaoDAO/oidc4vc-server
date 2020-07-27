@@ -144,7 +144,7 @@ def is_username_in_list(my_list, username) :
 def is_username_in_list_for_partnership(partner_list, username) :
 	for partner in partner_list :
 		print ('partner = ', partner)
-		if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown"]:
+		if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
 			return True
 	return False	
 
@@ -274,7 +274,7 @@ def issuer_explore() :
 		for topic_name in session['issuer_explore']['personal'].keys() : 
 			if session['issuer_explore']['personal'][topic_name]['claim_value'] is not None :
 				
-				if session['issuer_explore']['personal'][topic_name]['privacy'] == 'public' or is_username_in_list_for_partnership(session['partner'], issuer_username) :
+				if session['issuer_explore']['personal'][topic_name]['claim_value'] != 'private' and session['issuer_explore']['personal'][topic_name]['claim_value'] != 'secret'  :
 					topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
 					issuer_personal = issuer_personal + """ 
 						<span><b>"""+ Topic[topic_name] +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""				
@@ -283,14 +283,14 @@ def issuer_explore() :
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 						</a>
 					</span><br>"""				
-				elif session['issuer_explore']['personal'][topic_name]['privacy'] == 'private' :
+				elif session['issuer_explore']['personal'][topic_name]['claim_value'] == 'private' : 
 					is_encrypted = True
 					topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
 					issuer_personal = issuer_personal + """ 
 						<span><b>"""+ Topic[topic_name] +"""</b> : Not available - Encrypted				
 					</span><br>"""		
 					
-				elif session['issuer_explore']['personal'][topic_name]['privacy'] == 'secret' :	
+				else  :	
 					pass	
 		if is_encrypted :
 			issuer_personal = issuer_personal + """<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
@@ -1936,4 +1936,4 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
-	app.run(host = mode.flaskserver, port= mode.port, debug = True, processes=1, threaded=False)
+	app.run(host = mode.flaskserver, port= mode.port, debug = False, processes=1, threaded=False)
