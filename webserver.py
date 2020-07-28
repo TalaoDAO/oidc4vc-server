@@ -1965,7 +1965,6 @@ def send_fonts(filename):
 
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download():
-	
 	filename = request.args['filename']
 	print('dans la route = ', app.config['UPLOAD_FOLDER'], filename)
 	return send_from_directory(app.config['UPLOAD_FOLDER'],

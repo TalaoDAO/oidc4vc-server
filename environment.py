@@ -22,7 +22,7 @@ class currentMode() :
 		
 		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'test'
+		self.myenv = 'gunicorn-airbox'
 		self.password = 'suc2cane'
 		self.uploads_path = '/home/thierry/Talao/uploads/'
 		self.db_path = '/home/thierry/db/'
@@ -57,6 +57,15 @@ class currentMode() :
 			self.server = 'http://127.0.0.1:3000/' # external
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
+			self.debug = True
+			self.test = True
+		
+		elif self.myenv == 'gunicorn-airbox' :  # sur portable connecté avec airbox
+			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.server = 'http://127.0.0.1:4000/' # external
+			self.flaskserver = "127.0.0.1"
+			self.port = 4000
 			self.debug = True
 			self.test = True
 						

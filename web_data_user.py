@@ -790,8 +790,8 @@ def user() :
 	
 	
 		# certificates
-		my_certificates
-		 = """<a href="/user/request_certficate/">Request Certificates</a><hr>"""
+		my_certificates  = """<a href="/user/request_certficate/">Request Certificates</a><hr>"""
+		
 		if len (session['certificate']) == 0:
 			my_certificates = my_certificates + """<a class="text-danger">No Data Available</a>"""
 		else :
