@@ -257,13 +257,14 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 		partnership_data = contract.functions.getPartnership(identity_workspace_contract).call()
 		print('partnership data = ', partnership_data)
 		privacy = 'private'	
-		# one tests if the user in in partnershipg with identity (pending or authorized)
-		if partnership_data[1] in [1, 2] :
+		# one tests if the user in in partnershipg with identity (pending or authorized) and his aes_key exist (status rejected ?)
+		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
 			aes_encrypted = partnership_data[4]
 			to_be_decrypted = True
 		else :
 			to_be_decrypted = False
 		print('to be decrypted = ', to_be_decrypted)
+	
 		
 	
 		

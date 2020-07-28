@@ -373,7 +373,7 @@ def certificate_issuer_explore() :
 				'contact_phone' : 'Contact Phone',
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}	
-		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract)			
+		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract, mode)			
 		issuer_username = 'Unknown' if issuer_username is None else issuer_username
 		issuer_personal = """<span><b>Username</b> : """ + issuer_username +"""<br>"""			
 		for topic_name in issuer_explore.personal.keys() : 
@@ -457,7 +457,7 @@ def certificate_issuer_explore() :
 		else :	
 			for certificate in issuer_explore.certificate :
 				
-				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				certificate_issuer_username = 'Unknown' if certificate_issuer_username is None else certificate_issuer_username 
 				if certificate['issuer']['category'] == 2001 :
 					certificate_issuer_name = certificate['issuer']['name']
@@ -536,7 +536,7 @@ def certificate_issuer_explore() :
 				my_kbis = my_kbis + kbis_html		
 		
 		# personal
-		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract)			
+		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract, mode)			
 		issuer_username = 'Unknown' if issuer_username is None else issuer_username
 		issuer_personal = """ <span><b>Username</b> : """ + issuer_username	+ """<br>"""		
 		for topic_name in issuer_explore.personal.keys() :
@@ -608,7 +608,7 @@ def certificate_data(dataId) :
 	
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
-	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'])
+	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
 	issuer_username = 'Unknown' if issuer_username is None else issuer_username 
 	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
 	

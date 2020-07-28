@@ -27,7 +27,6 @@ from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, sav
 from protocol import Claim, File, Identity, Document, read_profil
 import environment
 import hcode
-import ns
 
 
 

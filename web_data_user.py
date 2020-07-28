@@ -147,7 +147,7 @@ def forgot_username() :
 	if request.method == 'GET' :
 		return render_template('forgot_username.html')
 	if request.method == 'POST' :
-		username_list = ns.get_username_list_from_email(request.form['email'])
+		username_list = ns.get_username_list_from_email(request.form['email'], mode)
 		if username_list == [] :
 			msg = 'There is no Identity with this Email'
 			flash(msg , 'warning')
@@ -203,7 +203,7 @@ def data(dataId) :
 	
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
-	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'])
+	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
 	issuer_username = 'Unknown' if issuer_username is None else issuer_username 
 	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
 	
@@ -570,7 +570,7 @@ def user() :
 	else :
 		my_issuer = ""		
 		for one_issuer in session['issuer'] :
-			issuer_username = ns.get_username_from_resolver(one_issuer['workspace_contract'])
+			issuer_username = ns.get_username_from_resolver(one_issuer['workspace_contract'], mode)
 			issuer_username = 'Unknown' if issuer_username is None else issuer_username
 			issuer_html = """
 				<span>""" + issuer_username + """
@@ -590,7 +590,7 @@ def user() :
 	else :
 		my_white_issuer = ""		
 		for issuer in session['whitelist'] :
-			issuer_username = ns.get_username_from_resolver(issuer['workspace_contract'])
+			issuer_username = ns.get_username_from_resolver(issuer['workspace_contract'], mode)
 			issuer_username = 'Unknown' if issuer_username is None else issuer_username
 			issuer_html = """
 				<span>""" + issuer_username + """
@@ -761,14 +761,14 @@ def user() :
 				my_kyc = my_kyc + kyc_html		
 	
 		# Alias
-		if session['username'] != ns.get_username_from_resolver(session['workspace_contract']) :
+		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
 			display_alias = False
 			my_access = ""
 		else :
 			display_alias = True
 			my_access_start = """<a href="/user/add_alias/">Add an Alias</a><hr> """
 			my_access = ""
-			access_list = ns.get_alias_list(session['workspace_contract'])
+			access_list = ns.get_alias_list(session['workspace_contract'], mode)
 			for access in access_list :
 				if access['username'] == session['username'] :
 					access_html = """
@@ -790,12 +790,13 @@ def user() :
 	
 	
 		# certificates
+		my_certificates
+		 = """<a href="/user/request_certficate/">Request Certificates</a><hr>"""
 		if len (session['certificate']) == 0:
-			my_certificates = """<a class="text-danger">No Data Available</a>"""
+			my_certificates = my_certificates + """<a class="text-danger">No Data Available</a>"""
 		else :
-			my_certificates = ""
 			for counter, certificate in enumerate(session['certificate'],1) :		
-				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				issuer_username = 'Unknown' if issuer_username is None else issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					issuer_name = certificate['issuer']['name']
@@ -887,14 +888,14 @@ def user() :
 		
 		# Manager
 		
-		if session['username'] != ns.get_username_from_resolver(session['workspace_contract']) :
+		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
 			display_manager = False
 			my_access = ""
 		else :
 			display_manager = True
 			my_access_start = """<a href="/user/add_manager/">Add a Manager</a><hr> """
 			my_access = ""
-			access_list = ns.get_manager_list(session['workspace_contract'])
+			access_list = ns.get_manager_list(session['workspace_contract'], mode)
 			for access in access_list :
 				if access['username'] == session['username'] :
 					access_html = """

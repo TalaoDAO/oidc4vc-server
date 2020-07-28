@@ -107,7 +107,7 @@ def create_company(email, username, mode) :
 	
 	w3 = mode.w3
 	
-	if ns.does_alias_exist(username)  :
+	if ns.does_alias_exist(username, mode)  :
 		print('username already used')
 		return None
 	 
@@ -190,7 +190,7 @@ def create_company(email, username, mode) :
 
 	# update resolver and create local database
 	ns.add_identity(username, workspace_contract, email, mode)
-	ns.init_host(username)
+	ns.init_host(username, mode)
 	
 	# Delay and transaction cost
 	time_fin = datetime.now()

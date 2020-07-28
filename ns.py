@@ -1,13 +1,9 @@
-
 from datetime import datetime
-import environment
 import sqlite3
 import unidecode
 
 import constante
 
-mode = environment.currentMode()
-path = mode.db_path
 
 def _contractsToOwners(workspace_contract, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -20,7 +16,8 @@ def _ownersToContracts(address, mode) :
 	return workspace_address
 	
 	
-def _init_nameservice():
+def _init_nameservice(mode):
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()
 	cur.execute('create table alias(alias_name text, identity_name text, email text, date real)')
@@ -32,7 +29,8 @@ def _init_nameservice():
 	cur.close()
 	return
 	
-def init_host(host_name) :
+def init_host(host_name, mode) :
+	path = mode.db_path
 	""" This function is only used in createcompany """
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
@@ -41,7 +39,8 @@ def init_host(host_name) :
 	cur.close()
 
 
-def alter_add_phone_field(database) :
+def alter_add_phone_field(database, mode) :
+	path = mode.db_path
 	""" This function is only used in createcompany """
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
@@ -50,7 +49,8 @@ def alter_add_phone_field(database) :
 	cur.close()
 
 
-def alter_add_phone_field_manager(database) :
+def alter_add_phone_field_manager(database, mode) :
+	path = mode.db_path
 	""" This function is only used in createcompany """
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
@@ -58,15 +58,15 @@ def alter_add_phone_field_manager(database) :
 	conn.commit()
 	cur.close()
 
-def setup() :
+def setup(mode) :
 	
 	_init_nameservice()
 	
-	init_host('talao')
-	init_host('thales')
-	init_host('skillvalue')
-	init_host('relay')
-	init_host('bnp')
+	init_host('talao', mode)
+	init_host('thales', mode)
+	init_host('skillvalue', mode)
+	init_host('relay', mode)
+	init_host('bnp', mode)
 	
 	add_identity('talao', '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341', 'contact@talao.io',mode)
 	add_identity('bnp', '0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4', 'contact@bnp.talao.io', mode)
@@ -77,13 +77,13 @@ def setup() :
 	add_identity('relay', '0xD6679Be1FeDD66e9313b9358D89E521325e37683', 'contact@relay.talao.io', mode)	
 	
 	
-	add_alias('jeanpascalet', 'pascalet', 'jeanpascalet@gmail.talao.io')
-	add_alias('jp2', 'pascalet', 'jp@gmail.talao.io')
-	add_alias('jp1', 'pascalet', 'jp@gmail.talao.io')
+	add_alias('jeanpascalet', 'pascalet', 'jeanpascalet@gmail.talao.io', mode)
+	add_alias('jp2', 'pascalet', 'jp@gmail.talao.io', mode)
+	add_alias('jp1', 'pascalet', 'jp@gmail.talao.io', mode)
 
-	add_manager('jp', 'pascalet', 'bnp', 'jp@bnp.talao.io')
-	add_manager('jp1', 'pascalet', 'bnp', 'jp@bnp.talao.io')
-	add_manager('jp2', 'pascalet', 'bnp', 'jp@bnp.talao.io')
+	add_manager('jp', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
+	add_manager('jp1', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
+	add_manager('jp2', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
 	
 def build_username(firstname, lastname) :
 	_firstname = firstname.lower()
@@ -98,6 +98,7 @@ def build_username(firstname, lastname) :
 
 def add_identity(identity_name, identity_workspace_contract, email, mode) :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()	
@@ -119,8 +120,8 @@ def add_identity(identity_name, identity_workspace_contract, email, mode) :
 	return
 
 	
-def add_alias(alias_name, identity_name, email, phone=None) :
-	
+def add_alias(alias_name, identity_name, email, mode, phone=None) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
@@ -131,7 +132,8 @@ def add_alias(alias_name, identity_name, email, phone=None) :
 	return		
 
 
-def does_alias_exist(alias_name) :
+def does_alias_exist(alias_name, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
@@ -145,7 +147,8 @@ def does_alias_exist(alias_name) :
 	else :
 		return True
 
-def remove_alias(alias_name) :
+def remove_alias(alias_name, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	data = {'alias_name' : alias_name} 
@@ -158,8 +161,10 @@ def remove_alias(alias_name) :
 	conn.close()
 	return execution
 	
-def add_manager(manager_name, identity_name, host_name, email) :	
+def add_manager(manager_name, identity_name, host_name, email, mode) :
+		
 	""" jean.bnp : jean = manager_name , bnp = host_name """
+	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	now = datetime.now()
@@ -169,7 +174,8 @@ def add_manager(manager_name, identity_name, host_name, email) :
 	conn.close()
 	return		
 
-def does_manager_exist(manager_name, host_name) :
+def does_manager_exist(manager_name, host_name, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	now = datetime.now()
@@ -183,7 +189,8 @@ def does_manager_exist(manager_name, host_name) :
 	else :
 		return True
 
-def remove_manager(manager_name, host_name) :
+def remove_manager(manager_name, host_name, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
 	c = conn.cursor()
 	data = {'manager_name' : manager_name} 
@@ -197,7 +204,8 @@ def remove_manager(manager_name, host_name) :
 	return execution
 
 
-def _get_data(username) :
+def _get_data(username, mode) :
+	path = mode.db_path
 	manager_name,s,host_name = username.rpartition('.')
 	# it is not a manager
 	if manager_name == '' :
@@ -267,7 +275,8 @@ def _get_data(username) :
 		return identity_workspace_contract, host_workspace_contract, manager_email, phone
 
 		
-def get_username_from_resolver(workspace_contract) :
+def get_username_from_resolver(workspace_contract, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	data = {'identity_workspace_contract' : workspace_contract} 
@@ -279,7 +288,8 @@ def get_username_from_resolver(workspace_contract) :
 		return None
 	return select[0]	
 
-def get_address_from_publickey(publickey) :
+def get_address_from_publickey(publickey, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	data = {'key' : publickey} 
@@ -293,13 +303,13 @@ def get_address_from_publickey(publickey) :
 
 def get_data_from_publickey(publickey, mode) :
 	""" username comes from resolver"""
-	address = get_address_from_publickey(publickey)
+	path = mode.db_path
+	address = get_address_from_publickey(publickey, mode)
 	print('address =', address)
 	if address is None :
 		return None
 	workspace_contract = _ownersToContracts(address,mode)
-	print('workspace_contract = ', workspace_contract)
-	username = get_username_from_resolver(workspace_contract)
+	username = get_username_from_resolver(workspace_contract, mode)
 	print('username =', username)
 	if username is None :
 		return None
@@ -308,9 +318,9 @@ def get_data_from_publickey(publickey, mode) :
 			'username' : username}
 
 
-def _get_data_for_login(username) :
+def _get_data_for_login(username, mode) :
 	""" ne pas utilsier en externe """
-	call = _get_data(username)
+	call = _get_data(username, mode)
 	if call is None :
 		return None
 	identity, host, email, phone = call
@@ -321,7 +331,7 @@ def _get_data_for_login(username) :
 
 def get_data_from_username(username, mode) :
 	""" It is almost the same as get_data_for_login but with dict as return """
-	call = _get_data_for_login(username)
+	call = _get_data_for_login(username, mode)
 	if call is None :
 		return None
 	workspace_contract, email, phone = call
@@ -332,8 +342,9 @@ def get_data_from_username(username, mode) :
 			'username' : username,
 			'phone' : phone}
 
-def get_alias_list(workspace_contract) :
-	call = get_username_from_resolver(workspace_contract)
+def get_alias_list(workspace_contract, mode) :
+	path = mode.db_path
+	call = get_username_from_resolver(workspace_contract, mode)
 	if call is None :
 		return []
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -347,7 +358,8 @@ def get_alias_list(workspace_contract) :
 		alias.append({'username' : row[0], 'email' : row[1]})	
 	return alias
 
-def get_username_list_from_email(email) :
+def get_username_list_from_email(email, mode) :
+	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	data ={'email' : email}
@@ -358,8 +370,9 @@ def get_username_list_from_email(email) :
 		username_list.append(row[0])	
 	return username_list
 
-def get_manager_list(workspace_contract) :
-	call = get_username_from_resolver(workspace_contract)
+def get_manager_list(workspace_contract, mode) :
+	path = mode.db_path
+	call = get_username_from_resolver(workspace_contract, mode)
 	if call is None :
 		return []
 	host_name = call
@@ -378,7 +391,8 @@ def get_manager_list(workspace_contract) :
 		alias.append({'username' : row[0]+'.' + host_name, 'email' : row[1]})	
 	return alias
 
-def update_phone(username, phone) :
+def update_phone(username, phone, mode) :
+	path = mode.db_path
 	username_split = username.split('.')
 	if len(username_split) == 1 :
 		conn = sqlite3.connect(path + 'nameservice.db')
@@ -398,7 +412,8 @@ def update_phone(username, phone) :
 		return False
 	return True
 
-def has_phone(username) :
+def has_phone(username, mode) :
+	path = mode.db_path
 	data = get_data_from_username(username, mode)
 	if data is None or data['phone'] is None or data['phone'] == "" :
 		return False

@@ -22,7 +22,7 @@ class currentMode() :
 		
 		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'airbox'
+		self.myenv = 'test'
 		self.password = 'suc2cane'
 		self.uploads_path = '/home/thierry/Talao/uploads/'
 		self.db_path = '/home/thierry/db/'
@@ -67,7 +67,7 @@ class currentMode() :
 			self.flaskserver = "192.168.0.34"
 			self.port = 3000
 			self.debug = True
-			self.test = False
+			self.test = True
 	
 		if self.mychain == 'rinkeby' :
 			self.start_block = 6400000

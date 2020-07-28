@@ -74,7 +74,7 @@ RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.2"
+app.jinja_env.globals['Version'] = "0.5.3"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -201,9 +201,9 @@ def update_phone() :
 		
 		if _phone == "" :
 			flash('Your phone number has been deleted.', 'success')
-			ns.update_phone(session['username'], None)
+			ns.update_phone(session['username'], None, mode)
 		elif sms.check_phone(phone) :
-			ns.update_phone(session['username'], phone)
+			ns.update_phone(session['username'], phone, mode)
 			flash('Your phone number has been updated.', 'success')
 		else :
 			flash('Incorrect phone number.', 'warning')
@@ -273,7 +273,7 @@ def issuer_explore() :
 				'contact_phone' : 'Contact Phone',
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}			
-		issuer_personal = """<span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'])+"""<br>"""			
+		issuer_personal = """<span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)+"""<br>"""			
 		is_encrypted = False
 		for topic_name in session['issuer_explore']['personal'].keys() : 
 			if session['issuer_explore']['personal'][topic_name]['claim_value'] is not None :
@@ -296,6 +296,7 @@ def issuer_explore() :
 					
 				else  :	
 					pass	
+					print('test')
 		if is_encrypted :
 			issuer_personal = issuer_personal + """<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
 		
@@ -397,7 +398,7 @@ def issuer_explore() :
 		else :	
 			for certificate in session['issuer_explore']['certificate'] :
 				
-				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'])
+				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				certificate_issuer_username = 'Unknown' if certificate_issuer_username is None else certificate_issuer_username
 					
 				if certificate['issuer']['category'] == 2001 :
@@ -508,7 +509,7 @@ def issuer_explore() :
 			
 			
 			host_name = username if len(username.split('.')) == 1 else username.split('.')[1]  
-			if ns.does_manager_exist(issuer_username, host_name) :
+			if ns.does_manager_exist(issuer_username, host_name, mode) :
 				services = services + """<br><a class="text-success">This Talent is a Manager.</a><br>"""
 			
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], host_name) :
@@ -573,7 +574,7 @@ def issuer_explore() :
 				my_kbis = my_kbis + kbis_html		
 		
 		# personal
-		issuer_personal = """ <span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'])	+ """<br>"""		
+		issuer_personal = """ <span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)	+ """<br>"""		
 		for topic_name in session['issuer_explore']['personal'].keys() :
 			if session['issuer_explore']['personal'][topic_name]['claim_value'] is not None :
 				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
@@ -1061,7 +1062,7 @@ def create_person() :
 		person_email = request.form['email']
 		person_firstname = request.form['firstname']
 		person_lastname = request.form['lastname']
-		person_username = ns.build_username(person_firstname, person_lastname)
+		person_username = ns.build_username(person_firstname, person_lastname, mode)
 		(a, p, workspace_contract) = createidentity.create_user(person_username, person_email, mode)
 		if workspace_contract is not None :
 			claim=Claim()
@@ -1347,7 +1348,7 @@ def invit_talent() :
 	if request.method == 'POST' :
 		talent_email = request.form['email']
 		talent_memo = request.form['memo']
-		username_list = ns.get_username_list_from_email(talent_email)
+		username_list = ns.get_username_list_from_email(talent_email, mode)
 		if username_list != [] :
 			msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar.' 
 			flash(msg , 'warning')
@@ -1560,7 +1561,7 @@ def request_certificate() :
 		if session.get('certificate_issuer_username') is None : 
 			session['issuer_email'] = request.form['issuer_email']
 			# One checks if the issuer exists
-			username_list = ns.get_username_list_from_email(request.form['issuer_email'])
+			username_list = ns.get_username_list_from_email(request.form['issuer_email'], mode)
 			if username_list != [] :
 				msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar.' 
 				flash(msg , 'warning')
@@ -1682,7 +1683,7 @@ def add_alias() :
 			flash('Username already used' , 'warning')
 			return redirect (mode.server +'user/?username=' + username)
 		alias_username = request.form['access_username']
-		ns.add_alias(alias_username, username, request.form['access_email'])
+		ns.add_alias(alias_username, username, request.form['access_email'], mode)
 		flash('Alias added for '+ alias_username , 'success')
 		return redirect (mode.server +'user/?username=' + username)
 
@@ -1695,9 +1696,9 @@ def remove_access() :
 	username_to_remove = request.args['username_to_remove']
 	manalias_name,s,host_name = username_to_remove.partition('.')
 	if host_name != "" :
-		execution = ns.remove_manager(manalias_name, host_name)
+		execution = ns.remove_manager(manalias_name, host_name, mode)
 	else :
-		execution = ns.remove_alias(manalias_name)
+		execution = ns.remove_alias(manalias_name, mode)
 	if execution :
 		flash(username_to_remove + ' has been removed', 'success')
 	else :
@@ -1795,7 +1796,7 @@ def add_manager() :
 			flash('Username not found' , 'warning')
 			return redirect (mode.server +'user/?username=' + username)
 		manager_username = request.form['manager_username']
-		ns.add_manager(manager_username, manager_username, username, request.form['manager_email'])
+		ns.add_manager(manager_username, manager_username, username, request.form['manager_email'], mode)
 		flash('Manager added for '+ manager_username.lower() , 'success')
 		return redirect (mode.server +'user/?username=' + username)
 		
@@ -1964,6 +1965,7 @@ def send_fonts(filename):
 
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download():
+	
 	filename = request.args['filename']
 	print('dans la route = ', app.config['UPLOAD_FOLDER'], filename)
 	return send_from_directory(app.config['UPLOAD_FOLDER'],
@@ -1979,4 +1981,4 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
-	app.run(host = mode.flaskserver, port= mode.port, debug = True, processes=1, threaded=False)
+	app.run(host = mode.flaskserver, port= mode.port, debug = mode.test, processes=1, threaded=False)

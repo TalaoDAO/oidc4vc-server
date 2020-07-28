@@ -94,7 +94,7 @@ def issue_certificate_for_guest() :
 			return redirect(mode.server + 'login/')	
 		
 		# test if certificate has already been issued (we only test if the issuer exists.....to be changed later)
-		issuer_list = ns.get_username_list_from_email(session['issuer_email'])
+		issuer_list = ns.get_username_list_from_email(session['issuer_email'], mode)
 		if session['issuer_username'] == "new" and issuer_list != [] : 
 			flash("Certificate already issued.", 'warning')
 			return redirect(mode.server + 'login/')	
@@ -279,7 +279,7 @@ def create_authorize_issue() :
 	
 	# New user, call to thread to authorize, issue and create	
 	if session['issuer_username'] == "new" :	
-		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname']) 
+		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname'], mode) 
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(issuer_username,
 														session['issuer_email'],
@@ -317,7 +317,7 @@ def create_authorize_issue() :
 		print('msg pour issuer envoyé')
 		# Email to talent
 		subject = 'A new Certificate has been issued to you'
-		talent_email = ns.get_data_from_username(session['talent_username'])['email']
+		talent_email = ns.get_data_from_username(session['talent_username'], mode)['email']
 		Talao_message.message(subject, talent_email, text)
 		print('message pour Talent envoyé')
 		return render_template('login.html')
@@ -354,7 +354,7 @@ def create_authorize_issue_thread(username,
 	print('msg pour issuer envoyé')
 	# send message to talent
 	subject = 'A new Certificate has been issued to you'
-	talent_email = ns.get_data_from_username(talent_username)['email']
+	talent_email = ns.get_data_from_username(talent_username, mode)['email']
 	Talao_message.message(subject, talent_email, text)
 	print('msg pour user envoyé')
 	return

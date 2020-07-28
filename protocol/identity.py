@@ -211,7 +211,7 @@ class Identity() :
 			except Exception as ex:
 				print(ex)
 				return False
-			partner_username = ns.get_username_from_resolver(partner_workspace_contract)
+			partner_username = ns.get_username_from_resolver(partner_workspace_contract, self.mode)
 			
 			#if partner_username is not None :
 			partner_username = "Unknown" if partner_username is None else partner_username

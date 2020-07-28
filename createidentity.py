@@ -86,7 +86,7 @@ def create_user(username, email,mode):
 	w3 = mode.w3	
 	email = email.lower()
 	
-	if ns.does_alias_exist(username)  :
+	if ns.does_alias_exist(username,mode)  :
 		print('username already used')
 		return None
 	

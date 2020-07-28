@@ -56,7 +56,7 @@ def authentification() :
 		email = request.form['email']
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
-		session['username'] = ns.build_username(session['firstname'], session['lastname'])
+		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['email'] = email
 		code = str(random.randint(100000, 999999))
 		session['try_number'] = 1
