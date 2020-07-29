@@ -2,7 +2,7 @@
 #import multiprocessing
 
 
-bind = '127.0.0.1:4000'
+#bind = '127.0.0.1:4000'
 workers = 5
 #workers = multiprocessing.cpu_count()*2+1
 
@@ -14,5 +14,5 @@ errorlog = "-"
 accesslog = "-"
 
 timeout = 3 * 60  # 3 minutes
-keepalive = 24 * 60 * 60  # 1 day
+keepalive = 5 * 24 * 60 * 60  # 5 days
 capture_output = True

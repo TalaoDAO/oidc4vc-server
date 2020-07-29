@@ -566,20 +566,15 @@ def certificate_issuer_explore() :
 
 #@app.route('/certificate/data/<dataId>', methods=['GET'])
 def certificate_data(dataId) :
-	
 	username = session.get('username_logged')
 	if username is None  :
 		viewer = 'guest'
 		my_picture = ""
-	
 	else :
 		viewer = 'user'
 		my_picture = session['picture']
-	
-		
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
-	
 	if support == 'document' : 
 		doc_id = int(dataId.split(':')[5])			
 		my_topic = dataId.split(':')[6]
@@ -589,7 +584,6 @@ def certificate_data(dataId) :
 		else :
 			print('Error data in webserver.py, Class instance needed')	
 			return
-			
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
 	
@@ -600,11 +594,8 @@ def certificate_data(dataId) :
 		my_data.get_by_id(None, None, workspace_contract, claim_id, mode) 
 		expires = 'Unlimited'
 		my_topic = 'Personal'
-		
 	myvisibility = my_data.privacy
 	issuer_is_white = False
-		
-	
 	
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']

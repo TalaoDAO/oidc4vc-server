@@ -1,4 +1,3 @@
-
 import math
 import numpy as np
 import nltk
@@ -9,8 +8,6 @@ from nltk.tokenize import word_tokenize
 import random
 from datetime import datetime
 
-
-	
 
 def dashboard(workspace_contract,resume, mode) :
 	""" external call available """
@@ -77,8 +74,9 @@ def dashboard(workspace_contract,resume, mode) :
 					issuer_list.append(issuer_workspace_contract)	
 	
 	for doctype in claim_name :		# 0,2 pt/ topicname	
-		if resume['personal'][doctype]['issuer'] is not None :
+		if resume['personal'][doctype]['issuer'] is not None and resume['personal'][doctype]['privacy'] == 'public' :
 			issuer_workspace_contract = resume['personal'][doctype]['issuer']['workspace_contract']
+			print('doctype = ', doctype, resume['personal'][doctype])
 			created = datetime.fromisoformat(resume['personal'][doctype]['created'])
 			update.append(created)
 			if issuer_workspace_contract is None :
@@ -93,10 +91,7 @@ def dashboard(workspace_contract,resume, mode) :
 	
 	issuer_list = list(dict.fromkeys(issuer_list))
 	nb_issuer = len(issuer_list)
-	
 	if nb_doc != 0 :	
-		
- 
 		person_completion_value = math.floor(100*nb_issuer_person/nb_doc)
 		person_completion = str(person_completion_value) + '%'
 
@@ -121,16 +116,13 @@ def dashboard(workspace_contract,resume, mode) :
 	update_number = len(sorted_update)
 	update_duration = datetime.now() - last_update
 	update_duration_value = int(divmod(update_duration.total_seconds(), 86400)[0])
-
 	update_duration_string = str(update_duration_value) + ' days' 
-	
 	
 	# Kyc et Kbis
 	if resume['type'] == 'person' :	
 		is_kyc = 'Yes' if len(resume['kyc']) != 0 else 'No'
 	else :
 		is_kbis = 'Yes' if len(resume['kbis']) != 0 else 'No'
-
 
 	nb_experience = len(resume['experience'])
 	nb_certificate = len (resume['certificate'])	
@@ -157,7 +149,6 @@ def dashboard(workspace_contract,resume, mode) :
 			nb_description +=1	
 			description += edu['description']
 			skills += edu['skills']		
-	
 	
 	# calcul du nombre de certificat par type
 	issuers = dict()
@@ -275,7 +266,6 @@ def dashboard(workspace_contract,resume, mode) :
 		skills_key_words.update({'ski_word'+ str(count) : item[0].capitalize(),
 								'ski_freq'+str(count) : float("{:.4f}".format(item[1])) })
 
-
 	description_counter = 0
 	for (a,b) in fdist_description :
 		description_counter += b
@@ -291,7 +281,6 @@ def dashboard(workspace_contract,resume, mode) :
 	position_key_words = {}
 	for count,item in enumerate(position_word_list, start=0) :
 		position_key_words.update({'pos_word'+ str(count) : item[0].capitalize(), 'pos_freq'+str(count) : float("{:.4f}".format(item[1]))})
-	
 	
 	# index/rating max 70 today
 	if update_duration_value < 20 :

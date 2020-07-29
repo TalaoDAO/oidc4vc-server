@@ -22,6 +22,7 @@ import random
 
 # dependances
 import Talao_message
+import Talao_ipfs
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil
@@ -385,17 +386,17 @@ def data(dataId) :
 #                        USER
 #######################################################################################
 
-
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user() :
 	username = check_login()
 	if username is None :
 		return redirect(mode.server + 'login/')	
-	first_pass = False
+	
+	session['first_pass'] = False
 	if session.get('uploaded') is None :
 		print('start first instanciation user')
-		first_pass = True	
+		session['first_pass'] = True	
 		if mode.test :
 			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
 		else :
@@ -405,8 +406,8 @@ def user() :
 				flash('session aborted', 'warning')
 				print('pb au niveau de Identity')
 				return render_template('login.html')
-		
 		print('end')
+		
 		""" clean up for resume  """
 		user_dict = user.__dict__.copy()
 		del user_dict['mode']
@@ -419,7 +420,6 @@ def user() :
 		session['username'] = username	
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract
-		#session['controller'] = user.managementkeys
 		session['issuer'] = user.issuer_keys
 		session['whitelist'] = user.white_keys
 		session['partner'] = user.partners
@@ -434,26 +434,28 @@ def user() :
 		session['personal'] = user.personal
 		session['identity_file'] = user.identity_file
 		session['name'] = user.name
+		
 		session['picture'] = user.picture
-		session['signature'] = user.signature
+		#if not os.path.exists(mode.uploads_path + session['picture']) :
+		Talao_ipfs.get_picture(session['picture'], mode.uploads_path + session['picture'])
+		
+		session['signature'] = user.signature		
+		#if not os.path.exists(mode.uploads_path + session['signature']) :
+		Talao_ipfs.get_picture(session['signature'], mode.uploads_path + session['signature'])
+			
 		session['secret'] = user.secret
-	
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
 			session['skills'] = user.skills
 			session['education'] = user.education	
 			session['kyc'] = user.kyc
-			session['profil_title'] = user.profil_title	
-		
+			session['profil_title'] = user.profil_title		
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
-	
-	
-	
-	
+		
 	# welcome message
-	if first_pass :
+	if session['first_pass'] :
 		message = ""
 		if not session['private_key'] :
 			message = message + "Private key not found. "
@@ -477,8 +479,6 @@ def user() :
 					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
 					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
 					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
-					
-	
 	
 	# advanced
 	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
@@ -489,7 +489,6 @@ def user() :
 					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
 					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
 					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""					
-	
 	if session['username'] != 'talao' :
 		if relay == 'Activated' :
 			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
@@ -505,10 +504,7 @@ def user() :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
-	
-	
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
-
 	
 	# Import Private Key
 	if not session['private_key'] :
@@ -526,8 +522,6 @@ def user() :
 	# TEST only
 	if mode.debug :
 		my_advanced = my_advanced + """<br><a href="/user/test/">For Test Only</a>"""
-
-	
 	
 	# Partners
 	if session['partner'] == [] :
@@ -556,8 +550,7 @@ def user() :
 				partner_html = """
 				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
 					<a class="text-secondary" href="/user/remove_partner/?partner_username=""" + partner_username +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove this Partnership.">&nbsp&nbsp&nbsp</i>
-					
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove this Partnership.">&nbsp&nbsp&nbsp</i>					
 				</spn>"""
 			my_partner = my_partner + partner_html + """<br>"""
 	
@@ -699,10 +692,8 @@ def user() :
 					</a>
 				</p>"""	
 				my_education = my_education + edu_html	+ "<hr>"
-		#my_education = """<div style=" font-size: 12px" > """ + my_education + """</div>"""
 	
 		# personal
-		
 		Topic = {'firstname' : 'Firstname',
 				'lastname' : 'Lastname',
 				'about' : 'About',
@@ -712,8 +703,7 @@ def user() :
 				'contact_phone' : 'Contact Phone',
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}							
-		my_personal = """<a href="/user/picture/">Change Picture</a><br>
-						<a href="/user/signature/">Change Signature</a><br>"""
+		my_personal = ""
 		for topicname in session['personal'].keys() :
 			if session['personal'][topicname]['claim_value'] is not None :
 				topicname_value = session['personal'][topicname]['claim_value']
@@ -727,8 +717,6 @@ def user() :
 				</span><br>"""				
 		my_personal = my_personal+ """<a href="/user/update_personal_settings/">Update Data</a>"""
 	
-	
-		
 		# kyc
 		if len (session['kyc']) == 0:
 			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a>"""
@@ -781,11 +769,6 @@ def user() :
 					</span>"""	
 				my_access = my_access + access_html + """<br>""" 
 			my_access = my_access_start + my_access
-		
-							
-		# languages
-		my_languages = ""
-	
 	
 		# certificates
 		my_certificates  = """<a href="/user/request_certficate/">Request Certificates</a>"""
@@ -865,7 +848,6 @@ def user() :
 							kyc=my_kyc,
 							experience=my_experience,
 							education=my_education,
-							languages=my_languages,
 							skills=my_skills,
 							certificates=my_certificates,
 							access=my_access,
@@ -885,7 +867,6 @@ def user() :
 	else :
 		
 		# Manager
-		
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
 			display_manager = False
 			my_access = ""

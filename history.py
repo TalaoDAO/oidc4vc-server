@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from protocol import ownersToContracts, read_profil
 import constante
@@ -21,8 +20,6 @@ def history_html(workspace_contract, days, mode) :
 				contract.events.ClaimRemoved.createFilter(fromBlock=fromblock,toBlock = 'latest'),
 				contract.events.ClaimAdded.createFilter(fromBlock=fromblock,toBlock = 'latest'),
 				contract.events.KeyRemoved.createFilter(fromBlock=fromblock,toBlock = 'latest')]
-				
-	
 	for i in range(0, len(filter_list)) :
 		eventlist = filter_list[i].get_all_entries()
 		for doc in eventlist :

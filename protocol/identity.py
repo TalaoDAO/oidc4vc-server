@@ -87,34 +87,17 @@ class Identity() :
 			self.get_identity_education()
 			self.get_identity_kyc()
 			self.get_identity_certificate()
-			self.get_identity_skills()
-		
+			self.get_identity_skills()	
 			
-		#download pictures on server dir /uploads/ if picrures not already on disk
+		#download pictures on server dir /uploads/ fill with anonymous if None
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
 		if self.picture is None :
-			self.picture = 'anonymous_picture.png' if self.type == "person" else "anonymous_logo.png"
-		elif not path.exists('./uploads/' + self.picture) :
-			url = 'https://ipfs.io/ipfs/'+ self.picture
-			response = requests.get(url, stream=True)
-			with open('./uploads/' + self.picture, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response	
-		else :
-			print('picture already on disk Identity')
+			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'	
 		
-		print('picture ok')	
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
 		if self.signature is None :
-			self.signature = 'anonymous_signature.png' 
-		elif not path.exists('./uploads/' + self.signature) :
-			url = 'https://ipfs.io/ipfs/'+ self.signature
-			response = requests.get(url, stream=True)
-			with open('./uploads/' + self.signature, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response	
-		else :
-			print('signature already on disk Identity')
+			self.signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u' 
+		
 	
 	def get_secret(self) :
 		(self.category, self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, self.mode)

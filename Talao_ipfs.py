@@ -57,6 +57,7 @@ def add_file_to_pinata (filename) :
               'pinata_secret_api_key': secret}
 	payload = { 'file' : file_data}		 
 	response = requests.post('https://api.pinata.cloud/pinning/pinFileToIPFS', files=payload, headers=headers)
+	this_file.close()
 	return response.json()['IpfsHash']
 
 
@@ -68,6 +69,7 @@ def add_file_to_local (filename) :
 	file_data = this_file.read()
 	payload = { 'file' : file_data}		 
 	response = requests.post('http://127.0.0.1:5001/api/v0/add', files=payload)
+	this_file.close()
 	return response.json()['Hash']
 
 		
@@ -89,8 +91,6 @@ def ipfs_get(ipfs_hash) :
 		data = ipfs_get_pinata(ipfs_hash)
 		add_to_local(data)
 		return data
-
-
 		
 def pin_to_pinata (my_hash) :
 	api_key = '5bbb5c18e623c9b663ab'
@@ -105,10 +105,17 @@ def pin_to_pinata (my_hash) :
 	return response.json()['IpfsHash']	
 
 def get_picture(ipfs_hash, filename) :
-	response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
+	try :
+		response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5)
+	except :
+		response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
 	with open(filename, 'wb') as out_file:
 		shutil.copyfileobj(response.raw, out_file)
 		del response
+	out_file.close()
+	return True
+		
+		
 	
 #https://fr.python-requests.org/en/latest/user/quickstart.html#creer-une-requete
 

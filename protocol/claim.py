@@ -75,8 +75,7 @@ def read_profil (workspace_contract, mode, loading) :
 	if loading != 'full' : 
 		person_topicnames = {'firstname' : 102105114115116110097109101,
 							'lastname' : 108097115116110097109101,
-							}
-			
+							}		
 		# setup constant company
 		company_topicnames = {'name' : 110097109101,
 							}
@@ -100,8 +99,7 @@ def read_profil (workspace_contract, mode, loading) :
 	return profil,category 
 
 def encrypt_data(identity_workspace_contract,data, privacy, mode) :
-#@ data = dict
-	
+	#@ data = dict	
 	w3 = mode.w3	
 	#recuperer la cle AES cryptée de l identité
 	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
@@ -170,7 +168,6 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	message = encode_defunct(text=msg.hex())
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key_from)
 	signature = signed_message['signature']
-	
 	claim_id = w3.solidityKeccak(['address', 'uint256'], [address_from, topic_value]).hex()
 	
 	#transaction
@@ -226,8 +223,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			aes_encrypted = mydata[5]
 		if data == 'secret' :
 			privacy = 'secret'
-			aes_encrypted = mydata[6]
-		
+			aes_encrypted = mydata[6]	
 						
 	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from is not None and workspace_contract_from is not None :
 		print(' private_key ', private_key_from)
@@ -284,12 +280,10 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 			msg = json.loads(plaintext.decode('utf-8'))
 			data =  msg[topicname] 
-			
 		except ValueError :
-			print("data Decryption error")
+			print("data decryption error")
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
-			 			
-	
+			 				
 	# get transaction info
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
@@ -316,10 +310,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 
 
-
-
-def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):
-	
+def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):	
 	w3=mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)
@@ -373,22 +364,19 @@ class Claim() :
 		return create_claim(mode.relay_address,mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, topicname, data, privacy, mode, synchronous = True) 
 	
 	def add(self, address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
-		return create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True)
-	
+		return create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True)	
 	
 	def relay_delete(self, identity_workspace_contract, claim_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return  delete_claim(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, claim_id, mode)	
 	
 	def get_by_topic_name(self, workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode, loading='full') :			
-		#(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode)
 		arg = get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode)
 		return self._get_by(*arg, mode, loading)
 			
 	def get_by_id(self, workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode, loading='full') :		
-		#(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
 		arg = get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
-		return self._get_by(*arg,mode,loading)	
+		return self._get_by(*arg, mode,loading)	
 	
 	def _get_by(self, issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topicvalue, created, mode, loading) :
 		""" Internal function """
@@ -397,10 +385,8 @@ class Claim() :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
 			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
-
 		else :
-			return False
-			
+			return False			
 		self.created = created
 		self.topicname = topicvalue2topicname(self.topicvalue)
 		self.claim_value = data
@@ -421,8 +407,8 @@ class Claim() :
 		category = contract.functions.identityInformation().call()[1]
 		
 		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
-								'workspace_contract' : identity_workspace_contract,
-								'category' : category,
-								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
+						'workspace_contract' : identity_workspace_contract,
+						'category' : category,
+						'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
 		return True
 	

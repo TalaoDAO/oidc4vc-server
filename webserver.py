@@ -13,6 +13,10 @@ request : http://blog.luisrei.com/articles/flaskrest.html
     $ export FLASK_APP=webserver.py
     $ export FLASK_ENV=development
     $ flask run -h 127.0.0.1 -p 3000
+    
+    
+    pour le passage a https 
+    https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04-fr
 
 """
 from Crypto.PublicKey import RSA
@@ -74,7 +78,7 @@ RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.4"
+app.jinja_env.globals['Version'] = "0.5.5"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -144,6 +148,7 @@ def is_username_in_list(my_list, username) :
 		if user['username'] == username :
 			return True
 	return False	
+
 
 def is_username_in_list_for_partnership(partner_list, username) :
 	for partner in partner_list :
