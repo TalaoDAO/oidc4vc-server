@@ -163,7 +163,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		mode.w3.eth.defaultAccount = acct.address	
 		partnership_data = contract.functions.getPartnership(workspace_contract_user).call()
 		# one tests if the user in in partnershipg with identity (pending or authorized)
-		if partnership_data[1] in [1, 2] :
+		if partnership_data[1] in [1, 2] and partnership_data[4] != b'' :
 			his_aes_encrypted = partnership_data[4]
 			to_be_decrypted = True
 			to_be_stored = True

@@ -22,7 +22,7 @@ class currentMode() :
 		
 		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'gunicorn-airbox'
+		self.myenv = 'airbox'
 		self.password = 'suc2cane'
 		self.uploads_path = '/home/thierry/Talao/uploads/'
 		self.db_path = '/home/thierry/db/'
@@ -43,7 +43,7 @@ class currentMode() :
 			self.uploads_path = '/home/admin/Talao/uploads/'
 			self.db_path = '/home/admin/db/'
 			self.IPCProvider = "/home/admin/rinkeby/geth.ipc"
-			self.w3 = Web3(Web3.IPCProvider("/home/admin/rinkeby/geth.ipc"))
+			self.w3 = Web3(Web3.IPCProvider("/home/admin/rinkeby/geth.ipc", timeout=20))
 			self.IP = '18.190.21.227' # external talao.co
 			self.server = 'http://18.190.21.227:5000/' # external
 			self.port = 4000
@@ -53,7 +53,7 @@ class currentMode() :
 		
 		elif self.myenv == 'airbox' :  # sur portable connecté avec airbox
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
-			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", testnet= True, timeout=20 ))				
 			self.server = 'http://127.0.0.1:3000/' # external
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
@@ -62,7 +62,7 @@ class currentMode() :
 		
 		elif self.myenv == 'gunicorn-airbox' :  # sur portable connecté avec airbox
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
-			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))				
 			self.server = 'http://127.0.0.1:4000/' # external
 			self.flaskserver = "127.0.0.1"
 			self.port = 4000

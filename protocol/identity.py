@@ -50,6 +50,8 @@ class Identity() :
 				self.aes = 'Encrypted'
 					
 			self.has_relay_private_key()
+			print('rsa  key = ', self.rsa_key)
+			print('private key = ', self.private_key)
 			if self.private_key :
 				self.get_partners()	
 			else :

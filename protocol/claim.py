@@ -41,6 +41,16 @@ def topicvalue2topicname(topic_value) :
 		word = word + letter
 	return word		
 
+def topicname2topicvalue(topicname) :
+	topicvaluestr =''
+	for i in range(0, len(topicname))  :
+		a = str(ord(topicname[i]))
+		if int(a) < 100 :
+			a='0'+a
+		topicvaluestr = topicvaluestr + a
+	return int(topicvaluestr)	
+
+
 def read_profil (workspace_contract, mode, loading) :
 	w3=mode.w3
 	# setup constante person
@@ -127,38 +137,6 @@ def encrypt_data(identity_workspace_contract,data, privacy, mode) :
 	dict_data = dict(zip(json_k, json_v))
 	return dict_data
 
-"""
-def decrypt_data(identity_workspace_contract, data, privacy, rsa_key, mode) :
-	w3 = mode.w3
-
-	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
-	mydata = contract.functions.identityInformation().call()
-	if privacy == 'private' :
-		aes_encrypted = mydata[5]
-	if privacy == 'secret' :
-		aes_encrypted = mydata[6]  
-					
-	# decoder ma cle AES128 cryptée avec ma cle RSA privée
-	key = RSA.importKey(rsa_key)
-	cipher = PKCS1_OAEP.new(key)	
-	aes = cipher.decrypt(aes_encrypted)
-		
-	# decoder les datas
-	try:
-		b64 = data #json.loads(json_input)
-		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-		jv = {k:b64decode(b64[k]) for k in json_k}
-		cipher = AES.new(aes, AES.MODE_EAX, nonce=jv['nonce'])
-		cipher.update(jv['header'])
-		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
-		msg = json.loads(plaintext.decode('utf-8'))
-		return msg 
-			
-	except ValueError :
-		print("data Decryption error")
-		return None
-		
-"""		
 		
 """ si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstane' ; 'pierre'} """
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
@@ -208,28 +186,31 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	
 def get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode) :
 	w3 = mode.w3
-	
-	topicvaluestr =''
-	for i in range(0, len(topicname))  :
-		a = str(ord(topicname[i]))
-		if int(a) < 100 :
-			a='0'+a
-		topicvaluestr = topicvaluestr + a
-	topic_value = int(topicvaluestr)
-	
+	topic_value =  topicname2topicvalue(topicname)
 	contract = w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
 	a = contract.functions.getClaimIdsByTopic(topic_value).call()
 	if len(a) == 0 :
-	 return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
-	
-	print('topic name = ', topicname)
+		return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	claim_id = a[-1].hex()
-	print('claim id = ', claim_id)
+	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) 
+	
+
+def get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) :
+	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) 
+	
+	
+def _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) :
+	""" Internal function to access claim data """
+	w3 = mode.w3
+	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	claim = contract.functions.getClaim(claim_id).call()
 	data = claim[4].decode('utf-8') 	# data public
 	ipfs_hash = claim[5]
 	issuer = claim[2]
 	scheme = claim[1]
+	topic_value = claim[0]
+	topicname = topicvalue2topicname(topic_value)
+	print('topicname calculé = ', topicname)
 	
 	if data != 'private' and data != 'secret' :
 		to_be_decrypted = False
@@ -248,7 +229,7 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 			aes_encrypted = mydata[6]
 		
 						
-	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from is not None:
+	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from is not None and workspace_contract_from is not None :
 		print(' private_key ', private_key_from)
 		#recuperer les cle AES cryptée du user sur son partnership de l identité
 		contract = w3.eth.contract(workspace_contract_from, abi = constante.workspace_ABI)
@@ -264,9 +245,6 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 		else :
 			to_be_decrypted = False
 		print('to be decrypted = ', to_be_decrypted)
-	
-		
-	
 		
 	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
 		to_be_decrypted = False
@@ -288,7 +266,7 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
 			
 		# upload data encrypted from ipfs
-		print('ipfs hash = ', ipfs_hash, ' topicname = ', topicname, privacy, data)
+		print('ipfs hash = ', ipfs_hash, ' topicname = ', privacy, data)
 		data_encrypted = ipfs_get(ipfs_hash)
 		
 		# decoder la cle AEScryptée avec la cle RSA privée
@@ -332,58 +310,14 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 				#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 				created = str(date)
 			except :
-				print( 'probleme avec ', topicname, ' dans get claim')
+				print( 'probleme avec dans get claim')
 				return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	print('data = ', data)
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
-"""
-def get_claim_by_id(identity_workspace_contract, claim_id, mode) :
-	w3 = mode.w3
-	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
-	claim = contract.functions.getClaim(claim_id).call()
-	data = claim[4].decode('utf-8') 	# data public
-	ipfs_hash = claim[5]
-	issuer = claim[2]
-	scheme = claim[1]
-	topic_value = claim[0]
-	topicname = topicvalue2topicname(topic_value)
-	
-	if data == 'private' or data == 'secret':
-		# read la cle privee RSA sur le fichier
-		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+identity_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-		try :
-			fp = open(filename,"r")
-			rsa_key=fp.read()	
-			fp.close()  
-			privacy = data
-			data_encrypted = ipfs_get(ipfs_hash)
-			data = decrypt_data(identity_workspace_contract, data_encrypted, privacy, rsa_key, mode)[topicname]
-		except :
-			privacy = data
-	else :
-		privacy = 'public'
 
-	# get transaction info
-	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
-	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
-	event_list = claim_filter.get_all_entries()
-	for claim in event_list :
-		
-		if claim['args']['claimId'].hex() == claim_id :
-			transactionhash = claim['transactionHash']
-			transaction_hash = transactionhash.hex()
-			transaction = w3.eth.getTransaction(transaction_hash)
-			gas_price = transaction['gasPrice']
-			identity_workspace_contract = transaction['to'] 
-			block_number = transaction['blockNumber']
-			block = mode.w3.eth.getBlock(block_number)
-			date = datetime.fromtimestamp(block['timestamp'])				
-			gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
-			created = str(date)
-	
-	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
-"""
+
+
+
 def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):
 	
 	w3=mode.w3
@@ -446,43 +380,19 @@ class Claim() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return  delete_claim(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, claim_id, mode)	
 	
-	def get_by_topic_name(self, workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode, loading='full') :	
-		
-		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode)
-		if issuer_address is not None :
-			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
-			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
-		else :
-			return False
-		
-		self.created = created
-		self.topicname = topicname
-		self.claim_value = data
-		self.issuer = {'address' : issuer_address,
-						'workspace_contract' : issuer_workspace_contract,
-						'category' : issuer_category,
-						'id' : issuer_id }
-		self.issuer.update(profil)		
-		self.transaction_hash = transaction_hash
-		self.transaction_fee = transaction_fee
-		self.ipfs_hash = ipfs_hash
-		self.data_location = mode.BLOCKCHAIN if ipfs_hash == "" else 'https://gateway.ipfs.io/ipfs/' + ipfs_hash
-		self.privacy = privacy
-		self.claim_id = claim_id
-		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':claim:' + str(claim_id)
-		
-		contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
-		identity_category = contract.functions.identityInformation().call()[1]
-		
-		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
-								'workspace_contract' : identity_workspace_contract,
-								'category' : identity_category,
-								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
-		return True
+	def get_by_topic_name(self, workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode, loading='full') :			
+		#(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode)
+		arg = get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode)
+		return self._get_by(*arg, mode, loading)
 			
-"""	def get_by_id(self, identity_workspace_contract, claim_id, mode, loading='full') :		
-		(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim_by_id(identity_workspace_contract, claim_id, mode)
+	def get_by_id(self, workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode, loading='full') :		
+		#(issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, self.topicvalue, created) = get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
+		arg = get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
+		return self._get_by(*arg,mode,loading)	
+	
+	def _get_by(self, issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topicvalue, created, mode, loading) :
+		""" Internal function """
+		self.topicvalue = topicvalue	
 		if issuer_address is not None :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
 			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
@@ -515,4 +425,4 @@ class Claim() :
 								'category' : category,
 								'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
 		return True
-	"""
+	

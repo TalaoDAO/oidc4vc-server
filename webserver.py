@@ -74,7 +74,7 @@ RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.3"
+app.jinja_env.globals['Version'] = "0.5.4"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -694,7 +694,7 @@ def search() :
 								picturefile=my_picture,
 								  username=username)
 	if request.method == 'POST' :
-		username_to_search = request.form['username_to_search']
+		username_to_search = request.form['username_to_search'].lower()
 		if username_to_search == username :
 			flash('Here you are !', 'success')
 			return redirect(mode.server + 'user/')	

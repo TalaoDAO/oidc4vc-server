@@ -181,16 +181,14 @@ def data(dataId) :
 		else :
 			print('Error data in webserver.py, Class instance needed')	
 			return
-	
-		#ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':document:'+ str(my_data.doc_id)
+		
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
 	
 	if support == 'claim' :
 		claim_id = dataId.split(':')[5]
 		my_data = Claim()
-		my_data.get_by_id(workspace_contract, claim_id, mode) 
-		#ID = 'did:talao:' + mode.BLOCKCHAIN+':'+ my_data.identity['workspace_contract'][2:]+':claim:'+ claim_id
+		my_data.get_by_id(session['workspace_contract'], session['private_key_value'], workspace_contract, claim_id, mode) 
 		expires = 'Unlimited'
 		my_topic = 'Personal'
 		
@@ -790,7 +788,7 @@ def user() :
 	
 	
 		# certificates
-		my_certificates  = """<a href="/user/request_certficate/">Request Certificates</a><hr>"""
+		my_certificates  = """<a href="/user/request_certficate/">Request Certificates</a>"""
 		
 		if len (session['certificate']) == 0:
 			my_certificates = my_certificates + """<a class="text-danger">No Data Available</a>"""

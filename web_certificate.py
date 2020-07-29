@@ -97,23 +97,22 @@ def show_certificate():
 			signature = session['displayed_certificate']['signature']
 			logo = session['displayed_certificate']['logo']
 			folder = './uploads/' 
+			
 			if not path.exists(folder + signature) :
-				url='https://gateway.pinata.cloud/ipfs/'+ signature
+				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
 				response = requests.get(url, stream=True)
-				with open('./photos/' + signature, 'wb') as out_file:
+				with open('./uploads/' + signature, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
-			else :
-				print('signature on disk')
+		
 			
 			if not path.exists(folder + logo) :
-				url='https://gateway.pinata.cloud/ipfs/'+ logo
+				url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 				response = requests.get(url, stream=True)
-				with open('./photos/' + logo, 'wb') as out_file:
+				with open('./uploads/' + logo, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
-			else :
-				print('logo on disk')
+		
 				
 			return render_template('./certificate/certificate.html',
 							manager= session['displayed_certificate']['manager'],
@@ -594,10 +593,11 @@ def certificate_data(dataId) :
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
 	
+	# certificate are seen as guest always (no access to private data)
 	if support == 'claim' :
 		claim_id = dataId.split(':')[5]
 		my_data = Claim()
-		my_data.get_by_id(workspace_contract, claim_id, mode) 
+		my_data.get_by_id(None, None, workspace_contract, claim_id, mode) 
 		expires = 'Unlimited'
 		my_topic = 'Personal'
 		
