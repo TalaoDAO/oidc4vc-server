@@ -106,7 +106,7 @@ def pin_to_pinata (my_hash) :
 
 def get_picture(ipfs_hash, filename) :
 	try :
-		response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5)
+		response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, stream=True, timeout=5)
 	except :
 		response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
 	with open(filename, 'wb') as out_file:

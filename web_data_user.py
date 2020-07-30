@@ -598,7 +598,7 @@ def user() :
 	
 	
 	# file
-	my_file = """<a href="/user/store_file/">add Files</a><hr>"""
+	my_file = """<a href="/user/store_file/">Add Files</a><hr>"""
 	for one_file in session['identity_file'] :
 		file_html = """
 				<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
@@ -771,7 +771,8 @@ def user() :
 			my_access = my_access_start + my_access
 	
 		# certificates
-		my_certificates  = """<a href="/user/request_certficate/">Request Certificates</a>"""
+		#my_certificates  = """<a href="/user/request_certficate/">Request new certificates</a>"""
+		my_certificates = ""
 		
 		if len (session['certificate']) == 0:
 			my_certificates = my_certificates + """<a class="text-danger">No Data Available</a>"""

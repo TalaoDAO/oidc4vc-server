@@ -63,14 +63,30 @@
                    
                         <div class="card-deck">
                             
-                            <div class="card shadow mb-5 d-none d-md-inline-block">
-                                <div class="card-body text-center"><a href="/user/picture/"><img class="mx-auto d-block card-img"  title="Clic to change picture." src="{{ url_for('send_file', filename=picturefile) }}"></a></div>
-                            </div>
+                  <!--          <div class="card shadow mb-5 d-none d-md-inline-block"> -->
+								<div class="card shadow mb-5">
+									 
+								<div class="card-body">
+										 <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><i title="New certificate." style="font-size: 20px;"  class="fas fa-plus fa-lg"></i></a></h4>		
+													
+										{% if session['certificate'] == [] %}
+											<div  style="height:50px;overflow:auto;overflow-x: hidden;">
+												<p class="card-text">{{certificates|safe}}</p>
+											</div>
+                                         {% else %}
+                                         
+                                         <div  style="height:400px;overflow:auto;overflow-x: hidden;">
+												<p class="card-text">{{certificates|safe}}</p>
+											</div>
+                                         {% endif %}       
+                                   </div>                
+                 <!--               <div class="card-body text-center"><a href="/user/picture/"><img class="mx-auto d-block card-img"  title="Clic to change picture." src="{{ url_for('send_file', filename=picturefile) }}"></a></div>-->
+                            </div>  
                             
                             <div class="card shadow mb-5">					
                                 <div class="card-body">
                 <!--                    <h4><a href="/user/picture/"><img class="mx-auto d-block card-img" title="Clic to change picture."  src="{{ url_for('send_file', filename=picturefile) }}"></a></h4> -->
-                                     <h4></h4>
+                                     <h4 class="text-center" title="Complete your Resume." >Resume</h4>
                                     
                                     <div role="tablist" id="accordion-1">
                                        
@@ -155,10 +171,11 @@
                                       
                                       
                  
-                                        <div class="card">
+					<!--					<div class="card">
                                             <div class="card-header" role="tab" title="List of all certificates issued by third parties." >
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-certificate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp; Certificates</a></h5>
                                             </div>
+                                        
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
 													
@@ -166,9 +183,9 @@
 														<p class="card-text">{{certificates|safe}}</p>
 													</div>
 														
-                                                </div>
-                                            </div>
-                                        </div>                         
+                                                </div> 
+                                            </div>  
+                                        </div>           -->          
                                         
                                         
                                     </div>
@@ -178,7 +195,8 @@
                          
                             <div class="card shadow mb-5">
                                 <div class="card-body">
-                                    <h4></h4>
+                                        <h4 title="Services available." class="text-center">Services</h4>
+                                    
                                     <div role="tablist" id="accordion-2">
                                         
                              {% if display_alias == True %}

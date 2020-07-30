@@ -8,15 +8,10 @@ from eth_account import Account
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 
-
 #dependances
 import constante
 import environment
 from Talao_ipfs import ipfs_add, ipfs_get
-
-# environment setup
-#mode=environment.currentMode()
-#w3=mode.w3
 
 
 def contracts_to_owners(workspace_contract, mode) :

@@ -17,6 +17,9 @@ request : http://blog.luisrei.com/articles/flaskrest.html
     
     pour le passage a https 
     https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04-fr
+    
+    
+ talao.png   QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB
 
 """
 from Crypto.PublicKey import RSA
@@ -78,7 +81,7 @@ RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.5"
+app.jinja_env.globals['Version'] = "0.5.6"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
 
 app.config['SESSION_PERMANENT'] = True
@@ -94,7 +97,6 @@ Session(app)
 fa = FontAwesome(app)
 
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
-
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
@@ -1985,4 +1987,4 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
-	app.run(host = mode.flaskserver, port= mode.port, debug = mode.test, processes=1, threaded=False)
+	app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)
