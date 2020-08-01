@@ -6,7 +6,7 @@ from email import encoders
 
 import constante
 
-signature = '\r\n\r\n\r\n\r\n The Talao team.\r\nhttp://talao.co/'
+signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttp://talao.co/'
 password = 'Reuan;2020'
 
 def messageAuth (email_to, random) :
@@ -60,12 +60,35 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# storing the subject 
 	msg['Subject'] = 'Workspace Log : New Identity '
 	# string to store the body of the mail 
-	body = 'A new Talao workspace has been deployed\r\nUsername : '+username+'\r\n\r\nEmail : '+email+ '\r\nChain : '+ mode.BLOCKCHAIN + '\r\nAddress : ' + str(eth_a) + '\r\nPrivate Key : '+ str(eth_p)+ '\r\nWorkspace Address : '+str(workspace_contract_address)+'\r\nStatus : '+status+'\r\nBackend Id : '+str(backend_Id) +'\r\nBackend Login : ' + login +'\r\nBackend Password : ' + SECRET +'\r\nAES key : ' + str(AES_key) + mode.DAPP_LINK + str(workspace_contract_address)
+	body = "".join(['A new Talao workspace has been deployed\r\nUsername : ',
+					username,
+					'\r\n\r\nEmail : ',
+					email,
+					'\r\nChain : ',
+					mode.BLOCKCHAIN,
+					'\r\nAddress : ',
+					str(eth_a),
+					'\r\nPrivate Key : ',
+					str(eth_p),
+					'\r\nWorkspace Address : ',
+					str(workspace_contract_address),
+					'\r\nStatus : ',
+					status,
+					'\r\nBackend Id : ',
+					str(backend_Id),
+					'\r\nBackend Login : ',
+					login,
+					'\r\nBackend Password : ',
+					SECRET,
+					'\r\nAES key : ',
+					str(AES_key),
+					mode.DAPP_LINK,
+					str(workspace_contract_address)])
 	# attach the body with the msg instance 
 	msg.attach(MIMEText(body, 'plain')) 
 	# open the file to be sent
-	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 	attachment = open(path, "rb") 
 	# instance of MIMEBase and named as p 
 	p = MIMEBase('application', 'octet-stream') 
@@ -107,7 +130,21 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = 'Your professional Identity by Talao'
 	# string to store the body of the mail 
-	body = 'A new Professional Identity has been deployed for you. \r\nYour username for login  : ' +username+'\r\n\r\nEmail : '+email+'\r\nBlockchain : '+ mode.BLOCKCHAIN +'\r\nYour Blockchain Address : ' + str(eth_a) +'\r\nYour Private Key : '+ str(eth_p)+'\r\nYour Decentralized IDentitier (DID) : did:talao:'+mode.BLOCKCHAIN+':'+str(workspace_contract_address)[2:]
+	body = "".join(['Hello,\r\nA new Professional Identity has been deployed for you. \r\nYour username for login  : ',
+					username,
+					'\r\n\r\nEmail : ',
+					email,
+					'\r\nBlockchain : ',
+					mode.BLOCKCHAIN,
+					'\r\nYour Blockchain Address : ',
+					str(eth_a),
+					'\r\nYour Private Key : ',
+					str(eth_p),
+					'\r\nYour Decentralized IDentitier (DID) : did:talao:',
+					mode.BLOCKCHAIN,
+					':',
+					str(workspace_contract_address)[2:]])
+					
 	footer='\r\n\r\nA RSA key is attached to this email, Keep it with your Private Key secretely.\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
 	body= body + footer + signature
 	msg.attach(MIMEText(body, 'plain')) 

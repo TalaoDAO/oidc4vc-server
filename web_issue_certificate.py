@@ -121,7 +121,7 @@ def issue_certificate_for_guest() :
 			if session['issuer_username'] != 'new' :
 				session['issuer_picture'] = get_image(session['issuer_workspace_contract'], 'picture', mode)
 				title_claim = Claim()
-				title_claim.get_by_topic_name(session['issuer_workspace_contract'],'profil_title', mode)
+				title_claim.get_by_topic_name(None, None,session['issuer_workspace_contract'],'profil_title', mode)
 				session['issuer_title'] = title_claim.claim_value
 			else :
 				session['issuer_title'] = None
@@ -157,7 +157,7 @@ def issue_certificate_for_guest() :
 			session['issuer_firstname'] =request.form['issuer_firstname']
 			session['issuer_lastname'] = request.form['issuer_lastname']
 			firstname_claim = Claim()
-			firstname_claim.get_by_topic_name(session['talent_workspace_contract'],'firstname', mode)
+			firstname_claim.get_by_topic_name(None, None,session['talent_workspace_contract'],'firstname', mode)
 			talent_firstname = firstname_claim.claim_value
 			relationship = request.form['relationship']
 			if relationship == "1" :	
@@ -203,8 +203,8 @@ def get_issuer_personal() :
 		if session['issuer_username'] != "new" :
 			firstname_claim = Claim()
 			lastname_claim = Claim()
-			firstname_claim.get_by_topic_name(session['issuer_workspace_contract'],'firstname', mode)
-			lastname_claim.get_by_topic_name(session['issuer_workspace_contract'], 'lastname', mode)
+			firstname_claim.get_by_topic_name(None, None, session['issuer_workspace_contract'],'firstname', mode)
+			lastname_claim.get_by_topic_name(None, None, session['issuer_workspace_contract'], 'lastname', mode)
 			issuer_firstname = firstname_claim.claim_value
 			issuer_lastname = lastname_claim.claim_value
 		 # it is an issuer creation
@@ -312,7 +312,7 @@ def create_authorize_issue() :
 		# Email to issuer
 		subject = 'Certificate has been issued to ' + session['talent_name']
 		link = mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
-		text = '\r\nFollow the link : ' + link
+		text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
 		Talao_message.message(subject, session['issuer_email'], text)
 		print('msg pour issuer envoyé')
 		# Email to talent

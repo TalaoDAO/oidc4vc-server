@@ -1,33 +1,14 @@
-"""
-pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
 
-pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
-
-interace wsgi https://www.bortzmeyer.org/wsgi.html
-
-import ipfshttpclient
-
-request : http://blog.luisrei.com/articles/flaskrest.html
-"""
-import os
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
-from datetime import timedelta, datetime
-import json
-import random
-import time
 import unidecode
 
 # dependances
-import Talao_message
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership, token_balance, Document
-from protocol import Claim, File, Identity, Document, read_profil
+from protocol import Document
 import environment
-import hcode
-
 
 
 

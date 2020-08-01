@@ -85,7 +85,7 @@ def setup(mode) :
 	add_manager('jp1', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
 	add_manager('jp2', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
 	
-def build_username(firstname, lastname) :
+def build_username(firstname, lastname,mode) :
 	_firstname = firstname.lower()
 	_lastname = lastname.lower()
 	_username = unidecode.unidecode(_firstname) + unidecode.unidecode(_lastname)
@@ -96,7 +96,7 @@ def build_username(firstname, lastname) :
 
 
 
-def add_identity(identity_name, identity_workspace_contract, email, mode) :
+def add_identity(identity_name, identity_workspace_contract, email, mode, phone=None) :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -106,8 +106,8 @@ def add_identity(identity_name, identity_workspace_contract, email, mode) :
 	data = {'identity_name' : identity_name, 'identity_workspace_contract' : identity_workspace_contract, 'date' : datetime.timestamp(now)} 
 	c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date)", data)
 	
-	data = {'alias_name' : identity_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now)} 
-	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date )", data)
+	data = {'alias_name' : identity_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone} 
+	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date, :phone )", data)
 	
 	address = _contractsToOwners(identity_workspace_contract, mode)
 	key = mode.w3.solidityKeccak(['address'], [address]).hex()
@@ -161,15 +161,15 @@ def remove_alias(alias_name, mode) :
 	conn.close()
 	return execution
 	
-def add_manager(manager_name, identity_name, host_name, email, mode) :
+def add_manager(manager_name, identity_name, host_name, email, mode, phone=None) :
 		
 	""" jean.bnp : jean = manager_name , bnp = host_name """
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	now = datetime.now()
-	data = {'manager_name' : manager_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now)} 
-	c.execute("INSERT INTO manager VALUES (:manager_name, :identity_name, :email, :date )", data)
+	data = {'manager_name' : manager_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone} 
+	c.execute("INSERT INTO manager VALUES (:manager_name, :identity_name, :email, :date, :phone )", data)
 	conn.commit()
 	conn.close()
 	return		

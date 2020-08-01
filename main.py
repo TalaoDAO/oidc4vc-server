@@ -80,7 +80,7 @@ RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.7"
+app.jinja_env.globals['Version'] = "0.5.8"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
@@ -1609,16 +1609,22 @@ def request_recommendation_certificate() :
 	 
 	link = urllib.parse.urlencode(parameters)
 	url = mode.server + 'issue/?' + link
-	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
-			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent." + \
-			"\r\n\r\nFollow this link to proceed : " + url
+	if memo == "" or memo is None :
+		memo = "Hello,"
+	text = "".join([memo,
+					"\r\n\r\nYou can follow this link to issue a certificate to ",
+					session['name'],
+					" through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ",
+					url])
 	subject = 'You have received a request for recommendation from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
 	# message to user vue
 	flash('Your request for Recommendation has been sent.', 'success')
 	# email to user/Talent
 	subject = "Your request for certificate has been sent."
-	text = " You will receive an email when your Referent connects." 
+	text = "".join(["Dear ",
+					session['personal']['firstname']['claim_value'],",",
+					"\r\n\r\nYou will receive an email when your Referent connects."]) 
 	user_email = ns.get_data_from_username(username, mode)['email']
 	Talao_message.message(subject, user_email, text)
 	del session['issuer_email']
@@ -1652,14 +1658,19 @@ def request_experience_certificate() :
 	
 	link = urllib.parse.urlencode(parameters)
 	url = mode.server + 'issue/?' + link
-	text = "\r\n\r\n " + memo + "\r\n\r\nYou can follow this link to issue a certificate to " + session['name'] + " through the Talao platform." + \
-			"\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent." + \
-			"\r\n\r\nFollow this link to proceed : " + url
+	if memo == "" or memo is None :
+		memo = "Hello," 
+	text = "".join([memo,
+					"\r\n\r\nYou can follow this link to issue a certificate to ",
+					 session['name'],
+					 " through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ", url])
 	subject = 'You have received a request for certification from '+ session['name']
 	Talao_message.message(subject, session['issuer_email'], text)
 	# email to user/Talent
 	subject = "Your request for certificate has been sent."
-	text = " You will receive an email when your Referent connects." 
+	text = "".join(["Dear ",
+					session['personal']['firstname']['claim_value'],",",
+					"\r\n\r\nYou will receive an email when your Referent connects."]) 
 	user_email = ns.get_data_from_username(username, mode)['email']
 	Talao_message.message(subject, user_email, text)
 	# message to user/Talent
