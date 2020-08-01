@@ -32,9 +32,16 @@ Login
    - Complete your profil as much as possible and request certificates to Companies or Individuals. Read more in :doc:`/request_a_certificate`
 
 
+Short Message Authentificaton
+-----------------------------
+
+By default secret codes for authentification are sent by email, but you can configure your profil to receive secret codes by Short Message.
+To set up this option go to the "Advanced" menu of your profile, scroll down and and clic on "Add or update your phone number for authentification".
+If you want to remmove this option and receive secret codes by email, leave the field blank.
+
 
 Support
 -------
 
 If you are having issues, please let us know.
-We have a mailing list located at: contact@talao.io
+We have a mailing list located at: relay-support@talao.io

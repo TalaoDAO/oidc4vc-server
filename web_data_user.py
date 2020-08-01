@@ -5,9 +5,8 @@ pour la validation du bearer token https://auth0.com/docs/quickstart/backend/pyt
 
 interace wsgi https://www.bortzmeyer.org/wsgi.html
 
-import ipfshttpclient
-
 request : http://blog.luisrei.com/articles/flaskrest.html
+
 """
 import os
 from flask import Flask, session, send_from_directory, flash, send_file
@@ -17,7 +16,6 @@ from flask_fontawesome import FontAwesome
 from datetime import timedelta, datetime
 import json
 import random
-
 
 
 # dependances
@@ -117,6 +115,7 @@ def login_2() :
 		del session['username_to_log']
 		del session['try_number']
 		del session['code'] 
+		print('session avant d aller sur /user/ ', session.__dict__, 'username logged = ', session['username_logged'])
 		return redirect(mode.server + 'user/')		
 	
 	elif session['code_delay'] < datetime.now() :
@@ -137,6 +136,19 @@ def login_2() :
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout() :
+	
+	# delete picture, signateure and files before logout
+	try :	
+		os.remove(mode.uploads_path + session['picture'])
+		os.remove(mode.uploads_path + session['signature'])
+	except :
+		print('effacement picture/signature erreur')
+	
+	for one_file in session['identity_file'] :
+		try :
+			os.remove(mode.uploads_path + one_file['filename'])
+		except :
+			print('effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return render_template('login.html')
@@ -157,7 +169,12 @@ def forgot_username() :
 			flash(msg , 'success')
 		return render_template('login.html')
 
-
+#@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
+def use_my_own_address() :
+	flash("Feature not available yet.", "warning")
+	return redirect(mode.server + 'login/')	
+	
+	
 ############################################################################################
 #         DATA 
 ############################################################################################
@@ -266,7 +283,7 @@ def data(dataId) :
 		mytitle = my_data.title
 		mysummary = my_data.description	
 		myvalue = """ 
-				<b>Data Content</b>
+				<b>Data</b>
 				<li><b>Title</b> : """+my_data.title + """<br></li>
 				<li><b>Company Name</b> : """+my_data.company['name']+"""<br></li>
 				<li><b>Contact Name</b> : """+my_data.company['contact_name']+"""<br></li>
@@ -288,7 +305,7 @@ def data(dataId) :
 		mytitle = my_data.title
 		mysummary = my_data.description	
 		myvalue = """ 
-				<b>Data Content</b>
+				<b>Data</b>
 				<li><b>Title</b> : """+my_data.title + """<br>
 				<li><b>Organization Name</b> : """+my_data.organization['name']+"""<br></li>
 				<li><b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br></li>
@@ -305,7 +322,7 @@ def data(dataId) :
 			mytitle = my_data.title
 			mysummary = my_data.description		
 			myvalue = """ 
-				<b>Data Content</b>
+				<b>Data</b>
 				<li><b>Title</b> : """ + my_data.title + """<br></li>
 				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>		
 				<li><b>End Date</b> : """+ my_data.end_date + """<br></li>
@@ -317,7 +334,7 @@ def data(dataId) :
 				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
 		else :
 			myvalue = """
-				<b>Data Content</b>
+				<b>Data</b>
 				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
 				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""		
 				
@@ -327,7 +344,7 @@ def data(dataId) :
 		mytitle = "Kbis validated"
 		mysummary = ""		
 		myvalue = """ 
-				<b>Data Content</b>
+				<b>Data</b>
 				<li><b>Name</b> : """ + my_data.name+ """<br></li>
 				<li><b>Siret</b> : """ + my_data.siret + """<br></li>
 				<li><b>Created</b> : """+ my_data.date + """<br></li>
@@ -343,7 +360,7 @@ def data(dataId) :
 		mytitle = "ID validated by Talao"
 		mysummary = ""		
 		myvalue = """ 
-				<b>Data Content</b>
+				<b>Data</b>
 				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
 				<li><b>Lastname</b> : """ + my_data.lastname + """<br></li>
 				<li><b>Sex</b> : """+ my_data.sex + """<br></li>
@@ -393,10 +410,9 @@ def user() :
 	if username is None :
 		return redirect(mode.server + 'login/')	
 	
-	session['first_pass'] = False
+
 	if session.get('uploaded') is None :
 		print('start first instanciation user')
-		session['first_pass'] = True	
 		if mode.test :
 			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
 		else :
@@ -406,14 +422,15 @@ def user() :
 				flash('session aborted', 'warning')
 				print('pb au niveau de Identity')
 				return render_template('login.html')
-		print('end')
+		print('end of first intanciation')
 		
-		""" clean up for resume  """
+		# clean up for resume  
 		user_dict = user.__dict__.copy()
 		del user_dict['mode']
 		del user_dict['aes']
 		del user_dict['partners']	
 		
+		# init session
 		session['resume'] = user_dict
 		session['uploaded'] = True
 		session['type'] = user.type
@@ -434,16 +451,16 @@ def user() :
 		session['personal'] = user.personal
 		session['identity_file'] = user.identity_file
 		session['name'] = user.name
-		
-		session['picture'] = user.picture
-		#if not os.path.exists(mode.uploads_path + session['picture']) :
-		Talao_ipfs.get_picture(session['picture'], mode.uploads_path + session['picture'])
-		
-		session['signature'] = user.signature		
-		#if not os.path.exists(mode.uploads_path + session['signature']) :
-		Talao_ipfs.get_picture(session['signature'], mode.uploads_path + session['signature'])
-			
 		session['secret'] = user.secret
+		
+		# download picture/logo, signature
+		session['picture'] = user.picture
+		if not os.path.exists(mode.uploads_path + session['picture']) :
+			Talao_ipfs.get_picture(session['picture'], mode.uploads_path + session['picture'])
+		session['signature'] = user.signature		
+		if not os.path.exists(mode.uploads_path + session['signature']) :
+			Talao_ipfs.get_picture(session['signature'], mode.uploads_path + session['signature'])
+			
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
@@ -454,8 +471,7 @@ def user() :
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 		
-	# welcome message
-	if session['first_pass'] :
+		# welcome message
 		message = ""
 		if not session['private_key'] :
 			message = message + "Private key not found. "
@@ -703,7 +719,7 @@ def user() :
 				'contact_phone' : 'Contact Phone',
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}							
-		my_personal = ""
+		my_personal = """<a href="/user/update_personal_settings/">Update your Details</a><br><hr>"""
 		for topicname in session['personal'].keys() :
 			if session['personal'][topicname]['claim_value'] is not None :
 				topicname_value = session['personal'][topicname]['claim_value']
@@ -715,7 +731,6 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""				
-		my_personal = my_personal+ """<a href="/user/update_personal_settings/">Update Data</a>"""
 	
 		# kyc
 		if len (session['kyc']) == 0:

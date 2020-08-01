@@ -35,36 +35,36 @@
                             <form action="/user/request_experience_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Complete this request form as precisely as possible to help us to draft the final Certificate. The Referent will receive an email with this information.</p>
+                                        <p>Complete this request form as precisely as possible to help your Referent to draft the final Certificate. He will receive an email with this information.</p>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-6">
-                                        <div class="form-group"><label>Position</label><input title=" Your Position in the Project Team" required="" class="form-control"  type="text" name="title"></div>
+                                        <div class="form-group"><label>Your position</label><input title=" Your position in the project team." required="" class="form-control"  type="text" name="title"></div>
                                     </div>
                                   
                                 </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Project Description</label><textarea title="A description of the project, objectives, technologies, team, delay..." required="" class="form-control" name="description"></textarea></div>
+                                        <div class="form-group"><label>Project description</label><textarea rows="4" title="A description of the project, objectives, technologies, team, delay..." required="" class="form-control" name="description"></textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-6">
-                                        <div class="form-group"><label>Start Date</label><input class="form-control" required="" type="date" name="start_date"></div>
+                                        <div class="form-group"><label>Start date</label><input title="Start date of the project." class="form-control" required="" type="date" name="start_date"></div>
                                     </div>
                                     <div class="col-xl-6">
-                                        <div class="form-group"><label>End Date</label><input class="form-control" required="" type="date" name="end_date"></div>
+                                        <div class="form-group"><label>End date</label><input  title="End date of the project." class="form-control" required="" type="date" name="end_date"></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-12">
-                                        <div class="form-group"><label>Skills</label><input title="List of skills with comma separator : skill1, skill2, ..." class="form-control" type="text" name="skills"></div>
+                                        <div class="form-group"><label>Skills (Optional)</label><input title="List of skills with comma separator : skill1, skill2, ..." class="form-control" type="text" name="skills"></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Memo (Optional)</label><textarea class="form-control" title="Leave a message to the Referent. It will be added on top of the email." name="memo"></textarea></div>
+                                        <div class="form-group"><label>Memo (Optional)</label><textarea rows="4" placeholder="Hi Paul,&#10I hope everything is fine for you.&#10I'd like to get a recommendation from you.&#10Let me know if you agree.&#10Regards" class="form-control" title="Leave a message to the Referent. It will be added on top of the email." name="memo"></textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -72,7 +72,7 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." id="sending_button" type="submit" name="choice" value="send">Send</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><a href="/user/?username={{username}}"><button title="Cancel the request." class="btn btn-primary btn-sm" type="button" value="cancel">Cancel</button></a></div>
+                                        <div class="form-group"><button onclick="goBack()" title="Cancel the request." class="btn btn-primary btn-sm" type="button" value="Back">Back</button></div>
                                     </div>
                                 </div>
                             </form>
@@ -87,6 +87,7 @@
                                                              {% include 'user_footer.html' %}    
 
     </div>
+         <script>function goBack() {  window.history.back();}</script>
        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	  <script src="{{ url_for('static', filename='sending_button.js') }}"></script> 
      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

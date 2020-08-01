@@ -9,7 +9,6 @@ interace wsgi https://www.bortzmeyer.org/wsgi.html
 request : http://blog.luisrei.com/articles/flaskrest.html
 
 
-
     $ export FLASK_APP=webserver.py
     $ export FLASK_ENV=development
     $ flask run -h 127.0.0.1 -p 3000
@@ -45,6 +44,7 @@ from eth_utils import decode_hex
 
 # dependances
 import Talao_message
+import Talao_ipfs
 import createcompany
 import createidentity
 import constante
@@ -74,16 +74,14 @@ mode = environment.currentMode()
 w3 = mode.w3
 exporting_threads = {}
 
-
 UPLOAD_FOLDER = './uploads'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
 
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.6"
-app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('webserver.py'))
-
+app.jinja_env.globals['Version'] = "0.5.7"
+app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
 app.config['SESSION_TYPE'] = 'redis'
@@ -97,6 +95,10 @@ Session(app)
 fa = FontAwesome(app)
 
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
+
+#download log Talao in /uploads
+if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
+	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", "./uploads/QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
@@ -125,6 +127,7 @@ app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, 
 app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_2, methods = ['POST'])
 app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'])
 app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET', 'POST'])
+app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'])
 
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'])
@@ -134,8 +137,6 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'])
 
-
-
 def check_login() :
 	username = session.get('username_logged')
 	print('usernam dans checklogin', username)
@@ -143,14 +144,11 @@ def check_login() :
 		flash('session aborted', 'warning')
 	return username
 
-
 def is_username_in_list(my_list, username) :
 	for user in my_list :
-	
 		if user['username'] == username :
 			return True
 	return False	
-
 
 def is_username_in_list_for_partnership(partner_list, username) :
 	for partner in partner_list :

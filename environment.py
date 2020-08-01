@@ -29,7 +29,7 @@ class currentMode() :
 		print('debut init environment')
 		print('Chain = ', self.mychain)
 		print('Environnement =', self.myenv)			
-			
+		
 		if self.myenv == 'prod' :  # sur rasbperry et Livebox Houdan		
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
@@ -38,7 +38,7 @@ class currentMode() :
 			self.port = 4000
 			self.flaskserver = "127.0.0.1"
 			self.debug = True	
-
+		
 		elif self.myenv == 'aws' :
 			self.uploads_path = '/home/admin/Talao/uploads/'
 			self.db_path = '/home/admin/db/'
@@ -71,7 +71,7 @@ class currentMode() :
 						
 		elif self.myenv == 'test' : # sur portable avec acces internet par reseau (pour les test depuis un smartphone)
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
-			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc"))				
+			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))				
 			self.server = 'http://192.168.0.34:3000/' 
 			self.flaskserver = "192.168.0.34"
 			self.port = 3000

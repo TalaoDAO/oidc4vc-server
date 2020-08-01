@@ -292,14 +292,14 @@ def certificate_verify() :
 	# advanced
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
 	advanced = """<hr>
-		<!--	<b>Data Id</b> : """ + certificate['id'] + """<br>  -->
+				<b>Document Id</b> : """ + str(certificate['doc_id']) + """<br>  
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>	
 				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
 				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + certificate['transaction_hash'] + """>"""+ certificate['transaction_hash'] + """</a><br>					
 				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a>"""
 	
 	
-	my_verif = issuer + issuer_website  + user + user_website +advanced
+	my_verif = "".join([issuer,issuer_website, user, user_website, advanced])
 	
 		
 	

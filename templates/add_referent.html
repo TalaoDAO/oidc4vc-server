@@ -50,7 +50,7 @@
                                     </div>
                                     <div class="col-6 col-xl-3">
 										   
-												<div class="form-group"><button onclick="goBack()"  class="btn btn-primary btn-sm" type="button" >Back</button></div>
+										<a href="/user/"><div class="form-group"><button   class="btn btn-primary btn-sm" type="button" >Back</button></a></div>
 											
                                     </div>
                                 </div>	
@@ -70,7 +70,6 @@
                                   {% include 'user_footer.html' %}    
 
     </div>
-      <script>function goBack() {  window.history.back();}</script>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

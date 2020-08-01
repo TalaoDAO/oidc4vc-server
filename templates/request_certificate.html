@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->  
 </head>
 
 <body id="page-top">
@@ -36,18 +35,16 @@
                             <form action="/user/request_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>To request a Certificate the Issuer needs to have an Identity and your authorization to issue. We will contact him through his email.<br><br>
+                                        <p>To request a certificate your Referent needs to have his/her own Identity. We will contact him through his/her email.<br>
                                         There are 2 types of certificates :
                                         <li> Experience Certificate with details about a specific projet.</li>
                                         <li>Recommendation Certificate which is a person to person referral.</li></p>
                                         {% if display_email == True %}
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Issuer Email</strong><br></label><input title="Referent Email" class="form-control" name ="issuer_email" required="" type="email"></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
                                         {% endif %}
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Certificate Type</strong><br></label>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Certificate Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
 												<option value="experience" >Experience Certificate</option>
-										<!---		<option value="training">Training Certificate</option>
-												<option value="skill">Skill Certificate</option> -->
 												{% if reco %}
 												<option value="recommendation">Recommendation</option> 
 												{% endif %}

@@ -13,7 +13,6 @@
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
   <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -27,7 +26,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
 			{% if messages %}
 				{% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                 <span>{{ message }}</span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -238,25 +237,6 @@
                                             </div>
                                         </div>
                                        
-                                       
-                                       
-                                       
-                                       
-                                       
-                          <!--             
-                                       
-                                       
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your crypto accounts.">
-                                                <h5 class="mb-0"><i class="fa fa-euro"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Account</a></h5>
-                                            </div>
-                                            <div class="collapse item-6" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{account|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                             -->        
                                          
                                           <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced information about your Profesionnal Identity ">
@@ -271,15 +251,9 @@
                                                 </div>
                                             </div>
                                         </div>           
-                                                    
-                                                    
                                                                                                                      
                                     </div>
-                                 
-  
-                                    
-                               <!--     <a class="card-link" href="#">Delete my Identity</a> -->
-                                    </div>
+                               </div>
                             </div>
                         </div>
                     
@@ -306,7 +280,7 @@
   document.execCommand("copy");
   $temp.remove();
 }</script>
-
+	<script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000); </script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
