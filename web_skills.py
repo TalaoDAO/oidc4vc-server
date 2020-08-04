@@ -131,7 +131,7 @@ def update_skills() :
 			counter = request.form['choice']
 			del session['skills']['description'][int(counter)]
 			return redirect (mode.server + 'user/update_skills/')
-			
+"""			
 def update_skills_from_elsewhere(skill_list) :
 	for skill in skill_list :
 		skill_code = unidecode.unidecode(request.form['skill_name'].lower())
@@ -146,10 +146,10 @@ def update_skills_from_elsewhere(skill_list) :
 			session['skills']['description'] =[]
 			session['skills']['version'] = 1
 			
-		found == False	
+		found = False	
 		for one_skill in session['skills']['description'] :
 			if one_skill['skill_code'] == skill_code :
-				found == True
+				found = True
 				break
 		if found == True :
 			session['skills']['description'].append(skill)	
@@ -162,4 +162,4 @@ def update_skills_from_elsewhere(skill_list) :
 			data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
 			(doc_id, ipfshash, transaction_hash) = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode, mydays=0)													
 	return execution
-		
+	"""	

@@ -1,7 +1,7 @@
 from datetime import datetime
 import sqlite3
 import unidecode
-
+import random
 import constante
 
 
@@ -60,7 +60,7 @@ def alter_add_phone_field_manager(database, mode) :
 
 def setup(mode) :
 	
-	_init_nameservice()
+	_init_nameservice(mode)
 	
 	init_host('talao', mode)
 	init_host('thales', mode)
@@ -136,7 +136,7 @@ def does_alias_exist(alias_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	now = datetime.now()
+	#now = datetime.now()
 	data = {'alias_name' : alias_name} 
 	c.execute("SELECT identity_name FROM alias WHERE alias_name = :alias_name " , data)
 	select = c.fetchall()
@@ -178,7 +178,7 @@ def does_manager_exist(manager_name, host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
-	now = datetime.now()
+	#now = datetime.now()
 	data = {'manager_name' : manager_name} 
 	c.execute("SELECT identity_name FROM manager WHERE manager_name = :manager_name " , data)
 	select = c.fetchall()
@@ -303,7 +303,7 @@ def get_address_from_publickey(publickey, mode) :
 
 def get_data_from_publickey(publickey, mode) :
 	""" username comes from resolver"""
-	path = mode.db_path
+	#path = mode.db_path
 	address = get_address_from_publickey(publickey, mode)
 	print('address =', address)
 	if address is None :

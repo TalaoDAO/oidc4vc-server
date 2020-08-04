@@ -15,7 +15,7 @@ def dashboard(workspace_contract,resume, mode) :
 	# global
 	nb_doc = 0
 	nb_claim = 0
-	is_kbis = "N/A"
+	#is_kbis = "N/A"
 	is_kyc = "N/A"
 	nb_description = 0
 	nb_experience = 0
@@ -42,7 +42,7 @@ def dashboard(workspace_contract,resume, mode) :
 	skills = [] 
 	
 	# Calculation
-	average_experience = 0 
+	#average_experience = 0 
 	
 	doc_name = ['file', 'experience', 'education', 'kbis', 'kyc', 'certificate']
 	company_claim_name = ['name', 'contact_email', 'contact_phone', 'contact_name',  'website', 'about']
@@ -113,7 +113,7 @@ def dashboard(workspace_contract,resume, mode) :
 	# update
 	sorted_update = sorted(update, reverse=True)
 	last_update = sorted_update[0]
-	update_number = len(sorted_update)
+	#update_number = len(sorted_update)
 	update_duration = datetime.now() - last_update
 	update_duration_value = int(divmod(update_duration.total_seconds(), 86400)[0])
 	update_duration_string = str(update_duration_value) + ' days' 
@@ -242,7 +242,7 @@ def dashboard(workspace_contract,resume, mode) :
 	token_position = word_tokenize(position.lower())
 	
 	skills_counter = len(token_skills)
-	description_counters = len(token_description)
+	#description_counters = len(token_description)
 	position_counter = len(token_position)
 	
 	clean_token_description = [x for x in token_description if x not in a]

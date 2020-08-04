@@ -115,7 +115,6 @@ def login_2() :
 		del session['username_to_log']
 		del session['try_number']
 		del session['code'] 
-		print('session avant d aller sur /user/ ', session.__dict__, 'username logged = ', session['username_logged'])
 		return redirect(mode.server + 'user/')		
 	
 	elif session['code_delay'] < datetime.now() :
@@ -453,13 +452,12 @@ def user() :
 		session['name'] = user.name
 		session['secret'] = user.secret
 		
-		# download picture/logo, signature
 		session['picture'] = user.picture
-		if not os.path.exists(mode.uploads_path + session['picture']) :
-			Talao_ipfs.get_picture(session['picture'], mode.uploads_path + session['picture'])
+		#if not os.path.exists(mode.uploads_path + session['picture']) :
+		#	Talao_ipfs.get_picture(session['picture'], mode.uploads_path + session['picture'])
 		session['signature'] = user.signature		
-		if not os.path.exists(mode.uploads_path + session['signature']) :
-			Talao_ipfs.get_picture(session['signature'], mode.uploads_path + session['signature'])
+		#if not os.path.exists(mode.uploads_path + session['signature']) :
+		#	Talao_ipfs.get_picture(session['signature'], mode.uploads_path + session['signature'])
 			
 		if user.type == 'person' :
 			session['experience'] = user.experience

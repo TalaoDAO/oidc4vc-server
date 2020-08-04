@@ -89,7 +89,7 @@ def ipfs_get(ipfs_hash) :
 	except :
 		print('get ipfs pinata', ipfs_hash)
 		data = ipfs_get_pinata(ipfs_hash)
-		add_to_local(data)
+		add_dict_to_local(data)
 		return data
 		
 def pin_to_pinata (my_hash) :

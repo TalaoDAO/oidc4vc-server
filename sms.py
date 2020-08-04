@@ -18,7 +18,7 @@ def send_code(phone, code) :
 
 def check_phone(phone) :
 	try:
-		contact = client.sms.send(to=phone, message="Your phone number has been checked.")
+		client.sms.send(to=phone, message="Your phone number has been checked.")
 		return True
 	except SmsApiException as e:
 		print(e.message, e.code)

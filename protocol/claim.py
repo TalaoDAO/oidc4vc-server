@@ -316,7 +316,7 @@ def delete_claim(address_from, workspace_contract_from, address_to, workspace_co
 	nonce = w3.eth.getTransactionCount(address_from)
 
 	# Build transaction
-	txn = contract.functions.removeClaim(claimId).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	txn = contract.functions.removeClaim(claim_id).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
 	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)		
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash =w3.toHex(w3.keccak(signed_txn.rawTransaction))

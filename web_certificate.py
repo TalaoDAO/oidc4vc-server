@@ -2,7 +2,7 @@
 import copy
 import os.path
 from os import path
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import Flask, session, send_from_directory, flash
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 import requests
@@ -66,7 +66,7 @@ def show_certificate():
 		session['certificate_id'] = certificate_id
 		session['displayed_certificate'] = certificate.__dict__
 	
-	identity_profil, identity_category = read_profil(identity_workspace_contract, mode, 'light')
+	identity_profil, a = read_profil(identity_workspace_contract, mode, 'light')
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
 	
@@ -580,7 +580,7 @@ def certificate_data(dataId) :
 		my_topic = dataId.split(':')[6]
 		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education'] :
 			my_data = Document(my_topic)
-			exist = my_data.relay_get(workspace_contract, doc_id, mode) 	
+			my_data.relay_get(workspace_contract, doc_id, mode) 	
 		else :
 			print('Error data in webserver.py, Class instance needed')	
 			return
@@ -595,7 +595,7 @@ def certificate_data(dataId) :
 		expires = 'Unlimited'
 		my_topic = 'Personal'
 	myvisibility = my_data.privacy
-	issuer_is_white = False
+	#issuer_is_white = False
 	
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
@@ -653,8 +653,8 @@ def certificate_data(dataId) :
 	
 	# value
 	if my_topic.lower() == "experience"  :
-		mytitle = my_data.title
-		mysummary = my_data.description	
+		#mytitle = my_data.title
+		#mysummary = my_data.description	
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Title</b> : """+my_data.title + """<br></li>
@@ -667,8 +667,8 @@ def certificate_data(dataId) :
 				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
 				
 	elif my_topic.lower() == "education" :
-		mytitle = my_data.title
-		mysummary = my_data.description	
+		#mytitle = my_data.title
+		#mysummary = my_data.description	
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Title</b> : """+my_data.title + """<br>
@@ -683,8 +683,8 @@ def certificate_data(dataId) :
 	
 	
 	elif my_topic.lower() == "certificate" :
-		mytitle = my_data.title
-		mysummary = my_data.description	
+		#mytitle = my_data.title
+		#mysummary = my_data.description	
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Title</b> : """ + my_data.title + """<br></li>
@@ -701,8 +701,8 @@ def certificate_data(dataId) :
 				
 
 	elif my_topic.lower() == "kbis" :
-		mytitle = "Kbis validated"
-		mysummary = ""		
+		#mytitle = "Kbis validated"
+		#mysummary = ""		
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Name</b> : """ + my_data.name+ """<br></li>
@@ -717,8 +717,8 @@ def certificate_data(dataId) :
 
 
 	elif my_topic.lower() == "kyc" :
-		mytitle = "ID validated by Talao"
-		mysummary = ""		
+		#mytitle = "ID validated by Talao"
+		#mysummary = ""		
 		myvalue = """ 
 				<b>Data Content</b>
 				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
@@ -734,15 +734,15 @@ def certificate_data(dataId) :
 				 
 
 	elif my_topic.lower() == 'personal' :
-		mytitle = 'Profil'
-		mysummary = ''		
+		#mytitle = 'Profil'
+		#mysummary = ''		
 		myvalue = """<b>Data</b> : """+ my_data.claim_value 
 
 	else :
 		print('erreur my_topic dans data de webserver.py')
 		return
 			
-	mydelete_link = "/talao/api/data/delete/"
+	#mydelete_link = "/talao/api/data/delete/"
 	
 	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
 	
@@ -760,11 +760,11 @@ def certificate_data_analysis() :
 	username = session.get('username_logged')
 	if username is None  :
 		viewer = 'guest'
-		my_picture = ""
+		#my_picture = ""
 		
 	else :
 		viewer = 'user'
-		my_picture = session['picture']
+		#my_picture = session['picture']
 	
 	
 	certificate_id = session['certificate_id']

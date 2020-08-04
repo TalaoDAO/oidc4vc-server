@@ -54,7 +54,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 			return None, None, None
 		
 		# decoder la cle AES128 cryptée avec la cle RSA privée
-		key = RSA.importKey(my_rsa_key)
+		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)	
 		my_aes = cipher.decrypt(aes_encrypted)
 		

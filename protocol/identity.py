@@ -26,7 +26,8 @@ from .file import File
  
 import ns
 import privatekey
- 
+import Talao_ipfs
+
 class Identity() :
 	
 	def __init__(self, workspace_contract, mode, authenticated=False, workspace_contract_from = None, private_key_from = None):
@@ -50,8 +51,6 @@ class Identity() :
 				self.aes = 'Encrypted'
 					
 			self.has_relay_private_key()
-			print('rsa  key = ', self.rsa_key)
-			print('private key = ', self.private_key)
 			if self.private_key :
 				self.get_partners()	
 			else :
@@ -89,15 +88,18 @@ class Identity() :
 			self.get_identity_certificate()
 			self.get_identity_skills()	
 			
-		#download pictures on server dir /uploads/ fill with anonymous if None
+		#get image/logo and signature ipfs and download files to upload folder
 		self.picture = get_image(self.workspace_contract, 'picture', self.mode)
 		if self.picture is None :
 			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'	
-		
+		if not os.path.exists(mode.uploads_path + self.picture) :
+			Talao_ipfs.get_picture(self.picture, mode.uploads_path + self.picture)
+
 		self.signature = get_image(self.workspace_contract, 'signature', self.mode)
 		if self.signature is None :
 			self.signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u' 
-		
+		if not os.path.exists(mode.uploads_path + self.signature) :
+			Talao_ipfs.get_picture(self.signature, mode.uploads_path + self.signature)
 	
 	def get_secret(self) :
 		(self.category, self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, self.mode)
@@ -135,7 +137,7 @@ class Identity() :
 	def get_management_keys(self) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(1).call()
-		mymanagementkeys = []
+		#mymanagementkeys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			if key[2] == self.mode.relay_publickeyhex :
@@ -166,7 +168,7 @@ class Identity() :
 		self.white_keys = []
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(5).call()
-		white_keys = []
+		#white_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = ns.get_data_from_publickey('0x' + key[2].hex(), self.mode)
@@ -184,7 +186,6 @@ class Identity() :
 	def get_partners(self) :
 		# on obtient la liste des partners avec le Relay qui a une cle 1
 		self.partners = []
-		print('private key = ', self.private_key_value)
 		acct = Account.from_key(self.mode.relay_private_key)
 		self.mode.w3.eth.defaultAccount = acct.address
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
@@ -218,7 +219,7 @@ class Identity() :
 		else :
 			print('status des partnerships impossible a obtenir, private key  not found')
 		return True
-	
+	"""
 	def topicname2topicvalue(topicname) :
 		topicvalue_str =''
 		for i in range(0, len(topicname))  :
@@ -226,7 +227,7 @@ class Identity() :
 			a = '0'+ a  if int(a) < 100 else a
 			topicvalue_str += a
 		return int(topicvalue_str)
-	
+	"""
 		# always available
 	def get_identity_personal(self,workspace_contract_from, private_key_from) :
 		contract = self.mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)	
@@ -344,12 +345,12 @@ class Identity() :
 			if this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", self.mode) :
 				new_file = this_file.__dict__
 				self.identity_file.append(new_file)
-		print ('get identity file = ', self.identity_file)
 		return True
-		
+	
+	"""	
 	def uploadPicture(self,picturefile) :
 		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	
 		return self.picture
-
+	"""
 	
 	

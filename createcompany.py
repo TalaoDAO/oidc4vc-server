@@ -29,6 +29,7 @@ from Talao_ipfs import ipfs_add, ipfs_get
 import constante
 #import environment
 import ns
+import privatekey
 
 
 # variable pour calcul RSA
@@ -112,7 +113,7 @@ def create_company(email, username, mode) :
 		return None
 	 
 	# calcul du temps de process
-	time_debut=datetime.now()
+	#time_debut=datetime.now()
 	
 	# creation de la wallet	
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
@@ -193,10 +194,10 @@ def create_company(email, username, mode) :
 	ns.init_host(username, mode)
 	
 	# Delay and transaction cost
-	time_fin = datetime.now()
-	time_delta = time_fin-time_debut
-	a = w3.eth.getBalance(address)
-	cost=0.06-a/1000000000000000000	
+	#time_fin = datetime.now()
+	#time_delta = time_fin-time_debut
+	#a = w3.eth.getBalance(address)
+	#cost=0.06-a/1000000000000000000	
 	
 	# update private key.db
 	data = { 'created' : datetime.today(),
@@ -208,7 +209,7 @@ def create_company(email, username, mode) :
 			 'secret' : SECRET.hex(),
 			 'aes' : AES_key.hex()}
 			 
-	execution =  privatekey.add_identity(data)
+	execution =  privatekey.add_identity(data, mode)
 	print('save db = ', execution)
 
 

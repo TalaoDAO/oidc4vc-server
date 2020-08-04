@@ -493,7 +493,7 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	email = 101109097105108
 	description = 100101115099114105112116105111110
 	topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-	image= 105109097103101
+	#image= 105109097103101
  
 	chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
 	bchaine=bytes(chaine, 'utf-8')
@@ -598,7 +598,7 @@ def getDocumentIndex(address, _doctype,mode) :
 		if doc[0]==_doctype :
 			index=index+1			
 	return index
-
+"""
 #################################################
 #  add self claim
 #################################################
@@ -637,7 +637,7 @@ def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfsh
 		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	return hash1
 
-
+"""
 
 ##############################################
 # detrmination de la nature de l addresse

@@ -135,7 +135,7 @@ def create_user(username, email,mode):
 	bemail = bytes(email , 'utf-8')	
 	
 	# ether transfer from TalaoGen wallet
-	hash1 = ether_transfer(address, mode.ether2transfer,mode)
+	ether_transfer(address, mode.ether2transfer,mode)
 	balance_avant = w3.eth.getBalance(address)/1000000000000000000
 	
 	# 101 Talao tokens transfer from TalaoGen wallet

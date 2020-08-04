@@ -9,7 +9,7 @@ On test si l email existe dans le registre
 centralized url https://flask.palletsprojects.com/en/1.1.x/patterns/lazyloading/
 """
 
-from flask import request, redirect, render_template, session
+from flask import request, redirect, render_template, session, flash
 #from flask_api import FlaskAPI
 import threading
 import random

@@ -111,7 +111,7 @@ def issue_certificate_for_guest() :
 			return render_template('issue_experience_certificate_for_guest.html',
 						start_date = request.args['start_date'],
 						end_date = request.args['end_date'],
-						decription=request.args['description'],
+						description=request.args['description'],
 						title=request.args['title'],
 						skills=request.args['skills'],
 						talent_name=session['talent_name'],
@@ -347,9 +347,9 @@ def create_authorize_issue_thread(username,
 	(doc_id, ipfshash, transaction_hash) = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True) 
 	print('certificat issued')
 	# send message to issuer
-	subject = 'Certificate has been issued to ' + talent_name
+	subject = 'A new certificate has been issued to ' + talent_name
 	link = mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
-	text = '\r\nFollow the link : ' + link
+	text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
 	Talao_message.message(subject, issuer_email, text)
 	print('msg pour issuer envoyé')
 	# send message to talent

@@ -68,7 +68,7 @@ def history_html(workspace_contract, days, mode) :
 	
 	for event in sorted_history :
 		history_string = history_string + str(event[0]) + ' - ' + event[1] + """<br>""" 	
-	print(history_string)					
+	#print(history_string)					
 	return history_string
 
 

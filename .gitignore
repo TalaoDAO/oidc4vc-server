@@ -1,0 +1,7 @@
+# fichier a exclure
+
+*.db
+*.csv
+gunicornconf.py
+bootstrap/*
+RSA_key/*

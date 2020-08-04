@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Organisation des tests &mdash; Talao Professional Identity Relay 0.5.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Internal" href="internal.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Talao Professional Identity Relay
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contents.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="privacy.html">Privacy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume.html">Professional Identity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+</ul>
+<p class="caption"><span class="caption-text">How-To:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="request_a_certificate.html">Request a Certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">Get a Proof of Identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_its_own_address.html">Use my own Ethereum Address</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Talent Connect:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">APIs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Internal:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Beta Test:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Organisation des tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#contexte">Contexte</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#objectif-des-tests">Objectif des tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#equipe-de-testeurs-et-projet-de-test">Equipe de testeurs et projet de test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environnement-technique">Environnement technique</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#demarche-pour-les-testeurs">Démarche pour les testeurs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#base-de-test">Base de test</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Talao Professional Identity Relay</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Organisation des tests</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/betatest.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="organisation-des-tests">
+<h1>Organisation des tests<a class="headerlink" href="#organisation-des-tests" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contexte">
+<h2>Contexte<a class="headerlink" href="#contexte" title="Permalink to this headline">¶</a></h2>
+<p>Le protocole Talao est une application de la blockchain Ethereum permettant la gestion d’Identités Décentalisées spécialisées sur les données professionnelles.
+Cf ce <a class="reference external" href="https://cryptoast.fr/identites-numeriques-decentralisees/">lien</a> pour plus d’information sur les Identitées Décentralisées.
+Les principaux apports du protocole sont :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la protection des données personelles pour les utilisateurs,</p></li>
+<li><p>la fiabilité et la traçabilité des données RH pour l’entreprise,</p></li>
+<li><p>la possibilité d’emettre des certificats infalsifiables et inaltérables en quelques minutes avec des frais minimum.</p></li>
+</ul>
+</div></blockquote>
+<p>Une première version du protocole Talao a été déployée en Fevrier 2018. Il a été installé avec un accès utilisateur sous la forme d’une <a class="reference external" href="https://freedapp.io/">Dapp</a>.
+Suite à ce déploiement l’équipe Talao s’est concentrée sur la commercialisation de l’offre en B2B auprès des grands comptes sur le secteur des freelances représentant un “use case” relativement simple.
+Plusieurs projets ont été initiés en particulier pour l’émission de certificats pour des entreprises du secteur des ESN qui trouvaient dans un contexte de pénuri de
+ressources et de fort turn over de leurs personnels un outil de renforcement de leur marque employeur.</p>
+<p>Dans ce contexte nous avons en revanche constaté que la mise en euvre de la Dapp et en particulier son adoption par des utilisateurs non experts était difficile compte tenu de la complexité des manipulations.
+Il faut aujourd’hui pour utiliser le protocole non seulement disposer d’un wallet Ethereum et de cryptos mais aussi d’être en mesure de signer des transactions Ethereum avec un outil tel que Metamask.</p>
+<p>Compte tenu de la période actuelle peut propice à de nouveaux projets en entreprise, l’équipe Talao s’est donc investie sur la réalisation d’une nouvelle solution technique pour l’accès
+simplifiée des utilisateurs au protocole dans le but d’initier un déploiement en B2C.</p>
+<p>Cette solution est construite autour d’une <strong>application web centralisée</strong> traditionnelle permettant une simplification maximum de la gestion de son Identité
+en contre-partie de l’introduction d’une intermédiation plus ou moins importante Cf <a class="reference internal" href="privacy.html"><span class="doc">Privacy</span></a>.</p>
+<p>Cette application a été définie autour du concept de la <strong>gestion pour compte de tiers de l’Identité</strong>. C’est cette nouvelle application qui fait l’objet de ces tests.</p>
+</div>
+<div class="section" id="objectif-des-tests">
+<h2>Objectif des tests<a class="headerlink" href="#objectif-des-tests" title="Permalink to this headline">¶</a></h2>
+<p>Il s’agit de :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>vérifier la valeur ajoutée des fonctionnalites proposées aux utilisateurs,</p></li>
+<li><p>de s’assurer de la facilité de leur mise en oeuvre,</p></li>
+<li><p>d’identifier des points d’amélioration (contenu et design),</p></li>
+<li><p>de relever les bugs existants.</p></li>
+</ul>
+</div></blockquote>
+<p>Le scope du test est :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l’application web <a class="reference external" href="http://talao.co:5000/starter/">http://talao.co:5000/starter/</a></p></li>
+<li><p>Cette documentation (dans sa partie user hors Talent Connect et Internal)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="equipe-de-testeurs-et-projet-de-test">
+<h2>Equipe de testeurs et projet de test<a class="headerlink" href="#equipe-de-testeurs-et-projet-de-test" title="Permalink to this headline">¶</a></h2>
+<p>L’équipe de test est constituée de 5 personnes maximum, la durée des tests est prévue sur environ 15 jours courant juillet 2020.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Les testeurs s’engagent sur l’honneur à conserver la confidentialité de ce projet et en particulier de s’abstenir de diffuser des informations concernant ces tests sur les réseaux sociaux sans l’accord de Talao.
+Talao poura interrompre ces tests à tout moment de sa propre initiative si nécessaire.</p>
+</div>
+</div>
+<div class="section" id="environnement-technique">
+<h2>Environnement technique<a class="headerlink" href="#environnement-technique" title="Permalink to this headline">¶</a></h2>
+<p>L’application est actuellement installée sur un serveur AWS et fonctionne sur la blockchain de test Rinkeby. Les tokens TALAO et ETH utilisés sur Rinkeby n’ont pas de valeur marchande.</p>
+<p>L’application est accessible au travers d’un browser standard (Chrome, IE, Firefox, safari,…) à partir d’un Smartphone, tablette, PC.</p>
+<p>Les problèmes rencontrés sont à documenter sous la forme d’<strong>issues</strong> sur le repository <a class="reference external" href="https://github.com/thierrythevenet1963/Talao">https://github.com/thierrythevenet1963/Talao</a>.
+Pour cela il faudra ouvrir un compte sur <a class="reference external" href="https://github.com/">https://github.com/</a>. C est gratuit.</p>
+<p>La mise à jour de l’application en production est faite habituellement sur une base quotidienne (20h00).</p>
+</div>
+<div class="section" id="demarche-pour-les-testeurs">
+<h2>Démarche pour les testeurs<a class="headerlink" href="#demarche-pour-les-testeurs" title="Permalink to this headline">¶</a></h2>
+<p>Il n’est pas prévu de plan de test particulier pour les testeurs qui sont libres de manipuler l’application en fonction de leur disponibilité et de leur curiosité.</p>
+<p>Nous leur conseillons en revanche :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>de commencer par la lecture de cette documentation et en particulier des chapitres How-To et Quick Start,</p></li>
+<li><p>de commencer par explorer la base de test,</p></li>
+<li><p>de créer leur propre identité,</p></li>
+<li><p>de limiter la demande de certificats (par email) à 1 ou 2 personnes connues, sachant que systématiquement une identité sera créée pour chacune de ces personnes si celles-ci acceptent d’émettre le certificat.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Toutes les informations, images, etc de la base de test actuelle correspondent à des utilisateurs et des sociétés fictives meme si les noms sont parfois connus.</p>
+</div>
+</div>
+<div class="section" id="base-de-test">
+<h2>Base de test<a class="headerlink" href="#base-de-test" title="Permalink to this headline">¶</a></h2>
+<p>user :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>username : “pascalet”, code “123456” : pascalet (Jean Pascalet) a comme référent “jean”</p></li>
+<li><p>username : “jean”, code “123456” : jean (Jean Pierre Roulle) a comme referent BNP, pascalet, jeanpierrevalga. Jean est manager chez BNP</p></li>
+<li><p>username : “thierry” code “123456” : thierry (Thierry Thevenet) est manager chez Talao</p></li>
+<li><p>username : ‘jeanpierrevalga” code “123456” : jeanpierrevalga (Jean Pierre Valga)</p></li>
+</ul>
+</div></blockquote>
+<p>entreprise :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>username : “bnp”, code “123456” : bnp (BNP) a comme manager jean et comme partner thales et talao</p></li>
+<li><p>username : “talao” code “123456” : talao (Talao) a comme manager thierry. Talao dispose de fonctionnalités étendues pour emettre des “proof of identity” (kbis et kyc) et creer des identités.</p></li>
+<li><p>username : “thales” code “123456”</p></li>
+<li><p>username : “orange” code “123456”</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Un manager qui veut accéder à l’identité de la société dont il est manager doit se connecter avec un username double “person.company”. Exemple “jean” peut se connecter
+à l’identité “bnp” avec son username “jean.bnp”.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="internal.html" class="btn btn-neutral float-left" title="Internal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Talao
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -24,7 +24,7 @@ def setup(mode) :
 		data['address'] = row['ethereum_address']
 		data['secret'] = row['password']
 		print(data)
-		add_identity(data)
+		add_identity(data, mode)
 	
 	identity_file.close()
 	

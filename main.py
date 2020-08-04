@@ -25,7 +25,7 @@ from Crypto.PublicKey import RSA
 
 import os
 import os.path, time
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import Flask, session, send_from_directory, flash
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -80,7 +80,7 @@ RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 # Flask and Session setup	
 app = Flask(__name__)
 
-app.jinja_env.globals['Version'] = "0.5.8"
+app.jinja_env.globals['Version'] = "0.5.9"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
@@ -138,8 +138,8 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'])
 
 def check_login() :
+	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	username = session.get('username_logged')
-	print('usernam dans checklogin', username)
 	if username is None  :
 		flash('session aborted', 'warning')
 	return username
@@ -152,12 +152,12 @@ def is_username_in_list(my_list, username) :
 
 def is_username_in_list_for_partnership(partner_list, username) :
 	for partner in partner_list :
-		print ('partner = ', partner)
 		if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
 			return True
 	return False	
 
 # picture
+""" This is to download the user picture or company logo to the uploads folder """
 @app.route('/user/picture/', methods=['GET', 'POST'])
 def picture() :
 	username = check_login()
@@ -263,7 +263,6 @@ def issuer_explore() :
 		session['issuer_username'] = issuer_username
 	
 	# do something common
-
 	issuer_picture = session['issuer_explore']['picture'] 
 	
 	if session['issuer_explore']['type'] == 'person' :
@@ -555,7 +554,6 @@ def issuer_explore() :
 	
 	
 	if session['issuer_explore']['type'] == 'company' :
-		# do something specific
 
 		# kbis
 		kbis_list = session['issuer_explore']['kbis']
@@ -617,7 +615,7 @@ def issuer_explore() :
 				services = services + """<br><a class="text-success">This Company is in your Partner list.</a><br>"""
 		
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], username) :
-				services = services + """<br><a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + issuer_name + """ ">Issue a Review.</a><br>"""
+				services = services + """<br><a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + session['issuer_explore']['name'] + """ ">Issue a Review.</a><br>"""
 			else :
 				services = services + """<br><a class="text-warning">You are not in this Company Referent List.</a><br>"""
 			
@@ -740,8 +738,8 @@ def issue_certificate():
 				# look for firstname, lasname and name of manager
 				firstname_claim = Claim()
 				lastname_claim = Claim()
-				firstname_claim.get_by_topic_name(manager_workspace_contract, 'firstname', mode)
-				lastname_claim.get_by_topic_name(manager_workspace_contract, 'lastname', mode)
+				firstname_claim.get_by_topic_name(None, None, manager_workspace_contract, 'firstname', mode)
+				lastname_claim.get_by_topic_name(None, None, manager_workspace_contract, 'lastname', mode)
 				session['certificate_signatory'] = firstname_claim.claim_value + ' ' + lastname_claim.claim_value
 			elif session['type'] == 'company' :
 				session['certificate_signature'] = session['signature']
@@ -1141,7 +1139,7 @@ def issue_kyc() :
 		my_kyc['country'] = request.form['country']
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
 		kyc = Document('kyc')
-		(doc_id, ipfshash, transaction_hash) = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)		
+		kyc.talao_add(kyc_workspace_contract, my_kyc, mode)		
 		flash('New kyc added for '+ kyc_username, 'success')
 		text = 	"\r\n\r\nA Proof of Identity has been issued for you by Talao. Check your Identity.\r\n" + mode.server + 'login/'			
 		subject = 'Your proof of Identity'
@@ -1186,10 +1184,10 @@ def issue_kbis() :
 	if request.method == 'GET' :
 		return render_template('issue_kbis.html', picturefile=my_picture, username=username)
 	if request.method == 'POST' :
-		kyc = Document('kbis')
+		kbis = Document('kbis')
 		my_kbis = dict()
 		kbis_username = request.form['username']
-		kbis_workspace_contract = ns.get_data_from_username(kbis_username,mode)['workspace_contract'] 
+		#kbis_workspace_contract = ns.get_data_from_username(kbis_username,mode)['workspace_contract'] 
 		my_kbis['name'] = request.form['name']
 		my_kbis['date'] = request.form['date']
 		my_kbis['legal_form'] = request.form['legal_form']
@@ -1200,7 +1198,7 @@ def issue_kbis() :
 		my_kbis['ceo'] = request.form['ceo']
 		my_kbis['siret'] = request.form['siret']
 		my_kbis['managing_director'] = request.form['managing_director']
-		(doc_id, ipfshash, transaction_hash) = kbis.relay_add(kyc_username, my_kbis, mode, privacy='public')		
+		(doc_id, ipfshash, transaction_hash) = kbis.relay_add(kbis_username, my_kbis, mode, privacy='public')		
 		flash('New kbis added for '+ kbis_username, 'success')
 		return redirect(mode.server + 'user/?username=' + username)
 
@@ -1301,7 +1299,7 @@ def add_education() :
 		education['skills'] = request.form['skills'].split(',')
 		education['certificate_link'] = request.form['certificate_link']  		
 		privacy = 'public'
-		(doc_id, ipfshash, transaction_hash) = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)		
+		(doc_id,a,b) = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)		
 		# add experience in session
 		education['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 		education['doc_id'] = doc_id
@@ -1875,8 +1873,8 @@ def add_issuer() :
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
 		add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
 		# update issuer list in session
-		issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
-		contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
+		#issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
+		#contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 		issuer_workspace_contract = ownersToContracts(issuer_address, mode)
 		session['issuer'].append(ns.get_data_from_username(session['referent_username'], mode))	
 		# email to issuer
@@ -1906,7 +1904,7 @@ def remove_issuer() :
 								  username=username,
 								   issuer_name=session['issuer_username_to_remove'])
 	elif request.method == 'POST' :
-		address_partner = session['issuer_address_to_remove']
+		#address_partner = session['issuer_address_to_remove']
 		delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 20002, mode) 
 		session['issuer'] = [ issuer for issuer in session['issuer'] if issuer['address'] != session['issuer_address_to_remove']]
 		flash('The Issuer '+session['issuer_username_to_remove']+ '  has been removed', 'success')
@@ -1935,8 +1933,8 @@ def add_white_issuer() :
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
 		add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 5, mode, synchronous=True) 
 		# update issuer list in session
-		issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
-		contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
+		#issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
+		#contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
 		issuer_workspace_contract = ownersToContracts(issuer_address, mode)
 		session['whitelist'].append(ns.get_data_from_username(session['whitelist_username'], mode))	
 		flash(session['whitelist_username'] + ' has been added as Issuer in your White List', 'success')
@@ -1958,7 +1956,7 @@ def remove_white_issuer() :
 								  username=username,
 								   issuer_name=session['issuer_username_to_remove'])
 	elif request.method == 'POST' :
-		address_partner = session['issuer_address_to_remove']
+		#address_partner = session['issuer_address_to_remove']
 		delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 5, mode) 
 		session['whitelist'] = [ issuer for issuer in session['whitelist'] if issuer['address'] != session['issuer_address_to_remove']]
 		flash('The Issuer '+session['issuer_username_to_remove']+ '  has been removed from your White list', 'success')
@@ -1982,7 +1980,6 @@ def send_fonts(filename):
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download():
 	filename = request.args['filename']
-	print('dans la route = ', app.config['UPLOAD_FOLDER'], filename)
 	return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename, as_attachment=True)
 

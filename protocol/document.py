@@ -247,16 +247,16 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
 
 	#recuperer la cle AES cryptée
-		contract = w3.eth.contract(workspace_contract_user,abi = constante.workspace_ABI)
-		mydata = contract.functions.identityInformation().call()
-		if privacy == 'private' :
-			his_aes_encrypted = mydata[5]
-		if privacy == 'secret' :
-			his_aes_encrypted = mydata[6]
+	contract = w3.eth.contract(workspace_contract_user,abi = constante.workspace_ABI)
+	mydata = contract.functions.identityInformation().call()
+	if privacy == 'private' :
+		his_aes_encrypted = mydata[5]
+	if privacy == 'secret' :
+		his_aes_encrypted = mydata[6]
 		
 	# read la cle privee RSA sur le fichier
-	address_user = contracts_to_owners(workspace_contract_user, mode)
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+address_from+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+	address_from = contracts_to_owners(workspace_contract_from, mode)
+	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+ address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	try :
 		fp = open(filename,"r")
 		rsa_key = fp.read()
