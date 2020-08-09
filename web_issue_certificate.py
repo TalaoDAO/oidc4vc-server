@@ -306,7 +306,7 @@ def create_authorize_issue() :
 			return render_template('login.html')
 		workspace_contract = session['talent_workspace_contract']
 		address = contractsToOwners(session['talent_workspace_contract'],mode)
-		(doc_id, ipfshash, transaction_hash) = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True) 
+		doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True)[0] 
 		# message to issuer
 		flash('Thank you, the Certificate has been issued', 'success')
 		# Email to issuer
@@ -344,7 +344,7 @@ def create_authorize_issue_thread(username,
 	print('key 20002 issued')
 	# build certificate and issue
 	my_certificate = Document('certificate')
-	(doc_id, ipfshash, transaction_hash) = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True) 
+	doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True)[0]
 	print('certificat issued')
 	# send message to issuer
 	subject = 'A new certificate has been issued to ' + talent_name

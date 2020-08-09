@@ -45,13 +45,11 @@ class ExportingThread(threading.Thread):
 		claim.relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
 		
 			
-
-# centralized URL in webserver.py https://flask.palletsprojects.com/en/1.1.x/patterns/lazyloading/
+# route /authentification/
 def authentification() :
 	session.clear()
 	if request.method == 'GET' :
 		return render_template("create.html",message='')
-	
 	if request.method == 'POST' :
 		email = request.form['email']
 		session['firstname'] = request.form['firstname']

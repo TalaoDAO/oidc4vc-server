@@ -23,16 +23,14 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
 				
-                                            {% include 'user_nav_bar.html' %}    
-
-            
-            
-            
+             {% include 'user_nav_bar.html' %}    
             <div class="container-fluid">
-				
-		
-                    
-                     
+                    <h3 class="text-dark mb-4">{{name}}
+                    <a class="text-secondary" onclick="copyToClipboard('#p100')"> 
+                    <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+                    </a>
+                    <p hidden id="p100" >{{clipboard}}</p>      
+                    <h6 class="text-dark mb-4">{{profil_title}}</h6>
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                         
@@ -98,10 +96,9 @@
                                         </a>
                                     </div>
                                 </div>
-                                            
-                                        </form>
-                                    </div>
-                                </div>
+                            </form>
+                        </div>
+                    </div>
                             </div>
                         </div>
                     </div>
@@ -120,6 +117,13 @@
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>function copyToClipboard(element) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(element).text()).select();
+        document.execCommand("copy");
+        $temp.remove();
+      }</script>
    
   
 </body>

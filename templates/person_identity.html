@@ -42,20 +42,13 @@
 
             
             <div class="container-fluid">
-                </div>
-                
-               
 							<h3 class="text-dark mb-4">{{name}}
-							
-							
 							<a class="text-secondary" onclick="copyToClipboard('#p100')"> 
 							<i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
 							</a>
-							<p hidden id="p100" >{{clipboard}}</p>
-                        
-                 <h6 class="text-dark mb-4">{{profil_title}}</h6>
+							<p hidden id="p100" >{{clipboard}}</p>      
+                            <h6 class="text-dark mb-4">{{profil_title}}</h6>
       
-        
                 <div class="row">
 					
                        <div class="col-xl-8 offset-xl-2">
@@ -118,7 +111,7 @@
                                      
                                         <div class="card">
                                             <div class="card-header" role="tab" title="The Data Store is a digital personal storage to save your files (public or encrypted). Much more secured than traditional Cloud Services.">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp; Data Store</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp; File Store</a></h5>
                                             </div>                               
                                             <div class="collapse  item-5" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>
@@ -192,7 +185,7 @@
                                 </div>
                             </div>
                            
-                         
+                         <!--
                             <div class="card shadow mb-5">
                                 <div class="card-body">
                                         <h4 title="Services available." class="text-center">Services</h4>
@@ -252,7 +245,7 @@
                                                 </div>
                                             </div>
                                         </div>           
-                                                                                                                     
+                                    -->                                                                    
                                     </div>
                                </div>
                             </div>

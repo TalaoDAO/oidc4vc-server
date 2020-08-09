@@ -140,9 +140,10 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(transaction_hash)		
-	
+	if synchronous :
+		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+		if receipt['status'] == 0 :
+			return None
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
@@ -181,9 +182,10 @@ def update_document(address_from, workspace_contract_from, address_to, workspace
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(transaction_hash)		
-	
+	if synchronous  :
+		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+		if receipt['status'] == 0 :
+			return None
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
@@ -209,10 +211,12 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	
 	# get transaction info
 	contract = w3.eth.contract(workspace_contract_user, abi=constante.workspace_ABI)
-	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
 	event_list = claim_filter.get_all_entries()
+	found = False
 	for doc in event_list :
 		if doc['args']['id'] == documentId :
+			found = True
 			transactionhash = doc['transactionHash']
 			transaction_hash = transactionhash.hex()
 			try : 
@@ -228,7 +232,10 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 			gas_used = 1000				
 			#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 			created = str(date)
-
+			break
+	if not found :
+		print('erreur event list dans get_document')
+		return None
 	# recuperation du msg 
 	data = ipfs_get(ipfshash.decode('utf-8'))
 	# calcul de la date
@@ -289,7 +296,6 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
 	w3 = mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token
 	nonce = w3.eth.getTransactionCount(address_from)  
 	# Build transaction
 	txn = contract.functions.deleteDocument(int(documentId)).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
@@ -297,7 +303,9 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		return None
 	#transaction = w3.eth.getTransaction(transaction_hash)
 	#gas_price = transaction['gasPrice']
 	#block_number = transaction['blockNumber']

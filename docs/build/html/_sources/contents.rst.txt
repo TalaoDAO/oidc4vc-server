@@ -36,15 +36,20 @@ The objective of this centralized platform is to simplify the onboarding process
 .. note:: Depending on user choice the Talao Professional Identity Relay will have parts of information about cryptographic keys. Read more on :doc:`/privacy`.  
 
 
-Dynamic Password
-----------------
+Two-factors authentification
+----------------------------
 
-The Talao Relay uses dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login, 
-instead of entering their usual static password every time, they would simply input a unique, machine generated password.
-This dynamic password is received on the user's Email provided for registration (Authentificaton Email).
+`Wikipedia <https://en.wikipedia.org/wiki/Multi-factor_authentication>`_ : "Multi-factor authentication is an authentication method in which a computer user is granted access only after successfully presenting two or more pieces of evidence (or factors) to an authentication mechanism: knowledge (something the user and only the user knows), possession (something the user and only the user has), and inherence (something the user and only the user is).
+Two-factor authentication (also known as 2FA) is a type, or subset, of multi-factor authentication. It is a method of confirming users' claimed identities by using a combination of two different factors: 1) something they know, 2) something they have, or 3) something they are."
+
+The Talao Relay uses two-factors authentification. Dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login, 
+he enters his usual static password and a machine generated password (named secret code).
+The dynamic password is received on the user's Email or Phone(sms) provided for registration.
 
 Dynamic passwords are convenient because they don’t have to be remembered, and because the password is never the same, they serve as a major roadblock for hackers
 who may be looking to break into user accounts.
+
+.. note:: By default at setup the static password is 'identity' and dynamic passwords (named codes) are sent by email. Once logged, one can change the static password and choose sms to receive dynamic passwords.
 
 
 Distributed Identity vs Centralized

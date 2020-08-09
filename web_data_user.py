@@ -35,11 +35,11 @@ mode = environment.currentMode()
 w3 = mode.w3
 
 def check_login() :
-	username = session.get('username_logged')
-	if username is None  :
-		flash('session aborted', 'warning')
-	return username
-
+	""" check if the user is correctly logged. This function is called everytime a user function is called """
+	if session.get('username_logged') is None :
+		abort(403)
+	else :
+		return session['username_logged']
 
 
 def send_secret_code (username, code) :
@@ -71,8 +71,7 @@ def starter() :
 				return redirect(mode.server + 'starter/') # tobe done
 			else :
 				pass
-
-
+			
 
 #@app.route('/login/', methods = ['GET', 'POST'])
 def login() :
@@ -81,8 +80,7 @@ def login() :
 	if request.method == 'POST' :
 		session.clear()
 		session['username_to_log'] = request.form['username'].lower()
-		exist  = ns.get_data_from_username(session['username_to_log'], mode)
-		if exist is None :
+		if ns.get_data_from_username(session['username_to_log'], mode) is None :
 			flash('Username not found', "warning")		
 			return render_template('login.html')
 		# secret code to send by email or sms
@@ -91,30 +89,36 @@ def login() :
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
 			# send code by sms if phone exist else email
-			support = send_secret_code(session['username_to_log'], session['code'])
-			if support is None :
+			session['support'] = send_secret_code(session['username_to_log'], session['code'])
+			if session['support'] is None :
 				flash("Problem to send code", 'warning')
 				return render_template('login.html')
 			else :
 				print('secret code sent = ', session['code'])
-				flash("Secret code sent by " + support, 'success')
-		return render_template("login_2.html", support=support)
+				flash("Secret code sent by " + session['support'], 'success')
+		return render_template("authentification.html", support=session['support'])
 
 # recuperation du code saisi
 #@app.route('/login/authentification/', methods = ['POST'])
-def login_2() :
+def login_authentification() :
 	if session.get('username_to_log') is None or session.get('code') is None :
 		flash("Authentification expired", "warning")		
 		return render_template('login.html')
 	code = request.form['code']
+	password =request.form['password']
 	session['try_number'] +=1
-	print('code retourné = ', code)
 	
+	if not ns.check_password(session['username_to_log'], password, mode) :
+		flash("Wrong password", "warning")
+		return render_template("authentification.html", support=session['support'])
+	
+	print('code retourné = ', code)
 	if code in [session['code'], "123456"] and datetime.now() < session['code_delay'] : # pour les tests
 		session['username_logged'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']
 		del session['code'] 
+		del session['support']
 		return redirect(mode.server + 'user/')		
 	
 	elif session['code_delay'] < datetime.now() :
@@ -130,12 +134,12 @@ def login_2() :
 			flash('This code is incorrect, 2 trials left', 'warning')
 		if session['try_number'] == 3 :
 			flash('This code is incorrect, 1 trial left', 'warning')
-		return render_template("login_2.html")	
+		return render_template("authentification.html", support=session['support'])	
 	
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout() :
-	
+	check_login()
 	# delete picture, signateure and files before logout
 	try :	
 		os.remove(mode.uploads_path + session['picture'])
@@ -161,17 +165,15 @@ def forgot_username() :
 	if request.method == 'POST' :
 		username_list = ns.get_username_list_from_email(request.form['email'], mode)
 		if username_list == [] :
-			msg = 'There is no Identity with this Email'
-			flash(msg , 'warning')
+			flash('There is no Identity with this Email' , 'warning')
 		else :
-			msg = 'This Email is already used by Identities : ' + ", ".join(username_list)  
-			flash(msg , 'success')
+			flash('This Email is already used by Identities : ' + ", ".join(username_list) , 'success')
 		return render_template('login.html')
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
 def use_my_own_address() :
 	flash("Feature not available yet.", "warning")
-	return redirect(mode.server + 'login/')	
+	return render_template('login.html')
 	
 	
 ############################################################################################
@@ -182,39 +184,30 @@ def use_my_own_address() :
 
 #@app.route('/data/<dataId>', methods=['GET'])
 def data(dataId) :
-	username = check_login()
-	if username is None :
-		return redirect(mode.server + 'login/')	
-	mypicture = 'anonymous1.jpeg' if session.get('picture') is None else session['picture']		
+	check_login()
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
-	
 	if support == 'document' : 
 		doc_id = int(dataId.split(':')[5])			
 		my_topic = dataId.split(':')[6]
-		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education', 'skills'] :
-			my_data = Document(my_topic)
-			exist = my_data.relay_get(workspace_contract, doc_id, mode) 	
-		else :
+		my_data = Document(my_topic)
+		exist = my_data.relay_get(workspace_contract, doc_id, mode) 	
+		if exist is None :
 			print('Error data in webserver.py, Class instance needed')	
-			return
-		
+			return redirect(mode.server + 'user/')
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
-	
 	if support == 'claim' :
 		claim_id = dataId.split(':')[5]
 		my_data = Claim()
-		my_data.get_by_id(session['workspace_contract'], session['private_key_value'], workspace_contract, claim_id, mode) 
+		my_data.get_by_id(session.get('workspace_contract'), session.get('private_key_value'), workspace_contract, claim_id, mode) 
 		expires = 'Unlimited'
 		my_topic = 'Personal'
-		
 	myvisibility = my_data.privacy
 	issuer_is_white = False
 	for issuer in session['whitelist'] :
 		if issuer['workspace_contract'] == my_data.issuer['workspace_contract'] :
 			issuer_is_white = True 		
-	
 	
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
@@ -232,9 +225,9 @@ def data(dataId) :
 				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
 	
 	if my_data.issuer['workspace_contract'] == mode.relay_workspace_contract  :
-		myissuer = myissuer + """<a class="text-warning" >Relay has issued on behalf of """ + session['name'] + """</a>"""
+		myissuer = myissuer + """<a class="text-warning" >Relay has issued on behalf of """ + session.get('name', 'Unknown') + """</a>"""
 		
-	elif my_data.issuer['workspace_contract'] == session['workspace_contract'] :					
+	elif my_data.issuer['workspace_contract'] == session.get('workspace_contract') :					
 		myissuer = myissuer + """
 				 <a class="text-warning">Self Declaration</a>	
 				</span>"""
@@ -275,8 +268,6 @@ def data(dataId) :
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>	
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
-		
-	
 	# value
 	if my_topic.lower() == "experience"  :
 		mytitle = my_data.title
@@ -296,10 +287,7 @@ def data(dataId) :
 		mytitle = "Skills"
 		mysummary = "" 
 		myvalue = ""
-		#myvalue = """<b>Data</b> : """+ my_data.description 
-	
-				
-				
+
 	elif my_topic.lower() == "education" :
 		mytitle = my_data.title
 		mysummary = my_data.description	
@@ -314,7 +302,6 @@ def data(dataId) :
 				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
 				<li><b>Skills</b> : """+ " ".join(my_data.skills) +"""<br></li>
 				<li><b>Diploma Link</b> : """+  my_data.certificate_link+"""</li>"""
-	
 	
 	elif my_topic.lower() == "certificate" :
 		if my_data.type == 'experience' :
@@ -336,9 +323,7 @@ def data(dataId) :
 				<b>Data</b>
 				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
 				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""		
-				
-				
-
+	
 	elif my_topic.lower() == "kbis" :
 		mytitle = "Kbis validated"
 		mysummary = ""		
@@ -352,9 +337,7 @@ def data(dataId) :
 				<li><b>Capital</b> : """+ my_data.capital + """<br></li>		
 				<li><b>Naf</b> : """+ my_data.naf + """<br></li>	
 				<li><b>Activity</b> : """+ my_data.activity+"""</li>""" 
-
-
-
+	
 	elif my_topic.lower() == "kyc" :
 		mytitle = "ID validated by Talao"
 		mysummary = ""		
@@ -369,34 +352,19 @@ def data(dataId) :
 				<li><b>Date of Expiration</b> : """+ my_data.date_of_expiration + """<br></li>
 				<li><b>Authority</b> : """+ my_data.authority + """<br></li>
 				<li><b>Country</b> : """+ my_data.country+"""</li>"""
-			
-				 
-
+	
 	elif my_topic.lower() == 'personal' :
 		mytitle = 'Profil'
 		mysummary = ''		
 		myvalue = """<b>Data</b> : """+ my_data.claim_value 
-
+	
 	else :
 		print('erreur my_topic dans data de webserver.py')
-		return
+		return redirect(mode.server + 'user/')
 			
-	mydelete_link = "/talao/api/data/delete/"
-	
-	goback = "/user/"
 	my_verif =  myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
-	
-	return render_template('data_check.html',
-							picturefile = mypicture,
-							name = session['name'],
-							username = username,
-							goback=goback,
-							verif=my_verif,
-							)
+	return render_template('data_check.html', **session['menu'], verif=my_verif)
 		
-	
-
-
 
 #######################################################################################
 #                        USER
@@ -407,9 +375,7 @@ def data(dataId) :
 def user() :
 	username = check_login()
 	if username is None :
-		return redirect(mode.server + 'login/')	
-	
-
+		abort(403)
 	if session.get('uploaded') is None :
 		print('start first instanciation user')
 		if mode.test :
@@ -444,6 +410,7 @@ def user() :
 		session['token'] = user.token
 		session['rsa_key'] = user.rsa_key
 		session['rsa_key_value'] = user.rsa_key_value
+		session['rsa_filename'] =  session['address'] + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 		session['private_key'] = user.private_key
 		session['private_key_value'] = user.private_key_value
 		session['relay_activated'] = user.relay_activated
@@ -451,14 +418,12 @@ def user() :
 		session['identity_file'] = user.identity_file
 		session['name'] = user.name
 		session['secret'] = user.secret
-		
 		session['picture'] = user.picture
-		#if not os.path.exists(mode.uploads_path + session['picture']) :
-		#	Talao_ipfs.get_picture(session['picture'], mode.uploads_path + session['picture'])
 		session['signature'] = user.signature		
-		#if not os.path.exists(mode.uploads_path + session['signature']) :
-		#	Talao_ipfs.get_picture(session['signature'], mode.uploads_path + session['signature'])
-			
+		session['test'] = mode.debug
+
+		phone =  ns.get_data_from_username(session['username'], mode)['phone']
+		session['phone'] = phone if phone is not None else ""
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
@@ -468,7 +433,15 @@ def user() :
 			session['profil_title'] = user.profil_title		
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
-		
+			session['profil_title'] = ""
+		session['menu'] = {'picturefile' : user.picture,
+							'username' : username,
+							'name' : user.name,
+							'private_key_value' : user.private_key_value,
+							'rsa_filename': session['rsa_filename'],
+							'profil_title' : session['profil_title'],
+							'clipboard' : mode.server  + "guest/?workspace_contract=" + session['workspace_contract']}
+								
 		# welcome message
 		message = ""
 		if not session['private_key'] :
@@ -478,7 +451,11 @@ def user() :
 		if message != "" :
 			flash(message + "Some features will not be available", 'warning')	
 		else :
-			flash('Welcome ! ', 'success')	
+			flash('Welcome ! ', 'success')
+
+		# ask update password messsage
+		if ns.must_renew_password(session['username'], mode) :
+			return render_template('ask_update_password.html', **session['menu'])
 		
 	# account	
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
@@ -520,18 +497,24 @@ def user() :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
 	
-	# Import Private Key
-	if not session['private_key'] :
-		my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
 	
-	# upload RSA Key
-	if not session['rsa_key'] :
-		my_advanced = my_advanced + """<br><a href="/user/import_rsa_key/">Import RSA Key</a><br>"""
 	
-	# Add/update phone number
-	phone =  ns.get_data_from_username(session['username'], mode)['phone']
-	phone = phone if phone is not None else ""
-	my_advanced = my_advanced + """<br><a href="/user/update_phone/">Add or update your phone number for authentification.</a><br>"""
+	# upload or download RSA Key
+	#if not session['rsa_key'] :
+	#	my_advanced = my_advanced + """<br><a href="/user/import_rsa_key/">Import RSA Key</a><br>"""
+	#else :
+	#	my_advanced = my_advanced + """<br><a href="/user/download_rsa_key/?filename=""" + session['rsa_filename'] + """" class="text-secondary" >Download RSA key
+	#						<i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-download" title="Download RSA key"></i></a></br>"""						
+
+	# Import or copy to clipboard Private Key
+	#if not session['private_key'] :
+	#	my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
+	#else :
+	#	my_advanced = my_advanced + """<br><a class="text-secondary" onclick="copyToClipboard('#p200')">Copy private key to Clipboard
+	#						<i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy private key to Clipboard."></i>
+	#						</a>
+	#						<p hidden id="p200" >""" + session['private_key_value'] + """</p><br>"""
+	
 		
 	# TEST only
 	if mode.debug :
@@ -539,7 +522,7 @@ def user() :
 	
 	# Partners
 	if session['partner'] == [] :
-		my_partner = """<a class="text-warning">No partner available</a>"""
+		my_partner = """<a class="text-info">No Partners available</a>"""
 	else :
 		my_partner = ""	 
 		for partner in session['partner'] :
@@ -571,7 +554,7 @@ def user() :
 	
 	# Issuer for document, they have an ERC725 key 20002	
 	if session['issuer'] == [] :
-		my_issuer = """  <a class="text-warning">No data available</a>"""
+		my_issuer = """  <a class="text-info">No Referents available</a>"""
 	else :
 		my_issuer = ""		
 		for one_issuer in session['issuer'] :
@@ -591,7 +574,7 @@ def user() :
 
 	# whitelist	
 	if session['whitelist'] == [] :
-		my_white_issuer = """  <a class="text-warning">No data available</a>"""
+		my_white_issuer = """  <a class="text-info">No Whitelist available</a>"""
 	else :
 		my_white_issuer = ""		
 		for issuer in session['whitelist'] :
@@ -609,12 +592,13 @@ def user() :
 			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
 	
 
-	
-	
-	# file
-	my_file = """<a href="/user/store_file/">Add Files</a><hr>"""
-	for one_file in session['identity_file'] :
-		file_html = """
+	# files
+	if session['identity_file'] == [] :
+		my_file = """<a class="text-info">No Files available</a>"""
+	else : 
+		my_file = ""
+		for one_file in session['identity_file'] :
+			file_html = """
 				<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>			
 				<b>Created</b> : """+ one_file['created'] + """<br>
 				<p>
@@ -626,20 +610,17 @@ def user() :
 						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
 					</a>
 				</p>"""	
-		my_file = my_file + file_html 
+			my_file = my_file + file_html 
 	
 						
 ####################################################################################################
 	# specific to person
 ####################################################################################################	
 	if session['type'] == 'person' :
-	
-	# experience
-	
-		my_experience = """<a href="/user/add_experience/">Add Experience</a><hr>"""
-		
+		# experience
+		my_experience = ""
 		if len (session['experience']) == 0:
-			my_experience = my_experience + """<a class="text-danger">No Data Available</a>"""
+			my_experience = my_experience + """<a class="text-info">No Experience available</a>"""
 		else :
 			for experience in session['experience'] :
 				exp_html = """
@@ -658,26 +639,12 @@ def user() :
 				my_experience = my_experience + exp_html + "<hr>"
 		
 		# skills
-		# session[skills'] =  {'version' : 1,   description: [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
 		if session['skills'] is None or session['skills'].get('id') is None :
-			my_skills =  """<a href="/user/update_skills/">Add Skills</a><hr>
-									<a class="text-danger">No Data Available</a>"""
+			my_skills =  """<a class="text-info">No Skills available</a>"""
 		else : 
-			my_skills = """<a href="/user/update_skills/">Update Skills</a><hr>"""
+			my_skills = ""
 			for skill in session['skills']['description'] :
-				skill_html = """
-				"""+ skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>			
-	<!--			<b>Domain</b> : """+skill['skill_domain'] + """<br>  
-				<b>Level</b> : """+ skill['skill_level'] + """...<br> 
-				<p>
-					<a class="text-secondary" href="/user/remove_experience/?experience_id="""  + """>
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-					
-					<a class="text-secondary" href=/data/""" + """:experience>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>  -->"""	  
+				skill_html = skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>"""			
 				my_skills = my_skills + skill_html 
 			my_skills = my_skills + """
 				<p>
@@ -687,9 +654,9 @@ def user() :
 				</p>"""		
 			
 		# education
-		my_education = """<a href="/user/add_education/">Add Education</a><hr>"""
+		my_education = ""
 		if len (session['education']) == 0:
-			my_education = my_education + """<a class="text-danger">No Data Available</a>"""
+			my_education = my_education + """<a class="text-info">No Education available</a>"""
 		else :
 			for education in session['education'] :
 				edu_html = """
@@ -717,7 +684,7 @@ def user() :
 				'contact_phone' : 'Contact Phone',
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}							
-		my_personal = """<a href="/user/update_personal_settings/">Update your Details</a><br><hr>"""
+		my_personal = ""
 		for topicname in session['personal'].keys() :
 			if session['personal'][topicname]['claim_value'] is not None :
 				topicname_value = session['personal'][topicname]['claim_value']
@@ -765,7 +732,6 @@ def user() :
 			my_access = ""
 		else :
 			display_alias = True
-			my_access_start = """<a href="/user/add_alias/">Add an Alias</a><hr> """
 			my_access = ""
 			access_list = ns.get_alias_list(session['workspace_contract'], mode)
 			for access in access_list :
@@ -781,14 +747,11 @@ def user() :
 						</a>
 					</span>"""	
 				my_access = my_access + access_html + """<br>""" 
-			my_access = my_access_start + my_access
 	
 		# certificates
-		#my_certificates  = """<a href="/user/request_certficate/">Request new certificates</a>"""
 		my_certificates = ""
-		
 		if len (session['certificate']) == 0:
-			my_certificates = my_certificates + """<a class="text-danger">No Data Available</a>"""
+			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
 		else :
 			for counter, certificate in enumerate(session['certificate'],1) :		
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
@@ -805,8 +768,6 @@ def user() :
 				if certificate['type'] == 'experience':
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>			
-								<b>Referent Username</b> : """ + issuer_username +"""<br> 
-								<b>Referent Type</b> : """ + issuer_type + """<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
 								<b>Title</b> : """ + certificate['title']+"""<br>
 								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
@@ -831,8 +792,6 @@ def user() :
 				if certificate['type'] == 'recommendation':
 					cert_html = """<hr> 
 								<b>Referent Name</b> : """ + issuer_name +"""<br>			
-								<b>Referent Username</b> : """ + issuer_username +"""<br> 
-								<b>Referent Type</b> : """ + issuer_type + """<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
 								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
 
@@ -855,9 +814,8 @@ def user() :
 				my_certificates = my_certificates + cert_html
 		
 		return render_template('person_identity.html',
-							name=session['name'],
+							**session['menu'],
 							display_alias = display_alias,
-							profil_title=session['profil_title'],
 							personal=my_personal,
 							kyc=my_kyc,
 							experience=my_experience,
@@ -869,17 +827,10 @@ def user() :
 							issuer=my_issuer, 
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
-							picturefile=session['picture'],
 							digitalvault= my_file,
-							clipboard= mode.server  + "guest/?workspace_contract=" + session['workspace_contract'],
-							username=session['username'])	
-
-####################################################################################################
+							)
 	# specific to company
-####################################################################################################	
-
-	else :
-		
+	if session['type'] == 'company' :
 		# Manager
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
 			display_manager = False
@@ -903,7 +854,6 @@ def user() :
 					</span>"""	
 				my_access = my_access + access_html + """<br>""" 
 			my_access = my_access_start + my_access
-		
 		
 		# API
 		my_api = """ 
@@ -935,7 +885,6 @@ def user() :
 					</a>
 				"""	
 				my_kbis = my_kbis + kbis_html		
-	
 		
 		# company settings
 		my_personal = """<a href="/user/picture/">Change Logo</a><br>
@@ -954,18 +903,158 @@ def user() :
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 		
 		return render_template('company_identity.html',
+							**session['menu'],
 							manager=my_access,
 							display_manager= display_manager,
-							name = session['name'],
 							personal=my_personal,
 							kbis=my_kbis,
 							partner=my_partner,
 							api=my_api,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
-							picturefile=session['picture'],
-							digitalvault=my_file,
-							username=session['username'])	
+							digitalvault=my_file)
 		
-		
-###########################  END OF USER #####################################	
+
+def user_advanced() :
+	check_login()
+
+	# account	
+	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
+					<b>token TALAO</b> : """ + str(session['token'])
+	if session['username'] == 'talao' :
+		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
+		relay_token = float(token_balance(mode.relay_address,mode))	
+		talaogen_eth = mode.w3.eth.getBalance(mode.Talaogen_public_key)/1000000000000000000
+		talaogen_token = float(token_balance(mode.Talaogen_public_key, mode))
+		my_account = my_account + """<br><br> 
+					<b>Relay ETH</b> : """ + str(relay_eth) + """<br>
+					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
+					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
+					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
+
+	# Alias
+	if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
+		display_alias = False
+		my_access = ""
+	else :
+		display_alias = True
+		my_access = ""
+		access_list = ns.get_alias_list(session['workspace_contract'], mode)
+		for access in access_list :
+			if access['username'] == session['username'] :
+				access_html = """
+				<span>""" + session['username'] + """ (logged)					
+				</span>"""
+			else :
+				access_html = """
+				<span>""" + access['username'] + """ : """ +  access['email'] +"""
+						<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
+							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
+						</a>
+					</span>"""	
+			my_access = my_access + access_html + """<br>""" 
+
+	# Advanced
+	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
+	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
+	relay_private_key = 'Yes' if session['private_key'] else 'No'
+	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
+	my_advanced = """
+					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
+					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
+					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""					
+	if session['username'] != 'talao' :
+		if relay == 'Activated' :
+			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
+		else :
+			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<a class ="text-warning" >You cannot store data.</a><br>"""
+			
+		if relay_rsa_key == 'Yes' :
+			my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
+		else :
+			my_advanced = my_advanced +"""<b>RSA Key</b> : """ + relay_rsa_key + """<br><a class ="text-warning" >You cannot store and access private and secret data.</a><br>"""
+	
+		if relay_private_key == 'Yes' :
+			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
+		else :
+			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
+	my_advanced = my_advanced + "<hr>" + my_account 
+	
+	# Partners
+	if session['partner'] == [] :
+		my_partner = """<a class="text-info">No Partners available</a>"""
+	else :
+		my_partner = ""	 
+		for partner in session['partner'] :
+			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
+			#partner_username = 'Unknown' if partner_username is None else partner_username
+			partner_username = partner['username']
+			if partner['authorized'] == 'Pending' :
+				partner_html = """
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
+					<a class="text-secondary" href="/user/reject_partner/?partner_username=""" + partner_username+"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
+						<i data-toggle="tooltip" class="fa fa-thumbs-o-down" title="Reject this Partnership.">&nbsp&nbsp&nbsp</i>
+					</a>
+					<a class="text-secondary" href="/user/authorize_partner/?partner_username=""" + partner_username + """&amp;partner_workspace_contract=""" + partner['workspace_contract']+ """">
+						<i data-toggle="tooltip" class="fa fa-thumbs-o-up" title="Authorize this Parnership."></i>
+					</a>
+				</spn>"""	
+			elif partner['authorized'] == 'Removed' :
+				partner_html = """
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  					
+				</spn>"""
+			else :			
+				partner_html = """
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
+					<a class="text-secondary" href="/user/remove_partner/?partner_username=""" + partner_username +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove this Partnership.">&nbsp&nbsp&nbsp</i>					
+				</spn>"""
+			my_partner = my_partner + partner_html + """<br>"""
+	
+	
+	# Issuer for document, they have an ERC725 key 20002	
+	if session['issuer'] == [] :
+		my_issuer = """  <a class="text-info">No Referents available</a>"""
+	else :
+		my_issuer = ""		
+		for one_issuer in session['issuer'] :
+			issuer_username = ns.get_username_from_resolver(one_issuer['workspace_contract'], mode)
+			issuer_username = 'Unknown' if issuer_username is None else issuer_username
+			issuer_html = """
+				<span>""" + issuer_username + """
+					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+one_issuer['address']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+					</a>
+					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</span>"""
+			my_issuer = my_issuer + issuer_html + """<br>"""
+	
+
+	# whitelist	
+	if session['whitelist'] == [] :
+		my_white_issuer = """  <a class="text-info">No Whitelist available</a>"""
+	else :
+		my_white_issuer = ""		
+		for issuer in session['whitelist'] :
+			issuer_username = ns.get_username_from_resolver(issuer['workspace_contract'], mode)
+			issuer_username = 'Unknown' if issuer_username is None else issuer_username
+			issuer_html = """
+				<span>""" + issuer_username + """
+					<a class="text-secondary" href="/user/remove_white_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+issuer['address']+"""">
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+					</a>
+					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</span>"""
+			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
+	
+	return render_template('advanced.html',
+							**session['menu'],
+							access=my_access,
+							partner=my_partner,
+							issuer=my_issuer, 
+							whitelist=my_white_issuer,
+							advanced=my_advanced)

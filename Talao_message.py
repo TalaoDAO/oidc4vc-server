@@ -68,8 +68,6 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 					mode.BLOCKCHAIN,
 					'\r\nAddress : ',
 					str(eth_a),
-					'\r\nPrivate Key : ',
-					str(eth_p),
 					'\r\nWorkspace Address : ',
 					str(workspace_contract_address),
 					'\r\nStatus : ',
@@ -138,34 +136,31 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 					mode.BLOCKCHAIN,
 					'\r\nYour Blockchain Address : ',
 					str(eth_a),
-					'\r\nYour Private Key : ',
-					str(eth_p),
 					'\r\nYour Decentralized IDentitier (DID) : did:talao:',
 					mode.BLOCKCHAIN,
 					':',
 					str(workspace_contract_address)[2:]])
 					
-	footer='\r\n\r\nA RSA key is attached to this email, Keep it with your Private Key secretely.\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
+	footer='\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
 	body= body + footer + signature
 	msg.attach(MIMEText(body, 'plain')) 
 
+	"""
 	# open the file to be sent
 	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	attachment = open(path, "rb") 
-
 	# instance of MIMEBase and named as p 
 	p = MIMEBase('application', 'octet-stream') 
-
 	# To change the payload into encoded form 
 	p.set_payload((attachment).read()) 
-
 	# encode into base64 
 	encoders.encode_base64(p) 
 	p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
 	# attach the instance 'p' to instance 'msg' 
 	msg.attach(p) 
-	
+	"""
+
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	s.starttls() 

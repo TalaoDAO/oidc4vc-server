@@ -83,7 +83,7 @@ class currentMode() :
 			self.ether2transfer = 40	
 			self.talao_to_transfer = 101
 			self.talao_bonus = 10
-			
+			self.fromBlock= 5800000
 			self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 			#self.datadir = "/mnt/ssd/rinkeby" 						
@@ -117,7 +117,7 @@ class currentMode() :
 			self.talao_to_transfer = 101
 			self.talao_bonus = 10
 			self.start_block = 0
-			
+			self.fromBlock= 5800000
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
 			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))	 	
 			#self.datadir="/mnt/ssd/ethereum"

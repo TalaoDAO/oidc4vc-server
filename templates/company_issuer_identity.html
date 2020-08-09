@@ -41,10 +41,6 @@
              {% else %} 
                  {% include 'user_nav_bar.html' %} 
              {% endif %}
-                           
-
-            
-            
             
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{issuer_name}}</h3>
@@ -77,12 +73,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                       
-                             
-                         
-                                 
-                                        
-                                        
                                         
                                     </div>
                                 </div>
@@ -95,7 +85,7 @@
 											
 											{{services|safe}}
 											
-											<a class="card-link" href="/user/"><div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div></a>
+											<div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
 										</div>  
                                  
                                      
@@ -119,6 +109,7 @@
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>function goBack() {  window.history.back();}</script>
 </body>
 
 </html>

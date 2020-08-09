@@ -14,127 +14,72 @@ import Talao_ipfs
 import Talao_message
 import constante
 
-
-############################################################
-# appel de ownersToContracts de la fondation
-############################################################
-#
-# Owners (EOA) to contract addresses relationships.
-#   mapping(address => address) public ownersToContracts;
-
 def ownersToContracts(address, mode) :
 	w3 = mode.w3
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 	
-	
-###########################################################
-# remove workspace	
-############################################################	
-# function destroyWorkspace() external onlyIdentityOwner {
-#        if (cleanupPartnership() && foundation.renounceOwnershipInFoundation()) {
-#            selfdestruct(msg.sender);	
-
 def destroyWorkspace(workspace_contract, private_key, mode) :
+	# remove workspace
 	w3 = mode.w3
 	address=contractsToOwners(workspace_contract, mode)
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	
 	# calcul du nonce de l envoyeur de token
 	nonce = w3.eth.getTransactionCount(address)  
-	
 	# Build transaction
 	txn = contract.functions.destroyWorkspace().buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-		
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)		
 	return hash1
-	
 
-############################################################
-# appel de contractsToOwners de la fondation
-############################################################
-#
 def contractsToOwners(workspace_contract, mode) :
 	w3 = mode.w3
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address	
 
-
-
-############################################################
-# Transfert de tokens  Talao depuis le portefeuille TalaoGen 
-############################################################
-
 def token_transfer(address_to, value, mode) :
-	
+	""" Transfert de tokens  Talao depuis le portefeuille TalaoGen """ 
 	w3 = mode.w3
-
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
-
 	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen
 	nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key)  
-
 	# Build transaction
 	valueTalao=value*10**18	
 	w3.eth.defaultAccount=mode.Talaogen_public_key
 	print ("token balance Talaogen = ", token_balance(mode.Talaogen_public_key,mode))
 	# tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
-	hash1=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
-	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
-	
-	return hash1.hex()
-	
+	transaction_hash=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
+	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+	if receipt['status'] == 0 :
+		return None
+	return transaction_hash.hex()
 
-###############################################################
-# Transfert d'ether depuis le portefuille TalaoGen
-#
-# attention value est en millieme d ether
-###############################################################
-
-def ether_transfer(address_to, value, mode) :
-	
+def ether_transfer(address_to, value, mode) :	
 	w3 = mode.w3
-	
 	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen	
 	talaoGen_nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key) 
-
 	# build transaction
 	eth_value=w3.toWei(str(value), 'milli')
 	transaction = {'to': address_to,'value': eth_value,'gas': 50000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': talaoGen_nonce,'chainId': mode.CHAIN_ID}
-
 	#sign transaction with TalaoGen wallet
 	key = mode.Talaogen_private_key
 	signed_txn = w3.eth.account.sign_transaction(transaction, key)
-
 	# alert Admin
-	address=mode.Talaogen_public_key
-	balance =w3.eth.getBalance(address)/1000000000000000000
+	address = mode.Talaogen_public_key
+	balance = w3.eth.getBalance(address)/1000000000000000000
 	if balance < 0.2 :
 		Talao_message.messageAdmin('nameservice', 'balance Talaogen < 0.2eth', mode)
-		
-	#w3.eth.defaultAccount=mode.Talaogen_public_key
-
-	#signed_txn = w3.eth.signTransaction(dict(nonce=talaoGen_nonce,gasPrice=w3.toWei(mode.GASPRICE, 'gwei'),gas=50000,to=address_to,value=eth_value,data=b'',))
-	
-	# send transaction
-	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000)	
+	hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000)
+	if receipt['status'] == 0 :
+		return None	
 	return hash
-
-
-
-###############################################################
-# Balance d'un compte en token Talao
-#
-###############################################################
 
 def token_balance(address,mode) :
 	w3 = mode.w3
@@ -143,72 +88,40 @@ def token_balance(address,mode) :
 	balance=raw_balance//10**18
 	return balance
 
-############################################################
-# appel de createVaultAcces (uint price) 
-############################################################
-
 def createVaultAccess(address,private_key,mode) :
 	w3 = mode.w3
-
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
-
 	# calcul du nonce de l envoyeur de token 
 	nonce = w3.eth.getTransactionCount(address)  
-
 	# Build transaction
 	txn = contract.functions.createVaultAccess(0).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 150000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-	
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
 	return hash
 
-
-############################################################
-# creation d'un workspace
-############################################################
-
 def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
 	w3 = mode.w3
-
 	contract=w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
-
 	# calcul du nonce de l envoyeur de token . Ici le caller
 	nonce = w3.eth.getTransactionCount(address)  
-
 	# Build transaction
 	txn=contract.functions.createWorkspace(1001,1,1,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-	
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)	
 	return hash
- 
 
-###################################################################
-#  authorize partnership, from user to partner
-###################################################################
-#     */
-#    function authorizePartnership(address _hisContract, bytes _ourSymetricKey)
-#        external
-#        onlyIdentityPurpose(1)
-#   {
-
-
-def authorize_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner, user_rsa_key, mode, synchronous = True) :
-	
+def authorize_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner, user_rsa_key, mode, synchronous = True) :	
 	# user = address_to
 	w3 = mode.w3
-	
 	partner_address = contractsToOwners(workspace_contract_partner, mode)			
-
 	# if partner owner has a claim 3 key, it has to be removed first. 
 	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
 	key = mode.w3.soliditySha3(['address'], [partner_address])
@@ -243,26 +156,21 @@ def authorize_partnership(address_from, workspace_contract_from, address_to, wor
 			print(' echec remove key 3')
 			return False	
 	
-	
 	# calcul du nonce de l envoyeur de token . Ici le from
 	nonce = w3.eth.getTransactionCount(address_from)  
-
 	#recuperer la cle AES cryptée du user
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	mydata = contract.functions.identityInformation().call()
 	user_aes_encrypted=mydata[5]
-
 	# decoder la cle AES cryptée du user avec la cle RSA privée du user
 	key = RSA.importKey(user_rsa_key)
 	cipher = PKCS1_OAEP.new(key)	
 	user_aes=cipher.decrypt(user_aes_encrypted)
 	print('user aes =', user_aes)
-	
 	#recuperer la cle RSA publique du partner
 	contract=w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	partner_rsa_key=data[4]
-	
 	# encryption de la cle AES du user avec la cle RSA du partner
 	key=RSA.importKey(partner_rsa_key)	
 	cipher = PKCS1_OAEP.new(key)

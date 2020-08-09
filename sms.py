@@ -10,7 +10,7 @@ client = SmsApiComClient(access_token=token)
 
 def send_code(phone, code) :
 	""" code = str, phone number with country code 33607182594 """
-	send_results = client.sms.send(to=phone, message="Your verification code is : "+ code)
+	send_results = client.sms.send(to=phone, message="# Your verification code is : "+ code)
 	for result in send_results:
 		print(result.id, result.points, result.error)
 	return

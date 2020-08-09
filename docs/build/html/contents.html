@@ -89,7 +89,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#objectives">Objectives</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#talao-professional-identity-relay">Talao Professional Identity Relay</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#dynamic-password">Dynamic Password</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#two-factors-authentification">Two-factors authentification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#distributed-identity-vs-centralized">Distributed Identity vs Centralized</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#decentralized-identifiers-did">Decentralized IDentifiers (DID)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#credits">Credits</a></li>
@@ -106,6 +106,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="request_a_certificate.html">Request a Certificate</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">Get a Proof of Identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add_a_referent.html">Add a Referent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="use_its_own_address.html">Use my own Ethereum Address</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Talent Connect:</span></p>
@@ -219,13 +220,19 @@ The objective of this centralized platform is to simplify the onboarding process
 <p>Depending on user choice the Talao Professional Identity Relay will have parts of information about cryptographic keys. Read more on <a class="reference internal" href="privacy.html"><span class="doc">Privacy</span></a>.</p>
 </div>
 </div>
-<div class="section" id="dynamic-password">
-<h2>Dynamic Password<a class="headerlink" href="#dynamic-password" title="Permalink to this headline">¶</a></h2>
-<p>The Talao Relay uses dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login,
-instead of entering their usual static password every time, they would simply input a unique, machine generated password.
-This dynamic password is received on the user’s Email provided for registration (Authentificaton Email).</p>
+<div class="section" id="two-factors-authentification">
+<h2>Two-factors authentification<a class="headerlink" href="#two-factors-authentification" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Multi-factor_authentication">Wikipedia</a> : “Multi-factor authentication is an authentication method in which a computer user is granted access only after successfully presenting two or more pieces of evidence (or factors) to an authentication mechanism: knowledge (something the user and only the user knows), possession (something the user and only the user has), and inherence (something the user and only the user is).
+Two-factor authentication (also known as 2FA) is a type, or subset, of multi-factor authentication. It is a method of confirming users’ claimed identities by using a combination of two different factors: 1) something they know, 2) something they have, or 3) something they are.”</p>
+<p>The Talao Relay uses two-factors authentification. Dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login,
+he enters his usual static password and a machine generated password (named secret code).
+The dynamic password is received on the user’s Email or Phone(sms) provided for registration.</p>
 <p>Dynamic passwords are convenient because they don’t have to be remembered, and because the password is never the same, they serve as a major roadblock for hackers
 who may be looking to break into user accounts.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default at setup the static password is ‘identity’ and dynamic passwords (named codes) are sent by email. Once logged, one can change the static password and choose sms to receive dynamic passwords.</p>
+</div>
 </div>
 <div class="section" id="distributed-identity-vs-centralized">
 <h2>Distributed Identity vs Centralized<a class="headerlink" href="#distributed-identity-vs-centralized" title="Permalink to this headline">¶</a></h2>

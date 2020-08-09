@@ -35,7 +35,13 @@
             
             
             <div class="container-fluid">
-                <h3 class="text-dark mb-4">{{name}}</h3>
+                <h3 class="text-dark mb-4">{{name}}
+                    <a class="text-secondary" onclick="copyToClipboard('#p100')"> 
+                    <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+                    </a>
+                </h3>
+                    <p hidden id="p100" >{{clipboard}}</p>      
+                <h6 class="text-dark mb-4">{{profil_title}}</h6>
                 <div class="row mb-3">
                     <div class="col-lg-4 offset-xl-4">
                         <div class="card mb-3">
@@ -76,7 +82,7 @@
 													<button id="in_progress_button" class="btn btn-primary btn-sm small" type="submit">Save</button></div>
                                             <div class="custom-file">
 												<label class="custom-file-label" for="inputGroupFile01"></label>
-												<input type="file" id="inputGroupFile01" onchange="loadFile(event)" class="custom-file-input" name="file">
+												<input type="file" id="inputGroupFile01" onchange="loadFile(event)" class="custom-file-input" required="" name="file">
 											</div>
 										  <button  onclick="goBack()"  class="btn btn-primary text-left" type="button">Back</button></div>
 
@@ -110,6 +116,13 @@ $(".custom-file-input").on("change", function() {
   $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
 });
 </script>
+<script>function copyToClipboard(element) {
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val($(element).text()).select();
+    document.execCommand("copy");
+    $temp.remove();
+  }</script>
 
    
 </body>

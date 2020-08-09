@@ -22,13 +22,12 @@ def contracts_to_owners(workspace_contract, mode) :
 
 def add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, file_name, mydays, privacy, mode, synchronous) :
 	w3 = mode.w3	
-	
 	file_path = mode.uploads_path + file_name
 	try : 
 		this_file = open(file_path, mode='rb')  # b is important -> binary
 	except IOError :
 		print('IOEroor open file in File.py')
-		return None, None, None
+		return None
 	this_data = this_file.read()
 	data = {'filename' : file_name , 'content' : b64encode(this_data).decode('utf_8')}
 	
@@ -51,7 +50,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 			fp.close()   
 		except :
 			print('cannot open rsa file in add_file.file.py')
-			return None, None, None
+			return None
 		
 		# decoder la cle AES128 cryptée avec la cle RSA privée
 		key = RSA.importKey(rsa_key)
@@ -84,7 +83,6 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	# stocke sur ipfs les data attention on archive des bytes
 	ipfs_hash = ipfs_add(data)
 	
-	
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	#_data = json.dumps(data)
 	#checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
@@ -98,8 +96,10 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(transaction_hash)		
-	
+		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+		if receipt['status'] == 0 :
+			return None
+
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
@@ -124,10 +124,12 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		
 	# get transaction info
 	contract = w3.eth.contract(workspace_contract_user, abi=constante.workspace_ABI)
-	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock,toBlock = 'latest')
 	event_list = claim_filter.get_all_entries()
+	found = False
 	for doc in event_list :
 		if doc['args']['id'] == documentId :
+			found = True
 			transactionhash = doc['transactionHash']
 			transaction_hash = transactionhash.hex()
 			transaction = w3.eth.getTransaction(transaction_hash)
@@ -139,6 +141,10 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 			gas_used = 1000
 			created = str(date)
+			break
+	if not found :
+		print('erreur event list dans get_file')
+		return None
 
 	# recuperation du msg 
 	data = ipfs_get(ipfshash.decode('utf-8'))
@@ -222,11 +228,8 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		new_file = open(mode.uploads_path + new_filename, "wb")
 		new_file.write(b64decode(data['content']))
 		new_file.close()
-	
 	return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
 			
-
-				
 def delete_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
 	w3 = mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
@@ -238,7 +241,9 @@ def delete_file(address_from, workspace_contract_from, address_to, workspace_con
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+	if receipt['status'] == 0 :
+		return None
 	#transaction = w3.eth.getTransaction(transaction_hash)
 	#gas_price = transaction['gasPrice']
 	#block_number = transaction['blockNumber']
@@ -251,8 +256,6 @@ def delete_file(address_from, workspace_contract_from, address_to, workspace_con
 	deleted = date.strftime("%y/%m/%d")		
 	return transaction_hash, gas_used*gas_price, deleted
 	
-
-
 class File() :
 	def __init__(self) :
 		pass
@@ -290,8 +293,6 @@ class File() :
 			doctype = 30002
 		mydays = 0
 		return  add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype,	file_name,mydays, privacy,mode,synchronous)
-		
-
 		
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)

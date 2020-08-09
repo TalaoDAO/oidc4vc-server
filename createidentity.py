@@ -65,7 +65,6 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	message = encode_defunct(text=msg.hex())
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
 	signature = signed_message['signature']
-	
 	claim_id = w3.solidityKeccak(['address', 'uint256'], [address, 101109097105108]).hex()
 	
 	#transaction

@@ -29,8 +29,10 @@ Welcome to Talao's documentation!
    :caption: How-To:
    
    request_a_certificate
-   proof_of_identity
+   get_rewards
+   add_a_referent
    use_its_own_address
+   proof_of_identity
 
    
   	

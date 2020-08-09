@@ -177,7 +177,9 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+		if receipt['status'] == 0 :
+			return None, None, None
 	return claim_id, ipfs_hash, transaction_hash
 	
 	
@@ -260,16 +262,13 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		except :
 			print(' get_claim : cannot open rsa file to decrypt ')
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
-			
 		# upload data encrypted from ipfs
 		print('ipfs hash = ', ipfs_hash, ' topicname = ', privacy, data)
 		data_encrypted = ipfs_get(ipfs_hash)
-		
 		# decoder la cle AEScryptée avec la cle RSA privée
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)	
 		aes = cipher.decrypt(aes_encrypted)
-		
 		# decoder les datas
 		try:
 			b64 = data_encrypted
@@ -286,11 +285,12 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			 				
 	# get transaction info
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
-	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
 	event_list = claim_filter.get_all_entries()
+	found = False
 	for claim in event_list :
-		
 		if claim['args']['claimId'].hex() == claim_id :
+			found = True
 			transactionhash = claim['transactionHash']
 			transaction_hash = transactionhash.hex()
 			try :
@@ -306,21 +306,24 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			except :
 				print( 'probleme avec dans get claim')
 				return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
-	print('data = ', data)
+			break
+	if not found :
+		print( 'probleme avec dans get claim')
+		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
-
 
 def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):	
 	w3=mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)
-
 	# Build transaction
 	txn = contract.functions.removeClaim(claim_id).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
 	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)		
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	transaction_hash =w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+	if receipt['status'] == 0 :
+		return None, None, None
 	transaction = w3.eth.getTransaction(transaction_hash)
 	gas_price = transaction['gasPrice']
 	block_number = transaction['blockNumber']
@@ -386,7 +389,7 @@ class Claim() :
 			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :
-			return False			
+			return			
 		self.created = created
 		self.topicname = topicvalue2topicname(self.topicvalue)
 		self.claim_value = data
@@ -402,13 +405,11 @@ class Claim() :
 		self.privacy = privacy
 		self.claim_id = claim_id
 		self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':claim:' + str(claim_id)
-		
 		contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
 		category = contract.functions.identityInformation().call()[1]
-		
 		self.identity = {'address' : contracts_to_owners(identity_workspace_contract, mode),
 						'workspace_contract' : identity_workspace_contract,
 						'category' : category,
 						'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
-		return True
+		return
 	

@@ -1,5 +1,5 @@
 
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import Flask, session, send_from_directory, flash, send_file, abort
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -17,22 +17,20 @@ mode = environment.currentMode()
 w3 = mode.w3
 
 def check_login() :
-	username = session.get('username_logged')
-	if username is None  :
-		flash('session aborted', 'warning')
-	return username
+	""" check if the user is correctly logged. This function is called everytime a user function is called """
+	if session.get('username_logged') is None :
+		abort(403)
+	else :
+		return session['username_logged']
+
+
 
 # route user/update_skills/
 def update_skills() :
-	username = check_login()
-	if username is None :
-		return redirect(mode.server + 'login/')		
-	
+	check_login()
 	if request.method == 'GET' :		
-		my_picture = session['picture']	
 		if session['skills'] is not None :
 			skills = session['skills']['description']
-		
 			#description = [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
 			skills_row = ""
 			for counter, skill in enumerate(skills, 0) :
@@ -72,12 +70,9 @@ def update_skills() :
 		else :
 			skills_row = ""
 			
-		return render_template('update_skills.html', picturefile=my_picture, username=username, skills_row=skills_row)
+		return render_template('update_skills.html', **session['menu'], skills_row=skills_row)
 	
 	if request.method == 'POST' :
-	
-		# session[skills'] =  {'version' : 1,   description: [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
-		
 		# add a skill
 		if request.form['choice'] == 'add' :
 			skill_code = unidecode.unidecode(request.form['skill_name'].lower())
@@ -91,20 +86,15 @@ def update_skills() :
 				session['skills'] = dict()
 				session['skills']['description'] = []
 				session['skills']['version'] = 1
-			
-			else :
-				pass
-				
 			for one_skill in session['skills']['description'] :
 				if one_skill['skill_code'] == skill_code :
 					flash('Skill alreday added', 'warning')
 					return redirect(mode.server + 'user/update_skills/')
 			if skill_code == "" :
-				return redirect(mode.server + 'user/update_skills/')	
-			
-			session['skills']['description'].append(skill)												
-			return redirect(mode.server + 'user/update_skills/')
-		
+				return redirect(mode.server + 'user/update_skills/')			
+			else :
+				session['skills']['description'].append(skill)												
+				return redirect(mode.server + 'user/update_skills/')
 		# update the skill document
 		elif request.form['choice'] == 'update' :
 			# case update before add first time
@@ -113,15 +103,23 @@ def update_skills() :
 			# update first time
 			elif session['skills'].get('doc_id') is None :
 				my_skills = Document('skills')
-				data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
-				(doc_id, ipfshash, transaction_hash) = my_skills.relay_add(session['workspace_contract'], data, mode)
+				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
+				data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
+				if data is None :
+					flash('Transaction failed', 'danger')
+					return redirect( mode.server + 'user/')
+				doc_id = data[0]
 				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)  
 				
 			# standard update
 			else :
 				my_skills = Document('skills')
-				data = {'version' : session['skills']['version'], 'description' : session['skills']['description']}
-				(doc_id, ipfshash, transaction_hash) = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode)
+				skill_data = {'version' : session['skills']['version'], 'description' : session['skills']['description']}
+				data = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], skill_data, mode)
+				if data is None :
+					flash('Transaction failed', 'danger')
+					return redirect( mode.server + 'user/')
+				doc_id = data[0]
 				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)  
 			flash('Your skills have been updated', 'success')	
 			return redirect( mode.server + 'user/')
@@ -131,35 +129,4 @@ def update_skills() :
 			counter = request.form['choice']
 			del session['skills']['description'][int(counter)]
 			return redirect (mode.server + 'user/update_skills/')
-"""			
-def update_skills_from_elsewhere(skill_list) :
-	for skill in skill_list :
-		skill_code = unidecode.unidecode(request.form['skill_name'].lower())
-		skill_code = skill_code.replace(" ", "")
-		skill_code = skill_code.replace("-", "")
-		skill = {'skill_code' : skill_code,
-				'skill_name' : skill.capitalize(),
-				'skill_level' : 'Intermediate',
-				'skill_domain' : ''}
-		if session['skills'] is None  :
-			session ['skills'] = dict()
-			session['skills']['description'] =[]
-			session['skills']['version'] = 1
-			
-		found = False	
-		for one_skill in session['skills']['description'] :
-			if one_skill['skill_code'] == skill_code :
-				found = True
-				break
-		if found == True :
-			session['skills']['description'].append(skill)	
-		if session['skills'].get('doc_id') is None :
-			my_skills = Document('skills')
-			data = {'version' : session['skills']['version'], 'description' : session['skills']['description']}
-			(doc_id, ipfshash, transaction_hash) =my_skills.relay_add(session['workspace_contract'], data, mode, mydays=0) 
-		else :
-			my_skills = Document('skills')
-			data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
-			(doc_id, ipfshash, transaction_hash) = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], data, mode, mydays=0)													
-	return execution
-	"""	
+

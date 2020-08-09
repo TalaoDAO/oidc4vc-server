@@ -47,7 +47,7 @@
             
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{issuer_name}}</h3>
-                  <p class="text-dark mb-4">{{profil_title}}</p>
+                  <p class="text-dark mb-4">{{issuer_profil_title}}</p>
                 <div class="row">
                     <div class="col-xl-6 offset-xl-3">
                         <div class="card-deck">
@@ -81,7 +81,7 @@
                                     
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0" title="text experience"><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-2">&nbsp; Data Store</a></h5>
+                                                <h5 class="mb-0" title="text experience"><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-2">&nbsp; Files Store</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -173,7 +173,7 @@
 											{{services|safe}}
 												
                           
-											<a class="card-link" href="/user/"><div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div></a>
+											<div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
 								  </div>  
 								  </div>	
                         </div>
@@ -194,6 +194,7 @@
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>function goBack() {  window.history.back();}</script>
 </body>
 
 </html>
