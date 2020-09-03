@@ -10,7 +10,7 @@ It is for everyone the opportunity to use a new technology to get tamper proof p
 Those certificates can be displayed anywhere on digital plateforms, social medias, websites, etc. They provide to third parties reliable data about professional experiences, skills, education.
 The Talao protocol is based on a Decentralized IDentity focused on professional data.
 
-Main differences with other certificates solutions are :    
+Differences with other certificates solutions are :    
 
   - You own your data for your lifetime.
   - No private operators or government agencies can decide to update or delete your data.
