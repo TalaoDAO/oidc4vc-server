@@ -1,25 +1,26 @@
 Overview
 ========
 
-Talao markets its professional data certification solution on the Ethereum Blockchain to Talents, Companies and other organizations such as Schools or Training Centers.
+What is it for ?
+----------------
 
-The Talo protocol is based on a Decentralized IDentity focused on professional data. Talents and Companies are the owners of their data.
-No centralized operator can decide to update or delete data. No one can access to encrypted Data.
+This web applicaton (named "Talao Relay") is a professional data certification solution on the Ethereum Blockchain for Talents, Companies and other organizations such as Schools or Training Centers.
+It is for everyone the opportunity to use a new technology to get tamper proof professional certificates while keping the ownership of their data.
+
+Those certificates can be displayed anywhere on digital plateforms, social medias, websites, etc. They provide to third parties reliable data about professional experiences, skills, education.
+The Talao protocol is based on a Decentralized IDentity focused on professional data.
 
 Main differences with other certificates solutions are :    
 
-	- Certificate Data are tamper proof and tracable.
-	- Issuers are identified.
-	- Recipents are identified.
+  - You own your data for your lifetime.
+  - No private operators or government agencies can decide to update or delete your data.
+  - No one can access your encrypted data without your permission.
+  - No storage costs, you only pay Blockchain fees to update your data.
+  - Certificates are tamper proof and tracable.
+  - Issuers are identified.
      
 
-Objectives
-----------
-
-For Talent, it is the opportunity to use a new technology to get tamper proof professional certificates while keping the ownership of their data.
-Those certificate can be displayed anywhere on digital plateforms, social media, websites,etc. They provide to third parties reliable data about professional experiences, skills, education.
-
-For Companies, the issuance of certificates on the blockchain has several interests:
+For Companies, the issuance of certificates on the Blockchain has several interests:
 
   - Attracting new Talents by allowing them to value the experience they will have with the company (including during the recruitment process), and thus their future employability
   - Spreading the image of an innovative and modern company through the use of blockchain technology, which is adopted above all by the younger generations
@@ -27,17 +28,10 @@ For Companies, the issuance of certificates on the blockchain has several intere
   - Valuing their own Talents externally, for example with their clients, by presenting them with CVs with certificates signed by former clients. This is particularly relevant for service companies.
 
 
-Talao Professional Identity Relay
----------------------------------
-
-The Talao Professional Identity Relay (http://talao.co:5000) is a website available for users (Individuals or Companies) to manage their Identity. 
-The objective of this centralized platform is to simplify the onboarding process which is so far quite difficult for non technical experts.
-
-.. note:: Depending on user choice the Talao Professional Identity Relay will have parts of information about cryptographic keys. Read more on :doc:`/privacy`.  
-
-
 Two-factors authentification
 ----------------------------
+
+For security this web application uses a two-factors authentification protocol.
 
 `Wikipedia <https://en.wikipedia.org/wiki/Multi-factor_authentication>`_ : "Multi-factor authentication is an authentication method in which a computer user is granted access only after successfully presenting two or more pieces of evidence (or factors) to an authentication mechanism: knowledge (something the user and only the user knows), possession (something the user and only the user has), and inherence (something the user and only the user is).
 Two-factor authentication (also known as 2FA) is a type, or subset, of multi-factor authentication. It is a method of confirming users' claimed identities by using a combination of two different factors: 1) something they know, 2) something they have, or 3) something they are."
@@ -52,8 +46,8 @@ who may be looking to break into user accounts.
 .. note:: By default at setup the static password is 'identity' and dynamic passwords (named codes) are sent by email. Once logged, one can change the static password and choose sms to receive dynamic passwords.
 
 
-Distributed Identity vs Centralized
------------------------------------
+Decentralized Identity vs Centralized
+-------------------------------------
 Current architectures to validate, certify, and manage identities are based on centralized, top-down approaches that rely on trusted authorities and third-party operators. 
 Talao approaches the problem of digital identity starting from a human rights perspective, with a focus on professional data. 
 

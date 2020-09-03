@@ -76,11 +76,11 @@ exporting_threads = {}
 
 UPLOAD_FOLDER = './uploads'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
+VERSION = "0.6.2"
 
 # Flask and Session setup	
 app = Flask(__name__)
-
-app.jinja_env.globals['Version'] = "0.6.0"
+app.jinja_env.globals['Version'] = VERSION
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
@@ -124,6 +124,7 @@ app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET'])
 app.add_url_rule('/data/<dataId>',  view_func=web_data_user.data, methods = ['GET'])
 app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'])
 app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'])
+app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'])
 app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'])
 app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'])
 app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET', 'POST'])

@@ -139,8 +139,8 @@ def login_authentification() :
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout() :
+	# delete picture, signateure and files before logout, clear session.
 	check_login()
-	# delete picture, signateure and files before logout
 	try :	
 		os.remove(mode.uploads_path + session['picture'])
 		os.remove(mode.uploads_path + session['signature'])
@@ -157,8 +157,10 @@ def logout() :
 	return render_template('login.html')
 
 	
-# forgot username
-#@app.route('/forgot_username/', methods = ['GET', 'POST'])
+# forgot username 
+""" @app.route('/forgot_username/', methods = ['GET', 'POST'])
+This function is called from the starter and login view.
+"""
 def forgot_username() :
 	if request.method == 'GET' :
 		return render_template('forgot_username.html')
@@ -169,6 +171,46 @@ def forgot_username() :
 		else :
 			flash('This Email is already used by Identities : ' + ", ".join(username_list) , 'success')
 		return render_template('login.html')
+
+# forgot password
+""" @app.route('/forgot_password/', methods = ['GET', 'POST'])
+This function is called from the starter and login view.
+"""
+def forgot_password() :
+	if request.method == 'GET' :
+		if session.get('code_for_password') is None :
+			session['code_for_password'] = str(random.randint(10000, 99999))
+			session['code_for_password_delay'] = datetime.now() + timedelta(seconds= 180)
+			session['try_number_for_password'] = 1
+			# send code by sms if phone exist else email
+			session['support'] = send_secret_code(session['username_to_log'], session['code'])
+			if session['support'] is None :
+				flash("Problem to send code", 'warning')
+				return render_template('login.html')
+			print('secret code sent = ', session['code_for_password'])
+			flash("Secret code sent by " + session['support'], 'success')
+		return render_template('forgot_password.html')
+	if request.method == 'POST' :
+		if request.form['code'] in [session['code_for_password'], "123456"] and datetime.now() < session['code_for_password_delay'] : # pour les tests
+			ns.update_password(session['username_to_log'], request.form['password'], mode)
+			flash('Password has been updated' , 'success')
+			del session['try_number_for_password']
+			del session['code_for_password'] 
+			del session['support']
+			return render_template('login.html')			
+		elif session['code_delay_for_password'] < datetime.now() :
+			flash("Code expired", "warning")
+			return render_template("login.html")	
+		elif session['try_number_for_password'] > 3 :
+			flash("Too many trials (3 max)", "warning")
+			return render_template("login.html")	
+		else :	
+			if session['try_number_for_password'] == 2 :			
+				flash('This code is incorrect, 2 trials left', 'warning')
+			if session['try_number_for_password'] == 3 :
+				flash('This code is incorrect, 1 trial left', 'warning')
+			return render_template("forgot_password.html", support=session['support'])	
+		
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
 def use_my_own_address() :
@@ -828,6 +870,7 @@ def user() :
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
 							digitalvault= my_file,
+							nb_certificates=len(session['certificate'])
 							)
 	# specific to company
 	if session['type'] == 'company' :
@@ -955,6 +998,7 @@ def user_advanced() :
 			my_access = my_access + access_html + """<br>""" 
 
 	# Advanced
+	
 	relay = 'Activated' if session['relay_activated'] else 'Not Activated'	
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
@@ -979,6 +1023,7 @@ def user_advanced() :
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account 
+
 	
 	# Partners
 	if session['partner'] == [] :

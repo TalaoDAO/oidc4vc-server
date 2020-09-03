@@ -29,24 +29,25 @@
                 <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a Certificate</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a New Certificate</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/request_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>We will contact your Referent through his/her email.<br>
-                                        There are 2 types of certificates :
-                                        <li> Experience Certificate with details about a specific projet.</li>
-                                        <li>Recommendation Certificate which is a person to person referral.</li></p>
+                                        <p>To get a New Certificate, Talao will contact your Referent through his/her email to ask him to issue a referral for you.
+                                        <br><br>
+                                        If your Referent has already his own Identity, use the Search Bar to access his profil immediatly.
+                                        In the other case fill the form below.<br><br>
+                                       </p>
                                         {% if display_email == True %}
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" ><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
                                         {% endif %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Certificate Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
 												<option value="experience" >Experience Certificate</option>
 												{% if reco %}
-												<option value="recommendation">Recommendation</option> 
+												<option value="recommendation">Recommendation Certificate</option> 
 												{% endif %}
 											</select></div>
                                     </div>

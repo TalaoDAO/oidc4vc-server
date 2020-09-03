@@ -154,7 +154,6 @@ def does_alias_exist(alias_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	#now = datetime.now()
 	data = {'alias_name' : alias_name} 
 	c.execute("SELECT identity_name FROM alias WHERE alias_name = :alias_name " , data)
 	select = c.fetchall()

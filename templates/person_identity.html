@@ -60,8 +60,7 @@
 									 
 								<div class="card-body">
 										<!-- <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><i title="New certificate." style="font-size: 20px;"  class="fas fa-plus fa-lg"></i></a></h4>	-->	
-                                         <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><button   class="btn btn-light btn-sm" type="button" >New</button></a></h4>		
-		
+                                         <h4 class="text-center">{{nb_certificates}} Certificates <a class="text-secondary" href="/user/request_certificate/" ><button   class="btn btn-light btn-sm" type="button" >Add New Certificate</button></a></h4>		
 										{% if session['certificate'] == [] %}
 											<div  style="height:50px;overflow:auto;overflow-x: hidden;">
 												<p class="card-text">{{certificates|safe}}</p>
@@ -79,7 +78,7 @@
                             <div class="card shadow mb-5">					
                                 <div class="card-body">
                 <!--                    <h4><a href="/user/picture/"><img class="mx-auto d-block card-img" title="Clic to change picture."  src="{{ url_for('send_file', filename=picturefile) }}"></a></h4> -->
-                                     <h4 class="text-center" title="Complete your Resume." >Resume</h4>
+                                     <h4 class="text-center" title="Complete your Resume." >My Identity</h4>
                                     
                                     <div role="tablist" id="accordion-1">
                                        
@@ -274,7 +273,7 @@
   document.execCommand("copy");
   $temp.remove();
 }</script>
-	<script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000); </script>
+	<script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 10000); </script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>

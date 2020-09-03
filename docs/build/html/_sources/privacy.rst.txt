@@ -89,9 +89,11 @@ Public Data is available for anybody :
    - For Companies, by default all profil data are Public.
 
 Private Data are only available for your Partners. Read more on :doc:`/resume` .
+
    - By default for Talents, Contact Email and Contact Name are private.
 
 Secret Data are only available for users.
+
    - Users can store encypted data on decentralized support as IPFS through this option.
    - Authentification Email is always secret (Relay keeps a copy of ths email for authentification)
 
