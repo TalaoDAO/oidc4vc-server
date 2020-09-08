@@ -26,7 +26,7 @@ def messageAuth (email_to, random) :
 	# string to store the body of the mail 
 	body = 'Your verification code is : '+ random 
 	msg.attach(MIMEText(body, 'plain')) 
-	p = MIMEBase('application', 'octet-stream') 
+	#p = MIMEBase('application', 'octet-stream') 
 
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
@@ -48,7 +48,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
-	toaddr = ["thierry.thevenet@talao.io"]
+	toaddr = [mode.admin]
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
 	# instance of MIMEMultipart 
@@ -181,14 +181,14 @@ def messageAdmin (subject, messagetext,mode) :
 
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
-	toaddr = ["thierry.thevenet@talao.io"]
+	toaddr = [mode.admin]
 	msg = MIMEMultipart() 
 	msg['From'] = fromaddr 
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = "Admin message :" + subject
 	body = messagetext
 	msg.attach(MIMEText(body, 'plain')) 
-	p = MIMEBase('application', 'octet-stream') 
+	#p = MIMEBase('application', 'octet-stream') 
 
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
@@ -217,7 +217,7 @@ def message(subject, to, messagetext) :
 	msg['Subject'] =  subject
 	body = messagetext + signature
 	msg.attach(MIMEText(body, 'plain')) 
-	p = MIMEBase('application', 'octet-stream') 
+	#p = MIMEBase('application', 'octet-stream') 
 
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 

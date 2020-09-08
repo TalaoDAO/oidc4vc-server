@@ -20,6 +20,7 @@ class currentMode() :
 	
 	def __init__(self):
 		
+		self.admin = 'thierry.thevenet@talao.io'
 		self.test = False
 		self.mychain = 'rinkeby'
 		self.myenv = 'airbox'

@@ -416,8 +416,9 @@ def data(dataId) :
 #@app.route('/user/', methods = ['GET'])
 def user() :
 	username = check_login()
-	if username is None :
-		abort(403)
+	#if username is None :
+	#	abort(403)
+	check_login()
 	if session.get('uploaded') is None :
 		print('start first instanciation user')
 		if mode.test :

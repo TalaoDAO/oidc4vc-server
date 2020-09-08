@@ -20,7 +20,7 @@ import analysis
 # environment setup
 mode = environment.currentMode()
 w3 = mode.w3
-
+#FOLDER = mode.uploads_path
 
 def convert(obj):
     if type(obj) == list:
@@ -95,21 +95,20 @@ def show_certificate():
 	
 		if session['displayed_certificate']['issuer']['category'] == 2001 : # company
 			signature = session['displayed_certificate']['signature']
-			logo = session['displayed_certificate']['logo']
-			folder = './uploads/' 
+			logo = session['displayed_certificate']['logo']		
 			
-			if not path.exists(folder + signature) :
+			if not path.exists(mode.uploads_path + signature) :
 				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
 				response = requests.get(url, stream=True)
-				with open('./uploads/' + signature, 'wb') as out_file:
+				with open(mode.uploads_path + signature, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
 		
 			
-			if not path.exists(folder + logo) :
+			if not path.exists(mode.uploads_path + logo) :
 				url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 				response = requests.get(url, stream=True)
-				with open('./uploads/' + logo, 'wb') as out_file:
+				with open(mode.uploads_path + logo, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
 		
@@ -157,12 +156,12 @@ def show_certificate():
 		issuer_picture = session['displayed_certificate'].get('picture')
 		issuer_title = "" if session['displayed_certificate'].get('title') is None else session['displayed_certificate']['title']
 		
-		folder = './uploads/' 
-		if issuer_picture != None :	
-			if not path.exists(folder + issuer_picture) :
-				url='https://gateway.pinata.cloud/ipfs/'+ logo
+		if issuer_picture != None :		
+			if not path.exists(mode.uploads_path + issuer_picture) :
+				print('picture already on disk')
+				url='https://gateway.pinata.cloud/ipfs/'+ issuer_picture 
 				response = requests.get(url, stream=True)
-				with open('./photos/' + logo, 'wb') as out_file:
+				with open(mode.uploads_path + issuer_picture, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
 			else :

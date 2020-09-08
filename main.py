@@ -74,9 +74,9 @@ mode = environment.currentMode()
 w3 = mode.w3
 exporting_threads = {}
 
-UPLOAD_FOLDER = './uploads'
+FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.6.2"
+VERSION = "0.6.3"
 
 # Flask and Session setup	
 app = Flask(__name__)
@@ -85,10 +85,9 @@ app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
 app.config['SESSION_TYPE'] = 'redis'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180)
 app.config['SESSION_FILE_THRESHOLD'] = 100  
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['RSA_FOLDER'] = RSA_FOLDER
 Session(app)
 
@@ -98,7 +97,7 @@ print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 #download log Talao in /uploads
 if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
-	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", "./uploads/QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
+	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", mode.uploads_path + "QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
@@ -168,8 +167,8 @@ def picture() :
 	if request.method == 'POST' :
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
-		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-		picturefile = UPLOAD_FOLDER + '/' + filename
+		myfile.save(os.path.join(mode.uploads_path, filename))
+		picturefile = mode.uploads_path + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
 		session['picture'] = filename	
 		if session['type'] == 'person' :
@@ -226,7 +225,7 @@ def signature() :
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
 		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-		signaturefile = UPLOAD_FOLDER + '/' + filename
+		signaturefile = mode.uploads_path + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)	
 		session['signature'] = filename	
 		flash('Your signature has been updated', 'success')
@@ -746,7 +745,7 @@ def issue_recommendation():
 		return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)		
 	
 
-# personalsettings
+# personal settings
 @app.route('/user/update_personal_settings/', methods=['GET', 'POST'])
 def update_personal_settings() :	
 	check_login()
@@ -884,7 +883,7 @@ def update_company_settings() :
 		return redirect(mode.server + 'user/')
 
 
-# digitalvault
+# digital vault
 @app.route('/user/store_file/', methods=['GET', 'POST'])
 def store_file() :
 	check_login()
@@ -893,7 +892,7 @@ def store_file() :
 	if request.method == 'POST' :
 		myfile = request.files['file']
 		filename = secure_filename(myfile.filename)
-		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+		myfile.save(os.path.join(mode.uploads_path, filename))
 		privacy = request.form['privacy']
 		user_file = File()
 		data = user_file.add(mode.relay_address,
@@ -1504,7 +1503,7 @@ def request_experience_certificate() :
 	else :
 		return redirect(mode.server + 'user/')
 
-# add Alias (Username)
+# add alias (Username)
 @app.route('/user/add_alias/', methods=['GET', 'POST'])
 def add_alias() :	
 	check_login()	
@@ -1519,7 +1518,7 @@ def add_alias() :
 			flash('Alias added for '+ alias_username , 'success')
 		return redirect (mode.server +'user/')
 
-# remove
+# remove alias
 @app.route('/user/remove_access/', methods=['GET'])
 def remove_access() :	
 	check_login()
@@ -1595,7 +1594,7 @@ def import_rsa_key() :
 		return redirect (mode.server +'user/')
 
 
-# add Manager (Username)
+# add manager
 @app.route('/user/add_manager/', methods=['GET', 'POST'])
 def add_manager() :	
 	check_login()	
@@ -1635,7 +1634,7 @@ def request_proof_of_identity() :
 		# email with files to Admin
 		message = 'Request for proof of identity for ' + session['username']
 		filename_list = [session['username'] + "_ID." + id_file_name, session['username'] + "_selfie." + selfie_file_name]
-		Talao_message.message_file(['thierry.thevenet@talao.io'], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/')
+		Talao_message.message_file([mode.admin], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/')
 		# message to user
 		flash(' Thank you, we will check your documents soon.', 'success')
 		return redirect (mode.server +'user/')	
@@ -1734,19 +1733,17 @@ def remove_white_issuer() :
 # photos upload for certificates
 @app.route('/uploads/<filename>')
 def send_file(filename):
-	UPLOAD_FOLDER = './uploads'
-	return send_from_directory(UPLOAD_FOLDER, filename)
+	return send_from_directory(mode.uploads_path, filename)
 	
 # fonts upload
 @app.route('/fonts/<filename>')
 def send_fonts(filename):
-	UPLOAD_FOLDER='templates/assets/fonts'
-	return send_from_directory(UPLOAD_FOLDER, filename)		
+	return send_from_directory(FONTS_FOLDER, filename)		
 
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download():
 	filename = request.args['filename']
-	return send_from_directory(app.config['UPLOAD_FOLDER'],
+	return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
 @app.route('/user/download_rsa_key/', methods=['GET', 'POST'])

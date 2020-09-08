@@ -36,14 +36,14 @@ For security this web application uses a two-factors authentification protocol.
 `Wikipedia <https://en.wikipedia.org/wiki/Multi-factor_authentication>`_ : "Multi-factor authentication is an authentication method in which a computer user is granted access only after successfully presenting two or more pieces of evidence (or factors) to an authentication mechanism: knowledge (something the user and only the user knows), possession (something the user and only the user has), and inherence (something the user and only the user is).
 Two-factor authentication (also known as 2FA) is a type, or subset, of multi-factor authentication. It is a method of confirming users' claimed identities by using a combination of two different factors: 1) something they know, 2) something they have, or 3) something they are."
 
-The Talao Relay uses two-factors authentification. Dynamic passwords – machine generated, random numbers that are used once to authenticate. Every time an end user wants to login, 
-he enters his usual static password and a machine generated password (named secret code).
-The dynamic password is received on the user's Email or Phone(sms) provided for registration.
+Dynamic passwords (named secret code) are random numbers that are used once to authenticate. Every time an end user wants to login, 
+he enters his usual static password and a secret code sent in real time by Email or by short messages on the user's Phone.
+The secret code lifetime is 3 minutes.
 
 Dynamic passwords are convenient because they don’t have to be remembered, and because the password is never the same, they serve as a major roadblock for hackers
 who may be looking to break into user accounts.
 
-.. note:: By default at setup the static password is 'identity' and dynamic passwords (named codes) are sent by email. Once logged, one can change the static password and choose sms to receive dynamic passwords.
+.. note:: By default at setup the static password is 'identity' and scret code are sent by email. Once logged, one can change the static password and choose sms to receive your secret code on your phone.
 
 
 Decentralized Identity vs Centralized
