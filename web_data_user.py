@@ -9,7 +9,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import Flask, session, send_from_directory, flash, send_file, url_for
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -119,8 +119,9 @@ def login_authentification() :
 		del session['try_number']
 		del session['code'] 
 		del session['support']
-		return redirect(mode.server + 'user/')		
-	
+		#return redirect(mode.server + 'user/')		
+		return redirect(url_for('user'))
+
 	elif session['code_delay'] < datetime.now() :
 		flash("Code expired", "warning")
 		return render_template("login.html")
@@ -277,12 +278,12 @@ def data(dataId) :
 	elif issuer_is_white :					
 		myissuer = myissuer + """
 				<br>
-				  <a class="text-success">This issuer is in my White List</a>			
+				  <a class="text-success">This issuer is in your White List</a>			
 				</span>"""		
 	else :	
 		myissuer = myissuer + """				
 					<br>
-					<a class="text-warning">This issuer is not in my White List</a>
+					<a class="text-warning">This issuer is not in your White List</a>
 				</span>"""
 	
 	
@@ -817,7 +818,6 @@ def user() :
 
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 								
-								
 								<p>
 								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
 								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -831,7 +831,7 @@ def user() :
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
 								</p>
-								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				if certificate['type'] == 'recommendation':
 					cert_html = """<hr> 
 								<b>Referent Name</b> : """ + issuer_name +"""<br>			
@@ -848,11 +848,11 @@ def user() :
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 								</a>
 					   
-								<a class="text-secondary" onclick="copyToClipboard('#p1')"> 
+								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')"> 
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
 								</p>
-								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 	
 				my_certificates = my_certificates + cert_html
 		

@@ -311,7 +311,7 @@ def create_authorize_issue() :
 		flash('Thank you, the Certificate has been issued', 'success')
 		# Email to issuer
 		subject = 'Certificate has been issued to ' + session['talent_name']
-		link = mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
+		link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
 		text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
 		Talao_message.message(subject, session['issuer_email'], text)
 		print('msg pour issuer envoyé')
@@ -348,7 +348,7 @@ def create_authorize_issue_thread(username,
 	print('certificat issued')
 	# send message to issuer
 	subject = 'A new certificate has been issued to ' + talent_name
-	link = mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
+	link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
 	text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
 	Talao_message.message(subject, issuer_email, text)
 	print('msg pour issuer envoyé')

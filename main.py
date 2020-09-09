@@ -76,7 +76,7 @@ exporting_threads = {}
 
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.6.3"
+VERSION = "0.6.4"
 
 # Flask and Session setup	
 app = Flask(__name__)
@@ -89,7 +89,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180)
 app.config['SESSION_FILE_THRESHOLD'] = 100  
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw"
 app.config['RSA_FOLDER'] = RSA_FOLDER
-Session(app)
+#Session(app)
+sess = Session()
+sess.init_app(app)
 
 fa = FontAwesome(app)
 
@@ -119,7 +121,7 @@ app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods 
 app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
 
 # Centralized route for user, data, login
-app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET'])
+app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'])
 app.add_url_rule('/data/<dataId>',  view_func=web_data_user.data, methods = ['GET'])
 app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'])
 app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'])

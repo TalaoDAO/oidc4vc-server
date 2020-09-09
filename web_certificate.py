@@ -34,23 +34,13 @@ def convert(obj):
                 convert(v)
 
 # display experience certificate for anybody. Stand alone routine
-# #route/guest/certificate
-#@route /certificate/
+# #route /guest/certificate  
+# @route /certificate/
 def show_certificate():
-	""" It cab be an endpoint   
-	"""
-	if str(request.url_rule) == '/guest/certificate/' :
-		session.clear()
-		session['endpoint'] = 'certificate'
 	
 	username = session.get('username_logged')
-	if username is None  :
-		viewer = 'guest'
-		my_picture = ""
-		session['type'] = ""
-	else :
-		viewer = 'user'
-		my_picture = session['picture']
+	my_picture = session.get('picture', "")
+	viewer = 'guest' if username is None else 'user'
 	
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
@@ -66,7 +56,7 @@ def show_certificate():
 		session['certificate_id'] = certificate_id
 		session['displayed_certificate'] = certificate.__dict__
 	
-	identity_profil, a = read_profil(identity_workspace_contract, mode, 'light')
+	identity_profil= read_profil(identity_workspace_contract, mode, 'light')[0]
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
 	
@@ -181,7 +171,7 @@ def show_certificate():
 							issuer_username=issuer_username,
 							picturefile=my_picture,
 							username=username,
-							viewer=viewer,
+							viewer=viewer
 							)
 		
 
@@ -191,14 +181,8 @@ def show_certificate():
 def certificate_verify() :
 	
 	username = session.get('username_logged')
-	if username is None  :
-		viewer = 'guest'
-		my_picture = ""
-		
-	else :
-		viewer = 'user'
-		my_picture = session['picture']
-	
+	my_picture = session.get('picture', "")
+	viewer = 'guest' if username is None else 'user'
 		
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
@@ -319,18 +303,9 @@ def certificate_verify() :
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
 def certificate_issuer_explore() :
 	""" This can be an entry point too"""
-	if str(request.url_rule) == '/guest/' :
-		session.clear()
-		session['endpoint'] = 'user_explore'
-	
 	username = session.get('username_logged')
-	if username is None  :
-		viewer = 'guest'
-		my_picture = ""
-	
-	else :
-		viewer = 'user'
-		my_picture = session['picture']
+	my_picture = session.get('picture', "")
+	viewer = 'guest' if username is None else 'user'
 			
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
@@ -442,11 +417,38 @@ def certificate_issuer_explore() :
 					<b>Title</b> : """+education['title']+"""<br>
 					<b>Description</b> : """+education['description'][:100]+"""...<br>
 					<p>
-						<a class="text-secondary" href=/certificate/data/"""+experience['id'] + """:education>
+						<a class="text-secondary" href=/certificate/data/"""+education['id'] + """:education>
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 						</a>
 					</p>"""	
 				issuer_education = issuer_education + edu_html + """<hr>"""
+		
+		# skills
+		if issuer_explore.skills is None or issuer_explore.skills.get('id') is None :
+			issuer_skills =  """<a class="text-info">No Skills Available</a>"""
+		else : 
+			issuer_skills = ""
+			for skill in issuer_explore.skills['description'] :
+				skill_html = """
+				"""+ skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>			
+	<!--			<b>Domain</b> : """+skill['skill_domain'] + """<br>  
+				<b>Level</b> : """+ skill['skill_level'] + """...<br> 
+				<p>
+					<a class="text-secondary" href="/user/remove_experience/?experience_id="""  + """>
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+					</a>
+					
+					<a class="text-secondary" href=/data/""" + """:experience>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>  -->"""	  
+				issuer_skills = issuer_skills + skill_html 
+			issuer_skills = issuer_skills + """
+				<p>
+					<a class="text-secondary" href=/data/"""+ session['issuer_explore']['skills']['id'] + """:skills>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>"""		
 		
 		# certificates
 		issuer_certificates = ""
@@ -514,7 +516,9 @@ def certificate_issuer_explore() :
 
 		# kbis
 		kbis_list = issuer_explore.kbis
-		if len (kbis_list) == 0:
+		if issuer_workspace_contract == mode.workspace_contract_talao :
+			my_kbis = """<a>Contact : """ + mode.admin + """</a>"""
+		elif len (kbis_list) == 0:
 			my_kbis = """<a class="text-danger">No Proof of Identity available</a>"""
 		else :	
 			my_kbis = ""
@@ -604,9 +608,9 @@ def certificate_data(dataId) :
 	
 	
 	
-	if my_data.issuer['workspace_contract'] == workspace_contract :					
+	if my_data.issuer['workspace_contract'] == workspace_contract or my_data.issuer['workspace_contract'] == mode.relay_workspace_contract :					
 		front =  """
-				 <a class="text-warning">Sel Declaration</a>	
+				 <a class="text-warning">Self Declaration</a>	
 				</span>"""
 	
 	else :	
