@@ -36,10 +36,10 @@ w3 = mode.w3
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if session.get('username_logged') is None :
+	if session.get('username') is None :
 		abort(403)
 	else :
-		return session['username_logged']
+		return session['username']
 
 
 def send_secret_code (username, code) :
@@ -114,7 +114,7 @@ def login_authentification() :
 	
 	print('code retourné = ', code)
 	if code in [session['code'], "123456"] and datetime.now() < session['code_delay'] : # pour les tests
-		session['username_logged'] = session['username_to_log']
+		session['username'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']
 		del session['code'] 
@@ -416,17 +416,14 @@ def data(dataId) :
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user() :
-	username = check_login()
-	#if username is None :
-	#	abort(403)
 	check_login()
-	if session.get('uploaded') is None :
+	if not session.get('uploaded', False) :
 		print('start first instanciation user')
 		if mode.test :
-			user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 		else :
 			try :	
-				user = Identity(ns.get_data_from_username(username,mode)['workspace_contract'], mode, authenticated=True)
+				user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 			except :
 				flash('session aborted', 'warning')
 				print('pb au niveau de Identity')
@@ -443,7 +440,7 @@ def user() :
 		session['resume'] = user_dict
 		session['uploaded'] = True
 		session['type'] = user.type
-		session['username'] = username	
+		#session['username'] = username	
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract
 		session['issuer'] = user.issuer_keys
@@ -451,6 +448,7 @@ def user() :
 		session['partner'] = user.partners
 		session['did'] = user.did
 		session['eth'] = user.eth
+		print('eth = ', user.eth)
 		session['token'] = user.token
 		session['rsa_key'] = user.rsa_key
 		session['rsa_key_value'] = user.rsa_key_value
@@ -479,7 +477,7 @@ def user() :
 			session['kbis'] = user.kbis
 			session['profil_title'] = ""
 		session['menu'] = {'picturefile' : user.picture,
-							'username' : username,
+							'username' : session['username'],
 							'name' : user.name,
 							'private_key_value' : user.private_key_value,
 							'rsa_filename': session['rsa_filename'],
@@ -502,6 +500,7 @@ def user() :
 			return render_template('ask_update_password.html', **session['menu'])
 		
 	# account	
+	print('eth = ', session['eth'])
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
 					<b>token TALAO</b> : """ + str(session['token'])
 	if session['username'] == 'talao' :
@@ -572,25 +571,24 @@ def user() :
 		for partner in session['partner'] :
 			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
 			#partner_username = 'Unknown' if partner_username is None else partner_username
-			partner_username = partner['username']
 			if partner['authorized'] == 'Pending' :
 				partner_html = """
-				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
-					<a class="text-secondary" href="/user/reject_partner/?partner_username=""" + partner_username+"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner['username'] + """">"""+ partner['username'] + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
+					<a class="text-secondary" href="/user/reject_partner/?partner_username=""" + partner['username'] +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
 						<i data-toggle="tooltip" class="fa fa-thumbs-o-down" title="Reject this Partnership.">&nbsp&nbsp&nbsp</i>
 					</a>
-					<a class="text-secondary" href="/user/authorize_partner/?partner_username=""" + partner_username + """&amp;partner_workspace_contract=""" + partner['workspace_contract']+ """">
+					<a class="text-secondary" href="/user/authorize_partner/?partner_username=""" + partner['username'] + """&amp;partner_workspace_contract=""" + partner['workspace_contract']+ """">
 						<i data-toggle="tooltip" class="fa fa-thumbs-o-up" title="Authorize this Parnership."></i>
 					</a>
 				</spn>"""	
 			elif partner['authorized'] == 'Removed' :
 				partner_html = """
-				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  					
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner['username'] + """">"""+ partner['username'] + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  					
 				</spn>"""
 			else :			
 				partner_html = """
-				<span><a href="/user/issuer_explore/?issuer_username="""+ partner_username + """">"""+ partner_username + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
-					<a class="text-secondary" href="/user/remove_partner/?partner_username=""" + partner_username +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
+				<span><a href="/user/issuer_explore/?issuer_username="""+ partner['username'] + """">"""+ partner['username'] + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )  
+					<a class="text-secondary" href="/user/remove_partner/?partner_username=""" + partner['username'] +"""&amp;partner_workspace_contract=""" + partner['workspace_contract']+"""">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove this Partnership.">&nbsp&nbsp&nbsp</i>					
 				</spn>"""
 			my_partner = my_partner + partner_html + """<br>"""
@@ -606,7 +604,7 @@ def user() :
 			issuer_username = 'Unknown' if issuer_username is None else issuer_username
 			issuer_html = """
 				<span>""" + issuer_username + """
-					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+one_issuer['address']+"""">
+					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+ issuer_username +"""&amp;issuer_address=""" + one_issuer['address']+"""">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">

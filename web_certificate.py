@@ -9,6 +9,7 @@ import requests
 import shutil
 from flask_fontawesome import FontAwesome
 import json
+from sys import getsizeof
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
@@ -37,8 +38,9 @@ def convert(obj):
 # #route /guest/certificate  
 # @route /certificate/
 def show_certificate():
-	
-	username = session.get('username_logged')
+	if mode.test :
+		print('session dans certificate = ', session)
+	username = session.get('username')
 	my_picture = session.get('picture', "")
 	viewer = 'guest' if username is None else 'user'
 	
@@ -180,7 +182,7 @@ def show_certificate():
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify() :
 	
-	username = session.get('username_logged')
+	username = session.get('username')
 	my_picture = session.get('picture', "")
 	viewer = 'guest' if username is None else 'user'
 		
@@ -303,7 +305,7 @@ def certificate_verify() :
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
 def certificate_issuer_explore() :
 	""" This can be an entry point too"""
-	username = session.get('username_logged')
+	username = session.get('username')
 	my_picture = session.get('picture', "")
 	viewer = 'guest' if username is None else 'user'
 			
@@ -445,7 +447,7 @@ def certificate_issuer_explore() :
 				issuer_skills = issuer_skills + skill_html 
 			issuer_skills = issuer_skills + """
 				<p>
-					<a class="text-secondary" href=/data/"""+ session['issuer_explore']['skills']['id'] + """:skills>
+					<a class="text-secondary" href=/data/"""+ issuer_explore.skills['id'] + """:skills>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""		
@@ -501,6 +503,7 @@ def certificate_issuer_explore() :
 							kyc=my_kyc,
 							personal=issuer_personal,
 							experience=issuer_experience,
+							skills=issuer_skills,
 							certificates=issuer_certificates,
 							education=issuer_education,
 							services=services,
@@ -569,13 +572,11 @@ def certificate_issuer_explore() :
 
 #@app.route('/certificate/data/<dataId>', methods=['GET'])
 def certificate_data(dataId) :
-	username = session.get('username_logged')
-	if username is None  :
-		viewer = 'guest'
-		my_picture = ""
-	else :
-		viewer = 'user'
-		my_picture = session['picture']
+
+	username = session.get('username')
+	my_picture = session.get('picture', "")
+	viewer = 'guest' if username is None else 'user'
+
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
 	if support == 'document' : 
@@ -759,16 +760,9 @@ def certificate_data(dataId) :
 # Analysis
 #@app.route('/certificate/data_analysis/', methods=['GET'])
 def certificate_data_analysis() :
-	
-	username = session.get('username_logged')
-	if username is None  :
-		viewer = 'guest'
-		#my_picture = ""
-		
-	else :
-		viewer = 'user'
-		#my_picture = session['picture']
-	
+	username = session.get('username')
+	my_picture = session.get('picture', "")
+	viewer = 'guest' if username is None else 'user'
 	
 	certificate_id = session['certificate_id']
 	identity_workspace_contract = '0x' + certificate_id.split(':')[3]

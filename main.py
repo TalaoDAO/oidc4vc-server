@@ -40,7 +40,7 @@ import urllib.parse
 import unidecode
 from eth_keys import keys
 from eth_utils import decode_hex
-
+import redis
 
 # dependances
 import Talao_message
@@ -76,7 +76,7 @@ exporting_threads = {}
 
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.6.4"
+VERSION = "0.6.5"
 
 # Flask and Session setup	
 app = Flask(__name__)
@@ -142,10 +142,10 @@ app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, me
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if session.get('username_logged') is None :
+	if session.get('username') is None :
 		abort(403)
 	else :
-		return session['username_logged']
+		return session['username']
 
 def is_username_in_list(my_list, username) :
 	for user in my_list :

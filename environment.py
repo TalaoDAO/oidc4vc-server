@@ -23,7 +23,7 @@ class currentMode() :
 		self.admin = 'thierry.thevenet@talao.io'
 		self.test = False
 		self.mychain = 'rinkeby'
-		self.myenv = 'test'
+		self.myenv = 'airbox'
 		self.password = 'suc2cane'
 		self.uploads_path = '/home/thierry/Talao/uploads/'
 		self.db_path = '/home/thierry/db/'
