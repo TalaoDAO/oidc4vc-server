@@ -102,8 +102,10 @@ def issue_certificate_for_guest() :
 		# Dispatch starts here
 		if session['certificate_type'] == 'experience' :
 			if session['issuer_username'] != 'new' :
+				print('workspace_contract = ', session['issuer_workspace_contract'])
 				session['issuer_logo'] = get_image(session['issuer_workspace_contract'], 'logo', mode) 
 				session['issuer_signature'] = get_image(session['issuer_workspace_contract'], 'signature', mode) 
+				print ('logo = ', session['issuer_logo'], 'signature = ', session['issuer_signature'])
 			else :
 				session['issuer_logo'] = None
 				session['issuer_signature'] = None

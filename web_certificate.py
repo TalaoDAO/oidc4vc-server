@@ -89,6 +89,13 @@ def show_certificate():
 			signature = session['displayed_certificate']['signature']
 			logo = session['displayed_certificate']['logo']		
 			
+			# if there is no signature one uses Picasso signature 
+			if signature is None :
+				signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u' 
+			# if there is no logo one uses default logo
+			if logo is None :
+				logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+
 			if not path.exists(mode.uploads_path + signature) :
 				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
 				response = requests.get(url, stream=True)
@@ -189,7 +196,6 @@ def certificate_verify() :
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract'] 
-	#call_from = request.args.get('call_from')
 	certificate = copy.deepcopy(session['displayed_certificate'])
 	convert(certificate)
 	

@@ -448,7 +448,6 @@ def user() :
 		session['partner'] = user.partners
 		session['did'] = user.did
 		session['eth'] = user.eth
-		print('eth = ', user.eth)
 		session['token'] = user.token
 		session['rsa_key'] = user.rsa_key
 		session['rsa_key_value'] = user.rsa_key_value
@@ -462,7 +461,7 @@ def user() :
 		session['secret'] = user.secret
 		session['picture'] = user.picture
 		session['signature'] = user.signature		
-		session['test'] = mode.debug
+		session['test'] = mode.test
 
 		phone =  ns.get_data_from_username(session['username'], mode)['phone']
 		session['phone'] = phone if phone is not None else ""
@@ -500,7 +499,6 @@ def user() :
 			return render_template('ask_update_password.html', **session['menu'])
 		
 	# account	
-	print('eth = ', session['eth'])
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>				
 					<b>token TALAO</b> : """ + str(session['token'])
 	if session['username'] == 'talao' :
@@ -741,7 +739,7 @@ def user() :
 	
 		# kyc
 		if len (session['kyc']) == 0:
-			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a>"""
+			my_kyc = """<a class="text-warning">No proof of Identity available</a>"""
 					
 		else :	
 			my_kyc = ""

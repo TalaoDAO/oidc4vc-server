@@ -18,10 +18,10 @@ w3 = mode.w3
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if session.get('username_logged') is None :
+	if session.get('username') is None :
 		abort(403)
 	else :
-		return session['username_logged']
+		return session['username']
 
 
 

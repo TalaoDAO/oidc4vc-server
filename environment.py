@@ -21,7 +21,7 @@ class currentMode() :
 	def __init__(self):
 		
 		self.admin = 'thierry.thevenet@talao.io'
-		self.test = False
+		self.test = True
 		self.mychain = 'rinkeby'
 		self.myenv = 'airbox'
 		self.password = 'suc2cane'
@@ -46,11 +46,11 @@ class currentMode() :
 			self.IPCProvider = "/home/admin/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/rinkeby/geth.ipc", timeout=20))
 			self.IP = '18.190.21.227' # external talao.co
-			self.server = 'http://18.190.21.227:5000/' # external
+			self.server = 'http://talao.co:5000/' # external
 			self.port = 4000
 			self.flaskserver = "127.0.0.1"
 			self.debug = False	
-			self.test = False
+		
 		
 		elif self.myenv == 'airbox' :  # sur portable connecté avec airbox
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
@@ -59,16 +59,7 @@ class currentMode() :
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
 			self.debug = True
-			self.test = True
-		
-		elif self.myenv == 'gunicorn-airbox' :  # sur portable connecté avec airbox
-			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
-			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))				
-			self.server = 'http://127.0.0.1:4000/' # external
-			self.flaskserver = "127.0.0.1"
-			self.port = 4000
-			self.debug = True
-			self.test = True
+			
 						
 		elif self.myenv == 'test' : # sur portable avec acces internet par reseau (pour les test depuis un smartphone)
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
@@ -77,7 +68,7 @@ class currentMode() :
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 			self.debug = True
-			self.test = True
+		
 	
 		if self.mychain == 'rinkeby' :
 			self.start_block = 6400000
