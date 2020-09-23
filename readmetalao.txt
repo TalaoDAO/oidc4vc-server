@@ -1,9 +1,13 @@
-
-installation de geth avec snap
+Debian 10 buster
 
 
 pour installer web3.py et venv
 cf le lien https://github.com/ethereum/web3.py/blob/master/docs/README-linux.md
+
+
+install ntp pour synchro
+sudo apt-get install ntp
+
 
 git clone https://github.com/ethereum/web3.py.git
 cd web3.py
@@ -18,13 +22,13 @@ Pour actver l enviropnnement virtuel python de mon compte
 . venv/bin/activate
 
 
-pour lancer le client geth en mode light et rpc (Http) par defaut en mode ipc
-/usr/local/bin/geth --syncmode light --rpc
-/usr/local/bin/geth --rinkeby --syncmode 'light'  --rpcapi="db,eth,net,web3,personal,web3" --cache=4096 --rpc --gcmode full
+pour lancer le client geth en mode fast et rpc (Http) par defaut en mode ipc
+
+/usr/local/bin/geth --rinkeby --syncmode 'fast'  --rpcapi="db,eth,net,web3,personal,web3" --cache=4096 --rpc --gcmode full
 
 
 pour lancer la console geth
- sudo /usr/local/bin/geth attach rpc:http://127.0.0.1:8545
+ sudo /usr/local/bin/geth attach rpc:http://127.0.0.1:8545 ou mieux pointer sur le fichier geth.ipc
 
 
 
@@ -39,24 +43,23 @@ pour installer le JWT pour flask dans env
 pip install pyjwt
 
 
-
+Framework Flask
 dans venv
 pip install flask
-
 
 install des fonts pour boostrap
  pip install Flask-FontAwesome
 
-install de gunicorn sous venv
+install de gunicorn sous venv (inutile pour un pc de test)
 sudo apt-get install gunicorn
 
 
-instal de NGINX en dehors de venv
+instal de NGINX en dehors de venv (inutile pour un pc de test)
 sudo apt-get install nginx
 sudo apt-get install python3-pip python3-dev nginx
 https://medium.com/faun/deploy-flask-app-with-nginx-using-gunicorn-7fda4f50066a
 
-instal de redis en dehors de venv
+instal de redis en dehors de venv (redis est utiiliisé pour gerer les session server side de Flask)
 sudo apt install redis-server
 retirer le PIDfile de redis.service /etc/systeld/system/redis.service
 
@@ -72,14 +75,10 @@ https://www.abyssproject.net/2019/01/installation-dun-serveur-ipfs-sous-debian-9
 pour arm (rasbeprry lire https://github.com/claudiobizzotto/ipfs-rpi
 l install b ets pas la meme pour ce ARM
 
-instal ntp pour synchro
-sudo apt-get install ntp
+demarrage bootstrap ./Bootstrap\ Studio.AppImage --no-sandbox (Bootstrap Studio outils de design de vue html sous bootstrap)
 
 
-demarrage botstrap ./Bootstrap\ Studio.AppImage --no-sandbox
-
-
-sous venv, nltk
+sous vnv, nltk (traitement du langage naturel)
 sudo apt update
 sudo apt install python3-pip
 pip install -U numpy
@@ -90,7 +89,7 @@ sous python :
   >>>> nltk.download('stopwords')
 
 sous venv
- pip install 'unidecode'
+ pip install 'unidecode' (pour la gestion des requetes http get)
 
 
 

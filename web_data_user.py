@@ -24,15 +24,15 @@ import Talao_ipfs
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil
-import environment
+#import environment
 import hcode
 import ns
 import sms
 
 
 # environment setup
-mode = environment.currentMode()
-w3 = mode.w3
+#mode = environment.currentMode()
+#w3 = mode.w3
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -42,7 +42,7 @@ def check_login() :
 		return session['username']
 
 
-def send_secret_code (username, code) :
+def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data is None :
 		return None
@@ -58,7 +58,7 @@ def send_secret_code (username, code) :
 
 # Starter with 3 options, login and logout
 #@app.route('/starter/', methods = ['GET', 'POST'])
-def starter() :
+def starter(mode) :
 		if request.method == 'GET' :
 			return render_template('starter.html')
 		else :
@@ -74,7 +74,7 @@ def starter() :
 			
 
 #@app.route('/login/', methods = ['GET', 'POST'])
-def login() :
+def login(mode) :
 	if request.method == 'GET' :
 		return render_template('login.html')		
 	if request.method == 'POST' :
@@ -89,7 +89,7 @@ def login() :
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
 			# send code by sms if phone exist else email
-			session['support'] = send_secret_code(session['username_to_log'], session['code'])
+			session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
 			if session['support'] is None :
 				flash("Problem to send code", 'warning')
 				return render_template('login.html')
@@ -100,7 +100,7 @@ def login() :
 
 # recuperation du code saisi
 #@app.route('/login/authentification/', methods = ['POST'])
-def login_authentification() :
+def login_authentification(mode) :
 	if session.get('username_to_log') is None or session.get('code') is None :
 		flash("Authentification expired", "warning")		
 		return render_template('login.html')
@@ -139,7 +139,7 @@ def login_authentification() :
 	
 # logout
 #@app.route('/logout/', methods = ['GET'])
-def logout() :
+def logout(mode) :
 	# delete picture, signateure and files before logout, clear session.
 	check_login()
 	try :	
@@ -162,7 +162,7 @@ def logout() :
 """ @app.route('/forgot_username/', methods = ['GET', 'POST'])
 This function is called from the starter and login view.
 """
-def forgot_username() :
+def forgot_username(mode) :
 	if request.method == 'GET' :
 		return render_template('forgot_username.html')
 	if request.method == 'POST' :
@@ -177,14 +177,14 @@ def forgot_username() :
 """ @app.route('/forgot_password/', methods = ['GET', 'POST'])
 This function is called from the starter and login view.
 """
-def forgot_password() :
+def forgot_password(mode) :
 	if request.method == 'GET' :
 		if session.get('code_for_password') is None :
 			session['code_for_password'] = str(random.randint(10000, 99999))
 			session['code_for_password_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number_for_password'] = 1
 			# send code by sms if phone exist else email
-			session['support'] = send_secret_code(session['username_to_log'], session['code'])
+			session['support'] = send_secret_code(session['username_to_log'], session['code'], mode)
 			if session['support'] is None :
 				flash("Problem to send code", 'warning')
 				return render_template('login.html')
@@ -214,7 +214,7 @@ def forgot_password() :
 		
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
-def use_my_own_address() :
+def use_my_own_address(mode) :
 	flash("Feature not available yet.", "warning")
 	return render_template('login.html')
 	
@@ -226,7 +226,7 @@ def use_my_own_address() :
 
 
 #@app.route('/data/<dataId>', methods=['GET'])
-def data(dataId) :
+def data(dataId,mode) :
 	check_login()
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
@@ -267,10 +267,8 @@ def data(dataId) :
 				<li><b>Username</b> : """ + issuer_username +"""<br></li>
 				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
 	
-	if my_data.issuer['workspace_contract'] == mode.relay_workspace_contract  :
-		myissuer = myissuer + """<a class="text-warning" >Relay has issued on behalf of """ + session.get('name', 'Unknown') + """</a>"""
 		
-	elif my_data.issuer['workspace_contract'] == session.get('workspace_contract') :					
+	if my_data.issuer['workspace_contract'] == session.get('workspace_contract') or my_data.issuer['workspace_contract'] == mode.relay_workspace_contract :					
 		myissuer = myissuer + """
 				 <a class="text-warning">Self Declaration</a>	
 				</span>"""
@@ -415,8 +413,9 @@ def data(dataId) :
 
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
-def user() :
+def user(mode) :
 	check_login()
+	print('mode : ', mode.__dict__)
 	if not session.get('uploaded', False) :
 		print('start first instanciation user')
 		if mode.test :
@@ -955,7 +954,7 @@ def user() :
 							digitalvault=my_file)
 		
 
-def user_advanced() :
+def user_advanced(mode) :
 	check_login()
 
 	# account	

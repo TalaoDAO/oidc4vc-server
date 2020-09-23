@@ -1,6 +1,6 @@
 
-Organisation des tests 
-=======================
+Organisation des tests (terminés au 30/07/2020)
+===============================================
 
 Contexte
 --------

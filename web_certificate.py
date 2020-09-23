@@ -13,14 +13,14 @@ from sys import getsizeof
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
-import environment
+#import environment
 import constante
 import ns
 import analysis
 
 # environment setup
-mode = environment.currentMode()
-w3 = mode.w3
+#mode = environment.currentMode()
+#w3 = mode.w3
 #FOLDER = mode.uploads_path
 
 def convert(obj):
@@ -37,7 +37,7 @@ def convert(obj):
 # display experience certificate for anybody. Stand alone routine
 # #route /guest/certificate  
 # @route /certificate/
-def show_certificate():
+def show_certificate(mode):
 	if mode.test :
 		print('session dans certificate = ', session)
 	username = session.get('username')
@@ -187,7 +187,7 @@ def show_certificate():
 
 #         verify certificate
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
-def certificate_verify() :
+def certificate_verify(mode) :
 	
 	username = session.get('username')
 	my_picture = session.get('picture', "")
@@ -309,7 +309,7 @@ def certificate_verify() :
 # issuer explore 
 #@app.route('/guest/', methods=['GET'])
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
-def certificate_issuer_explore() :
+def certificate_issuer_explore(mode) :
 	""" This can be an entry point too"""
 	username = session.get('username')
 	my_picture = session.get('picture', "")
@@ -577,7 +577,7 @@ def certificate_issuer_explore() :
 
 
 #@app.route('/certificate/data/<dataId>', methods=['GET'])
-def certificate_data(dataId) :
+def certificate_data(dataId, mode) :
 
 	username = session.get('username')
 	my_picture = session.get('picture', "")
@@ -765,9 +765,9 @@ def certificate_data(dataId) :
 
 # Analysis
 #@app.route('/certificate/data_analysis/', methods=['GET'])
-def certificate_data_analysis() :
+def certificate_data_analysis(mode) :
 	username = session.get('username')
-	my_picture = session.get('picture', "")
+	#my_picture = session.get('picture', "")
 	viewer = 'guest' if username is None else 'user'
 	
 	certificate_id = session['certificate_id']

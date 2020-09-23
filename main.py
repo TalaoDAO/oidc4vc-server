@@ -1,19 +1,19 @@
 """
+
+Main script to start web server.
+
+command line --> $python main.py mychain myenv see environment.py for arguments
+mychain = 'talaonet or 'rinkeby' or 'ethereum'   
+myenv = 'aws' or 'airbox' or 'livebox'
+
+info :
 pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
-
 pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
-
 interace wsgi https://www.bortzmeyer.org/wsgi.html
 
 
-request : http://blog.luisrei.com/articles/flaskrest.html
-
-
-    $ export FLASK_APP=webserver.py
-    $ export FLASK_ENV=development
-    $ flask run -h 127.0.0.1 -p 3000
     
-    
+Future :    
     pour le passage a https 
     https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04-fr
     
@@ -22,7 +22,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 from Crypto.PublicKey import RSA
-
+import sys
 import os
 import os.path, time
 from flask import Flask, session, send_from_directory, flash
@@ -63,20 +63,28 @@ import sms
 # Centralized  route
 import web_create_identity
 import web_certificate
-import web_talent_connect
+#import web_talent_connect see later on
 import web_data_user
 import web_issue_certificate
 import web_skills
 
+# environment variable set by Gunicorn  see environment.py
+mychain = os.getenv('MYCHAIN')
+myenv = os.getenv('MYENV')
+print('environment variable : ',mychain, myenv)
 
-# environment setup
-mode = environment.currentMode()
-w3 = mode.w3
+# Environment setup
+print('Start to init environment')
+mode = environment.currentMode(mychain,myenv)
+print('End of init')
+print('Mode instance : ', mode.__dict__)
+
+#Global variable 
 exporting_threads = {}
 
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.6.6"
+VERSION = "0.7.0"
 
 # Flask and Session setup	
 app = Flask(__name__)
@@ -93,8 +101,10 @@ app.config['RSA_FOLDER'] = RSA_FOLDER
 sess = Session()
 sess.init_app(app)
 
+# bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
 
+# info release
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 #download log Talao in /uploads
@@ -102,43 +112,45 @@ if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
 	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", mode.uploads_path + "QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
 
 # Centralized @route for create identity
-app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
-app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'])
+app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
 
 # Centralized @route for display certificates
-app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate)
-app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certificate)  # idem previous
-app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'])
-app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'])
-app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET']) # idem previous
-app.add_url_rule('/certificate/data/<dataId>',  view_func=web_certificate.certificate_data, methods = ['GET'])
-app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'])
+app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})
+app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})  # idem previous
+app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
+app.add_url_rule('/certificate/data/<dataId>',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
+""" see later if usefull and complete with variable mode
 # Centralized @route for Talent Connect APIs
 app.add_url_rule('/api/v1/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/api/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
+"""
 
 # Centralized route for user, data, login
-app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'])
-app.add_url_rule('/data/<dataId>',  view_func=web_data_user.data, methods = ['GET'])
-app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'])
+app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/data/<dataId>',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'])
-app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'])
-app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'])
-app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'])
-app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET', 'POST'])
-app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'])
-app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'])
+app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'], defaults={'mode': mode})
+app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route issuer for issue certificate for guest
-app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'])
-app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'])
-app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route issuer for skills
-app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'])
+app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -172,7 +184,8 @@ def picture() :
 		myfile.save(os.path.join(mode.uploads_path, filename))
 		picturefile = mode.uploads_path + '/' + filename
 		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
-		session['picture'] = filename	
+		session['picture'] = filename
+		session['menu']['picturefile'] = filename	
 		if session['type'] == 'person' :
 			flash('Picture has been updated', 'success')
 		else :
@@ -848,10 +861,10 @@ def update_company_settings() :
 					<option """+ p1 + """ value="public">Public</option>
 					<option """ + p2 +""" value="private">Private</option>
 					<option """ + p3 + """ value="secret">Secret</option>
-					</opgroup>"""					
+					</opgroup>"""	
+				
 		return render_template('update_company_settings.html',
 								**session['menu'],
-								name=personal['name']['claim_value'],
 								contact_name=personal['contact_name']['claim_value'],
 								contact_name_privacy=privacy['contact_name'],
 								contact_email=personal['contact_email']['claim_value'],
@@ -881,6 +894,7 @@ def update_company_settings() :
 					session['personal'][topicname]['privacy'] = form_privacy[topicname]
 					session['personal'][topicname]['claim_id'] = claim_id[2:]			
 		if change :
+			session['menu']['name'] = session['personal']['name']['claim_value']	
 			flash('Company Settings has been updated', 'success')
 		return redirect(mode.server + 'user/')
 
@@ -1585,7 +1599,7 @@ def import_rsa_key() :
 		except :
 			flash('RSA key is not found', 'danger')
 			return redirect (mode.server +'user/')	
-		contract=w3.eth.contract(session['workspace_contract'],abi=constante.workspace_ABI)
+		contract = mode.w3.eth.contract(session['workspace_contract'],abi=constante.workspace_ABI)
 		identity_key = contract.functions.identityInformation().call()[4]
 		if RSA_public == identity_key :
 			session['rsa_key'] = True

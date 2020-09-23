@@ -1,12 +1,11 @@
 
 """	
+Just a threading process to create user.
 
+centralized url
 
-le user reçoit par email les informations concernant son identité
-Talao dispose d'une copie de la clé
-On test si l email existe dans le registre
-
-centralized url https://flask.palletsprojects.com/en/1.1.x/patterns/lazyloading/
+app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
+app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'])
 """
 
 from flask import request, redirect, render_template, session, flash
@@ -18,17 +17,17 @@ import unidecode
 # dependances
 import Talao_message
 import createidentity
-import environment
+#import environment
 
 from protocol import Claim
 import ns
 
 # environment setup
-mode = environment.currentMode()
-w3 = mode.w3
+#mode = environment.currentMode()
+#w3 = mode.w3
 exporting_threads = {}
 	
-# Multithreading creatidentity setup   https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
+# Multithreading creatidentity setup  
 class ExportingThread(threading.Thread):
 	def __init__(self, username, firstname, lastname, email, mode):
 		super().__init__()
@@ -38,15 +37,15 @@ class ExportingThread(threading.Thread):
 		self.email = email
 		self.mode = mode
 	def run(self):
-		(a,p,workspace_contract) = createidentity.create_user(self.username, self.email, self.mode)
+		workspace_contract = createidentity.create_user(self.username, self.email, self.mode)[2]
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
 		
 			
-# route /authentification/
-def authentification() :
+# route /register/
+def authentification(mode) :
 	session.clear()
 	if request.method == 'GET' :
 		return render_template("create.html",message='')
@@ -63,8 +62,8 @@ def authentification() :
 		print('secret code = ', code)
 		return render_template("create2.html", message = '')
 
-# recuperation du code saisi
-def POST_authentification_2() :
+# route /register/authentification/
+def POST_authentification_2(mode) :
 	global exporting_threads
 	mycode = request.form['mycode']
 	if not session.get('code') : 

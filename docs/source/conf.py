@@ -68,9 +68,9 @@ author = 'Thierry Thevenet'
 
 
 # The short X.Y version
-version = "0.6.2"
+version = "0.6.7"
 # The full version, including alpha/beta/rc tags
-release = "0.6.2"
+release = "0.6.7"
 
 
 # -- General configuration ---------------------------------------------------

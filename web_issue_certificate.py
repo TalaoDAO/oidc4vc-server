@@ -20,15 +20,15 @@ import createidentity
 import Talao_message
 import ns
 import privatekey
-import environment
+#import environment
 from protocol import Document, add_key, Claim, contractsToOwners, get_image, read_profil
 import sms
 
 exporting_threads = {}
 
 # environment setup
-mode = environment.currentMode()
-w3 = mode.w3
+#mode = environment.currentMode()
+#w3 = mode.w3
 
 # Multithreading 
 class ExportingThread(threading.Thread):
@@ -47,7 +47,7 @@ class ExportingThread(threading.Thread):
 		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)	
 
 
-def send_secret_code (username, code) :
+def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data is None :
 		return None
@@ -63,7 +63,7 @@ def send_secret_code (username, code) :
 
 
 #@app.route('/issue/logout/', methods = ['GET'])
-def issue_logout() :
+def issue_logout(mode) :
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return render_template('login.html')
@@ -71,7 +71,7 @@ def issue_logout() :
 
 
 #@app.route('/issue/', methods=['GET', 'POST'])
-def issue_certificate_for_guest() :
+def issue_certificate_for_guest(mode) :
 	""" Its a the MAIN GUEST view, issuer are either new or user but they have been requested to issue, Do not mix with issuer_experience_certificate. 
 	we display a form to complete the certificate draft and put everything in session for next phase
 	this route is a hub to dispatcg according to certificate type"""
@@ -109,7 +109,7 @@ def issue_certificate_for_guest() :
 			else :
 				session['issuer_logo'] = None
 				session['issuer_signature'] = None
-			personal = get_issuer_personal()
+			personal = get_issuer_personal(mode)
 			return render_template('issue_experience_certificate_for_guest.html',
 						start_date = request.args['start_date'],
 						end_date = request.args['end_date'],
@@ -128,7 +128,7 @@ def issue_certificate_for_guest() :
 			else :
 				session['issuer_title'] = None
 				session['issuer_picture'] = None
-			personal = get_issuer_personal()
+			personal = get_issuer_personal(mode)
 			return render_template('issue_recommendation_for_guest.html',
 									talent_name = session['talent_name'],
 									**personal)
@@ -190,7 +190,7 @@ def issue_certificate_for_guest() :
 			Talao_message.messageAuth(session['issuer_email'], str(session['code']))
 			return render_template('confirm_issue_certificate_for_guest.html')
 		else :
-			support = send_secret_code(session['issuer_username'], session['code'])
+			support = send_secret_code(session['issuer_username'], session['code'], mode)
 			if support is None :
 				flash("Session aborted", 'warning')
 				print('support is None dans web_issue_certificate') 
@@ -200,7 +200,7 @@ def issue_certificate_for_guest() :
 				flash("Secret Code already sent by " + support, 'success')
 			return render_template('confirm_issue_certificate_for_user_as_guest.html', support=support)		
 				
-def get_issuer_personal() :				
+def get_issuer_personal(mode) :				
 		 # it is not an issuer creation
 		if session['issuer_username'] != "new" :
 			firstname_claim = Claim()
@@ -220,7 +220,7 @@ def get_issuer_personal() :
 				
 		
 #@app.route('/issue/create_authorize_issue/', methods=['GET', 'POST'])
-def create_authorize_issue() :
+def create_authorize_issue(mode) :
 	""" Its a GUEST screen ,
 	After confirmation view
 	We create the Identity, then the Talent issues the key 20002 to the issuer then the issuer issues the certificate"""

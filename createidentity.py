@@ -1,6 +1,6 @@
 """
 Pour la cration d'un workspace vierge depuis le webserver
-email est gardé uniquement pour l authentification, il n est pas affiché
+email est gardé uniquement pour l authentification, il est crypté dans l identité
 Pour nameservice on y met "prenom.nom" ou un equivalent
 une cle 1 est donnée au Web Relay pour uen délégation de signature
 
@@ -41,27 +41,29 @@ def my_rand(n):
 
 
 def email2(address, workspace_contract, private_key, email, AES_key, mode) :
-	""" This function signs a claim with sheme 2 and an encrypted email with secret key. email  topicvalue = 101109097105108 """
+	""" This function signs a claim with sheme #2 and store an encrypted email with secret key (topicvalue = 101109097105108 """
 	w3 = mode.w3
 		
-	# coder les datas
+	# encrypts email cf algo https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
 	bytesdatajson = bytes(json.dumps({'email' : email}), 'utf-8') # dict -> json(str) -> bytes
 	header = b"header"
-	cipher = AES.new(AES_key, AES.MODE_EAX) #https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
+	cipher = AES.new(AES_key, AES.MODE_EAX) 
 	cipher.update(header)
 	ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
 	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
-	
+
+	# store email on IPFS and get ipfs hash in return
 	ipfs_hash = ipfs_add(dict_data)
 	
-	print('ipfs_hash email2 = ', ipfs_hash)	
+	if mode.test :
+		print('ipfs_hash email2 = ', ipfs_hash)	
+	
+	# nonce determination
 	nonce = w3.eth.getTransactionCount(address)  
-	
-	# calcul de la signature
+	# signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes('email', 'utf-8'), address, bytes(email, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
-	
 	message = encode_defunct(text=msg.hex())
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
 	signature = signed_message['signature']
@@ -75,8 +77,9 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 	
-	print ('email claim Id = ', claim_id)
-	print('email 2 transaction hash = ', transaction_hash)
+	if mode.test :
+		print ('email claim Id = ', claim_id)
+		print('email 2 transaction hash = ', transaction_hash)
 	
 	return 
 
@@ -88,10 +91,6 @@ def create_user(username, email,mode):
 	if ns.does_alias_exist(username,mode)  :
 		print('username already used')
 		return None
-	
-	
-	# process duration
-	time_debut = datetime.now()
 	
 	# user wallet 
 	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -135,7 +134,6 @@ def create_user(username, email,mode):
 	
 	# ether transfer from TalaoGen wallet
 	ether_transfer(address, mode.ether2transfer,mode)
-	balance_avant = w3.eth.getBalance(address)/1000000000000000000
 	
 	# 101 Talao tokens transfer from TalaoGen wallet
 	token_transfer(address,101,mode)
@@ -154,7 +152,8 @@ def create_user(username, email,mode):
 	
 	# workspace_contract address to be read in fondation smart contract
 	workspace_contract = ownersToContracts(address,mode)
-	print('workspace_contract = ',workspace_contract)	
+	if mode.test :
+		print('workspace_contract = ',workspace_contract)	
 
 	# key(1) issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
@@ -176,13 +175,6 @@ def create_user(username, email,mode):
 	Talao_message.messageLog("no lastname", "no firstname", username, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
 	Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)	
 	
-	# process duration and cost
-	time_fin = datetime.now()
-	time_delta = time_fin-time_debut
-	print('Durée des transactions = ', time_delta)
-	balance_apres = w3.eth.getBalance(address)/1000000000000000000
-	cost = balance_avant-balance_apres
-	print('Cout des transactions =', cost)	
 
 	# update private key.db
 	data = { 'created' : datetime.today(),
