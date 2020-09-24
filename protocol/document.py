@@ -146,8 +146,9 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 			return None
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock ,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
+	print('eventlist ', eventlist)
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
 	
@@ -185,11 +186,13 @@ def update_document(address_from, workspace_contract_from, address_to, workspace
 	if synchronous  :
 		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
 		if receipt['status'] == 0 :
+			print('receipt ', receipt)
 			return None
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock ,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
+	print('event list dans update ', eventlist)
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
 	

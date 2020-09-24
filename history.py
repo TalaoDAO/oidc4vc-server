@@ -8,10 +8,14 @@ def history_html(workspace_contract, days, mode) :
 	history = dict()
 	history_string = """ """
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	block = mode.w3.eth.getBlock('latest')
-	block_number = block['number']
-	# 30 days behind, one transaction every 15s
-	fromblock = block_number - (days * 24 * 60 * 4) 
+	block_number = mode.w3.eth.getBlock('latest')['number']
+	
+	# 30 days behind, one transaction every 15s except for Talaonet...
+	if mode.BLOCKCHAIN == 'talaonet' :
+		fromblock = mode.fromBlock
+	else :
+		fromblock = block_number - (days * 24 * 60 * 4) 
+	
 	filter_list = [	contract.events.PartnershipRequested.createFilter(fromBlock= fromblock,toBlock = 'latest'),
 				contract.events.PartnershipAccepted.createFilter(fromBlock=fromblock,toBlock = 'latest'),
 				contract.events.KeyAdded.createFilter(fromBlock=fromblock,toBlock = 'latest'),
