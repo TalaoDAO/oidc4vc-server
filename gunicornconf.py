@@ -19,4 +19,4 @@ capture_output = True
 
 
 # Environment variables
-raw_env = ["MYCHAIN=talaonet","MYENV=airbox"]
+raw_env = ["MYCHAIN=talaonet", "MYENV=airbox","PASSWORD=suc2cane"]

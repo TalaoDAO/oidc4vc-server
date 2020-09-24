@@ -231,6 +231,7 @@ def create_authorize_issue(mode) :
 		return render_template('login.html')
 	
 	code = request.form['code']
+	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	session['try_number'] +=1
 	if session['code_delay'] < datetime.now() :
 		flash("Code expired", 'danger')
@@ -242,7 +243,7 @@ def create_authorize_issue(mode) :
 		url = session['url']
 		session.clear()
 		return redirect(url)				
-	elif code not in [session['code'], "123456"] :	
+	elif code not in authorized_codes :	
 		if session['try_number'] == 2 :			
 			flash('This code is incorrect, 2 trials left', 'warning')
 		elif session['try_number'] == 3 :
@@ -278,7 +279,6 @@ def create_authorize_issue(mode) :
 			"title" : session['issuer_title'],
 			}	
 		
-	
 	# New user, call to thread to authorize, issue and create	
 	if session['issuer_username'] == "new" :	
 		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname'], mode) 
@@ -340,7 +340,7 @@ def create_authorize_issue_thread(username,
 	Claim().relay_add( issuer_workspace_contract,'firstname', issuer_firstname, 'public', mode)
 	Claim().relay_add( issuer_workspace_contract,'lastname', issuer_lastname, 'public', mode)
 	print('firstname et lastname updated')
-	#authorize the new issuer to issue documents (key 20002)
+	#authorize the new issuer to issue documents (ERC725 key 20002)
 	address = contractsToOwners(workspace_contract, mode)
 	add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
 	print('key 20002 issued')

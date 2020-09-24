@@ -72,16 +72,10 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 					str(workspace_contract_address),
 					'\r\nStatus : ',
 					status,
-					'\r\nBackend Id : ',
-					str(backend_Id),
-					'\r\nBackend Login : ',
-					login,
-					'\r\nBackend Password : ',
+					'\r\nSECRET : ',
 					SECRET,
 					'\r\nAES key : ',
-					str(AES_key),
-					mode.DAPP_LINK,
-					str(workspace_contract_address)])
+					str(AES_key)])
 	# attach the body with the msg instance 
 	msg.attach(MIMEText(body, 'plain')) 
 	# open the file to be sent
@@ -113,9 +107,6 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 		print ('error sending mail')
 	s.quit()
 	return
-
-
-
 
 
 def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contract_address,mode)  :

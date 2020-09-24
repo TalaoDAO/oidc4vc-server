@@ -113,7 +113,10 @@ def login_authentification(mode) :
 		return render_template("authentification.html", support=session['support'])
 	
 	print('code retourné = ', code)
-	if code in [session['code'], "123456"] and datetime.now() < session['code_delay'] : # pour les tests
+
+	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
+	print('code list ', authorized_codes)
+	if code in authorized_codes and datetime.now() < session['code_delay'] : 
 		session['username'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']
@@ -192,7 +195,8 @@ def forgot_password(mode) :
 			flash("Secret code sent by " + session['support'], 'success')
 		return render_template('forgot_password.html')
 	if request.method == 'POST' :
-		if request.form['code'] in [session['code_for_password'], "123456"] and datetime.now() < session['code_for_password_delay'] : # pour les tests
+		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
+		if request.form['code'] in authorized_codes and datetime.now() < session['code_for_password_delay'] :
 			ns.update_password(session['username_to_log'], request.form['password'], mode)
 			flash('Password has been updated' , 'success')
 			del session['try_number_for_password']
@@ -517,7 +521,7 @@ def user(mode) :
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
 	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	my_advanced = """
-					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
+					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>	
 					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
 					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""					
 	if session['username'] != 'talao' :
@@ -557,7 +561,7 @@ def user(mode) :
 	
 		
 	# TEST only
-	if mode.debug :
+	if mode.test :
 		my_advanced = my_advanced + """<br><a href="/user/test/">For Test Only</a>"""
 	
 	# Partners
@@ -1000,7 +1004,7 @@ def user_advanced(mode) :
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
 	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""	
 	my_advanced = """
-					<b>Ethereum Chain</b> : """ + mode.BLOCKCHAIN + """<br>	
+					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>	
 					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>					
 					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""					
 	if session['username'] != 'talao' :

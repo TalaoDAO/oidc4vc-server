@@ -97,6 +97,9 @@ def create_user(username, email,mode):
 	address = account.address
 	private_key = account.privateKey.hex()
 	
+	print('user address = ', address)
+	print('user private key = ', private_key)
+	
 	# deterministic RSA key
 	# https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python 
 	global salt
@@ -108,7 +111,7 @@ def create_user(username, email,mode):
 	RSA_private = RSA_key.exportKey('PEM')
 	RSA_public = RSA_key.publickey().exportKey('PEM')
 
-	# store RSA private key in file ./RSA_key/rinkeby ou ethereum
+	# store RSA private key in file ./RSA_key/rinkeby, talaonet ou ethereum
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	fichier = open(filename,"wb")
 	fichier.write(RSA_private)
@@ -133,18 +136,24 @@ def create_user(username, email,mode):
 	bemail = bytes(email , 'utf-8')	
 	
 	# ether transfer from TalaoGen wallet
-	ether_transfer(address, mode.ether2transfer,mode)
-	
+	hash = ether_transfer(address, mode.ether2transfer,mode)
+	if mode.test :
+		print('ether transfer hash ', hash)
+
 	# 101 Talao tokens transfer from TalaoGen wallet
-	token_transfer(address,101,mode)
+	hash = token_transfer(address,101,mode)
+	if mode.test :
+		print('token transfer hash ', hash)
 		
 	# createVaultAccess call in the token
-	createVaultAccess(address,private_key,mode)
-	
+	hash = createVaultAccess(address,private_key,mode)
+	if mode.test :
+		print('create vault acces hash ', hash)
+
 	# workspace (Decentralized IDentity) setup
 	contract = w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	nonce = w3.eth.getTransactionCount(address)  
-	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 7500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = w3.eth.account.signTransaction(txn,private_key)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))

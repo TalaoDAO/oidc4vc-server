@@ -4,6 +4,7 @@ Overview
 Talaonet is a Private Ethereum Network with a Proof Of Authority consensus managed by Talao and partners. 
 The Talao protocol has been deployed on Talaonet.
 
+RPC http://18.190.21.227:8502  
 
 Genesis file 
 ------------

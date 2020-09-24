@@ -1,24 +1,25 @@
 """
 
-Main script to start web server.
+Main script to start web server through Gunicorn
+Arguments of main.py are in gunicornconf.py (global variables) :
+$ gunicorn -c gunicornconf.py   wsgi:app
 
-command line --> $python main.py mychain myenv see environment.py for arguments
-mychain = 'talaonet or 'rinkeby' or 'ethereum'   
-myenv = 'aws' or 'airbox' or 'livebox'
+if script is launched with python without gunicorn, setup environment variables :
+$ export MYCHAIN=talaonet
+$ export PASSWORD=password
+$ export MYENV=livebox
+$ python main.py
 
 info :
 pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
 pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
 interace wsgi https://www.bortzmeyer.org/wsgi.html
-
-
-    
 Future :    
     pour le passage a https 
     https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04-fr
     
     
- talao.png   QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB
+talao.png -> IPFS hash=QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB
 
 """
 from Crypto.PublicKey import RSA
@@ -59,7 +60,6 @@ import history
 import privatekey
 import sms
 
-
 # Centralized  route
 import web_create_identity
 import web_certificate
@@ -68,28 +68,31 @@ import web_data_user
 import web_issue_certificate
 import web_skills
 
-# environment variable set by Gunicorn  see environment.py
+# Environment variable set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
-print('environment variable : ',mychain, myenv)
+password = os.getenv('PASSWORD')
+print('environment variable : ',mychain, myenv, password)
 
 # Environment setup
 print('Start to init environment')
-mode = environment.currentMode(mychain,myenv)
+mode = environment.currentMode(mychain,myenv,password)
 print('End of init')
-print('Mode instance : ', mode.__dict__)
+if mode.test :
+	print('Mode instance : ', mode.__dict__)
 
-#Global variable 
+# Global variable 
 exporting_threads = {}
 
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.0"
+VERSION = "0.7.1"
 
 # Flask and Session setup	
 app = Flask(__name__)
 app.jinja_env.globals['Version'] = VERSION
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
+app.jinja_env.globals['Chain'] = mychain.capitalize()
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
 app.config['SESSION_TYPE'] = 'redis'

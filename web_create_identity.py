@@ -71,7 +71,8 @@ def POST_authentification_2(mode) :
 		return redirect(mode.server + 'login/')
 	session['try_number'] +=1
 	print('code retourné = ', mycode)
-	if mycode == session['code'] or mycode == "123456":
+	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
+	if mycode in authorized_codes :
 		print('code correct')
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], mode)
