@@ -25,9 +25,7 @@ def setup(mode) :
 		data['secret'] = row['password']
 		print(data)
 		add_identity(data, mode)
-	
 	identity_file.close()
-	
 	return			
 	
 
@@ -38,7 +36,7 @@ def add_identity(data, mode) :
 	try :
 		conn = sqlite3.connect(path + 'private_key.db')
 	except :
-		return None
+		return False
 	c = conn.cursor()
 	c.execute("INSERT INTO key VALUES (:created, :username, :address, :private_key, :workspace_contract, :email, :secret, :aes)", data)
 	conn.commit()

@@ -4,11 +4,13 @@ Main script to start web server through Gunicorn
 Arguments of main.py are in gunicornconf.py (global variables) :
 $ gunicorn -c gunicornconf.py   wsgi:app
 
-if script is launched with python without gunicorn, setup environment variables :
+if script is launched with python but without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
 $ export PASSWORD=password
 $ export MYENV=livebox
 $ python main.py
+
+Many view are inside this script, others are in web_modules.py. See Centralized routes.
 
 info :
 pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
@@ -19,8 +21,6 @@ Future :
     https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04-fr
     
     
-talao.png -> IPFS hash=QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB
-
 """
 from Crypto.PublicKey import RSA
 import sys
@@ -68,7 +68,7 @@ import web_data_user
 import web_issue_certificate
 import web_skills
 
-# Environment variable set in gunicornconf.py  and transfered to environment.py
+# Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 password = os.getenv('PASSWORD')
@@ -78,15 +78,15 @@ print('environment variable : ',mychain, myenv, password)
 print('Start to init environment')
 mode = environment.currentMode(mychain,myenv,password)
 print('End of init')
-if mode.test :
-	print('Mode instance : ', mode.__dict__)
 
 # Global variable 
 exporting_threads = {}
 
+# Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
 VERSION = "0.7.2"
+COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
 app = Flask(__name__)
@@ -94,11 +94,11 @@ app.jinja_env.globals['Version'] = VERSION
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.jinja_env.globals['Chain'] = mychain.capitalize()
 app.config['SESSION_PERMANENT'] = True
-app.config['SESSION_COOKIE_NAME'] = 'talao'
-app.config['SESSION_TYPE'] = 'redis'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180)
+app.config['SESSION_COOKIE_NAME'] = COOKIE_NAME
+app.config['SESSION_TYPE'] = 'redis' # Redis server side session
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifetime
 app.config['SESSION_FILE_THRESHOLD'] = 100  
-app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw"
+app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + password
 app.config['RSA_FOLDER'] = RSA_FOLDER
 #Session(app)
 sess = Session()
@@ -110,7 +110,7 @@ fa = FontAwesome(app)
 # info release
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
-#download log Talao in /uploads
+#download logo Talao in /uploads for nav bar
 if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
 	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", mode.uploads_path + "QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
 
@@ -155,6 +155,7 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
+# Check if session is active and access is fine. To be used for all routes
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if session.get('username') is None :
@@ -938,7 +939,7 @@ def store_file() :
 			flash('File ' + filename + ' has been uploaded.', "success")
 		return redirect(mode.server + 'user/')
 
-# create company
+# create company (talao only)
 @app.route('/user/create_company/', methods=['GET', 'POST'])
 def create_company() :
 	check_login()
@@ -955,11 +956,11 @@ def create_company() :
 			claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
 			flash(company_username + ' has been created as company', 'success')
 		else :
-			flash('Creation failed', 'danger')
+			flash('Company Creation failed', 'danger')
 		return redirect(mode.server + 'user/')
 
 
-# create a person 
+# create a user (Talao only)
 @app.route('/user/create_person/', methods=['GET', 'POST'])
 def create_person() :
 	check_login()
@@ -1005,7 +1006,7 @@ def add_experience() :
 			flash('Transaction failed', 'danger')
 		else :	
 			doc_id = data[0]	
-			# add experience in session
+			# add experience in current session
 			experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 			experience['doc_id'] = doc_id
 			experience['created'] = str(datetime.now())
@@ -1047,6 +1048,7 @@ def issue_kyc() :
 			Talao_message.message(subject, kyc_email, text)
 		return redirect(mode.server + 'user/')
 
+# remove kyc
 @app.route('/user/remove_kyc/', methods=['GET', 'POST'])
 def remove_kyc() :
 	check_login()
@@ -1246,7 +1248,7 @@ def invit() :
 			flash('Your invit has not been sent', 'danger')
 		return redirect(mode.server + 'user/')
 		
-# send memo
+# send memo by email
 @app.route('/user/send_memo/', methods=['GET', 'POST'])
 def send_memo() :
 	check_login()
@@ -1286,6 +1288,7 @@ def resquest_partnership() :
 								 session['rsa_key_value'],
 								 mode,
 								 synchronous= True) :
+			# add partnership in current session								 	
 			session['partner'].append({"address": partner_address,
 								"publickey": partner_publickey,
 								 "workspace_contract" : partner_workspace_contract,
@@ -1331,6 +1334,7 @@ def remove_partner() :
 		if not res :
 			flash ('Partnership removal has failed')
 		else :
+			# remove partneship in current session
 			session['partner'] = [ partner for partner in session['partner'] if partner['workspace_contract'] != session['partner_workspace_contract_to_remove']]
 			flash('The partnership with '+session['partner_username_to_remove']+ '  has been removed', 'success')
 		del session['partner_username_to_remove']
@@ -1350,6 +1354,7 @@ def reject_partner() :
 		if not res :
 			flash ('Partnership rejection has failed')
 		else :
+			# remove partnership in current session
 			session['partner'] = [ partner for partner in session['partner'] if partner['workspace_contract'] != session['partner_workspace_contract_to_reject']]
 			# message to user
 			flash('The Partnership with '+session['partner_username_to_reject']+ '  has been rejected', 'success')
@@ -1381,6 +1386,7 @@ def authorize_partner() :
 			flash ('Partnership authorize has failed', 'danger')
 		else :
 			flash('The partnership with '+session['partner_username_to_authorize']+ '  has been authorized', 'success')
+			# update partnership in current session
 			for partner in session['partner'] :
 				if partner['workspace_contract'] == session['partner_workspace_contract_to_authorize'] :
 					partner['authorized'] = "Authorized"

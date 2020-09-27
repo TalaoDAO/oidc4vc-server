@@ -24,15 +24,10 @@ import Talao_ipfs
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil
-#import environment
 import hcode
 import ns
 import sms
 
-
-# environment setup
-#mode = environment.currentMode()
-#w3 = mode.w3
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -468,6 +463,19 @@ def user(mode) :
 
 		phone =  ns.get_data_from_username(session['username'], mode)['phone']
 		session['phone'] = phone if phone is not None else ""
+		
+		# Identity List
+		identity_list = ns.identity_list(mode) 
+		print('identity list = ', identity_list)
+		my_list = """ <div  style="height:200px;overflow:auto;overflow-x: hidden;">"""
+		for identity in identity_list :
+			identity_workspace_contract = ns.get_data_from_username(identity, mode)['workspace_contract']
+			contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
+			data = contract.functions.identityInformation().call()
+			icon = "fa-industry" if data[1] == 2001 else "fa-user"
+			my_list = my_list + """ <a class="dropdown-item " title="" role="presentation" href="/user/issuer_explore/?issuer_username=""" + identity + """" ><i class="fa """ + icon + """ fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;""" + identity + """&nbsp;</a>"""
+		my_list = my_list + """</div>"""
+
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['certificate'] = user.certificate
@@ -484,8 +492,10 @@ def user(mode) :
 							'private_key_value' : user.private_key_value,
 							'rsa_filename': session['rsa_filename'],
 							'profil_title' : session['profil_title'],
+							'list' : my_list,
 							'clipboard' : mode.server  + "guest/?workspace_contract=" + session['workspace_contract']}
-								
+		
+						
 		# welcome message
 		message = ""
 		if not session['private_key'] :

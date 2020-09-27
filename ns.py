@@ -206,6 +206,17 @@ def does_manager_exist(manager_name, host_name, mode) :
 	else :
 		return True
 
+def identity_list(mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	c.execute("SELECT alias_name FROM alias")
+	select = c.fetchall()
+	conn.close()
+	my_list = [item[0] for item in select if item[0] != '']
+	my_list.sort()
+	return my_list
+
 def remove_manager(manager_name, host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
@@ -467,7 +478,6 @@ def check_password(username, password, mode) :
 	return mode.w3.keccak(text=password).hex() == data.get('hash_password') 
 
 def has_phone(username, mode) :
-	path = mode.db_path
 	data = get_data_from_username(username, mode)
 	if data is None or data['phone'] is None or data['phone'] == "" :
 		return False

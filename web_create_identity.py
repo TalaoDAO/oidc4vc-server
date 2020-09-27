@@ -14,17 +14,14 @@ import threading
 import random
 import unidecode
 
+
 # dependances
 import Talao_message
 import createidentity
-#import environment
 
 from protocol import Claim
 import ns
 
-# environment setup
-#mode = environment.currentMode()
-#w3 = mode.w3
 exporting_threads = {}
 	
 # Multithreading creatidentity setup  
@@ -38,11 +35,14 @@ class ExportingThread(threading.Thread):
 		self.mode = mode
 	def run(self):
 		workspace_contract = createidentity.create_user(self.username, self.email, self.mode)[2]
+		if workspace_contract is None :
+			print('Thread to create new Identity failed')
+			return
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
-		
+		return
 			
 # route /register/
 def authentification(mode) :

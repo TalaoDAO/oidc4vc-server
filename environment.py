@@ -25,16 +25,19 @@ class currentMode() :
 		self.BLOCKCHAIN = mychain
 		self.flaskserver = "127.0.0.1" # default value to avoid pb with aws
 		self.port = 4000 #default value to avoid pb with aws
-		
+		self.talao_to_transfer = 101  # Vault deposit see Token Talao
+		self.talao_bonus = 10   # Token rewards
+		self.ether2transfer = 40	# Init user wallet -> 40/1000 eth
+
 		# upload of main private keys. This file (keys.json) is not in the  github repo. Ask admin to get it !!!!!
 		with open('./keys.json') as f:
   			keys = json.load(f)
-		if self.test :
-			print('keys = ', keys)	  
+	
 		self.relay_private_key = keys[mychain]['relay_private_key']
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']		
 
+		# En Prod sur Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws ':
 			self.db_path = '/home/admin/db/talaonet/'
 			self.IPCProvider = '/home/admin/Talaonet/node2/geth.ipc'
@@ -43,6 +46,7 @@ class currentMode() :
 			self.IP = '18.190.21.227' # talao.co
 			self.server = 'http://talao.co:6000/'
 
+		# sur PC portable thierry connecté avec airbox
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :
 			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
@@ -52,6 +56,7 @@ class currentMode() :
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
 
+		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'livebox' :
 			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
@@ -61,6 +66,7 @@ class currentMode() :
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 
+		# En Prod sur Rinkeby
 		if self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':	
 			self.db_path = '/home/admin/db/rinkeby/'
 			self.w3 = Web3(Web3.IPCProvider('/home/admin/rinkeby/geth.ipc', timeout=20))
@@ -92,9 +98,6 @@ class currentMode() :
 		if self.BLOCKCHAIN == 'rinkeby' :
 			self.start_block = 6400000
 			self.GASPRICE='2'
-			self.ether2transfer = 40	
-			self.talao_to_transfer = 101
-			self.talao_bonus = 10
 			self.fromBlock= 5800000
 			self.CHAIN_ID = 4
 			# POA middleware
@@ -113,15 +116,11 @@ class currentMode() :
 			self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])			
 			# Talao company
 			self.owner_talao = '0xE7d045966ABf7cAdd026509fc485D1502b1843F1' 
-			self.workspace_contract_talao = '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'
-					
+			self.workspace_contract_talao = '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'					
 		
 		if self.BLOCKCHAIN == 'talaonet' :
 			self.start_block = 10000
 			self.GASPRICE='1'		
-			self.ether2transfer = 40
-			self.talao_to_transfer = 101
-			self.talao_bonus = 10
 			self.fromBlock= 1000
 			self.CHAIN_ID = 50000
 			# POA middleware
@@ -143,10 +142,8 @@ class currentMode() :
 			self.workspace_contract_talao = '0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'
 		
 		elif self.BLOCKCHAIN == 'ethereum'  :
-			self.ether2transfer = 20
-			self.talao_to_transfer = 101
-			self.talao_bonus = 10
 			self.start_block = 0
+			self.GASPRICE = '2'			
 			self.fromBlock= 5800000
 			self.CHAIN_ID = 1
 			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
@@ -166,10 +163,6 @@ class currentMode() :
 			# Talao company 
 			self.owner_talao = '' # la company
 			self.workspace_contract_talao = ''
-			self.ISSUER = 'backend.talao.io'
-			self.DAPP_LINK = '\r\nDapp Link : https://my.freedapp.io/visit/'
-			self.WORKSPACE_LINK = 'https://my.freedapp.io/visit/'
-			self.GASPRICE = '2'			
 	
 		if self.w3.isConnected()== False :
 			print('Not Connected, network problem')
@@ -181,7 +174,6 @@ class currentMode() :
 		Faire >>>personal.importRawKey(relay, "password") avec address sans '0x' et correct password """
 		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
 		self.w3.geth.personal.unlockAccount(self.foundation_address,self.password,0)
-		#self.w3.geth.personal.unlockAccount(self.owner_talao,self.password,0)
 		self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0) 
 		
 	

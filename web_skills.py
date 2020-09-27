@@ -8,13 +8,7 @@ import unidecode
 # dependances
 import constante
 from protocol import Document
-#import environment
 
-
-
-# environment setup
-#mode = environment.currentMode()
-#w3 = mode.w3
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """

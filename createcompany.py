@@ -17,8 +17,8 @@ from base64 import b64encode, b64decode
 # dependances
 from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key
 from Talao_ipfs import ipfs_add, ipfs_get
+import Talao_message
 import constante
-import environment
 import ns
 import privatekey
 
@@ -86,7 +86,10 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)	
+	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		print('Failed transaction createWprkspace')
+		return None	
 	return hash
 
 # deterministic RSA rand function
@@ -103,15 +106,13 @@ def create_company(email, username, mode) :
 	global salt
 	global master_key
 
-	w3 = mode.w3
-
 	# Check in SQL database if username exists
 	if ns.does_alias_exist(username, mode)  :
 		print('username already used')
-		return None
+		return None, None, None
 	
 	# wallet init	
-	account = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
+	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
 	address = account.address
 	private_key = account.privateKey.hex()
 	print('adresse = ', address)
@@ -135,28 +136,26 @@ def create_company(email, username, mode) :
 	# création de la cle AES
 	AES_key = get_random_bytes(16)	
 
-	# création du Secret
+	# création de la cle SECRET
 	SECRET_key = get_random_bytes(16)
-	SECRET = SECRET_key.hex()
-	print('SECRET = ', SECRET)
 	
 	# encryption de la cle AES avec la cle RSA
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	AES_encrypted=cipher_rsa.encrypt(AES_key)
 	
-	# encryption du SECRET avec la cle RSA 
+	# encryption de la cle SECRET avec la cle RSA 
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
 	
-	# Email 
+	# Email to bytes
 	bemail = bytes(email , 'utf-8')	
 	
-	# Transaction pour le transfert de 0.06 ethers depuis le portfeuille TalaoGen
-	hash1 = ether_transfer(address, 60,mode)
+	# Transaction pour le transfert des nethers depuis le portfeuille TalaoGen
+	hash1 = ether_transfer(address, mode.ether2transfer, mode)
 	print('hash de transfert de 0.06 eth = ',hash1)
 	
-	# Transaction pour le transfert de 101 tokens Talao depuis le portfeuille TalaoGen
-	hash2 = token_transfer(address, 101, mode)
+	# Transaction pour le transfert des tokens Talao depuis le portfeuille TalaoGen
+	hash2 = token_transfer(address, mode.talao_to_transfer, mode)
 	print('hash de transfert de 101 TALAO = ', hash2)
 	
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
@@ -165,8 +164,10 @@ def create_company(email, username, mode) :
 	
 	# Transaction pour la creation du workspace :
 	bemail = bytes(email , 'utf-8')	
-	hash4 =_createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode)
-	print('hash de createWorkspace =', hash4)
+	hash =_createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode)
+	if hash is None :
+		return None, None, None
+	print('hash de createWorkspace =', hash)
 
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract = ownersToContracts(address, mode)
@@ -202,24 +203,43 @@ def create_company(email, username, mode) :
 			 'address' : address,
 			 'private_key' :private_key,
 			 'workspace_contract' : workspace_contract,
-			 'secret' : SECRET,
+			 'secret' : SECRET_key.hex(),
 			 'aes' : AES_key.hex()}
-			 
-	execution =  privatekey.add_identity(data, mode)
-	if mode.test :
-		print('save db = ', execution)
+	execution = privatekey.add_identity(data, mode)
+	if mode.test and execution :
+		print('New company has been added ')
+		Talao_message.messageLog("no lastname",
+								 "no firstname",
+								 username, email,
+								 'Company created by Talao',
+								 address,
+								 private_key,
+								 workspace_contract,
+								 "",
+								 email,
+								 SECRET_key.hex(),
+								 AES_key.hex(),
+								 mode)
 
 	return address, private_key, workspace_contract
 
 
 # MAIN, for new Blockchain setup. Talao and Relay setup
 if __name__ == '__main__':
+	
+	import environment
+	import os
 
+	mychain = os.getenv('MYCHAIN')
+	myenv = os.getenv('MYENV')
+	password = os.getenv('PASSWORD')
+
+	print('environment variable : ',mychain, myenv, password)
 	print('New BLockchain Setup')
 	print('Setup Relay and Talao company')
 
 	# environment setup
-	mode = environment.currentMode()
+	mode = environment.currentMode(mychain, myenv, password)
 	
 	# relay setup 
 	(relay_address, relay_private_key, relay_workspace_contract) = create_company('thierry.thevenet@talao.io', 'relay', mode)
@@ -227,7 +247,6 @@ if __name__ == '__main__':
 	# Talao setup (one uses Relay address which has beee stored in Global variable)
 	(talao_address, talao_private_key, talao_workspace_contract) = create_company('thierry.thevenet@talao.io', 'talao', mode)
 	
-
 	print('relay owner address : ', relay_address)
 	print('relay private key : ' , relay_private_key)
 	print('relay workspace contract : ', relay_workspace_contract)
