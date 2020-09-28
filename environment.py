@@ -38,13 +38,13 @@ class currentMode() :
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']		
 
 		# En Prod sur Talaonet
-		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws ':
+		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':
 			self.db_path = '/home/admin/db/talaonet/'
-			self.IPCProvider = '/home/admin/Talaonet/node2/geth.ipc'
-			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node2/geth.ipc", timeout=20))
+			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
+			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.uploads_path = '/home/admin/Talao/uploads/'
 			self.IP = '18.190.21.227' # talao.co
-			self.server = 'http://talao.co:6000/'
+			self.server = 'http://talao.co:5000/'
 
 		# sur PC portable thierry connecté avec airbox
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :

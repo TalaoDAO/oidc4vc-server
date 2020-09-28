@@ -16,24 +16,26 @@ import constante
 
 def ownersToContracts(address, mode) :
 	w3 = mode.w3
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 	
 def destroyWorkspace(workspace_contract, private_key, mode) :
 	# remove workspace
 	w3 = mode.w3
-	address=contractsToOwners(workspace_contract, mode)
-	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	address = contractsToOwners(workspace_contract, mode)
+	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	# calcul du nonce de l envoyeur de token
 	nonce = w3.eth.getTransactionCount(address)  
 	# Build transaction
 	txn = contract.functions.destroyWorkspace().buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
+	signed_txn = w3.eth.account.signTransaction(txn,private_key)
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash1=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)		
+	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	if receipt['status'] == 0 :
+		return None	
 	return hash1
 
 def contractsToOwners(workspace_contract, mode) :
@@ -100,7 +102,9 @@ def createVaultAccess(address,private_key,mode) :
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
 	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)		
+	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		return None		
 	return hash
 
 def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
@@ -115,7 +119,9 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)	
+	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		return None	
 	return hash
 
 def authorize_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner, user_rsa_key, mode, synchronous = True) :	
@@ -374,7 +380,9 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+		if receipt['status'] == 0 :
+			return None	
 	return picturehash
 
 
@@ -423,7 +431,9 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	# send transaction	
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		return None	
 	return hash1
 
 ############################################################
@@ -447,7 +457,9 @@ def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchrono
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+		if receipt['status'] == 0 :
+			return None
 	return hash1
 
 

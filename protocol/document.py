@@ -15,19 +15,16 @@ import constante
 
  
 def contracts_to_owners(workspace_contract, mode) :
-	w3 = mode.w3
-	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.contractsToOwners(workspace_contract).call()	 
  
 
 def owners_to_contracts(address, mode) :
-	w3 = mode.w3
-	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
 	
 
 def read_profil (workspace_contract, mode, loading) :
-	w3 = mode.w3
 	# setup constante person
 	person_topicnames = {'firstname' : 102105114115116110097109101,
 						'lastname' : 108097115116110097109101,
@@ -58,7 +55,7 @@ def read_profil (workspace_contract, mode, loading) :
 
 	profil = dict()
 	# category
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	category = contract.functions.identityInformation().call()[1]	
 	
 	topic_dict = person_topicnames if category == 1001 else company_topicnames
@@ -78,13 +75,12 @@ def read_profil (workspace_contract, mode, loading) :
 
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
 # @data = dict	
-	w3=mode.w3	
 	
 	# cryptage des données par le user
 	if privacy != 'public' :
 		encrypted_data = data
 		#recuperer la cle AES cryptée
-		contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
+		contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 		mydata = contract.functions.identityInformation().call()
 		if privacy == 'private' :
 			my_aes_encrypted = mydata[5]
@@ -121,8 +117,8 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		expires = int(myexpires.timestamp())	
 		
 	#envoyer la transaction sur le contrat
-	contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
-	nonce = w3.eth.getTransactionCount(address_from)  
+	contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
+	nonce = mode.w3.eth.getTransactionCount(address_from)  
 	
 	# stocke sur ipfs les data attention on archive des bytes
 	ipfs_hash = ipfs_add(data)
@@ -136,16 +132,16 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	
 	encrypted = False if privacy == 'public' else True
 	# Transaction
-	txn = contract.functions.createDocument(doctype,2,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	txn = contract.functions.createDocument(doctype,2,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
+	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	if synchronous :
-		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
+		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)		
 		if receipt['status'] == 0 :
 			return None
 	# recuperer l iD du document sur le dernier event DocumentAdded
-	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock ,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
 	print('eventlist ', eventlist)

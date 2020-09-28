@@ -85,7 +85,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.2"
+VERSION = "0.7.3"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
@@ -187,15 +187,14 @@ def picture() :
 		filename = secure_filename(myfile.filename)
 		myfile.save(os.path.join(mode.uploads_path, filename))
 		picturefile = mode.uploads_path + '/' + filename
-		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
-		session['picture'] = filename
-		session['menu']['picturefile'] = filename	
+		picture_hash = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
+		session['picture'] = picture_hash
+		session['menu']['picturefile'] = picture_hash	
 		if session['type'] == 'person' :
 			flash('Picture has been updated', 'success')
 		else :
 			flash('Logo has been updated', 'success')
 		return redirect(mode.server + 'user/')
-
 
 @app.route('/user/update_phone/', methods=['GET', 'POST'])
 def update_phone() :
@@ -243,13 +242,11 @@ def signature() :
 	if request.method == 'POST' :
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
-		myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+		myfile.save(os.path.join(mode.uploads_path, filename))
 		signaturefile = mode.uploads_path + '/' + filename
-		save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)	
-		session['signature'] = filename	
+		session['signature'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)	
 		flash('Your signature has been updated', 'success')
 		return redirect(mode.server + 'user/')
-
 
 # issuer explore 
 @app.route('/user/issuer_explore/', methods=['GET'])

@@ -42,6 +42,7 @@ def show_certificate(mode):
 		print('session dans certificate = ', session)
 	username = session.get('username')
 	my_picture = session.get('picture', "")
+	menu = session.get('menu', dict())
 	viewer = 'guest' if username is None else 'user'
 	
 	certificate_id = request.args['certificate_id']
@@ -113,6 +114,7 @@ def show_certificate(mode):
 		
 				
 			return render_template('./certificate/certificate.html',
+							**menu,
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
 							title = session['displayed_certificate']['title'],
@@ -126,14 +128,13 @@ def show_certificate(mode):
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer,
 							**context)
 
 
 		else : # issuer is a person
 			return render_template('./certificate/certificate_light.html',
+							**menu,
 							manager= session['displayed_certificate']['manager'],
 							badge=my_badge,
 							title = session['displayed_certificate']['title'],
@@ -145,8 +146,6 @@ def show_certificate(mode):
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer,
 							**context)
 
@@ -282,11 +281,19 @@ def certificate_verify(mode) :
 	
 	# advanced
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
+	# en attendant d'avoir une solution de chain explorer pour Talaonet....
+	if mode.BLOCKCHAIN == 'talaonet' :
+		blockchain = "Talaonet RPC : http://18.190.21.227:8502"
+		transaction_hash = certificate['transaction_hash']
+	else :
+		blockchain = mode.BLOCKCHAIN
+		transaction_hash = """ <a class = <a class= "card-link" href = """ + path + certificate['transaction_hash'] + """>"""+ certificate['transaction_hash']
 	advanced = """<hr>
 				<b>Document Id</b> : """ + str(certificate['doc_id']) + """<br>  
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>	
 				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
-				<b>Transaction Hash</b> : <a class = "card-link" href = """ + path + certificate['transaction_hash'] + """>"""+ certificate['transaction_hash'] + """</a><br>					
+				<b>Blockchain : </b> : """ + blockchain + """<br>
+				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>					
 				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a>"""
 	
 	

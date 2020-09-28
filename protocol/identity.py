@@ -347,10 +347,6 @@ class Identity() :
 				self.identity_file.append(new_file)
 		return True
 	
-	"""	
-	def uploadPicture(self,picturefile) :
-		self.picture = savepictureProfile(self.mode.relay_address, self.mode.relay_workspace_contract, self.address, self.workspace_contract, self.mode.relay_private_key, picturefile,self.mode, synchronous = True)	
-		return self.picture
-	"""
+	
 	
 	
