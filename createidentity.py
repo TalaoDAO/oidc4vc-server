@@ -184,9 +184,10 @@ def create_user(username, email,mode):
 	ns.add_identity(username, workspace_contract, email, mode)
 	
 	# emails send to user and admin
-	status = " createidentity.py"
-	#Talao_message.messageLog("no lastname", "no firstname", username, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
-	#Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)	
+	# pb du smtp depuis mon PC, cf avec Denis pour regler ça!!!!!!!
+	if mode.myenv == 'aws' :
+		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
+		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)	
 	
 	# update private key.db
 	data = { 'created' : datetime.today(),

@@ -55,30 +55,22 @@
                                 </div>
                         
                        
-                         <div class="form-row">
+                                <div class="form-row">
                                     <div class="col">
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text">New phone number : </label>
-                                           
-                                           <div class="form-row">
+                                            <div class="form-row">
                                                 <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-	
-													<select name="code" class="form-control"><optgroup>
-														
-														{% include 'country_code.html' %}
-														</optgroup></select>
-
-													</div>
-                                                <div
-                                                    class="col-7 col-sm-4 col-md-4 col-lg-4 col-xl-4"><input title="Leave this field blank and update if you want to delete your phone number." class="form-control" type="text" name="phone"></div>
+												    <select name="code" class="form-control">
+                                                        <optgroup>
+														    {% include 'country_code.html' %}
+                                                        </optgroup>
+                                                    </select>
+												</div>
+                                                <div class="col-7 col-sm-4 col-md-4 col-lg-4 col-xl-4"><input title="Leave this field blank and update if you want to delete your phone number." class="form-control" type="text" name="phone"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                        </div>
-                              
-                                
-                                
-                                
-                                
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" id="sending_button" type="submit" >Update</button></div>

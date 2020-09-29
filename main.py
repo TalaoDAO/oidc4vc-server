@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.4"
+VERSION = "0.7.5"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
@@ -1665,7 +1665,10 @@ def request_proof_of_identity() :
 def add_issuer() :	
 	check_login()
 	if request.method == 'GET' :				
-		session['referent_username'] = request.args['issuer_username'] 
+		session['referent_username'] = request.args['issuer_username']
+		if session['referent_username'] == session['username' ] :
+			flash('You cannot be the Referent of yourself.', 'warning')
+			return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])	
 		return render_template('add_referent.html', **session['menu'], referent_username=session['referent_username'])
 	elif request.method == 'POST' :
 		issuer_workspace_contract = ns.get_data_from_username(session['referent_username'],mode)['workspace_contract']

@@ -34,9 +34,9 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;"><br><br>Enter your firstname, lastname and an email for authentification.<br>
-                                    <br> This email will be encrypted and used only for authentification.<br>
-                                    <br>You will receive by email your username needed to request certificates and contact companies.<br></p>
+                                    <p class="text-center" style="margin: 75px 50px 0px;"><br><br>Enter your firstname and lastname. Email and Phone number for authentification.<br>
+                                    <br><br>
+                                    <br>You will receive by email your username and password needed to login and request certificates or contact companies.<br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -48,9 +48,31 @@
 									<small>{{message}}</small> 
 								</div> 
                                     <form class="user" action="/register/" method="post">
-                                        <div class="form-group"><input class="form-control" type="text" placeholder="Your firstname" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
-                                         <div class="form-group"><input class="form-control" type="text" placeholder="Your lastname" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
-                                        <div class="form-group"><input class="form-control" type="email" placeholder="Email for authentification" name="email" required="" ></div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Start the process</button>
+                                        <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
+                                         <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
+                                
+                                        <div class="form-group"><input class="form-control" type="email" placeholder="Email" name="email" required="" ></div>
+                                        
+                                    <!--    <div class="form-row">
+                                            <div class="col">  -->
+                                                <div class="form-group">
+                                                    <div class="form-row">
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <select name="code" class="form-control">
+                                                                <optgroup>
+                                                                    {% include 'country_code.html' %}
+                                                                </optgroup>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8"><input title="Leave this field blank and update if you want to delete your phone number." placeholder="Phone number" class="form-control" type="text" name="phone"></div>
+                                                    </div>
+                                                </div>
+                                      <!--      </div>
+                                        </div>  -->
+
+
+
+                                        <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Start the process</button>
                                         
                                         
                                     </form>

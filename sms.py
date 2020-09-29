@@ -1,4 +1,4 @@
-""" prevoir un install avec git clone puis un setp install sous venv """
+""" for token see passwords.json """
 
 import os
 from smsapi.client import SmsApiComClient
@@ -9,10 +9,10 @@ def send_code(phone, code, mode) :
 	""" code = str, phone number with country code 33607182594 """
 	token = mode.sms_token
 	client = SmsApiComClient(access_token=token)
-	send_results = client.sms.send(to=phone, message="# Your verification code is : "+ code)
+	send_results = client.sms.send(to=phone, message="# Your verification code is : " + code)
 	for result in send_results:
 		print(result.id, result.points, result.error)
-	return
+	return True
    
 
 def check_phone(phone, mode) :
@@ -25,5 +25,3 @@ def check_phone(phone, mode) :
 		print(e.message, e.code)
 		return False
 
-#send_code('33607182594', '123456')	
-#print(check_phone('0607182594'))

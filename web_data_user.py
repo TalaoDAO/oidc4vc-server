@@ -73,27 +73,40 @@ def starter(mode) :
 #@app.route('/login/', methods = ['GET', 'POST'])
 def login(mode) :
 	if request.method == 'GET' :
-		return render_template('login.html')		
-	if request.method == 'POST' :
 		session.clear()
+		session['try_number'] = 1		
+		return render_template('login.html')
+
+	if request.method == 'POST' :
 		session['username_to_log'] = request.form['username'].lower()
 		if ns.get_data_from_username(session['username_to_log'], mode) is None :
 			flash('Username not found', "warning")		
 			return render_template('login.html')
-		# secret code to send by email or sms
-		if session.get('code') is None :
+		if not ns.check_password(session['username_to_log'], request.form['password'].lower(), mode) :
+			session['try_number'] +=1
+			if session['try_number'] == 2 :			
+				flash('This password is incorrect, 2 trials left', 'warning')
+				return render_template('login.html')
+			elif session['try_number'] == 3 :
+				flash('This password is incorrect, 1 trial left', 'warning')
+				return render_template('login.html')
+			else :
+				flash("Too many trials (3 max)", "warning")
+				return redirect(mode.server + 'login/')
+		else :
+			# secret code to send by email or sms
 			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
-			session['try_number'] = 1
 			# send code by sms if phone exist else email
 			session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
 			if session['support'] is None :
-				flash("Problem to send code", 'warning')
-				return render_template('login.html')
+				flash("Problem to send secret code", 'warning')
+				return redirect(mode.server + 'login/')
 			else :
 				print('secret code sent = ', session['code'])
 				flash("Secret code sent by " + session['support'], 'success')
-		return render_template("authentification.html", support=session['support'])
+				session['try_number'] = 1
+				return render_template("authentification.html", support=session['support'])
 
 # recuperation du code saisi
 #@app.route('/login/authentification/', methods = ['POST'])
@@ -102,34 +115,22 @@ def login_authentification(mode) :
 		flash("Authentification expired", "warning")		
 		return render_template('login.html')
 	code = request.form['code']
-	password =request.form['password']
 	session['try_number'] +=1
-	
-	if not ns.check_password(session['username_to_log'], password, mode) :
-		flash("Wrong password", "warning")
-		return render_template("authentification.html", support=session['support'])
-	
 	print('code retourné = ', code)
-
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
-	print('code list ', authorized_codes)
 	if code in authorized_codes and datetime.now() < session['code_delay'] : 
 		session['username'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']
 		del session['code'] 
 		del session['support']
-		#return redirect(mode.server + 'user/')		
 		return redirect(url_for('user'))
-
 	elif session['code_delay'] < datetime.now() :
 		flash("Code expired", "warning")
-		return render_template("login.html")
-		
+		return redirect(url_for('user'))
 	elif session['try_number'] > 3 :
 		flash("Too many trials (3 max)", "warning")
-		return render_template("login.html")
-		
+		return render_template("authentification.html")
 	else :	
 		if session['try_number'] == 2 :			
 			flash('This code is incorrect, 2 trials left', 'warning')

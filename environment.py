@@ -50,7 +50,6 @@ class currentMode() :
 		if self.test :
 			print(passwords)
 	
-
 		# En Prod chez AWS avec Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':
 			self.db_path = '/home/admin/db/talaonet/'
