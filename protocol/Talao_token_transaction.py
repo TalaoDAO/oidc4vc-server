@@ -20,23 +20,25 @@ def ownersToContracts(address, mode) :
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 	
-def destroyWorkspace(workspace_contract, private_key, mode) :
-	# remove workspace
-	w3 = mode.w3
+def destroy_workspace(workspace_contract, private_key, mode) :
+	# remove workspace data from blockchain
 	address = contractsToOwners(workspace_contract, mode)
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token
-	nonce = w3.eth.getTransactionCount(address)  
-	# Build transaction
-	txn = contract.functions.destroyWorkspace().buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	signed_txn = w3.eth.account.signTransaction(txn,private_key)
+	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+
+	# Build, sign transaction
+	nonce = mode.w3.eth.getTransactionCount(address)  
+	txn = contract.functions.destroyWorkspace().buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key)
+	
 	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
-	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
+	
+	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
+	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)	
 	if receipt['status'] == 0 :
 		return None	
 	return hash1
+	
 
 def contractsToOwners(workspace_contract, mode) :
 	w3 = mode.w3
@@ -331,7 +333,7 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 #    get image from identity 
 ##################################################################
 def get_image(workspace_contract, image_type, mode) :
-### image(profil picture) = 105109097103101  signature = 115105103110097116117114101
+# image(profil picture) = 105109097103101  signature = 115105103110097116117114101
 
 	w3 = mode.w3
 	topicvalue = 105109097103101 if image_type in ['photo', 'logo', 'image', 'picture'] else 115105103110097116117114101
@@ -350,44 +352,32 @@ def get_image(workspace_contract, image_type, mode) :
 
  
 ############################################################
-#  Mise a jour de la photo/signature
+#  Update pictures or signature, etc
 ############################################################
-#
-#  @picturefile : type str, nom fichier de la phooto avec path ex  './cvpdh.json'
+#  @picturefile : type str, nom fichier de la photo avec path ex  './cvpdh.json'
 # claim topic 105109097103101
-    
-
 def save_image(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, picturefile, picture_type, mode, synchronous = True) :
 	
-	w3 = mode.w3
-
-	# upload on ipfs
-	picturehash = Talao_ipfs.file_add(picturefile)
+	# upload picture on ipfs
+	picture_hash = Talao_ipfs.file_add(picturefile, mode)
 	
 	topic = 105109097103101 if picture_type == 'picture' else 115105103110097116117114101
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 
-	# calcul du nonce de l envoyeur de token . Ici le caller
-	nonce = w3.eth.getTransactionCount(address_from)  
-
-	# Build transaction
-	txn=contract.functions.addClaim(topic,1,address_from, '0x', '0x01',picturehash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	
-	#sign transaction with caller wallet
-	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
+	# Build and sign transaction
+	nonce = mode.w3.eth.getTransactionCount(address_from)  
+	txn = contract.functions.addClaim(topic,1,address_from, '0x', '0x01',picture_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
 	
 	# send transaction	
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	if synchronous == True :
-		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+		receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
 			return None	
-	return picturehash
+	return picture_hash
 
-
-
- 
 ############################################################
 #  Mise a jour du profil 2 000 000 gas
 ############################################################
@@ -560,7 +550,7 @@ def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfsh
 """
 
 ##############################################
-# detrmination de la nature de l addresse
+# determination de la nature de l addresse
 ##############################################
 # @thisaddress, address
 # return dictionnaire
@@ -600,7 +590,9 @@ def whatisthisaddress(thisaddress,mode) :
 			workspace = None
 			
 	return {"type" : category, "owner" : owner, 'workspace' : workspace}
-	
+
+
+"""
 
 ##############################################
 # detrmination de la validité d'un did
@@ -618,3 +610,4 @@ def isdid(did,mode) :
 		return False
 	return True	
 
+"""

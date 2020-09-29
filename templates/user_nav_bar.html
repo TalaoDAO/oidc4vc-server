@@ -29,12 +29,13 @@
                                             <a class="dropdown-item " title="Import private key" role="presentation" href="/user/import_private_key/" ><i class="fa fa-upload fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Import Private Key&nbsp;</a>
                                         {% endif %}
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" role="presentation" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>                 
+                                        <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a> 
+                                        <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>                       
                                         {% if session['test'] %}
                                         <a class="dropdown-item" role="presentation" href="/user/test/"><i class="fa fa-wrench fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Test Only</a>
                                         {% endif %}
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                        <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
                                         
                                     </div>
                         </div>
@@ -120,7 +121,7 @@
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item " title="Check your dashboard" role="presentation" href="/user/data_analysis/" ><i class="fa fa-edit fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;View Dashboard&nbsp;</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/" ><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit&nbsp;</a>
+                                        <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/" ><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit by email&nbsp;</a>
                                         <div class="dropdown-divider"></div>
 										<a class="dropdown-item " title="Update your password" role="presentation" href="/user/update_password/" ><i class="fa fa-key fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Update Password&nbsp;</a>
                                         <a class="dropdown-item " title="Update your phone number" role="presentation" href="/user/update_phone/" ><i class="fa fa-phone fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Update Phone Number&nbsp;</a>
@@ -138,12 +139,14 @@
                                             <a class="dropdown-item " title="Import private key" role="presentation" href="/user/import_private_key/" ><i class="fa fa-upload fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Import Private Key&nbsp;</a>
                                         {% endif %}
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" role="presentation" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>                 
+                                        <a class="dropdown-item" role="presentation" title="More information about your Identity" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a> 
+                                        <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a> 
+                                             
                                         {% if session['test'] %}
                                         <a class="dropdown-item" role="presentation" href="/user/test/"><i class="fa fa-wrench fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Test Only</a>
                                         {% endif %}
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                        <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
                                         
                                     </div>
                                 </div>

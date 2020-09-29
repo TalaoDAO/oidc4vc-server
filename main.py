@@ -2,11 +2,10 @@
 
 Main script to start web server through Gunicorn
 Arguments of main.py are in gunicornconf.py (global variables) :
-$ gunicorn -c gunicornconf.py   wsgi:app
+$ gunicorn -c gunicornconf.py  --reload wsgi:app
 
 if script is launched with python but without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
-$ export PASSWORD=password
 $ export MYENV=livebox
 $ python main.py
 
@@ -49,7 +48,7 @@ import Talao_ipfs
 import createcompany
 import createidentity
 import constante
-from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership
+from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
 from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
 import environment
@@ -71,21 +70,21 @@ import web_skills
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
-password = os.getenv('PASSWORD')
-print('environment variable : ',mychain, myenv, password)
+print('environment variable : ',mychain, myenv)
 
 # Environment setup
 print('Start to init environment')
-mode = environment.currentMode(mychain,myenv,password)
+mode = environment.currentMode(mychain,myenv)
 print('End of init')
-
+#
+#
 # Global variable 
 exporting_threads = {}
 
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.3"
+VERSION = "0.7.4"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
@@ -98,7 +97,7 @@ app.config['SESSION_COOKIE_NAME'] = COOKIE_NAME
 app.config['SESSION_TYPE'] = 'redis' # Redis server side session
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifetime
 app.config['SESSION_FILE_THRESHOLD'] = 100  
-app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + password
+app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
 #Session(app)
 sess = Session()
@@ -209,7 +208,7 @@ def update_phone() :
 			flash('Your phone number has been deleted.', 'success')
 			ns.update_phone(session['username'], None, mode)
 			session['phone'] = ""
-		elif sms.check_phone(phone) :
+		elif sms.check_phone(phone, mode) :
 			ns.update_phone(session['username'], phone, mode)
 			session['phone'] = phone
 			flash('Your phone number has been updated.', 'success')
@@ -1042,7 +1041,7 @@ def issue_kyc() :
 			text = 	"\r\n\r\nA Proof of Identity has been issued for you by Talao. Check your Identity.\r\n" + mode.server + 'login/'			
 			subject = 'Your proof of Identity'
 			kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-			Talao_message.message(subject, kyc_email, text)
+			Talao_message.message(subject, kyc_email, text, mode)
 		return redirect(mode.server + 'user/')
 
 # remove kyc
@@ -1238,7 +1237,7 @@ def invit() :
 						"\r\n\r\nYou can follow this link to register through the Talao platform.\r\n\r\nYour Identity will be tamper proof.\r\n\r\nFollow this link to proceed : ",
 						link])
 		subject = 'You have received an invitation from '+ session['name']
-		execution = Talao_message.message(subject, talent_email, msg)
+		execution = Talao_message.message(subject, talent_email, msg, mode)
 		if execution :
 			flash('Your invit has been sent', 'success')
 		else :
@@ -1257,7 +1256,7 @@ def send_memo() :
 		subject = "You have received a memo from " + session['name'] +"."
 		text = request.form['memo']
 		memo_email = ns.get_data_from_username(session['memo_username'], mode)['email']
-		Talao_message.message(subject, memo_email, text)
+		Talao_message.message(subject, memo_email, text, mode)
 		# message to user
 		flash("Your memo has been sent to " + session['memo_username'], 'success')
 		return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['memo_username'])	
@@ -1313,7 +1312,7 @@ def resquest_partnership() :
 			subject = "You have received a Request for Partnership from " + session['name']
 			text = " You can now accept or reject this Request. Go to " + mode.server +"login/ to proceed."  
 			partner_email = ns.get_data_from_username(session['partner_username'], mode)['email']
-			Talao_message.message(subject, partner_email, text)
+			Talao_message.message(subject, partner_email, text, mode)
 		else :
 			flash('Request to ' + session['partner_username'] + ' failed', 'danger')
 		return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['issuer_username'])
@@ -1359,7 +1358,7 @@ def reject_partner() :
 			subject = "Your Request for Partnership has been rejected by " + session['name']
 			text = ""  
 			partner_email = ns.get_data_from_username(session['partner_username_to_reject'], mode)['email']
-			Talao_message.message(subject, partner_email, text)
+			Talao_message.message(subject, partner_email, text, mode)
 		del session['partner_username_to_reject']
 		del session['partner_workspace_contract_to_reject']
 		return redirect (mode.server +'user/')
@@ -1463,7 +1462,7 @@ def request_recommendation_certificate() :
 					" through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ",
 					url])
 	subject = 'You have received a request for recommendation from '+ session['name']
-	Talao_message.message(subject, session['issuer_email'], text)
+	Talao_message.message(subject, session['issuer_email'], text, mode)
 	# message to user vue
 	flash('Your request for Recommendation has been sent.', 'success')
 	# email to user/Talent
@@ -1472,7 +1471,7 @@ def request_recommendation_certificate() :
 					session['personal']['firstname']['claim_value'],",",
 					"\r\n\r\nYou will receive an email when your Referent connects."]) 
 	user_email = ns.get_data_from_username(session['username'], mode)['email']
-	Talao_message.message(subject, user_email, text)
+	Talao_message.message(subject, user_email, text, mode)
 	del session['issuer_email']
 	if session.get('certificate_issuer_username') is not None :
 		del session['certificate_issuer_username']
@@ -1508,14 +1507,14 @@ def request_experience_certificate() :
 					 session['name'],
 					 " through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ", url])
 	subject = 'You have received a request for certification from '+ session['name']
-	Talao_message.message(subject, session['issuer_email'], text)
+	Talao_message.message(subject, session['issuer_email'], text, mode)
 	# email to user/Talent
 	subject = "Your request for certificate has been sent."
 	text = "".join(["Dear ",
 					session['personal']['firstname']['claim_value'],",",
 					"\r\n\r\nYou will receive an email when your Referent connects."]) 
 	user_email = ns.get_data_from_username(session['username'], mode)['email']
-	Talao_message.message(subject, user_email, text)
+	Talao_message.message(subject, user_email, text, mode)
 	# message to user/Talent
 	flash('Your request for an Experience Certificate has been sent.', 'success')
 	del session['issuer_email']
@@ -1652,11 +1651,11 @@ def request_proof_of_identity() :
 		subject = "Your request for a proof of Identity has been sent."
 		text = " You will receive an email soon." 
 		user_email = ns.get_data_from_username(session['username'], mode)['email']
-		Talao_message.message(subject, user_email, text)
+		Talao_message.message(subject, user_email, text, mode)
 		# email with files to Admin
 		message = 'Request for proof of identity for ' + session['username']
 		filename_list = [session['username'] + "_ID." + id_file_name, session['username'] + "_selfie." + selfie_file_name]
-		Talao_message.message_file([mode.admin], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/')
+		Talao_message.message_file([mode.admin], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/', mode)
 		# message to user
 		flash(' Thank you, we will check your documents soon.', 'success')
 		return redirect (mode.server +'user/')	
@@ -1686,7 +1685,7 @@ def add_issuer() :
 				subject = "You have been chosen by " + session['name'] + " as a Referent."
 			text = " You can now issue Certficates to " + session['name'] + ". Go to " + mode.server +"login/ to proceed."  
 			issuer_email = ns.get_data_from_username(session['referent_username'], mode)['email']
-			Talao_message.message(subject, issuer_email, text)
+			Talao_message.message(subject, issuer_email, text, mode)
 			# message to user
 			flash(session['referent_username'] + ' has been added as a Referent. An email has been sent too.', 'success')
 		return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])	
@@ -1751,6 +1750,27 @@ def remove_white_issuer() :
 		del session['issuer_username_to_remove']
 		del session['issuer_address_to_remove']
 		return redirect (mode.server +'user/')
+
+# delete user identity
+@app.route('/user/delete_identity/', methods=['GET', 'POST'])
+def delete_identity() :
+	check_login()
+	if request.method == 'GET' :
+		if not session['private_key'] :
+			flash('Identity deletion is not possible as there is no private key', 'danger')
+			return redirect (mode.server +'user/')
+		else :
+			return render_template('delete_identity.html', **session['menu'])
+	elif request.method == 'POST' :
+		if not ns.check_password(session['username'], request.form['password'], mode) :
+			flash('Wrong password', 'danger')
+			return redirect (mode.server +'user/')
+		else :
+			destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
+			ns.delete_identity(session['username'], mode)
+			flash('Your Identity has been deleted from Blockchain', 'success')
+			return redirect (mode.server +'login/')
+
 
 # photos upload for certificates
 @app.route('/uploads/<filename>')

@@ -58,7 +58,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	dict_data = dict(zip(json_k, json_v))
 
 	# store email on IPFS
-	ipfs_hash = ipfs_add(dict_data)
+	ipfs_hash = ipfs_add(dict_data,mode)
 	if mode.test :
 		print('ipfs_hash email2 = ', ipfs_hash)	
 	
@@ -185,8 +185,8 @@ def create_user(username, email,mode):
 	
 	# emails send to user and admin
 	status = " createidentity.py"
-	Talao_message.messageLog("no lastname", "no firstname", username, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
-	Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)	
+	#Talao_message.messageLog("no lastname", "no firstname", username, email, status, address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
+	#Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)	
 	
 	# update private key.db
 	data = { 'created' : datetime.today(),

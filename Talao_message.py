@@ -6,11 +6,11 @@ from email import encoders
 
 import constante
 
-signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttp://talao.co/'
-password = 'Reuan;2020'
+signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttp://talao.io/'
 
-def messageAuth (email_to, random) :
+def messageAuth (email_to, random, mode) :
 
+	password = mode.smtp_password
 
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
@@ -40,11 +40,12 @@ def messageAuth (email_to, random) :
 	except:
 		print ('error sending mail')
 	s.quit()
-	return
+	return True
 
 
 def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key,mode)  :
 
+	password = mode.smtp_password
 
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
@@ -106,11 +107,12 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	except:
 		print ('error sending mail')
 	s.quit()
-	return
+	return True
 
 
 def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contract_address,mode)  :
 
+	password = mode.smtp_password
 	fromaddr = "relay@talao.io"
 	toaddr = [email]
 
@@ -121,7 +123,8 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	# string to store the body of the mail 
 	body = "".join(['Hello,\r\nA new Professional Identity has been deployed for you. \r\nYour username for login  : ',
 					username,
-					'\r\n\r\nEmail : ',
+					'\r\nYour first password is identity, change it as soon as possible !',
+					'\r\nEmail : ',
 					email,
 					'\r\nBlockchain : ',
 					mode.BLOCKCHAIN,
@@ -165,11 +168,13 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	except:
 		print ('error sending mail')
 	s.quit()
-	return
+	return True
 
 
 def messageAdmin (subject, messagetext,mode) :
-
+	
+	password = mode.smtp_password
+	
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
 	toaddr = [mode.admin]
@@ -197,7 +202,9 @@ def messageAdmin (subject, messagetext,mode) :
 	return True
 
 
-def message(subject, to, messagetext) :
+def message(subject, to, messagetext, mode) :
+
+	password = mode.smtp_password
 
 	fromaddr = "relay@talao.io"
 	toaddr = [to]
@@ -227,9 +234,11 @@ def message(subject, to, messagetext) :
 
 
 
-def message_file(to, text, subject, filename, path)  :
+def message_file(to, text, subject, filename, path, mode)  :
 	""" @to is list of email, @filename is a list of files """
 
+	password = mode.smtp_password
+	
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
 	toaddr = to
@@ -279,5 +288,5 @@ def message_file(to, text, subject, filename, path)  :
 	except:
 		print ('error sending mail')
 	s.quit()
-	return
+	return True
 

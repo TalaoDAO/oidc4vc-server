@@ -121,7 +121,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	nonce = mode.w3.eth.getTransactionCount(address_from)  
 	
 	# stocke sur ipfs les data attention on archive des bytes
-	ipfs_hash = ipfs_add(data)
+	ipfs_hash = ipfs_add(data, mode)
 	if ipfs_hash is None :
 		return None
 	
@@ -164,7 +164,7 @@ def update_document(address_from, workspace_contract_from, address_to, workspace
 	nonce = w3.eth.getTransactionCount(address_from)  
 	
 	# stocke sur ipfs les data attention on archive des bytes
-	ipfs_hash = ipfs_add(data)
+	ipfs_hash = ipfs_add(data, mode)
 	if ipfs_hash is None :
 		return None
 	

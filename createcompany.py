@@ -44,7 +44,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
 	
-	ipfs_hash = ipfs_add(dict_data)
+	ipfs_hash = ipfs_add(dict_data,mode)
 	
 	if mode.test :
 		print('ipfs_hash email2 = ', ipfs_hash)	
@@ -233,13 +233,14 @@ if __name__ == '__main__':
 	mychain = os.getenv('MYCHAIN')
 	myenv = os.getenv('MYENV')
 	password = os.getenv('PASSWORD')
-
+	smtp_password = os.getenv('SMTP_PASSWORD')
+	
 	print('environment variable : ',mychain, myenv, password)
 	print('New BLockchain Setup')
 	print('Setup Relay and Talao company')
 
 	# environment setup
-	mode = environment.currentMode(mychain, myenv, password)
+	mode = environment.currentMode(mychain, myenv)
 	
 	# relay setup 
 	(relay_address, relay_private_key, relay_workspace_contract) = create_company('thierry.thevenet@talao.io', 'relay', mode)

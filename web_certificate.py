@@ -18,11 +18,6 @@ import constante
 import ns
 import analysis
 
-# environment setup
-#mode = environment.currentMode()
-#w3 = mode.w3
-#FOLDER = mode.uploads_path
-
 def convert(obj):
     if type(obj) == list:
         for x in obj:
@@ -40,10 +35,8 @@ def convert(obj):
 def show_certificate(mode):
 	if mode.test :
 		print('session dans certificate = ', session)
-	username = session.get('username')
-	my_picture = session.get('picture', "")
 	menu = session.get('menu', dict())
-	viewer = 'guest' if username is None else 'user'
+	viewer = 'guest' if session.get('username') is None else 'user'
 	
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
@@ -166,6 +159,7 @@ def show_certificate(mode):
 				print('no picture on disk')
 		description = """ " """ + session['displayed_certificate']['description'] + """ " """		
 		return render_template('./certificate/recommendation.html',
+							**menu,
 							identity_firstname=identity_profil['firstname'],
 							identity_lastname=identity_profil['lastname'],
 							description=description,
@@ -177,8 +171,6 @@ def show_certificate(mode):
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer
 							)
 		
@@ -188,9 +180,8 @@ def show_certificate(mode):
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify(mode) :
 	
-	username = session.get('username')
-	my_picture = session.get('picture', "")
-	viewer = 'guest' if username is None else 'user'
+	menu = session.get('menu', dict())
+	viewer = 'guest' if session.get('username') is None else 'user'
 		
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
@@ -302,11 +293,10 @@ def certificate_verify(mode) :
 		
 	
 	return render_template('./certificate/verify_certificate.html',
+							**menu,
 							certificate_id=certificate_id,
 							topic = certificate['topic'].capitalize(),
 							verif=my_verif,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer,
 							)
 
@@ -318,9 +308,8 @@ def certificate_verify(mode) :
 #@app.route('/certificate/issuer_explore/', methods=['GET'])
 def certificate_issuer_explore(mode) :
 	""" This can be an entry point too"""
-	username = session.get('username')
-	my_picture = session.get('picture', "")
-	viewer = 'guest' if username is None else 'user'
+	menu = session.get('menu', dict())
+	viewer = 'guest' if session.get('username') is None else 'user'
 			
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
@@ -510,6 +499,7 @@ def certificate_issuer_explore(mode) :
 		
 		
 		return render_template('./certificate/certificate_person_issuer_identity.html',
+							**menu,
 							issuer_name=issuer_explore.name,
 							profil_title = issuer_explore.profil_title,
 							name=issuer_explore.name,
@@ -522,8 +512,6 @@ def certificate_issuer_explore(mode) :
 							services=services,
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id= certificate_id,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer,)
 	
 	
@@ -571,14 +559,13 @@ def certificate_issuer_explore(mode) :
 		services ="""<a class="text-warning">Register to get access to services.</a><br><br>"""
 		
 		return render_template('./certificate/certificate_company_issuer_identity.html',
+							**menu,
 							issuer_name=issuer_explore.name,
 							kbis=my_kbis,
 							services=services,
 							personal=issuer_personal,
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id=certificate_id,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer,)
 
 
@@ -586,9 +573,8 @@ def certificate_issuer_explore(mode) :
 #@app.route('/certificate/data/<dataId>', methods=['GET'])
 def certificate_data(dataId, mode) :
 
-	username = session.get('username')
-	my_picture = session.get('picture', "")
-	viewer = 'guest' if username is None else 'user'
+	menu = session.get('menu', dict())
+	viewer = 'guest' if session.get('username') is None else 'user'
 
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
@@ -764,18 +750,16 @@ def certificate_data(dataId, mode) :
 	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
 	
 	return render_template('./certificate/certificate_data_check.html',
+							**menu,
 							verif=my_verif,
-							picturefile=my_picture,
-							username=username,
 							viewer=viewer,
 							)
 
 # Analysis
 #@app.route('/certificate/data_analysis/', methods=['GET'])
 def certificate_data_analysis(mode) :
-	username = session.get('username')
-	#my_picture = session.get('picture', "")
-	viewer = 'guest' if username is None else 'user'
+	
+	viewer = 'guest' if session.get('username') is None else 'user'
 	
 	certificate_id = session['certificate_id']
 	identity_workspace_contract = '0x' + certificate_id.split(':')[3]

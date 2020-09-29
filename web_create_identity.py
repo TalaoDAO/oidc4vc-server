@@ -58,7 +58,7 @@ def authentification(mode) :
 		code = str(random.randint(100000, 999999))
 		session['try_number'] = 1
 		session['code'] = code
-		Talao_message.messageAuth(email, str(code))
+		Talao_message.messageAuth(email, str(code), mode)
 		print('secret code = ', code)
 		return render_template("create2.html", message = '')
 

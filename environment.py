@@ -1,27 +1,25 @@
 """
-
 initialisation des variables d'environnement 
 upload du fichier des private key de Talao, Relay et Talaogen
 initialisation du provider
 construction du registre nameservice
 unlock des addresses du node
 check de geth
-
 """
+
 from web3.middleware import geth_poa_middleware
 from web3 import Web3
 import json
 import sys
 
-
 class currentMode() :
 	
-	def __init__(self, mychain, myenv, password):
+	def __init__(self, mychain, myenv):
+		# mychain, myenv --> environment variables set in gunicornconf.py or manually if main.py is launched without Gunicorn
 		
 		self.admin = 'thierry.thevenet@talao.io'
 		self.test = True
 		self.myenv = myenv
-		self.password = password
 		self.BLOCKCHAIN = mychain
 		self.flaskserver = "127.0.0.1" # default value to avoid pb with aws
 		self.port = 4000 #default value to avoid pb with aws
@@ -31,13 +29,29 @@ class currentMode() :
 
 		# upload of main private keys. This file (keys.json) is not in the  github repo. Ask admin to get it !!!!!
 		with open('./keys.json') as f:
-  			keys = json.load(f)
-	
+  			keys = json.load(f)	
 		self.relay_private_key = keys[mychain]['relay_private_key']
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']		
+		f.close()
+		if self.test :
+			print(keys)
+	
 
-		# En Prod sur Talaonet
+		# upload of main private passwords. This file (passwords.json) is not in the  github repo.
+		with open('./passwords.json') as p:
+  			passwords = json.load(p)	
+		self.password = passwords['password']
+		self.smtp_password = passwords['smtp_password'] # used in smtp.py
+		self.pinata_api_key = passwords['pinata_api_key'] # used in Talao_ipfs.py
+		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py	
+		self.sms_token = passwords['sms_token'] # used in sms.py
+		p.close()
+		if self.test :
+			print(passwords)
+	
+
+		# En Prod chez AWS avec Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':
 			self.db_path = '/home/admin/db/talaonet/'
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
@@ -47,7 +61,7 @@ class currentMode() :
 			self.server = 'http://talao.co:5000/'
 
 		# sur PC portable thierry connecté avec airbox
-		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :
+		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :
 			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
@@ -57,7 +71,7 @@ class currentMode() :
 			self.port = 3000
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
-		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'livebox' :
+		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'livebox' :
 			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
@@ -67,7 +81,7 @@ class currentMode() :
 			self.port = 3000
 
 		# En Prod sur Rinkeby
-		if self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':	
+		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':	
 			self.db_path = '/home/admin/db/rinkeby/'
 			self.w3 = Web3(Web3.IPCProvider('/home/admin/rinkeby/geth.ipc', timeout=20))
 			self.IPCProvider = '/home/admin/rinkeby/geth.ipc'
@@ -76,7 +90,7 @@ class currentMode() :
 			self.server = 'http://talao.co:5000/' 
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
-		if self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'livebox' :		
+		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'livebox' :		
 			self.db_path = '/home/thierry/db/rinkeby/'
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))	
@@ -86,15 +100,18 @@ class currentMode() :
 			self.port = 3000
 
 		# sur PC portable thierry connecté avec airbox
-		if self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'airbox' :		
+		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'airbox' :		
 			self.db_path = '/home/thierry/db/rinkeby/'
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))	
 			self.uploads_path = '/home/thierry/Talao/uploads/'				
-			self.server = 'http://127.0.0.1:3000/' # external
+			self.server = 'http://127.0.0.1:3000/' 
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
 		
+		else :
+			print('Environment variables problem')
+
 		if self.BLOCKCHAIN == 'rinkeby' :
 			self.start_block = 6400000
 			self.GASPRICE='2'
@@ -118,7 +135,7 @@ class currentMode() :
 			self.owner_talao = '0xE7d045966ABf7cAdd026509fc485D1502b1843F1' 
 			self.workspace_contract_talao = '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341'					
 		
-		if self.BLOCKCHAIN == 'talaonet' :
+		elif self.BLOCKCHAIN == 'talaonet' :
 			self.start_block = 10000
 			self.GASPRICE='1'		
 			self.fromBlock= 1000

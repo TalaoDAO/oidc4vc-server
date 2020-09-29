@@ -155,7 +155,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 		data_encrypted = encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
 		if data_encrypted is None :
 			return None, None, None
-		ipfs_hash = ipfs_add(data_encrypted)
+		ipfs_hash = ipfs_add(data_encrypted, mode)
 		if ipfs_hash is None :
 			print('ipfs hash error create_claim')
 			return None, None, None

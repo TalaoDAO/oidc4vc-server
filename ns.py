@@ -2,6 +2,7 @@ from datetime import datetime
 import sqlite3
 import unidecode
 import random
+
 import constante
 
 
@@ -12,13 +13,11 @@ def _init_nameservice(mode):
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()
 	cur.execute('create table alias(alias_name text, identity_name text, email text, phone text, password text, date real)')
-	
 	cur.execute('create table resolver(identity_name text, identity_workspace_contract text, date real)')
-	
 	cur.execute('create table publickey(address text, key text)')
 	conn.commit()
 	cur.close()
-	return
+	return True
 
 
 
@@ -30,6 +29,7 @@ def alter_add_phone_field(database, mode) :
 	cur.execute('alter table alias add column phone text')
 	conn.commit()
 	cur.close()
+	return True
 
 
 def alter_add_phone_field_manager(database, mode) :
@@ -39,6 +39,7 @@ def alter_add_phone_field_manager(database, mode) :
 	cur.execute('alter table manager add column phone text')
 	conn.commit()
 	cur.close()
+	return True
 
 # update pour la mise en place du password
 def alter_add_password_field(database, mode) :
@@ -48,6 +49,7 @@ def alter_add_password_field(database, mode) :
 	cur.execute('alter table alias add column password text default identity')
 	conn.commit()
 	cur.close()
+	return True
 
 # update pour la mise en place du password
 def alter_add_password_field_manager(database, mode) :
@@ -57,6 +59,7 @@ def alter_add_password_field_manager(database, mode) :
 	cur.execute('alter table manager add column password text default identity')
 	conn.commit()
 	cur.close()
+	return True
 
 
 def setup(mode) :	
@@ -114,6 +117,7 @@ def init_host(host_name, mode) :
 	cur.execute('create table manager(manager_name text, identity_name text, email text, phone text, date real, password text)')
 	conn.commit()
 	cur.close()
+	return True
 
 def add_identity(identity_name, identity_workspace_contract, email, mode, phone=None, password='identity') :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""
@@ -135,8 +139,19 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 
 	conn.commit()
 	conn.close()
-	return
+	return True
 
+def delete_identity(identity_name, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()	
+	data = {'identity_name' : identity_name} 
+	# we do not remove the publicHex key
+	c.execute("DELETE FROM resolver WHERE identity_name = :identity_name", data)
+	c.execute("DELETE FROM alias WHERE alias_name = :identity_name", data)
+	conn.commit()
+	conn.close()
+	return True
 	
 def add_alias(alias_name, identity_name, email, mode, phone=None, password='identity') :
 	path = mode.db_path
@@ -147,7 +162,7 @@ def add_alias(alias_name, identity_name, email, mode, phone=None, password='iden
 	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date :phone, :password )", data)
 	conn.commit()
 	conn.close()
-	return		
+	return True
 
 
 def does_alias_exist(alias_name, mode) :
@@ -189,7 +204,7 @@ def add_manager(manager_name, identity_name, host_name, email, mode, phone=None,
 	c.execute("INSERT INTO manager VALUES (:manager_name, :identity_name, :email, :date, :phone, :password )", data)
 	conn.commit()
 	conn.close()
-	return		
+	return True
 
 def does_manager_exist(manager_name, host_name, mode) :
 	path = mode.db_path

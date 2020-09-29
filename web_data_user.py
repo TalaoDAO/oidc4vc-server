@@ -22,7 +22,7 @@ import random
 import Talao_message
 import Talao_ipfs
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroyWorkspace, save_image, partnershiprequest, remove_partnership, token_balance
+from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil
 import hcode
 import ns
@@ -42,12 +42,14 @@ def send_secret_code (username, code, mode) :
 	if data is None :
 		return None
 	if data['phone'] is None :	
-		Talao_message.messageAuth(data['email'], code)
-		print('envoi du code par email')
+		if not mode.test :
+			print('avant envoi de message par email')
+			Talao_message.messageAuth(data['email'], code, mode)
+			print('envoi du code par email')
 		return 'email'
 	else :
 		print('envoi du code par sms')
-		sms.send_code(data['phone'], code)
+		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
 

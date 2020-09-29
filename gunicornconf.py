@@ -1,11 +1,14 @@
+# local call --> gunicorn -c gunicornconf.py  --reload wsgi:app
 
 #import multiprocessing
 
+# to be removed for Nginx on AWS 
+bind = '127.0.0.1:3000'
 
-#bind = '127.0.0.1:3000'
-workers = 5
+
+# workers = 5
+workers = 2
 #workers = multiprocessing.cpu_count()*2+1
-
 
 loglevel = 'info'
 #errorlog = os.path.join(_VAR, 'log/api-error.log')
@@ -19,4 +22,4 @@ capture_output = True
 
 
 # Environment variables
-raw_env = ["MYCHAIN=talaonet", "MYENV=airbox","PASSWORD=suc2cane"]
+raw_env = ["MYCHAIN=talaonet", "MYENV=airbox"]

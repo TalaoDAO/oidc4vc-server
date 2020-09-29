@@ -81,7 +81,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	nonce = w3.eth.getTransactionCount(address_from)  
 	
 	# stocke sur ipfs les data attention on archive des bytes
-	ipfs_hash = ipfs_add(data)
+	ipfs_hash = ipfs_add(data,mode)
 	
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	#_data = json.dumps(data)
