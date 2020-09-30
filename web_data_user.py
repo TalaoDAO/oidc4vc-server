@@ -39,7 +39,7 @@ def check_login() :
 
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
-	if data is None :
+	if data == dict() :
 		return None
 	if data['phone'] is None :	
 		if not mode.test :
@@ -79,20 +79,22 @@ def login(mode) :
 
 	if request.method == 'POST' :
 		session['username_to_log'] = request.form['username'].lower()
-		if ns.get_data_from_username(session['username_to_log'], mode) is None :
-			flash('Username not found', "warning")		
-			return render_template('login.html')
+		if not ns.username_exist(session['username_to_log'], mode)  :
+			flash('Username not found', "warning")
+			session['try_number'] = 1	
+			return render_template('login.html', name="")
 		if not ns.check_password(session['username_to_log'], request.form['password'].lower(), mode) :
 			session['try_number'] +=1
 			if session['try_number'] == 2 :			
 				flash('This password is incorrect, 2 trials left', 'warning')
-				return render_template('login.html')
+				return render_template('login.html', name=session['username_to_log'])
 			elif session['try_number'] == 3 :
 				flash('This password is incorrect, 1 trial left', 'warning')
-				return render_template('login.html')
+				return render_template('login.html', name=session['username_to_log'])
 			else :
 				flash("Too many trials (3 max)", "warning")
-				return redirect(mode.server + 'login/')
+				session['try_number'] = 1	
+				return render_template('login.html', name="")
 		else :
 			# secret code to send by email or sms
 			session['code'] = str(random.randint(10000, 99999))
@@ -464,7 +466,7 @@ def user(mode) :
 		session['signature'] = user.signature		
 		session['test'] = mode.test
 
-		phone =  ns.get_data_from_username(session['username'], mode)['phone']
+		phone =  ns.get_data_from_username(session['username'], mode).get('phone')
 		session['phone'] = phone if phone is not None else ""
 		
 		# Identity List

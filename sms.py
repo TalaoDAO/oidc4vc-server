@@ -1,4 +1,6 @@
-""" for token see passwords.json """
+""" for token see passwords.json 
+https://ssl.smsapi.com/#/payments/transfer/success
+"""
 
 import os
 from smsapi.client import SmsApiComClient

@@ -43,7 +43,7 @@ class ExportingThread(threading.Thread):
 
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
-	if data is None :
+	if data == dict() :
 		return None
 	if data['phone'] is None :	
 		Talao_message.messageAuth(data['email'], code, mode)

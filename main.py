@@ -9,7 +9,7 @@ $ export MYCHAIN=talaonet
 $ export MYENV=livebox
 $ python main.py
 
-Many view are inside this script, others are in web_modules.py. See Centralized routes.
+Many views are inside this script, others are in web_modules.py. See Centralized routes.
 
 info :
 pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
@@ -76,15 +76,14 @@ print('environment variable : ',mychain, myenv)
 print('Start to init environment')
 mode = environment.currentMode(mychain,myenv)
 print('End of init')
-#
-#
+
 # Global variable 
 exporting_threads = {}
 
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.5"
+VERSION = "0.7.6"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
@@ -99,6 +98,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifet
 app.config['SESSION_FILE_THRESHOLD'] = 100  
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
+app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG", "GIF"]
+
 #Session(app)
 sess = Session()
 sess.init_app(app)
@@ -184,6 +185,10 @@ def picture() :
 	if request.method == 'POST' :
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
+		file_extension = filename.rsplit(".", 1)[1]
+		if file_extension.upper() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
+			flash('Only "JPEG", "JPG", "PNG", "GIF" files accepted', 'warning')
+			return redirect(mode.server + 'user/picture/')
 		myfile.save(os.path.join(mode.uploads_path, filename))
 		picturefile = mode.uploads_path + '/' + filename
 		picture_hash = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)	
@@ -247,14 +252,14 @@ def signature() :
 		flash('Your signature has been updated', 'success')
 		return redirect(mode.server + 'user/')
 
-# issuer explore 
+# issuer explore
+# This view allow user to explore other identities 
 @app.route('/user/issuer_explore/', methods=['GET'])
 def issuer_explore() :
 	check_login()
 	issuer_username = request.args['issuer_username']
 	if 'issuer_username' not in session or session['issuer_username'] != issuer_username :
-		issuer = ns.get_data_from_username(issuer_username, mode)
-		if issuer is None :
+		if not ns.username_exist(issuer_username, mode) :
 			flash('Issuer data not available', 'danger')
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
@@ -644,8 +649,8 @@ def search() :
 		if username_to_search == session['username'] :
 			flash('Here you are !', 'success')
 			return redirect(mode.server + 'user/')	
-		exist  = ns.get_data_from_username(username_to_search, mode)
-		if exist is None :
+		if not ns.username_exist(username_to_search, mode) :
+			print('test username_exist')
 			flash('Username not found', "warning")		
 			return redirect(mode.server + 'user/')		
 		else :
@@ -935,7 +940,7 @@ def store_file() :
 			flash('File ' + filename + ' has been uploaded.', "success")
 		return redirect(mode.server + 'user/')
 
-# create company (talao only)
+# create company (Talao only)
 @app.route('/user/create_company/', methods=['GET', 'POST'])
 def create_company() :
 	check_login()
@@ -944,7 +949,7 @@ def create_company() :
 	if request.method == 'POST' :
 		company_email = request.form['email']
 		company_username = request.form['name'].lower()
-		if ns.get_data_from_username(company_username, mode) is not None  :
+		if ns.username_exist(company_username, mode)   :
 			company_username = company_username + str(random.randint(1, 100))
 		workspace_contract = createcompany.create_company(company_email, company_username, mode)[2]
 		if workspace_contract is not None :
@@ -1020,7 +1025,10 @@ def issue_kyc() :
 	if request.method == 'POST' :	
 		my_kyc = dict()
 		kyc_username = request.form['username']
-		kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode)['workspace_contract'] 
+		kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
+		if kyc_workspace_contract is None :
+			flash(kyc_username + ' does not exist ', 'danger')
+			return redirect(mode.server + 'user/')
 		my_kyc['firstname'] = request.form['firstname']
 		my_kyc['lastname'] = request.form['lastname']
 		my_kyc['birthdate'] = request.form['birthdate']
@@ -1077,7 +1085,10 @@ def issue_kbis() :
 		kbis = Document('kbis')
 		my_kbis = dict()
 		kbis_username = request.form['username']
-		#kbis_workspace_contract = ns.get_data_from_username(kbis_username,mode)['workspace_contract'] 
+		kbis_workspace_contract = ns.get_data_from_username(kbis_username,mode).get('workspace_contract')
+		if kbis_workspace_contract is None :
+			flash(kbis_username + ' does not exist ', 'danger')
+			return redirect(mode.server + 'user/')
 		my_kbis['name'] = request.form['name']
 		my_kbis['date'] = request.form['date']
 		my_kbis['legal_form'] = request.form['legal_form']
@@ -1088,7 +1099,7 @@ def issue_kbis() :
 		my_kbis['ceo'] = request.form['ceo']
 		my_kbis['siret'] = request.form['siret']
 		my_kbis['managing_director'] = request.form['managing_director']
-		data = kbis.relay_add(kbis_username, my_kbis, mode, privacy='public')
+		data = kbis.relay_add(kbis_workspace_contract, my_kbis, mode, privacy='public')
 		if data is None :
 			flash('Transaction failed', 'danger')
 		else :		
@@ -1531,7 +1542,7 @@ def add_alias() :
 	if request.method == 'GET' :		
 		return render_template('add_alias.html', **session['menu'])
 	if request.method == 'POST' :
-		if ns.get_data_from_username(request.form['access_username'],mode) is not None :
+		if ns.username_exist(request.form['access_username'],mode) :
 			flash('Username already used' , 'warning')
 		else :
 			alias_username = request.form['access_username']
@@ -1622,7 +1633,7 @@ def add_manager() :
 	if request.method == 'GET' :		
 		return render_template('add_manager.html', **session['menu'])
 	if request.method == 'POST' :
-		if ns.get_data_from_username(request.form['manager_username'].lower(),mode) is None :
+		if not ns.username_exist(request.form['manager_username'].lower(),mode)  :
 			flash('Username not found' , 'warning')
 		else :
 			manager_username = request.form['manager_username']
@@ -1753,6 +1764,7 @@ def remove_white_issuer() :
 		del session['issuer_username_to_remove']
 		del session['issuer_address_to_remove']
 		return redirect (mode.server +'user/')
+
 
 # delete user identity
 @app.route('/user/delete_identity/', methods=['GET', 'POST'])

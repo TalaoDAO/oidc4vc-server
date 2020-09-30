@@ -258,7 +258,6 @@ def _get_data(username, mode) :
 		c.execute("SELECT identity_name, email, phone, password FROM alias WHERE alias_name = :username " , data)
 		select = c.fetchone()
 		if select is None : 
-			print('ici')
 			conn.commit()
 			conn.close()
 			print(username + ' n existe pas dans la table des alias de nameservice')
@@ -372,11 +371,14 @@ def _get_data_for_login(username, mode) :
 	else :
 		return host, email, phone, password
 
+def username_exist(username, mode) :
+	return  False if _get_data(username,mode) is None else True
+
 def get_data_from_username(username, mode) :
 	""" It is almost the same as get_data_for_login but with dict as return """
 	call = _get_data_for_login(username, mode)
 	if call is None :
-		return None
+		return dict()
 	workspace_contract, email, phone, password = call
 	address = _contractsToOwners(workspace_contract,mode)
 	return {'email' : email,

@@ -367,8 +367,7 @@ def certificate_issuer_explore(mode) :
 		
 		# kyc
 		if len (issuer_explore.kyc) == 0:
-			my_kyc = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
-					<a class="text-danger">No Proof of Identity available</a>"""
+			my_kyc = """<a class="text-danger">No Proof of Identity available</a>"""
 		else :	
 			my_kyc = ""
 			for kyc in issuer_explore.kyc :
@@ -417,7 +416,7 @@ def certificate_issuer_explore(mode) :
 		else :	
 			for education in issuer_explore.education :
 				edu_html = """
-					<b>Company</b> : """+education['organization']['name']+"""<br>			
+					<b>Organization</b> : """+education['organization']['name']+"""<br>			
 					<b>Title</b> : """+education['title']+"""<br>
 					<b>Description</b> : """+education['description'][:100]+"""...<br>
 					<p>
