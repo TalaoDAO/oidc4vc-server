@@ -102,7 +102,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= 5800000,toBlock = 'latest')
+	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash

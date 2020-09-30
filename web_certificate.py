@@ -229,7 +229,7 @@ def certificate_verify(mode) :
 	company_website = certificate['issuer'].get('website')
 	if  company_website not in [ 'Unknown', None] :
 		issuer_website = """
-				<b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a><br>			
+				<li><b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a></li>			
 				</span>"""
 	else :
 		issuer_website = ""
@@ -263,7 +263,7 @@ def certificate_verify(mode) :
 		
 		
 	company_website = certificate['issuer'].get('website')
-	if  company_website not in [ 'Unknown', None] :
+	if  company_website not in [ 'Unknown', None] and user_type == 'Company':
 		user_website = """
 				<b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a><br>			
 				</span>"""
@@ -500,8 +500,7 @@ def certificate_issuer_explore(mode) :
 		return render_template('./certificate/certificate_person_issuer_identity.html',
 							**menu,
 							issuer_name=issuer_explore.name,
-							profil_title = issuer_explore.profil_title,
-							name=issuer_explore.name,
+							issuer_profil_title = issuer_explore.profil_title,
 							kyc=my_kyc,
 							personal=issuer_personal,
 							experience=issuer_experience,

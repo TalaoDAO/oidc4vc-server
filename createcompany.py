@@ -189,6 +189,8 @@ def create_company(email, username, mode) :
 	if username != 'talao' and username != 'relay' :
 		# key 20002 to Talao to Issue Proof of Identity
 		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True) 
+		# key 5 to Talao to be in White List
+		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5 , mode, synchronous=True) 
 	else :
 		pass
 

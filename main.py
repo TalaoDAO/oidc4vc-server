@@ -83,7 +83,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.6"
+VERSION = "0.7.7"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
@@ -139,7 +139,7 @@ app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, me
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/data/<dataId>',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'])
+app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'], defaults={'mode': mode})
 app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -1099,7 +1099,7 @@ def issue_kbis() :
 		my_kbis['ceo'] = request.form['ceo']
 		my_kbis['siret'] = request.form['siret']
 		my_kbis['managing_director'] = request.form['managing_director']
-		data = kbis.relay_add(kbis_workspace_contract, my_kbis, mode, privacy='public')
+		data = kbis.talao_add(kbis_workspace_contract, my_kbis, mode)
 		if data is None :
 			flash('Transaction failed', 'danger')
 		else :		

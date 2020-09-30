@@ -73,11 +73,12 @@ def starter(mode) :
 #@app.route('/login/', methods = ['GET', 'POST'])
 def login(mode) :
 	if request.method == 'GET' :
-		session.clear()
-		session['try_number'] = 1		
+		session.clear()	
 		return render_template('login.html')
 
 	if request.method == 'POST' :
+		if session.get('try_number') is None :
+			session['try_number'] = 1
 		session['username_to_log'] = request.form['username'].lower()
 		if not ns.username_exist(session['username_to_log'], mode)  :
 			flash('Username not found', "warning")
@@ -158,7 +159,7 @@ def logout(mode) :
 			print('effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
-	return render_template('login.html')
+	return render_template('login.html', name="")
 
 	
 # forgot username 
@@ -174,7 +175,7 @@ def forgot_username(mode) :
 			flash('There is no Identity with this Email' , 'warning')
 		else :
 			flash('This Email is already used by Identities : ' + ", ".join(username_list) , 'success')
-		return render_template('login.html')
+		return render_template('login.html', name="")
 
 # forgot password
 """ @app.route('/forgot_password/', methods = ['GET', 'POST'])
@@ -220,7 +221,7 @@ def forgot_password(mode) :
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
 def use_my_own_address(mode) :
 	flash("Feature not available yet.", "warning")
-	return render_template('login.html')
+	return redirect(mode.server + 'user/')
 	
 	
 ############################################################################################
