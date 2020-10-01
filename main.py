@@ -83,7 +83,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
-VERSION = "0.7.7"
+VERSION = "0.7.8"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup	
@@ -1070,7 +1070,7 @@ def remove_kyc() :
 					del session['kyc'][counter]
 					break
 			del session['kyc_to_remove']
-			flash('The Education has been removed', 'success')
+			flash('The Proof of Identity has been removed', 'success')
 		else :
 			flash('You cannot remove theis Proof of Identy (No Private Key found)', 'warning')
 		return redirect (mode.server +'user/')
@@ -1106,6 +1106,29 @@ def issue_kbis() :
 			flash('New kbis added for '+ kbis_username, 'success')
 		return redirect(mode.server + 'user/')
 
+
+# remove kbis
+@app.route('/user/remove_kbis/', methods=['GET', 'POST'])
+def remove_kbis() :
+	check_login()
+	if request.method == 'GET' :
+		session['kbis_to_remove'] = request.args['kbis_id']
+		return render_template('remove_kbis.html', **session['menu'])
+	if request.method == 'POST' :	
+		session['kbis'] = [kbis for kbis in session['kbis'] if kbis['id'] != session['kbis_to_remove']]
+		doc_id = session['kbis_to_remove'].split(':')[5]
+		my_kbis = Document('kbis')
+		if session['private_key'] :
+			my_kbis.delete(session['workspace_contract'], session['private_key_value'], int(doc_id), mode)
+			for counter,kbis in enumerate(session['kbis'], 0) :
+				if kbis['doc_id'] == doc_id :
+					del session['kbis'][counter]
+					break
+			del session['kbis_to_remove']
+			flash('The Proof of Identity has been removed', 'success')
+		else :
+			flash('You cannot remove this Proof of Identy (No Private Key found)', 'warning')
+		return redirect (mode.server +'user/')
 
 @app.route('/user/remove_experience/', methods=['GET', 'POST'])
 def remove_experience() :
@@ -1155,7 +1178,7 @@ def remove_file() :
 	if request.method == 'GET' :
 		session['file_id_to_remove'] = request.args['file_id']
 		session['filename_to_remove'] = request.args['filename']
-		return render_template('remove_file.html', **session['me,u'],filename=session['filename_to_remove'])
+		return render_template('remove_file.html', **session['menu'],filename=session['filename_to_remove'])
 	elif request.method == 'POST' :	
 		session['identity_file'] = [one_file for one_file in session['identity_file'] if one_file['id'] != session['file_id_to_remove']]
 		Id = session['file_id_to_remove'].split(':')[5]
