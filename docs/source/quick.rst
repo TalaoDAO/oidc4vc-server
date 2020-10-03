@@ -7,7 +7,7 @@ You can access to this Guide trough the navigation bar if you use a large device
 Setup
 -----
 
-- Go to http://talao.co:5000/starter/
+- Go to http://talao.co/starter/
 - Choose the "Quick Start" option (first option) to create a new Professional Identity
 - Enter firstname, lastname and an email for authentification purpose. Your firstname and lastname will be public, your email will be encrypted and used only for authentificaion.
 
@@ -27,7 +27,7 @@ In particular store your Private Key and RSA Key secretly.
 Login
 -----
  
-   - Go to http://talao.co:5000/login/ and enter you username .Your will receive a dynamic password by email.
+   - Go to http://talao.co and enter you username .Your will receive a dynamic password by email.
    - Check your email and enter the password (3 trials maximum, 3 minutes maximum). Your are logged.
    - Complete your profil as much as possible and request certificates to Companies or Individuals. Read more in :doc:`/request_a_certificate`
 

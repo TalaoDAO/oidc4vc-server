@@ -8,6 +8,7 @@ import constante
 
 signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttp://talao.io/'
 
+""" Envoi du code secret """
 def messageAuth (email_to, random, mode) :
 
 	password = mode.smtp_password
@@ -42,14 +43,14 @@ def messageAuth (email_to, random, mode) :
 	s.quit()
 	return True
 
-
+""" email envoyé a la creation d'un workspace  """
 def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key,mode)  :
 
 	password = mode.smtp_password
 
 	# debut de la fonction
-	fromaddr = "relay@talao.io"
-	toaddr = [mode.admin]
+	fromaddr = 'relay@talao.io'
+	toaddr = [mode.admin, 'alexandre.leclerc@gadz.org', 'victor.baconnet@gmail.com']
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
 	# instance of MIMEMultipart 
@@ -139,22 +140,6 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	body= body + footer + signature
 	msg.attach(MIMEText(body, 'plain')) 
 
-	"""
-	# open the file to be sent
-	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	attachment = open(path, "rb") 
-	# instance of MIMEBase and named as p 
-	p = MIMEBase('application', 'octet-stream') 
-	# To change the payload into encoded form 
-	p.set_payload((attachment).read()) 
-	# encode into base64 
-	encoders.encode_base64(p) 
-	p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
-	# attach the instance 'p' to instance 'msg' 
-	msg.attach(p) 
-	"""
-
 	# creates SMTP session 
 	s = smtplib.SMTP('smtp.gmail.com', 587) 
 	s.starttls() 
@@ -174,7 +159,6 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 def messageAdmin (subject, messagetext,mode) :
 	
 	password = mode.smtp_password
-	
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
 	toaddr = [mode.admin]
