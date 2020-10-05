@@ -24,7 +24,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
           <span>{{ message }}</span>
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -158,15 +158,15 @@
                           </div>
                         </div>
                       </div>
-                  </div>  
+                  </div>
                   <br>
                   <div class="form-row">
                     <div class="col-6 col-xl-3">
                       <a href="/user/">
                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
                       </a>
-                   </div>  
-                  </div>  
+                   </div>
+                  </div>
                 </div>
               </div>
             </div>
