@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -26,7 +26,7 @@
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
                     <span>{{ message }}</span>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -35,15 +35,15 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-                
-                {% include 'user_nav_bar.html' %}    
+
+                {% include 'user_nav_bar.html' %}
 
         <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{name}}
-                <a class="text-secondary" onclick="copyToClipboard('#p100')"> 
+                <a class="text-secondary" onclick="copyToClipboard('#p100')">
                 <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
                 </a>
-                <p hidden id="p100" >{{clipboard}}</p>      
+                <p hidden id="p100" >{{clipboard}}</p>
                 <h6 class="text-dark mb-4">{{profil_title}}</h6>
             <div class="row mb-3">
                 <div class="col-lg-6 col-xl-4 offset-lg-3 offset-xl-4">
@@ -61,7 +61,7 @@
                                 <div class="form-row">
                                     <div class="col-md-8 offset-md-2">
                                        <div class="form-group"><input placeholder="Enter your password" class="form-control"  type="password" name="password" required="" title="Default password is identity"></div>
-                                       
+
                                         <div class="form-row">
                                         <div class="col-6 col-xl-4">
                                             <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Delete Identity</button></div>
@@ -81,12 +81,12 @@
     </div>
     </div>
     </div>
-   
 
-    {% include 'user_footer.html' %}    
+
+    {% include 'user_footer.html' %}
 
     </div>
-   
+
        <script>function copyToClipboard(element) {
         var $temp = $("<input>");
         $("body").append($temp);
@@ -97,9 +97,9 @@
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>  
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    
+
 
 
 </body>

@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,11 +22,11 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                
+
         {% with messages = get_flashed_messages(with_categories=true) %}
 			{% if messages %}
 				{% for category, message in messages %}
-            <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
                 <span>{{ message }}</span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -35,16 +35,16 @@
 				{% endfor %}
 			{% endif %}
 		{% endwith %}
-                
-                  {% if session['type'] == "company" %}    
-                 {% include 'company_nav_bar.html' %}    
-             {% else %} 
-                 {% include 'user_nav_bar.html' %} 
+
+                  {% if session['type'] == "company" %}
+                 {% include 'company_nav_bar.html' %}
+             {% else %}
+                 {% include 'user_nav_bar.html' %}
              {% endif %}
 
-          
-            
-            
+
+
+
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{issuer_name}}</h3>
                   <p class="text-dark mb-4">{{issuer_profil_title}}</p>
@@ -67,7 +67,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                     
+
 										<div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
                                                 <h5 class="mb-0" title="text experience"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-7" href="#accordion-1 .item-7">&nbsp; Proof of Identity</a></h5>
@@ -78,7 +78,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    
+
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
                                                 <h5 class="mb-0" title="text experience"><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-2">&nbsp; Files Store</a></h5>
@@ -89,47 +89,47 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
                                                 <h5 class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
                                             </div>
                                             <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-													
-													{% if session['issuer_explore']['experience'] != [] %} 
+
+													{% if session['issuer_explore']['experience'] != [] %}
 														 <div  style="height:400px;overflow:auto;overflow-x: hidden;">
 															<p class="card-text">{{experience|safe}}</p>
 														</div>
 													{% else %}
 													 	<p class="card-text">{{experience|safe}}</p>
-													 {% endif %}	
-                                                
+													 {% endif %}
+
                                                 </div>
                                             </div>
                                         </div>
-                                        
-                                        
+
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text edication"><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4" href="#accordion-1 .item-4">&nbsp;Education</a></h5>
                                             </div>
                                             <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-													
-														{% if session['issuer_explore']['education'] != [] %} 
-															<div  style="height:400px;overflow:auto;overflow-x: hidden;">						
+
+														{% if session['issuer_explore']['education'] != [] %}
+															<div  style="height:400px;overflow:auto;overflow-x: hidden;">
 															<p class="card-text">{{education|safe}}</p>
 															</div>
 														{% else %}
 															<p class="card-text">{{education|safe}}</p>
 														{% endif %}
-												
+
                                                 </div>
                                             </div>
                                         </div>
-                             
-                               
+
+
                                         <div class="card">
                                             <div class="card-header" role="tab" title="List of all your education and training degrees you provided." >
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6" href="#accordion-1 .item-6">&nbsp; Skills</a></h5>
@@ -140,16 +140,16 @@
                                                 </div>
                                             </div>
                                         </div>
-                         
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-8" href="#accordion-1 .item-8">&nbsp;Certificates</a></h5>
                                             </div>
                                             <div class="collapse item-8" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-												
-															{% if session['issuer_explore']['certificates'] != [] %} 
-															<div  style="height:400px;overflow:auto;overflow-x: hidden;">						
+
+															{% if session['issuer_explore']['certificates'] != [] %}
+															<div  style="height:400px;overflow:auto;overflow-x: hidden;">
 															<p class="card-text">{{certificates|safe}}</p>
 															</div>
 														{% else %}
@@ -157,25 +157,25 @@
 														{% endif %}
                                                 </div>
                                             </div>
-                                        </div>          
-                                        
-                                        
-                                        
+                                        </div>
+
+
+
                                     </div>
                                 </div>
                             </div>
-                           
-                         
+
+
                             <div class="card shadow mb-5">
                                 <div class="card-body">
                                     <h4 class="text-dark mb-4">Services</h4>
-											
+
 											{{services|safe}}
-												
-                          
+
+
 											<div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
-								  </div>  
-								  </div>	
+								  </div>
+								  </div>
                         </div>
                     </div>
                 </div>
@@ -183,9 +183,9 @@
         </div>
     </div>
     </div>
-    
-    
-                        {% include 'user_footer.html' %}    
+
+
+                        {% include 'user_footer.html' %}
 
     </div>
     <script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000); </script>
