@@ -3,8 +3,8 @@ Request a Certificate
 
 If you are new and you do not have an Identity, it takes about 5 minutes :
 
-  - First, create your own Identity. Go to http://talao.co:5000/register/ and enter your firstname, lastname and an email for authentification.
-  - When you receive your username and private keys go to http://talao.co:5000/login/ to log and acces your Identity
+  - First, create your own Identity. Go to http://talao.co/register/ and enter your firstname, lastname and an email for authentification.
+  - When you receive your username and private keys go to http://talao.co to log and acces your Identity
   - Then clic on  "Request Certificate" of the Menu Bar and follow the process.
   
 

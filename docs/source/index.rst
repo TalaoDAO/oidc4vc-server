@@ -34,13 +34,6 @@ Welcome to Talao's documentation!
    use_its_own_address
    proof_of_identity
 
-   	
-.. toctree::
-   :maxdepth: 2
-   :caption: Talaonet:
-   
-   talaonet
- 
   	
 .. toctree::
    :maxdepth: 2

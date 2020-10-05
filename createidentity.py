@@ -169,6 +169,9 @@ def create_user(username, email,mode):
 	if mode.test :
 		print('workspace_contract has been setup = ',workspace_contract)	
 
+	# add username to register in local nameservice Database
+	ns.add_identity(username, workspace_contract, email, mode)
+
 	#ERC725 keys
 	# key 1 issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
@@ -178,10 +181,7 @@ def create_user(username, email,mode):
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True) 
 
 	# rewrite email with scheme 2 to be encrypted
-	email2(address, workspace_contract, private_key, email, AES_key, mode)
-		
-	# add username to register sql database
-	ns.add_identity(username, workspace_contract, email, mode)
+	email2(address, workspace_contract, private_key, email, AES_key, mode)		
 	
 	# emails send to user and admin
 	# pb du smtp depuis mon PC, cf avec Denis pour regler ça!!!!!!!
@@ -189,7 +189,7 @@ def create_user(username, email,mode):
 		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
 		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)	
 	
-	# update private key.db
+	# update private key.db, to store Ethereum private key
 	data = { 'created' : datetime.today(),
 			'username' : username,
 			 'email' : email,

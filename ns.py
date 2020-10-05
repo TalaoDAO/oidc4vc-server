@@ -5,8 +5,7 @@ import random
 
 import constante
 
-
-	
+""" SQLite init functions , not used in normal operation 
 	
 def _init_nameservice(mode):
 	path = mode.db_path
@@ -18,7 +17,7 @@ def _init_nameservice(mode):
 	conn.commit()
 	cur.close()
 	return True
-
+"""
 
 
 def alter_add_phone_field(database, mode) :
@@ -31,7 +30,7 @@ def alter_add_phone_field(database, mode) :
 	cur.close()
 	return True
 
-
+""" idem au dessus
 def alter_add_phone_field_manager(database, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + database)
@@ -87,6 +86,9 @@ def setup(mode) :
 	add_manager('jp1', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
 	add_manager('jp2', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
 
+
+"""
+
 ####################################### Standard Functions ###############################################################################################################
 
 def _contractsToOwners(workspace_contract, mode) :
@@ -99,12 +101,14 @@ def _ownersToContracts(address, mode) :
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 
+
 def build_username(firstname, lastname,mode) :
+	""" to get an unique username """
 	_firstname = firstname.lower()
 	_lastname = lastname.lower()
 	_username = unidecode.unidecode(_firstname) + unidecode.unidecode(_lastname)
 	username = _username.replace(" ", "")
-	if get_data_from_username(username, mode) is not None  :
+	if username_exist(username, mode)  :
 		username = username + str(random.randint(1, 100))
 	return username
 
@@ -164,7 +168,7 @@ def add_alias(alias_name, identity_name, email, mode, phone=None, password='iden
 	conn.close()
 	return True
 
-
+""" deprecated replaced by def username_exist
 def does_alias_exist(alias_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -178,6 +182,9 @@ def does_alias_exist(alias_name, mode) :
 		return False
 	else :
 		return True
+"""
+
+
 
 def remove_alias(alias_name, mode) :
 	path = mode.db_path
@@ -221,16 +228,19 @@ def does_manager_exist(manager_name, host_name, mode) :
 	else :
 		return True
 
+
 def identity_list(mode) :
+	""" Return list of username """
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	c.execute("SELECT alias_name FROM alias")
 	select = c.fetchall()
 	conn.close()
-	my_list = [item[0] for item in select if item[0] != '']
+	my_list = [item[0] for item in select if item[0] != '' and item[0] != 'relay']
 	my_list.sort()
 	return my_list
+
 
 def remove_manager(manager_name, host_name, mode) :
 	path = mode.db_path
@@ -248,6 +258,7 @@ def remove_manager(manager_name, host_name, mode) :
 
 
 def _get_data(username, mode) :
+	""" return data from SQL database depending of type of user (manager or not) """
 	path = mode.db_path
 	manager_name,s,host_name = username.rpartition('.')
 	# it is not a manager
@@ -344,7 +355,7 @@ def get_address_from_publickey(publickey, mode) :
 	return select[0]		
 
 def get_data_from_publickey(publickey, mode) :
-	""" username comes from resolver"""
+	""" username comes from resolver database"""
 	#path = mode.db_path
 	address = get_address_from_publickey(publickey, mode)
 	print('address =', address)

@@ -82,8 +82,9 @@ exporting_threads = {}
 
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
-RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.7.8"
+
+RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
+VERSION = "0.7.10"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -143,6 +144,7 @@ app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, 
 app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'], defaults={'mode': mode})
 app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
 app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -952,7 +954,7 @@ def create_company() :
 		company_email = request.form['email']
 		company_username = request.form['name'].lower()
 		if ns.username_exist(company_username, mode)   :
-			company_username = company_username + str(random.randint(1, 100))
+			company_username = company_username + str(random.randint(1, 100))	
 		workspace_contract = createcompany.create_company(company_email, company_username, mode)[2]
 		if workspace_contract is not None :
 			claim=Claim()

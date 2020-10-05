@@ -49,9 +49,9 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	if mode.test :
 		print('ipfs_hash email2 = ', ipfs_hash)	
 	
-	nonce = w3.eth.getTransactionCount(address)  
-	
+
 	# Signature
+	nonce = w3.eth.getTransactionCount(address)  
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes('email', 'utf-8'), address, bytes(email, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
@@ -66,8 +66,10 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	signed_txn = w3.eth.account.signTransaction(txn,private_key)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	
+	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		return False		
+
 	if mode.test :
 		print ('email claim Id = ', claim_id)
 		print('email 2 transaction hash = ', transaction_hash)
@@ -100,16 +102,12 @@ def my_rand(n):
 
 
 def create_company(email, username, mode) :
-	""" username is a company name here """
+	""" username is a company name here 
+	one does not check if username exist here """
 
 	global relay_address
 	global salt
 	global master_key
-
-	# Check in SQL database if username exists
-	if ns.does_alias_exist(username, mode)  :
-		print('username already used')
-		return None, None, None
 	
 	# wallet init	
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')

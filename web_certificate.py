@@ -204,7 +204,7 @@ def certificate_verify(mode) :
 	if issuer_type == 'Company' :
 		issuer = """
 				<span>
-				<b>Referent</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
+				<b>Referent (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
 				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
 				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li>
@@ -217,7 +217,7 @@ def certificate_verify(mode) :
 		issuer = """
 				<span>
 				<hr>
-				<b>Referent</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>Referent (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
 				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
 				<li><b>Firstname</b> : """ + certificate['issuer']['firstname'] + """</li>
@@ -274,17 +274,17 @@ def certificate_verify(mode) :
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
 	# en attendant d'avoir une solution de chain explorer pour Talaonet....
 	if mode.BLOCKCHAIN == 'talaonet' :
-		blockchain = "Talaonet RPC : http://18.190.21.227:8502"
+		blockchain = "TalaoNet RPC URL http://18.190.21.227:8502"
 		transaction_hash = certificate['transaction_hash']
 	else :
-		blockchain = mode.BLOCKCHAIN
+		blockchain = mode.BLOCKCHAIN.capitalize()
 		transaction_hash = """ <a class = <a class= "card-link" href = """ + path + certificate['transaction_hash'] + """>"""+ certificate['transaction_hash']
 	advanced = """<hr>
+				<b>Blockchain</b> : """ + blockchain + """<br>
+				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>	
 				<b>Document Id</b> : """ + str(certificate['doc_id']) + """<br>  
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>	
-				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
-				<b>Blockchain : </b> : """ + blockchain + """<br>
-				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>					
+				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>			
 				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a>"""
 	
 	

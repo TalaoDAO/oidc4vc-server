@@ -80,7 +80,7 @@ class currentMode() :
 			self.port = 3000
 
 		# sur PC portable alex
-		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'freebox' :
+		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'freebox' :
 			self.db_path = '/home/jarvis/Bureau/Eth/db/'
 			self.IPCProvider = '/home/jarvis/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/home/jarvis/talaonet/geth.ipc', timeout=20))
