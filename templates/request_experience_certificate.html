@@ -2,99 +2,104 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                                                                           {% include 'user_nav_bar.html' %}    
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% include 'user_nav_bar.html' %}
 
         <div class="container-fluid">
-            <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
-                    <div class="card shadow mb-3">
-                        <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request an Experience Certificate</p>
-                        </div>
-                        <div class="card-body">
-                            <form action="/user/request_experience_certificate/" method="post">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <p>Complete this request form as precisely as possible to help your Referent to draft the final Certificate. He will receive an email with this information.</p>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-xl-6">
-                                        <div class="form-group"><label>Your position</label><input title=" Your position in the project team." required="" class="form-control"  type="text" name="title"></div>
-                                    </div>
-                                  
-                                </div>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <div class="form-group"><label>Project description</label><textarea rows="4" title="A description of the project, objectives, technologies, team, delay..." required="" class="form-control" name="description"></textarea></div>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-xl-6">
-                                        <div class="form-group"><label>Start date</label><input title="Start date of the project." class="form-control" required="" type="date" name="start_date"></div>
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <div class="form-group"><label>End date</label><input  title="End date of the project." class="form-control" required="" type="date" name="end_date"></div>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-xl-12">
-                                        <div class="form-group"><label>Skill1, skill2, skill3....(Optional)</label><input title="List of skills with comma separator : skill1, skill2, ..." class="form-control" type="text" name="skills"></div>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <div class="form-group"><label>Memo (Optional)</label><textarea rows="4" placeholder="Hi Paul,&#10I hope everything is fine for you.&#10I'd like to get a recommendation from you.&#10Let me know if you agree.&#10Regards" class="form-control" title="Leave a message to the Referent. It will be added on top of the email." name="memo"></textarea></div>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." id="sending_button" type="submit" name="choice" value="send">Send</button></div>
-                                    </div>
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button onclick="goBack()" title="Cancel the request." class="btn btn-primary btn-sm" type="button" value="Back">Back</button></div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card shadow mb-3">
+                <div class="card-header py-3">
+                  <p class="text-primary m-0 font-weight-bold">&nbsp;Request an Experience Certificate</p>
                 </div>
-            </div>
-        </div>
-    </div>
-    </div>
-    </div>
-                                                             {% include 'user_footer.html' %}    
+                <div class="card-body">
+                  <form action="/user/request_experience_certificate/" method="post">
+                    <div class="form-row">
+                      <div class="col">
+                        <p>Complete this request form as precisely as possible to help your Referent to draft the final Certificate. He will receive an email with this information.</p>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-xl-6">
+                        <div class="form-group"><label>Your position</label><input title=" Your position in the project team." required="" class="form-control" type="text" name="title"></div>
+                      </div>
 
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label>Project description</label><textarea rows="4" title="A description of the project, objectives, technologies, team, delay..." required="" class="form-control" name="description"></textarea></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-xl-6">
+                        <div class="form-group"><label>Start date</label><input title="Start date of the project." class="form-control" required="" type="date" name="start_date"></div>
+                      </div>
+                      <div class="col-xl-6">
+                        <div class="form-group"><label>End date</label><input title="End date of the project." class="form-control" required="" type="date" name="end_date"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-xl-12">
+                        <div class="form-group"><label>Skill1, skill2, skill3....(Optional)</label><input title="List of skills with comma separator : skill1, skill2, ..." class="form-control" type="text" name="skills"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label>Memo (Optional)</label><textarea rows="4" placeholder="Hi Paul,&#10I hope everything is fine for you.&#10I'd like to get a recommendation from you.&#10Let me know if you agree.&#10Regards"
+                            class="form-control" title="Leave a message to the Referent. It will be added on top of the email." name="memo"></textarea></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-6 col-xl-3">
+                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." id="sending_button" type="submit" name="choice" value="send">Send</button></div>
+                      </div>
+                      <div class="col-6 col-xl-3">
+                        <div class="form-group"><button onclick="goBack()" title="Cancel the request." class="btn btn-primary btn-sm" type="button" value="Back">Back</button></div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-         <script>function goBack() {  window.history.back();}</script>
-       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	  <script src="{{ url_for('static', filename='sending_button.js') }}"></script> 
-     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>   
+  </div>
+  {% include 'user_footer.html' %}
+
+  </div>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>

@@ -2,216 +2,245 @@
 <html>
 
 <head>
-   <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                
-            
-        {% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				{% for category, message in messages %}
-            <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                <span>{{ message }}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
-           
-                
-            
-         {% include 'user_nav_bar.html' %}    
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
 
-            
-            <div class="container-fluid">
-							<h3 class="text-dark mb-4">{{name}}
-							<a class="text-secondary" onclick="copyToClipboard('#p100')"> 
-							<i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-							</a>
-							<p hidden id="p100" >{{clipboard}}</p>      
-                            <h6 class="text-dark mb-4">{{profil_title}}</h6>
-      
-                <div class="row">
-					
-                       <div class="col-xl-8 offset-xl-2">
-                   
-                        <div class="card-deck">
-                            
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+
+
+        {% include 'user_nav_bar.html' %}
+
+
+        <div class="container-fluid">
+          <h3 class="text-dark mb-4">{{name}}
+            <a class="text-secondary" onclick="copyToClipboard('#p100')">
+              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+            </a>
+            <p hidden id="p100">{{clipboard}}</p>
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+
+            <div class="row">
+
+              <div class="col-xl-8 offset-xl-2">
+
+                <div class="card-deck">
+
                   <!--          <div class="card shadow mb-5 d-none d-md-inline-block"> -->
-								<div class="card shadow mb-5">
-									 
-								<div class="card-body">
-										<!-- <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><i title="New certificate." style="font-size: 20px;"  class="fas fa-plus fa-lg"></i></a></h4>	-->	
-                                         <h4 class="text-center">{{nb_certificates}} Certificates <a class="text-secondary" href="/user/request_certificate/" ><button   class="btn btn-light btn-sm" type="button" >Request New Certificate</button></a></h4>		
-										{% if session['certificate'] == [] %}
-											<div  style="height:50px;overflow:auto;overflow-x: hidden;">
-												<p class="card-text">{{certificates|safe}}</p>
-											</div>
-                                         {% else %}
-                                         
-                                         <div  style="height:400px;overflow:auto;overflow-x: hidden;">
-												<p class="card-text">{{certificates|safe}}</p>
-											</div>
-                                         {% endif %}       
-                                   </div>                
-                 <!--               <div class="card-body text-center"><a href="/user/picture/"><img class="mx-auto d-block card-img"  title="Clic to change picture." src="{{ url_for('send_file', filename=picturefile) }}"></a></div>-->
-                            </div>  
-                            
-                            <div class="card shadow mb-5">					
-                                <div class="card-body">
-                <!--                    <h4><a href="/user/picture/"><img class="mx-auto d-block card-img" title="Clic to change picture."  src="{{ url_for('send_file', filename=picturefile) }}"></a></h4> -->
-                                     <h4 class="text-center" title="Complete your Resume." >My Identity</h4>
-                                    
-                                    <div role="tablist" id="accordion-1">
-                                       
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all your personal details.">
-                                                <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal Details</a></h5>
-                                            </div>
-                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-													<div  style="height:200px;overflow:auto;overflow-x: hidden;">
-														<p class="card-text">{{personal|safe}}</p>
-													</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                     
-                                  
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your proof of Identity issued by Talao.">
-                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Proof of Identity</a></h5>
-                                            </div>
-                                            <div class="collapse item-12" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{kyc|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>    
-                                     
-                                     
-                                        <div class="card">
-                                            <div class="card-header" role="tab" title="The File Store is a personal digital storage to save your files (public or encrypted).">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5" href="#accordion-1 .item-5">&nbsp; File Store</a></h5>
-                                            </div>                               
-                                            <div class="collapse  item-5" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>
-                                            </div>
-                                        </div>
-                                     
-                                     
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all the experiences you provided.">
-                                                <h5 class="mb-0"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
-                                            </div>
-                                            <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-													<div  style="height:200px;overflow:auto;overflow-x: hidden;">
-														<p class="card-text">{{experience|safe}}</p>
-													</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        
-                                        <div class="card">
-                                            <div class="card-header" role="tab" title="List of all your education and training degrees you provided." >
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4" href="#accordion-1 .item-4">&nbsp; Education</a></h5>
-                                            </div>
-                                            <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-													
-														<div  style="height:200px;overflow:auto;overflow-x: hidden;">
-															<p class="card-text">{{education|safe}}</p>
-														</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                
-                                        
-                                 
-                                        
-                                        <div class="card">
-                                            <div class="card-header" role="tab" title="List of all your technical skills, soft skills or languages capacity." >
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6" href="#accordion-1 .item-6">&nbsp; Skills</a></h5>
-                                            </div>
-                                            <div class="collapse item-6" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{skills|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                      
-                                      
-                 
-					<!--					<div class="card">
+
+
+                  <div class="card shadow mb-5">
+                    <div class="card-body">
+                      <!--                    <h4><a href="/user/picture/"><img class="mx-auto d-block card-img" title="Clic to change picture."  src="{{ url_for('send_file', filename=picturefile) }}"></a></h4> -->
+                      <h4 class="text-center" title="Complete your Resume.">My Resume</h4>
+
+                      <div role="tablist" id="accordion-1">
+
+                        <div class="card">
+                          <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all your personal details.">
+                            <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal Details</a></h5>
+                          </div>
+                          <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                              <div style="overflow:auto;overflow-x: hidden;">
+                                <p class="card-text">{{personal|safe}}</p>
+                                <a href="/user/update_personal_settings/">
+                                <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Update</button></div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="card">
+                          <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your proof of Identity issued by Talao.">
+                            <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Proof of Identity</a></h5>
+                          </div>
+                          <div class="collapse item-12" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                              <div style="overflow:auto;overflow-x: hidden;">
+                              <p class="card-text">{{kyc|safe}}</p>
+                              <a href="/user/request_proof_of_identity/">
+                              <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Request Proof of Identity</button></div>
+                              </a>
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="card">
+                          <div class="card-header" role="tab" title="The File Store is a personal digital storage to save your files (public or encrypted).">
+                            <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0"><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-5"
+                                href="#accordion-1 .item-5">&nbsp; File Store</a></h5>
+                          </div>
+                          <div class="collapse  item-5" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                              <div style="overflow:auto;overflow-x: hidden;">
+                              <p class="card-text">{{digitalvault|safe}}</p>
+                              <a href="/user/store_file/">
+                              <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Store file</button></div>
+                              </a>
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="card">
+                          <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all the experiences you provided.">
+                            <h5 class="mb-0"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
+                          </div>
+                          <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                              <div style="overflow:auto;overflow-x: hidden;">
+                                <p class="card-text">{{experience|safe}}</p>
+                                <a href="/user/add_experience/">
+                                <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Add Experience</button></div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="card">
+                          <div class="card-header" role="tab" title="List of all your education and training degrees you provided.">
+                            <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0"><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4"
+                                href="#accordion-1 .item-4">&nbsp; Education</a></h5>
+                          </div>
+                          <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+
+                              <div style="overflow:auto;overflow-x: hidden;">
+                                <p class="card-text">{{education|safe}}</p>
+                                <a href="/user/add_education/">
+                                <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Add Education</button></div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+
+
+
+                        <div class="card">
+                          <div class="card-header" role="tab" title="List of all your technical skills, soft skills or languages capacity.">
+                            <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6"
+                                href="#accordion-1 .item-6">&nbsp; Skills</a></h5>
+                          </div>
+                          <div class="collapse item-6" role="tabpanel" data-parent="#accordion-1">
+                            <div class="card-body">
+                              <div style="overflow:auto;overflow-x: hidden;">
+                              <p class="card-text">{{skills|safe}}</p>
+                              <a href="/user/update_skills/">
+                              <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Update Skills</button></div>
+                              </a>
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+
+                        <!--					<div class="card">
                                             <div class="card-header" role="tab" title="List of all certificates issued by third parties." >
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-certificate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp; Certificates</a></h5>
                                             </div>
-                                        
+
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-													
+
 													<div  style="height:400px;overflow:auto;overflow-x: hidden;">
 														<p class="card-text">{{certificates|safe}}</p>
 													</div>
-														
-                                                </div> 
-                                            </div>  
-                                        </div>           -->          
-                                        
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                           
-                         <!--
+
+                                                </div>
+                                            </div>
+                                        </div>           -->
+
+
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card shadow mb-5">
+
+                    <div class="card-body">
+                      <!-- <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><i title="New certificate." style="font-size: 20px;"  class="fas fa-plus fa-lg"></i></a></h4>	-->
+                      <h4 class="text-center">{{nb_certificates}} Certificates <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-light btn-sm" type="button">Request New Certificate</button></a></h4>
+                      {% if session['certificate'] == [] %}
+                      <div style="height:50px;overflow:auto;overflow-x: hidden;">
+                        <p class="card-text">{{certificates|safe}}</p>
+                      </div>
+                      {% else %}
+
+                      <div style="height:400px;overflow:auto;overflow-x: hidden;">
+                        <p class="card-text">{{certificates|safe}}</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                    <!--               <div class="card-body text-center"><a href="/user/picture/"><img class="mx-auto d-block card-img"  title="Clic to change picture." src="{{ url_for('send_file', filename=picturefile) }}"></a></div>-->
+                  </div>
+                  <!--
                             <div class="card shadow mb-5">
                                 <div class="card-body">
                                         <h4 title="Services available." class="text-center">Services</h4>
-                                    
+
                                     <div role="tablist" id="accordion-2">
-                                        
+
                              {% if display_alias == True %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="An Alias allows you to manage your Identity through different username and email."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Alias</a></h5>
                                             </div>
-                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">					
-													<div class="card-body"><p class="card-text">{{access|safe}}</p></div>                                                  
+                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
+													<div class="card-body"><p class="card-text">{{access|safe}}</p></div>
                                             </div>
                                         </div>
-                             
-                             {% endif %}           
-                                        
+
+                             {% endif %}
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Referent is an individual or a company you have authorized to issue certificates confirming your skills, experience or abilities."><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; Referent List</a></h5>
-                                            </div>                               
+                                            </div>
                                             <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{issuer|safe}}</p></div>
                                             </div>
                                         </div>
-                                                                    
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Partner is a Referent with which you aggree to exchange private data. It is the highest ranking."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner List</a></h5>
@@ -220,17 +249,17 @@
                                                 <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
                                             </div>
                                         </div>
-                                       
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="This is the list of Individuals and Companies you consider as reliable to issue Certificates."><i class="fa fa-user-o"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; White List</a></h5>
-                                            </div>                               
+                                            </div>
                                             <div class="collapse  item-4" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{whitelist|safe}}</p></div>
                                             </div>
                                         </div>
-                                       
-                                         
+
+
                                           <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced information about your Profesionnal Identity ">
                                                 <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; Advanced</a></h5>
@@ -240,45 +269,49 @@
 													<div  style="height:400px;overflow:auto;overflow-x: hidden;">
 														<p class="card-text">{{advanced|safe}}</p>
 													</div>
-                                                 
+
                                                 </div>
                                             </div>
-                                        </div>           
-                                    -->                                                                    
-                                    </div>
-                               </div>
-                            </div>
-                        </div>
-                    
-                    </div>
-                
-                
+                                        </div>
+                                    -->
                 </div>
+              </div>
             </div>
         </div>
-    </div>
-    </div>
-    
-        
-    
-    
-                    {% include 'user_footer.html' %}    
 
-   
+      </div>
+
+
     </div>
-    <script>function copyToClipboard(element) {
-  var $temp = $("<input>");
-  $("body").append($temp);
-  $temp.val($(element).text()).select();
-  document.execCommand("copy");
-  $temp.remove();
-}</script>
-	<script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 10000); </script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  </div>
+  </div>
+  </div>
+  </div>
+
+
+
+
+  {% include 'user_footer.html' %}
+
+
+  </div>
+  <script>
+    function copyToClipboard(element) {
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val($(element).text()).select();
+      document.execCommand("copy");
+      $temp.remove();
+    }
+  </script>
+  <script type="text/javascript">
+    window.setTimeout("document.getElementById('successMessage').style.display='none';", 10000);
+  </script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>
