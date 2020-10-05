@@ -555,6 +555,7 @@ def user(mode) :
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
+	
 
 
 	# TEST only
@@ -1020,7 +1021,6 @@ def user_advanced(mode) :
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account
-
 
 	# Partners
 	if session['partner'] == [] :
