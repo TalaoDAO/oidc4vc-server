@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% include 'user_nav_bar.html' %}
+        <div class="container-fluid">
+          <h3 class="text-dark mb-4">{{name}}
+            <a class="text-secondary" onclick="copyToClipboard('#p100')">
+              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+            </a>
+            <p hidden id="p100">{{clipboard}}</p>
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+            <div class="row">
+              <div class="col-lg-8 col-xl-4 offset-xl-4">
+                <div class="card shadow mb-5">
+                  <div class="card-body">
+                    <h4 title="Services available." class="text-center">Parameters</h4>
+                    <div role="tablist" id="accordion-2">
+                      <!-- Update picture -->
+                      <div class="card">
+                        <div class="card-header" role="tab">
+                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-user-circle"></i>
+                            <a class="text-secondary" href="/user/picture/">&nbsp;Update picture</a></h5>
+                        </div>
+                      </div>
+                      <!-- Update signature -->
+                      <div class="card">
+                        <div class="card-header" role="tab">
+                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-pencil"></i>
+                            <a class="text-secondary" href="/user/signature/">&nbsp;Update signature</a></h5>
+                        </div>
+                      </div>
+                      <!-- Update password -->
+                      <div class="card">
+                        <div class="card-header" role="tab">
+                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-key"></i>
+                            <a class="text-secondary" href="/user/update_password/">&nbsp;Update password</a></h5>
+                        </div>
+                      </div>
+                      <!-- Update phone number -->
+                      <div class="card">
+                        <div class="card-header" role="tab">
+                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-phone"></i>
+                            <a class="text-secondary" href="/user/update_phone/">&nbsp;Update phone number</a></h5>
+                        </div>
+                      </div>
+                      <!-- Change Alias -->
+                      <div class="card">
+                        <div class="card-header" role="tab">
+                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-laptop"></i>
+                            <a class="text-secondary" href="/user/add_alias/">&nbsp;Change Alias</a></h5>
+                        </div>
+                      </div>
+                  </div>
+                  <br>
+                  <div class="form-row">
+                    <div class="col-6 col-xl-3">
+                      <a href="/user/">
+                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'user_footer.html' %}
+
+
+  </div>
+  <script>
+    function copyToClipboard(element) {
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val($(element).text()).select();
+      document.execCommand("copy");
+      $temp.remove();
+    }
+  </script>
+  <script type="text/javascript">
+    window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000);
+  </script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>
