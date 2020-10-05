@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,11 +22,11 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                
+
                  {% with messages = get_flashed_messages(with_categories=true) %}
 			{% if messages %}
 				{% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
                 <span>{{ message }}</span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -35,30 +35,30 @@
 				{% endfor %}
 			{% endif %}
 		{% endwith %}
-                
-               
-                 {% include 'company_nav_bar.html' %}    
-                
-               
-            
-            
-            
+
+
+                 {% include 'company_nav_bar.html' %}
+
+
+
+
+
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{name}}</h3>
-                
-       
+
+
                 <div class="row">
                     <div class="col-xl-6 offset-xl-3">
                         <div class="card-deck">
                             <div class="card shadow mb-5">
-                                
-                                
+
+
                                 <div class="card-body">
                                    <h4><img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=picturefile) }}"></h4>
 
                                     <div role="tablist" id="accordion-1">
-                                        
-                                        
+
+
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
                                                 <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company Details</a></h5>
@@ -69,10 +69,10 @@
                                                 </div>
                                             </div>
                                         </div>
-               
-               
+
+
          {% if session['username'] != 'talao' %}
-                                       
+
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
                                                 <h5 class="mb-0"><i class="fa fa-industry"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Proof of Identity</a></h5>
@@ -83,32 +83,32 @@
                                                 </div>
                                             </div>
                                         </div>
-          {% endif %}                              
-                                                        
-                                        
-                                        
+          {% endif %}
+
+
+
                                     </div>
                                 </div>
                             </div>
-                           
-                         
+
+
                             <div class="card shadow mb-5">
                                 <div class="card-body">
                                     <h4></h4>
                                     <div role="tablist" id="accordion-2">
-                                        
+
                        {% if display_manager == True %}
-                                        
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fa fa-user-plus"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Managers</a></h5>
                                             </div>
-                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">					
-													<div class="card-body"><p class="card-text">{{manager|safe}}</p></div>                                                  
+                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
+													<div class="card-body"><p class="card-text">{{manager|safe}}</p></div>
                                             </div>
                                         </div>
                          {% endif %}
-                                        
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text partner"><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner</a></h5>
@@ -117,35 +117,35 @@
                                                 <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
                                             </div>
                                         </div>
-                                
-       <!--                         
+
+       <!--
         {% if session['username'] == 'talao' %}
-                         
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Certificate Issuer is an individual or a company which is authorized to issue certificates confirming your skills, experience or abilities."><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; Certificate Issuer</a></h5>
-                                            </div>                               
+                                            </div>
                                             <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{issuer|safe}}</p></div>
                                             </div>
                                         </div>
-                                                                    
-         {% endif %}  -->                        
-                                       
+
+         {% endif %}  -->
+
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Digital Vault is a solution to store your private data encrypted (ID Card, Passport, Invoices, Payslip..."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; Data Store</a></h5>
-                                            </div>                               
+                                            </div>
                                             <div class="collapse  item-4" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>
                                             </div>
                                         </div>
-                                       
-                                       
-                             
-                                        
+
+
+
+
          {% if session['username'] != 'talao' %}
-                                        
+
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
                                                 <h5 class="mb-0"><i class="fa fa-gears"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; API Credentials</a></h5>
@@ -156,9 +156,9 @@
                                                 </div>
                                             </div>
                                         </div>
-         {% endif %}                                                                                                        
-         
-         
+         {% endif %}
+
+
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
                                                 <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Advanced</a></h5>
@@ -169,25 +169,25 @@
                                                 </div>
                                             </div>
                                         </div>
-                                                                                                                     
+
                                     </div>
                           <!--         <a class="card-link" href="#">Delete this Identity</a>   -->
                                     </div>
                             </div>
                         </div>
-                    
+
                     </div>
-                
-                
+
+
                 </div>
             </div>
         </div>
     </div>
     </div>
-  
-  
-  
-                                    {% include 'user_footer.html' %}    
+
+
+
+                                    {% include 'user_footer.html' %}
 
     </div>
    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>

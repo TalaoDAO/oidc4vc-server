@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,11 +22,11 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-				       
+
         {% with messages = get_flashed_messages(with_categories=true) %}
 			{% if messages %}
 				{% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
                 <span>{{ message }}</span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -35,8 +35,8 @@
 				{% endfor %}
 			{% endif %}
 		{% endwith %}
-		
-		{% include 'guest_nav_bar.html' %}    
+
+		{% include 'guest_nav_bar.html' %}
 
         <div class="container-fluid">
             <div class="row mb-3">
@@ -45,8 +45,8 @@
                         <div class="card-header py-3">
                             <p class="text-primary m-0 font-weight-bold">&nbsp;Confirmation</p>
                         </div>
-                       
-                       
+
+
                       <div class="card-body">
                             <form action="/issue/create_authorize_issue/" method="post">
                                 <div class="form-row">
@@ -60,10 +60,10 @@
                                         <div class="form-group"><label class="text-center">Secret Code</label><input title="" class="form-control" type="text" name="code"></div>
                                     </div>
                                 </div>
-                              
-                               
-                               
-                               
+
+
+
+
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" id="in_progress_button" type="submit">Issue</button></div>
@@ -72,7 +72,7 @@
 										<a href="/login/">
 													<div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
 													</a>
-                                  
+
                                     </div>
                                 </div>
                             </form>
@@ -84,16 +84,16 @@
     </div>
     </div>
     </div>
-                                                                   {% include 'user_footer.html' %}    
+                                                                   {% include 'user_footer.html' %}
 
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
+	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>
