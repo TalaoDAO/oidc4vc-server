@@ -1120,6 +1120,7 @@ def user_advanced(mode) :
 							whitelist=my_white_issuer,
 							advanced=my_advanced)
 
+# account settings
 def user_account(mode) :
 	check_login()
 	return render_template('account.html',
