@@ -86,7 +86,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
 
-VERSION = "0.7.11"
+VERSION = "0.7.12"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -101,7 +101,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifet
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
-app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG", "GIF"]
+app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 
 #Session(app)
 sess = Session()
@@ -121,7 +121,7 @@ if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
 
-# Centralized @route for display certificates
+# Centralized @route to display certificates
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})
 app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})  # idem previous
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'], defaults={'mode': mode})
@@ -191,8 +191,11 @@ def picture() :
 	if request.method == 'POST' :
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
-		file_extension = filename.rsplit(".", 1)[1]
-		if file_extension.upper() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
+		print(filename.rsplit(".", 1))
+		if len(filename.rsplit(".", 1)) == 1 or filename.rsplit(".", 1)[1].lower() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
+		
+			#file_extension = filename.rsplit(".", 1)[1]
+		#if file_extension.upper() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
 			flash('Only "JPEG", "JPG", "PNG", "GIF" files accepted', 'warning')
 			return redirect(mode.server + 'user/picture/')
 		myfile.save(os.path.join(mode.uploads_path, filename))

@@ -444,7 +444,6 @@ def user(mode) :
 		session['resume'] = user_dict
 		session['uploaded'] = True
 		session['type'] = user.type
-		#session['username'] = username
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract
 		session['issuer'] = user.issuer_keys
@@ -556,24 +555,6 @@ def user(mode) :
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
-
-
-
-	# upload or download RSA Key
-	#if not session['rsa_key'] :
-	#	my_advanced = my_advanced + """<br><a href="/user/import_rsa_key/">Import RSA Key</a><br>"""
-	#else :
-	#	my_advanced = my_advanced + """<br><a href="/user/download_rsa_key/?filename=""" + session['rsa_filename'] + """" class="text-secondary" >Download RSA key
-	#						<i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-download" title="Download RSA key"></i></a></br>"""
-
-	# Import or copy to clipboard Private Key
-	#if not session['private_key'] :
-	#	my_advanced = my_advanced + """<br><a href="/user/import_private_key/">Import Private Key</a><br>"""
-	#else :
-	#	my_advanced = my_advanced + """<br><a class="text-secondary" onclick="copyToClipboard('#p200')">Copy private key to Clipboard
-	#						<i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy private key to Clipboard."></i>
-	#						</a>
-	#						<p hidden id="p200" >""" + session['private_key_value'] + """</p><br>"""
 
 
 	# TEST only
@@ -1111,6 +1092,7 @@ def user_advanced(mode) :
 					</a>
 				</span>"""
 			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
+	print(my_advanced)
 
 	return render_template('advanced.html',
 							**session['menu'],
