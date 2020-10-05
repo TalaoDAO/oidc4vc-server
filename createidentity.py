@@ -31,6 +31,7 @@ import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
 import ns
 import privatekey
+#import ethereum_bridge see later
 
 # Gloval variables for RSA algo
 master_key = ""
@@ -91,10 +92,6 @@ def create_user(username, email,mode):
 	""" Create Identity """
 	
 	email = email.lower()
-	
-	if ns.does_alias_exist(username,mode)  :
-		print('username already used')
-		return None, None, None
 	
 	# Setup owner Wallet 
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -198,7 +195,10 @@ def create_user(username, email,mode):
 			 'workspace_contract' : workspace_contract,
 			 'secret' : SECRET_key.hex(),
 			 'aes' : AES_key.hex()}
-			 
+
+	# synchro with ICO token
+	#ethereum_bridge.lock_ico_token(address, private_key)
+
 	if not privatekey.add_identity(data, mode) :
 		print('update private key failed')
 		return None, None, None

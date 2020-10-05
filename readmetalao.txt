@@ -93,3 +93,16 @@ sous venv
 
 
 
+"""
+INFURA 
+PROJECT ID
+f2be8a3bf04d4a528eb416566f7b5ad6
+PROJECT SECRET
+3ca0226861a24074bdc206f9f89a8bf5
+
+export WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6
+
+MAINNET
+https://mainnet.infura.io/v3/f2be8a3bf04d4a528eb416566f7b5ad6
+wss://mainnet.infura.io/ws/v3/f2be8a3bf04d4a528eb416566f7b5ad6
+********************************

@@ -7,6 +7,7 @@ $ gunicorn -c gunicornconf.py  --reload wsgi:app
 if script is launched with python but without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
 $ export MYENV=livebox
+$ export WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6
 $ python main.py
 
 Many views are inside this script, others are in web_modules.py. See Centralized routes.

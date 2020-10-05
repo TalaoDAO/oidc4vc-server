@@ -21,6 +21,7 @@ import Talao_message
 import constante
 import ns
 import privatekey
+#import ethereum_bridge see later
 
 # Global variables for RSA
 master_key = ""
@@ -220,6 +221,9 @@ def create_company(email, username, mode) :
 								 SECRET_key.hex(),
 								 AES_key.hex(),
 								 mode)
+
+	# synchro with ICO token
+	#ethereum_bridge.lock_ico_token(address, private_key)
 
 	return address, private_key, workspace_contract
 

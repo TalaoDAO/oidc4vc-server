@@ -119,7 +119,7 @@ class currentMode() :
 			self.port = 3000
 		
 		else :
-			print('Environment variables problem')
+			print('Environment variable problem')
 
 		if self.BLOCKCHAIN == 'rinkeby' :
 			self.start_block = 6400000
@@ -167,29 +167,9 @@ class currentMode() :
 			self.owner_talao = '0xEE09654eEdaA79429F8D216fa51a129db0f72250'
 			self.workspace_contract_talao = '0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'
 		
-		elif self.BLOCKCHAIN == 'ethereum'  :
-			self.start_block = 0
-			self.GASPRICE = '2'			
-			self.fromBlock= 5800000
-			self.CHAIN_ID = 1
-			self.IPCProvider="/mnt/ssd/ethereum/geth.ipc"
-			self.w3=Web3(Web3.IPCProvider("/mnt/ssd/ethereum/geth.ipc"))
-			# Token	 				
-			self.Talao_token_contract = '0x1D4cCC31dAB6EA20f461d329a0562C1c58412515'
-			# Talaogen 
-			self.Talaogen_public_key = '0x84235B2c2475EC26063e87FeCFF3D69fb56BDE9b'
-			# Foundation et factory """
-			self.foundation_contract = '0xD46883ddfF92CC0474255F2F8134C63f8209171d'
-			self.foundation_address = "0xD46883ddfF92CC0474255F2F8134C63f8209171d"
-			self.workspacefactory_contract = '0x7A237F06f85710b66184aFcDC55E2845F1B8f0eb'
-			# Web Relay 
-			self.relay_address = ""
-			self.relay_workspace_contract = ""
-			self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])			
-			# Talao company 
-			self.owner_talao = '' # la company
-			self.workspace_contract_talao = ''
-	
+		else :
+			print('Chain variable problem')
+
 		if self.w3.isConnected()== False :
 			print('Not Connected, network problem')
 			sys.exit()	
