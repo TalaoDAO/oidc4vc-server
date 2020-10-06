@@ -34,7 +34,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	Tiis is the only solution to rewrite and encrypt the email which is stored at workspace setup (seen workspace factory)
 	"""
 	w3 = mode.w3
-		
+
 	# encrypt email
 	bytesdatajson = bytes(json.dumps({'email' : email}), 'utf-8') # dict -> json(str) -> bytes
 	header = b"header"
@@ -44,23 +44,23 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
-	
+
 	ipfs_hash = ipfs_add(dict_data,mode)
-	
+
 	if mode.test :
-		print('ipfs_hash email2 = ', ipfs_hash)	
-	
+		print('ipfs_hash email2 = ', ipfs_hash)
+
 
 	# Signature
-	nonce = w3.eth.getTransactionCount(address)  
+	nonce = w3.eth.getTransactionCount(address)
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes('email', 'utf-8'), address, bytes(email, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
 	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
 	signature = signed_message['signature']
-	
+
 	# ERC725 claim id
 	claim_id = w3.solidityKeccak(['address', 'uint256'], [address, 101109097105108]).hex()
-	
+
 	# Transaction
 	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	txn = contract.functions.addClaim(101109097105108, 2, 	address, signature, bytes('secret', 'utf-8'),ipfs_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
@@ -69,20 +69,20 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 	if receipt['status'] == 0 :
-		return False		
+		return False
 
 	if mode.test :
 		print ('email claim Id = ', claim_id)
 		print('email 2 transaction hash = ', transaction_hash)
-	
-	return True 
 
-def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :	
+	return True
+
+def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
 	""" Main transaction to create workspace in protocol """
 
 	w3 = mode.w3
 	contract = w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
-	nonce = w3.eth.getTransactionCount(address)  
+	nonce = w3.eth.getTransactionCount(address)
 
 	# Transaction
 	txn=contract.functions.createWorkspace(2001,1,1,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
@@ -92,7 +92,7 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 	if receipt['status'] == 0 :
 		print('Failed transaction createWprkspace')
-		return None	
+		return None
 	return hash
 
 # deterministic RSA rand function
@@ -103,20 +103,20 @@ def my_rand(n):
 
 
 def create_company(email, username, mode) :
-	""" username is a company name here 
+	""" username is a company name here
 	one does not check if username exist here """
 
 	global relay_address
 	global salt
 	global master_key
-	
-	# wallet init	
+
+	# wallet init
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
 	address = account.address
 	private_key = account.privateKey.hex()
 	print('adresse = ', address)
 	print('private key = ', private_key)
-	
+
 	# Setup of an  RSA deterministic (bytes) cf https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
 	salt = private_key
 	password = mode.password
@@ -130,39 +130,39 @@ def create_company(email, username, mode) :
 	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/'+ str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
 	fichier=open(filename,"wb")
 	fichier.write(RSA_private)
-	fichier.close()   
+	fichier.close()
 
 	# création de la cle AES
-	AES_key = get_random_bytes(16)	
+	AES_key = get_random_bytes(16)
 
 	# création de la cle SECRET
 	SECRET_key = get_random_bytes(16)
-	
+
 	# encryption de la cle AES avec la cle RSA
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	AES_encrypted=cipher_rsa.encrypt(AES_key)
-	
-	# encryption de la cle SECRET avec la cle RSA 
+
+	# encryption de la cle SECRET avec la cle RSA
 	cipher_rsa = PKCS1_OAEP.new(RSA_key)
 	SECRET_encrypted=cipher_rsa.encrypt(SECRET_key)
-	
+
 	# Email to bytes
-	bemail = bytes(email , 'utf-8')	
-	
+	bemail = bytes(email , 'utf-8')
+
 	# Transaction pour le transfert des nethers depuis le portfeuille TalaoGen
 	hash1 = ether_transfer(address, mode.ether2transfer, mode)
 	print('hash de transfert de 0.06 eth = ',hash1)
-	
+
 	# Transaction pour le transfert des tokens Talao depuis le portfeuille TalaoGen
 	hash2 = token_transfer(address, mode.talao_to_transfer, mode)
 	print('hash de transfert de 101 TALAO = ', hash2)
-	
+
 	# Transaction pour l'acces dans le token Talao par createVaultAccess
 	hash3=createVaultAccess(address, private_key, mode)
 	print('hash du createVaultaccess = ', hash3)
-	
+
 	# Transaction pour la creation du workspace :
-	bemail = bytes(email , 'utf-8')	
+	bemail = bytes(email , 'utf-8')
 	hash =_createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode)
 	if hash is None :
 		return None, None, None
@@ -171,11 +171,11 @@ def create_company(email, username, mode) :
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract = ownersToContracts(address, mode)
 	print( 'workspace contract = ', workspace_contract)
-	
+
 	# For setup of new chain one need to first create workspaces for Relay and Talao
 	if username != 'relay' and username != 'talao' :
-		# management key (1) issued to Relay 
-		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True) 
+		# management key (1) issued to Relay
+		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True)
 	if username == 'relay' :
 		# one stores relay address for Talao workspace setup
 		relay_address = address
@@ -184,7 +184,7 @@ def create_company(email, username, mode) :
 
 	# rewrite encrypted email with scheme 2 to differenciate from freedapp email that are not encrypted
 	email2(address, workspace_contract, private_key, email, AES_key, mode)
-	
+
 	if username != 'talao' and username != 'relay' :
 		# key 20002 to Talao to Issue Proof of Identity
 		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True) 
@@ -196,7 +196,7 @@ def create_company(email, username, mode) :
 	# update resolver and create local database for this company
 	ns.add_identity(username, workspace_contract, email, mode)
 	ns.init_host(username, mode)
-	
+
 	# update private key
 	data = { 'created' : datetime.today(),
 			'username' : username,
@@ -230,7 +230,7 @@ def create_company(email, username, mode) :
 
 # MAIN, for new Blockchain setup. Talao and Relay setup
 if __name__ == '__main__':
-	
+
 	import environment
 	import os
 
@@ -238,20 +238,20 @@ if __name__ == '__main__':
 	myenv = os.getenv('MYENV')
 	password = os.getenv('PASSWORD')
 	smtp_password = os.getenv('SMTP_PASSWORD')
-	
+
 	print('environment variable : ',mychain, myenv, password)
 	print('New BLockchain Setup')
 	print('Setup Relay and Talao company')
 
 	# environment setup
 	mode = environment.currentMode(mychain, myenv)
-	
-	# relay setup 
+
+	# relay setup
 	(relay_address, relay_private_key, relay_workspace_contract) = create_company('thierry.thevenet@talao.io', 'relay', mode)
-	
+
 	# Talao setup (one uses Relay address which has beee stored in Global variable)
 	(talao_address, talao_private_key, talao_workspace_contract) = create_company('thierry.thevenet@talao.io', 'talao', mode)
-	
+
 	print('relay owner address : ', relay_address)
 	print('relay private key : ' , relay_private_key)
 	print('relay workspace contract : ', relay_workspace_contract)

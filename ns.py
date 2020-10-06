@@ -5,8 +5,8 @@ import random
 
 import constante
 
-""" SQLite init functions , not used in normal operation 
-	
+""" SQLite init functions , not used in normal operation
+
 def _init_nameservice(mode):
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -61,14 +61,14 @@ def alter_add_password_field_manager(database, mode) :
 	return True
 
 
-def setup(mode) :	
+def setup(mode) :
 	_init_nameservice(mode)
 	init_host('talao', mode)
 	init_host('thales', mode)
 	init_host('skillvalue', mode)
 	init_host('relay', mode)
 	init_host('bnp', mode)
-	
+
 	add_identity('talao', '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341', 'contact@talao.io',mode)
 	add_identity('bnp', '0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4', 'contact@bnp.talao.io', mode)
 	add_identity('skillvalue', '0xbF14A0F4DC31c93545CBE210fb24f2a1fc6Bb208', 'contact@skillvalue.talao.io', mode)
@@ -76,8 +76,7 @@ def setup(mode) :
 	add_identity('pascalet', '0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF', 'pascalet@gmail.talao.io',mode)
 	add_identity('jean', '0x0271c88C648D6F44B83f8CEcFFc8A85C390e9C21', 'jean@gmail.talao.io', mode)
 	add_identity('relay', '0xD6679Be1FeDD66e9313b9358D89E521325e37683', 'contact@relay.talao.io', mode)	
-	
-	
+
 	add_alias('jeanpascalet', 'pascalet', 'jeanpascalet@gmail.talao.io', mode)
 	add_alias('jp2', 'pascalet', 'jp@gmail.talao.io', mode)
 	add_alias('jp1', 'pascalet', 'jp@gmail.talao.io', mode)
@@ -112,7 +111,7 @@ def build_username(firstname, lastname,mode) :
 		username = username + str(random.randint(1, 100))
 	return username
 
-	
+
 def init_host(host_name, mode) :
 	""" This function is only used in createcompany """
 	path = mode.db_path
@@ -128,14 +127,14 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	now = datetime.now()	
-	
+	now = datetime.now()
+
 	data = {'identity_name' : identity_name, 'identity_workspace_contract' : identity_workspace_contract, 'date' : datetime.timestamp(now)} 
 	c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date)", data)
-	
+
 	data = {'alias_name' : identity_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password} 
 	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date, :phone, :password )", data)
-	
+
 	address = _contractsToOwners(identity_workspace_contract, mode)
 	key = mode.w3.solidityKeccak(['address'], [address]).hex()
 	data = {'address' : address, 'key' : key}
@@ -148,22 +147,22 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 def delete_identity(identity_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
-	c = conn.cursor()	
-	data = {'identity_name' : identity_name} 
+	c = conn.cursor()
+	data = {'identity_name' : identity_name}
 	# we do not remove the publicHex key
 	c.execute("DELETE FROM resolver WHERE identity_name = :identity_name", data)
 	c.execute("DELETE FROM alias WHERE alias_name = :identity_name", data)
 	conn.commit()
 	conn.close()
 	return True
-	
+
 def add_alias(alias_name, identity_name, email, mode, phone=None, password='identity') :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
-	data = {'alias_name' : alias_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password} 
-	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date :phone, :password )", data)
+	data = {'alias_name' : alias_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password}
+	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date, :phone, :password )", data)
 	conn.commit()
 	conn.close()
 	return True
@@ -174,7 +173,7 @@ def does_alias_exist(alias_name, mode) :
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	data = {'alias_name' : alias_name} 
-	c.execute("SELECT identity_name FROM alias WHERE alias_name = :alias_name " , data)
+	c.execute("SELECT identity_name FROM lias WHERE alias_name = :alias_name " , data)
 	select = c.fetchall()
 	conn.commit()
 	conn.close()
@@ -190,7 +189,7 @@ def remove_alias(alias_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	data = {'alias_name' : alias_name} 
+	data = {'alias_name' : alias_name}
 	try :
 		c.execute("DELETE FROM alias WHERE alias_name = :alias_name " , data)
 		execution  = True
@@ -199,9 +198,9 @@ def remove_alias(alias_name, mode) :
 	conn.commit()
 	conn.close()
 	return execution
-	
+
 def add_manager(manager_name, identity_name, host_name, email, mode, phone=None, password='identity') :
-		
+
 	""" jean.bnp : jean = manager_name , bnp = host_name """
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
@@ -218,7 +217,7 @@ def does_manager_exist(manager_name, host_name, mode) :
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	#now = datetime.now()
-	data = {'manager_name' : manager_name} 
+	data = {'manager_name' : manager_name}
 	c.execute("SELECT identity_name FROM manager WHERE manager_name = :manager_name " , data)
 	select = c.fetchall()
 	conn.commit()
@@ -246,8 +245,8 @@ def remove_manager(manager_name, host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
 	c = conn.cursor()
-	data = {'manager_name' : manager_name} 
-	try : 
+	data = {'manager_name' : manager_name}
+	try :
 		c.execute("DELETE FROM manager WHERE manager_name = :manager_name " , data)
 		execution  = True
 	except sqlite3.OperationalError :
@@ -268,12 +267,12 @@ def _get_data(username, mode) :
 		data ={'username' : username}
 		c.execute("SELECT identity_name, email, phone, password FROM alias WHERE alias_name = :username " , data)
 		select = c.fetchone()
-		if select is None : 
+		if select is None :
 			conn.commit()
 			conn.close()
 			print(username + ' n existe pas dans la table des alias de nameservice')
-			return None 
-			
+			return None
+
 		(identity_name, alias_email, phone, password) = select
 		data ={'identity_name' : identity_name}
 		c.execute("SELECT identity_workspace_contract FROM resolver WHERE identity_name = :identity_name " , data)
@@ -282,7 +281,7 @@ def _get_data(username, mode) :
 			conn.commit()
 			conn.close()
 			print('l alias ' + username + ' n a pas d identity dans le resolver')
-			return None 
+			return None
 		identity_workspace_contract = select[0]
 		conn.commit()
 		conn.close()
@@ -291,26 +290,26 @@ def _get_data(username, mode) :
 		conn = sqlite3.connect(path + host_name + '.db')
 		c = conn.cursor()
 		data ={'manager_name' : manager_name}
-		
+
 		try :
 			c.execute("SELECT identity_name, email, phone, password FROM manager WHERE manager_name = :manager_name " , data)
 		except sqlite3.OperationalError :
 			print('la database ' + host_name + ' n existe pas')
-			return None	
-		
+			return None
+
 		select = c.fetchone()
 		if select is None :
 			conn.commit()
 			conn.close()
 			print('le manager name : '+ manager_name + ' n existe pas dans la table locale de '+ host_name)
-			return None 
-		
+			return None
+
 		(identity_name, manager_email, phone, password) = select
 		conn.commit()
-		conn.close()	
+		conn.close()
 		conn = sqlite3.connect(path + 'nameservice.db')
 		c = conn.cursor()
-		
+
 		data ={'host_name' : host_name}
 		c.execute("SELECT identity_workspace_contract FROM resolver WHERE identity_name = :host_name " , data)
 		select = c.fetchone()
@@ -318,7 +317,7 @@ def _get_data(username, mode) :
 			conn.commit()
 			conn.close()
 			print(' le host n existe pas das le resolver')
-			return None 
+			return None
 		host_workspace_contract = select[0]
 		data ={'identity_name' : identity_name}
 		c.execute("SELECT identity_workspace_contract FROM resolver WHERE identity_name = :identity_name " , data)
@@ -327,32 +326,31 @@ def _get_data(username, mode) :
 		conn.close()
 		return identity_workspace_contract, host_workspace_contract, manager_email, phone, password
 
-		
 def get_username_from_resolver(workspace_contract, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	data = {'identity_workspace_contract' : workspace_contract} 
+	data = {'identity_workspace_contract' : workspace_contract}
 	c.execute("SELECT identity_name FROM resolver WHERE identity_workspace_contract = :identity_workspace_contract " , data)
 	select=c.fetchone()
 	conn.commit()
 	conn.close()
 	if select is None :
 		return None
-	return select[0]	
+	return select[0]
 
 def get_address_from_publickey(publickey, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	data = {'key' : publickey} 
+	data = {'key' : publickey}
 	c.execute("SELECT address FROM publickey WHERE key = :key " , data)
 	select=c.fetchone()
 	conn.commit()
 	conn.close()
 	if select is None :
 		return None
-	return select[0]		
+	return select[0]
 
 def get_data_from_publickey(publickey, mode) :
 	""" username comes from resolver database"""
@@ -406,13 +404,13 @@ def get_alias_list(workspace_contract, mode) :
 		return []
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	identity_name = call	
+	identity_name = call
 	data ={'identity_name' : identity_name}
 	c.execute("SELECT alias_name, email FROM alias WHERE identity_name = :identity_name " , data)
 	select = c.fetchall()
 	alias = list()
 	for row in select :
-		alias.append({'username' : row[0], 'email' : row[1]})	
+		alias.append({'username' : row[0], 'email' : row[1]})
 	return alias
 
 def get_username_list_from_email(email, mode) :
@@ -424,7 +422,7 @@ def get_username_list_from_email(email, mode) :
 	select = c.fetchall()
 	username_list = list()
 	for row in select :
-		username_list.append(row[0])	
+		username_list.append(row[0])
 	return username_list
 
 def get_manager_list(workspace_contract, mode) :
@@ -435,17 +433,17 @@ def get_manager_list(workspace_contract, mode) :
 	host_name = call
 	conn = sqlite3.connect(path + host_name + '.db')
 	c = conn.cursor()
-	identity_name = call	
+	identity_name = call
 	data ={'identity_name' : identity_name}
 	try :
 		c.execute("SELECT manager_name, email FROM manager " , data)
 	except sqlite3.OperationalError :
 		print('la database ' + host_name + ' n existe pas')
-		return []	
+		return []
 	select = c.fetchall()
 	alias = list()
 	for row in select :
-		alias.append({'username' : row[0]+'.' + host_name, 'email' : row[1]})	
+		alias.append({'username' : row[0]+'.' + host_name, 'email' : row[1]})
 	return alias
 
 def update_phone(username, phone, mode) :
@@ -454,18 +452,18 @@ def update_phone(username, phone, mode) :
 	if len(username_split) == 1 :
 		conn = sqlite3.connect(path + 'nameservice.db')
 		cur = conn.cursor()
-		data = { 'phone' : phone, 'alias_name' : username} 
+		data = { 'phone' : phone, 'alias_name' : username}
 		cur.execute("update alias set phone = :phone where alias_name = :alias_name", data )
 		conn.commit()
 		cur.close()
 	if len(username_split) == 2 :
 		conn = sqlite3.connect(path + username_split[1] + '.db')
 		cur = conn.cursor()
-		data = { 'phone' : phone, 'manager_name' : username_split[0]} 
+		data = { 'phone' : phone, 'manager_name' : username_split[0]}
 		cur.execute("update manager set phone = :phone where manager_name = :manager_name", data )
 		conn.commit()
 		cur.close()
-	else : 
+	else :
 		return False
 	return True
 
@@ -476,18 +474,18 @@ def update_password(username, new_password, mode) :
 	if len(username_split) == 1 :
 		conn = sqlite3.connect(path + 'nameservice.db')
 		cur = conn.cursor()
-		data = { 'password' : password, 'alias_name' : username} 
+		data = { 'password' : password, 'alias_name' : username}
 		cur.execute("update alias set password = :password where alias_name = :alias_name", data )
 		conn.commit()
 		cur.close()
 	if len(username_split) == 2 :
 		conn = sqlite3.connect(path + username_split[1] + '.db')
 		cur = conn.cursor()
-		data = { 'password' : password, 'manager_name' : username_split[0]} 
+		data = { 'password' : password, 'manager_name' : username_split[0]}
 		cur.execute("update manager set password = :password where manager_name = :manager_name", data )
 		conn.commit()
 		cur.close()
-	else : 
+	else :
 		return False
 	return True
 
@@ -503,7 +501,7 @@ def check_password(username, password, mode) :
 		return False
 	if password == 'identity' :
 		return password == data.get('hash_password')
-	return mode.w3.keccak(text=password).hex() == data.get('hash_password') 
+	return mode.w3.keccak(text=password).hex() == data.get('hash_password')
 
 def has_phone(username, mode) :
 	data = get_data_from_username(username, mode)
@@ -515,15 +513,12 @@ def has_phone(username, mode) :
 """
 
 if __name__ == '__main__':
-	
+
 	import environment
 	# environment setup
 	mode = environment.currentMode()
 	w3 = mode.w3
 
 	#setup()
-	
-	
-
 
 """

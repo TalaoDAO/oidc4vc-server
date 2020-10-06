@@ -20,7 +20,7 @@ from flask_fontawesome import FontAwesome
 import http.client
 import random
 import threading
-import csv 
+import csv
 
 # dependances
 import GETdata
@@ -64,31 +64,30 @@ class ExportingThread(threading.Thread):
 		self.mode=mode
 	def run(self):
 		createidentity.creationworkspacefromscratch(self.firstname, self.lastname, self.email,self.mode)
-		
-			
+
+
 # pour la recuperation des certificats erc725
 def getclaimipfs (claim_id, workspace_contract) :
 # @topicname est un str
 # return un objet List
-	
+
 	client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https')
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	claimdata=contract.functions.getClaim(claim_id).call()
-	
+
 	if claimdata[5]!="" :
 		data=client.get_json(claimdata[5])
 		return data
 	else :
 		return False
-		
 
 #####################################################
 #   Obtention d'un Bearer token 0AUTH
 #####################################################
 #
-#    
+#
 @app.route('/api/v0/token', methods=['GET'])
-def auth() :	
+def auth() :
 	key=request.json.get("key") # request.json parceque content type is application/json
 	secret=request.json.get("secret")
 	if key==None or secret==None :

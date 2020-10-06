@@ -223,16 +223,14 @@ def use_my_own_address(mode) :
 	flash("Feature not available yet.", "warning")
 	return redirect(mode.server + 'user/')
 
-
 ############################################################################################
 #         DATA
 ############################################################################################
 """ on ne gere aucune information des data en session """
-
-
-#@app.route('/data/<dataId>', methods=['GET'])
-def data(dataId,mode) :
+#@app.route('/data/', methods=['GET'])
+def data(mode) :
 	check_login()
+	dataId = request.args['dataId']
 	workspace_contract = '0x' + dataId.split(':')[3]
 	support = dataId.split(':')[4]
 	if support == 'document' :
@@ -292,7 +290,16 @@ def data(dataId,mode) :
 
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
-	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
+	if mode.BLOCKCHAIN == 'rinkeby' :
+		transaction_hash = """<a class = "card-link" href = https://rinkeby.etherscan.io/tx/ """ + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a>"""
+	elif mode.BLOCKCHAIN == 'ethereum' :
+		transaction_hash = """<a class = "card-link" href = https://etherscan.io/tx/ """ + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a>"""
+	elif mode.BLOCKCHAIN == 'talaonet' :
+		transaction_hash = my_data.transaction_hash 
+	else :
+		print('chain probleme')
+		transaction_hash = my_data.transaction_hash = ""
+
 	if support == 'document' :
 		myadvanced = """
 				<b>Advanced</b>
@@ -300,11 +307,11 @@ def data(dataId,mode) :
 				<li><b>Privacy</b> : """ + myvisibility.capitalize() + """<br></li>
 				<li><b>Created</b> : """ + my_data.created + """<br></li>
 				<li><b>Expires</b> : """ + expires + """<br></li>
-				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>
+				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
-	else :
+	# if support is an ERC725 Claim
+	else : 
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
-		path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
 		myadvanced = """
 				<b>Advanced</b>
 				<li><b>Claim Id</b> : """ + str(claim_id) + """<br></li>
@@ -312,7 +319,7 @@ def data(dataId,mode) :
 				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
 				<li><b>Created</b> : """ + my_data.created + """<br></li>
 				<li><b>Expires</b> : """ + expires + """<br></li>
-				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>
+				<li><b>Transaction Hash</b> : """ +transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 	# value
 	if my_topic.lower() == "experience"  :
@@ -555,7 +562,6 @@ def user(mode) :
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
-	
 
 
 	# TEST only
@@ -673,7 +679,7 @@ def user(mode) :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 
-					<a class="text-secondary" href=/data/"""+ experience['id'] + """:experience>
+					<a class="text-secondary" href=/data/?dataId="""+ experience['id'] + """:experience>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -689,7 +695,7 @@ def user(mode) :
 				my_skills = my_skills + skill_html
 			my_skills = my_skills + """
 				<p>
-					<a class="text-secondary" href=/data/"""+ session['skills']['id'] + """:skills>
+					<a class="text-secondary" href=/data/?dataId="""+ session['skills']['id'] + """:skills>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -709,7 +715,7 @@ def user(mode) :
 					<a class="text-secondary" href="/user/remove_education/?education_id=""" + education['id'] + """&education_title="""+ education['title'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
-					<a class="text-secondary" href=/data/"""+ education['id'] + """:education>
+					<a class="text-secondary" href=/data/?dataId="""+ education['id'] + """:education>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -733,7 +739,7 @@ def user(mode) :
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
 				my_personal = my_personal + """
 				<span><b>""" + Topic[topicname] + """</b> : """+ topicname_value + topicname_privacy +"""
-					<a class="text-secondary" href=/data/""" + topicname_id + """>
+					<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""
@@ -761,7 +767,7 @@ def user(mode) :
 					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc['id'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
-					<a class="text-secondary" href=/data/"""+ kyc['id'] + """:kyc>
+					<a class="text-secondary" href=/data/?dataId="""+ kyc['id'] + """:kyc>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -820,7 +826,7 @@ def user(mode) :
 								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 								</a>
 
-								<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 								</a>
 
@@ -841,7 +847,7 @@ def user(mode) :
 								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 								</a>
 
-								<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 								</a>
 
@@ -921,7 +927,7 @@ def user(mode) :
 					<a class="text-secondary" href="/user/remove_kbis/?kbis_id=""" + kbis['id'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
-					<a class="text-secondary" href=/data/"""+ kbis['id'] + """:kbis>
+					<a class="text-secondary" href=/data/?dataId="""+ kbis['id'] + """:kbis>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				"""
@@ -937,7 +943,7 @@ def user(mode) :
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
 				my_personal = my_personal + """
 				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""
-					<a class="text-secondary" href=/data/""" + topicname_id + """>
+					<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""

@@ -25,7 +25,7 @@ import sms
 
 exporting_threads = {}
 
-# Multithreading 
+# Multithreading
 class ExportingThread(threading.Thread):
 	def __init__(self, username, issuer_email, issuer_firstname, issuer_lastname, workspace_contract, talent_name, talent_username, certificate, mode) :
 		super().__init__()
@@ -45,7 +45,7 @@ def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data == dict() :
 		return None
-	if data['phone'] is None :	
+	if data['phone'] is None :
 		Talao_message.messageAuth(data['email'], code, mode)
 		print('envoi du code par email')
 		return 'email'
@@ -65,7 +65,7 @@ def issue_certificate_for_guest(mode) :
 	""" Its a the MAIN GUEST view, issuer are either new or user but they have been requested to issue, Do not mix with issuer_experience_certificate. 
 	we display a form to complete the certificate draft and put everything in session for next phase
 	this route is a hub to dispatcg according to certificate type"""
-	
+
 	if request.method == 'GET' :
 		session.clear()
 		# test if url is fine
@@ -74,21 +74,20 @@ def issue_certificate_for_guest(mode) :
 			session['issuer_email'] = request.args['issuer_email']
 			session['url'] = request.url
 			session['issuer_username'] = request.args['issuer_username']
-			session['issuer_workspace_contract'] = request.args['issuer_workspace_contract']	
+			session['issuer_workspace_contract'] = request.args['issuer_workspace_contract']
 			session['talent_username'] = request.args['talent_username']
 			session['talent_name'] = request.args['talent_name']
 			session['talent_workspace_contract'] = request.args['talent_workspace_contract']
-		
 		except :
 			flash("Link error, Check the url", 'warning')
-			return redirect(mode.server + 'login/')	
-		
+			return redirect(mode.server + 'login/')
+
 		# test if certificate has already been issued (we only test if the issuer exists.....to be changed later)
 		issuer_list = ns.get_username_list_from_email(session['issuer_email'], mode)
-		if session['issuer_username'] == "new" and issuer_list != [] : 
+		if session['issuer_username'] == "new" and issuer_list != [] :
 			flash("Certificate already issued.", 'warning')
-			return redirect(mode.server + 'login/')	
-		
+			return redirect(mode.server + 'login/')
+
 		# Dispatch starts here
 		if session['certificate_type'] == 'experience' :
 			if session['issuer_username'] != 'new' :
@@ -108,7 +107,7 @@ def issue_certificate_for_guest(mode) :
 						skills=request.args['skills'],
 						talent_name=session['talent_name'],
 						**personal)
-		
+
 		elif session['certificate_type'] == 'recommendation' :
 			if session['issuer_username'] != 'new' :
 				session['issuer_picture'] = get_image(session['issuer_workspace_contract'], 'picture', mode)
@@ -122,15 +121,14 @@ def issue_certificate_for_guest(mode) :
 			return render_template('issue_recommendation_for_guest.html',
 									talent_name = session['talent_name'],
 									**personal)
-		
+
 		else :
 			flash("Certififcate type not available yet", 'warning')
-			return redirect(mode.server + 'login/')	
-	
-	
+			return redirect(mode.server + 'login/')
+
 	if request.method == 'POST' :
 		# Dispatch starts here
-		if session['certificate_type'] == 'experience' :	
+		if session['certificate_type'] == 'experience' :
 			session['title'] = request.form['title']
 			session['company_name'] = request.form['company_name']
 			session['description'] = request.form['description']
@@ -143,8 +141,8 @@ def issue_certificate_for_guest(mode) :
 			session['score_communication'] = request.form['score_communication']
 			session['issuer_firstname'] =request.form['issuer_firstname']
 			session['issuer_lastname'] = request.form['issuer_lastname']
-		
-		elif session['certificate_type'] == 'recommendation' :	
+
+		elif session['certificate_type'] == 'recommendation' :
 			session['description'] = request.form['description']
 			session['issuer_firstname'] =request.form['issuer_firstname']
 			session['issuer_lastname'] = request.form['issuer_lastname']
@@ -152,7 +150,7 @@ def issue_certificate_for_guest(mode) :
 			firstname_claim.get_by_topic_name(None, None,session['talent_workspace_contract'],'firstname', mode)
 			talent_firstname = firstname_claim.claim_value
 			relationship = request.form['relationship']
-			if relationship == "1" :	
+			if relationship == "1" :
 				session['relationship'] = session['issuer_firstname'] +   ' managed ' + talent_firstname + ' directly.'
 			elif relationship == "2" :
 				session['relationship'] = session['issuer_firstname'] + ' reported directly to ' + talent_firstname + '.'
@@ -165,17 +163,17 @@ def issue_certificate_for_guest(mode) :
 			elif relationship == "6" :
 				session['relationship'] = session['issuer_firstname'] + ' studied  together.'
 			else :
-				session['relationship'] = talent_firstname + ' is a friend of ' + session['issuer_firstname'] + '.'			
-			
+				session['relationship'] = talent_firstname + ' is a friend of ' + session['issuer_firstname'] + '.'
+
 		else :
 			flash("Session aborted", 'warning')
-			return redirect(mode.server + 'login/')	
-		
+			return redirect(mode.server + 'login/')
+
 		if session.get('code') is None :
 			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
-		
+
 		if session['issuer_username'] == 'new' :
 			Talao_message.messageAuth(session['issuer_email'], str(session['code']), mode)
 			return render_template('confirm_issue_certificate_for_guest.html')
@@ -183,14 +181,14 @@ def issue_certificate_for_guest(mode) :
 			support = send_secret_code(session['issuer_username'], session['code'], mode)
 			if support is None :
 				flash("Session aborted", 'warning')
-				print('support is None dans web_issue_certificate') 
+				print('support is None dans web_issue_certificate')
 				return render_template('login.html')
 			else :
 				print('secret code sent = ', session['code'])
 				flash("Secret Code already sent by " + support, 'success')
-			return render_template('confirm_issue_certificate_for_user_as_guest.html', support=support)		
-				
-def get_issuer_personal(mode) :				
+			return render_template('confirm_issue_certificate_for_user_as_guest.html', support=support)
+
+def get_issuer_personal(mode) :
 		 # it is not an issuer creation
 		if session['issuer_username'] != "new" :
 			firstname_claim = Claim()
@@ -206,20 +204,18 @@ def get_issuer_personal(mode) :
 		print('issuer_firstname = ', issuer_firstname)
 		return {'issuer_firstname' : issuer_firstname,
 				'issuer_lastname' : issuer_lastname}
-	
-				
-		
+
 #@app.route('/issue/create_authorize_issue/', methods=['GET', 'POST'])
 def create_authorize_issue(mode) :
 	""" Its a GUEST screen ,
 	After confirmation view
 	We create the Identity, then the Talent issues the key 20002 to the issuer then the issuer issues the certificate"""
-	
+
 	# verif secret code sent by email
 	if session.get('code') is None :
-		flash("Authentification expired")		
+		flash("Authentification expired")
 		return render_template('login.html')
-	
+
 	code = request.form['code']
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	session['try_number'] +=1
@@ -227,30 +223,29 @@ def create_authorize_issue(mode) :
 		flash("Code expired", 'danger')
 		url=session['url']
 		session.clear()
-		return redirect(url)	
-	elif session['try_number'] > 3 :	
+		return redirect(url)
+	elif session['try_number'] > 3 :
 		flash("Too many trials (3 max)", "danger")
 		url = session['url']
 		session.clear()
-		return redirect(url)				
-	elif code not in authorized_codes :	
-		if session['try_number'] == 2 :			
+		return redirect(url)
+	elif code not in authorized_codes :
+		if session['try_number'] == 2 :
 			flash('This code is incorrect, 2 trials left', 'warning')
 		elif session['try_number'] == 3 :
 			flash('This code is incorrect, 1 trial left', 'warning')
 		return render_template('confirm_issue_certificate_for_guest.html')
-	
-	
+
 	# Code if fine we can dispatch
 	if session['certificate_type'] == 'experience' :
 		certificate = {
 			"version" : 1,
-			"type" : "experience",	
+			"type" : "experience",
 			"title" : session['title'],
 			"description" : session['description'],
 			"start_date" : session['start_date'],
 			"end_date" : session['end_date'],
-			"skills" : session['skills'].split(','),  		
+			"skills" : session['skills'].split(','),
 			"score_recommendation" : session['score_recommendation'],
 			"score_delivery" : session['score_delivery'],
 			"score_schedule" : session['score_schedule'],
@@ -259,18 +254,18 @@ def create_authorize_issue(mode) :
 			"signature" : session['issuer_signature'],
 			"manager" : session['issuer_firstname'] + " " + session['issuer_lastname'],
 			"reviewer" : None }
-		
+
 	elif session['certificate_type'] == 'recommendation' :
 		certificate = {	"version" : 1,
-			"type" : "recommendation",	
+			"type" : "recommendation",
 			"description" : session['description'],
 			"relationship" : session['relationship'],
 			"picture" : session['issuer_picture'],
 			"title" : session['issuer_title'],
-			}	
-		
-	# New user, call to thread to authorize, issue and create	
-	if session['issuer_username'] == "new" :	
+			}
+
+	# New user, call to thread to authorize, issue and create
+	if session['issuer_username'] == "new" :
 		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname'], mode) 
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(issuer_username,
@@ -282,7 +277,7 @@ def create_authorize_issue(mode) :
 														session['talent_username'],
 														certificate,
 														mode)
-		exporting_threads[thread_id].start() 
+		exporting_threads[thread_id].start()
 		return render_template('thank_you.html',
 								url_to_link= mode.server + 'login/')
 	# "Old" user, issue certificate straight
@@ -291,7 +286,7 @@ def create_authorize_issue(mode) :
 		issuer_workspace_contract = session['issuer_workspace_contract']
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
 		# get private key for issuer
-		issuer_private_key = privatekey.get_key(issuer_address,'private_key', mode) 					
+		issuer_private_key = privatekey.get_key(issuer_address,'private_key', mode)
 		if issuer_private_key is None :
 			print('erreur , Private kay not found for ', session['issuer_username'])
 			flash('Sorry, the Certificate cant be issued, no Private Key found', 'warning')
@@ -303,7 +298,7 @@ def create_authorize_issue(mode) :
 		flash('Thank you, the Certificate has been issued', 'success')
 		# Email to issuer
 		subject = 'Certificate has been issued to ' + session['talent_name']
-		link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
+		link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
 		text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
 		Talao_message.message(subject, session['issuer_email'], text, mode)
 		if mode.test :
@@ -315,9 +310,9 @@ def create_authorize_issue(mode) :
 		if mode.test :
 			print('message pour Talent envoyé')
 		return render_template('login.html')
-								
-# this is a Thread function to create Identity and issue certificates		
-def create_authorize_issue_thread(username, 
+
+# this is a Thread function to create Identity and issue certificates
+def create_authorize_issue_thread(username,
 									issuer_email,
 									issuer_firstname,
 									issuer_lastname,
@@ -339,7 +334,7 @@ def create_authorize_issue_thread(username,
 		print('firstname, lastname updated')
 	#authorize the new issuer to issue documents (ERC725 key 20002)
 	address = contractsToOwners(workspace_contract, mode)
-	add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) 
+	add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, issuer_address, 20002, mode, synchronous=True)
 	if mode.test :
 		print('key 20002 issued')
 	# build certificate and issue
@@ -349,7 +344,7 @@ def create_authorize_issue_thread(username,
 		print('certificat issued')
 	# send message to issuer
 	subject = 'A new certificate has been issued to ' + talent_name
-	link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)  
+	link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
 	text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
 	Talao_message.message(subject, issuer_email, text, mode)
 	if mode.test :
@@ -361,5 +356,3 @@ def create_authorize_issue_thread(username,
 	if mode.test :
 		print('msg pour user envoyé')
 	return
-	
-	

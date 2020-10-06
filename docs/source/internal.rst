@@ -159,6 +159,7 @@ ___
 	"date_of_issue" : "2012-02-13",
 	"date_of-expiration" : "2022-02-12",
 	"authority" : "Prefecture de Police de Paris",
+	"country" : "France",
 	"card_id" : "xxxxxxxx"}
 
 

@@ -20,50 +20,45 @@ def check_login() :
 # route user/update_skills/
 def update_skills(mode) :
 	check_login()
-	if request.method == 'GET' :		
+	if request.method == 'GET' :
 		if session['skills'] is not None :
 			skills = session['skills']['description']
-			#description = [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},] 	
+			#description = [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},]
 			skills_row = ""
 			for counter, skill in enumerate(skills, 0) :
-				#skill_level = 'Intermed.' if skill['skill_level'] == 'Intermediate' else skill['skill_level'] 
+				#skill_level = 'Intermed.' if skill['skill_level'] == 'Intermediate' else skill['skill_level']
 				skill_level = skill['skill_level']
 				form_row = """
 					<div class="form-row">
 						  <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
-                       
                             <div class="form-group">
 								<p> """ + skill['skill_name'] + """</p>
 							</div>
                          </div>
-                         
                         <!--   <div class="col-3 col-sm-3 col-lg-3 col-xl-3">
                              <div class="form-group">
 								<p>""" + skill['skill_domain'] + """</p>
 							</div>
                          </div>
-                        --> 
-                         
+                        -->
                            <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
-                         
                             <div class="form-group">
 								<p> """ + skill_level + """</p>
-							</div>	
+							</div>
                          </div>
                            <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
-                        
                              <div class="form-group">
 								<div class="text-center">
 									<button title="Delete first if you want to update." class="btn btn-secondary btn-sm" name="choice" value=""" + str(counter) + """ type="submit">Delete</button></div>
 								</div>
 							</div>
                      </div>"""
-				skills_row = form_row + skills_row									
+				skills_row = form_row + skills_row
 		else :
 			skills_row = ""
-			
+
 		return render_template('update_skills.html', **session['menu'], skills_row=skills_row)
-	
+
 	if request.method == 'POST' :
 		# add a skill
 		if request.form['choice'] == 'add' :
@@ -83,9 +78,9 @@ def update_skills(mode) :
 					flash('Skill alreday added', 'warning')
 					return redirect(mode.server + 'user/update_skills/')
 			if skill_code == "" :
-				return redirect(mode.server + 'user/update_skills/')			
+				return redirect(mode.server + 'user/update_skills/')
 			else :
-				session['skills']['description'].append(skill)												
+				session['skills']['description'].append(skill)
 				return redirect(mode.server + 'user/update_skills/')
 		# update the skill document
 		elif request.form['choice'] == 'update' :
@@ -101,8 +96,8 @@ def update_skills(mode) :
 					flash('Transaction failed', 'danger')
 					return redirect( mode.server + 'user/')
 				doc_id = data[0]
-				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)  
-				
+				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
+
 			# standard update
 			else :
 				my_skills = Document('skills')
@@ -112,11 +107,11 @@ def update_skills(mode) :
 					flash('Transaction failed', 'danger')
 					return redirect( mode.server + 'user/')
 				doc_id = data[0]
-				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)  
-			flash('Your skills have been updated', 'success')	
+				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
+			flash('Your skills have been updated', 'success')
 			return redirect( mode.server + 'user/')
-		
-		# delete the skill 	
+
+		# delete the skill
 		else :
 			counter = request.form['choice']
 			del session['skills']['description'][int(counter)]

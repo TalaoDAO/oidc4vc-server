@@ -3,11 +3,11 @@
 #import multiprocessing
 
 # to be removed for Nginx on AWS 
-bind = '127.0.0.1:3000'
+#bind = '127.0.0.1:3000'
 
 
-# workers = 5
-workers = 2
+workers = 5
+#workers = 2
 #workers = multiprocessing.cpu_count()*2+1
 
 loglevel = 'info'
@@ -22,4 +22,4 @@ capture_output = True
 
 
 # Environment variables
-raw_env = ["MYCHAIN=talaonet", "MYENV=airbox", "WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6"]
+raw_env = ["MYCHAIN=talaonet", "MYENV=aws", "WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6"]

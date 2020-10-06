@@ -22,10 +22,7 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-				
-	                                           {% include 'company_nav_bar.html' %}    
-			
-				
+                {% include 'company_nav_bar.html' %}
             <div class="container-fluid">
                 <h3 class="text-dark mb-4">{{name}}</h3>
                 <div class="row mb-3">
@@ -42,6 +39,7 @@
                                     </div>
                                     <div class="card-body">
                                         <form action="/user/issue_kyc/" method="POST">
+                                            <p>Attendre la fin du process qui peut prendre un peu de temps...</p>
                                             <div class="form-row">
                                                 <div class="col-xl-6">
                                                     <div class="form-group"><label><strong>Username</strong><br></label><input class="form-control" type="text" name="username" required=""></div>
@@ -87,8 +85,6 @@
                                                 </div>
                                                 <div class="col-xl-6">
                                                     <div class="form-group"><label><strong>Nationality</strong><br></label><input class="form-control" type="text" name="nationality" required=""></div>
-                                                    
-                                                   
                                                 </div>
                                             </div>
                                             <div class="form-row">
@@ -120,10 +116,9 @@
                 </div>
             </div>
         </div>
-        
-        
+
                                   {% include 'user_footer.html' %}    
-                                  
+
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
@@ -132,5 +127,4 @@
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
-
 </html>

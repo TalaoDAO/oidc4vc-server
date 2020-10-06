@@ -84,9 +84,9 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 
-RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN 
+RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.7.12"
+VERSION = "0.7.13"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -127,7 +127,7 @@ app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certific
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
-app.add_url_rule('/certificate/data/<dataId>',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
 """ see later if usefull and complete with variable mode
@@ -140,7 +140,7 @@ app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, me
 
 # Centralized route for user, data, login
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/data/<dataId>',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -193,7 +193,7 @@ def picture() :
 		filename = secure_filename(myfile.filename)
 		print(filename.rsplit(".", 1))
 		if len(filename.rsplit(".", 1)) == 1 or filename.rsplit(".", 1)[1].lower() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
-		
+
 			#file_extension = filename.rsplit(".", 1)[1]
 		#if file_extension.upper() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
 			flash('Only "JPEG", "JPG", "PNG", "GIF" files accepted', 'warning')
@@ -299,7 +299,7 @@ def issuer_explore() :
 					issuer_personal = issuer_personal + """
 						<span><b>"""+ Topic[topic_name] +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""
 
-						<a class="text-secondary" href=/data/""" + topicname_id + """:personal>
+						<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """:personal>
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 						</a>
 					</span><br>"""
@@ -336,7 +336,7 @@ def issuer_explore() :
 				<b>Country</b> : """+ kyc['country']+"""<br>
 				<b>Id</b> : """+ kyc['id']+"""<br>
 				<p>
-					<a class="text-secondary" href=/data/"""+ kyc['id'] + """:kyc>
+					<a class="text-secondary" href=/data/?dataId="""+ kyc['id'] + """:kyc>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -353,7 +353,7 @@ def issuer_explore() :
 					<b>Title</b> : """+experience['title']+"""<br>
 					<b>Description</b> : """+experience['description'][:100]+"""...<br>
 					<p>
-						<a class="text-secondary" href=/data/"""+experience['id'] + """:experience>
+						<a class="text-secondary" href=/data/?dataId="""+experience['id'] + """:experience>
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 						</a>
 					</p>"""
@@ -370,7 +370,7 @@ def issuer_explore() :
 					<b>Title</b> : """+education['title']+"""<br>
 					<b>Description</b> : """+education['description'][:100]+"""...<br>
 					<p>
-						<a class="text-secondary" href=/data/"""+ education['id'] + """:education>
+						<a class="text-secondary" href=/data/?dataId="""+ education['id'] + """:education>
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 						</a>
 					</p>"""
@@ -391,14 +391,14 @@ def issuer_explore() :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 
-					<a class="text-secondary" href=/data/""" + """:experience>
+					<a class="text-secondary" href=/data/?dataId=""" + """:experience>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>  -->"""
 				issuer_skills = issuer_skills + skill_html
 			issuer_skills = issuer_skills + """
 				<p>
-					<a class="text-secondary" href=/data/"""+ session['issuer_explore']['skills']['id'] + """:skills>
+					<a class="text-secondary" href=/data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -428,7 +428,7 @@ def issuer_explore() :
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
-							<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
+							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 							</a>
 						</p>"""
@@ -441,7 +441,7 @@ def issuer_explore() :
 						<b>Relationship</b> : """ + certificate['relationship']+"""...<br>
 						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
-							<a class="text-secondary" href=/data/""" + certificate['id'] + """:certificate>
+							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 							</a>
 						</p>"""
@@ -557,7 +557,7 @@ def issuer_explore() :
 				<b>Capital</b> : """+ kbis['capital']+"""<br>
 				<b>Address</b> : """+ kbis['address']+"""<br>
 				<p>
-					<a class="text-secondary" href=/data/"""+ kbis['id'] + """:kbis>
+					<a class="text-secondary" href=/data/?dataId="""+ kbis['id'] + """:kbis>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</p>"""
@@ -571,7 +571,7 @@ def issuer_explore() :
 				issuer_personal = issuer_personal + """
 				<span><b>"""+ topic_name +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""
 
-					<a class="text-secondary" href=/data/""" + topicname_id + """:personal>
+					<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """:personal>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
 					</a>
 				</span><br>"""
@@ -625,7 +625,6 @@ def issuer_explore() :
 							services=services,
 							personal=issuer_personal,
 							issuer_picturefile=issuer_picture)
-
 
 # Dashboard, Analysis, history
 @app.route('/user/data_analysis/', methods=['GET'])
@@ -959,7 +958,7 @@ def create_company() :
 		company_email = request.form['email']
 		company_username = request.form['name'].lower()
 		if ns.username_exist(company_username, mode)   :
-			company_username = company_username + str(random.randint(1, 100))	
+			company_username = company_username + str(random.randint(1, 100))
 		workspace_contract = createcompany.create_company(company_email, company_username, mode)[2]
 		if workspace_contract is not None :
 			claim=Claim()
@@ -968,7 +967,6 @@ def create_company() :
 		else :
 			flash('Company Creation failed', 'danger')
 		return redirect(mode.server + 'user/')
-
 
 # create a user (Talao only)
 @app.route('/user/create_person/', methods=['GET', 'POST'])
@@ -1033,7 +1031,7 @@ def issue_kyc() :
 		return render_template('issue_kyc.html', **session['menu'])
 	if request.method == 'POST' :
 		my_kyc = dict()
-		kyc_username = request.form['username']
+		kyc_username = request.form['username'].lower()
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
 		if kyc_workspace_contract is None :
 			flash(kyc_username + ' does not exist ', 'danger')
@@ -1047,7 +1045,8 @@ def issue_kyc() :
 		my_kyc['date_of_issue'] = request.form['date_of_issue']
 		my_kyc['date_of_expiration'] = request.form['date_of_expiration']
 		my_kyc['sex'] = request.form['sex']
-		my_kyc['country'] = request.form['country']
+		#my_kyc['country'] = request.form['country'] to be added in form
+		my_kyc['country'] = ""
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
 		kyc = Document('kyc')
 		data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)
@@ -1776,7 +1775,6 @@ def add_white_issuer() :
 			session['whitelist'].append(ns.get_data_from_username(session['whitelist_username'], mode))
 			flash(session['whitelist_username'] + ' has been added as Issuer in your White List', 'success')
 		return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
-
 
 # remove white issuer
 @app.route('/user/remove_white_issuer/', methods=['GET', 'POST'])

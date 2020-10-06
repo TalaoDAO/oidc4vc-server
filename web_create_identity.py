@@ -1,5 +1,4 @@
-
-"""	
+"""
 Just a threading process to create user.
 
 centralized url
@@ -22,8 +21,8 @@ from protocol import Claim
 import ns
 
 exporting_threads = {}
-	
-# Multithreading creatidentity setup  
+
+# Multithreading creatidentity setup
 class ExportingThread(threading.Thread):
 	def __init__(self, username, firstname, lastname, email, phone, mode):
 		super().__init__()
@@ -71,7 +70,7 @@ def authentification(mode) :
 def POST_authentification_2(mode) :
 	global exporting_threads
 	mycode = request.form['mycode']
-	if not session.get('code') : 
+	if not session.get('code') :
 		flash('Registration error', 'warning')
 		return redirect(mode.server + 'login/')
 
@@ -82,8 +81,8 @@ def POST_authentification_2(mode) :
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], mode)
 		print("appel de createidentity")
-		exporting_threads[thread_id].start() 
-		return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.') 
+		exporting_threads[thread_id].start()
+		return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.')
 	elif session['try_number'] > 3 :
 		return render_template("create3.html", message="Too many trials (3 max)")
 	elif datetime.now() > session['code_delay'] :
