@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <!-- No logo for small divice  -->
     <div class="d-none d-sm-block">
-    <a href="/user/"><img src="/uploads/QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB" style="width: 50px;height: 50px;"></a>
+    <a href="/user/"><img src="/uploads/QmUjT5HSGJMCxBtDcXgeTX25SXHa4DRRB7RHhmY3pDJueZ" style="width: 120px;"></a>
     </div>
 
     <!-- left menu for smartphone devices only -->
@@ -21,6 +21,7 @@
         <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
         {% if session['test'] %}
         <a class="dropdown-item" role="presentation" href="/user/test/"><i class="fa fa-wrench fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Test Only</a>
+
         {% endif %}
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
@@ -99,6 +100,7 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
             {% if session['test'] %}
+            <a class="dropdown-item" role="presentation" href="{{clipboard}}"><i class="fa fa-graduation-cap fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;My Blockchain Resume</a>
             <a class="dropdown-item" role="presentation" href="/user/test/"><i class="fa fa-wrench fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Test Only</a>
             {% endif %}
             <div class="dropdown-divider"></div>

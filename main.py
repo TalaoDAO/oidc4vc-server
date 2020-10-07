@@ -87,7 +87,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.1"
+VERSION = "0.8.2"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -117,6 +117,10 @@ print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 #download logo Talao in /uploads for nav bar
 if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
 	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", mode.uploads_path + "QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
+
+#download logo Talao 2 in /uploads for nav bar
+if not os.path.exists("QmUjT5HSGJMCxBtDcXgeTX25SXHa4DRRB7RHhmY3pDJueZ") :
+	Talao_ipfs.get_picture("QmUjT5HSGJMCxBtDcXgeTX25SXHa4DRRB7RHhmY3pDJueZ", mode.uploads_path + "QmUjT5HSGJMCxBtDcXgeTX25SXHa4DRRB7RHhmY3pDJueZ")
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
