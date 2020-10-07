@@ -34,8 +34,7 @@ class currentMode() :
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']
 		f.close()
-		if self.test :
-			print(keys)
+		
 
 
 		# upload of main private passwords. This file (passwords.json) is not in the  github repo.
@@ -57,7 +56,7 @@ class currentMode() :
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.uploads_path = '/home/admin/Talao/uploads/'
 			self.IP = '18.190.21.227' # talao.co
-			self.server = 'http://talao.co:5000/'
+			self.server = 'https://talao.co/'
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :
@@ -96,7 +95,7 @@ class currentMode() :
 			self.IPCProvider = '/home/admin/rinkeby/geth.ipc'
 			self.uploads_path = '/home/admin/Talao/uploads/'
 			self.IP = '18.190.21.227'
-			self.server = 'http://talao.co:5000/'
+			self.server = 'https://talao.co/'
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'livebox' :

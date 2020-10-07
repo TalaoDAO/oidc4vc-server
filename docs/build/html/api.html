@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>APIs &mdash; Talao Professional Identity Relay 0.6.7 documentation</title>
+  <title>Talent Connect Overview &mdash; Talao Professional Identity Relay 0.7.9 documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Workflows" href="workflow.html" />
-    <link rel="prev" title="Overview" href="talaonet.html" /> 
+    <link rel="prev" title="Get a Proof of Identity" href="proof_of_identity.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.6.7
+                0.7.9
               </div>
             
           
@@ -102,13 +102,9 @@
 <li class="toctree-l1"><a class="reference internal" href="use_its_own_address.html">Use my own Ethereum Address</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proof_of_identity.html">Get a Proof of Identity</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Talaonet:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="talaonet.html">Overview</a></li>
-</ul>
 <p class="caption"><span class="caption-text">Talent Connect:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">APIs</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#data-request-and-response">Data Request and Response</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#general-request">General Request</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#header">Header</a></li>
@@ -178,7 +174,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>APIs</li>
+      <li>Talent Connect Overview</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -197,25 +193,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="apis">
-<h1>APIs<a class="headerlink" href="#apis" title="Permalink to this headline">¶</a></h1>
-<p>The Talent Connect APIs are a set of APIs to get public data of a Professional Identity (Talent or Company) to eventually start an onboardind process.</p>
-<p>For companies it is an easy way to get reliable data about Talents.</p>
-<p>For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.</p>
-<p>Each parcel of data can be explored to get</p>
+  <div class="section" id="talent-connect-overview">
+<h1>Talent Connect Overview<a class="headerlink" href="#talent-connect-overview" title="Permalink to this headline">¶</a></h1>
+<p>Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company) and eventually start an onboarding process.</p>
+<p>For companies it is an easy way to get reliable data about Talents.
+For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.</p>
+<p>A standard use case is :</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>issuer information, signature, name,</p></li>
-<li><p>date of creation and expiration,</p></li>
-<li><p>data location,</p></li>
-<li><p>proofs of validity.</p></li>
+<li><p>Talent fills a Company recrutment website with his Talao username.</p></li>
+<li><p>Company downloads Talent public resume (public Talao API).</p></li>
+<li><p>Company requests Talent to access his private professional data (secure Talao API).</p></li>
+<li><p>Talent receives the request with Company’s credentials (email or phone sms).</p></li>
+<li><p>Talent accepts or rejects the request (Talao website)</p></li>
+<li><p>If accepted by Talent, Company downloads Talent private professional data (secure API)</p></li>
 </ul>
 </div></blockquote>
 <div class="section" id="data-request-and-response">
 <h2>Data Request and Response<a class="headerlink" href="#data-request-and-response" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="general-request">
 <h3>General Request<a class="headerlink" href="#general-request" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span>
 </pre></div>
 </div>
 </div>
@@ -263,7 +261,7 @@
 </div>
 <div class="section" id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET http://talao.co:5000/api/v1/talent-connect/ \
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET https://talao.co/api/v1/talent-connect/ \
 -H &quot;Content-Type: application/json&quot; \
 -d user=jean.pascalet \
 -d topicname=experience
@@ -378,7 +376,7 @@
 <p>Authenticating using a login and secret through HTTP Basic Authentication.
 Check your your API credentials.</p>
 <p>Access can be also secured through a specific White List to limit the client domains.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">POST</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">POST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>
 </pre></div>
 </div>
 </div>
@@ -409,7 +407,7 @@ Check your your API credentials.</p>
 </div>
 <div class="section" id="id4">
 <h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">0.34</span><span class="p">:</span><span class="mi">3000</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>  \
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>  \
 <span class="o">-</span><span class="n">u</span> <span class="mh">0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4</span><span class="p">:</span><span class="mi">3042</span><span class="n">d4704a513b3ffb4a2adb78e73446</span>   \
 <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;action&quot; : &quot;call_back&quot;}&#39;</span> \
 <span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Content-Type: application/json&quot;</span>
@@ -430,7 +428,7 @@ Check your your API credentials.</p>
         <a href="workflow.html" class="btn btn-neutral float-right" title="Workflows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="talaonet.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="proof_of_identity.html" class="btn btn-neutral float-left" title="Get a Proof of Identity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -172,7 +172,7 @@ def does_alias_exist(alias_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
-	data = {'alias_name' : alias_name} 
+	data = {'alias_name' : alias_name}
 	c.execute("SELECT identity_name FROM lias WHERE alias_name = :alias_name " , data)
 	select = c.fetchall()
 	conn.commit()
@@ -356,12 +356,10 @@ def get_data_from_publickey(publickey, mode) :
 	""" username comes from resolver database"""
 	#path = mode.db_path
 	address = get_address_from_publickey(publickey, mode)
-	print('address =', address)
 	if address is None :
 		return None
 	workspace_contract = _ownersToContracts(address,mode)
 	username = get_username_from_resolver(workspace_contract, mode)
-	print('username =', username)
 	if username is None :
 		return None
 	return {'address' : address,

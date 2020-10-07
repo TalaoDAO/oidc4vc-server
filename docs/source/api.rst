@@ -1,20 +1,21 @@
 
-APIs
-====
+Talent Connect Overview
+=======================
 
-The Talent Connect APIs are a set of APIs to get public data of a Professional Identity (Talent or Company) to eventually start an onboardind process.
+Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company) and eventually start an onboarding process.
 
-For companies it is an easy way to get reliable data about Talents. 
-
+For companies it is an easy way to get reliable data about Talents.
 For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.
 
-Each parcel of data can be explored to get
+A standard use case is :
 
-  * issuer information, signature, name,
-  * date of creation and expiration,
-  * data location,
-  * proofs of validity. 
-  
+  * Talent fills a Company recrutment website with his Talao username.
+  * Company downloads Talent public resume (public Talao API).
+  * Company requests Talent to access his private professional data (secure Talao API).
+  * Talent receives the request with Company's credentials (email or phone sms).
+  * Talent accepts or rejects the request (Talao website).
+  * If accepted, Company downloads Talent private professional data (secure API).
+
 
 Data Request and Response
 -------------------------
@@ -24,7 +25,7 @@ General Request
 
 .. code:: 
 
-  GET http://talao.co:5000/api/v1/talent-connect/
+  GET https://talao.co/api/v1/talent-connect/
 
 Header
 ******
@@ -62,7 +63,7 @@ Example
 
 .. code:: 
    
-   $ curl -GET http://talao.co:5000/api/v1/talent-connect/ \
+   $ curl -GET https://talao.co/api/v1/talent-connect/ \
    -H "Content-Type: application/json" \
    -d user=jean.pascalet \
    -d topicname=experience 
@@ -185,7 +186,7 @@ Access can be also secured through a specific White List to limit the client dom
 
 .. code:: 
 
-  POST http://talao.co:5000/api/v1/talent-connect/auth/
+  POST https://talao.co/api/v1/talent-connect/auth/
 
 Header
 ******
@@ -218,7 +219,7 @@ Example
 
 .. code:: 
 
-   curl -X POST http://192.168.0.34:3000/talent-connect/auth/  \
+   curl -X POST https://talao.co/talent-connect/auth/  \
    -u 0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4:3042d4704a513b3ffb4a2adb78e73446   \ 
    -d '{"action" : "call_back"}' \
    -H "Content-Type: application/json" 

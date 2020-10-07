@@ -1,8 +1,8 @@
 import smtplib
-from email.mime.multipart import MIMEMultipart 
-from email.mime.text import MIMEText 
-from email.mime.base import MIMEBase 
-from email import encoders 
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 import constante
 
@@ -18,26 +18,26 @@ def messageAuth (email_to, random, mode) :
 	toaddr = [email_to, ]
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
-	# instance of MIMEMultipart 
-	msg = MIMEMultipart() 
-	msg['From'] = fromaddr 
+	# instance of MIMEMultipart
+	msg = MIMEMultipart()
+	msg['From'] = fromaddr
 	msg['To'] = ", ".join(toaddr)
-	msg['Subject'] = 'Talao : Email authentification  ' 
+	msg['Subject'] = 'Talao : Email authentification  '
 
-	# string to store the body of the mail 
-	body = 'Your verification code is : '+ random 
-	msg.attach(MIMEText(body, 'plain')) 
-	#p = MIMEBase('application', 'octet-stream') 
+	# string to store the body of the mail
+	body = 'Your verification code is : '+ random
+	msg.attach(MIMEText(body, 'plain'))
+	#p = MIMEBase('application', 'octet-stream')
 
-	# creates SMTP session 
-	s = smtplib.SMTP('smtp.gmail.com', 587) 
-	s.starttls() 
-	s.login(fromaddr, password) 
-	text = msg.as_string() 
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
 
-	# sending the mail 
+	# sending the mail
 	try:
-		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
 		print ('error sending mail')
 	s.quit()
@@ -53,15 +53,15 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	toaddr = [mode.admin, 'alexandre.leclerc@gadz.org', 'victor.baconnet@gmail.com']
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
-	# instance of MIMEMultipart 
-	msg = MIMEMultipart() 
-	# storing the senders email address 
-	msg['From'] = fromaddr 
-	# storing the receivers email address 
+	# instance of MIMEMultipart
+	msg = MIMEMultipart()
+	# storing the senders email address
+	msg['From'] = fromaddr
+	# storing the receivers email address
 	msg['To'] = ", ".join(toaddr)
-	# storing the subject 
+	# storing the subject
 	msg['Subject'] = 'Workspace Log : New Identity '
-	# string to store the body of the mail 
+	# string to store the body of the mail
 	body = "".join(['A new Talao workspace has been deployed\r\nUsername : ',
 					username,
 					'\r\n\r\nEmail : ',
@@ -78,32 +78,32 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 					SECRET,
 					'\r\nAES key : ',
 					str(AES_key)])
-	# attach the body with the msg instance 
-	msg.attach(MIMEText(body, 'plain')) 
+	# attach the body with the msg instance
+	msg.attach(MIMEText(body, 'plain'))
 	# open the file to be sent
 	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
-	attachment = open(path, "rb") 
-	# instance of MIMEBase and named as p 
-	p = MIMEBase('application', 'octet-stream') 
-	# To change the payload into encoded form 
-	p.set_payload((attachment).read()) 
-	# encode into base64 
-	encoders.encode_base64(p) 
-	p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
-	# attach the instance 'p' to instance 'msg' 
-	msg.attach(p) 
-	# creates SMTP session 
-	s = smtplib.SMTP('smtp.gmail.com', 587) 
-	# start TLS for security 
-	s.starttls() 
-	# Authentication 
-	s.login(fromaddr, password) 
-	# Converts the Multipart msg into a string 
-	text = msg.as_string() 
-	# sending the mail 
+	attachment = open(path, "rb")
+	# instance of MIMEBase and named as p
+	p = MIMEBase('application', 'octet-stream')
+	# To change the payload into encoded form
+	p.set_payload((attachment).read())
+	# encode into base64
+	encoders.encode_base64(p)
+	p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+	# attach the instance 'p' to instance 'msg'
+	msg.attach(p)
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	# start TLS for security
+	s.starttls()
+	# Authentication
+	s.login(fromaddr, password)
+	# Converts the Multipart msg into a string
+	text = msg.as_string()
+	# sending the mail
 	try:
-		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
 		print ('email sent')
 	except:
 		print ('error sending mail')
@@ -117,11 +117,11 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	fromaddr = "relay@talao.io"
 	toaddr = [email]
 
-	msg = MIMEMultipart() 
-	msg['From'] = fromaddr 
+	msg = MIMEMultipart()
+	msg['From'] = fromaddr
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = 'Your professional Identity by Talao'
-	# string to store the body of the mail 
+	# string to store the body of the mail
 	body = "".join(['Hello,\r\nA new Professional Identity has been deployed for you. \r\nYour username for login  : ',
 					username,
 					'\r\nYour first password is identity, change it as soon as possible !',
@@ -135,20 +135,20 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 					mode.BLOCKCHAIN,
 					':',
 					str(workspace_contract_address)[2:]])
-					
+
 	footer='\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
 	body= body + footer + signature
-	msg.attach(MIMEText(body, 'plain')) 
+	msg.attach(MIMEText(body, 'plain'))
 
-	# creates SMTP session 
-	s = smtplib.SMTP('smtp.gmail.com', 587) 
-	s.starttls() 
-	s.login(fromaddr, password) 
-	text = msg.as_string() 
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
 
-	# sending the mail 
+	# sending the mail
 	try:
-		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
 		print ('email sent')
 	except:
 		print ('error sending mail')
@@ -157,28 +157,28 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 
 
 def messageAdmin (subject, messagetext,mode) :
-	
+
 	password = mode.smtp_password
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
 	toaddr = [mode.admin]
-	msg = MIMEMultipart() 
-	msg['From'] = fromaddr 
+	msg = MIMEMultipart()
+	msg['From'] = fromaddr
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = "Admin message :" + subject
 	body = messagetext
-	msg.attach(MIMEText(body, 'plain')) 
-	#p = MIMEBase('application', 'octet-stream') 
+	msg.attach(MIMEText(body, 'plain'))
+	#p = MIMEBase('application', 'octet-stream')
 
-	# creates SMTP session 
-	s = smtplib.SMTP('smtp.gmail.com', 587) 
-	s.starttls() 
-	s.login(fromaddr, password) 
-	text = msg.as_string() 
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
 
-	# sending the mail 
+	# sending the mail
 	try:
-		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
 		print ('error sending mail')
 		return False
@@ -193,23 +193,23 @@ def message(subject, to, messagetext, mode) :
 	fromaddr = "relay@talao.io"
 	toaddr = [to]
 
-	msg = MIMEMultipart() 
-	msg['From'] = fromaddr 
+	msg = MIMEMultipart()
+	msg['From'] = fromaddr
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] =  subject
 	body = messagetext + signature
-	msg.attach(MIMEText(body, 'plain')) 
-	#p = MIMEBase('application', 'octet-stream') 
+	msg.attach(MIMEText(body, 'plain'))
+	#p = MIMEBase('application', 'octet-stream')
 
-	# creates SMTP session 
-	s = smtplib.SMTP('smtp.gmail.com', 587) 
-	s.starttls() 
-	s.login(fromaddr, password) 
-	text = msg.as_string() 
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
 
-	# sending the mail 
+	# sending the mail
 	try:
-		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
 		print ('error sending mail')
 		return False
@@ -222,52 +222,52 @@ def message_file(to, text, subject, filename, path, mode)  :
 	""" @to is list of email, @filename is a list of files """
 
 	password = mode.smtp_password
-	
+
 	# debut de la fonction
 	fromaddr = "relay@talao.io"
 	toaddr = to
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
-	# instance of MIMEMultipart 
-	msg = MIMEMultipart() 
-	# storing the senders email address 
-	msg['From'] = fromaddr 
-	# storing the receivers email address 
+	# instance of MIMEMultipart
+	msg = MIMEMultipart()
+	# storing the senders email address
+	msg['From'] = fromaddr
+	# storing the receivers email address
 	msg['To'] = ", ".join(toaddr)
-	# storing the subject 
+	# storing the subject
 	msg['Subject'] = subject
-	# string to store the body of the mail 
+	# string to store the body of the mail
 	body = text
-	# attach the body with the msg instance 
-	msg.attach(MIMEText(body, 'plain')) 
-	
+	# attach the body with the msg instance
+	msg.attach(MIMEText(body, 'plain'))
+
 	for myfile in filename :
 		print(myfile)
 		# open the file to be sent
 		file_with_path = path + myfile
 		filename = myfile
 		print(file_with_path)
-		attachment = open(file_with_path, "rb") 
-		# instance of MIMEBase and named as p 
-		p = MIMEBase('application', 'octet-stream') 
-		# To change the payload into encoded form 
-		p.set_payload((attachment).read()) 
-		# encode into base64 
-		encoders.encode_base64(p) 
-		p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
-		# attach the instance 'p' to instance 'msg' 
-		msg.attach(p) 
-	# creates SMTP session 
-	s = smtplib.SMTP('smtp.gmail.com', 587) 
-	# start TLS for security 
-	s.starttls() 
-	# Authentication 
-	s.login(fromaddr, password) 
-	# Converts the Multipart msg into a string 
-	text = msg.as_string() 
-	# sending the mail 
+		attachment = open(file_with_path, "rb")
+		# instance of MIMEBase and named as p
+		p = MIMEBase('application', 'octet-stream')
+		# To change the payload into encoded form
+		p.set_payload((attachment).read())
+		# encode into base64
+		encoders.encode_base64(p)
+		p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+		# attach the instance 'p' to instance 'msg'
+		msg.attach(p)
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	# start TLS for security
+	s.starttls()
+	# Authentication
+	s.login(fromaddr, password)
+	# Converts the Multipart msg into a string
+	text = msg.as_string()
+	# sending the mail
 	try:
-		s.sendmail(msg['from'],  msg["To"].split(","), text) 
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
 		print ('email sent')
 	except:
 		print ('error sending mail')

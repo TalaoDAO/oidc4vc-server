@@ -7,18 +7,18 @@ What is Talao ?
 Talao is a Blockchain protocol to manage professional data. 
 
 Traditionnal architectures to validate, certify, and manage professional data are based on centralized, top-down approaches that rely on third-party private operators. 
-Unfortunatky this organization often leads to inappropriate use of personal data and hacks.
+Unfortunatky these solutions often lead to inappropriate use of personal data and hacks.
 
-Talao approaches this problem starting from a user perspective through a Blockchain decentralized Identity focused on professional data :
+Talao approaches this issue starting from a user perspective through a Blockchain decentralized Identity focused on professional data :
 
   - You own your data for your lifetime.
   - No private operators or government agencies can decide to update or delete your data.
   - No one can access your encrypted data without your permission.
-  - No storage costs, you only pay Blockchain fees to update your data.
+  - No storage costs.
   - Certificates are tamper proof and tracable.
   - Certificates issuers are identified.
 
-Talao allows professional data certification for Talents, Companies and other organizations such as Schools or Training Centers.
+Talao allows Professional Identities for Talents, Companies and certificates issuers such as Schools or Training Centers.
 It is for everyone the opportunity to use a new technology to get tamper proof professional data while keping the ownership of those data.
 
 Identities with their certificates can be displayed anywhere on digital plateforms : social medias, websites, Jobboards, etc. They provide to third parties reliable data about professional experiences, skills and education.
@@ -27,23 +27,23 @@ Identities with their certificates can be displayed anywhere on digital platefor
 How does Talao work ?
 ---------------------
 
-Talao is based on smart contracts Identities, it means that individuals and companies must first setup their own private smart contract (program) on the Blockchain to store and manage
-their data. Each individual or company is given its own private key to access and update its Identity. 
+Talao is based on smart contracts Identities, it means that individuals and companies first setup their own private smart contract on the Blockchain to store and manage
+their data. Each individual or company is given its own private key to access and update its Identity.
 
 Thanks to cryptographic algorithms those private keys are only used to sign messages sent by the Identity owner to the Blockchain. Those keys are never stored in a database.
 If someone wants to update his data, he will sign a message (data update) with his private key and send it to thousands of Blockchain servers.
 Each server will check the signature, update its data then compare it to other servers. As Blockchain data are duplicated on thousands of servers, no one can alone hack the Identity.  
 
-This Talao web application (named Relay) is a portal to access Identities with a simple User Interface and automated processus.
+This Talao web application https://talao.co is a portal to access Identities with a simple User Interface and automated processus.
 
 
 TalaoNet
 --------
 
-TalaoNet is a Private Ethereum Network with a Proof Of Authority consensus (Clique) managed by Talao and partners. 
+TalaoNet is a Private Ethereum Network with a Proof Of Authority consensus (Clique) managed by Talao and partners.
 The Talao protocol has been deployed on TalaoNet.
 
-RPC URL http://18.190.21.227:8502  
+RPC URL https://18.190.21.227:8502
 
 Main contract addresses
 
@@ -51,6 +51,7 @@ Main contract addresses
 - Foundation : 0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6
 - Workspace Factory : 0x0969E4E66f47D543a9Debb7b0B1F2928f1F50AAf
 
+Protocol code available at https://github.com/TalaoDAO/talao-contracts
 
 Credits
 -------

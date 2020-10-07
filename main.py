@@ -26,7 +26,7 @@ from Crypto.PublicKey import RSA
 import sys
 import os
 import os.path, time
-from flask import Flask, session, send_from_directory, flash
+from flask import Flask, session, send_from_directory, flash, jsonify
 from flask import request, redirect, render_template,abort, Response, abort
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -67,6 +67,7 @@ import web_certificate
 import web_data_user
 import web_issue_certificate
 import web_skills
+import web_CV_blockchain
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
@@ -86,7 +87,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.7.13"
+VERSION = "0.7.14"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -137,6 +138,9 @@ app.add_url_rule('/api/talent-connect/',  view_func=web_talent_connect.get, meth
 app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
 """
+# Centralized route for cv blcokchain
+app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized route for user, data, login
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -1317,6 +1321,7 @@ def resquest_partnership() :
 		if not session['rsa_key'] :
 			flash('Request Partnership to ' + session['partner_username'] + ' is not available (RSA key not found)', 'warning')
 			return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['partner_username'])
+		#relay signs the transaction"
 		if  partnershiprequest(mode.relay_address,
 								 mode.relay_workspace_contract,
 								 session['address'],
@@ -1351,8 +1356,13 @@ def resquest_partnership() :
 			# user message
 			flash('You have send a Request for Partnership to ' + session['partner_username'], 'success')
 			# partner email
-			subject = "You have received a Request for Partnership from " + session['name']
-			text = " You can now accept or reject this Request. Go to " + mode.server +"login/ to proceed."
+			subject = session['name'] + " souhaite accéder aux données privées de votre Identité Talao"
+			text = "\r\n".join(['',
+                    'Vous pouvez accepter ou refuser sa demande en allant sur ' + mode.server,
+                    """Dans votre menu, choisissez l'option 'Advanced', puis l'option 'Partner List'.""",
+                    'Acceptez ou refusez sa demande en cliquant sur un des icons.',
+                    '',
+                    'Des informations complémentaires sur ' + session['name'] + ' sont disponibles ici ' + session['menu']['clipboard']])
 			partner_email = ns.get_data_from_username(session['partner_username'], mode)['email']
 			Talao_message.message(subject, partner_email, text, mode)
 		else :
@@ -1837,6 +1847,18 @@ def download():
 def download_rsa_key():
 	filename = request.args['filename']
 	return send_from_directory(app.config['RSA_FOLDER'],
+                               filename, as_attachment=True)
+
+@app.route('/user/typehead/', methods=['GET', 'POST'])
+def typehead() :
+	return render_template('typehead.html')
+
+# To manage the navbar search field. !!!! The json file is uploaded once
+@app.route('/user/data/', methods=['GET', 'POST'])
+def talao_search() :
+	print('Upload prefetch file')
+	filename = request.args['filename']
+	return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
 #######################################################

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='carousel.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+			{% endfor %}
+			{% endif %}
+		{% endwith %}
+
+                 {% include 'guest_nav_bar.html' %}
+
+             <div class="container-fluid">
+               <div class="row mx-lg-5 mx-1 mb-3 ">
+                     <div class="card shadow mx-lg-5 mx-1 w-100">
+                       <div class="card-body">
+                           <div class="row">
+                               <div class="col">
+                                 <h2 class="text-dark text-center mb-2">{{issuer_name}}</h2>
+                                 <p class="text-dark text-center mb-2">{{issuer_profil_title}}</p>
+                                 <div class="d-block d-sm-none mb-3">
+                                     <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width:250px;width:100%">
+                                 </div>
+                                 {{personal|safe}}
+                               </div>
+                               <div class="col d-none d-sm-block">
+                                   <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width:400px;max-height:500px;width:100%">
+                               </div>
+                           </div>
+                         </div>
+                       </div>
+                 </div>
+               <!-- Certificate carousel large screen  -->
+               {% if carousel_rows_certificate != "" %}
+               <div class="row mx-lg-5 mx-1 mb-3">
+                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
+                   <div class="card-header">
+                     <h4>Certificate</h4>
+                   </div>
+                   <div class="card-body ">
+                     <!--Carousel Wrapper-->
+                     <div id="certificate-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                       <!--Controls-->
+                       <div class="controls-top text-center">
+                         <a class="btn-floating" href="#certificate-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                         <a class="btn-floating" href="#certificate-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                       </div>
+
+                       <!--/.Controls-->
+
+                       <!--Indicators-->
+                       <ol class="carousel-indicators " style="margin-bottom: 0;">
+                         {{carousel_indicators_certificate|safe}}
+                       </ol>
+
+                       <!--/.Indicators-->
+
+                       <!--Slides-->
+
+                       <div class="carousel-inner" role="listbox">
+                         {{carousel_rows_certificate|safe}}
+                       </div>
+
+                       <!--/.Slides-->
+
+                     </div>
+                     <!--/.Carousel Wrapper-->
+                   </div>
+                   </div>
+                   </div>
+                   {% endif %}
+                   <!-- /.Certificate carousel  -->
+                   <!-- Experience carousel large screen -->
+                   {% if carousel_rows_experience != "" %}
+                   <div class="row mx-lg-5 mx-1 mb-3">
+                     <div class="card shadow mx-lg-5 mx-1 w-100">
+                       <div class="card-header">
+                         <h4>Experience</h4>
+                       </div>
+                       <div class="card-body ">
+                         <!--Carousel Wrapper-->
+                         <div id="experience-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                           <!--Controls-->
+                           <div class="controls-top text-center">
+                             <a class="btn-floating" href="#experience-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                             <a class="btn-floating" href="#experience-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                           </div>
+
+                           <!--/.Controls-->
+
+                           <!--Indicators-->
+                           <ol class="carousel-indicators " style="margin-bottom: 0;">
+                             {{carousel_indicators_experience|safe}}
+                           </ol>
+
+                           <!--/.Indicators-->
+
+                           <!--Slides-->
+
+                           <div class="carousel-inner" role="listbox">
+                             {{carousel_rows_experience|safe}}
+                           </div>
+
+                           <!--/.Slides-->
+
+                         </div>
+                         <!--/.Carousel Wrapper-->
+                       </div>
+                     </div>
+                   </div>
+
+                   {% endif %}
+                   <!-- /.Experience carousel  -->
+                   <!-- Experience carousel large screen -->
+                   {% if carousel_rows_education != "" %}
+                   <div class="row mx-lg-5 mx-1 mb-3">
+                     <div class="card shadow mx-lg-5 mx-1 w-100">
+                       <div class="card-header">
+                         <h4>Education</h4>
+                       </div>
+                       <div class="card-body ">
+                         <!--Carousel Wrapper-->
+                         <div id="experience-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                           <!--Controls-->
+                           <div class="controls-top text-center">
+                             <a class="btn-floating" href="#experience-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                             <a class="btn-floating" href="#experience-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                           </div>
+                           <!--/.Controls-->
+
+                           <!--Indicators-->
+                           <ol class="carousel-indicators " style="margin-bottom: 0;">
+                             {{carousel_indicators_education|safe}}
+                           </ol>
+
+                           <!--/.Indicators-->
+
+                           <!--Slides-->
+
+                           <div class="carousel-inner" role="listbox">
+                             {{carousel_rows_education|safe}}
+                           </div>
+
+                           <!--/.Slides-->
+
+                         </div>
+                         <!--/.Carousel Wrapper-->
+                       </div>
+                     </div>
+                   </div>
+                   {% endif %}
+                   <!-- /.Education carousel  -->
+                   <!-- Row for skills and stored files  -->
+                   <div class="row mx-lg-5 mx-1 mb-3">
+                     <div class="col pr-md-1">
+                       <div class="card shadow ml-md-4 mb-3">
+                         <div class="card-header">
+                           <h4> Skills </h4>
+                         </div>
+                         <div class="card-body ">
+                           <p class="card-text">{{skills|safe}}</p>
+                         </div>
+                       </div>
+                     </div>
+                     <div class="col pl-md-1">
+                       <div class="card shadow mr-md-4">
+                         <div class="card-header">
+                           <h4> Stored file </h4>
+                         </div>
+                         <div class="card-body ">
+                           <p class="card-text">{{digitalvault|safe}}</p>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- /.Row for skills and stored files  -->
+                 </div>
+
+
+        </div>
+    </div>
+    </div>
+
+
+                        {% include 'user_footer.html' %}
+
+    </div>
+
+	<script>function goBack() {  window.history.back();}</script>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

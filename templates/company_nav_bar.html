@@ -1,6 +1,9 @@
+
+ 
+
  <!-- Nav Bar User -->
 
- <nav class="navbar navbar-dark navbar-expand shadow mb-4 topbar static-top p-0.5" style="background-color: #033f79;">
+ <nav class="navbar navbar-custom navbar-dark navbar-expand shadow mb-4 topbar static-top p-0.5" style="background-color: #033f79;">
 
    <!-- Logo Talao -->
    <div class="container-fluid"><a href="/user/"><img src="/uploads/QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB" style="width: 50px;height: 50px;"></a>
@@ -34,15 +37,19 @@
        <!--	<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="http://talao.rtfd.io/" style="color: rgb(133,135,150);">How-To</a></li>  -->
        {% endif %}
        <!--			<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/search/" style="color: rgb(133,135,150);">Search</a></li>  -->
+
+
        <!-- Search  -->
        <form action="/user/search/" method="POST" class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
          <div class="input-group">
-           <input class="bg-light form-control border-0 small" name="username_to_search" required="" pattern="[a-z0-9]{3,30}" type="text" placeholder="Search for Identity..." />
+          <input type="text" class="typeahead form-control bg-light border-0 small" autocomplete="off" spellcheck="false" name="username_to_search" placeholder="Search for Identity or Name." pattern="[a-z0-9]{3,30}">
+           <!--<input class="bg-light form-control border-0 small" name="username_to_search" required="" pattern="[a-z0-9]{3,30}" type="text" placeholder="Search for Identity..." />-->
            <div class="input-group-append">
              <button class="btn btn-primary btn-sm " type="submit"><i class="fas fa-search"></i></button>
            </div>
          </div>
        </form>
+
 
        <!-- Menu Droite  -->
        <li class="nav-item dropdown no-arrow" role="presentation">
@@ -53,24 +60,19 @@
            <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
              <a class="dropdown-item " role="presentation" href="/user/invit_talent/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit a Talent&nbsp;</a>
 
-
-             {% if session['username'] == 'talao' %}
-
-             <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-industry fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a Company&nbsp;</a>
-             <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a User&nbsp;</a>
-             <a class="dropdown-item" role="presentation" href="/user/issue_kyc/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kyc&nbsp;</a>
-             <a class="dropdown-item" role="presentation" href="/user/issue_kbis/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kbis&nbsp;</a>
-             {% endif %}
+            {% if session['username'] == 'talao' %}
+              <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-industry fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a Company&nbsp;</a>
+              <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a User&nbsp;</a>
+              <a class="dropdown-item" role="presentation" href="/user/issue_kyc/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kyc&nbsp;</a>
+              <a class="dropdown-item" role="presentation" href="/user/issue_kbis/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kbis&nbsp;</a>
+            {% endif %}
              <div class="dropdown-divider"></div>
              <a class="dropdown-item" role="presentation" href="http://talao.rtfd.io/"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
-
              <div class="dropdown-divider"></div>
              <a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
            </div>
          </div>
        </li>
-
-
      </ul>
    </div>
  </nav>

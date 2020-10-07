@@ -33,11 +33,10 @@ def convert(obj):
 # #route /guest/certificate
 # @route /certificate/
 def show_certificate(mode):
-	if mode.test :
-		print('session dans certificate = ', session)
+
 	menu = session.get('menu', dict())
 	viewer = 'guest' if session.get('username') is None else 'user'
-
+	print('viewer = ',viewer)
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]

@@ -505,7 +505,7 @@ def user(mode) :
 							'rsa_filename': session['rsa_filename'],
 							'profil_title' : session['profil_title'],
 							'list' : my_list,
-							'clipboard' : mode.server  + "guest/?workspace_contract=" + session['workspace_contract']}
+							'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
 
 
 		# welcome message
@@ -858,7 +858,8 @@ def user(mode) :
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 
 				my_certificates = my_certificates + cert_html
-
+		
+		print('menu ', session['menu'])
 		return render_template('person_identity.html',
 							**session['menu'],
 							display_alias = display_alias,
