@@ -87,7 +87,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.5"
+VERSION = "0.8.6"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup

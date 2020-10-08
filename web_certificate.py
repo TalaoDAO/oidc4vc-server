@@ -553,12 +553,14 @@ def certificate_data(mode) :
 	if support == 'document' :
 		doc_id = int(dataId.split(':')[5])
 		my_topic = dataId.split(':')[6]
-		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education'] :
+		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education', 'skills'] :
 			my_data = Document(my_topic)
 			my_data.relay_get(workspace_contract, doc_id, mode)
 		else :
 			print('Error data in webserver.py, Class instance needed')
-			return
+			content = json.dumps({'topic' : 'error', 'msg' : 'Data Not Found'})
+			response = Response(content, status=406, mimetype='application/json')
+			return response
 		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
 
@@ -622,9 +624,8 @@ def certificate_data(mode) :
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 
 	# value
+	print(' my topic', my_topic.lower())
 	if my_topic.lower() == "experience"  :
-		#mytitle = my_data.title
-		#mysummary = my_data.description
 		myvalue = """
 				<b>Data Content</b>
 				<li><b>Title</b> : """+my_data.title + """<br></li>
@@ -637,8 +638,6 @@ def certificate_data(mode) :
 				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
 
 	elif my_topic.lower() == "education" :
-		#mytitle = my_data.title
-		#mysummary = my_data.description
 		myvalue = """
 				<b>Data Content</b>
 				<li><b>Title</b> : """+my_data.title + """<br>
@@ -671,8 +670,6 @@ def certificate_data(mode) :
 				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""
 
 	elif my_topic.lower() == "kbis" :
-		#mytitle = "Kbis validated"
-		#mysummary = ""
 		myvalue = """
 				<b>Data Content</b>
 				<li><b>Name</b> : """ + my_data.name+ """<br></li>
@@ -687,8 +684,6 @@ def certificate_data(mode) :
 
 
 	elif my_topic.lower() == "kyc" :
-		#mytitle = "ID validated by Talao"
-		#mysummary = ""
 		myvalue = """
 				<b>Data Content</b>
 				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
@@ -702,13 +697,20 @@ def certificate_data(mode) :
 				<li><b>Country</b> : """+ my_data.country+"""</li>"""
 
 	elif my_topic.lower() == 'personal' :
-		#mytitle = 'Profil'
-		#mysummary = ''
 		myvalue = """<b>Data</b> : """+ my_data.claim_value
 
+	elif my_topic.lower() == 'skills' :
+		myvalue = ''
+		print('my data ',my_data.__dict__)
+		for skill in my_data.description :
+			skill_to_display = skill['skill_name'].capitalize()
+			myvalue = myvalue + """<li>  """+ skill_to_display + """</li>"""
+
 	else :
-		print('erreur my_topic dans data de webserver.py')
-		return
+		print(('topic not found'))
+		content = json.dumps({'topic' : 'error', 'msg' : 'Data Not Found'})
+		response = Response(content, status=406, mimetype='application/json')
+		return response
 
 	#mydelete_link = "/talao/api/data/delete/"
 
