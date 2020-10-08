@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,10 +22,7 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-               
-                                                   {% include 'company_nav_bar.html' %}    
-           
-               
+                                                   {% include 'company_nav_bar.html' %}
         <div class="container-fluid">
             <div class="row">
                 <div class="col-xl-4 offset-xl-4">
@@ -73,9 +70,6 @@
                                         <hr>
                                     </div>
                                 </div>
-                                
-                                
-                                
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
@@ -83,17 +77,14 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1">
-										<div class="form-group">    
+										<div class="form-group">
 											<input  class="form-control-range" type="range" name="score_delivery" id="score_delivery" value="3" min="0" max="5" step="1" oninput="score_delivery_disp.value = score_delivery.value">
 											<output  id="score_delivery_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
                                 </div>
-                                
-                                
-                                
-                                
+
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
@@ -101,16 +92,14 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
-										<div class="form-group">    
+										<div class="form-group">
 											<input  class="form-control-range" type="range" name="score_recommendation" id="score_recommendation" value="3" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
-											<output  id="score_recommendation_disp"></output>	
+											<output  id="score_recommendation_disp"></output>
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
                                 </div>
-                                
-                                
-                                
+
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
@@ -118,16 +107,14 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1">
-										<div class="form-group">    
+										<div class="form-group">
 											<input  class="form-control-range" type="range" name="score_schedule" id="score_schedule" value="3" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
 											<output  id="score_schedule_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
                                 </div>
-                                
-                                
-                                
+
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
                                         <div class="form-group">
@@ -135,15 +122,13 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
-                                        <div class="form-group">    
+                                        <div class="form-group">
 											<input  class="form-control-range" type="range" name="score_communication" id="score_communication" value="3" min="0" max="5" step="1" oninput="score_communication_disp.value = score_communication.value">
-											<output  id="score_communication_disp"></output>	
+											<output  id="score_communication_disp"></output>
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
-                                   
                                     </div>
-                                
-                                
+
                                 </div>
                                 <div class="form-row">
                                     <div class="col-lg-6 col-xl-6">
@@ -158,9 +143,9 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Issue&nbsp;</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3 order-xl-1">
-										<a href="/user/issuer_explore/?issuer_username={{issuer_username}}">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
-                                        </a> 
+									<!--	<a href="/user/issuer_explore/?issuer_username={{issuer_username}}">  -->
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" onclick="goBack()" type="button">Back</button></div>
+                                     <!--   </a> -->
                                     </div>
                                 </div>
                             </div>
@@ -172,10 +157,11 @@
     </div>
     </div>
     </div>
-                               {% include 'user_footer.html' %}    
+                               {% include 'user_footer.html' %}
 
     </div>
-   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script>function goBack() {  window.history.back();}</script>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

@@ -87,7 +87,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.3"
+VERSION = "0.8.4"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -1062,7 +1062,7 @@ def issue_kyc() :
 			flash('Transaction failed', 'danger')
 		else :
 			flash('New kyc added for '+ kyc_username, 'success')
-			text = 	"\r\n\r\nA Proof of Identity has been issued for you by Talao. Check your Identity.\r\n" + mode.server + 'login/'
+			text = 	"\r\nYour Proof of Identity has been issued by Talao.\r\nCheck your Identity on " + mode.server + 'login/'
 			subject = 'Your proof of Identity'
 			kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
 			Talao_message.message(subject, kyc_email, text, mode)

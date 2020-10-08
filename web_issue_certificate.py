@@ -62,13 +62,13 @@ def issue_logout(mode) :
 
 #@app.route('/issue/', methods=['GET', 'POST'])
 def issue_certificate_for_guest(mode) :
-	""" Its a the MAIN GUEST view, issuer are either new or user but they have been requested to issue, Do not mix with issuer_experience_certificate. 
+	""" MAIN GUEST view, issuer are either new or user but they have been requested to issue, Do not mix with issuer_experience_certificate. 
 	we display a form to complete the certificate draft and put everything in session for next phase
 	this route is a hub to dispatcg according to certificate type"""
 
 	if request.method == 'GET' :
 		session.clear()
-		# test if url is fine
+		# test if url is fine and setup data
 		try :
 			session['certificate_type'] = request.args['certificate_type']
 			session['issuer_email'] = request.args['issuer_email']
@@ -82,7 +82,7 @@ def issue_certificate_for_guest(mode) :
 			flash("Link error, Check the url", 'warning')
 			return redirect(mode.server + 'login/')
 
-		# test if certificate has already been issued (we only test if the issuer exists.....to be changed later)
+		# Check if certificate has already been issued (we only test if the issuer exists.....to be changed later)
 		issuer_list = ns.get_username_list_from_email(session['issuer_email'], mode)
 		if session['issuer_username'] == "new" and issuer_list != [] :
 			flash("Certificate already issued.", 'warning')

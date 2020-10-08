@@ -242,7 +242,7 @@ def resume(mode) :
                     carousel_rows_certificate += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
                 carousel_rows_certificate += """<div class="col-md-4 mb-2" style="height: 300px;"><div class="card mb-2 h-100"><div class="card-header">"""
                 #header
-                carousel_rows_certificate += certificate['title'] + '</div><div class="card-body">'
+                carousel_rows_certificate += certificate['type'].capitalize() + ' : ' + certificate['title'] + '</div><div class="card-body">'
                 #body
                 carousel_rows_certificate += """<b>Referent Name</b> : """ + certificate_issuer_name + """<br>
                 <b>Referent Username</b> : """ + certificate_issuer_username + """<br>
