@@ -87,7 +87,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.4"
+VERSION = "0.8.5"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -142,7 +142,8 @@ app.add_url_rule('/api/talent-connect/',  view_func=web_talent_connect.get, meth
 app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
 """
-# Centralized route for cv blcokchain
+
+# Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 
@@ -486,23 +487,23 @@ def issuer_explore() :
 							<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Referent List to request him certificates.</a><br>"""
 			else :
 				services = services + """<br><a class="text-success">This Talent is in your Referent List.</a><br>
-							<a href="/user/request_certificate/?issuer_username="""+ issuer_username + """">Request to this Talent a Certificate to increase your rating.</a><br>"""
+							<a href="/user/request_certificate/?issuer_username="""+ issuer_username + """">Request to this Talent a Certificate to strengthen your Resume.</a><br>"""
 
 			if not is_username_in_list(session['whitelist'], issuer_username) : # est ce que ce Talent est dans ma white list ?
 				services = services + """<br><a class="text-warning">This Talent is not in your White List.</a><br>
-							<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Talent in your White List to increase your rating.</a><br>"""
+							<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Talent to your White List to build your Identity efficiently.</a><br>"""
 			else :
 				services = services + """<br><a class="text-success">This Talent is in your White list.</a><br>"""
 
 			if not is_username_in_list_for_partnership(session['partner'], issuer_username)  : # est ce qu il est dans ma partnership list
 				services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a><br>
-										<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
+										<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to access his private Data.</a><br>"""
 			else :
 				services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
 
 			if is_username_in_list(session['issuer_explore']['issuer_keys'], session['username']) : # est ce que je suis dans l'issuer list de ce Talent ?
 				services = services + """<br><a class="text-success">You are in this Talent Referent list.</a><br>
-							<a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username="""+ issuer_username +"""" >Issue a Certificate to this Talent to increase your rating.</a><br>"""
+							<a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username="""+ issuer_username +"""" >Issue a Certificate to this Talent.</a><br>"""
 			else :
 				services = services + """<br><a class="text-warning">You are not in this Talent Referent list.</a><br>"""
 
@@ -524,7 +525,7 @@ def issuer_explore() :
 
 			if not is_username_in_list_for_partnership(session['partner'], issuer_username) : # est ce qu il est dans ma partnership list
 				services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a>
-										<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private data.</a><br>"""
+										<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private Data.</a><br>"""
 			else :
 				services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
 

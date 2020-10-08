@@ -652,9 +652,8 @@ def certificate_data(mode) :
 				<li><b>Diploma Link</b> : """+  my_data.certificate_link+"""</li>"""
 
 	elif my_topic.lower() == "certificate" :
-		#mytitle = my_data.title
-		#mysummary = my_data.description
-		myvalue = """
+		if my_data.type == 'experience' :
+			myvalue = """
 				<b>Data Content</b>
 				<li><b>Title</b> : """ + my_data.title + """<br></li>
 				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>
@@ -665,6 +664,11 @@ def certificate_data(mode) :
 				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
 				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
 				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
+		else :
+			myvalue = """
+				<b>Data Content</b>
+				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
+				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""
 
 	elif my_topic.lower() == "kbis" :
 		#mytitle = "Kbis validated"
