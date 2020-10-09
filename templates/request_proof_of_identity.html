@@ -6,33 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                  {% if session['type'] == "company" %}    
-                 {% include 'company_nav_bar.html' %}    
-             {% else %} 
-                 {% include 'user_nav_bar.html' %} 
+            <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
+                  {% if session['type'] == "company" %}
+                 {% include 'company_nav_bar.html' %}
+             {% else %}
+                 {% include 'user_nav_bar.html' %}
              {% endif %}
             <div class="container-fluid">
                     <h3 class="text-dark mb-4">{{name}}
-                    <a class="text-secondary" onclick="copyToClipboard('#p100')"> 
+                    <a class="text-secondary" onclick="copyToClipboard('#p100')">
                     <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
                     </a>
-                    <p hidden id="p100" >{{clipboard}}</p>      
+                    <p hidden id="p100" >{{clipboard}}</p>
                     <h6 class="text-dark mb-4">{{profil_title}}</h6>
                 <div class="row mb-3">
 					<div class="col-md-10 col-lg-6 col-xl-4 offset-md-1 offset-lg-3 offset-xl-4">
@@ -81,16 +81,16 @@
                 </div>
             </div>
         </div>
-                                  {% include 'user_footer.html' %}    
+                                  {% include 'user_footer.html' %}
 
     </div></div>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	  <script src="{{ url_for('static', filename='loading_button.js') }}"></script> 
+	  <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script> 
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script>
 $(".custom-file-input").on("change", function() {
   var fileName = $(this).val().split("\\").pop();
@@ -104,7 +104,7 @@ $(".custom-file-input").on("change", function() {
     document.execCommand("copy");
     $temp.remove();
   }</script>
-     
+
 </body>
 
 </html>
