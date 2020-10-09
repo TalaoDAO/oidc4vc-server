@@ -84,7 +84,7 @@
                                     </div>
                                     <div class="form-row">
                                          <div class="col-md-6 col-lg-6 col-xl-3">
-                                            <div class="form-group"><label><strong>Birth Date</strong><br></label><input class="form-control" value="{{birthdate}}" name="birthdate" type="date"></div>
+                                            <div class="form-group"><label><strong>Birth Date</strong><br></label><input id="datePickerId" class="form-control" value="{{birthdate}}" name="birthdate" type="date"></div>
                                         </div>
                                          <div class="col-md-6 col-lg-6 col-xl-3">
                                             <div class="form-group"><label>Privacy setting<br></label>
@@ -161,6 +161,8 @@
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>datePickerId.max = new Date().toISOString().split("T")[0];</script>
+
     <script>function copyToClipboard(element) {
         var $temp = $("<input>");
         $("body").append($temp);

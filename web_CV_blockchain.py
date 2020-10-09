@@ -111,7 +111,7 @@ def resume(mode) :
                 exp_html = """
                     <b>Company</b> : """+experience['company']['name']+"""<br>
                     <b>Title</b> : """+experience['title']+"""<br>
-                    <b>Description</b> : """+experience['description'][:100]+"""...<br>
+                    <b>Description</b> : """+experience['description'][:200]+"""...<br>
                     <p>
                         <a class="text-secondary" href=/certificate/data/?dataId="""+experience['id'] + """:experience>
                             <i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
@@ -185,7 +185,7 @@ def resume(mode) :
                 my_file = my_file + file_html + """<br>"""
             if is_encrypted:
                 my_file = my_file + """<a href="/register/">Register to access encrypted Data.</a><br>"""
-        
+
         # certificates
         issuer_certificates = ""
         if issuer_explore.certificate == [] :
@@ -210,7 +210,7 @@ def resume(mode) :
                         <b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>
                         <b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>
                         <b>Title</b> : """ + certificate['title']+"""<br>
-                        <b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+                        <b>Description</b> : """ + certificate['description'][:200]+"""...<br>
                         <b></b><a href= """ + mode.server +  """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
                         <p>
                             <a class="text-secondary" href=/certificate/data/?dataId=""" + certificate['id'] + """:certificate>
@@ -248,7 +248,7 @@ def resume(mode) :
                 <b>Referent Username</b> : """ + certificate_issuer_username + """<br>
                 <b>Referent Type</b> : """ + certificate_issuer_type + """<br>
                 <b>Title</b> : """ + certificate['title'] + """<br>
-                <b>Description</b> : """ + certificate['description'][:100] + """...<br>
+                <b>Description</b> : """ + certificate['description'][:200] + """...<br>
                 <b></b><a href= """ + mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
                 <p>
                     <a class="text-secondary" href=/certificate/data/?dataId=""" + certificate['id'] + """:certificate>
@@ -278,7 +278,7 @@ def resume(mode) :
                 carousel_rows_experience += experience['title'] + '</div><div class="card-body">'
                 #body
                 carousel_rows_experience += """<b>Company</b> : """ + experience['company']['name'] + """<br>
-                <b>Description</b> : """ + experience['description'][:100] + """...<br>
+                <b>Description</b> : """ + experience['description'][:200] + """...<br>
                 <p>
                     <a class="text-secondary" href=/certificate/data/?dataId=""" + experience['id'] + """:experience>
                         <i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>

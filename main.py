@@ -87,7 +87,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.6"
+VERSION = "0.8.7"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -1054,8 +1054,8 @@ def issue_kyc() :
 		my_kyc['date_of_issue'] = request.form['date_of_issue']
 		my_kyc['date_of_expiration'] = request.form['date_of_expiration']
 		my_kyc['sex'] = request.form['sex']
-		#my_kyc['country'] = request.form['country'] to be added in form
-		my_kyc['country'] = ""
+		my_kyc['country'] = request.form['country']
+		print('kyc = ', my_kyc)
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
 		kyc = Document('kyc')
 		data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)
@@ -1495,15 +1495,18 @@ def request_certificate() :
 
 @app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate() :
-	""" With his vie one send the email with link to the Referent"""
+	""" With this view one sends an email with link to the Referent"""
 	check_login()
 	memo = request.form.get('memo')
 	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session['certificate_issuer_username']
 	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
+	issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
+
 	# email to Referent/issuer
 	parameters = {'issuer_email' : session['issuer_email'],
 					'issuer_username' : issuer_username,
 					'issuer_workspace_contract' : issuer_workspace_contract,
+					'issuer_name' : issuer_name,
 					'certificate_type' : 'recommendation',
 					'talent_name' : session['name'],
 					'talent_username' : session['username'],
@@ -1543,6 +1546,7 @@ def request_experience_certificate() :
 	memo = request.form.get('memo')
 	issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
 	issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
+	issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
 	parameters = {'issuer_email' : session['issuer_email'],
 			'certificate_type' : 'experience',
 			'title' : request.form['title'],
@@ -1554,7 +1558,9 @@ def request_experience_certificate() :
 			 'talent_username' : session['username'],
 			 'talent_workspace_contract' : session['workspace_contract'],
 			 'issuer_username' : issuer_username,
-			 'issuer_workspace_contract' : issuer_workspace_contract}
+			 'issuer_workspace_contract' : issuer_workspace_contract,
+			 'issuer_name' : issuer_name}
+
 	link = urllib.parse.urlencode(parameters)
 	url = mode.server + 'issue/?' + link
 	if memo == "" or memo is None :
