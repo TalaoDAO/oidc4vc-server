@@ -55,13 +55,13 @@
                                     <div class="col-md-12 col-lg-6 col-xl-6 order-2 order-xl-1">
                                         <div class="form-row">
                                             <div class="col-xl-3"><label class="col-form-label">From :</label></div>
-                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" type="date" name="start_date" placeholder="From" required=""></div>
+                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" id="datePickerId1" type="date" name="start_date" placeholder="From" required=""></div>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-lg-6 col-xl-6 order-2 order-xl-1">
                                         <div class="form-row">
                                             <div class="col-xl-3"><label class="col-form-label">To :</label></div>
-                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" type="date" name="end_date" placeholder="From" required=""></div>
+                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" id="datePickerId2" data-bs-tooltip="" type="date" name="end_date" placeholder="From" required=""></div>
                                         </div>
                                     </div>
                                 </div>
@@ -109,7 +109,7 @@
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1">
 										<div class="form-group">
 											<input  class="form-control-range" type="range" name="score_schedule" id="score_schedule" value="3" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
-											<output  id="score_schedule_disp"></output>	
+											<output  id="score_schedule_disp"></output>
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
@@ -160,6 +160,9 @@
                                {% include 'user_footer.html' %}
 
     </div>
+    <script>datePickerId1.max = new Date().toISOString().split("T")[0];</script>
+    <script>datePickerId2.max = new Date().toISOString().split("T")[0];</script>
+
     <script>function goBack() {  window.history.back();}</script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

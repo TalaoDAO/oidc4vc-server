@@ -75,6 +75,7 @@ def issue_certificate_for_guest(mode) :
 			session['url'] = request.url
 			session['issuer_username'] = request.args['issuer_username']
 			session['issuer_workspace_contract'] = request.args['issuer_workspace_contract']
+			session['issuer_name'] = request.args['issuer_name']
 			session['talent_username'] = request.args['talent_username']
 			session['talent_name'] = request.args['talent_name']
 			session['talent_workspace_contract'] = request.args['talent_workspace_contract']
@@ -92,8 +93,8 @@ def issue_certificate_for_guest(mode) :
 		if session['certificate_type'] == 'experience' :
 			if session['issuer_username'] != 'new' :
 				print('workspace_contract = ', session['issuer_workspace_contract'])
-				session['issuer_logo'] = get_image(session['issuer_workspace_contract'], 'logo', mode) 
-				session['issuer_signature'] = get_image(session['issuer_workspace_contract'], 'signature', mode) 
+				session['issuer_logo'] = get_image(session['issuer_workspace_contract'], 'logo', mode)
+				session['issuer_signature'] = get_image(session['issuer_workspace_contract'], 'signature', mode)
 				print ('logo = ', session['issuer_logo'], 'signature = ', session['issuer_signature'])
 			else :
 				session['issuer_logo'] = None
@@ -106,6 +107,7 @@ def issue_certificate_for_guest(mode) :
 						title=request.args['title'],
 						skills=request.args['skills'],
 						talent_name=session['talent_name'],
+						issuer_name=session['issuer_name'],
 						**personal)
 
 		elif session['certificate_type'] == 'recommendation' :
@@ -201,7 +203,6 @@ def get_issuer_personal(mode) :
 		else :
 			issuer_firstname = ""
 			issuer_lastname = ""
-		print('issuer_firstname = ', issuer_firstname)
 		return {'issuer_firstname' : issuer_firstname,
 				'issuer_lastname' : issuer_lastname}
 
