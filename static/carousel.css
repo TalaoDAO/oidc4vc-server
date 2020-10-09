@@ -1,0 +1,8 @@
+.carousel .carousel-indicators li {
+  background-color: #fff;
+  background-color: rgba(70,70,70,.25);
+}
+
+.carousel .carousel-indicators .active {
+  background-color: #444;
+}
