@@ -26,7 +26,7 @@ from Crypto.PublicKey import RSA
 import sys
 import os
 import os.path, time
-from flask import Flask, session, send_from_directory, flash, jsonify
+from flask import Flask, session, send_from_directory, flash, jsonify, render_template_string
 from flask import request, redirect, render_template,abort, Response, abort
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -42,6 +42,7 @@ import unidecode
 from eth_keys import keys
 from eth_utils import decode_hex
 import redis
+import requests
 
 # dependances
 import Talao_message
@@ -59,6 +60,7 @@ import analysis
 import history
 import privatekey
 import sms
+
 
 # Centralized  route
 import web_create_identity
@@ -87,7 +89,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.7"
+VERSION = "0.8.8"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -142,6 +144,7 @@ app.add_url_rule('/api/talent-connect/',  view_func=web_talent_connect.get, meth
 app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
 """
+
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -1871,6 +1874,30 @@ def talao_search() :
 	filename = request.args['filename']
 	return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
+
+# This is the DID proof
+@app.route('/did/', methods=['GET'])
+def did_check () :
+	html = """<!DOCTYPE html>
+		<html lang="en">
+			<body>
+				<h1>MaSociete.co</h1>
+                <h2>Our Decentralized IDentifiers are : </h2>
+                <p>
+                    <li><b>did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68</b></li>
+                    <li><b>did:talao:rinkeby:fafDe7ae75c25d32ec064B804F9D83F24aB14341</b></li>
+                </p>
+			</body>
+		</html>"""
+	return render_template_string(html)
+
+# This is to call the DID proof
+@app.route('/call_did/', methods=['GET'])
+def call_did_check () :
+	link = request.args['website']+'/did/'
+	return redirect (link)
+
+
 
 #######################################################
 #                        MAIN, server launch

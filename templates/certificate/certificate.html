@@ -100,7 +100,7 @@
 
                                                     <div class="col-xl-5">
                                                         <div>
-                                                            <p class="text-center"><strong>Issued by </strong><br></p>
+                                                            <p class="text-center"><strong>Issued by {{session['displayed_certificate']['issuer']['name']}} </strong><br></p>
                                                             <img id="company" class="mx-auto d-block" src="{{ url_for('send_file', filename=logo) }}" height="200" width="200">
                                                         </div>
                                                         <div><br><br><br><br>
@@ -112,9 +112,9 @@
                                                 </div>
                                             </form>
                                             <div class="row">
-												{% if viewer == 'user'  %}
-												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
-													{% endif %}
+                                                {% if viewer == 'user'  %}
+												        <div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                                {% endif %}
 											</div>
                                    </div>
                             </div>

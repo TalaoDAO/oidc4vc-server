@@ -13,7 +13,6 @@ from sys import getsizeof
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
-#import environment
 import constante
 import ns
 import analysis
@@ -36,7 +35,6 @@ def show_certificate(mode):
 
 	menu = session.get('menu', dict())
 	viewer = 'guest' if session.get('username') is None else 'user'
-	print('viewer = ',viewer)
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
@@ -119,6 +117,7 @@ def show_certificate(mode):
 							identity_username=identity_username,
 							issuer_username=issuer_username,
 							viewer=viewer,
+							verify_link = session['displayed_certificate']['issuer']['website']+ "/verify?certificate_id=" + session['certificate_id'],
 							**context)
 
 
@@ -199,9 +198,9 @@ def certificate_verify(mode) :
 	if issuer_type == 'Company' :
 		issuer = """
 				<span>
-				<b>Referent (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
+				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
+				<li><b>Id</b> : """ + certificate['issuer']['id'] + """</li>
 				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li>
 				<li><b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """</li>
 				<li><b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """</li>
@@ -211,9 +210,9 @@ def certificate_verify(mode) :
 		issuer = """
 				<span>
 				<hr>
-				<b>Referent (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """</li>
+				<li><b>Id</b> : """ + certificate['issuer']['id'] + """</li>
 				<li><b>Firstname</b> : """ + certificate['issuer']['firstname'] + """</li>
 				<li><b>Lastname</b> : """ + certificate['issuer']['lastname'] + """</li>
 				<li><b>Email</b> : """ + certificate['issuer']['contact_email'] + """</li>
@@ -232,9 +231,9 @@ def certificate_verify(mode) :
 		user = """
 				<span>
 				<hr>
-				<b>User</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Identity</b> : """ + certificate['issuer']['id'] + """<li><br>
+				<li><b>Id</b> : """ + certificate['issuer']['id'] + """<li><br>
 				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li><br>
 				<li><b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """</li><br>
 				<li><b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """</li><br>
@@ -244,9 +243,9 @@ def certificate_verify(mode) :
 		user = """
 				<span>
 				<hr>
-				<b>User (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Identity</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + """</li>
+				<li><b>Id</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + """</li>
 				<li><b>Firstname</b> : """ + user_profil['firstname'] + """</li>
 				<li><b>Lastname</b> : """ + user_profil['lastname'] + """</li>
 				<li><b>Email</b> : """ + user_profil['contact_email'] + """</li>
@@ -271,8 +270,8 @@ def certificate_verify(mode) :
 		transaction_hash = """ <a class = <a class= "card-link" href = """ + path + certificate['transaction_hash'] + """>"""+ certificate['transaction_hash']
 	advanced = """<hr>
 				<b>Blockchain</b> : """ + blockchain + """<br>
+				<b>Document Id</b> : """ + certificate['id'] + """<br>
 				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>
-				<b>Document Id</b> : """ + str(certificate['doc_id']) + """<br>
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>
 				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
 				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a>"""
@@ -299,6 +298,8 @@ def certificate_issuer_explore(mode) :
 
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
+	#session['certificate_id'] = certificate_id
+	#print('certificate id ', certificate_id)
 	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
 
 	if issuer_explore.type == 'person' :
@@ -322,7 +323,6 @@ def certificate_issuer_explore(mode) :
 		del session['resume']['identity_file']
 		session['resume']['topic'] = 'resume'
 
-	# do something common
 	if issuer_explore.type == 'person' :
 		# personal
 		Topic = {'firstname' : 'Firstname',
@@ -347,29 +347,30 @@ def certificate_issuer_explore(mode) :
 					</a>
 				</span><br>"""
 
-		# kyc
+		# Proofs of Identity
 		if len (issuer_explore.kyc) == 0:
-			my_kyc = """<a class="text-danger">No Proof of Identity available</a>"""
+			my_kyc = """<a class="text-danger">No Certificate of Identity available</a>"""
 		else :
-			my_kyc = ""
+			my_kyc = "<b>Certificate issued by Talao</b><br><br>"
 			for kyc in issuer_explore.kyc :
 				kyc_html = """
 				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
 				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
 				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-				<b>Sex</b> : """+ kyc['sex'] +"""<br>
+				<b>Gender</b> : """+ kyc['sex'] +"""<br>
 				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
 				<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
 				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
 				<b>Authority</b> : """+ kyc['authority']+"""<br>
 				<b>Country</b> : """+ kyc['country']+"""<br>
-				<b>Id</b> : """+ kyc['id']+"""<br>
+				<b>Card Id</b> : """+ kyc['card_id']+"""<br>
 				<p>
 					<a class="text-secondary" href=/certificate/data/?dataId="""+ kyc['id'] + """:kyc>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
 				my_kyc = my_kyc + kyc_html
+
 
 		# experience
 		issuer_experience = ''
@@ -490,18 +491,15 @@ def certificate_issuer_explore(mode) :
 
 
 	if issuer_explore.type == 'company' :
+		print('issuer explore', issuer_explore.__dict__) 
 		# do something specific
 
 		# kbis
-		kbis_list = issuer_explore.kbis
-		if issuer_workspace_contract == mode.workspace_contract_talao :
-			my_kbis = """<a>Contact : """ + mode.admin + """</a>"""
-		elif len (kbis_list) == 0:
-			my_kbis = """<a class="text-danger">No Proof of Identity available</a>"""
-		else :
-			my_kbis = ""
-			for kbis in kbis_list :
-				kbis_html = """
+		#print(issuer_explore.__dict__)
+		my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] + """ <br>
+				<b>On-Line check</b> : <a class = "card-link" href=/call_did/?website=""" + issuer_explore.personal['website']['claim_value'] + """>""" + issuer_explore.personal['website']['claim_value'] + """</a>"""
+		for kbis in issuer_explore.kbis :
+			kbis_html = """<hr>
 				<b>Name</b> : """+ kbis['name'] +"""<br>
 				<b>Siret</b> : """+ kbis['siret'] +"""<br>
 				<b>Creation</b> : """+ kbis['date'] + """<br>
@@ -512,7 +510,7 @@ def certificate_issuer_explore(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
-				my_kbis = my_kbis + kbis_html
+			my_kbis = my_kbis + kbis_html 
 
 		# personal
 		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract, mode)
@@ -624,7 +622,6 @@ def certificate_data(mode) :
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 
 	# value
-	print(' my topic', my_topic.lower())
 	if my_topic.lower() == "experience"  :
 		myvalue = """
 				<b>Data Content</b>
@@ -701,7 +698,6 @@ def certificate_data(mode) :
 
 	elif my_topic.lower() == 'skills' :
 		myvalue = ''
-		print('my data ',my_data.__dict__)
 		for skill in my_data.description :
 			skill_to_display = skill['skill_name'].capitalize()
 			myvalue = myvalue + """<li>  """+ skill_to_display + """</li>"""

@@ -183,19 +183,12 @@ This function is called from the starter and login view.
 """
 def forgot_password(mode) :
 	if request.method == 'GET' :
-		if session.get('code_for_password') is None :
-			session['code_for_password'] = str(random.randint(10000, 99999))
-			session['code_for_password_delay'] = datetime.now() + timedelta(seconds= 180)
-			session['try_number_for_password'] = 1
-			# send code by sms if phone exist else email
-			session['support'] = send_secret_code(session['username_to_log'], session['code'], mode)
-			if session['support'] is None :
-				flash("Problem to send code", 'warning')
-				return render_template('login.html')
-			print('secret code sent = ', session['code_for_password'])
-			flash("Secret code sent by " + session['support'], 'success')
-		return render_template('forgot_password.html')
+		return render_template('forgot_password_init.html')
 	if request.method == 'POST' :
+		# envoyer un email avec un lien
+#		
+# return render_template('forgot_password.html')
+#	if request.method == 'POST' :
 		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 		if request.form['code'] in authorized_codes and datetime.now() < session['code_for_password_delay'] :
 			ns.update_password(session['username_to_log'], request.form['password'], mode)
@@ -516,8 +509,7 @@ def user(mode) :
 			message = message + "Rsa key not found. "
 		if message != "" :
 			flash(message + "Some features will not be available", 'warning')
-		else :
-			flash('Welcome ! ', 'success')
+
 
 		# ask update password messsage
 		if ns.must_renew_password(session['username'], mode) :
@@ -1114,3 +1106,4 @@ def user_account(mode) :
 	check_login()
 	return render_template('account.html',
 							**session['menu'])
+
