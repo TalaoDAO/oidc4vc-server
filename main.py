@@ -8,6 +8,7 @@ if script is launched with python but without Gunicorn, setup environment variab
 $ export MYCHAIN=talaonet
 $ export MYENV=livebox
 $ export WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6
+$ export AUTHLIB_INSECURE_TRANSPORT=1
 $ python main.py
 
 Many views are inside this script, others are in web_modules.py. See Centralized routes.
@@ -65,11 +66,12 @@ import sms
 # Centralized  route
 import web_create_identity
 import web_certificate
-#import web_talent_connect see later on
 import web_data_user
 import web_issue_certificate
 import web_skills
 import web_CV_blockchain
+import web_oauth
+import routes
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
@@ -89,7 +91,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.8.8"
+VERSION = "0.9.0"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -109,6 +111,9 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 #Session(app)
 sess = Session()
 sess.init_app(app)
+
+#config authorization server
+web_oauth.authorization_server_config(app)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
@@ -144,6 +149,16 @@ app.add_url_rule('/api/talent-connect/',  view_func=web_talent_connect.get, meth
 app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
 app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
 """
+
+# Main routes for Talao Connect  OAuth Authorization Server
+app.add_url_rule('/api/v1', view_func=routes.home, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/logout', view_func=routes.oauth_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/create_client', view_func=routes.create_client, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/authorize', view_func=routes.authorize, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/token', view_func=routes.issue_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/revoke', view_func=routes.revoke_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/api/me', view_func=routes.api_me, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/api/me2', view_func=routes.api_me2, methods = ['GET', 'POST'])
 
 
 # Centralized route for the Blockchain CV
@@ -205,16 +220,13 @@ def picture() :
 		filename = secure_filename(myfile.filename)
 		print(filename.rsplit(".", 1))
 		if len(filename.rsplit(".", 1)) == 1 or filename.rsplit(".", 1)[1].lower() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
-
-			#file_extension = filename.rsplit(".", 1)[1]
-		#if file_extension.upper() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
 			flash('Only "JPEG", "JPG", "PNG", "GIF" files accepted', 'warning')
 			return redirect(mode.server + 'user/picture/')
 		myfile.save(os.path.join(mode.uploads_path, filename))
 		picturefile = mode.uploads_path + '/' + filename
-		picture_hash = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)
-		session['picture'] = picture_hash
-		session['menu']['picturefile'] = picture_hash
+		session['picture'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)
+		Talao_ipfs.get_picture(session['picture'], mode.uploads_path+ '/' + session['picture'])
+		session['menu']['picturefile'] = session['picture']
 		if session['type'] == 'person' :
 			flash('Picture has been updated', 'success')
 		else :
@@ -270,6 +282,7 @@ def signature() :
 		myfile.save(os.path.join(mode.uploads_path, filename))
 		signaturefile = mode.uploads_path + '/' + filename
 		session['signature'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)
+		Talao_ipfs.get_picture(session['signature'], mode.uploads_path+ '/' + session['signature'])
 		flash('Your signature has been updated', 'success')
 		return redirect(mode.server + 'user/')
 
@@ -1881,7 +1894,7 @@ def did_check () :
 	html = """<!DOCTYPE html>
 		<html lang="en">
 			<body>
-				<h1>MaSociete.co</h1>
+				<h1>talao.co</h1>
                 <h2>Our Decentralized IDentifiers are : </h2>
                 <p>
                     <li><b>did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68</b></li>

@@ -195,6 +195,7 @@ def create_company(email, username, mode) :
 
 	# update resolver and create local database for this company
 	ns.add_identity(username, workspace_contract, email, mode)
+	# create databe for manager within the company
 	ns.init_host(username, mode)
 
 	# update private key
