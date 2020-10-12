@@ -71,7 +71,7 @@ import web_issue_certificate
 import web_skills
 import web_CV_blockchain
 import web_oauth
-import routes
+import web_routes
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
@@ -91,7 +91,7 @@ FONTS_FOLDER='templates/assets/fonts'
 
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
 
-VERSION = "0.9.0"
+VERSION = "0.9.1"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -113,7 +113,19 @@ sess = Session()
 sess.init_app(app)
 
 #config authorization server
-web_oauth.authorization_server_config(app)
+authorization_server_config = {
+    'SECRET_KEY': 'secret',
+    'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
+    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
+    'OAUTH2_TOKEN_EXPIRES_IN' : {
+        'authorization_code': 50000,
+        'implicit': 50000,
+        'password': 50000,
+        'client_credentials': 50000
+        }
+    }
+web_oauth.authorization_server_config(app, authorization_server_config)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
@@ -142,23 +154,16 @@ app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explor
 app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
-""" see later if usefull and complete with variable mode
-# Centralized @route for Talent Connect APIs
-app.add_url_rule('/api/v1/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
-app.add_url_rule('/api/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
-app.add_url_rule('/talent-connect/',  view_func=web_talent_connect.get, methods = ['GET'])
-app.add_url_rule('/talent-connect/auth/',  view_func=web_talent_connect.auth, methods = ['POST'])
-"""
 
-# Main routes for Talao Connect  OAuth Authorization Server
-app.add_url_rule('/api/v1', view_func=routes.home, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/logout', view_func=routes.oauth_logout, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/create_client', view_func=routes.create_client, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/authorize', view_func=routes.authorize, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/token', view_func=routes.issue_token, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/revoke', view_func=routes.revoke_token, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/api/me', view_func=routes.api_me, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/api/me2', view_func=routes.api_me2, methods = ['GET', 'POST'])
+# Main routes for OAuth Authorization Server
+app.add_url_rule('/api/v1', view_func=web_routes.home, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/api/me', view_func=web_routes.api_me, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/api/me2', view_func=web_routes.api_me2, methods = ['GET', 'POST'])
 
 
 # Centralized route for the Blockchain CV

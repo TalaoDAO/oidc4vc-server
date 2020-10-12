@@ -194,70 +194,37 @@ def certificate_verify(mode) :
 	user_type = 'Person' if user_category == 1001 else 'Company'
 	convert(user_profil)
 
-	# issuer
+	# Issuer , Referent
 	if issuer_type == 'Company' :
 		issuer = """
 				<span>
 				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Id</b> : """ + certificate['issuer']['id'] + """</li>
-				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li>
-				<li><b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """</li>
-				<li><b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """</li>
-				<li><b>Contact Phone</b> : """ + certificate['issuer']['contact_phone'] + """</li>"""
-
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check Issuer Identity"></i></a>
+				<br><b>DID</b> : """ + certificate['issuer']['id']
 	if issuer_type == 'Person' :
 		issuer = """
 				<span>
 				<hr>
 				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Id</b> : """ + certificate['issuer']['id'] + """</li>
-				<li><b>Firstname</b> : """ + certificate['issuer']['firstname'] + """</li>
-				<li><b>Lastname</b> : """ + certificate['issuer']['lastname'] + """</li>
-				<li><b>Email</b> : """ + certificate['issuer']['contact_email'] + """</li>
-				<li><b>Phone</b> : """ + certificate['issuer']['contact_phone'] + """</li>"""
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check Issuer Identity"></i></a>
+				<br><b>DID</b> : """ + certificate['issuer']['id']
 
-	company_website = certificate['issuer'].get('website')
-	if  company_website not in [ 'Unknown', None] :
-		issuer_website = """
-				<li><b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a></li>
-				</span>"""
-	else :
-		issuer_website = ""
 
-	# user
+	# User, Receiver
 	if user_type == 'Company' :
 		user = """
 				<span>
 				<hr>
 				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Id</b> : """ + certificate['issuer']['id'] + """<li><br>
-				<li><b>Name</b> : """ + certificate['issuer']['name'] + """</li><br>
-				<li><b>Contact Name</b> : """ + certificate['issuer']['contact_name'] + """</li><br>
-				<li><b>Contact Email</b> : """ + certificate['issuer']['contact_email'] + """</li><br>
-				<li><b>Contact Phone</b> : """ + certificate['issuer']['contact_phone'] + """</li><br>"""
-
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
+				<br><b>DID</b> : """ + certificate['issuer']['id'] + """<br>"""
 	if user_type == 'Person' :
 		user = """
 				<span>
 				<hr>
 				<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Id</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + """</li>
-				<li><b>Firstname</b> : """ + user_profil['firstname'] + """</li>
-				<li><b>Lastname</b> : """ + user_profil['lastname'] + """</li>
-				<li><b>Email</b> : """ + user_profil['contact_email'] + """</li>
-				<li><b>Phone</b> : """ + user_profil['contact_phone'] + """</li>"""
-
-	company_website = certificate['issuer'].get('website')
-	if  company_website not in [ 'Unknown', None] and user_type == 'Company':
-		user_website = """
-				<b>Website</b> : <a href=""" + company_website +""">"""+ company_website  + """</a><br>
-				</span>"""
-	else :
-		user_website = ""
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
+				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
 
 	# advanced
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
@@ -274,9 +241,9 @@ def certificate_verify(mode) :
 				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>
 				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
-				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a>"""
+				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a> <hr>"""
 
-	my_verif = "".join([issuer,issuer_website, user, user_website, advanced])
+	my_verif = "".join([ advanced, issuer, user, '<br>'])
 
 	return render_template('./certificate/verify_certificate.html',
 							**menu,
@@ -499,7 +466,8 @@ def certificate_issuer_explore(mode) :
 		my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] + """ <br>
 				<b>On-Line check</b> : <a class = "card-link" href=/call_did/?website=""" + issuer_explore.personal['website']['claim_value'] + """>""" + issuer_explore.personal['website']['claim_value'] + """</a>"""
 		for kbis in issuer_explore.kbis :
-			kbis_html = """<hr>
+			my_kbis = my_kbis + "<hr><b>Certificate issued by Talao</b><br><br>"
+			kbis_html = """
 				<b>Name</b> : """+ kbis['name'] +"""<br>
 				<b>Siret</b> : """+ kbis['siret'] +"""<br>
 				<b>Creation</b> : """+ kbis['date'] + """<br>

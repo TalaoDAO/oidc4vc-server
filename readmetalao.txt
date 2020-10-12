@@ -91,6 +91,8 @@ sous python :
 sous venv
  pip install 'unidecode' (pour la gestion des requetes http get)
 
+sous venv
+pip install authlib
 
 
 """

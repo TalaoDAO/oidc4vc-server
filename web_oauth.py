@@ -2,21 +2,6 @@ import os
 from flask import Flask
 from models import db
 from oauth2 import config_oauth
-#import routes
-
-
-config = {
-    'SECRET_KEY': 'secret',
-    'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
-    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:///db.sqlite',
-    'OAUTH2_TOKEN_EXPIRES_IN' : {
-    'authorization_code': 50000,
-    'implicit': 50000,
-    'password': 50000,
-    'client_credentials': 50000
-}
-}
 
 
 def setup_app(app):
@@ -31,7 +16,7 @@ def setup_app(app):
     return
 
 
-def authorization_server_config(app) :
+def authorization_server_config(app, config) :
     # load default configuration
     app.config.from_object('settings')
 

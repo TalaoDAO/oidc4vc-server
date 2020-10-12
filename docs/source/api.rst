@@ -16,11 +16,31 @@ A standard use case is :
   * Talent accepts or rejects the request (Talao website).
   * If accepted, Company downloads Talent private professional data (secure API).
 
+OAuth 2.0 Client Credentials Flow (2-Legged)
+--------------------------------------------
+For certain endpoints we offer OAuth 2.0 application access via the Client Credentials Flow.
+Commonly referred to as "OAuth two-legged", this flow allows your application to authorize with LinkedIn's API directly - outside the context of any specific user.
+By default, your application will not have the ability to use client credentials flow.  Contact us to have your application granted permission to use this flow.
 
-Data Request and Response
--------------------------
+Once you have your Client ID and Client Secret values, as in the example above, you are ready to proceed.
 
-General Request
+Generating an Access Token
+**************************
+
+Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the endpoint with both your client_id and client_secret set appropriately.
+
+To get the token :
+curl -u your_client_ID:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=identity
+
+To get an access to an endpoint
+curl -H "Authorization: Bearer your_token" https://talao.co/api/v1/endpoint -d '{ "name": "Darth" }'
+
+
+Endpoint
+********
+To be defined
+
+Public Request
 ***************
 
 .. code:: 

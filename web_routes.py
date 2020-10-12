@@ -1,15 +1,20 @@
 import time
-from flask import Blueprint, request, session, url_for
+from flask import request, session, url_for, Response, abort
 from flask import render_template, redirect, jsonify
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token, client_authenticated
 from authlib.oauth2 import OAuth2Error
 from models import db, User, OAuth2Client
 from oauth2 import authorization, require_oauth
+import json
 
 
-
-
+def check_login() :
+	""" check if the user is correctly logged. This function is called everytime a user function is called """
+	if session.get('username') is None :
+		abort(403)
+	else :
+		return session['username']
 
 def current_user():
     if 'id' in session:
@@ -24,6 +29,7 @@ def split_by_crlf(s):
 
 #@bp.route('/api/v1', methods=('GET', 'POST'))
 def home():
+    check_login()
     if request.method == 'POST':
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
@@ -48,12 +54,14 @@ def home():
 
 #@bp.route('/api/v1/logout')
 def oauth_logout():
+    check_login()
     del session['id']
-    return redirect('/api/v1')
+    return redirect('/user')
 
 
 #@bp.route('/api/v1/create_client', methods=('GET', 'POST'))
 def create_client():
+    check_login()
     user = current_user()
     if not user:
         return redirect('/api/v1')
@@ -90,6 +98,35 @@ def create_client():
     return redirect('/api/v1')
 
 
+#@bp.route('/oauth/revoke', methods=['POST'])
+def revoke_token():
+    check_login()
+    return authorization.create_endpoint_response('revocation')
+
+
+
+"""
+External routes for Oauth clients
+flow available :
+'password'
+    curl -u ${client_id}:${client_secret} -XPOST http://127.0.0.1:3000/api/v1/oauth/token -F grant_type=password -F username=${username} -F password=valid -F scope=profile
+    curl -H "Authorization: Bearer ${access_token}" http://127.0.0.1:3000/api/v1/api/me
+
+'client_credentials' Celui que l on utilise
+    curl -u pyD3s4TGQL6j1B4w1Dz522g3:6elzYVTLDxbBUKUIKdPT2FZ6keOf8zTqGO2RrnuBfTSDPElY -XPOST http://127.0.0.1:5000/api/v1/oauth/token -F grant_type=client_credentials -F scope=profile
+
+    curl -H "Authorization: Bearer jPEFgk8tuql278BEi0tHqGD3sMmVbJTi2Cj7EbuKtB" http://127.0.0.1:5000/api/v1/api/me
+
+'authorization_code' : celui de France Connect (avec en plus OpenId option)
+    open http://127.0.0.1:3000/api/v1/oauth/authorize?response_type=code&client_id=${client_id}&scope=profile
+    After granting the authorization, you should be redirected to `${redirect_uri}/?code=${code}`
+
+    curl -u ${client_id}:${client_secret} -XPOST http://127.0.0.1:5000/oauth/token -F grant_type=authorization_code -F scope=profile -F code=${code}
+
+    curl -H "Authorization: Bearer ${access_token}" http://127.0.0.1:3000/api/v1/api/me
+"""
+
+
 #@bp.route('/api/v1/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
     user = current_user()
@@ -117,18 +154,21 @@ def issue_token():
     return authorization.create_token_response()
 
 
-#@bp.route('/oauth/revoke', methods=['POST'])
-def revoke_token():
-    return authorization.create_endpoint_response('revocation')
-
-
 #@bp.route('/api/v1/api/me')
 @require_oauth('profile')
 def api_me():
     client_id = current_token.client_id
-    #response = OAuth2Client.query.filter_by(client_id=client_id).first()
-    #print ('response = ', response.__dict__)
-    return  'ok'
+    client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
+    print ('client  metadata = ', client['_client_metadata'])
+    json_data = request.__dict__.get('data').decode("utf-8")
+    dict_data = json.loads(json_data)
+    print('data = ', json_data)
+
+    # preparation de la reponse
+    content = json.dumps({'User' : 'inconnu', 'msg' : "ok"})
+    response = Response(content, status=200, mimetype='application/json')
+    return response
+
 
 
 #@bp.route('/api/v1/api/me2')
@@ -136,3 +176,21 @@ def api_me2():
     with require_oauth.acquire('profile') as token:
         return 'OK me2'
     return 'KO'
+
+
+""" exempled d'un client
+
+import requests
+import json
+import shutil
+
+
+def send_dict() :
+	headers = {'Content-Type': 'application/json',
+				'Authorization': 'Bearer  K2jJkgpWFFS3PNXHbWLpyE2m7DcX9GejxEuDjhMExP'}
+	data = {'name' : 'pierre', 'data' : 125}
+	response = requests.post('http://127.0.0.1:3000/api/v1/api/me', data=json.dumps(data), headers=headers)
+	return response.json()
+
+print(send_dict())
+"""
