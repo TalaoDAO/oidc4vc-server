@@ -15,6 +15,8 @@
 
      <ul class="nav navbar-nav flex-nowrap ml-auto">
 
+
+
       {% if session['username'] == 'talao' %}
        <!-- Identity List-->
    <!--  <li class="nav-item  no-arrow mx-1" role="presentation"> -->
@@ -26,12 +28,10 @@
          </div>
        </li>
 
-       <!-- Menu -->
-       <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/create_person/" ">Create a User</a></li>
-       <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/create_company/" >Create a Company</a></li>
+       <!-- Bar -->
        <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_kbis/" >Issue a Kbis</a></li>
        <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_kyc/" >Issue a Kyc</a></li>
-       <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/api/v1" >Config Oauth Server</a></li>
+       <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_skill_certificate/" >Issue a Skill Certificate</a></li>
 
 
        {% else %}
@@ -66,14 +66,11 @@
              <a class="dropdown-item " role="presentation" href="/user/invit_talent/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit a Talent&nbsp;</a>
 
             {% if session['username'] == 'talao' %}
-              <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-industry fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a Company&nbsp;</a>
-              <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create a User&nbsp;</a>
-              <a class="dropdown-item" role="presentation" href="/user/issue_kyc/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kyc&nbsp;</a>
-              <a class="dropdown-item" role="presentation" href="/user/issue_kbis/"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue a Kbis&nbsp;</a>
-              <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-paste fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config Oauth Server&nbsp;</a>
-          
+            <div class="dropdown-divider"></div>
+              <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config Oauth Server&nbsp;</a>
+              <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create User&nbsp;</a>
+              <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
               {% endif %}
-
 
              <div class="dropdown-divider"></div>
              <a class="dropdown-item" role="presentation" href="http://talao.rtfd.io/"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>

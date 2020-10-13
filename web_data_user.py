@@ -364,11 +364,16 @@ def data(mode) :
 				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
 				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
 				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
-		else :
+		if my_data.type == 'recommendation' :
 			myvalue = """
 				<b>Data</b>
 				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
 				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""
+		if my_data.type == 'skill' :
+			myvalue = """
+				<b>Data</b>
+				<li><b>Title</b> : """ + my_data.title + """<br></li>
+				<li><b>Descrition</b> : """ + my_data.description + """<br></li>"""
 
 	elif my_topic.lower() == "kbis" :
 		mytitle = "Kbis validated"
@@ -827,7 +832,30 @@ def user(mode) :
 								</a>
 								</p>
 								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+
 				if certificate['type'] == 'recommendation':
+					cert_html = """<hr>
+								<b>Referent Name</b> : """ + issuer_name +"""<br>
+								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
+
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+								<p>
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=Recommendation">
+								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+								</a>
+								</p>
+								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+
+				if certificate['type'] == 'skill':
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>

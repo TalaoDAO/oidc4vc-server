@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% include 'company_nav_bar.html' %}
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">{{name}}</h3>
+                <div class="row mb-3">
+                    <div class="col-lg-8 col-xl-6 offset-xl-3">
+                        <div class="row">
+                            <div class="col-xl-10 offset-xl-1">
+                                <div class="card shadow mb-3">
+                                    <div class="card-header py-3">
+                                        <div class="row">
+                                            <div class="col-xl-6">
+                                                <p class="text-primary m-0 font-weight-bold">&nbsp;Issue Skill Certificate (Talao only)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="/user/issue_skill_certificate/" method="POST">
+                                            <p>Attendre la fin du process qui peut prendre un peu de temps...</p>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Username</strong><br></label><input class="form-control" type="text" name="identity_username" required=""></div>
+                                                </div>
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Certificate Title</strong><br></label><input class="form-control" type="text" name="title" required=""></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-xl-6">
+                                                    <div class="form-group"><label><strong>Issue Date</strong><br></label><input class="form-control" type="date" required="" name="date"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <div class="form-group"><label><strong>Skills Description</strong></label><textarea name="description" class="form-control text-center"></textarea></div>
+                                                </div>
+                                            </div>
+                                           <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm " type="submit">Issue Certificate</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+										<a href="/user/">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                        </a>
+                                    </div>
+                                </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                                  {% include 'user_footer.html' %}
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+</html>

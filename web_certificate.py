@@ -170,6 +170,51 @@ def show_certificate(mode):
 							viewer=viewer
 							)
 
+	# Skill Certificate Display
+	if session['displayed_certificate']['type'] == 'skill' :
+		issuer_picture = session['displayed_certificate'].get('picture')
+		issuer_title = "" if session['displayed_certificate'].get('title') is None else session['displayed_certificate']['title']
+
+		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
+
+		signature = session['displayed_certificate']['signature']
+		logo = session['displayed_certificate']['logo']
+		# if there is no signature one uses Picasso signature
+		if signature is None :
+			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
+		# if there is no logo one uses default logo
+		if logo is None :
+			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+
+		if not path.exists(mode.uploads_path + signature) :
+				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
+				response = requests.get(url, stream=True)
+				with open(mode.uploads_path + signature, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+				del response
+
+		if not path.exists(mode.uploads_path + logo) :
+			url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+			response = requests.get(url, stream=True)
+			with open(mode.uploads_path + logo, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
+
+		return render_template('./certificate/skill_certificate.html',
+							**menu,
+							manager= session['displayed_certificate']['manager'],
+							identity_name =identity_profil['firstname'] + ' ' + identity_profil['lastname'],
+							description=description,
+							issuer_picture=issuer_picture,
+							signature=signature,
+							logo=logo,
+							title=session['displayed_certificate']['title'],
+							issuer_name=session['displayed_certificate']['issuer']['name'],
+							viewer=viewer
+							)
+
+
+
 #         verify certificate
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify(mode) :

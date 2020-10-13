@@ -4,7 +4,7 @@ Main script to start web server through Gunicorn
 Arguments of main.py are in gunicornconf.py (global variables) :
 $ gunicorn -c gunicornconf.py  --reload wsgi:app
 
-if script is launched with python but without Gunicorn, setup environment variables first :
+if script is launched without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
 $ export MYENV=livebox
 $ export WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6
@@ -12,15 +12,6 @@ $ export AUTHLIB_INSECURE_TRANSPORT=1
 $ python main.py
 
 Many views are inside this script, others are in web_modules.py. See Centralized routes.
-
-info :
-pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
-pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
-interace wsgi https://www.bortzmeyer.org/wsgi.html
-Future :
-    pour le passage a https
-    https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04-fr
-
 
 """
 from Crypto.PublicKey import RSA
@@ -63,7 +54,7 @@ import privatekey
 import sms
 
 
-# Centralized  route
+# Centralized  routes
 import web_create_identity
 import web_certificate
 import web_data_user
@@ -88,10 +79,8 @@ exporting_threads = {}
 
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
-
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-
-VERSION = "0.9.1"
+VERSION = "0.9.2"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -107,12 +96,10 @@ app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
-
-#Session(app)
 sess = Session()
 sess.init_app(app)
 
-#config authorization server
+#config Authorization Server OAuth, OAuth 2, OpenId
 authorization_server_config = {
     'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
@@ -133,7 +120,7 @@ fa = FontAwesome(app)
 # info release
 print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
-#download logo Talao in /uploads for nav bar
+#download logo Talao in /uploads for nav bar A DEPLACER !!!!!!!!
 if not os.path.exists("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB") :
 	Talao_ipfs.get_picture("QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB", mode.uploads_path + "QmX1AKtbV1F2L3HDFPgyaKeXKHhihS1P6sBAX9sC27xVbB")
 
@@ -154,7 +141,6 @@ app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explor
 app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
-
 # Main routes for OAuth Authorization Server
 app.add_url_rule('/api/v1', view_func=web_routes.home, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
@@ -165,10 +151,8 @@ app.add_url_rule('/api/v1/oauth/revoke', view_func=web_routes.revoke_token, meth
 app.add_url_rule('/api/v1/api/me', view_func=web_routes.api_me, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/api/me2', view_func=web_routes.api_me2, methods = ['GET', 'POST'])
 
-
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
-
 
 # Centralized route for user, data, login
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -184,7 +168,6 @@ app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_add
 app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
 
-
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -193,7 +176,7 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
-# Check if session is active and access is fine. To be used for all routes
+# Check if session is active and access is fine. To be used for all routes, excetp external call
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if session.get('username') is None :
@@ -201,12 +184,13 @@ def check_login() :
 	else :
 		return session['username']
 
+# helper
 def is_username_in_list(my_list, username) :
 	for user in my_list :
 		if user['username'] == username :
 			return True
 	return False
-
+# helper
 def is_username_in_list_for_partnership(partner_list, username) :
 	for partner in partner_list :
 		if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
@@ -1053,7 +1037,7 @@ def add_experience() :
 			flash('New experience added', 'success')
 		return redirect(mode.server + 'user/')
 
-# create kyc (Talao only)
+# issue kyc (Talao only)
 @app.route('/user/issue_kyc/', methods=['GET', 'POST'])
 def issue_kyc() :
 	check_login()
@@ -1090,6 +1074,55 @@ def issue_kyc() :
 			Talao_message.message(subject, kyc_email, text, mode)
 		return redirect(mode.server + 'user/')
 
+
+# issue skill certificate (Talao only)
+@app.route('/user/issue_skill_certificate/', methods=['GET', 'POST'])
+def issue_skill_certificate() :
+	check_login()
+	if request.method == 'GET' :
+		return render_template('issue_skill_certificate.html', **session['menu'])
+	if request.method == 'POST' :
+		identity_username = request.form['identity_username'].lower()
+		certificate = {
+					"version" : 1,
+					"type" : "skill",
+					"title" : request.form['title'],
+					"description" : request.form['description'],
+					"start_date" : "",
+					"end_date" : request.form['date'],
+					"skills" : "",
+					"score_recommendation" : "",
+					"score_delivery" : "",
+					"score_schedule" : "",
+					"score_communication" : "",
+					"logo" : session['picture'],
+					"signature" : session['signature'],
+					"manager" : "Director",
+					"reviewer" : ""}
+		workspace_contract_to = ns.get_data_from_username(identity_username, mode)['workspace_contract']
+		#address_to = contractsToOwners(workspace_contract_to, mode)
+		my_certificate = Document('certificate')
+		execution = my_certificate.talao_add(workspace_contract_to, certificate, mode)
+		#execution = my_certificate.add(session['address'],
+		#				session['workspace_contract'],
+		#				address_to,
+		#				workspace_contract_to,
+		#				session['private_key_value'],
+		#				certificate,
+		#				mode,
+		#				mydays=0,
+		#				privacy='public',
+		#				 synchronous=True)
+		if execution is None :
+			flash('Operation failed ', 'danger')
+		else :
+			flash('Certificate has been issued', 'success')
+			text = 	"\r\nYour Skill Certificate has been issued by Talao.\r\nCheck your Identity on " + mode.server + 'login/'
+			subject = 'Your skill certificate'
+			identity_email = ns.get_data_from_username(identity_username, mode)['email']
+			Talao_message.message(subject, identity_email, text, mode)
+		return redirect(mode.server + 'user/')
+
 # remove kyc
 @app.route('/user/remove_kyc/', methods=['GET', 'POST'])
 def remove_kyc() :
@@ -1112,6 +1145,8 @@ def remove_kyc() :
 		else :
 			flash('You cannot remove theis Proof of Identy (No Private Key found)', 'warning')
 		return redirect (mode.server +'user/')
+
+
 
 # create kbis (Talao only)
 @app.route('/user/issue_kbis/', methods=['GET', 'POST'])

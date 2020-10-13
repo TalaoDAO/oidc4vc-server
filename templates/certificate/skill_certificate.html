@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Certificate</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% if viewer == 'guest' %}
+                {% include 'guest_nav_bar.html' %}
+            {% else %}
+                  {% if session['type'] == "company" %}
+                       {% include 'company_nav_bar.html' %}
+                   {% else %}
+                       {% include 'user_nav_bar.html' %}
+                   {% endif %}
+            {% endif %}
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col-lg-8 col-xl-8 offset-xl-2">
+                            <div class="row">
+                                <div class="col-lg-9 col-xl-10 offset-lg-4 offset-xl-1">
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <div class="row">
+                                                <div class="col-xl-12">
+                                                    <p class="text-primary m-0 font-weight-bold"><strong>Talao </strong>Certificate
+                                                        <a  class="text-secondary"  href="/certificate/verify/?certificate_id={{certificate_id}}"><i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="/user/user_settings/" method="POST">
+                                                <div class="form-row">
+                                                    <div class="col-sm-12 offset-xl-0">
+                                                        <h1 class="text-center">{{title}}</h1>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-xl-12">
+                                                        <h5 class="text-center">Credential has been awarded to :</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-xl-12">
+                                                        <br><h3 class="text-center"><strong>{{identity_name}}</strong></h3><br>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-xl-12">
+                                                        <h5 style="text-align: center;">for demonstrating the essential following skills :</h5>
+                                                        <br>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-xl-12">
+                                                        <p class="text-center" style="color: rgb(75,120,166);font-size: 24px;">{{description|safe}}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-xl-3 text-center">
+                                                        <h6 class="text-center">Issued by :&nbsp;{{session['displayed_certificate']['issuer']['name']}}</h6><img src="{{ url_for('send_file', filename=logo) }}" height="200" width="200" style="margin: 0px;padding: 0px;"></div>
+                                                    <div class="col"></div>
+                                                    <div class="col-xl-4 text-center">
+                                                        <h6 class="text-center">Signed by :&nbsp;{{manager}}<br>Date : 02/02/2020</h6><img style="width: 218px;" src="{{ url_for('send_file', filename=signature) }}" height="150" width="200"></div>
+                                                </div>
+                                            </form>
+
+                                            <div class="row">
+                                                {% if viewer == 'user'  %}
+												        <div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                                {% endif %}
+											</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include 'user_footer.html' %}
+        <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+        <script>function goBack() {  window.history.back();}</script>
+        <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+        <script src="{{ url_for('static', filename='theme.js') }}"></script>
+        <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>
