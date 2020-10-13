@@ -208,6 +208,7 @@ def show_certificate(mode):
 							issuer_picture=issuer_picture,
 							signature=signature,
 							logo=logo,
+							certificate_id=certificate_id,
 							title=session['displayed_certificate']['title'],
 							issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer

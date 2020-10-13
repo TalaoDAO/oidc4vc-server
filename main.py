@@ -80,7 +80,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.2"
+VERSION = "0.9.3"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -1023,11 +1023,10 @@ def add_experience() :
 		experience['end_date'] = request.form['to']
 		experience['skills'] = request.form['skills'].split(' ')
 		privacy = 'public'
-		data = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)
-		if data is None :
+		doc_id = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
+		if doc_id is None :
 			flash('Transaction failed', 'danger')
 		else :
-			doc_id = data[0]
 			# add experience in current session
 			experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 			experience['doc_id'] = doc_id
@@ -1063,7 +1062,7 @@ def issue_kyc() :
 		print('kyc = ', my_kyc)
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
 		kyc = Document('kyc')
-		data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)
+		data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)[0]
 		if data is None :
 			flash('Transaction failed', 'danger')
 		else :
@@ -1102,7 +1101,7 @@ def issue_skill_certificate() :
 		workspace_contract_to = ns.get_data_from_username(identity_username, mode)['workspace_contract']
 		#address_to = contractsToOwners(workspace_contract_to, mode)
 		my_certificate = Document('certificate')
-		execution = my_certificate.talao_add(workspace_contract_to, certificate, mode)
+		doc_id = my_certificate.talao_add(workspace_contract_to, certificate, mode)[0]
 		#execution = my_certificate.add(session['address'],
 		#				session['workspace_contract'],
 		#				address_to,
@@ -1113,11 +1112,13 @@ def issue_skill_certificate() :
 		#				mydays=0,
 		#				privacy='public',
 		#				 synchronous=True)
-		if execution is None :
+		if doc_id is None :
 			flash('Operation failed ', 'danger')
 		else :
 			flash('Certificate has been issued', 'success')
-			text = 	"\r\nYour Skill Certificate has been issued by Talao.\r\nCheck your Identity on " + mode.server + 'login/'
+			link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract_to[2:] + ':document:' + str(doc_id)
+			text = 	"\r\nYour Skill Certificate has been issued by Talao.\r\n"
+			text = text + '\r\nFollow the link to see the Certificate : ' + link
 			subject = 'Your skill certificate'
 			identity_email = ns.get_data_from_username(identity_username, mode)['email']
 			Talao_message.message(subject, identity_email, text, mode)
@@ -1172,7 +1173,7 @@ def issue_kbis() :
 		my_kbis['ceo'] = request.form['ceo']
 		my_kbis['siret'] = request.form['siret']
 		my_kbis['managing_director'] = request.form['managing_director']
-		data = kbis.talao_add(kbis_workspace_contract, my_kbis, mode)
+		data = kbis.talao_add(kbis_workspace_contract, my_kbis, mode)[0]
 		if data is None :
 			flash('Transaction failed', 'danger')
 		else :
@@ -1285,11 +1286,10 @@ def add_education() :
 		education['skills'] = request.form['skills'].split(',')
 		education['certificate_link'] = request.form['certificate_link']
 		privacy = 'public'
-		data = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)
-		if data is None :
+		doc_id = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)[0]
+		if doc_id is None :
 			flash('Transaction failed', 'danger')
 		else :
-			doc_id = data[0]
 			# add experience in session
 			education['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
 			education['doc_id'] = doc_id

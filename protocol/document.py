@@ -119,7 +119,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	# stocke sur ipfs les data attention on archive des bytes
 	ipfs_hash = ipfs_add(data, mode)
 	if ipfs_hash is None :
-		return None
+		return None, None, None
 
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	_data = json.dumps(data)
@@ -135,7 +135,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	if synchronous :
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
-			return None
+			return None, None, None
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock ,toBlock = 'latest')
