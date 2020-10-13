@@ -452,23 +452,18 @@ def certificate_issuer_explore(mode) :
 			issuer_certificates = """<a class="text-info">No data available</a>"""
 		else :
 			for certificate in issuer_explore.certificate :
-
 				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				certificate_issuer_username = 'Unknown' if certificate_issuer_username is None else certificate_issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					certificate_issuer_name = certificate['issuer']['name']
-					certificate_issuer_type = 'Company'
+					#certificate_issuer_type = 'Company'
 				elif  certificate['issuer']['category'] == 1001 :
 					certificate_issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					certificate_issuer_type = 'Person'
+					#certificate_issuer_type = 'Person'
 				else :
-					print ('issuer category error, data_user.py')
-
-				if certificate['type'] == 'experience' :
-					cert_html = """
+					pass
+				cert_html = """
 						<b>Issuer Name</b> : """ + certificate_issuer_name +"""<br>
-						<b>Issuer Username</b> : """ + certificate_issuer_username +"""<br>
-						<b>Issuer Type</b> : """ + certificate_issuer_type +"""<br>
 						<b>Title</b> : """ + certificate['title']+"""<br>
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 						<b></b><a href= """ + mode.server +  """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
@@ -477,15 +472,12 @@ def certificate_issuer_explore(mode) :
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 							</a>
 						</p>"""
-				else :
-					cert_html = ""
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
-
-		services ="""
-				<a class="text-success" href="/certificate/certificate_data_analysis/" >Talent Dashboard</a></br>
-				<a class="text-success" href="" >Send a memo to this Talent</a></br>
-				<a href="/register/" class="text-warning"> Register to get access to other services.</a><br><br>"""
-
+		# services
+		#services ="""
+		#		<a class="text-success" href="/certificate/certificate_data_analysis/" >Talent Dashboard</a></br>
+		#		<a class="text-success" href="" >Send a memo to this Talent</a></br>
+		#		<a href="/register/" class="text-warning"> Register to get access to other services.</a><br><br>"""
 
 		return render_template('./certificate/certificate_person_issuer_identity.html',
 							**menu,
@@ -497,7 +489,7 @@ def certificate_issuer_explore(mode) :
 							skills=issuer_skills,
 							certificates=issuer_certificates,
 							education=issuer_education,
-							services=services,
+							#services=services,
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id= certificate_id,
 							viewer=viewer,)
@@ -674,11 +666,18 @@ def certificate_data(mode) :
 				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
 				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
 				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
-		else :
+		elif my_data.type == 'recommendation' :
 			myvalue = """
 				<b>Data Content</b>
 				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
 				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""
+		else :
+			myvalue = """
+				<b>Data Content</b>
+				<li><b>Title</b> : """ + my_data.title + """<br></li>
+				<li><b>Issued Date</b> : """+ my_data.end_date + """<br></li>
+				<li><b>Skills</b> : """ + my_data.description  + """<br></li>"""
+
 
 	elif my_topic.lower() == "kbis" :
 		myvalue = """

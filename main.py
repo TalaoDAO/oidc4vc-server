@@ -80,7 +80,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.3"
+VERSION = "0.9.4"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -148,7 +148,7 @@ app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, me
 app.add_url_rule('/api/v1/oauth/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth/revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/api/me', view_func=web_routes.api_me, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/userinfo', view_func=web_routes.userinfo, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/api/me2', view_func=web_routes.api_me2, methods = ['GET', 'POST'])
 
 # Centralized route for the Blockchain CV
@@ -1934,7 +1934,8 @@ def did_check () :
 	html = """<!DOCTYPE html>
 		<html lang="en">
 			<body>
-				<h1>talao.co</h1>
+				<h1>Talao</h1>
+				<h2>https://talao.co and https://talao.io</h2>
                 <h2>Our Decentralized IDentifiers are : </h2>
                 <p>
                     <li><b>did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68</b></li>

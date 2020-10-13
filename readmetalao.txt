@@ -93,6 +93,8 @@ sous venv
 
 sous venv
 pip install authlib
+pip install Flask-SQLAlchemy
+
 
 
 """

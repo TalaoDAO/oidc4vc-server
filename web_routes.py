@@ -127,12 +127,14 @@ flow available :
 """
 
 
+#27.0.0.1:3000/api/v1/oauth/authorize?response_type=code&client_id=Uqktf4WLr5SCZAwpIct3PCm1&state=test&nonce=test&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fcallback&scope=openid+profile
+
 #@bp.route('/api/v1/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
     user = current_user()
     # if user log status is not true (Auth server), then to log it in
     if not user:
-        return redirect(url_for('website.routes.home', next=request.url))
+        return redirect(url_for('login', next=request.url))
     if request.method == 'GET':
         try:
             grant = authorization.validate_consent_request(end_user=user)
@@ -154,9 +156,9 @@ def issue_token():
     return authorization.create_token_response()
 
 
-#@bp.route('/api/v1/api/me')
+#@bp.route('/api/v1/userinfo')
 @require_oauth('profile')
-def api_me():
+def userinfo():
     client_id = current_token.client_id
     client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
     print ('client  metadata = ', client['_client_metadata'])
