@@ -80,7 +80,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.4"
+VERSION = "0.9.6"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -109,7 +109,7 @@ authorization_server_config = {
         'authorization_code': 50000,
         'implicit': 50000,
         'password': 50000,
-        'client_credentials': 50000
+        'client_credentials': 100
         }
     }
 web_oauth.authorization_server_config(app, authorization_server_config)
@@ -143,13 +143,14 @@ app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certi
 
 # Main routes for OAuth Authorization Server
 app.add_url_rule('/api/v1', view_func=web_routes.home, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_login', view_func=web_routes.oauth_login, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['POST'])
 app.add_url_rule('/api/v1/oauth/revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/userinfo', view_func=web_routes.userinfo, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/api/me2', view_func=web_routes.api_me2, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/create_identity', view_func=web_routes.oauth_identity_issuer, methods = ['GET', 'POST'])
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -716,6 +717,11 @@ def issue_certificate():
 									manager_name=session['certificate_signatory'],
 									issuer_username=session['issuer_username'],
 									talent_name=session['issuer_explore']['name'] )
+		elif request.form['certificate_type'] == 'skill' :
+			issuer_explore_username = ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)
+			return render_template("create_skill_certificate.html",
+									**session['menu'],
+									identity_username=issuer_explore_username )
 		else :
 			flash('This certificate is not implemented yet !', 'warning')
 			return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
@@ -982,7 +988,7 @@ def create_company() :
 			flash('Company Creation failed', 'danger')
 		return redirect(mode.server + 'user/')
 
-# create a user (Talao only)
+# create a user/identity
 @app.route('/user/create_person/', methods=['GET', 'POST'])
 def create_person() :
 	check_login()
@@ -993,15 +999,15 @@ def create_person() :
 		person_firstname = request.form['firstname']
 		person_lastname = request.form['lastname']
 		person_username = ns.build_username(person_firstname, person_lastname, mode)
-		workspace_contract = createidentity.create_user(person_username, person_email, mode)[2]
+		workspace_contract = createidentity.create_user(person_username, person_email, mode, creator=session['address'])[2]
 		if workspace_contract is not None :
 			claim=Claim()
 			claim.relay_add(workspace_contract, 'firstname', person_firstname, 'public', mode)
 			claim=Claim()
 			claim.relay_add(workspace_contract, 'lastname', person_lastname, 'public', mode)
-			flash(person_username + ' has been created as company', 'success')
+			flash('New Identity = ' + person_username + ' has been created.', 'success')
 		else :
-			flash('Creation failed', 'danger')
+			flash('Identity Creation failed', 'danger')
 		return redirect(mode.server + 'user/')
 
 # add experience
@@ -1038,7 +1044,7 @@ def add_experience() :
 
 # issue kyc (Talao only)
 @app.route('/user/issue_kyc/', methods=['GET', 'POST'])
-def issue_kyc() :
+def create_kyc() :
 	check_login()
 	if request.method == 'GET' :
 		return render_template('issue_kyc.html', **session['menu'])
@@ -1074,12 +1080,12 @@ def issue_kyc() :
 		return redirect(mode.server + 'user/')
 
 
-# issue skill certificate (Talao only)
-@app.route('/user/issue_skill_certificate/', methods=['GET', 'POST'])
-def issue_skill_certificate() :
+# Create skill certificate
+@app.route('/user/create_skill_certificate/', methods=['GET', 'POST'])
+def create_skill_certificate() :
 	check_login()
 	if request.method == 'GET' :
-		return render_template('issue_skill_certificate.html', **session['menu'])
+		return render_template('create_skill_certificate.html', **session['menu'])
 	if request.method == 'POST' :
 		identity_username = request.form['identity_username'].lower()
 		certificate = {

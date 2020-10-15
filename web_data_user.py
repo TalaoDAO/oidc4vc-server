@@ -316,8 +316,8 @@ def data(mode) :
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 	# value
 	if my_topic.lower() == "experience"  :
-		mytitle = my_data.title
-		mysummary = my_data.description
+		#mytitle = my_data.title
+		#mysummary = my_data.description
 		myvalue = """
 				<b>Data</b>
 				<li><b>Title</b> : """+my_data.title + """<br></li>
@@ -331,12 +331,12 @@ def data(mode) :
 
 	elif my_topic.lower() == "skills"  :
 		mytitle = "Skills"
-		mysummary = ""
+		#mysummary = ""
 		myvalue = ""
 
 	elif my_topic.lower() == "education" :
 		mytitle = my_data.title
-		mysummary = my_data.description
+		#mysummary = my_data.description
 		myvalue = """
 				<b>Data</b>
 				<li><b>Title</b> : """+my_data.title + """<br>
@@ -352,7 +352,7 @@ def data(mode) :
 	elif my_topic.lower() == "certificate" :
 		if my_data.type == 'experience' :
 			mytitle = my_data.title
-			mysummary = my_data.description
+			#mysummary = my_data.description
 			myvalue = """
 				<b>Data</b>
 				<li><b>Title</b> : """ + my_data.title + """<br></li>
