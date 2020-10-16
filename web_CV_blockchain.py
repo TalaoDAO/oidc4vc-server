@@ -441,7 +441,7 @@ def resume(mode) :
         carousel_rows_skill = ""
         if skills == []:
             if issuer_explore.skills['description'] != None:
-                carousel_rows_skill += '<div class="carousel-item"><div class="row">'
+                carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
                 carousel_rows_skill += """<div class="col-md-4 mb-2">
                         <figure class="snip1253 mw-100" style="height: 410px; ">
                           <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="sample59" /></div>
