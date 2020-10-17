@@ -47,6 +47,9 @@
             <a class="text-secondary" onclick="copyToClipboard('#p100')">
               <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
             </a>
+            <a class="text-secondary" href={{clipboard}}>
+              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-address-card " title="Open the external view"></i>
+            </a>
             <p hidden id="p100">{{clipboard}}</p></h3>
             <h6 class="text-dark mb-4">{{profil_title}}</h6>
           </div>
@@ -280,6 +283,11 @@
                 </div>
               </div>
             </div>
+            <div class="row justify-content-md-center">
+              <div class="col-3 text-center">
+            <a class="dropdown-item" title="Download your personal QRCode" role="presentation" href="/user/download_QRCode/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;QRCode to your external view&nbsp;</a>
+          </div>
+          </div>
         </div>
 
       </div>
