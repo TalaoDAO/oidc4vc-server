@@ -1965,9 +1965,4 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
 	app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)
-=======
-
-    app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)
->>>>>>> e469d486c658f58c330ab99f747d20948c22a217
