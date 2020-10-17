@@ -6,33 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->  
-    
-    
+ <!-- <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">  -->
+
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                      {% if session['type'] == "company" %}    
-                 {% include 'company_nav_bar.html' %}    
-             {% else %} 
-                 {% include 'user_nav_bar.html' %} 
+                      {% if session['type'] == "company" %}
+                 {% include 'company_nav_bar.html' %}
+             {% else %}
+                 {% include 'user_nav_bar.html' %}
              {% endif %}
-                                                        
-    
-        
+
         <div class="container-fluid">
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
@@ -45,17 +41,17 @@
                                 <div class="form-row">
                                     <div class="col">
                                         <p>All Data are tamper proof and traceable.&nbsp;Clic on  <i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i> to get more details.</p>
-                                        
+
                                         {{verif|safe}}
-                                        
+
                                     </div>
                                 </div>
                                 <br>
-                                
+
                                   <div class="col-6 col-xl-3">
-										  
+
 												<div class="form-group"><button onclick="goBack()"  class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Back</button></div>
-											
+
                                     </div>
                             </form>
                         </div>
@@ -66,12 +62,7 @@
     </div>
     </div>
     </div>
-   
-                                                          {% include 'user_footer.html' %}    
-
-   
-   
-   
+                                                          {% include 'user_footer.html' %}
     </div>
      <script>function goBack() {  window.history.back();}</script>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -79,8 +70,7 @@
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>     
-       
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>

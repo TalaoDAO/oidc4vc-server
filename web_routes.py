@@ -92,11 +92,14 @@ def oauth_logout():
     del session['id']
     return redirect('/user')
 
-# Basic login pour les utilisateurs qui viennent d'une application cliente par OAuth2
+""" login pour les utilisateurs qui viennent d'une application cliente par OAuth2
+Le login doit etre de type two factor
+
+"""
 #@bp.route('/api/v1/oauth_login')
 def oauth_login():
     if request.method == 'GET' :
-        session['url'] = request.args['next']
+        session['url'] = request.args.get('next')
         return render_template('/oauth/oauth_login.html')
     if request.method  == 'POST' :
         url = session['url']
@@ -107,19 +110,21 @@ def oauth_login():
         if not ns.check_password(username, request.form['password'].lower(), mode)  :
             flash('Wrong password', "warning")
             return redirect(url)
+        # if secret code wrong redirect to url
         user = User.query.filter_by(username=username).first()
         if not user:
             user = User(username=username)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        print('you are logged in Talao.co')
+        print('User logged in Talao.co')
         session['username']=username
     return redirect(url)
 
 
-
 #@bp.route('/api/v1/create_client', methods=('GET', 'POST'))
+""" gestion des grant client 
+"""
 def create_client():
     check_login()
     user = current_user()
@@ -159,6 +164,16 @@ def revoke_token():
     check_login()
     return authorization.create_endpoint_response('revocation')
 
+#@bp.route('/api/v1/oauth/token', methods=['POST'])
+def issue_token():
+    response = authorization.create_token_response()
+    print(response)
+    return response
+
+
+
+
+# AUTHORIZATION CODE endpoint
 #@bp.route('/api/v1/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
     user = current_user()
@@ -175,31 +190,51 @@ def authorize():
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
     if request.form.get('confirm') == 'on' :
+       
         grant_user = user
     else:
         grant_user = None
     return authorization.create_authorization_response(grant_user=grant_user)
 
 
-#@bp.route('/api/v1/oauth/token', methods=['POST'])
-def issue_token():
-    response = authorization.create_token_response()
-    print(response)
-    return response
+#@bp.route('/api/v1/oauth/authorize_extended', methods=['GET', 'POST'])
+def authorize_extended():
+    user = current_user()
+    # if user log status is not true (Auth server), then to log it in
+    if not user:
+        return redirect(url_for('oauth_login', next=request.url))
+    if request.method == 'GET':
+        try:
+            grant = authorization.validate_consent_request(end_user=user)
+        except OAuth2Error as error:
+            return error.error
+        return render_template('/oauth/authorize.html', user=user, grant=grant)
+    if not user and 'username' in request.form:
+        username = request.form.get('username')
+        user = User.query.filter_by(username=username).first()
+    if request.form.get('confirm') == 'on' :
+        grant_user = user
+        # ajouter une demande de partnership faite au client
+    else:
+        grant_user = None
+    return authorization.create_authorization_response(grant_user=grant_user)
 
 
-#  CLIENT Endpoint
 
-#@bp.route('/api/v1/userinfo')
-@require_oauth('profile')
-def userinfo():
+
+
+#  CLIENT CREDENTIALS Endpoint
+
+#@bp.route('/api/v1/oauth_resume')
+@require_oauth('resume')
+def oauth_resume():
     client_id = current_token.client_id
-    print('current token =', current_token.__dict__)
-    print('client id =', client_id)
+    #print('current token =', current_token.__dict__)
+    #print('client id =', client_id)
     client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
     user_id = current_token.user_id
     user = User.query.get(user_id)
-    print ('client  metadata = ', client['_client_metadata'])
+    #print ('client  metadata = ', client['_client_metadata'])
 
     #json_data = request.__dict__.get('data').decode("utf-8")
     #dict_data = json.loads(json_data)
@@ -226,9 +261,9 @@ def userinfo():
     return response
 
 
-#@bp.route('/api/v1/create_identity')
-@require_oauth('identity_issuer')
-def oauth_identity_issuer():
+#@bp.route('/api/v1/oauth_identity')
+@require_oauth('identity')
+def oauth_identity():
     print('current token =', current_token.__dict__)
     client_id = current_token.client_id
     client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__

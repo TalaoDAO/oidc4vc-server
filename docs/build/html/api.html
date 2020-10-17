@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Talent Connect Overview &mdash; Talao Professional Identity Relay 0.7.9 documentation</title>
+  <title>Talent Connect API &mdash; Talao Professional Identity Relay 0.7.9 documentation</title>
   
 
   
@@ -104,9 +104,14 @@
 </ul>
 <p class="caption"><span class="caption-text">Talent Connect:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow-2-legged">OAuth 2.0 Client Credentials Flow (2-Legged)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#generating-an-access-token">Generating an Access Token</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-authorization-code-flow">OAuth 2.0 Authorization Code flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-authorization-code-extended-flow">OAuth 2.0 Authorization Code Extended flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#talao-partnership-code-flow">Talao Partnership code flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow">OAuth 2.0 Client Credentials Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-an-access-token">Generating an Access Token</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authorization-code">Authorization Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#client-credentials">Client Credentials</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#endpoint">Endpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#public-request">Public Request</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#header">Header</a></li>
@@ -176,7 +181,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Talent Connect Overview</li>
+      <li>Talent Connect API</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -195,39 +200,77 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="talent-connect-overview">
-<h1>Talent Connect Overview<a class="headerlink" href="#talent-connect-overview" title="Permalink to this headline">¶</a></h1>
-<p>Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company) and eventually start an onboarding process.</p>
-<p>For companies it is an easy way to get reliable data about Talents.
-For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.</p>
-<p>A standard use case is :</p>
+  <div class="section" id="talent-connect-api">
+<h1>Talent Connect API<a class="headerlink" href="#talent-connect-api" title="Permalink to this headline">¶</a></h1>
+<p>Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company).
+For companies it is an easy way to get reliable data about Talents and it is a powerfull and secure tool for automatic onbarding.</p>
+<p>Those API do not provide account management (update logo, signature, set company details, add managers, change password, …)</p>
+<p>Standard use cases for APIs are :</p>
+<ul class="simple">
+<li><p>Talent registers to a Company recrutment website with his Talao Identity to give an access to his public JSON resume (<a class="reference external" href="https://jsonresume.org/">https://jsonresume.org/</a>).</p></li>
+<li><p>Talent registers to a Company to exchange data (resume, passport, diplomas,…) receive claims (experience certificates, skill certificates, …) and store documents (payslip,…).</p></li>
+</ul>
+<p>We use OAuth2 Autorization Code flow and Client Credenetials flow to manage those cases.</p>
+<p>Contact us to have your application granted permission to use those flows.</p>
+<div class="section" id="oauth-2-0-authorization-code-flow">
+<h2>OAuth 2.0 Authorization Code flow<a class="headerlink" href="#oauth-2-0-authorization-code-flow" title="Permalink to this headline">¶</a></h2>
+<p>Used to get an access to Talent personal data with his agreement (Profile, JSON Resume). Basically same as openid with much more data and verifiable claims.</p>
+</div>
+<div class="section" id="oauth-2-0-authorization-code-extended-flow">
+<h2>OAuth 2.0 Authorization Code Extended flow<a class="headerlink" href="#oauth-2-0-authorization-code-extended-flow" title="Permalink to this headline">¶</a></h2>
+<p>Same as previous but Talent add the company as a referent.</p>
+</div>
+<div class="section" id="talao-partnership-code-flow">
+<h2>Talao Partnership code flow<a class="headerlink" href="#talao-partnership-code-flow" title="Permalink to this headline">¶</a></h2>
+<p>Bilateral data exchange between company Identiy and Talent Identiy.
+Both parties can send and receive tamper proof data automatically. Human onboarding process is reduced to minimum.
+This flow is built above the Talao Partnership protocol. First time when redirected to the Talao login process.</p>
+<ul class="simple">
+<li><p>Talent connects to the company website and is redirected to the Talao login view and follow a double factor login</p></li>
+<li><p>Talent requests a partnership to company</p></li>
+<li><p>Company check data. For instance company can look for a proof of identity issued by a white listed issuer or  ask  for a specif educational degree issued by a list of whitelisted univertiieis and accepts or rejects the request</p></li>
+<li><p>suite</p></li>
+</ul>
+<p>After initilization, standard authorization Code Flow can begin.</p>
+</div>
+<div class="section" id="oauth-2-0-client-credentials-flow">
+<h2>OAuth 2.0 Client Credentials Flow<a class="headerlink" href="#oauth-2-0-client-credentials-flow" title="Permalink to this headline">¶</a></h2>
+<p>For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
+Commonly referred to as “OAuth two-legged”, this flow allows your application to authorize with Talao’s API directly.
+Some actions do not involve user interaction but a prior agreement.</p>
+<p>Scopes available :…</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Talent fills a Company recrutment website with his Talao username.</p></li>
-<li><p>Company downloads Talent public resume (public Talao API).</p></li>
-<li><p>Company requests Talent to access his private professional data (secure Talao API).</p></li>
-<li><p>Talent receives the request with Company’s credentials (email or phone sms).</p></li>
-<li><p>Talent accepts or rejects the request (Talao website).</p></li>
-<li><p>If accepted, Company downloads Talent private professional data (secure API).</p></li>
+<li><p>resume ; to access to Talent data</p></li>
+<li><p>issuer : to issue certificates or send files</p></li>
+<li><p>creator : to create identity for others</p></li>
+<li><p>referent : to add referent</p></li>
+<li><p>partner : to request partnership</p></li>
+<li><p>recruter : to invit Talent</p></li>
 </ul>
 </div></blockquote>
-<div class="section" id="oauth-2-0-client-credentials-flow-2-legged">
-<h2>OAuth 2.0 Client Credentials Flow (2-Legged)<a class="headerlink" href="#oauth-2-0-client-credentials-flow-2-legged" title="Permalink to this headline">¶</a></h2>
-<p>For certain endpoints we offer OAuth 2.0 application access via the Client Credentials Flow.
-Commonly referred to as “OAuth two-legged”, this flow allows your application to authorize with LinkedIn’s API directly - outside the context of any specific user.
-By default, your application will not have the ability to use client credentials flow.  Contact us to have your application granted permission to use this flow.</p>
-<p>Once you have your Client ID and Client Secret values, as in the example above, you are ready to proceed.</p>
+</div>
 <div class="section" id="generating-an-access-token">
-<h3>Generating an Access Token<a class="headerlink" href="#generating-an-access-token" title="Permalink to this headline">¶</a></h3>
+<h2>Generating an Access Token<a class="headerlink" href="#generating-an-access-token" title="Permalink to this headline">¶</a></h2>
+<p>Once you have copy your client_id and client_secret values from the <a class="reference external" href="https://talao.co">https://talao.co</a> website, you are ready to proceed.</p>
+<div class="section" id="authorization-code">
+<h3>Authorization Code<a class="headerlink" href="#authorization-code" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="client-credentials">
+<h3>Client Credentials<a class="headerlink" href="#client-credentials" title="Permalink to this headline">¶</a></h3>
 <p>Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the endpoint with both your client_id and client_secret set appropriately.</p>
-<p>To get the token :
-curl -u your_client_ID:your_secret_value -XPOST <a class="reference external" href="https://talao.co/api/v1/oauth/token">https://talao.co/api/v1/oauth/token</a> -F grant_type=client_credentials -F scope=identity</p>
-<p>To get an access to an endpoint
-curl -H “Authorization: Bearer your_token” <a class="reference external" href="https://talao.co/api/v1/endpoint">https://talao.co/api/v1/endpoint</a> -d ‘{ “name”: “Darth” }’</p>
+<p>To get the token :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">u</span> <span class="n">your_client_ID</span><span class="p">:</span><span class="n">your_secret_value</span> <span class="o">-</span><span class="n">XPOST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">oauth</span><span class="o">/</span><span class="n">token</span> <span class="o">-</span><span class="n">F</span> <span class="n">grant_type</span><span class="o">=</span><span class="n">client_credentials</span> <span class="o">-</span><span class="n">F</span> <span class="n">scope</span><span class="o">=</span><span class="n">identity</span>
+</pre></div>
+</div>
+<p>To get an access to an endpoint</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Authorization: Bearer your_token&quot;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">endpoint</span> <span class="o">-</span><span class="n">d</span>  <span class="n">firstname</span><span class="o">=</span><span class="n">Pierre</span> <span class="o">-</span><span class="n">d</span> <span class="n">lastname</span><span class="o">=</span><span class="n">Dupont</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="endpoint">
 <h3>Endpoint<a class="headerlink" href="#endpoint" title="Permalink to this headline">¶</a></h3>
-<p>To be defined</p>
+<p>/create_identity</p>
 </div>
 <div class="section" id="public-request">
 <h3>Public Request<a class="headerlink" href="#public-request" title="Permalink to this headline">¶</a></h3>

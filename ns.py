@@ -2,7 +2,7 @@ from datetime import datetime
 import sqlite3
 import unidecode
 import random
-
+import json
 import constante
 
 """ SQLite init functions , not used in normal operation
@@ -510,6 +510,19 @@ def has_phone(username, mode) :
 		return False
 	else :
 		return True
+
+def get_credentials(username, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'db.sqlite')
+	c = conn.cursor()
+	c.execute("SELECT client_id, client_secret,client_metadata FROM oauth2_client ")
+	select = c.fetchall()
+	credentials = list()
+	for row in select :
+		metadata = json.loads(row[2])
+		if metadata['client_name'] == username :
+			credentials.append({'client_id' : row[0], 'client_secret' : row[1], 'grant_types' : metadata['grant_types'], 'scope' : metadata['scope'] })
+	return credentials
 
 """
 

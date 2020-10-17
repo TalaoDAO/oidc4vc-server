@@ -16,7 +16,7 @@ from flask_fontawesome import FontAwesome
 from datetime import timedelta, datetime
 import json
 import random
-
+from Crypto.PublicKey import RSA
 
 # dependances
 import Talao_message
@@ -314,106 +314,9 @@ def data(mode) :
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : """ +transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
-	# value
-	if my_topic.lower() == "experience"  :
-		#mytitle = my_data.title
-		#mysummary = my_data.description
-		myvalue = """
-				<b>Data</b>
-				<li><b>Title</b> : """+my_data.title + """<br></li>
-				<li><b>Company Name</b> : """+my_data.company['name']+"""<br></li>
-				<li><b>Contact Name</b> : """+my_data.company['contact_name']+"""<br></li>
-				<li><b>Contact Email</b> : """+my_data.company['contact_email']+"""<br></li>
-				<li><b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br></li>
-				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>
-				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
-				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
-
-	elif my_topic.lower() == "skills"  :
-		mytitle = "Skills"
-		#mysummary = ""
-		myvalue = ""
-
-	elif my_topic.lower() == "education" :
-		mytitle = my_data.title
-		#mysummary = my_data.description
-		myvalue = """
-				<b>Data</b>
-				<li><b>Title</b> : """+my_data.title + """<br>
-				<li><b>Organization Name</b> : """+my_data.organization['name']+"""<br></li>
-				<li><b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br></li>
-				<li><b>Contact Email</b> : """+my_data.organization['contact_email']+"""<br></li>
-				<li><b>Contact Phone</b> : """+my_data.organization['contact_phone']+"""<br></li>
-				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>
-				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
-				<li><b>Skills</b> : """+ " ".join(my_data.skills) +"""<br></li>
-				<li><b>Diploma Link</b> : """+  my_data.certificate_link+"""</li>"""
-
-	elif my_topic.lower() == "certificate" :
-		if my_data.type == 'experience' :
-			mytitle = my_data.title
-			#mysummary = my_data.description
-			myvalue = """
-				<b>Data</b>
-				<li><b>Title</b> : """ + my_data.title + """<br></li>
-				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>
-				<li><b>End Date</b> : """+ my_data.end_date + """<br></li>
-				<li><b>Skills</b> : """+ "".join(my_data.skills) + """<br></li>
-				<li><b>Delivery Quality</b> : """+ my_data.score_delivery + """<br></li>
-				<li><b>Schedule Respect</b> : """+ my_data.score_schedule + """<br></li>
-				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
-				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
-				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
-		if my_data.type == 'recommendation' :
-			myvalue = """
-				<b>Data</b>
-				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
-				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""
-		if my_data.type == 'skill' :
-			myvalue = """
-				<b>Data</b>
-				<li><b>Title</b> : """ + my_data.title + """<br></li>
-				<li><b>Descrition</b> : """ + my_data.description + """<br></li>"""
-
-	elif my_topic.lower() == "kbis" :
-		mytitle = "Kbis validated"
-		mysummary = ""
-		myvalue = """
-				<b>Data</b>
-				<li><b>Name</b> : """ + my_data.name+ """<br></li>
-				<li><b>Siret</b> : """ + my_data.siret + """<br></li>
-				<li><b>Created</b> : """+ my_data.date + """<br></li>
-				<li><b>Address</b> : """+ my_data.address + """<br></li>
-				<li><b>Legal Form</b> : """+ my_data.legal_form + """<br></li>
-				<li><b>Capital</b> : """+ my_data.capital + """<br></li>
-				<li><b>Naf</b> : """+ my_data.naf + """<br></li>
-				<li><b>Activity</b> : """+ my_data.activity+"""</li>"""
-
-	elif my_topic.lower() == "kyc" :
-		mytitle = "ID validated by Talao"
-		mysummary = ""
-		myvalue = """
-				<b>Data</b>
-				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
-				<li><b>Lastname</b> : """ + my_data.lastname + """<br></li>
-				<li><b>Sex</b> : """+ my_data.sex + """<br></li>
-				<li><b>Nationality</b> : """+ my_data.nationality + """<br></li>
-				<li><b>Birth Date</b> : """+ my_data.birthdate + """<br></li>
-				<li><b>Date of Issue</b> : """+ my_data.date_of_issue + """<br></li>
-				<li><b>Date of Expiration</b> : """+ my_data.date_of_expiration + """<br></li>
-				<li><b>Authority</b> : """+ my_data.authority + """<br></li>
-				<li><b>Country</b> : """+ my_data.country+"""</li>"""
-
-	elif my_topic.lower() == 'personal' :
-		mytitle = 'Profil'
-		mysummary = ''
-		myvalue = """<b>Data</b> : """+ my_data.claim_value
-
-	else :
-		print('erreur my_topic dans data de webserver.py')
-		return redirect(mode.server + 'user/')
-
-	my_verif =  myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
+	
+	
+	my_verif =  myadvanced + "<hr>" + myissuer
 	return render_template('data_check.html', **session['menu'], verif=my_verif)
 
 
@@ -474,6 +377,7 @@ def user(mode) :
 		phone =  ns.get_data_from_username(session['username'], mode).get('phone')
 		session['phone'] = phone if phone is not None else ""
 
+		""" Probablement a virer !!! """
 		# Identity List
 		identity_list = ns.identity_list(mode)
 		print('identity list = ', identity_list)
@@ -509,11 +413,11 @@ def user(mode) :
 		# welcome message
 		message = ""
 		if not session['private_key'] :
-			message = message + "Private key not found. "
+			message = message + 'Private key not found. You cannot issue claims.'
 		if not session['rsa_key'] :
-			message = message + "Rsa key not found. "
+			message = message + 'Rsa key not found. You cannot encrypt data.'
 		if message != "" :
-			flash(message + "Some features will not be available", 'warning')
+			flash(message, 'warning')
 
 
 		# ask update password messsage
@@ -742,24 +646,26 @@ def user(mode) :
 				</span><br>"""
 
 		# kyc
+		key = RSA.importKey(session['rsa_key_value'])
+		RSA_public = key.publickey().exportKey('PEM')
+		my_kyc = """
+			<b>ECDSA Key</b> : """+ session['address'] +"""<br>
+			<b>RSA Key</b> : """+ RSA_public.hex()[:10] +"""...<br><hr>"""
+
 		if len (session['kyc']) == 0:
-			my_kyc = """<a class="text-warning">No proof of Identity available</a>"""
+			my_kyc = my_kyc + """<a class="text-warning">No other proof of identity available.</a>"""
 
 		else :
-			my_kyc = ""
 			for kyc in session['kyc'] :
 				kyc_html = """
 				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
 				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
 				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-
-				<b>Sex</b> : """+ kyc['sex'] +"""<br>
+				<b>Gender</b> : """+ kyc['sex'].capitalize() +"""<br>
 				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
-				<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
-				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
-				<b>Authority</b> : """+ kyc['authority']+"""<br>
-				<b>Country</b> : """+ kyc['country']+"""<br>
-				<b>Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>
+				<b>Card Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>
+				<b>Phone</b> : """ + kyc.get('phone', 'Unknown') + """<br>
+				<b>Email</b>  : """ + kyc.get('email', 'Unknown') + """<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc['id'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -878,7 +784,7 @@ def user(mode) :
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 
 				my_certificates = my_certificates + cert_html
-		
+
 		print('menu ', session['menu'])
 		return render_template('person_identity.html',
 							**session['menu'],
@@ -924,12 +830,14 @@ def user(mode) :
 			my_access = my_access_start + my_access
 
 		# API
-		my_api = """
-				<b>Login</b> : """+ session['workspace_contract'] +"""<br>
-				<b>Secret</b> : """+ session['secret'] + """<br>
-		<!--		<b>Client White List</b> : to completed <br>
-				<br><a href="/user/api_whitelist/">Add client to your White List for APIs</a>  --> """
-
+		credentials = ns.get_credentials(session['username'], mode)
+		my_api = ""
+		for cred in credentials :
+			my_api = my_api + """
+				<b>client_id</b> : """+ cred['client_id'] +"""<br>
+				<b>client_secret</b> : """+ cred['client_secret'] + """<br>
+				<b>scope</b> : """+ cred['scope'] + """<br>
+				<b>grant_types</b> : """+ " ".join(cred['grant_types']) + """<br><hr> """
 
 		# kbis
 		if len (session['kbis']) == 0:

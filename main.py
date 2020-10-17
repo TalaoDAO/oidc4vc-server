@@ -35,6 +35,8 @@ from eth_keys import keys
 from eth_utils import decode_hex
 import redis
 import requests
+from Crypto.PublicKey import RSA
+
 
 # dependances
 import Talao_message
@@ -80,7 +82,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.6"
+VERSION = "0.9.7"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -141,16 +143,17 @@ app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explor
 app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
-# Main routes for OAuth Authorization Server
+# Main routes (Endpointd) for OAuth Authorization Server
 app.add_url_rule('/api/v1', view_func=web_routes.home, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth_logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth_login', view_func=web_routes.oauth_login, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['POST'])
-app.add_url_rule('/api/v1/oauth/revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/userinfo', view_func=web_routes.userinfo, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/create_identity', view_func=web_routes.oauth_identity_issuer, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_authorize_extended', view_func=web_routes.authorize_extended, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_token', view_func=web_routes.issue_token, methods = ['POST'])
+app.add_url_rule('/api/v1/oauth_revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_resume', view_func=web_routes.oauth_resume, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_identity', view_func=web_routes.oauth_identity, methods = ['GET', 'POST'])
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -332,24 +335,18 @@ def issuer_explore() :
 			issuer_personal = issuer_personal + """<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
 
 		# kyc
-		if len (session['issuer_explore']['kyc']) == 0:
-			my_kyc = """
-					<a class="text-danger">No Proof of Identity available</a>"""
+		my_kyc = """ <b>ECDSA Key</b> : """+ session['issuer_explore']['address'] +"""<br><hr>"""
+		if len(session['issuer_explore']['kyc']) == 0 :
+			my_kyc = my_kyc + """ <a class="text-danger">No other proof of identity available.</a>"""
 		else :
-			my_kyc = ""
 			for kyc in session['issuer_explore']['kyc'] :
 				kyc_html = """
 				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
 				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
 				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-
-				<b>Sex</b> : """+ kyc['sex'] +"""<br>
+				<b>Gender</b> : """+ kyc['sex'].capitalize() +"""<br>
 				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
-				<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
-				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
-				<b>Authority</b> : """+ kyc['authority']+"""<br>
-				<b>Country</b> : """+ kyc['country']+"""<br>
-				<b>Id</b> : """+ kyc['id']+"""<br>
+				<b>Card Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>
 				<p>
 					<a class="text-secondary" href=/data/?dataId="""+ kyc['id'] + """:kyc>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
@@ -1778,7 +1775,7 @@ def request_proof_of_identity() :
 		user_email = ns.get_data_from_username(session['username'], mode)['email']
 		Talao_message.message(subject, user_email, text, mode)
 		# email with files to Admin
-		message = 'Request for proof of identity for ' + session['username']
+		message = 'Request for proof of identity for ' + session['username'] + '\r\nEmail = ' + request.form.get('email', 'off') + '\r\nPhone = ' + request.form.get('phone', 'off')
 		filename_list = [session['username'] + "_ID." + id_file_name, session['username'] + "_selfie." + selfie_file_name]
 		Talao_message.message_file([mode.admin], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/', mode)
 		# message to user
