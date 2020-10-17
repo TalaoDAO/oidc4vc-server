@@ -55,18 +55,6 @@
                                 <div class="card-body">
                                     <h4><img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}"></h4>
                                     <div role="tablist" id="accordion-1">
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
-                                                <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal Details</a></h5>
-                                            </div>
-                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-													<div  style="height:200px;overflow:auto;overflow-x: hidden;">
-														<p class="card-text">{{personal|safe}}</p>
-													</div>
-                                                </div>
-                                            </div>
-                                        </div>
 
 										<div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
@@ -79,6 +67,19 @@
                                             </div>
                                         </div>
 
+                                        <div class="card">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
+                                                <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal Details</a></h5>
+                                            </div>
+                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
+                                                <div class="card-body">
+													<div  style="height:200px;overflow:auto;overflow-x: hidden;">
+														<p class="card-text">{{personal|safe}}</p>
+													</div>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
                                                 <h5 class="mb-0" title="text experience"><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-2">&nbsp; Files Store</a></h5>
@@ -183,10 +184,7 @@
         </div>
     </div>
     </div>
-
-
                         {% include 'user_footer.html' %}
-
     </div>
     <script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000); </script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

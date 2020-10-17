@@ -1968,4 +1968,5 @@ print('initialisation du serveur')
 
 
 if __name__ == '__main__':
+
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)

@@ -1,44 +1,101 @@
 
-Talent Connect Overview
-=======================
+Talent Connect API
+==================
 
-Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company) and eventually start an onboarding process.
+Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company).
+For companies it is an easy way to get reliable data about Talents and it is a powerfull and secure tool for automatic onbarding.
 
-For companies it is an easy way to get reliable data about Talents.
-For Talents it is an efficient way to expose their true skills and personal credentials while controlling their data.
+Those API do not provide account management (update logo, signature, set company details, add managers, change password, ...)
 
-A standard use case is :
+Standard use cases for APIs are :
 
-  * Talent fills a Company recrutment website with his Talao username.
-  * Company downloads Talent public resume (public Talao API).
-  * Company requests Talent to access his private professional data (secure Talao API).
-  * Talent receives the request with Company's credentials (email or phone sms).
-  * Talent accepts or rejects the request (Talao website).
-  * If accepted, Company downloads Talent private professional data (secure API).
+* Talent registers to a Company recrutment website with his Talao Identity to give an access to his public JSON resume (https://jsonresume.org/).
+* Talent registers to a Company to exchange data (resume, passport, diplomas,...) receive claims (experience certificates, skill certificates, ...) and store documents (payslip,...). 
 
-OAuth 2.0 Client Credentials Flow (2-Legged)
---------------------------------------------
-For certain endpoints we offer OAuth 2.0 application access via the Client Credentials Flow.
-Commonly referred to as "OAuth two-legged", this flow allows your application to authorize with LinkedIn's API directly - outside the context of any specific user.
-By default, your application will not have the ability to use client credentials flow.  Contact us to have your application granted permission to use this flow.
+We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
 
-Once you have your Client ID and Client Secret values, as in the example above, you are ready to proceed.
+Contact us to have your application granted permission to use those flows.
+
+OAuth 2.0 Authorization Code flow
+----------------------------------
+
+Used to get an access to Talent personal data with his agreement (Profile, JSON Resume). Basically same as openid.
+
+
+OAuth 2.0 Authorization Code Extended flow
+------------------------------------------
+
+Same as previous but Talent add the company as a referent.
+
+Talao Digital Onboarding flow
+-----------------------------
+
+Used to build an automatic onboarding.
+Company acts as a verifier to check Talent claims.
+Both parties can issue and receive claims to each other.
+Human onboarding process is reduced to minimum.
+
+This flow is built above the Talao Partnership protocol.
+
+1 Talent connects to the company website and is redirected to the Talao login view to follow a two factor authentification process
+2 If partnership does not exist, Talent requests a partnership to company
+3 Company checks Identity claims to accept or reject the requested partnership
+
+Step 3 is the most important step as it is an automatic process allowed by verifiable claims (ERC725 claims and Talao documents) issued by legitimate issuers.
+For instance company can look for a proof of identity issued by a white listed issuer or look for a specif educational degree issued by a specific issuer.
+
+If company accepts partnership, Talent is onboarded and next sign_in will be straight forward through a standard Authorization code flow. 
+
+
+OAuth 2.0 Client Credentials Flow
+---------------------------------
+
+For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
+Commonly referred to as "OAuth two-legged", this flow allows your application to authorize with Talao's API directly.
+Some actions do not involve user interaction but a prior agreement.
+
+Scope is a mechanism in OAuth 2.0 to limit an application's access to a user's account.
+An application can request one or more scopes, this information is then presented to the user in the consent screen, and the access token issued to the application will be limited to the scopes granted.
+
+   - profile : to access basic user data
+   - resume ; to access user resume
+   - issuer : to issue certificates or send files
+   - creator : to create identity for others
+   - referent : to add referent
+   - partner : to request partnership
+   - recruter : to invit Talent
 
 Generating an Access Token
-**************************
+---------------------------
+
+Once you have copy your client_id and client_secret values from the https://talao.co website, you are ready to proceed.
+
+Authorization Code
+******************
+
+
+Client Credentials
+******************
 
 Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the endpoint with both your client_id and client_secret set appropriately.
 
 To get the token :
-curl -u your_client_ID:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=identity
+
+.. code::
+
+   curl -u your_client_ID:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=identity
 
 To get an access to an endpoint
-curl -H "Authorization: Bearer your_token" https://talao.co/api/v1/endpoint -d '{ "name": "Darth" }'
+
+.. code::
+
+   curl -H "Authorization: Bearer your_token" https://talao.co/api/v1/endpoint -d  firstname=Pierre -d lastname=Dupont
 
 
 Endpoint
 ********
-To be defined
+
+/create_identity
 
 Public Request
 ***************
