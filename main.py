@@ -205,6 +205,13 @@ def is_username_in_list_for_partnership(partner_list, username) :
 			return True
 	return False
 
+#HomePage
+@app.route('/homepage/', methods=['GET'])
+def homepage() :
+    check_login()
+    if request.method == 'GET' :
+        return render_template('homepage.html', **session['menu'])
+
 # picture
 """ This is to download the user picture or company logo to the uploads folder """
 @app.route('/user/picture/', methods=['GET', 'POST'])

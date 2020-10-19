@@ -1,4 +1,4 @@
-from os import path
+from os import path, getcwd
 import requests
 import shutil
 from sys import getsizeof
@@ -23,14 +23,8 @@ def get_QRCode(mode, link):
     QRCode_generated = img.convert("RGB")
 
     #Opens the png file with the logo on it to merge them
-    logo = 'QmVb4yRynoeSd8YQHCfHYgvfi1td2fquAaSFPnxRMx1ATU'
-    if not path.exists(mode.uploads_path  + logo) :
-        url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-        response = requests.get(url, stream=True)
-        with open(mode.uploads_path  + logo, 'wb') as out_file:
-            shutil.copyfileobj(response.raw, out_file)
-            del response
-    logo = Image.open(mode.uploads_path  + logo + '.png')
+    logo = 'logo.png'
+    logo = Image.open(getcwd() + '/static/img/'  + logo)
     logo.convert("RGB")
 
     #merge both png to get the final result and saves it
