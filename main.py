@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.7"
+VERSION = "0.9.9"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -677,15 +677,47 @@ def add_experience() :
 		experience['description'] = request.form['description']
 		experience['start_date'] = request.form['from']
 		experience['end_date'] = request.form['to']
-		experience['skills'] = request.form['skills'].split(' ')
+		experience['skills'] = request.form['skills'].split(', ')
 		privacy = 'public'
-		doc_id = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
-		if doc_id is None :
+		# issue experience document
+		doc_id_exp = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
+		if doc_id_exp is None :
 			flash('Transaction failed', 'danger')
 		else :
+			if experience['skills']!= [''] :
+				# add skills  in document skill
+				for skill in experience['skills'] :
+					skill_code = unidecode.unidecode(skill.lower())
+					skill_code = skill_code.replace(" ", "")
+					skill_code = skill_code.replace("-", "")
+					my_skill = {'skill_code' : skill_code,
+									'skill_name' : skill.capitalize(),
+									'skill_level' : "Intermediate",
+									'skill_domain' : ""}
+					if session['skills'] is None  :
+						session['skills'] = dict()
+						session['skills']['description'] = []
+						session['skills']['version'] = 1
+					for one_skill in session['skills']['description'] :
+						if one_skill['skill_code'] == skill_code :
+							pass
+						else :
+							session['skills']['description'].append(my_skill)
+							break
+				# update skills
+				my_skills = Document('skills')
+				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
+				# issue new skill document
+				data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
+				if data[0] is None :
+					flash('Transaction to add skill failed', 'danger')
+					return redirect( mode.server + 'user/')
+				doc_id = data[0]
+				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
+
 			# add experience in current session
-			experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
-			experience['doc_id'] = doc_id
+			experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id_exp)
+			experience['doc_id'] = doc_id_exp
 			experience['created'] = str(datetime.now())
 			experience['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
 			session['experience'].append(experience)

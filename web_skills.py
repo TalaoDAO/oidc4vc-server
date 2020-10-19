@@ -87,27 +87,15 @@ def update_skills(mode) :
 			# case update before add first time
 			if session['skills'] is None :
 				return redirect( mode.server + 'user/')
-			# update first time
-			elif session['skills'].get('doc_id') is None :
-				my_skills = Document('skills')
-				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
-				data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
-				if data is None :
-					flash('Transaction failed', 'danger')
-					return redirect( mode.server + 'user/')
-				doc_id = data[0]
-				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
-
-			# standard update
-			else :
-				my_skills = Document('skills')
-				skill_data = {'version' : session['skills']['version'], 'description' : session['skills']['description']}
-				data = my_skills.relay_update(session['workspace_contract'], session['skills']['doc_id'], skill_data, mode)
-				if data is None :
-					flash('Transaction failed', 'danger')
-					return redirect( mode.server + 'user/')
-				doc_id = data[0]
-				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
+			# create new document
+			my_skills = Document('skills')
+			skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
+			data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
+			if data[0] is None :
+				flash('Transaction failed', 'danger')
+				return redirect( mode.server + 'user/')
+			doc_id = data[0]
+			session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
 			flash('Your skills have been updated', 'success')
 			return redirect( mode.server + 'user/')
 
