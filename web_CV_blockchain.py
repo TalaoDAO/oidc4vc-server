@@ -365,7 +365,7 @@ def resume(mode) :
 
                 carousel_rows_recommendation += "</p>"
                 #Footer
-                carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+                carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #4ED07A; text-align:center;font-size: 1em; color:white;">Certified by """ + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + """</footer>"""
                 #Lien certificates
                 carousel_rows_recommendation += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(recommendation['doc_id']) + """></a>"""
 
