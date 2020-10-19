@@ -646,11 +646,8 @@ def user(mode) :
 				</span><br>"""
 
 		# kyc
-		key = RSA.importKey(session['rsa_key_value'])
-		RSA_public = key.publickey().exportKey('PEM')
 		my_kyc = """
-			<b>ECDSA Key</b> : """+ session['address'] +"""<br>
-			<b>RSA Key</b> : """+ RSA_public.hex()[:10] +"""...<br><hr>"""
+			<b>ECDSA Key</b> : """+ session['address'] +"""<br><hr>"""
 
 		if len (session['kyc']) == 0:
 			my_kyc = my_kyc + """<a class="text-warning">No other proof of identity available.</a>"""

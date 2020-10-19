@@ -30,7 +30,7 @@ from flask import request, session, url_for, Response, abort, flash
 from flask import render_template, redirect, jsonify
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token, client_authenticated
-from authlib.oauth2 import OAuth2Error
+from authlib.oauth2 import OAuth2Error, OAuth2Request
 from models import db, User, OAuth2Client
 from oauth2 import authorization, require_oauth
 import json
@@ -38,11 +38,9 @@ import ns
 import environment
 import constante
 from protocol import read_profil
+from urllib.parse import urlencode, parse_qs, urlparse
 
-# Environment variables set in gunicornconf.py  and transfered to environment.py
-mychain = os.getenv('MYCHAIN')
-myenv = os.getenv('MYENV')
-mode = environment.currentMode(mychain,myenv)
+
 
 
 def check_login() :
@@ -97,7 +95,7 @@ Le login doit etre de type two factor
 
 """
 #@bp.route('/api/v1/oauth_login')
-def oauth_login():
+def oauth_login(mode):
     if request.method == 'GET' :
         session['url'] = request.args.get('next')
         return render_template('/oauth/oauth_login.html')
@@ -166,6 +164,7 @@ def revoke_token():
 
 #@bp.route('/api/v1/oauth/token', methods=['POST'])
 def issue_token():
+    print('request reçue dans /token = ', request.__dict__)
     response = authorization.create_token_response()
     print(response)
     return response
@@ -174,7 +173,7 @@ def issue_token():
 
 
 # AUTHORIZATION CODE endpoint
-#@bp.route('/api/v1/oauth/authorize', methods=['GET', 'POST'])
+#@bp.route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize():
     user = current_user()
     # if user log status is not true (Auth server), then to log it in
@@ -185,57 +184,51 @@ def authorize():
             grant = authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:
             return error.error
-        return render_template('/oauth/authorize.html', user=user, grant=grant)
+        #return render_template('/oauth/authorize.html', user=user, grant=grant)
+        profile_check = "checked" if "profile" in grant.request.scope else  "disabled"
+        resume_check = "checked" if "profile" in grant.request.scope else "disabled"
+        proof_of_identity_check = "checked" if "proof_of_identity" in grant.request.scope else "disabled"
+        email_check = "checked" if "email" in grant.request.scope else "disabled"
+        phone_check = "checked" if "phone" in grant.request.scope else "disabled"
+        return render_template('/oauth/oauth_authorize.html', user=user,
+                                                            grant=grant,
+                                                            profile_check=profile_check,
+                                                            resume_check=resume_check,
+                                                            proof_of_identity_check=proof_of_identity_check,
+                                                            email_check=email_check,
+                                                            phone_check=phone_check)
+    # POST
     if not user and 'username' in request.form:
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
-    if request.form.get('confirm') == 'on' :
-       
-        grant_user = user
-    else:
+    if 'reject' in request.form :
         grant_user = None
-    return authorization.create_authorization_response(grant_user=grant_user)
-
-
-#@bp.route('/api/v1/oauth/authorize_extended', methods=['GET', 'POST'])
-def authorize_extended():
-    user = current_user()
-    # if user log status is not true (Auth server), then to log it in
-    if not user:
-        return redirect(url_for('oauth_login', next=request.url))
-    if request.method == 'GET':
-        try:
-            grant = authorization.validate_consent_request(end_user=user)
-        except OAuth2Error as error:
-            return error.error
-        return render_template('/oauth/authorize.html', user=user, grant=grant)
-    if not user and 'username' in request.form:
-        username = request.form.get('username')
-        user = User.query.filter_by(username=username).first()
-    if request.form.get('confirm') == 'on' :
-        grant_user = user
-        # ajouter une demande de partnership faite au client
-    else:
-        grant_user = None
-    return authorization.create_authorization_response(grant_user=grant_user)
-
-
-
+        return authorization.create_authorization_response(grant_user=grant_user)
+    # obtain query string as dictionary
+    query_dict = parse_qs(request.query_string.decode("utf-8"))
+    # customize scope for this request
+    my_scope = ""
+    for scope in ["profile", "email", "phone", "resume", "proof_of_identity"] :
+        if request.form.get(scope) == "on" :
+            my_scope = my_scope + scope + " "
+    query_dict["scope"] = my_scope
+    # We here setup a custom Oauth2Request as we have change the scope in the query_dict
+    req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
+    return authorization.create_authorization_response(grant_user=user, request=req)
 
 
 #  CLIENT CREDENTIALS Endpoint
 
-#@bp.route('/api/v1/oauth_resume')
-@require_oauth('resume')
-def oauth_resume():
+#@bp.route('/api/v1/user_info')
+@require_oauth('profile')
+def user_info(mode):
     client_id = current_token.client_id
     #print('current token =', current_token.__dict__)
     #print('client id =', client_id)
-    client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
+    #client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
     user_id = current_token.user_id
     user = User.query.get(user_id)
     #print ('client  metadata = ', client['_client_metadata'])
-
     #json_data = request.__dict__.get('data').decode("utf-8")
     #dict_data = json.loads(json_data)
     #print('data recu dans routes.py = ', json_data)
@@ -254,6 +247,7 @@ def oauth_resume():
     user_info['family_name'] = profile.get('lastname')
     user_info['gender'] = profile.get('gender')
     user_info['email']= profile.get('contact_email') if profile.get('contact_email') != 'private' else None
+    user_info['phone']= profile.get('contact_phone') if profile.get('contact_phone') != 'private' else None
     user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
     # preparation de la reponse
     content = json.dumps(user_info)
@@ -262,8 +256,8 @@ def oauth_resume():
 
 
 #@bp.route('/api/v1/oauth_identity')
-@require_oauth('identity')
-def oauth_identity():
+@require_oauth('resume')
+def oauth_resume():
     print('current token =', current_token.__dict__)
     client_id = current_token.client_id
     client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__

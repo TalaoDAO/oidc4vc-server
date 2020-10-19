@@ -1,23 +1,8 @@
-import copy
-import os.path
 from os import path
-from flask import Flask, session, send_from_directory, flash
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
 import requests
 import shutil
-from flask_fontawesome import FontAwesome
-import json
 from sys import getsizeof
 import time
-
-# dependances
-from protocol import Document, read_profil, Identity, Claim
-#import environment
-import constante
-import ns
-import analysis
-
 import qrcode
 from PIL import Image, ImageEnhance
 

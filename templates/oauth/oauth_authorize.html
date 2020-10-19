@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+ <!-- <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}"   -->
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <br><br><br><br><br><br>
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xl-1"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-lg-4 offset-xl-4">
+                            <div class="card mb-3">
+                                <div class="card-header py-3">
+                                    <p class="text-primary m-0 font-weight-bold">Confirm your consent</p>
+                                </div>
+                                <div class="card-body text-center shadow">
+                                    <form action="" method="POST">
+                                        <p>The company <b>{{grant.client.client_name}}</b> requests to access your data.<br>
+                                            Reject or accept the request.<br>
+                                            If request accepted, check or uncheck data to transfer.</p>
+                                        <p> TEST : scopes requested = {{grant.request.scope}}</p>
+                                        <div class="form-group">
+                                            <div class="form-inline custom-control-inline">
+                                                <div class="form-check"><input class="form-check-input" {{profile_check}} type="checkbox" name="profile" ><label class="form-check-label" >Profile</label></div>
+                                            </div>
+                                            <div class="form-inline custom-control-inline">
+                                                <div class="form-check"><input class="form-check-input" {{resume_check}} type="checkbox" name="resume"><label class="form-check-label" >Resume</label></div>
+                                            </div>
+                                            <div class="form-inline custom-control-inline">
+                                                <div class="form-check"><input class="form-check-input"  {{proof_of_identity_check}} type="checkbox" name="proof_of_identity"><label class="form-check-label" >Proof of Identity</label></div>
+                                            </div>
+                                        </div>
+                                            <div class="form-group">
+                                            <div class="form-inline custom-control-inline">
+                                                <div class="form-check"><input class="form-check-input" {{email_check}} type="checkbox" name="email" ><label class="form-check-label" >Email</label></div>
+                                            </div>
+                                            <div class="form-inline custom-control-inline">
+                                                <div class="form-check"><input class="form-check-input" {{phone_check}} type="checkbox" name="phone" ><label class="form-check-label" >Phone</label></div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col-6 col-xl-3">
+                                                <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Accept</button></div>
+                                            </div>
+                                            <div class="col-6 col-xl-3">
+                                               
+                                                <div class="form-group"><button class="btn btn-primary btn-sm" name ="reject" type="submit">Reject</button></div>
+                                                
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+</body>
+
+</html>
