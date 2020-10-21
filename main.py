@@ -55,6 +55,7 @@ import history
 import privatekey
 import sms
 import QRCode
+import oauth_config
 
 
 # Centralized  routes
@@ -65,7 +66,6 @@ import web_issue_certificate
 import web_skills
 import web_CV_blockchain
 import web_oauth
-import web_routes
 import web_issuer_explore
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.10"
+VERSION = "0.9.11"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -116,7 +116,7 @@ authorization_server_config = {
         'client_credentials': 3000
         }
     }
-web_oauth.authorization_server_config(app, authorization_server_config)
+oauth_config.authorization_server_config(app, authorization_server_config)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
@@ -146,16 +146,16 @@ app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_da
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
 # Main routes (Endpointd) for OAuth Authorization Server
-app.add_url_rule('/api/v1', view_func=web_routes.home, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_login', view_func=web_routes.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
-app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['POST'])
-app.add_url_rule('/api/v1/oauth_revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+app.add_url_rule('/api/v1/create_client', view_func=web_oauth.create_client, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/token', view_func=web_oauth.issue_token, methods = ['POST'])
+app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, methods = ['GET', 'POST'])
 
-app.add_url_rule('/api/v1/create', view_func=web_routes.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/user_info', view_func=web_routes.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1/create', view_func=web_oauth.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 
 

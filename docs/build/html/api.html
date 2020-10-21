@@ -108,8 +108,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-authorization-code-flow">OAuth 2.0 Authorization Code flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow">OAuth 2.0 Client Credentials Flow</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-user-info-create">https://talao.co/api/v1/user_info/create</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-user-info-issue">https://talao.co/api/v1/user_info/issue</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-user-info-partner">https://talao.co/api/v1/user_info/partner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-issue">https://talao.co/api/v1/issue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-partner">https://talao.co/api/v1/partner</a></li>
 </ul>
 </li>
 </ul>
@@ -243,12 +243,12 @@ User will sign in with the Talao login view and consent for scopes.</p>
 <p>For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
 Commonly referred to as “OAuth two-legged”, this flow allows your application to authorize with Talao’s API directly throught following endpoints :</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://talao.co/api/v1/user_info/issue">https://talao.co/api/v1/user_info/issue</a> : to issue certificates. Available depending on scope allowed by Talao..</p></li>
-<li><p><a class="reference external" href="https://talao.co/api/v1/user_info/create">https://talao.co/api/v1/user_info/create</a> : to create identity for others. Always available.</p></li>
-<li><p><a class="reference external" href="https://talao.co/api/v1/user_info/refer">https://talao.co/api/v1/user_info/refer</a> : to add a referent.Always available.</p></li>
-<li><p><a class="reference external" href="https://talao.co/api/v1/user_info/reject_partner">https://talao.co/api/v1/user_info/reject_partner</a> : to request a partnership. Always available.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a> : to issue certificates. Availability depending on scope allowed by Talao.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a> : to create identity for others. Always available.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/refer">https://talao.co/api/v1/refer</a> : to add a referent.Always available.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/reject_partner">https://talao.co/api/v1/reject_partner</a> : to request a partnership. Always available.</p></li>
 </ul>
-<p>Scopes are for certificate issuance :</p>
+<p>Scopes are for certificate issuance,, they are granted by Talao with credentials  :</p>
 <ul class="simple">
 <li><p>skill</p></li>
 <li><p>experience</p></li>
@@ -284,13 +284,14 @@ Commonly referred to as “OAuth two-legged”, this flow allows your applicatio
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>{
   &quot;status&quot; : &quot;900&quot;,
   &quot;did&quot;: &quot;did:talao:talaonet:__TEST__&quot;,
+  &quot;username&quot; : &quot;jeanpascalet&quot;,
   &quot;firstname&quot;: &quot;jean&quot;,
   &quot;lastname&quot;: &quot;pascalet&quot;,
   &quot;email&quot;: &quot;jean.pascalet@talao.io&quot;}
 }
 </pre></div>
 </div>
-<p>status are :</p>
+<p>with status :</p>
 <ul class="simple">
 <li><p>900 : Ok</p></li>
 <li><p>910 : Failed, client has no identity</p></li>
@@ -302,11 +303,13 @@ Commonly referred to as “OAuth two-legged”, this flow allows your applicatio
 </pre></div>
 </div>
 </div>
-<div class="section" id="https-talao-co-api-v1-user-info-issue">
-<h3><a class="reference external" href="https://talao.co/api/v1/user_info/issue">https://talao.co/api/v1/user_info/issue</a><a class="headerlink" href="#https-talao-co-api-v1-user-info-issue" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="https-talao-co-api-v1-issue">
+<h3><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a><a class="headerlink" href="#https-talao-co-api-v1-issue" title="Permalink to this headline">¶</a></h3>
+<p>to be done</p>
 </div>
-<div class="section" id="https-talao-co-api-v1-user-info-partner">
-<h3><a class="reference external" href="https://talao.co/api/v1/user_info/partner">https://talao.co/api/v1/user_info/partner</a><a class="headerlink" href="#https-talao-co-api-v1-user-info-partner" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="https-talao-co-api-v1-partner">
+<h3><a class="reference external" href="https://talao.co/api/v1/partner">https://talao.co/api/v1/partner</a><a class="headerlink" href="#https-talao-co-api-v1-partner" title="Permalink to this headline">¶</a></h3>
+<p>to be done</p>
 </div>
 </div>
 </div>
