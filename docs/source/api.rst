@@ -73,10 +73,10 @@ OAuth 2.0 Client Credentials Flow
 For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
 Commonly referred to as "OAuth two-legged", this flow allows your application to authorize with Talao's API directly throught following endpoints :
 
-*   https://talao.co/api/v1/user_info/issue : to issue certificates. Availability depending on scope allowed by Talao..
-*   https://talao.co/api/v1/user_info/create : to create identity for others. Always available.
-*   https://talao.co/api/v1/user_info/refer : to add a referent.Always available.
-*   https://talao.co/api/v1/user_info/reject_partner : to request a partnership. Always available.
+*   https://talao.co/api/v1/issue : to issue certificates. Availability depending on scope allowed by Talao.
+*   https://talao.co/api/v1/create : to create identity for others. Always available.
+*   https://talao.co/api/v1/refer : to add a referent.Always available.
+*   https://talao.co/api/v1/reject_partner : to request a partnership. Always available.
 
 Scopes are for certificate issuance,, they are granted by Talao with credentials  :
 
@@ -126,12 +126,13 @@ Response
   {
     "status" : "900",
     "did": "did:talao:talaonet:__TEST__",
+    "username" : "jeanpascalet",
     "firstname": "jean",
     "lastname": "pascalet",
     "email": "jean.pascalet@talao.io"}
   }
 
-status are :
+with status :
 
 * 900 : Ok
 * 910 : Failed, client has no identity
@@ -144,9 +145,13 @@ Try for Test only with your access token :
 
    $curl -X POST https://talao.co/api/v1/create  -H "Authorization: Bearer your_acces_token" -H "Content-Type: application/json" -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
 
-https://talao.co/api/v1/user_info/issue
-****************************************
 
+https://talao.co/api/v1/issue
+******************************
 
-https://talao.co/api/v1/user_info/partner
-******************************************
+to be done 
+
+https://talao.co/api/v1/partner
+********************************
+
+to be done 
