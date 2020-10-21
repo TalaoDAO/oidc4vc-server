@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.9"
+VERSION = "0.9.10"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -110,10 +110,10 @@ authorization_server_config = {
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
     'OAUTH2_TOKEN_EXPIRES_IN' : {
-        'authorization_code': 50000,
-        'implicit': 50000,
-        'password': 50000,
-        'client_credentials': 100
+        'authorization_code': 3000,
+        'implicit': 3000,
+        'password': 3000,
+        'client_credentials': 3000
         }
     }
 web_oauth.authorization_server_config(app, authorization_server_config)
@@ -153,8 +153,12 @@ app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, me
 app.add_url_rule('/api/v1/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['POST'])
 app.add_url_rule('/api/v1/oauth_revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_resume', view_func=web_routes.oauth_resume, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
+app.add_url_rule('/api/v1/create', view_func=web_routes.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/user_info', view_func=web_routes.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
+
+
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})

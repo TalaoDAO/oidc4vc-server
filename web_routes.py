@@ -37,8 +37,9 @@ import json
 import ns
 import environment
 import constante
-from protocol import read_profil
+from protocol import read_profil, Identity, Talao_token_transaction
 from urllib.parse import urlencode, parse_qs, urlparse
+import createidentity
 
 
 
@@ -190,13 +191,15 @@ def authorize():
         proof_of_identity_check = "checked" if "proof_of_identity" in grant.request.scope else "disabled"
         email_check = "checked" if "email" in grant.request.scope else "disabled"
         phone_check = "checked" if "phone" in grant.request.scope else "disabled"
+        certificate_check = "checked" if "certificate" in grant.request.scope else "disabled"
         return render_template('/oauth/oauth_authorize.html', user=user,
                                                             grant=grant,
                                                             profile_check=profile_check,
                                                             resume_check=resume_check,
                                                             proof_of_identity_check=proof_of_identity_check,
                                                             email_check=email_check,
-                                                            phone_check=phone_check)
+                                                            phone_check=phone_check,
+                                                            certificate_check=certificate_check)
     # POST
     if not user and 'username' in request.form:
         username = request.form.get('username')
@@ -217,14 +220,11 @@ def authorize():
     return authorization.create_authorization_response(grant_user=user, request=req)
 
 
-#  CLIENT CREDENTIALS Endpoint
-
-#@bp.route('/api/v1/user_info')
+#  User Info Endpoint
+#route('/api/v1/user_info')
 @require_oauth('profile')
 def user_info(mode):
-    client_id = current_token.client_id
-    #print('current token =', current_token.__dict__)
-    #print('client id =', client_id)
+    #client_id = current_token.client_id
     #client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
     user_id = current_token.user_id
     user = User.query.get(user_id)
@@ -246,33 +246,73 @@ def user_info(mode):
     user_info['given_name'] = profile.get('firstname')
     user_info['family_name'] = profile.get('lastname')
     user_info['gender'] = profile.get('gender')
-    user_info['email']= profile.get('contact_email') if profile.get('contact_email') != 'private' else None
-    user_info['phone']= profile.get('contact_phone') if profile.get('contact_phone') != 'private' else None
-    user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
+    if 'email' in current_token.scope :
+        user_info['email']= profile.get('contact_email') if profile.get('contact_email') != 'private' else None
+    if 'phone' in current_token.scope :
+        user_info['phone']= profile.get('contact_phone') if profile.get('contact_phone') != 'private' else None
+    if 'birthdate' in current_token.scope :
+        user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
+    if 'certificate' in current_token.scope :
+        user_info['certificate'] = True
+        # issue a 20002 key
+    if 'resume' in current_token.scope :
+        user = Identity(workspace_contract, mode)
+        user_dict = user.__dict__
+        del user_dict['mode']
+        del user_dict['partners']
+        user_info['resume'] = user_dict 
     # preparation de la reponse
     content = json.dumps(user_info)
     response = Response(content, status=200, mimetype='application/json')
     return response
 
 
-#@bp.route('/api/v1/oauth_identity')
-@require_oauth('resume')
-def oauth_resume():
-    print('current token =', current_token.__dict__)
+# Client credential endpoint
+
+#@route('/api/v1/create')
+@require_oauth(None)
+def oauth_create(mode):
+    # creation d'une identité"
+    # status 900 : Ok
+    # status 910 : Failed, client has no identity
+    # status 920 : Failed, creation identity
+    # status 930 : Failed, request incorrect
     client_id = current_token.client_id
     client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
-    user_id = current_token.user_id
-    user = User.query.get(user_id)
+    client_metadata = json.loads(client['_client_metadata'])
+    client_username = client_metadata['client_name']
+    #user_id = current_token.user_id
+    #user = User.query.get(user_id)
+    #user_workspace_contract = ns.get_data_from_username(user.username, mode)['workspace_contract']
     json_data = request.__dict__.get('data').decode("utf-8")
-    dict_data = json.loads(json_data)
-    print('data reçue = ',dict_data)
-    # preparation de la reponse
-    data= {"msg" : 'ok'}
-    content = json.dumps(data)
+    data = json.loads(json_data)
+    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
+    if data.get('email') is None or data.get('firstname') is None or data.get('lastname')is None :
+        response_dict = {'status' : '930','msg' : 'Incorect request', **data}
+    # Test de la doc
+    elif client_id == 'aslAD3wmxbEvybv3ntnZR0Tf' :
+        response_dict = {'status' : '900','did' : 'did:talao:talaonet:__TEST__', **data}
+    # le client n a pas d identite
+    elif client_workspace_contract is None :
+        response_dict = {'status' : '910','msg' : 'le client n a pas d identite', **data}
+    # cas normal
+    else :
+        identity_username = ns.build_username(data.get('firstname'), data.get('lastname'), mode)
+        client_address = Talao_token_transaction.contractsToOwners(client_workspace_contract, mode)
+        identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=client_address)[2]
+        # echec de createidentity
+        if identity_workspace_contract is None :
+            response_dict = {'status' : '920','msg' : 'echec creation identite', **data}
+        else :
+            response_dict = {'status' : '900','did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], **data}
+    content = json.dumps(response_dict)
     response = Response(content, status=200, mimetype='application/json')
     return response
 
-""" exempled d'un client
+
+
+
+""" exempled d'un client python
 
 import requests
 import json

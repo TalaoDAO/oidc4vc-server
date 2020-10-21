@@ -36,7 +36,7 @@ class Identity() :
 		self.mode = mode
 		self.synchronous = True # UI synchrone par defaut, on attend les receipts des transactions blockchain
 		self.authenticated = authenticated
-		self.did = 'did:talao:'+mode.BLOCKCHAIN + ':' + self.workspace_contract[2:]
+		self.did = 'did:talao:' + mode.BLOCKCHAIN + ':' + self.workspace_contract[2:]
 		self.address = contractsToOwners(self.workspace_contract,mode)
 		self.get_all_documents()
 		self.get_issuer_keys()

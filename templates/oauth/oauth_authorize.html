@@ -35,9 +35,8 @@
                                 <div class="card-body text-center shadow">
                                     <form action="" method="POST">
                                         <p>The company <b>{{grant.client.client_name}}</b> requests to access your data.<br>
-                                            Reject or accept the request.<br>
-                                            If request accepted, check or uncheck data to transfer.</p>
-                                        <p> TEST : scopes requested = {{grant.request.scope}}</p>
+                                            Reject or accept the request.<br><br>
+                                            If you accept their request, select data to transfer.</p>
                                         <div class="form-group">
                                             <div class="form-inline custom-control-inline">
                                                 <div class="form-check"><input class="form-check-input" {{profile_check}} type="checkbox" name="profile" ><label class="form-check-label" >Profile</label></div>
@@ -57,14 +56,17 @@
                                                 <div class="form-check"><input class="form-check-input" {{phone_check}} type="checkbox" name="phone" ><label class="form-check-label" >Phone</label></div>
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <div class="form-inline custom-control-inline">
+                                            <div class="form-check"><input class="form-check-input" {{certificate_check}} type="checkbox" name="certificate" ><label class="form-check-label" >Appoint company as a referent</label></div>
+                                        </div>
+                                        <br><br>
                                         <div class="form-row">
                                             <div class="col-6 col-xl-3">
-                                                <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Accept</button></div>
+                                                <div class="form-group"><button id="in_progress_button" title="" class="btn btn-primary btn-sm" type="submit">Accept</button></div>
                                             </div>
                                             <div class="col-6 col-xl-3">
-                                               
                                                 <div class="form-group"><button class="btn btn-primary btn-sm" name ="reject" type="submit">Reject</button></div>
-                                                
                                             </div>
                                         </div>
                                     </form>
