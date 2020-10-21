@@ -23,7 +23,7 @@ def get_QRCode(mode, link):
     QRCode_generated = img.convert("RGB")
 
     #Opens the png file with the logo on it to merge them
-    logo = 'logo.png'
+    logo = 'Frame_QRCode.png'
     logo = Image.open(getcwd() + '/static/img/'  + logo)
     logo.convert("RGB")
 
