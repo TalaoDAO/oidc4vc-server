@@ -35,12 +35,15 @@
         {% endwith %}
         {% include 'user_nav_bar.html' %}
         <div class="container-fluid">
+          <div class="text-center">
           <h3 class="text-dark mb-4">{{name}}
             <a class="text-secondary" onclick="copyToClipboard('#p100')">
               <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
             </a>
-            <p hidden id="p100">{{clipboard}}</p>
-            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          </h3>
+          <p hidden id="p100">{{clipboard}}</p>
+          <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          </div>
             <div class="row">
               <div class="col-lg-8 col-xl-4 offset-xl-4">
                 <div class="card shadow mb-5">

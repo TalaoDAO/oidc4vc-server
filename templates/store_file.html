@@ -35,13 +35,15 @@
 
 
             <div class="container-fluid">
-                <h3 class="text-dark mb-4">{{name}}
-                    <a class="text-secondary" onclick="copyToClipboard('#p100')">
-                    <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-                    </a>
-                </h3>
-                    <p hidden id="p100" >{{clipboard}}</p>
-                <h6 class="text-dark mb-4">{{profil_title}}</h6>
+              <div class="text-center">
+              <h3 class="text-dark mb-4">{{name}}
+                <a class="text-secondary" onclick="copyToClipboard('#p100')">
+                  <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+                </a>
+              </h3>
+              <p hidden id="p100">{{clipboard}}</p>
+              <h6 class="text-dark mb-4">{{profil_title}}</h6>
+              </div>
                 <div class="row mb-3">
                     <div class="col-lg-4 offset-xl-4">
                         <div class="card mb-3">
@@ -49,7 +51,7 @@
                                 <p class="text-primary m-0 font-weight-bold">Store File</p>
                             </div>
                             <div class="card-body text-center shadow">
-                                <form action="/user/store_file/" method="POST"  enctype="multipart/form-data">
+                                <form name="form" action="/user/store_file/" method="POST"  enctype="multipart/form-data">
                                     <p>Your Identity can store data as document, ID Card, Payslip.... <br>Your data can be Public or encryted as 'Private' or 'Secret'.<br>
                                     Private files are available for your partners only.<br>
                                     Secret files are only for you.</p>

@@ -35,12 +35,16 @@
         {% endwith %}
         {% include 'user_nav_bar.html' %}
         <div class="container-fluid">
+          <div class="text-center">
           <h3 class="text-dark mb-4">{{name}}
             <a class="text-secondary" onclick="copyToClipboard('#p100')">
               <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
             </a>
-            <p hidden id="p100">{{clipboard}}</p>
-            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          </h3>
+          <p hidden id="p100">{{clipboard}}</p>
+          <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          </div>
+
             <div class="row">
               <div class="col-lg-8 col-xl-4 offset-xl-4">
                 <div class="card shadow mb-5">
@@ -107,7 +111,7 @@
                               <p class="text-primary m-0 font-weight-bold">Import RSA Key</p>
                             </div>
                             <div class="card-body text-center shadow">
-                              <form action="/user/import_rsa_key/" method="POST" enctype="multipart/form-data">
+                              <form name="form" action="/user/import_rsa_key/" method="POST" enctype="multipart/form-data">
                                 <p>Your RSA Key is needed to encrypt data as "Private" or "Secret".<br>
                                   Private files are available for your partners only.<br>
                                   Secret file are only for you.</p>

@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="card-body">
                                     <p> This action can take several minutes. Wait for message.</p>
-                                    <form action="/user/create_person/" method="POST">
+                                    <form name="form" action="/user/create_person/" method="POST">
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group"><label><strong>Firstname</strong><br></label><input class="form-control" type="text" name="firstname" required=""></div>
@@ -72,7 +72,7 @@
     </div>
     </div>
     </div>
-                                {% include 'user_footer.html' %}    
+                                {% include 'user_footer.html' %}
 
     </div>
    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

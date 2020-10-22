@@ -25,12 +25,15 @@
 
                                             {% include 'user_nav_bar.html' %}
             <div class="container-fluid">
-                    <h3 class="text-dark mb-4">{{name}}
-                    <a class="text-secondary" onclick="copyToClipboard('#p100')">
-                    <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-                    </a>
-                    <p hidden id="p100" >{{clipboard}}</p>
-                    <h6 class="text-dark mb-4">{{profil_title}}</h6>
+              <div class="text-center">
+              <h3 class="text-dark mb-4">{{name}}
+                <a class="text-secondary" onclick="copyToClipboard('#p100')">
+                  <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+                </a>
+              </h3>
+              <p hidden id="p100">{{clipboard}}</p>
+              <h6 class="text-dark mb-4">{{profil_title}}</h6>
+              </div>
             <div class="row mb-3">
                 <div class="col-lg col-xl">
 
@@ -43,7 +46,7 @@
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <form action="/user/add_education/" method="POST">
+                                        <form name="form" action="/user/add_education/" method="POST">
                                             <div class="form-row">
                                                 <div class="col">
                                                     <div class="form-group"><label><strong>Organization</strong><br></label><input class="form-control" type="text" title="Name of the School, University or Training Center." name="company_name" required ></div>
