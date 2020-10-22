@@ -7,9 +7,6 @@ bootstrap/*
 RSA_key/*
 __pycache__/*
 protocol/__pycache__/*
-<<<<<<< HEAD
 keys.json
 passwords.json
 uploads/*
-=======
->>>>>>> 844580a510154df6f964da0d1bd275d2b26374c1
