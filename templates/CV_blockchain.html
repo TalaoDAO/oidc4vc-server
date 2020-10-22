@@ -50,12 +50,12 @@
                                  <h2 class="text-dark text-center mb-2">{{issuer_name}}</h2>
                                  <p class="text-dark text-center mb-2">{{issuer_profil_title}}</p>
                                  <div class="d-block d-sm-none mb-3">
-                                     <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width:250px;width:100%">
+                                     <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width:300px;width:100%">
                                  </div>
                                  {{personal|safe}}
                                </div>
                                <div class="col d-none d-sm-block">
-                                   <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width:400px;max-height:500px;width:100%">
+                                   <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width:300px;max-height:500px;width:100%">
                                </div>
                            </div>
                          </div>
