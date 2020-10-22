@@ -36,6 +36,8 @@ from eth_utils import decode_hex
 import redis
 import requests
 from Crypto.PublicKey import RSA
+from models import db
+from oauth2 import config_oauth
 
 
 # dependances
@@ -55,8 +57,6 @@ import history
 import privatekey
 import sms
 import QRCode
-import oauth_config
-
 
 # Centralized  routes
 import web_create_identity
@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.11"
+VERSION = "0.9.12"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -104,7 +104,7 @@ sess = Session()
 sess.init_app(app)
 
 #config Authorization Server OAuth, OAuth 2, OpenId
-authorization_server_config = {
+oauth_config = {
     'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
@@ -116,7 +116,9 @@ authorization_server_config = {
         'client_credentials': 3000
         }
     }
-oauth_config.authorization_server_config(app, authorization_server_config)
+app.config.update(oauth_config)
+db.init_app(app)
+config_oauth(app)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)

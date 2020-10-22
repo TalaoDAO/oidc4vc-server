@@ -2,27 +2,28 @@
 Talent Connect API
 ==================
 
-Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company).
-For companies it is an easy way to get reliable data about Talents and it is a powerfull and secure tool for automatic onbarding.
+Talent Connect APIs can be used for authentication, authorization and claims issuance.
+For companies it is an easy way to get reliable data about Talents and a powerfull and secure tool for onbarding while keeping user's data safe.
 
-Those API do not provide account management (update logo, signature, set company details, add managers, change password, ...)
+Those API do not provide account setup (company details, signature, logo ...) which are available through the web platform https://talao.co .
 
 Standard use cases for APIs are :
 
-* Talent registers to a Company recrutment website with his Talao Identity. He gives an access to his public JSON resume (https://jsonresume.org/).
-* Talent registers to a certification Company with his Talao Identity. He gives to the company an access to his public data and name the company as referent.
-* Talent registers to a Company to exchange data (resume, passport, diplomas,...) receive claims (experience certificates, skill certificates, ...) and store documents (payslip,...).
-* Company wants to create identity for its users
-* Company issues certificates
+* Issue certificates to Talents.
+* Setup a Talent onboarding process with a reliable source of data.
+* Outsource Talent data.
+* Strenghen an employer brand with latest technology features (Blockchain Resume,...).
 
 We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
-
-Contact us to have your application granted permission to use those flows.
+Contact us relay-support@talao.io to open your Company Identity and receive your application granted permissions to use those APIs
 
 OAuth 2.0 Authorization Code flow
 ----------------------------------
 
-Used to get an access to Talent personal data with his agreement or to be appointed as a referent to issue certificates. Scopes available are :
+For your users, the OAuth 2.0 authentication experience includes a consent screen that describes through 'scopes' the information that the user is releasing.
+For example, when the user logs in, they might be asked to give your appication access to their email address, resume and basic account information.
+You request access to this information using the scope parameter, which your app includes in its authentication request.
+You can also use scopes to request access to other client credentials APIs. Scopes available are :
 
 * profile (sub, given_name, family_name, gender,...)
 * birthdate
@@ -30,29 +31,30 @@ Used to get an access to Talent personal data with his agreement or to be appoin
 * phone
 * resume : JSON resume see https://jsonresume.org/
 * proof_of_identity : see further
-* certification : to be allowed issue certificates
+* certification : Request authorization to issue certificates
 
-Contact us to get a client_id and secret_id with your list of scopes.
-Then to get a grant code for this flow, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
-User will sign in with the Talao login view and consent for scopes.
+To get a grant code for this flow, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
+User will be asked to sign in with their Decentralized Identifier and to consent for your list of scopes.
+
+Example :
 
 .. code::
 
    https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes
 
-With the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an acces token. You will need your client_secret.
+With the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an access token. You will need your client_secret.
 
 .. code::
 
    curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=your_scopes
 
-With the access token you can get user_info with its endpoint https://talao.co/api/v1/user_info. Access token is live 3000 seconds.
+With the access token you can get Talent data through the user_info endpoint https://talao.co/api/v1/user_info.
 
 .. code::
 
    curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/user_info
 
-Return is JSON (exemple) :
+Return is JSON (example) :
 
 .. code-block:: JSON
 
@@ -71,50 +73,47 @@ OAuth 2.0 Client Credentials Flow
 ---------------------------------
 
 For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
-Commonly referred to as "OAuth two-legged", this flow allows your application to authorize with Talao's API directly throught following endpoints :
+Commonly referred to as "OAuth two-legged", this flow allows your application to call Talao's APIs  :
 
-*   https://talao.co/api/v1/issue : to issue certificates. Availability depending on scope allowed by Talao.
-*   https://talao.co/api/v1/create : to create identity for others. Always available.
-*   https://talao.co/api/v1/refer : to add a referent.Always available.
-*   https://talao.co/api/v1/reject_partner : to request a partnership. Always available.
+*   https://talao.co/api/v1/issue : to issue certificates depending on scopes (experience, skill, proof_of_identity, recommendation)
+*   https://talao.co/api/v1/create : to create identity.
+*   https://talao.co/api/v1/refer : to add a referent.
+*   https://talao.co/api/v1/request_partner : to request a partnership.
+*   https://talao.co/api/v1/reject_partner : to reject a partnership.
 
-Scopes are for certificate issuance,, they are granted by Talao with credentials  :
 
-*  skill
-*  experience
-*  recommendation
-
-Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the endpoint with both your client_id and client_secret set appropriately to get the access token :
+Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the access token :
 
 .. code::
 
-   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience
+  $ curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience+skill
 
-To get an access to an endpoint :
+To call an endpoint :
 
 .. code::
 
-   curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/endpoint   your_data
+  $ curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/endpoint   your_data
 
-For Test, try to get an access token with those credentials :
+For test, get an access token with those credentials :
 
 * client_id: vJENicdQO38y1pcVRQREeuoy
 * client_secret: oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5
 
 .. code-block:: JSON
 
-    $curl -u vJENicdQO38y1pcVRQREeuoy:oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5 -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience
+  $ curl -u vJENicdQO38y1pcVRQREeuoy:oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5 -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience
 
-You will get an access token to use for 3000 seconds
+Your access token is live for 3000 seconds.
 
-https://talao.co/api/v1/user_info/create
-*****************************************
+https://talao.co/api/v1/create
+*******************************
 
-Create an Identity for others. Example :
+Create an Identity for others. You company is apointed as a referent. Identity credentials are sent by email to Talent.
+Example :
 
 .. code::
 
-   $ curl -X POST https://talao.co/api/v1/create  \
+  $ curl -X POST https://talao.co/api/v1/create  \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
    -H "Content-Type: application/json" \
    -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
@@ -139,19 +138,19 @@ with status :
 * 920 : Failed, creation identity (Ethereum transaction failed)
 * 930 : Failed, incorrect request (data missing)
 
-Try for Test only with your access token :
+Try for test with your access token :
 
 .. code-block:: JSON
 
-   $curl -X POST https://talao.co/api/v1/create  -H "Authorization: Bearer your_acces_token" -H "Content-Type: application/json" -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
+  $ curl -X POST https://talao.co/api/v1/create  -H "Authorization: Bearer your_acces_token" -H "Content-Type: application/json" -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
 
 
 https://talao.co/api/v1/issue
 ******************************
 
-to be done 
+to be done
 
 https://talao.co/api/v1/partner
 ********************************
 
-to be done 
+to be done

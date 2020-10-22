@@ -273,8 +273,7 @@ def user_info(mode):
 @require_oauth(None)
 def oauth_create(mode):
     # creation d'une identité"
-    # status 900 : Ok
-    # status 910 : Failed, client has no identity
+    # status 900 : Success
     # status 920 : Failed, creation identity
     # status 930 : Failed, request incorrect
     client_id = current_token.client_id
@@ -289,17 +288,17 @@ def oauth_create(mode):
     client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
     if data.get('email') is None or data.get('firstname') is None or data.get('lastname')is None :
         response_dict = {'status' : '930','msg' : 'Incorect request', **data}
-    # Test de la doc
+    # Test de la documentation en ligne
     elif client_id in ['vJENicdQO38y1pcVRQREeuoy', 'HjoZ7fxzimmUJOCRE2fzeQcd', 'EmiMhjC1gjNVMu7Sek6Hq0Gs'] :
         response_dict = {'status' : '900','did' : 'TEST : Success for create identity', **data}
     # le client n a pas d identite
     elif client_workspace_contract is None :
-        response_dict = {'status' : '910','msg' : 'Failed, client does not have its own Identity', **data}
+        creator = None
     # cas normal
     else :
         identity_username = ns.build_username(data.get('firstname'), data.get('lastname'), mode)
-        client_address = Talao_token_transaction.contractsToOwners(client_workspace_contract, mode)
-        identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=client_address)[2]
+        creator = Talao_token_transaction.contractsToOwners(client_workspace_contract, mode)
+        identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=creator)[2]
         # echec de createidentity
         if identity_workspace_contract is None :
             response_dict = {'status' : '920','msg' : 'Failed to create an Identity, contact Talao support ', **data}
