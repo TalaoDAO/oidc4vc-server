@@ -138,12 +138,12 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 			return None, None, None
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock ,toBlock = 'latest')
+	from_block = mode.w3.eth.blockNumber - 10
+	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= from_block ,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
-	print('eventlist ', eventlist)
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
-
+"""
 def update_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doc_id, doctype, data, mydays, privacy, mode, synchronous) :
 # @data = dict
 	w3=mode.w3
@@ -187,7 +187,7 @@ def update_document(address_from, workspace_contract_from, address_to, workspace
 	print('event list dans update ', eventlist)
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
-
+"""
 def get_document(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
 
 	w3 = mode.w3
@@ -339,9 +339,9 @@ class Document() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
 
-	def relay_update(self, identity_workspace_contract, doc_id, data, mode, mydays=0, privacy='public', synchronous=True) :
-		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return update_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, self.doctype, data, mydays, privacy, mode, synchronous)
+	#def relay_update(self, identity_workspace_contract, doc_id, data, mode, mydays=0, privacy='public', synchronous=True) :
+	#	identity_address = contracts_to_owners(identity_workspace_contract, mode)
+	#	return update_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, self.doctype, data, mydays, privacy, mode, synchronous)
 
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)

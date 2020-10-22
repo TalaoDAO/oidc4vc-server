@@ -14,6 +14,7 @@ from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
 from datetime import timedelta, datetime
+import time
 import json
 import random
 from Crypto.PublicKey import RSA
@@ -328,7 +329,6 @@ def data(mode) :
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
 	check_login()
-	print('mode : ', mode.__dict__)
 	if not session.get('uploaded', False) :
 		print('start first instanciation user')
 		if mode.test :
@@ -380,7 +380,6 @@ def user(mode) :
 		""" Probablement a virer !!! """
 		# Identity List
 		identity_list = ns.identity_list(mode)
-		print('identity list = ', identity_list)
 		my_list = """ <div  style="height:200px;overflow:auto;overflow-x: hidden;">"""
 		for identity in identity_list :
 			identity_workspace_contract = ns.get_data_from_username(identity, mode)['workspace_contract']
@@ -570,10 +569,13 @@ def user(mode) :
 		if len (session['experience']) == 0:
 			my_experience = my_experience + """<a class="text-info">No Experience available</a>"""
 		else :
-			for experience in session['experience'] :
+
+			for experience in sorted(session['experience'], key= lambda d: time.strptime(d['start_date'], "%Y-%m-%d"), reverse=True) :
 				exp_html = """
 				<b>Company</b> : """+experience['company']['name']+"""<br>
 				<b>Title</b> : """+experience['title']+"""<br>
+				<b>Start Date</b> : """+experience['start_date']+"""<br>
+					<b>End Date</b> : """+experience['end_date']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + experience['id'] + """&experience_title="""+ experience['title'] + """">
@@ -782,7 +784,6 @@ def user(mode) :
 
 				my_certificates = my_certificates + cert_html
 
-		print('menu ', session['menu'])
 		return render_template('person_identity.html',
 							**session['menu'],
 							display_alias = display_alias,
@@ -1024,7 +1025,6 @@ def user_advanced(mode) :
 					</a>
 				</span>"""
 			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
-	print(my_advanced)
 
 	return render_template('advanced.html',
 							**session['menu'],

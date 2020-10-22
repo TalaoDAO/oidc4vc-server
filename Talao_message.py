@@ -124,7 +124,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	# string to store the body of the mail
 	body = "".join(['Hello,\r\nA new Professional Identity has been deployed for you. \r\nYour username for login  : ',
 					username,
-					'\r\nYour first password is identity, change it as soon as possible !',
+					'\r\nYour password for login : identity (change your password as soon as possible !)',
 					'\r\nEmail : ',
 					email,
 					'\r\nBlockchain : ',

@@ -15,7 +15,6 @@ def dashboard(workspace_contract,resume, mode) :
 	# global
 	nb_doc = 0
 	nb_claim = 0
-	#is_kbis = "N/A"
 	is_kyc = "N/A"
 	nb_description = 0
 	nb_experience = 0
@@ -42,12 +41,9 @@ def dashboard(workspace_contract,resume, mode) :
 	skills = []
 
 	# Calculation
-	#average_experience = 0
-
-	doc_name = ['file', 'experience', 'education', 'kbis', 'kyc', 'certificate']
+	doc_name = ['file', 'experience', 'education', 'kbis', 'kyc', 'certificate', 'skills']
 	company_claim_name = ['name', 'contact_email', 'contact_phone', 'contact_name',  'website', 'about']
 	person_claim_name = ['firstname', 'lastname', 'birthdate', 'postal_address', 'about','education', 'profil_title', 'contact_email', 'contact_phone']
-
 	if resume['type'] == 'person' :
 		claim_name = person_claim_name
 	else :
@@ -57,7 +53,8 @@ def dashboard(workspace_contract,resume, mode) :
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
-				print("")
+				print(doctype, i)
+				print(resume[doctype])
 				created = datetime.fromisoformat(resume[doctype][i]['created'])
 				update.append(created)
 				nb_doc +=1
@@ -113,7 +110,6 @@ def dashboard(workspace_contract,resume, mode) :
 	# update
 	sorted_update = sorted(update, reverse=True)
 	last_update = sorted_update[0]
-	#update_number = len(sorted_update)
 	update_duration = datetime.now() - last_update
 	update_duration_value = int(divmod(update_duration.total_seconds(), 86400)[0])
 	update_duration_string = str(update_duration_value) + ' days'
@@ -173,17 +169,17 @@ def dashboard(workspace_contract,resume, mode) :
 				nb_certificate_education +=1
 				description += cert['description']
 
-			if cert['type'].lower() == 'language' :
-				nb_description +=1
-				nb_certificate_language +=1
-				description += cert['description']
-
 			if cert['type'].lower() == 'recommendation' :
 				nb_description +=1
 				nb_certificate_recommendation +=1
 				description += cert['description']
 
-			if cert['type'].lower() == 'skills' :
+			if cert['type'].lower() == 'language' :
+				nb_description +=1
+				nb_certificate_language +=1
+				description += cert['description']
+
+			if cert['type'].lower() == 'skill' :
 				nb_description +=1
 				nb_certificate_skills +=1
 				skills += cert['skills']

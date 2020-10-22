@@ -36,7 +36,9 @@ from eth_utils import decode_hex
 import redis
 import requests
 from Crypto.PublicKey import RSA
-from PIL import Image
+from models import db
+from oauth2 import config_oauth
+
 
 
 # dependances
@@ -57,7 +59,6 @@ import privatekey
 import sms
 import QRCode
 
-
 # Centralized  routes
 import web_create_identity
 import web_certificate
@@ -66,7 +67,6 @@ import web_issue_certificate
 import web_skills
 import web_CV_blockchain
 import web_oauth
-import web_routes
 import web_issuer_explore
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
@@ -85,7 +85,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.7"
+VERSION = "0.9.12"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -105,19 +105,21 @@ sess = Session()
 sess.init_app(app)
 
 #config Authorization Server OAuth, OAuth 2, OpenId
-authorization_server_config = {
+oauth_config = {
     'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
     'OAUTH2_TOKEN_EXPIRES_IN' : {
-        'authorization_code': 50000,
-        'implicit': 50000,
-        'password': 50000,
-        'client_credentials': 100
+        'authorization_code': 3000,
+        'implicit': 3000,
+        'password': 3000,
+        'client_credentials': 3000
         }
     }
-web_oauth.authorization_server_config(app, authorization_server_config)
+app.config.update(oauth_config)
+db.init_app(app)
+config_oauth(app)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
@@ -139,15 +141,19 @@ app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_da
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
 # Main routes (Endpointd) for OAuth Authorization Server
-app.add_url_rule('/api/v1', view_func=web_routes.home, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_logout', view_func=web_routes.oauth_logout, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_login', view_func=web_routes.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
-app.add_url_rule('/api/v1/create_client', view_func=web_routes.create_client, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/authorize', view_func=web_routes.authorize, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth/token', view_func=web_routes.issue_token, methods = ['POST'])
-app.add_url_rule('/api/v1/oauth_revoke', view_func=web_routes.revoke_token, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_resume', view_func=web_routes.oauth_resume, methods = ['GET', 'POST'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/user_info', view_func=web_routes.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+app.add_url_rule('/api/v1/create_client', view_func=web_oauth.create_client, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/oauth/token', view_func=web_oauth.issue_token, methods = ['POST'])
+app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, methods = ['GET', 'POST'])
+
+app.add_url_rule('/api/v1/create', view_func=web_oauth.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
+
+
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -671,34 +677,66 @@ def create_person() :
 # add experience
 @app.route('/user/add_experience/', methods=['GET', 'POST'])
 def add_experience() :
-    check_login()
-    if request.method == 'GET' :
-        return render_template('add_experience.html',**session['menu'])
-    if request.method == 'POST' :
-        my_experience = Document('experience')
-        experience = dict()
-        experience['company'] = {'contact_email' : request.form['contact_email'],
-                                'name' : request.form['company_name'],
-                                'contact_name' : request.form['contact_name'],
-                                'contact_phone' : request.form['contact_phone']}
-        experience['title'] = request.form['title']
-        experience['description'] = request.form['description']
-        experience['start_date'] = request.form['from']
-        experience['end_date'] = request.form['to']
-        experience['skills'] = request.form['skills'].split(' ')
-        privacy = 'public'
-        doc_id = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
-        if doc_id is None :
-            flash('Transaction failed', 'danger')
-        else :
-            # add experience in current session
-            experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
-            experience['doc_id'] = doc_id
-            experience['created'] = str(datetime.now())
-            experience['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
-            session['experience'].append(experience)
-            flash('New experience added', 'success')
-        return redirect(mode.server + 'user/')
+	check_login()
+	if request.method == 'GET' :
+		return render_template('add_experience.html',**session['menu'])
+	if request.method == 'POST' :
+		my_experience = Document('experience')
+		experience = dict()
+		experience['company'] = {'contact_email' : request.form['contact_email'],
+								'name' : request.form['company_name'],
+								'contact_name' : request.form['contact_name'],
+								'contact_phone' : request.form['contact_phone']}
+		experience['title'] = request.form['title']
+		experience['description'] = request.form['description']
+		experience['start_date'] = request.form['from']
+		experience['end_date'] = request.form['to']
+		experience['skills'] = request.form['skills'].split(', ')
+		privacy = 'public'
+		# issue experience document
+		doc_id_exp = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
+		if doc_id_exp is None :
+			flash('Transaction failed', 'danger')
+		else :
+			if experience['skills']!= [''] :
+				# add skills  in document skill
+				for skill in experience['skills'] :
+					skill_code = unidecode.unidecode(skill.lower())
+					skill_code = skill_code.replace(" ", "")
+					skill_code = skill_code.replace("-", "")
+					my_skill = {'skill_code' : skill_code,
+									'skill_name' : skill.capitalize(),
+									'skill_level' : "Intermediate",
+									'skill_domain' : ""}
+					if session['skills'] is None  :
+						session['skills'] = dict()
+						session['skills']['description'] = []
+						session['skills']['version'] = 1
+					for one_skill in session['skills']['description'] :
+						if one_skill['skill_code'] == skill_code :
+							pass
+						else :
+							session['skills']['description'].append(my_skill)
+							break
+				# update skills
+				my_skills = Document('skills')
+				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
+				# issue new skill document
+				data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
+				if data[0] is None :
+					flash('Transaction to add skill failed', 'danger')
+					return redirect( mode.server + 'user/')
+				doc_id = data[0]
+				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
+
+			# add experience in current session
+			experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id_exp)
+			experience['doc_id'] = doc_id_exp
+			experience['created'] = str(datetime.now())
+			experience['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
+			session['experience'].append(experience)
+			flash('New experience added', 'success')
+		return redirect(mode.server + 'user/')
 
 # issue kyc (Talao only)
 @app.route('/user/issue_kyc/', methods=['GET', 'POST'])

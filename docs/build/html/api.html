@@ -106,26 +106,10 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-authorization-code-flow">OAuth 2.0 Authorization Code flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-authorization-code-extended-flow">OAuth 2.0 Authorization Code Extended flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#talao-partnership-code-flow">Talao Partnership code flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow">OAuth 2.0 Client Credentials Flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#generating-an-access-token">Generating an Access Token</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#authorization-code">Authorization Code</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#client-credentials">Client Credentials</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#endpoint">Endpoint</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#public-request">Public Request</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#header">Header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#payload">Payload</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#response">Response</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#exchange-data-with-user">Exchange data with User</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#general-request">General Request</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#authentification">Authentification</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Payload</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow">OAuth 2.0 Client Credentials Flow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-create">https://talao.co/api/v1/create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-issue">https://talao.co/api/v1/issue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-partner">https://talao.co/api/v1/partner</a></li>
 </ul>
 </li>
 </ul>
@@ -202,278 +186,128 @@
             
   <div class="section" id="talent-connect-api">
 <h1>Talent Connect API<a class="headerlink" href="#talent-connect-api" title="Permalink to this headline">¶</a></h1>
-<p>Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company).
-For companies it is an easy way to get reliable data about Talents and it is a powerfull and secure tool for automatic onbarding.</p>
-<p>Those API do not provide account management (update logo, signature, set company details, add managers, change password, …)</p>
+<p>Talent Connect APIs can be used for authentication, authorization and claims issuance.
+For companies it is an easy way to get reliable data about Talents and a powerfull and secure tool for onbarding while keeping user’s data safe.</p>
+<p>Those API do not provide account setup (company details, signature, logo …) which are available through the web platform <a class="reference external" href="https://talao.co">https://talao.co</a> .</p>
 <p>Standard use cases for APIs are :</p>
 <ul class="simple">
-<li><p>Talent registers to a Company recrutment website with his Talao Identity to give an access to his public JSON resume (<a class="reference external" href="https://jsonresume.org/">https://jsonresume.org/</a>).</p></li>
-<li><p>Talent registers to a Company to exchange data (resume, passport, diplomas,…) receive claims (experience certificates, skill certificates, …) and store documents (payslip,…).</p></li>
+<li><p>Issue certificates to Talents.</p></li>
+<li><p>Setup a Talent onboarding process with a reliable source of data.</p></li>
+<li><p>Outsource Talent data.</p></li>
+<li><p>Strenghen an employer brand with latest technology features (Blockchain Resume,…).</p></li>
 </ul>
-<p>We use OAuth2 Autorization Code flow and Client Credenetials flow to manage those cases.</p>
-<p>Contact us to have your application granted permission to use those flows.</p>
+<p>We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
+Contact us <a class="reference external" href="mailto:relay-support&#37;&#52;&#48;talao&#46;io">relay-support<span>&#64;</span>talao<span>&#46;</span>io</a> to open your Company Identity and receive your application granted permissions to use those APIs</p>
 <div class="section" id="oauth-2-0-authorization-code-flow">
 <h2>OAuth 2.0 Authorization Code flow<a class="headerlink" href="#oauth-2-0-authorization-code-flow" title="Permalink to this headline">¶</a></h2>
-<p>Used to get an access to Talent personal data with his agreement (Profile, JSON Resume). Basically same as openid with much more data and verifiable claims.</p>
-</div>
-<div class="section" id="oauth-2-0-authorization-code-extended-flow">
-<h2>OAuth 2.0 Authorization Code Extended flow<a class="headerlink" href="#oauth-2-0-authorization-code-extended-flow" title="Permalink to this headline">¶</a></h2>
-<p>Same as previous but Talent add the company as a referent.</p>
-</div>
-<div class="section" id="talao-partnership-code-flow">
-<h2>Talao Partnership code flow<a class="headerlink" href="#talao-partnership-code-flow" title="Permalink to this headline">¶</a></h2>
-<p>Bilateral data exchange between company Identiy and Talent Identiy.
-Both parties can send and receive tamper proof data automatically. Human onboarding process is reduced to minimum.
-This flow is built above the Talao Partnership protocol. First time when redirected to the Talao login process.</p>
+<p>For your users, the OAuth 2.0 authentication experience includes a consent screen that describes through ‘scopes’ the information that the user is releasing.
+For example, when the user logs in, they might be asked to give your appication access to their email address, resume and basic account information.
+You request access to this information using the scope parameter, which your app includes in its authentication request.
+You can also use scopes to request access to other client credentials APIs. Scopes available are :</p>
 <ul class="simple">
-<li><p>Talent connects to the company website and is redirected to the Talao login view and follow a double factor login</p></li>
-<li><p>Talent requests a partnership to company</p></li>
-<li><p>Company check data. For instance company can look for a proof of identity issued by a white listed issuer or  ask  for a specif educational degree issued by a list of whitelisted univertiieis and accepts or rejects the request</p></li>
-<li><p>suite</p></li>
+<li><p>profile (sub, given_name, family_name, gender,…)</p></li>
+<li><p>birthdate</p></li>
+<li><p>email</p></li>
+<li><p>phone</p></li>
+<li><p>resume : JSON resume see <a class="reference external" href="https://jsonresume.org/">https://jsonresume.org/</a></p></li>
+<li><p>proof_of_identity : see further</p></li>
+<li><p>certification : Request authorization to issue certificates</p></li>
 </ul>
-<p>After initilization, standard authorization Code Flow can begin.</p>
+<p>To get a grant code for this flow, redirect your user to <a class="reference external" href="https://talao.co/api/v1/authorize">https://talao.co/api/v1/authorize</a> with a subset of your scope list .
+User will be asked to sign in with their Decentralized Identifier and to consent for your list of scopes.</p>
+<p>Example :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>https://talao.co/api/v1/authorize?response_type=code&amp;client_id=your_client_id&amp;scope=your_scopes
+</pre></div>
+</div>
+<p>With the grant code, connect to the token endpoint <a class="reference external" href="https://talao.co/api/v1/auth/token">https://talao.co/api/v1/auth/token</a> to get an access token. You will need your client_secret.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">u</span> <span class="n">your_client_id</span><span class="p">:</span><span class="n">your_secret_value</span> <span class="o">-</span><span class="n">XPOST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">oauth</span><span class="o">/</span><span class="n">token</span> <span class="o">-</span><span class="n">F</span> <span class="n">grant_type</span><span class="o">=</span><span class="n">client_credentials</span> <span class="o">-</span><span class="n">F</span> <span class="n">scope</span><span class="o">=</span><span class="n">your_scopes</span>
+</pre></div>
+</div>
+<p>With the access token you can get Talent data through the user_info endpoint <a class="reference external" href="https://talao.co/api/v1/user_info">https://talao.co/api/v1/user_info</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Authorization: Bearer your_access_token&quot;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">user_info</span>
+</pre></div>
+</div>
+<p>Return is JSON (example) :</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;sub&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;given_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Thierry&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;family_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Thevenet&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&quot;resume&quot;</span><span class="p">:</span> <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="oauth-2-0-client-credentials-flow">
 <h2>OAuth 2.0 Client Credentials Flow<a class="headerlink" href="#oauth-2-0-client-credentials-flow" title="Permalink to this headline">¶</a></h2>
 <p>For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
-Commonly referred to as “OAuth two-legged”, this flow allows your application to authorize with Talao’s API directly.
-Some actions do not involve user interaction but a prior agreement.</p>
-<p>Scopes available :…</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>resume ; to access to Talent data</p></li>
-<li><p>issuer : to issue certificates or send files</p></li>
-<li><p>creator : to create identity for others</p></li>
-<li><p>referent : to add referent</p></li>
-<li><p>partner : to request partnership</p></li>
-<li><p>recruter : to invit Talent</p></li>
+Commonly referred to as “OAuth two-legged”, this flow allows your application to call Talao’s APIs  :</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a> : to issue certificates depending on scopes (experience, skill, proof_of_identity, recommendation)</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a> : to create identity.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/refer">https://talao.co/api/v1/refer</a> : to add a referent.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/request_partner">https://talao.co/api/v1/request_partner</a> : to request a partnership.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/reject_partner">https://talao.co/api/v1/reject_partner</a> : to reject a partnership.</p></li>
 </ul>
-</div></blockquote>
-</div>
-<div class="section" id="generating-an-access-token">
-<h2>Generating an Access Token<a class="headerlink" href="#generating-an-access-token" title="Permalink to this headline">¶</a></h2>
-<p>Once you have copy your client_id and client_secret values from the <a class="reference external" href="https://talao.co">https://talao.co</a> website, you are ready to proceed.</p>
-<div class="section" id="authorization-code">
-<h3>Authorization Code<a class="headerlink" href="#authorization-code" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="client-credentials">
-<h3>Client Credentials<a class="headerlink" href="#client-credentials" title="Permalink to this headline">¶</a></h3>
-<p>Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the endpoint with both your client_id and client_secret set appropriately.</p>
-<p>To get the token :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">u</span> <span class="n">your_client_ID</span><span class="p">:</span><span class="n">your_secret_value</span> <span class="o">-</span><span class="n">XPOST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">oauth</span><span class="o">/</span><span class="n">token</span> <span class="o">-</span><span class="n">F</span> <span class="n">grant_type</span><span class="o">=</span><span class="n">client_credentials</span> <span class="o">-</span><span class="n">F</span> <span class="n">scope</span><span class="o">=</span><span class="n">identity</span>
+<p>Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the access token :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience+skill
 </pre></div>
 </div>
-<p>To get an access to an endpoint</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Authorization: Bearer your_token&quot;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">endpoint</span> <span class="o">-</span><span class="n">d</span>  <span class="n">firstname</span><span class="o">=</span><span class="n">Pierre</span> <span class="o">-</span><span class="n">d</span> <span class="n">lastname</span><span class="o">=</span><span class="n">Dupont</span>
+<p>To call an endpoint :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -H &quot;Authorization: Bearer your_access_token&quot; https://talao.co/api/v1/endpoint   your_data
 </pre></div>
 </div>
-</div>
-<div class="section" id="endpoint">
-<h3>Endpoint<a class="headerlink" href="#endpoint" title="Permalink to this headline">¶</a></h3>
-<p>/create_identity</p>
-</div>
-<div class="section" id="public-request">
-<h3>Public Request<a class="headerlink" href="#public-request" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="header">
-<h3>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Content-Type: application/json&quot;</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="payload">
-<h3>Payload<a class="headerlink" href="#payload" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul>
-<li><p>user</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>a username or a Decentalized IDentifiant</p></li>
+<p>For test, get an access token with those credentials :</p>
+<ul class="simple">
+<li><p>client_id: vJENicdQO38y1pcVRQREeuoy</p></li>
+<li><p>client_secret: oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5</p></li>
 </ul>
-</div></blockquote>
-</li>
-<li><p>topicname</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>for a person : firstname, lastname, contact_email, contact_phone, birthdate, postal_address (self declared)</p></li>
-<li><p>for a company : name, contact_name, contact_phone, contact_email, website (self declared)</p></li>
-<li><p>resume : full resume of a user</p></li>
-<li><p>analysis : resume data analysis</p></li>
-<li><p>kyc or kbis (issued by third parties)</p></li>
-<li><p>experience : list of all experiences (self declaration)</p></li>
-<li><p>certificate : list of all certificates issued by third paries</p></li>
-<li><p>education : list of diplomas (self declaration)</p></li>
-<li><p>search : (to be completed)</p></li>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>$ curl -u vJENicdQO38y1pcVRQREeuoy:oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5 -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience
+</pre></div>
+</div>
+<p>Your access token is live for 3000 seconds.</p>
+<div class="section" id="https-talao-co-api-v1-create">
+<h3><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a><a class="headerlink" href="#https-talao-co-api-v1-create" title="Permalink to this headline">¶</a></h3>
+<p>Create an Identity for others. You company is apointed as a referent. Identity credentials are sent by email to Talent.
+Example :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -X POST https://talao.co/api/v1/create  \
+ -H &quot;Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9&quot; \
+ -H &quot;Content-Type: application/json&quot; \
+ -d &#39;{&quot;firstname&quot;:&quot;jean&quot;, &quot;lastname&quot;:&quot;pascalet&quot;, &quot;email&quot;:&quot;jean.pascalet@talao.io&quot;}&#39;
+</pre></div>
+</div>
+<p>Response</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>{
+  &quot;status&quot; : &quot;900&quot;,
+  &quot;did&quot;: &quot;did:talao:talaonet:__TEST__&quot;,
+  &quot;username&quot; : &quot;jeanpascalet&quot;,
+  &quot;firstname&quot;: &quot;jean&quot;,
+  &quot;lastname&quot;: &quot;pascalet&quot;,
+  &quot;email&quot;: &quot;jean.pascalet@talao.io&quot;}
+}
+</pre></div>
+</div>
+<p>with status :</p>
+<ul class="simple">
+<li><p>900 : Ok</p></li>
+<li><p>910 : Failed, client has no identity</p></li>
+<li><p>920 : Failed, creation identity (Ethereum transaction failed)</p></li>
+<li><p>930 : Failed, incorrect request (data missing)</p></li>
 </ul>
-</div></blockquote>
-</li>
-<li><p>option (optional)</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>to be completed</p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -GET https://talao.co/api/v1/talent-connect/ \
--H &quot;Content-Type: application/json&quot; \
--d user=jean.pascalet \
--d topicname=experience
+<p>Try for test with your access token :</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>$ curl -X POST https://talao.co/api/v1/create  -H &quot;Authorization: Bearer your_acces_token&quot; -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;firstname&quot;:&quot;jean&quot;, &quot;lastname&quot;:&quot;pascalet&quot;, &quot;email&quot;:&quot;jean.pascalet@talao.io&quot;}&#39;
 </pre></div>
 </div>
 </div>
-<div class="section" id="response">
-<h3>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
-<span class="p">{</span>
-  <span class="nt">&quot;topic&quot;</span><span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-25 10:07:22&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:D6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0x49dc98ad487a33a4e066e8e05758870e7972466c5e74c261ea5b4ebe091003de&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-  <span class="nt">&quot;doctypeversion&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-  <span class="nt">&quot;ipfshash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmThxo5shaJSDCYZprXzwknqgCoPja5rUW3528qNFHCKft&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gateway.ipfs.io/ipfs/QmThxo5shaJSDCYZprXzwknqgCoPja5rUW3528qNFHCKft&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;expires&quot;</span><span class="p">:</span> <span class="s2">&quot;Unlimited&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
-  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:23&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;CTO&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;En charge du projet Blockchain&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-05-01&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;company&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;basil@bnp.com&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;0607182594&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BNP&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="kc">null</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;certificate_link&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-  <span class="nt">&quot;skills&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="s2">&quot;Java&quot;</span>
-  <span class="p">]</span>
-<span class="p">},</span>
-<span class="p">{</span>
-  <span class="nt">&quot;topic&quot;</span><span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-06-06 18:54:35&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;issuer&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x18bD40F878927E74a807969Af2e3045170669c71&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xD6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">2001</span><span class="p">,</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:D6679Be1FeDD66e9313b9358D89E521325e37683&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relay&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;website&quot;</span><span class="p">:</span> <span class="kc">null</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;transaction_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;0xb3c181a2490ebf9a18e875cbb47e14041c5f7a34854cd8e9ca9f2016d092696c&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;transaction_fee&quot;</span><span class="p">:</span> <span class="mi">2000000000000</span><span class="p">,</span>
-  <span class="nt">&quot;doctypeversion&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-  <span class="nt">&quot;ipfshash&quot;</span><span class="p">:</span> <span class="s2">&quot;QmdWCKBVybPRQvWmY7hAbkRHFRXvvPPqKAi8ieZBm2WtEd&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;data_location&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gateway.ipfs.io/ipfs/QmdWCKBVybPRQvWmY7hAbkRHFRXvvPPqKAi8ieZBm2WtEd&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;expires&quot;</span><span class="p">:</span> <span class="s2">&quot;Unlimited&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;privacy&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;doc_id&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
-  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:36&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;0x048D19e72030a9D7a949517D5a9E3844b4533fc2&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;workspace_contract&quot;</span><span class="p">:</span> <span class="s2">&quot;0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;category&quot;</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;CTO&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;We are working to deliver software solutions and consulting services to businesses worldwide, and help our clients to create innovative and technological products in various areas.\r\n\r\nInnowise Group team is divided into several departments and structural units responsible for certain areas of company\u2019s activities.\r\nSeamless collaboration between all of them on a daily basis helps us achieve short term objectives and strategic goals.&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-11-01&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-07-01&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;company&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;pierre@bnp.com&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;contact_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Pierre&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;contact_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;01 607182594&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Covea&quot;</span>
-  <span class="p">},</span>
-  <span class="nt">&quot;certificate_link&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;skills&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="s2">&quot;Business&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Management,&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;consulting&quot;</span>
-  <span class="p">]</span>
-<span class="p">}</span>
-<span class="p">]</span>
-</pre></div>
+<div class="section" id="https-talao-co-api-v1-issue">
+<h3><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a><a class="headerlink" href="#https-talao-co-api-v1-issue" title="Permalink to this headline">¶</a></h3>
+<p>to be done</p>
 </div>
-</div>
-</div>
-<div class="section" id="exchange-data-with-user">
-<h2>Exchange data with User<a class="headerlink" href="#exchange-data-with-user" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="general-request">
-<h3>General Request<a class="headerlink" href="#general-request" title="Permalink to this headline">¶</a></h3>
-<p>Authenticating using a login and secret through HTTP Basic Authentication.
-Check your your API credentials.</p>
-<p>Access can be also secured through a specific White List to limit the client domains.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">POST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="id1">
-<h3>Header<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Content-Type: application/json&quot;</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="authentification">
-<h3>Authentification<a class="headerlink" href="#authentification" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">login</span><span class="p">:</span><span class="n">secret</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="id2">
-<h3>Payload<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;action&quot;</span> <span class="p">:</span> <span class="n">xxxx</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span> <span class="p">:</span> <span class="n">xxxxx</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>action :</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>call_back : send an email</p></li>
-<li><p>to be completed</p></li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">talent</span><span class="o">-</span><span class="n">connect</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span>  \
-<span class="o">-</span><span class="n">u</span> <span class="mh">0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4</span><span class="p">:</span><span class="mi">3042</span><span class="n">d4704a513b3ffb4a2adb78e73446</span>   \
-<span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;action&quot; : &quot;call_back&quot;}&#39;</span> \
-<span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Content-Type: application/json&quot;</span>
-</pre></div>
-</div>
+<div class="section" id="https-talao-co-api-v1-partner">
+<h3><a class="reference external" href="https://talao.co/api/v1/partner">https://talao.co/api/v1/partner</a><a class="headerlink" href="#https-talao-co-api-v1-partner" title="Permalink to this headline">¶</a></h3>
+<p>to be done</p>
 </div>
 </div>
 </div>

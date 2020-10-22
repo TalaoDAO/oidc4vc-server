@@ -2,295 +2,155 @@
 Talent Connect API
 ==================
 
-Talent Connect is a set of APIs to exchange public and private data between Professional Identities (Talent or Company).
-For companies it is an easy way to get reliable data about Talents and it is a powerfull and secure tool for automatic onbarding.
+Talent Connect APIs can be used for authentication, authorization and claims issuance.
+For companies it is an easy way to get reliable data about Talents and a powerfull and secure tool for onbarding while keeping user's data safe.
 
-Those API do not provide account management (update logo, signature, set company details, add managers, change password, ...)
+Those API do not provide account setup (company details, signature, logo ...) which are available through the web platform https://talao.co .
 
 Standard use cases for APIs are :
 
-* Talent registers to a Company recrutment website with his Talao Identity to give an access to his public JSON resume (https://jsonresume.org/).
-* Talent registers to a Company to exchange data (resume, passport, diplomas,...) receive claims (experience certificates, skill certificates, ...) and store documents (payslip,...). 
+* Issue certificates to Talents.
+* Setup a Talent onboarding process with a reliable source of data.
+* Outsource Talent data.
+* Strenghen an employer brand with latest technology features (Blockchain Resume,...).
 
-We use OAuth2 Autorization Code flow and Client Credenetials flow to manage those cases.
-
-Contact us to have your application granted permission to use those flows.
+We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
+Contact us relay-support@talao.io to open your Company Identity and receive your application granted permissions to use those APIs
 
 OAuth 2.0 Authorization Code flow
 ----------------------------------
 
-Used to get an access to Talent personal data with his agreement (Profile, JSON Resume). Basically same as openid with much more data and verifiable claims.
+For your users, the OAuth 2.0 authentication experience includes a consent screen that describes through 'scopes' the information that the user is releasing.
+For example, when the user logs in, they might be asked to give your appication access to their email address, resume and basic account information.
+You request access to this information using the scope parameter, which your app includes in its authentication request.
+You can also use scopes to request access to other client credentials APIs. Scopes available are :
 
-OAuth 2.0 Authorization Code Extended flow
-------------------------------------------
+* profile (sub, given_name, family_name, gender,...)
+* birthdate
+* email
+* phone
+* resume : JSON resume see https://jsonresume.org/
+* proof_of_identity : see further
+* certification : Request authorization to issue certificates
 
-Same as previous but Talent add the company as a referent.
+To get a grant code for this flow, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
+User will be asked to sign in with their Decentralized Identifier and to consent for your list of scopes.
 
-Talao Partnership code flow
----------------------------
+Example :
 
-Bilateral data exchange between company Identiy and Talent Identiy.
-Both parties can send and receive tamper proof data automatically. Human onboarding process is reduced to minimum.
-This flow is built above the Talao Partnership protocol. First time when redirected to the Talao login process.
+.. code::
 
+   https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes
 
-* Talent connects to the company website and is redirected to the Talao login view and follow a double factor login
-* Talent requests a partnership to company
-* Company check data. For instance company can look for a proof of identity issued by a white listed issuer or  ask  for a specif educational degree issued by a list of whitelisted univertiieis and accepts or rejects the request
-* suite
+With the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an access token. You will need your client_secret.
 
-After initilization, standard authorization Code Flow can begin.
+.. code::
+
+   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=your_scopes
+
+With the access token you can get Talent data through the user_info endpoint https://talao.co/api/v1/user_info.
+
+.. code::
+
+   curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/user_info
+
+Return is JSON (example) :
+
+.. code-block:: JSON
+
+  {
+    "sub": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB",
+    "given_name": "Thierry",
+    "family_name": "Thevenet",
+    "gender": null,
+    "email": "thierry.thevenet@talao.io",
+    "phone": null,
+    "resume": {}
+  }
 
 
 OAuth 2.0 Client Credentials Flow
 ---------------------------------
 
 For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
-Commonly referred to as "OAuth two-legged", this flow allows your application to authorize with Talao's API directly.
-Some actions do not involve user interaction but a prior agreement.
+Commonly referred to as "OAuth two-legged", this flow allows your application to call Talao's APIs  :
 
-Scopes available :... 
-
-   - resume ; to access to Talent data
-   - issuer : to issue certificates or send files
-   - creator : to create identity for others
-   - referent : to add referent
-   - partner : to request partnership
-   - recruter : to invit Talent
-
-Generating an Access Token
----------------------------
-
-Once you have copy your client_id and client_secret values from the https://talao.co website, you are ready to proceed.
-
-Authorization Code
-******************
+*   https://talao.co/api/v1/issue : to issue certificates depending on scopes (experience, skill, proof_of_identity, recommendation)
+*   https://talao.co/api/v1/create : to create identity.
+*   https://talao.co/api/v1/refer : to add a referent.
+*   https://talao.co/api/v1/request_partner : to request a partnership.
+*   https://talao.co/api/v1/reject_partner : to reject a partnership.
 
 
-Client Credentials
-******************
-
-Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the endpoint with both your client_id and client_secret set appropriately.
-
-To get the token :
+Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the access token :
 
 .. code::
 
-   curl -u your_client_ID:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=identity
+  $ curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience+skill
 
-To get an access to an endpoint
+To call an endpoint :
 
 .. code::
 
-   curl -H "Authorization: Bearer your_token" https://talao.co/api/v1/endpoint -d  firstname=Pierre -d lastname=Dupont
+  $ curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/endpoint   your_data
 
+For test, get an access token with those credentials :
 
-Endpoint
-********
-
-/create_identity
-
-Public Request
-***************
-
-.. code:: 
-
-  GET https://talao.co/api/v1/talent-connect/
-
-Header
-******
-
-.. code:: 
-  
-  "Content-Type: application/json" 
-
-Payload
-*******
-
-  
-   * user 
-   
-      * a username or a Decentalized IDentifiant
-
-   * topicname
-
-      * for a person : firstname, lastname, contact_email, contact_phone, birthdate, postal_address (self declared)
-      * for a company : name, contact_name, contact_phone, contact_email, website (self declared)
-      * resume : full resume of a user
-      * analysis : resume data analysis
-      * kyc or kbis (issued by third parties)
-      * experience : list of all experiences (self declaration)
-      * certificate : list of all certificates issued by third paries
-      * education : list of diplomas (self declaration)
-      * search : (to be completed)
-    
-   * option (optional)
-
-      * to be completed
-
-Example
-********
-
-.. code:: 
-   
-   $ curl -GET https://talao.co/api/v1/talent-connect/ \
-   -H "Content-Type: application/json" \
-   -d user=jean.pascalet \
-   -d topicname=experience 
-   
-   
-Response
-********
+* client_id: vJENicdQO38y1pcVRQREeuoy
+* client_secret: oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5
 
 .. code-block:: JSON
 
-  [
+  $ curl -u vJENicdQO38y1pcVRQREeuoy:oMwwlIQRjz751loQHesGWIFmH6iVt7XmO0s1W3Vax1pdMUG5 -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=experience
+
+Your access token is live for 3000 seconds.
+
+https://talao.co/api/v1/create
+*******************************
+
+Create an Identity for others. You company is apointed as a referent. Identity credentials are sent by email to Talent.
+Example :
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/create  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
+
+Response
+
+.. code-block:: JSON
+
   {
-    "topic": "experience",
-    "created": "2020-05-25 10:07:22",
-    "issuer": {
-      "address": "0x18bD40F878927E74a807969Af2e3045170669c71",
-      "workspace_contract": "0xD6679Be1FeDD66e9313b9358D89E521325e37683",
-      "category": 2001,
-      "id": "did:talao:rinkeby:D6679Be1FeDD66e9313b9358D89E521325e37683",
-      "name": "Relay",
-      "contact_name": null,
-      "contact_email": null,
-      "contact_phone": null,
-      "website": null
-    },
-    "transaction_hash": "0x49dc98ad487a33a4e066e8e05758870e7972466c5e74c261ea5b4ebe091003de",
-    "transaction_fee": 2000000000000,
-    "doctypeversion": 2,
-    "ipfshash": "QmThxo5shaJSDCYZprXzwknqgCoPja5rUW3528qNFHCKft",
-    "data_location": "https://gateway.ipfs.io/ipfs/QmThxo5shaJSDCYZprXzwknqgCoPja5rUW3528qNFHCKft",
-    "expires": "Unlimited",
-    "privacy": "public",
-    "doc_id": 23,
-    "id": "did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:23",
-    "identity": {
-      "address": "0x048D19e72030a9D7a949517D5a9E3844b4533fc2",
-      "workspace_contract": "0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF",
-      "category": 1001,
-      "id": "did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF"
-    },
-    "title": "CTO",
-    "description": "En charge du projet Blockchain",
-    "end_date": "2020-05-01",
-    "start_date": "2020-01-01",
-    "company": {
-      "address": null,
-      "contact_email": "basil@bnp.com",
-      "contact_name": "",
-      "contact_phone": "0607182594",
-      "name": "BNP",
-      "website": null,
-      "workspace_contract": null
-    },
-    "certificate_link": null,
-    "skills": [
-      "Java"
-    ]
-  },
-  {
-    "topic": "experience",
-    "created": "2020-06-06 18:54:35",
-    "issuer": {
-      "address": "0x18bD40F878927E74a807969Af2e3045170669c71",
-      "workspace_contract": "0xD6679Be1FeDD66e9313b9358D89E521325e37683",
-      "category": 2001,
-      "id": "did:talao:rinkeby:D6679Be1FeDD66e9313b9358D89E521325e37683",
-      "name": "Relay",
-      "contact_name": null,
-      "contact_email": null,
-      "contact_phone": null,
-      "website": null
-    },
-    "transaction_hash": "0xb3c181a2490ebf9a18e875cbb47e14041c5f7a34854cd8e9ca9f2016d092696c",
-    "transaction_fee": 2000000000000,
-    "doctypeversion": 2,
-    "ipfshash": "QmdWCKBVybPRQvWmY7hAbkRHFRXvvPPqKAi8ieZBm2WtEd",
-    "data_location": "https://gateway.ipfs.io/ipfs/QmdWCKBVybPRQvWmY7hAbkRHFRXvvPPqKAi8ieZBm2WtEd",
-    "expires": "Unlimited",
-    "privacy": "public",
-    "doc_id": 36,
-    "id": "did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF:document:36",
-    "identity": {
-      "address": "0x048D19e72030a9D7a949517D5a9E3844b4533fc2",
-      "workspace_contract": "0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF",
-      "category": 1001,
-      "id": "did:talao:rinkeby:Ec0Cf3FA4158D8dd098051cfb14af7b4812d51aF"
-    },
-    "title": "CTO",
-    "description": "We are working to deliver software solutions and consulting services to businesses worldwide, and help our clients to create innovative and technological products in various areas.\r\n\r\nInnowise Group team is divided into several departments and structural units responsible for certain areas of company\u2019s activities.\r\nSeamless collaboration between all of them on a daily basis helps us achieve short term objectives and strategic goals.",
-    "end_date": "2019-11-01",
-    "start_date": "2019-07-01",
-    "company": {
-      "contact_email": "pierre@bnp.com",
-      "contact_name": "Pierre",
-      "contact_phone": "01 607182594",
-      "name": "Covea"
-    },
-    "certificate_link": "",
-    "skills": [
-      "Business",
-      "Management,",
-      "consulting"
-    ]
+    "status" : "900",
+    "did": "did:talao:talaonet:__TEST__",
+    "username" : "jeanpascalet",
+    "firstname": "jean",
+    "lastname": "pascalet",
+    "email": "jean.pascalet@talao.io"}
   }
-  ]
-   
- 
 
-Exchange data with User
-------------------------
+with status :
 
-General Request
-***************
+* 900 : Ok
+* 910 : Failed, client has no identity
+* 920 : Failed, creation identity (Ethereum transaction failed)
+* 930 : Failed, incorrect request (data missing)
 
-Authenticating using a login and secret through HTTP Basic Authentication.
-Check your your API credentials.
+Try for test with your access token :
 
-Access can be also secured through a specific White List to limit the client domains.  
+.. code-block:: JSON
+
+  $ curl -X POST https://talao.co/api/v1/create  -H "Authorization: Bearer your_acces_token" -H "Content-Type: application/json" -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
 
 
-.. code:: 
+https://talao.co/api/v1/issue
+******************************
 
-  POST https://talao.co/api/v1/talent-connect/auth/
+to be done
 
-Header
-******
+https://talao.co/api/v1/partner
+********************************
 
-.. code:: 
-  
-  "Content-Type: application/json" 
-  
-Authentification
-*****************  
-
-.. code:: 
-  
-  login:secret
-
-Payload
-*******
-
-.. code:: 
-  
-   {"action" : xxxx, "user" : xxxxx} 
-	
-action :
-
-  * call_back : send an email
-  * to be completed
-
-Example
-*******
-
-.. code:: 
-
-   curl -X POST https://talao.co/talent-connect/auth/  \
-   -u 0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4:3042d4704a513b3ffb4a2adb78e73446   \ 
-   -d '{"action" : "call_back"}' \
-   -H "Content-Type: application/json" 
- 
+to be done
