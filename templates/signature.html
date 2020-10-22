@@ -52,7 +52,7 @@
                             </div>
                             <div class="card-body text-center shadow">
 
-                                <form action="/user/signature/" method="POST" enctype="multipart/form-data">
+                                <form name="form" action="/user/signature/" method="POST" enctype="multipart/form-data">
                                   <div class="mb-3">
 									  <img  id ="output" height="150" width="150" src="{{ url_for('send_file', filename=signaturefile) }}"></div>
 
