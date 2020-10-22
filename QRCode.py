@@ -31,4 +31,4 @@ def get_QRCode(mode, link):
     Blend = Image.blend(QRCode_generated,logo,0.5)
     enhancer = ImageEnhance.Contrast(Blend)
     Blend_Enhanced = enhancer.enhance(3)
-    Blend_Enhanced.save(mode.uploads_path  + 'QRCode_with_Logo.png')
+    Blend_Enhanced.save(mode.uploads_path  + 'External_CV_QRCode.png')

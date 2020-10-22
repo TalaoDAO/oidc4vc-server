@@ -1584,7 +1584,7 @@ def download_rsa_key():
 @app.route('/user/download_QRCode/', methods=['GET', 'POST'])
 def download_QRCode():
     QRCode.get_QRCode(mode,  mode.server + "resume/?workspace_contract=" + session['workspace_contract'])
-    filename = 'QRCode_with_Logo.png'
+    filename = 'External_CV_QRCode.png'
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
