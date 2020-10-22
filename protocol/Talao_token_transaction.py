@@ -553,7 +553,7 @@ def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfsh
 	return hash1
 
 """
-
+"""
 ##############################################
 # determination de la nature de l addresse
 ##############################################
@@ -595,24 +595,5 @@ def whatisthisaddress(thisaddress,mode) :
 			workspace = None
 
 	return {"type" : category, "owner" : owner, 'workspace' : workspace}
-
-
-"""
-
-##############################################
-# detrmination de la validité d'un did
-##############################################
-# did
-# return bool
-
-def isdid(did,mode) :
-	didsplit=did.split(':')
-	if len(didsplit) != 4 :
-		return False
-	if didsplit[0] != 'did' or didsplit[1] != 'talao' or didsplit[2] != mode.BLOCKCHAIN :
-		return False
-	if whatisthisaddress('0x'+didsplit[3], mode)["type"] != "workspace" :
-		return False
-	return True
 
 """

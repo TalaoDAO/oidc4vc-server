@@ -23,14 +23,21 @@ OAuth 2.0 Authorization Code flow
 For your users, the OAuth 2.0 authentication experience includes a consent screen that describes through 'scopes' the information that the user is releasing.
 For example, when the user logs in, they might be asked to give your appication access to their email address, resume and basic account information.
 You request access to this information using the scope parameter, which your app includes in its authentication request.
-You can also use scopes to request access to other client credentials APIs. Scopes available are :
+
+If no scope is provided, the flow is only used for authentification.
+
+Scopes for data access are :
 
 * profile (sub, given_name, family_name, gender,...)
 * birthdate
 * email
 * phone
 * resume : JSON resume see https://jsonresume.org/
-* proof_of_identity : see further
+* proof_of_identity
+
+Those two other scopes allow special features through other client credentials flow and specific endpoints :
+
+* private : Request authorization to access private data (partnership)
 * certification : Request authorization to issue certificates
 
 To get a grant code for this flow, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
@@ -108,7 +115,9 @@ Your access token is live for 3000 seconds.
 https://talao.co/api/v1/create
 *******************************
 
-Create an Identity for others. You company is apointed as a referent. Identity credentials are sent by email to Talent.
+Create an Identity for others. You company is appointed as a referent to issue certificates.
+Identity credentials are sent by email to Talent.
+
 Example :
 
 .. code::
@@ -150,7 +159,13 @@ https://talao.co/api/v1/issue
 
 to be done
 
-https://talao.co/api/v1/partner
-********************************
+https://talao.co/api/v1/request_partner
+***************************************
+
+to be done
+
+
+https://talao.co/api/v1/reject_partner
+***************************************
 
 to be done

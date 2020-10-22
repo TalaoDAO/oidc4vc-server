@@ -1,10 +1,11 @@
-
+import csv
 from datetime import datetime
 import sqlite3
-import constante
-import csv
 
-	
+import constante
+
+
+
 def init_private_key_db(mode):
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'private_key.db')
@@ -26,8 +27,8 @@ def setup(mode) :
 		print(data)
 		add_identity(data, mode)
 	identity_file.close()
-	return			
-	
+	return
+
 
 def add_identity(data, mode) :
 	#data = {  'username' : username, 'address' : address, 'created' : str(datetime.today()), 'private_key' : private_key, 'workspace_contract' : workspace_contract, 'email' : email, 'secret' : secret, 'aes' : aes} 
@@ -42,11 +43,9 @@ def add_identity(data, mode) :
 	conn.commit()
 	conn.close()
 	return True
-	
-	
-def get_key(address,key_type, mode) :	
-	path = mode.db_path
 
+def get_key(address,key_type, mode) :
+	path = mode.db_path
 	try :
 		conn = sqlite3.connect(path + 'private_key.db')
 	except :
@@ -59,17 +58,27 @@ def get_key(address,key_type, mode) :
 		c.execute("SELECT aes FROM key WHERE address = :address " , data)
 	elif key_type == 'secret' :
 		c.execute("SELECT secret FROM key WHERE address = :address " , data)
+	elif key_type == 'rsa_key' :
+		filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+		try :
+			fp = open(filename,"r")
+			rsa_key = fp.read()
+			fp.close()
+			return rsa_key
+		except IOError :
+			print('RSA key not found')
+			return None
 	else :
 		print('erreur de key')
-		return None	
+		return None
 	select=c.fetchone()
 	conn.commit()
 	conn.close()
 	if select is None :
 		return None
-	return select[0]	
+	return select[0]
 
-def get_email(address, mode) :	
+def get_email(address, mode) :
 	path = mode.db_path
 
 	try :
@@ -84,7 +93,7 @@ def get_email(address, mode) :
 	conn.close()
 	if select is None :
 		return None
-	return select[0]	
+	return select[0]
 
 
 """
