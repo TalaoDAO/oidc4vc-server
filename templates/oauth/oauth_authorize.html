@@ -34,9 +34,9 @@
                                 </div>
                                 <div class="card-body text-center shadow">
                                     <form action="" method="POST">
-                                        <p>The company <b>{{grant.client.client_name}}</b> requests to access your data.<br>
-                                            Reject or accept the request.<br><br>
-                                            If you accept their request, select data to transfer.</p>
+                                        <p>Authorize <b>{{grant.client.client_name}}</b> to access your Decentralized Identity.
+                                            <br><br>
+                                            If you accept the request, you can restrict data access and permitted actions.</p>
                                         <div class="form-group">
                                             <div class="form-inline custom-control-inline">
                                                 <div class="form-check"><input class="form-check-input" {{profile_check}} type="checkbox" name="profile" ><label class="form-check-label" >Profile</label></div>
@@ -59,8 +59,7 @@
                                         <div class="form-group">
                                             <div class="form-inline custom-control-inline">
                                             <div class="form-check"><input class="form-check-input" {{certificate_check}} type="checkbox" name="certificate" ><label class="form-check-label" >Appoint company as a referent</label></div>
-                                        </div>
-                                        <br><br>
+                                        </div><br><br>
                                         <div class="form-row">
                                             <div class="col-6 col-xl-3">
                                                 <div class="form-group"><button id="in_progress_button" title="" class="btn btn-primary btn-sm" type="submit">Accept</button></div>

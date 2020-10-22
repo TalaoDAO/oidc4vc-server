@@ -34,13 +34,14 @@ from authlib.oauth2 import OAuth2Error, OAuth2Request
 from models import db, User, OAuth2Client
 from oauth2 import authorization, require_oauth
 import json
+from urllib.parse import urlencode, parse_qs, urlparse
+
 import ns
 import environment
 import constante
-from protocol import read_profil, Identity, Talao_token_transaction
-from urllib.parse import urlencode, parse_qs, urlparse
+from protocol import read_profil, Identity, Talao_token_transaction, add_key, partnershiprequest, authorize_partnership
 import createidentity
-
+import privatekey
 
 
 
@@ -167,15 +168,14 @@ def revoke_token():
 def issue_token():
     print('request reçue dans /token = ', request.__dict__)
     response = authorization.create_token_response()
-    print(response)
     return response
 
 
 
 
 # AUTHORIZATION CODE endpoint
-#@bp.route('/api/v1/authorize', methods=['GET', 'POST'])
-def authorize():
+#@route('/api/v1/authorize', methods=['GET', 'POST'])
+def authorize(mode):
     user = current_user()
     # if user log status is not true (Auth server), then to log it in
     if not user:
@@ -185,9 +185,8 @@ def authorize():
             grant = authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:
             return error.error
-        #return render_template('/oauth/authorize.html', user=user, grant=grant)
         profile_check = "checked" if "profile" in grant.request.scope else  "disabled"
-        resume_check = "checked" if "profile" in grant.request.scope else "disabled"
+        resume_check = "checked" if "resume" in grant.request.scope else "disabled"
         proof_of_identity_check = "checked" if "proof_of_identity" in grant.request.scope else "disabled"
         email_check = "checked" if "email" in grant.request.scope else "disabled"
         phone_check = "checked" if "phone" in grant.request.scope else "disabled"
@@ -209,43 +208,47 @@ def authorize():
         return authorization.create_authorization_response(grant_user=grant_user)
     # obtain query string as dictionary
     query_dict = parse_qs(request.query_string.decode("utf-8"))
+
     # customize scope for this request
     my_scope = ""
     for scope in ["profile", "email", "phone", "resume", "proof_of_identity"] :
         if request.form.get(scope) == "on" :
             my_scope = my_scope + scope + " "
     query_dict["scope"] = my_scope
-    # We here setup a custom Oauth2Request as we have change the scope in the query_dict
+
+    # We here setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
     return authorization.create_authorization_response(grant_user=user, request=req)
 
 
 #  User Info Endpoint
 #route('/api/v1/user_info')
-@require_oauth('profile')
+@require_oauth(None)
 def user_info(mode):
-    #client_id = current_token.client_id
-    #client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
+    client_id = current_token.client_id
+    client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
+    client_metadata = json.loads(client['_client_metadata'])
+    client_username = client_metadata['client_name']
+    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
+    client_address = Talao_token_transaction.contractsToOwners(client_workspace_contract, mode)
     user_id = current_token.user_id
     user = User.query.get(user_id)
-    #print ('client  metadata = ', client['_client_metadata'])
-    #json_data = request.__dict__.get('data').decode("utf-8")
-    #dict_data = json.loads(json_data)
-    #print('data recu dans routes.py = ', json_data)
-    username = user.username
-    if username is None :
-        workspace_contract = None
+    user_username = user.username
+    if user_username is None :
+        #workspace_contract = None
         print('something is wrong in userinfo')
         content=json.dumps({"msg" : "invalid username"}) # content est un json
         response = Response(content, status=401, mimetype='application/json')
         return response
-    workspace_contract = ns.get_data_from_username(username, mode)['workspace_contract']
+    user_workspace_contract = ns.get_data_from_username(user_username, mode).get('workspace_contract')
+    user_address = Talao_token_transaction.contractsToOwners(client_workspace_contract, mode)
     user_info = dict()
-    profile = read_profil(workspace_contract, mode, 'full')[0]
-    user_info['sub'] = 'did:talao:' + mode.BLOCKCHAIN +':' + workspace_contract[2:]
-    user_info['given_name'] = profile.get('firstname')
-    user_info['family_name'] = profile.get('lastname')
-    user_info['gender'] = profile.get('gender')
+    profile = read_profil(user_workspace_contract, mode, 'full')[0]
+    user_info['sub'] = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
+    if 'profile' in current_token.scope :
+        user_info['given_name'] = profile.get('firstname')
+        user_info['family_name'] = profile.get('lastname')
+        user_info['gender'] = profile.get('gender')
     if 'email' in current_token.scope :
         user_info['email']= profile.get('contact_email') if profile.get('contact_email') != 'private' else None
     if 'phone' in current_token.scope :
@@ -253,11 +256,11 @@ def user_info(mode):
     if 'birthdate' in current_token.scope :
         user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
     if 'certificate' in current_token.scope :
-        user_info['certificate'] = True
-        # issue a 20002 key
+        # identity issues a 20002 key paid by relay
+        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+        user_info['certificate'] = add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
     if 'resume' in current_token.scope :
-        user = Identity(workspace_contract, mode)
-        user_dict = user.__dict__
+        user_dict = Identity(user_workspace_contract, mode).__dict__
         del user_dict['mode']
         del user_dict['partners']
         user_info['resume'] = user_dict 
@@ -269,6 +272,7 @@ def user_info(mode):
 
 # Client credential endpoint
 
+# create an identity with a key2002 key if creator has its own identity
 #@route('/api/v1/create')
 @require_oauth(None)
 def oauth_create(mode):
@@ -309,6 +313,32 @@ def oauth_create(mode):
     return response
 
 
+# request partnership
+#@route('/api/v1/request_partnership')
+@require_oauth('request_partnership')
+def oauth_request_partnership(mode):
+    client_id = current_token.client_id
+    client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
+    client_metadata = json.loads(client['_client_metadata'])
+    client_username = client_metadata['client_name']
+    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
+    client_address = ns.get_data_from_username(client_username, mode).get('address')
+    relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+    client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
+    print('user workspace contract = ', user_workspace_contract)
+    print(' client workspace contract = ', client_workspace_contract)
+    print('client address =', client_address)
+    print('client rsa key = ', client_rsa_key)
+    json_data = request.__dict__.get('data').decode("utf-8")
+    data = json.loads(json_data)
+    user_workspace_contract = ns.get_data_from_username(data['username'], mode).get('workspace_contract')
+    if not partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode) :
+        response_dict = {'status' : '920','msg' : 'Failed to request parnership, contact Talao support '}
+    else :
+        response_dict = {'status' : '900','did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:], **data}
+    content = json.dumps(response_dict)
+    response = Response(content, status=200, mimetype='application/json')
+    return response
 
 
 """ exempled d'un client python

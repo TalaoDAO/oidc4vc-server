@@ -152,12 +152,13 @@ app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
 app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
 app.add_url_rule('/api/v1/create_client', view_func=web_oauth.create_client, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'])
+app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/oauth/token', view_func=web_oauth.issue_token, methods = ['POST'])
 app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, methods = ['GET', 'POST'])
 
 app.add_url_rule('/api/v1/create', view_func=web_oauth.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 
 
@@ -228,7 +229,6 @@ def picture() :
 	if request.method == 'POST' :
 		myfile = request.files['image']
 		filename = secure_filename(myfile.filename)
-		print(filename.rsplit(".", 1))
 		if len(filename.rsplit(".", 1)) == 1 or filename.rsplit(".", 1)[1].lower() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
 			flash('Only "JPEG", "JPG", "PNG", "GIF" files accepted', 'warning')
 			return redirect(mode.server + 'user/picture/')
@@ -753,7 +753,6 @@ def create_kyc() :
 		my_kyc['date_of_expiration'] = request.form['date_of_expiration']
 		my_kyc['sex'] = request.form['sex']
 		my_kyc['country'] = request.form['country']
-		print('kyc = ', my_kyc)
 		kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
 		kyc = Document('kyc')
 		data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)[0]
