@@ -2,126 +2,131 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
 
-             {% include 'user_nav_bar.html' %}
-            <div class="container-fluid" >
-              <div class="text-center">
-              <h3 class="text-dark mb-4">{{name}}
-                <a class="text-secondary" onclick="copyToClipboard('#p100')">
-                  <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-                </a>
-              </h3>
-              <p hidden id="p100">{{clipboard}}</p>
-              <h6 class="text-dark mb-4">{{profil_title}}</h6>
-              </div>
-            <div class="row mb-3">
-                <div class="col-lg col-xl">
+        {% include 'user_nav_bar.html' %}
+        <div class="container-fluid">
+          <div class="text-center">
+            <h3 class="text-dark mb-4">{{name}}
+              <a class="text-secondary" onclick="copyToClipboard('#p100')">
+                <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+              </a>
+            </h3>
+            <p hidden id="p100">{{clipboard}}</p>
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg col-xl">
 
-                                <div class="card shadow mb-3">
-                                    <div class="card-header py-3">
-                                        <div class="row">
-                                            <div class="col-xl-6">
-                                                <p class="text-primary m-0 font-weight-bold">&nbsp;Experience</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <form action="/user/add_experience/" method="POST">
-                                            <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label ><strong>Company</strong><br></label><input class="form-control" type="text" title="Company Name where you worked." name="company_name" required ></div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Position</strong><br></label><input class="form-control" type="text" title="Your position within the team." required name="title"></div>
-                                                </div>
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label for="startdate"><strong>Start Date</strong><br></label><input class="form-control" id="datePickerId1" type="date" required="" name="from"></div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>End Date</strong><br></label><input class="form-control" id="datePickerId2" type="date" required="" name="to"></div>
-                                                </div>
-
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label for="username"><strong>Contact Name (optional)</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" title="Name of your contact wthin the company." name="contact_name" ></div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Email (Optional)</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" title="Email of your contact within the company." name="contact_email" ></div>
-                                                </div>
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="col" id="checkbox1">
-                                                    <div class="form-group"><label for="checkbox1"><strong>Skills (Optional) with comma separator</strong><br></label><textarea class="form-control" row="2" name="skills" title="skill1, skill2, skill3, ..." ></textarea></div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="form-group"><label for="email"><strong>Contact Phone (Optional)</strong><br></label><input class="form-control" type="tel" name="contact_phone" title = "Phone number of your contact within the company."></div>
-                                                </div>
-                                            </div>
-
-
-
-                                            <div class="form-row">
-                                                <div class="col">
-                                                    <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea title="Description of the project, with objectives, budget, technos, delays...."  class="form-control" data-toggle="tooltip" data-bs-tooltip="" rows="3" name="description" required="" ></textarea></div>
-                                                </div>
-                                            </div>
-
-                                <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Add</button></div>
-                                    </div>
-                                    <div class="col-6 col-xl-3">
-										<a href="/user/">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
-                                        </a>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+              <div class="card shadow mb-3">
+                <div class="card-header py-3">
+                  <div class="row">
+                    <div class="col-xl-6">
+                      <p class="text-primary m-0 font-weight-bold">&nbsp;Experience</p>
                     </div>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
                 </div>
+                <div class="card-body">
+                  <form name="form" action="/user/add_experience/" method="POST">
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label><strong>Company</strong><br></label><input class="form-control" type="text" title="Company Name where you worked." name="company_name" id='requiredName' required></div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group"><label for="email"><strong>Position</strong><br></label><input class="form-control" type="text" title="Your position within the team."  id='requiredPosition' required name="title"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label for="startdate"><strong>Start Date</strong><br></label><input class="form-control" id="datePickerId1" type="date" required="" name="from"></div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group"><label for="email"><strong>End Date</strong><br></label><input class="form-control" id="datePickerId2" type="date" required="" name="to"></div>
+                      </div>
+
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label for="username"><strong>Contact Name (optional)</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" title="Name of your contact wthin the company."
+                            name="contact_name"></div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group"><label for="email"><strong>Contact Email (Optional)</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip=""
+                            title="Email of your contact within the company." name="contact_email"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col" id="checkbox1">
+                        <div class="form-group"><label for="checkbox1"><strong>Skills (Optional) with comma separator</strong><br></label><textarea class="form-control" row="2" name="skills" title="skill1, skill2, skill3, ..."></textarea></div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group"><label for="email"><strong>Contact Phone (Optional)</strong><br></label><input class="form-control" type="tel" name="contact_phone" title="Phone number of your contact within the company."></div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea title="Description of the project, with objectives, budget, technos, delays...." class="form-control" data-toggle="tooltip"
+                            data-bs-tooltip="" rows="3" name="description" required=""></textarea></div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="col-6 col-xl-3">
+                        <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Add</button></div>
+                      </div>
+                      <div class="col-6 col-xl-3">
+                        <a href="/user/">
+                          <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-                               {% include 'user_footer.html' %}
+  {% include 'user_footer.html' %}
 
 
 
-       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script>datePickerId2.max = new Date().toISOString().split("T")[0];</script>
-    <script>datePickerId1.max = new Date().toISOString().split("T")[0];</script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script>
+    datePickerId2.max = new Date().toISOString().split("T")[0];
+  </script>
+  <script>
+    datePickerId1.max = new Date().toISOString().split("T")[0];
+  </script>
 
 
 
