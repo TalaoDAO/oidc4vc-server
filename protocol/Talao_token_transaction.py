@@ -45,6 +45,13 @@ def contractsToOwners(workspace_contract, mode) :
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address
 
+def get_data_from_token(mode) :
+	w3 = mode.w3
+	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
+	total_deposit = contract.functions.totalDeposit().call()
+	vault_deposit = contract.functions.vaultDeposit().call()
+	return total_deposit, vault_deposit
+
 def token_transfer(address_to, value, mode) :
 	""" Transfert de tokens  Talao depuis le portefeuille TalaoGen """
 	w3 = mode.w3
@@ -125,48 +132,59 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 		return None
 	return hash
 
-def authorize_partnership(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, workspace_contract_partner, user_rsa_key, mode, synchronous = True) :	
+def authorize_partnership(address_from, workspace_contract_from, identity_address, identity_workspace_contract, private_key_from, partner_workspace_contract, user_rsa_key, mode, synchronous = True) :	
 	# user = address_to
 	w3 = mode.w3
-	partner_address = contractsToOwners(workspace_contract_partner, mode)
-	# if partner owner has a claim 3 key, it has to be removed first.
-	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
-	key = mode.w3.soliditySha3(['address'], [partner_address])
-	has_key = contract.functions.keyHasPurpose(key, 3).call()
-	print(' Partner owner has key 3 = ', has_key)
-	if has_key :
-		nonce = w3.eth.getTransactionCount(address_from)
-		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
-		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-		print('remove key 3 from partner , hash transaction parnership request = ', hash_transaction)
-		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
-			print(' echec remove key 3')
-			return False
+	partner_address = contractsToOwners(partner_workspace_contract, mode)
 
-	# if partner workspace contract has a claim 3 key, it has to be removed first.
-	contract = w3.eth.contract(workspace_contract_to, abi=constante.workspace_ABI)
-	key = mode.w3.soliditySha3(['address'], [workspace_contract_partner])
-	has_key = contract.functions.keyHasPurpose(key, 3).call()
-	print(' Partner workspace contract has key 3 = ', has_key)
-	if has_key :
+	#get Key purpose
+	key = mode.w3.soliditySha3(['address'], [partner_address])
+	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
+	address_purpose_list = contract.functions.getKeyPurposes(key).call()
+	print('purpose de address ', address_purpose_list)
+	key = mode.w3.soliditySha3(['address'], [partner_workspace_contract])
+	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
+	workspace_contract_purpose_list = contract.functions.getKeyPurposes(key).call()
+	print('purpose de woorkspace contract ', workspace_contract_purpose_list)
+
+
+	# Check if partner has key in Identity, it has to be removed first.
+	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
+	key = mode.w3.soliditySha3(['address'], [partner_address])
+	for purpose in address_purpose_list :
 		nonce = w3.eth.getTransactionCount(address_from)
-		txn = contract.functions.removeKey(key, 3).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+		gas_price = w3.toWei(mode.GASPRICE, 'gwei')
+		txn = contract.functions.removeKey(key, purpose).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 2000000,'gasPrice': gas_price,'nonce': nonce,})
 		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-		print('remove key 3 from parner workspace contract , hash transaction parnership request = ', hash_transaction)
-		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)
+		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
-			print(' echec remove key 3')
+			print('Echec remove key of address, purpose = ', purpose, 'hash = ', hash)
 			return False
+		else :
+			print('Success remove key of address, purpose = ', purpose, 'hash = ', hash)
+
+	# if partner workspace contract has a key in Identity, it has to be removed first.
+	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
+	key = mode.w3.soliditySha3(['address'], [partner_workspace_contract])
+	for purpose in workspace_contract_purpose_list :
+		nonce = w3.eth.getTransactionCount(address_from)
+		txn = contract.functions.removeKey(key, purpose).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+		signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
+		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
+		if receipt['status'] == 0 :
+			print(' echec remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
+			return False
+		else :
+			print(' success remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 
 	# calcul du nonce de l envoyeur de token . Ici le from
 	nonce = w3.eth.getTransactionCount(address_from)
 	#recuperer la cle AES cryptée du user
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	contract=w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
 	mydata = contract.functions.identityInformation().call()
 	user_aes_encrypted=mydata[5]
 	# decoder la cle AES cryptée du user avec la cle RSA privée du user
@@ -175,7 +193,7 @@ def authorize_partnership(address_from, workspace_contract_from, address_to, wor
 	user_aes=cipher.decrypt(user_aes_encrypted)
 	print('user aes =', user_aes)
 	#recuperer la cle RSA publique du partner
-	contract=w3.eth.contract(workspace_contract_partner,abi=constante.workspace_ABI)
+	contract=w3.eth.contract(partner_workspace_contract,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	partner_rsa_key=data[4]
 	# encryption de la cle AES du user avec la cle RSA du partner
@@ -184,8 +202,8 @@ def authorize_partnership(address_from, workspace_contract_from, address_to, wor
 	user_aes_encrypted_with_partner_key = cipher.encrypt(user_aes)
 
 	# Build transaction
-	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	txn=contract.functions.authorizePartnership(workspace_contract_partner, user_aes_encrypted_with_partner_key).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	contract=w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
+	txn=contract.functions.authorizePartnership(partner_workspace_contract, user_aes_encrypted_with_partner_key).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction with caller wallet ici from
 	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
 
@@ -213,7 +231,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	w3 = mode.w3
 	partner_address = contractsToOwners(partner_workspace_contract, mode)
 
-	#get Key purpose 
+	#get Key purpose
 	key = mode.w3.soliditySha3(['address'], [partner_address])
 	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
 	address_purpose_list = contract.functions.getKeyPurposes(key).call()
@@ -240,7 +258,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		else :
 			print('Success remove key of address, purpose = ', purpose, 'hash = ', hash)
 
-	# if partner workspace contract has a key 3 in Identity, it has to be removed first.
+	# if partner workspace contract has a key in Identity, it has to be removed first.
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	key = mode.w3.soliditySha3(['address'], [partner_workspace_contract])
 	for purpose in workspace_contract_purpose_list :
@@ -551,49 +569,5 @@ def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfsh
 	if synchronous == True :
 		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 	return hash1
-
-"""
-"""
-##############################################
-# determination de la nature de l addresse
-##############################################
-# @thisaddress, address
-# return dictionnaire
-
-def whatisthisaddress(thisaddress,mode) :
-
-	w3 = mode.w3
-
-	# est ce une addresse Ethereum ?
-	if w3.isAddress(thisaddress) == False :
-		category = False
-		owner = None
-		workspace= None
-	else :
-
-		# test sur la nature de thisaddress
-		contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-		address = contract.functions.contractsToOwners(thisaddress).call()
-		workspace=contract.functions.ownersToContracts(thisaddress).call()
-
-		# thisaddress est un owner
-		if address == '0x0000000000000000000000000000000000000000' and workspace != '0x0000000000000000000000000000000000000000' :
-			category = "owner"
-			owner = thisaddress
-			workspace=workspace
-
-		# thisaddress est un workspace
-		if address != '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
-			category = 'workspace'
-			owner=address
-			workspace=thisaddress
-
-		# thisaddressn est une addresse ethereum standard
-		if address == '0x0000000000000000000000000000000000000000' and workspace == '0x0000000000000000000000000000000000000000' :
-			category = 'unknown'
-			owner = None
-			workspace = None
-
-	return {"type" : category, "owner" : owner, 'workspace' : workspace}
 
 """

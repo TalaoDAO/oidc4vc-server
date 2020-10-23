@@ -38,28 +38,57 @@
                                             <br><br>
                                             If you accept the request, you can restrict data access and permitted actions.</p>
                                         <div class="form-group">
+
+                                            {% if profile == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{profile_check}} type="checkbox" name="profile" ><label class="form-check-label" >Profile</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{profile}} type="checkbox" name="profile" ><label class="form-check-label" >Profile</label></div>
                                             </div>
+                                            {% endif %}
+
+                                            {% if resume == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{resume_check}} type="checkbox" name="resume"><label class="form-check-label" >Resume</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{resume}} type="checkbox" name="resume"><label class="form-check-label" >Resume</label></div>
                                             </div>
+                                            {% endif %}
+
+                                            {% if proof_of_identity == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input"  {{proof_of_identity_check}} type="checkbox" name="proof_of_identity"><label class="form-check-label" >Proof of Identity</label></div>
+                                                <div class="form-check"><input class="form-check-input"  {{proof_of_identity}} type="checkbox" name="proof_of_identity"><label class="form-check-label" >Proof of Identity</label></div>
                                             </div>
+                                            {% endif %}
                                         </div>
                                             <div class="form-group">
+
+                                            {% if email == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{email_check}} type="checkbox" name="email" ><label class="form-check-label" >Email</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{email}} type="checkbox" name="email" ><label class="form-check-label" >Email</label></div>
                                             </div>
+                                            {% endif %}
+
+                                            {% if phone == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{phone_check}} type="checkbox" name="phone" ><label class="form-check-label" >Phone</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{phone}} type="checkbox" name="phone" ><label class="form-check-label" >Phone</label></div>
                                             </div>
+                                            {% endif %}
+
                                         </div>
                                         <div class="form-group">
+
+                                            {% if certificate == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input" {{certificate_check}} type="checkbox" name="certificate" ><label class="form-check-label" >Appoint company as a referent</label></div>
-                                        </div><br><br>
+                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{certificate}} name="certificate" ><label class="form-check-label" >Appoint company as a referent</label></div>
+                                            {% endif %}
+
+                                        </div>
+                                        <div class="form-group">
+
+                                            {% if private == 'checked' %}
+                                            <div class="form-inline custom-control-inline">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{private}} name="private" ><label class="form-check-label" >Authorize company to access private data</label></div>
+                                            {% endif %}
+
+                                        </div>
+                                        <br><br>
                                         <div class="form-row">
                                             <div class="col-6 col-xl-3">
                                                 <div class="form-group"><button id="in_progress_button" title="" class="btn btn-primary btn-sm" type="submit">Accept</button></div>

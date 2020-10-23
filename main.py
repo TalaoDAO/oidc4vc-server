@@ -85,7 +85,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.9.12"
+VERSION = "0.9.13"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup

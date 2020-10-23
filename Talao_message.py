@@ -74,12 +74,10 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 					str(workspace_contract_address),
 					'\r\nStatus : ',
 					status,
-					'\r\nSECRET : ',
-					SECRET,
-					'\r\nAES key : ',
-					str(AES_key)])
+					])
 	# attach the body with the msg instance
 	msg.attach(MIMEText(body, 'plain'))
+	"""
 	# open the file to be sent
 	path = "./RSA_key/"+mode.BLOCKCHAIN+'/'+eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 	filename = eth_a+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
@@ -93,6 +91,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
 	# attach the instance 'p' to instance 'msg'
 	msg.attach(p)
+	"""
 	# creates SMTP session
 	s = smtplib.SMTP('smtp.gmail.com', 587)
 	# start TLS for security
@@ -136,7 +135,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 					':',
 					str(workspace_contract_address)[2:]])
 
-	footer='\r\n\r\nYour Identity is now available, you can log  -> '+mode.server + 'login/'
+	footer='\r\n\r\nYour Identity is now available, you can log  -> '+ mode.server + 'login/'
 	body= body + footer + signature
 	msg.attach(MIMEText(body, 'plain'))
 
