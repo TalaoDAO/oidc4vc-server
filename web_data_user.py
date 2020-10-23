@@ -24,7 +24,7 @@ import Talao_message
 import Talao_ipfs
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
-from protocol import Claim, File, Identity, Document, read_profil
+from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
 import hcode
 import ns
 import sms
@@ -426,6 +426,9 @@ def user(mode) :
 		#Homepage
 		return render_template('homepage.html', **session['menu'])
 
+
+
+
 	# account
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
 					<b>token TALAO</b> : """ + str(session['token'])
@@ -434,11 +437,15 @@ def user(mode) :
 		relay_token = float(token_balance(mode.relay_address,mode))
 		talaogen_eth = mode.w3.eth.getBalance(mode.Talaogen_public_key)/1000000000000000000
 		talaogen_token = float(token_balance(mode.Talaogen_public_key, mode))
+		total_deposit, vault_deposit = get_data_from_token(mode)
 		my_account = my_account + """<br><br>
 					<b>Relay ETH</b> : """ + str(relay_eth) + """<br>
 					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
 					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
-					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
+					<b>Talao Gen token Talao</b> : """ + str(talaogen_token) + """<br><br>
+					<b>Vault Deposit</b> : """ + str(vault_deposit/10**18) + """ TALAO <br>
+					<b>Total Deposit</b> : """ + str(total_deposit/10**18) + """ TALAO<br>
+					<b>Nb Identities</b> : """ + str(int(total_deposit/vault_deposit))
 
 	# advanced
 	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
@@ -464,6 +471,8 @@ def user(mode) :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
+
+
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
 
 

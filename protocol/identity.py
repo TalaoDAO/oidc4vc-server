@@ -176,7 +176,7 @@ class Identity() :
 									'username' : issuer['username'] } )
 		return True
 
-	# Need web_relay_authorized = True (key 20003) and need private_key to get other parye status
+	# Need web_relay_authorized = True (key 20003) and need private_key to get other partie status
 	def get_partners(self) :
 		# on obtient la liste des partners avec le Relay qui a une cle 1
 		self.partners = []
@@ -197,12 +197,12 @@ class Identity() :
 			partner_username = "Unknown" if partner_username is None else partner_username
 			partner_address = contractsToOwners(partner_workspace_contract, self.mode)
 			partner_publickey = self.mode.w3.soliditySha3(['address'], [partner_address])
-			self.partners.append({"address": partner_address,
-								"publickey": partner_publickey,
-								 "workspace_contract" : partner_workspace_contract,
-								  'username' : partner_username,
-								  'authorized' : liste[authorization_index],
-								  'status' : 'Not available'})
+			self.partners.append({'address': partner_address,
+								'publickey': partner_publickey,
+								'workspace_contract' : partner_workspace_contract,
+								'username' : partner_username,
+								'authorized' : liste[authorization_index],
+								'status' : 'Not available'})
 		# on met a jour le status avec un acces par le owner au partnership  dans le contract du partner
 		if self.private_key :
 			acct = Account.from_key(self.private_key_value)

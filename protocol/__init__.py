@@ -2,7 +2,7 @@
 from .identity import Identity
 
 from .Talao_token_transaction import destroy_workspace, createVaultAccess
-from .Talao_token_transaction import updateSelfclaims
+from .Talao_token_transaction import updateSelfclaims, get_data_from_token
 from .Talao_token_transaction import contractsToOwners, token_balance
 from .Talao_token_transaction import partnershiprequest, authorize_partnership, remove_partnership, reject_partnership
 from .Talao_token_transaction import ownersToContracts, createWorkspace, save_image, get_image
