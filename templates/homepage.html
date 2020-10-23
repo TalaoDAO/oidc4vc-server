@@ -18,8 +18,9 @@
 </head>
 
 <body>
+  <div class="d-flex flex-column" id="content-wrapper">
     <div>
-        <div class="header-dark" style="background: url('/static/img/background.png') center / cover no-repeat;height: 600px;">
+      <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
           {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
           {% for category, message in messages %}
@@ -64,6 +65,7 @@
                     <p class="description" style="color: rgb(255,255,255);">With the Blockchain technology, you are in control of your data. Data is stored and duplicated to thousands of computers, no more private database.</p><a class="action" href="#"></a></div>
             </div>
         </div>
+    </div>
     </div>
   {% include 'user_footer.html' %}
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

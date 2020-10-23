@@ -286,19 +286,30 @@ def resume(mode) :
                 else:
                     carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
                 #header
-                carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div>"
+                carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div><hr class='my-1'>"
                 #body
                 if experience['topic']!='experience':
-                    carousel_rows_experience += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>"""
+                    carousel_rows_experience += """<p style="font-size: 1em"><b>Referent name: </b>"""
 
                     if experience['issuer']['category']==2001:
-                        carousel_rows_experience += experience['issuer']['name'] + """<br><b>Referent type: </b>Company <br>"""
+                        carousel_rows_experience += experience['issuer']['name'] + """<br>"""
                     else:
-                        carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br><b>Referent type: </b>Person <br>"""
+                        carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br>"""
 
                 carousel_rows_experience += """<b>Start Date</b> : """ + experience['start_date'] + """<br> """
                 carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
-
+                if experience['topic']!='experience':
+                    carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:100:]
+                    if len(experience['description'])>100:
+                        carousel_rows_experience += "...<br>"
+                    else:
+                        carousel_rows_experience += "<br>"
+                else:
+                    carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:250:]
+                    if len(experience['description'])>250:
+                        carousel_rows_experience += "...<br>"
+                    else:
+                        carousel_rows_experience += "<br>"
                 carousel_rows_experience += "</p>"
                 #Footer
                 if experience['topic']=='experience':
@@ -362,7 +373,11 @@ def resume(mode) :
                 #body
                 carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + "<br>"
                 carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation['relationship'] + "<br>"
-                carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:150] + "..." +"<br>"
+                carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:150]
+                if len(recommendation['description'])>150:
+                    carousel_rows_experience += "...<br>"
+                else:
+                    carousel_rows_experience += "<br>"
 
                 carousel_rows_recommendation += "</p>"
                 #Footer
