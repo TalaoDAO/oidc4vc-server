@@ -37,8 +37,8 @@ Scopes for data access are :
 
 Those two other scopes allow special features through other client credentials flow and specific endpoints :
 
-* private : Request authorization to access private data (partnership)
-* certification : Request authorization to issue certificates
+* private : Request authorization to access private data (partnership).
+* certification : Request authorization to issue certificates.
 
 To get a grant code for this flow, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
 User will be asked to sign in with their Decentralized Identifier and to consent for your list of scopes.

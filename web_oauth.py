@@ -215,7 +215,7 @@ def issue_token():
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
     user = current_user()
-    scope_list=['profile', 'resume', 'private', 'certificate', 'proof_of_identity', 'birthdate', 'email']
+    scope_list=['profile', 'resume', 'private', 'certificate', 'proof_of_identity', 'birthdate', 'email', 'phone']
     # if user log status is not true (Auth server), then to log it in
     if not user:
         return redirect(url_for('oauth_login', next=request.url))
@@ -331,29 +331,26 @@ def user_info(mode):
 def oauth_create(mode):
     # creation d'une identité"
     client_id = current_token.client_id
-    client = OAuth2Client.query.filter_by(client_id=client_id).first().__dict__
-    client_username = json.loads(client['_client_metadata'])['client_name']
-    #user_id = current_token.user_id
-    #user = User.query.get(user_id)
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    print('request = ', request)
     json_data = request.__dict__.get('data').decode("utf-8")
     data = json.loads(json_data)
-    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
     if data.get('email') is None or data.get('firstname') is None or data.get('lastname')is None :
         response_dict = {'status' : '930','msg' : 'Incorect request', **data}
     # Test de la documentation en ligne
     elif client_id in ['vJENicdQO38y1pcVRQREeuoy', 'HjoZ7fxzimmUJOCRE2fzeQcd', 'EmiMhjC1gjNVMu7Sek6Hq0Gs'] :
-        response_dict = {'status' : '900','did' : 'TEST : Success for create identity', **data}
-    # le client n a pas d identite
-    elif client_workspace_contract is None :
-        creator = None
+        response_dict = {'status' : '900','did' : 'TEST - Success - TEST', **data}
     # cas normal
     else :
+        creator = None if client_workspace_contract is None else contractsToOwners(client_workspace_contract, mode)
         identity_username = ns.build_username(data.get('firstname'), data.get('lastname'), mode)
-        creator = contractsToOwners(client_workspace_contract, mode)
-        identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=creator)[2]
-        # echec de createidentity
+        try :
+            identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=creator)[2]
+        except :
+            response_dict = {'status' : '921','msg' : 'Blockchain failure, contact Talao support ', **data}
+        # createidentity other problems
         if identity_workspace_contract is None :
-            response_dict = {'status' : '920','msg' : 'Failed to create an Identity, contact Talao support ', **data}
+            response_dict = {'status' : '922','msg' : 'Create Identity failure, contact Talao support ', **data}
         else :
             response_dict = {'status' : '900','did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username, **data}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
@@ -379,21 +376,3 @@ def oauth_request_partnership(mode):
         response_dict = {'status' : '900','did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:], **data}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
-
-
-""" exempled d'un client python
-
-import requests
-import json
-import shutil
-
-
-def send_dict() :
-	headers = {'Content-Type': 'application/json',
-				'Authorization': 'Bearer  K2jJkgpWFFS3PNXHbWLpyE2m7DcX9GejxEuDjhMExP'}
-	data = {'name' : 'pierre', 'data' : 125}
-	response = requests.post('http://127.0.0.1:3000/api/v1/api/me', data=json.dumps(data), headers=headers)
-	return response.json()
-
-print(send_dict())
-"""

@@ -423,6 +423,9 @@ def user(mode) :
 		if ns.must_renew_password(session['username'], mode) :
 			return render_template('ask_update_password.html', **session['menu'])
 
+
+
+
 	# account
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
 					<b>token TALAO</b> : """ + str(session['token'])
@@ -466,7 +469,6 @@ def user(mode) :
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
 
-		
 
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
 

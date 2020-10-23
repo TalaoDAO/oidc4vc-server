@@ -72,7 +72,6 @@ import web_issuer_explore
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
-print('environment variable : ',mychain, myenv)
 
 # Environment setup
 print('Start to init environment')

@@ -34,8 +34,6 @@ class currentMode() :
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']
 		f.close()
-		
-
 
 		# upload of main private passwords. This file (passwords.json) is not in the  github repo.
 		with open('./passwords.json') as p:
@@ -46,8 +44,6 @@ class currentMode() :
 		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py
 		self.sms_token = passwords['sms_token'] # used in sms.py
 		p.close()
-		if self.test :
-			print(passwords)
 
 		# En Prod chez AWS avec Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':
