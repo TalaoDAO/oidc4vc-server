@@ -288,12 +288,13 @@ def resume(mode) :
                 #header
                 carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div>"
                 #body
-                carousel_rows_experience += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>"""
+                if experience['topic']!='experience':
+                    carousel_rows_experience += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>"""
 
-                if experience['issuer']['category']==2001:
-                    carousel_rows_experience += experience['issuer']['name'] + """<br><b>Referent type: </b>Company <br>"""
-                else:
-                    carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br><b>Referent type: </b>Person <br>"""
+                    if experience['issuer']['category']==2001:
+                        carousel_rows_experience += experience['issuer']['name'] + """<br><b>Referent type: </b>Company <br>"""
+                    else:
+                        carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br><b>Referent type: </b>Person <br>"""
 
                 carousel_rows_experience += """<b>Start Date</b> : """ + experience['start_date'] + """<br> """
                 carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
@@ -513,7 +514,8 @@ def resume(mode) :
                     carousel_rows_skill += '</div></div>'
                 if i == len(skills)-1:
                     created_row = False
-                    if i%3==0:
+                    if (i+1)%3==0:
+                        print(i)
                         carousel_rows_skill += '<div class="carousel-item"><div class="row">'
                         created_row = True
                     carousel_rows_skill += """<div class="col-md-4 mb-2">
