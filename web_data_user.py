@@ -187,7 +187,7 @@ def forgot_password(mode) :
 		return render_template('forgot_password_init.html')
 	if request.method == 'POST' :
 		# envoyer un email avec un lien
-#		
+#
 # return render_template('forgot_password.html')
 #	if request.method == 'POST' :
 		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
@@ -289,7 +289,7 @@ def data(mode) :
 	elif mode.BLOCKCHAIN == 'ethereum' :
 		transaction_hash = """<a class = "card-link" href = https://etherscan.io/tx/ """ + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a>"""
 	elif mode.BLOCKCHAIN == 'talaonet' :
-		transaction_hash = my_data.transaction_hash 
+		transaction_hash = my_data.transaction_hash
 	else :
 		print('chain probleme')
 		transaction_hash = my_data.transaction_hash = ""
@@ -304,7 +304,7 @@ def data(mode) :
 				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 	# if support is an ERC725 Claim
-	else : 
+	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
 		myadvanced = """
 				<b>Advanced</b>
@@ -315,8 +315,8 @@ def data(mode) :
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : """ +transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
-	
-	
+
+
 	my_verif =  myadvanced + "<hr>" + myissuer
 	return render_template('data_check.html', **session['menu'], verif=my_verif)
 
@@ -422,6 +422,9 @@ def user(mode) :
 		# ask update password messsage
 		if ns.must_renew_password(session['username'], mode) :
 			return render_template('ask_update_password.html', **session['menu'])
+
+		#Homepage
+		return render_template('homepage.html', **session['menu'])
 
 	# account
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
@@ -1039,4 +1042,3 @@ def user_account(mode) :
 	check_login()
 	return render_template('account.html',
 							**session['menu'])
-
