@@ -513,7 +513,8 @@ def resume(mode) :
                     carousel_rows_skill += '</div></div>'
                 if i == len(skills)-1:
                     created_row = False
-                    if i%3==0:
+                    if (i+1)%3==0:
+                        print(i)
                         carousel_rows_skill += '<div class="carousel-item"><div class="row">'
                         created_row = True
                     carousel_rows_skill += """<div class="col-md-4 mb-2">
