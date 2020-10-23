@@ -1,118 +1,171 @@
-
-
-
 <!DOCTYPE html>
 <html>
 
 <head>
-   <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 </head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
 
-				      {% if session['type'] == "company" %}
-                 {% include 'company_nav_bar.html' %}
-             {% else %}
-                 {% include 'user_nav_bar.html' %}
-             {% endif %}
-
-
-
-            <div class="container-fluid">
-              <div class="text-center">
-              <h3 class="text-dark mb-4">{{name}}
-                <a class="text-secondary" onclick="copyToClipboard('#p100')">
-                  <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-                </a>
-              </h3>
-              <p hidden id="p100">{{clipboard}}</p>
-              <h6 class="text-dark mb-4">{{profil_title}}</h6>
-              </div>
-                <div class="row mb-3">
-                    <div class="col-lg-4 col-xl-4 offset-xl-4">
-                        <div class="card mb-3">
-                            <div class="card-header py-3">
-                                <p class="text-primary m-0 font-weight-bold">Signature</p>
-                            </div>
-                            <div class="card-body text-center shadow">
-
-                                <form name="form" action="/user/signature/" method="POST" enctype="multipart/form-data">
-                                  <div class="mb-3">
-									  <img  id ="output" height="150" width="150" src="{{ url_for('send_file', filename=signaturefile) }}"></div>
-
-
-
-                                    <div class="form-group">
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-prepend">
-												<button class="btn btn-primary btn-sm" id="loading_button" type="submit">Save</button>
-											</div>
-                                            <div class="custom-file">
-												<label class="custom-file-label" for="file"></label>
-												<input type="file" required="" id="file" onchange="loadFile(event)" class="custom-file-input" style="display: none;" name="image">
-											</div>
-											 <a href="/user/"><button class="btn btn-primary text-left" type="button">Back</button></a></div>
-                                        </div>
-                                    </div>
-
-
-
-                                </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% if session['type'] == "company" %}
+        {% include 'company_nav_bar.html' %}
+        {% else %}
+        {% include 'user_nav_bar.html' %}
+        {% endif %}
 
 
-                               {% include 'user_footer.html' %}
+
+        <div class="container-fluid">
+          <div class="text-center">
+            <h3 class="text-dark mb-4">{{name}}
+              <a class="text-secondary" onclick="copyToClipboard('#p100')">
+                <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+              </a>
+            </h3>
+            <p hidden id="p100">{{clipboard}}</p>
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-4 col-xl-4 offset-xl-4">
+              <div class="card mb-3">
+                <div class="card-header py-3">
+                  <p class="text-primary m-0 font-weight-bold">Signature</p>
+                </div>
+                <div class="card-body text-center shadow">
+
+                  <!-- <form name="form" action="/user/signature/" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                      <img id="output" height="150" width="150" src="{{ url_for('send_file', filename=signaturefile) }}">
+                    </div>
+                    <div class="form-group">
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <button class="btn btn-primary btn-sm" id="loading_button" type="submit">Save</button>
+                        </div>
+                        <div class="custom-file">
+                          <label class="custom-file-label" for="file"></label>
+                          <input type="file" required="" id="file" onchange="loadFile(event)" class="custom-file-input" style="display: none;" name="image">
+                        </div>
+                        <a href="/user/"><button class="btn btn-primary text-left" type="button">Back</button></a>
+                      </div>
+                    </div>
+                  </form> -->
+                  <div class="image_container">
+                    <img id="input" src="#" class="d-none"/>
+                    <img id="old" src="{{ url_for('send_file', filename=signaturefile) }}" style="height: 300px; max-width:500"/>
+                  </div>
+
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-primary btn-sm"  id="loading_button">Save</button>
+                    </div>
+                    <div class="custom-file">
+                      <label class="custom-file-label" for="file" id="label"></label>
+                      <input class="custom-file-input" type="file" name="image" id="file" onchange="readURL(this);" />
+                    </div>
+                      <a href="/user/"> <button class="btn btn-primary text-left" type="button">Back</button></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {% include 'user_footer.html' %}
 
 
 
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script>
-$(".custom-file-input").on("change", function() {
-  var fileName = $(this).val().split("\\").pop();
-  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-});
-</script>
+      <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
+      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+      <script type="text/javascript" src="{{ url_for('static', filename='cropperjs/dist/cropper.js') }}"></script>
 
-<script>
-var loadFile = function(event) {
-	var image = document.getElementById('output');
-	image.src = URL.createObjectURL(event.target.files[0]);
-};
-</script>
-<script>function copyToClipboard(element) {
-    var $temp = $("<input>");
-    $("body").append($temp);
-    $temp.val($(element).text()).select();
-    document.execCommand("copy");
-    $temp.remove();
-  }</script>
+      <script type="text/javascript" defer>
+        function readURL(input) {
+          if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              $('#input').attr('src', e.target.result)
+              $('#input').attr('class', "")
+              $('#old').attr('class', "d-none")
+            };
+            document.getElementById('label').innerHTML = input.files[0]['name'];
+            if (!input.files[0]['name'].match(/png|jpg|jpeg/) ) {
+              location.replace("/user/signature/?badtype=true")
+            }
+            reader.readAsDataURL(input.files[0]);
+            setTimeout(initCropper, 1000);
+          }
+        }
 
+        function initCropper() {
+          var image = document.getElementById('input');
+          var cropper = new Cropper(image, {
+            aspectRatio: 4 / 3,
+          });
+
+          // On crop button clicked
+          document.getElementById('loading_button').addEventListener('click', function() {
+            var imgurl = cropper.getCroppedCanvas().toDataURL();
+            var img = document.createElement("img");
+            img.src = imgurl;
+
+            cropper.getCroppedCanvas().toBlob(function(blob) {
+              var formData = new FormData();
+              formData.append('croppedImage', blob);
+              // Use `jQuery.ajax` method
+              $.ajax('/user/picture/', {
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                complete : function(resultat, statut) {
+                  location.replace("/user/signature/?success=true")
+                }
+                }
+              )
+            });
+            });
+          }
+
+      </script>
 </body>
 
 </html>

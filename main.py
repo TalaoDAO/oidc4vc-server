@@ -293,10 +293,14 @@ def signature() :
     check_login()
     my_signature = session['signature']
     if request.method == 'GET' :
+        if request.args.get('success') == 'true' :
+            flash('Signature has been updated', 'success')
+        if request.args.get('badtype') == 'true' :
+            flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
         return render_template('signature.html', **session['menu'], signaturefile=my_signature)
     if request.method == 'POST' :
-        myfile = request.files['image']
-        filename = secure_filename(myfile.filename)
+        myfile = request.files['croppedImage']
+        filename = "signature.png"
         myfile.save(os.path.join(mode.uploads_path, filename))
         signaturefile = mode.uploads_path + '/' + filename
         session['signature'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)
