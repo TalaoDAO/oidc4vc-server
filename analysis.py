@@ -55,10 +55,14 @@ def dashboard(workspace_contract,resume, mode) :
 			for i in range(0, len(resume[doctype])) :
 				print(doctype, i)
 				print(resume[doctype])
-				created = datetime.fromisoformat(resume[doctype][i]['created'])
+				if doctype == 'skills' :
+					created = datetime.fromisoformat(resume[doctype]['created'])
+					issuer_workspace_contract = resume[doctype]['issuer']['workspace_contract']
+				else :
+					created = datetime.fromisoformat(resume[doctype][i]['created'])
+					issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']
 				update.append(created)
 				nb_doc +=1
-				issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']
 				if issuer_workspace_contract == None :
 					nb_issuer_none +=1
 				elif issuer_workspace_contract.lower() ==  workspace_contract.lower() or issuer_workspace_contract.lower() ==  mode.relay_workspace_contract.lower() :
@@ -73,7 +77,6 @@ def dashboard(workspace_contract,resume, mode) :
 	for doctype in claim_name :		# 0,2 pt/ topicname
 		if resume['personal'][doctype]['issuer'] is not None and resume['personal'][doctype]['privacy'] == 'public' :
 			issuer_workspace_contract = resume['personal'][doctype]['issuer']['workspace_contract']
-			print('doctype = ', doctype, resume['personal'][doctype])
 			created = datetime.fromisoformat(resume['personal'][doctype]['created'])
 			update.append(created)
 			if issuer_workspace_contract is None :
