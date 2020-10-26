@@ -1,3 +1,12 @@
+"""
+
+doctypeversion = 1 freedapp
+doctypeversion = 2 public data el clair sur ipfs
+doctype version = 3 : RGPD --> public data encodé avec une clea aes publique
+
+"""
+
+
 import json
 import hashlib
 from Crypto.Cipher import PKCS1_OAEP
@@ -8,10 +17,10 @@ from base64 import b64encode
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 
-from Talao_ipfs import ipfs_add, ipfs_get
-
 #dependances
+from Talao_ipfs import ipfs_add, ipfs_get
 import constante
+import privatekey
 
 
 def contracts_to_owners(workspace_contract, mode) :
@@ -70,65 +79,53 @@ def read_profil (workspace_contract, mode, loading) :
 	return profil,category
 
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
-# @data = dict
+	# @data = dict
 
-	# cryptage des données par le user
-	if privacy != 'public' :
-		encrypted_data = data
-		#recuperer la cle AES cryptée
-		contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
-		mydata = contract.functions.identityInformation().call()
-		if privacy == 'private' :
-			my_aes_encrypted = mydata[5]
-		if privacy == 'secret' :
-			my_aes_encrypted = mydata[6]
+	# look for AES key
+	if privacy == 'private' :
+		my_aes = privatekey.get_key(address_to,'aes_key', mode)
+	elif privacy == 'secret' :
+		my_aes = privatekey.get_key(address_to,'secret_key', mode)
+	elif privacy == 'public' :
+		my_aes = b'public_ipfs_key_' #16 bytes long
+	else :
+		print('error type of ecryption')
+		return None, None, None
 
-		# read la cle privee RSA sur le fichier
-		filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_to + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
-		with open(filename,"r") as fp :
-			my_rsa_key = fp.read()
-			fp.close()
+	# encryt data with AES key
+	bytesdatajson = bytes(json.dumps(data), 'utf-8') # dict -> json(str) -> bytes
+	header = b"header"
+	cipher = AES.new(my_aes, AES.MODE_EAX) #https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
+	cipher.update(header)
+	ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
+	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
+	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
+	data = dict(zip(json_k, json_v))
 
-		# decoder la cle AES128 cryptée avec la cle RSA privée
-		key = RSA.importKey(my_rsa_key)
-		cipher = PKCS1_OAEP.new(key)
-		my_aes = cipher.decrypt(my_aes_encrypted)
-
-		# coder les datas
-		bytesdatajson = bytes(json.dumps(encrypted_data), 'utf-8') # dict -> json(str) -> bytes
-		header = b"header"
-		cipher = AES.new(my_aes, AES.MODE_EAX) #https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
-		cipher.update(header)
-		ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
-		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-		json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
-		data = dict(zip(json_k, json_v))
-
-
-	# calcul de la date
+	# Date
 	if mydays == 0 :
 		expires = 0
 	else :
 		myexpires = datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
 		expires = int(myexpires.timestamp())
 
-	#envoyer la transaction sur le contrat
+	# Build transaction
 	contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address_from)
 
-	# stocke sur ipfs les data attention on archive des bytes
+	# store bytes on ipfs
 	ipfs_hash = ipfs_add(data, mode)
 	if ipfs_hash is None :
 		return None, None, None
 
-	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
+	# checksum (bytes)
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
 	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
 
-	encrypted = False if privacy == 'public' else True
-	# Transaction
-	txn = contract.functions.createDocument(doctype,2,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	encrypted =  True # even for public data
+	# Transaction with doctypevesrion = 3 for RGPD constraint
+	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
@@ -136,60 +133,17 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
 			return None, None, None
-	# recuperer l iD du document sur le dernier event DocumentAdded
+
+	# Get document  id on last event
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	from_block = mode.w3.eth.blockNumber - 10
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= from_block ,toBlock = 'latest')
 	eventlist = myfilter.get_all_entries()
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
-"""
-def update_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doc_id, doctype, data, mydays, privacy, mode, synchronous) :
-# @data = dict
-	w3=mode.w3
-	privacy = 'public'
-	# calcul de la date
-	if mydays == 0 :
-		expires = 0
-	else :
-		myexpires = datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
-		expires = int(myexpires.timestamp())
 
-	#envoyer la transaction sur le contrat
-	contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
-	nonce = w3.eth.getTransactionCount(address_from)
 
-	# stocke sur ipfs les data attention on archive des bytes
-	ipfs_hash = ipfs_add(data, mode)
-	if ipfs_hash is None :
-		return None
-
-	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
-	_data = json.dumps(data)
-	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
-	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
-
-	encrypted = False if privacy == 'public' else True
-	# Transaction
-	txn = contract.functions.updateDocument(doc_id, doctype,2,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous  :
-		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
-			print('receipt ', receipt)
-			return None
-	# recuperer l iD du document sur le dernier event DocumentAdded
-	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= mode.fromBlock ,toBlock = 'latest')
-	eventlist = myfilter.get_all_entries()
-	print('event list dans update ', eventlist)
-	document_id = eventlist[-1]['args']['id']
-	return document_id, ipfs_hash, transaction_hash
-"""
 def get_document(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
-
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
 	try :
@@ -217,7 +171,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 			try :
 				transaction = w3.eth.getTransaction(transaction_hash)
 			except :
-				print('error dans document.py, ligne 219', documentId, doctype, privacy, transaction_hash)
+				print('error dans document.py', documentId, doctype, privacy, transaction_hash)
 				return None, None, None, None, None, None, None, None, None, None, None , None, None
 			gas_price = transaction['gasPrice']
 			identity_workspace_contract = transaction['to']
@@ -238,41 +192,23 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		expires = 'Unlimited'
 	else :
 		myexpires = datetime.fromtimestamp(expires)
-		#expires = myexpires.strftime("%y/%m/%d")
 		expires = str(myexpires)
 
-	if privacy  == 'public' :
+	if privacy  == 'public' and doctypeversion == 2 :
 		return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 
-	if encrypted != 'public' and private_key_from is None :
-		print ("document is  encrypted and no keys has been given ")
-		return None, None, None, None, None, None, None, None, None, None, None , None, None
-
 	#recuperer la cle AES cryptée
-	contract = w3.eth.contract(workspace_contract_user,abi = constante.workspace_ABI)
-	mydata = contract.functions.identityInformation().call()
-	if privacy == 'private' :
-		his_aes_encrypted = mydata[5]
-	if privacy == 'secret' :
-		his_aes_encrypted = mydata[6]
-
-	# read la cle privee RSA sur le fichier
-	address_from = contracts_to_owners(workspace_contract_from, mode)
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+ address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	try :
-		fp = open(filename,"r")
-		rsa_key = fp.read()
-		fp.close()
-	except IOError :
-		print ("RSA key file not found")
+	address_user = owners_to_contracts(workspace_contract_user, mode)
+	if privacy == 'public' and doctypeversion == 3 :
+		his_aes = b'public_ipfs_key_'
+	elif privacy == 'private' :
+		his_aes = privatekey.get_key(address_user, 'aes_key', mode)
+	elif privacy == 'secret' :
+		his_aes == privatekey.get_key(address_user, 'secret_key', mode)
+	else :
+		print ("key not found")
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
-
-	# decoder ma cle AES128 cryptée avec ma cle RSA privée
-	key = RSA.importKey(rsa_key)
-	cipher = PKCS1_OAEP.new(key)
-	his_aes=cipher.decrypt(his_aes_encrypted)
-
-		# decoder les datas
+	# decrypt data
 	try:
 		b64 = data #json.loads(json_input)
 		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
@@ -282,7 +218,6 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 		msg = json.loads(plaintext.decode('utf-8'))
 		return issuer, identity_workspace_contract, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
-
 	except ValueError :
 		print("Data Decryption error")
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
@@ -338,10 +273,6 @@ class Document() :
 	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
-
-	#def relay_update(self, identity_workspace_contract, doc_id, data, mode, mydays=0, privacy='public', synchronous=True) :
-	#	identity_address = contracts_to_owners(identity_workspace_contract, mode)
-	#	return update_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, self.doctype, data, mydays, privacy, mode, synchronous)
 
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
