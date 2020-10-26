@@ -19,6 +19,8 @@ def ownersToContracts(address, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
+	if workspace_address == '0x0000000000000000000000000000000000000000' :
+		return None
 	return workspace_address
 
 def destroy_workspace(workspace_contract, private_key, mode) :
@@ -43,6 +45,8 @@ def contractsToOwners(workspace_contract, mode) :
 	w3 = mode.w3
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
+	if address == '0x0000000000000000000000000000000000000000' :
+		return None
 	return address
 
 def get_data_from_token(mode) :

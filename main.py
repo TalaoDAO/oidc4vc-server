@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.10.1"
+VERSION = "0.11.0"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -452,7 +452,7 @@ def issue_recommendation():
         address_to = contractsToOwners(workspace_contract_to, mode)
         my_recommendation = Document('certificate')
         execution = my_recommendation.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], recommendation, mode, mydays=0, privacy='public', synchronous=True)
-        if execution is None :
+        if execution[0] is None :
             flash('Operation failed ', 'danger')
         else :
             flash('Certificate has been issued', 'success')
@@ -619,7 +619,7 @@ def store_file() :
                              filename,
                              privacy,
                             mode)
-        if data is None :
+        if data[0] is None :
             flash('Transaction failed', "danger")
         else :
             new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(data[0]),

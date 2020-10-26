@@ -27,7 +27,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 		this_file = open(file_path, mode='rb')  # b is important -> binary
 	except IOError :
 		print('IOEroor open file in File.py')
-		return None
+		return None, None, None
 	this_data = this_file.read()
 	data = {'filename' : file_name , 'content' : b64encode(this_data).decode('utf_8')}
 
@@ -50,7 +50,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 			fp.close()
 		except :
 			print('cannot open rsa file in add_file.file.py')
-			return None
+			return None, None, None
 
 		# decoder la cle AES128 cryptée avec la cle RSA privée
 		key = RSA.importKey(rsa_key)
@@ -98,7 +98,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	if synchronous == True :
 		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
-			return None
+			return None, None, None
 
 	# recuperer l iD du document sur le dernier event DocumentAdded
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
