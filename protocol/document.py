@@ -101,7 +101,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	data = dict(zip(json_k, json_v))
-
+	print('data encyptd ', data)
 	# Date
 	if mydays == 0 :
 		expires = 0
@@ -117,7 +117,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	ipfs_hash = ipfs_add(data, mode)
 	if ipfs_hash is None :
 		return None, None, None
-
+	print('ipfs hash = ', ipfs_hash)
 	# checksum (bytes)
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
@@ -133,7 +133,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
 			return None, None, None
-
+	print('receipt = ', receipt)
 	# Get document  id on last event
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	from_block = mode.w3.eth.blockNumber - 10

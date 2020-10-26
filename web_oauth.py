@@ -389,7 +389,11 @@ def oauth_issue(mode):
         user_address = contractsToOwners(user_workspace_contract, mode)
         certificate = data['certificate']
     except :
-        response_dict = {'detail' : 'did malformed or identity not found'}
+        response_dict = {'detail' : 'did or request malformed '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if user_address is None :
+        response_dict = {'detail' : 'did does not exist'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     if certificate['type'] not in current_token.scope :
@@ -399,8 +403,10 @@ def oauth_issue(mode):
     certificate['version'] = 1
     certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
     certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
+    certificate['manager'] = 'Director'
+    certificate['reviewer'] = ''
     my_certificate = Document('certificate')
-    """document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
+    document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
                         client_workspace_contract,
                         user_address,
                         user_workspace_contract,
@@ -409,8 +415,6 @@ def oauth_issue(mode):
                         mode,
                         mydays=0,
                         privacy='public')
-    """
-    document_id, ipfs_hash, transaction_hash = 12, 'ggggggg', 'hhhhhh'
     if document_id is None :
         response_dict = {'detail' : 'transaction failed'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
