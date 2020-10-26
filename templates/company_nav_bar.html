@@ -3,10 +3,10 @@
 
  <!-- Nav Bar User -->
 
- <nav class="navbar navbar-custom navbar-dark navbar-expand shadow mb-4 topbar static-top p-0.5" style="background-color: #033f79;">
+ <nav class="navbar navbar-light navbar-expand-md sticky-top shadow mb-3" style="filter: blur(0px);opacity: 1;background: rgba(11,69,128,0.93);">
 
    <!-- Logo Talao -->
-   <div class="container-fluid"><a href="/user/"><img src="/static/img/logo.png" style="width: 50px;height: 50px;"></a>
+   <div class="container-fluid"><a href="/user/"><img src="/static/img/logo.png" style="width: 120px;"></a>
 
      <!-- Titre  -->
      <h6 class="text-secondary flex-nowrap ml-auto">
@@ -57,7 +57,7 @@
 
        <!-- Menu Droite  -->
        <li class="nav-item dropdown no-arrow" role="presentation">
-         <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span><img class="border rounded-circle img-profile"
+         <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#"><span class="d-none d-lg-inline mr-2 text-white">{{name}}</span><img class="border rounded-circle img-profile"
                src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;">
              <!--retrer dropdown-toggle de la class du nav linkComment-->
            </a>
