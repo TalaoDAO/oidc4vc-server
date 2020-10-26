@@ -123,7 +123,7 @@
         function initCropper() {
           var image = document.getElementById('input');
           var cropper = new Cropper(image, {
-            aspectRatio: 4 / 5,
+            aspectRatio: 1 / 1,
           });
 
           // On crop button clicked
@@ -142,7 +142,7 @@
                 processData: false,
                 contentType: false,
                 complete : function(resultat, statut) {
-                  location.replace("/user/picture/?success=true")
+                  location.replace("/user/account/?success=true")
                 }
                 }
               )

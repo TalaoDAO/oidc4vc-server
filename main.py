@@ -223,11 +223,6 @@ def picture() :
 
     check_login()
     if request.method == 'GET' :
-        if request.args.get('success') == 'true' :
-            if session['type'] == 'person' :
-                flash('Picture has been updated', 'success')
-            else :
-                flash('Logo has been updated', 'success')
         if request.args.get('badtype') == 'true' :
             flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
         return render_template('picture.html',**session['menu'])
@@ -299,8 +294,6 @@ def signature() :
     check_login()
     my_signature = session['signature']
     if request.method == 'GET' :
-        if request.args.get('success') == 'true' :
-            flash('Signature has been updated', 'success')
         if request.args.get('badtype') == 'true' :
             flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
         return render_template('signature.html', **session['menu'], signaturefile=my_signature)

@@ -1059,5 +1059,10 @@ def user_advanced(mode) :
 # account settings
 def user_account(mode) :
 	check_login()
+	if request.args.get('success') == 'true' :
+		if session['type'] == 'person' :
+			flash('Picture has been updated', 'success')
+		else :
+			flash('Logo has been updated', 'success')
 	return render_template('account.html',
 							**session['menu'])

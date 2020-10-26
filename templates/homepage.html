@@ -2,71 +2,81 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>HomePage</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>HomePage</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
   <div class="d-flex flex-column" id="content-wrapper">
     <div>
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-          {% for category, message in messages %}
-          <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-            <span>{{ message }}</span>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          {% endfor %}
-          {% endif %}
-          {% endwith %}
-          {% include 'user_nav_bar.html' %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% include 'user_nav_bar.html' %}
         <div class="container hero py-5">
-            <div class="row" style="height: 200px;">
-                <div class="col-md-8 offset-md-2">
-                    <h1 class="text-center" style="background: rgba(214,214,214,0.62);border-top-left-radius: 15px;border-top-right-radius: 15px;border-bottom-right-radius: 15px;border-bottom-left-radius: 15px;height: 150px;padding: 45px;color: rgb(59,59,59);font-family: 'Noto Sans JP', sans-serif;"><strong>Welcome {{name}}</strong></h1>
-                </div>
+          <div class="row justify-content-center" style="height: 150px;">
+            <div class="col-auto">
+              <table class="table text-center"
+                style="font-size: 30px ;font-family: 'Noto Sans JP', sans-serif;background: rgba(214,214,214,0.62);border-top-left-radius: 15px;border-top-right-radius: 15px;border-bottom-right-radius: 15px;border-bottom-left-radius: 15px;height: 150px;color: rgb(59,59,59);">
+                <tbody>
+                  <tr>
+                    <td class="align-middle" style="border-top: 0px;"><strong>Welcome {{name}}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
         </div>
         <p class="text-center" style="font-size: 25px;">Thank you for choosing Talao&nbsp;<i class="far fa-copyright" style="font-size: 15px;"></i></p>
 
         <div class="text-center"><a href="https://talao.readthedocs.io"><button class="btn btn-primary shadow" type="button" style="background: rgb(6,169,222);margin: 50px;border-style: none;">Let us help you get started</button></a></div>
 
-    </div>
+      </div>
     </div>
     <div class="article-list py-5" style="background: url('/static/img/Petit_BG.jpg') center / contain repeat;">
-        <div class="container">
-            <div class="intro text-center">
-                <h2 class="text-center " style="color: rgb(6,169,222);font-size: 45px;"><b>Congratulations</b></h2>
-                <p class="text-center w-100" style="color: rgb(255,255,255);font-size: 30px;width: 500px;"><br>You are now in control of your professional Digital Identity<br><br><br></p>
-            </div>
-            <div class="row articles">
-                <div class="col-sm-6 col-md-4 item"><a href="#"></a><img src="/static/img/Phone.png" style="width: 140px;">
-                    <h3 class="name" style="color: rgb(255,255,255);font-size: 20px;">Get verifiable digital certificates</h3>
-                    <p class="description" style="color: rgb(255,255,255);">Once you have completed a mission or training, request a Blockchain certificate from your Blockchain worspace.</p><a class="action" href="#"></a></div>
-                <div class="col-sm-6 col-md-4 item"><a href="#"></a><img src="/static/img/Computer.png" style="width: 300px;">
-                    <h3 class="name" style="background: rgba(255,255,255,0);font-size: 20px;color: rgb(255,255,255);">Protect your data</h3>
-                    <p class="description" style="color: rgb(255,255,255);">Manage and store your most confidential information. Encrypt any sensitive data and choose who you give an access to.</p><a class="action" href="#"></a></div>
-                <div class="col-sm-6 col-md-4 item"><a href="#"></a><img src="/static/img/Mobile.png" style="width: 230px;">
-                    <h3 class="name" style="color: rgb(255,255,255);font-size: 20px;">Be the sole owner of your data</h3>
-                    <p class="description" style="color: rgb(255,255,255);">With the Blockchain technology, you are in control of your data. Data is stored and duplicated to thousands of computers, no more private database.</p><a class="action" href="#"></a></div>
-            </div>
+      <div class="container">
+        <div class="intro text-center">
+          <h2 class="text-center " style="color: rgb(6,169,222);font-size: 45px;"><b>Congratulations</b></h2>
+          <p class="text-center w-100" style="color: rgb(255,255,255);font-size: 30px;width: 500px;"><br>You are now in control of your professional Digital Identity<br><br><br></p>
         </div>
+        <div class="row articles">
+          <div class="col-sm-6 col-md-4 item"><a href="#"></a><img src="/static/img/Phone.png" style="width: 140px;">
+            <h3 class="name" style="color: rgb(255,255,255);font-size: 20px;">Get verifiable digital certificates</h3>
+            <p class="description" style="color: rgb(255,255,255);">Once you have completed a mission or training, request a Blockchain certificate from your Blockchain worspace.</p><a class="action" href="#"></a>
+          </div>
+          <div class="col-sm-6 col-md-4 item"><a href="#"></a><img src="/static/img/Computer.png" style="width: 300px;">
+            <h3 class="name" style="background: rgba(255,255,255,0);font-size: 20px;color: rgb(255,255,255);">Protect your data</h3>
+            <p class="description" style="color: rgb(255,255,255);">Manage and store your most confidential information. Encrypt any sensitive data and choose who you give an access to.</p><a class="action" href="#"></a>
+          </div>
+          <div class="col-sm-6 col-md-4 item"><a href="#"></a><img src="/static/img/Mobile.png" style="width: 230px;">
+            <h3 class="name" style="color: rgb(255,255,255);font-size: 20px;">Be the sole owner of your data</h3>
+            <p class="description" style="color: rgb(255,255,255);">With the Blockchain technology, you are in control of your data. Data is stored and duplicated to thousands of computers, no more private database.</p><a class="action" href="#"></a>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
+  </div>
   {% include 'user_footer.html' %}
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
