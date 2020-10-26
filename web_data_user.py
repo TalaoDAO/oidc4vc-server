@@ -163,6 +163,17 @@ def logout(mode) :
 	return render_template('login.html', name="")
 
 
+# mentions legales
+#@app.route('/company')
+def company() :
+	return render_template('company.html')
+
+
+# protetion des données personelles
+#@app.route('/privacy')
+def privacy() :
+	return render_template('privacy.html')
+
 # forgot username
 """ @app.route('/forgot_username/', methods = ['GET', 'POST'])
 This function is called from the starter and login view.
@@ -418,7 +429,6 @@ def user(mode) :
 		if message != "" :
 			flash(message, 'warning')
 
-
 		# ask update password messsage
 		if ns.must_renew_password(session['username'], mode) :
 			return render_template('ask_update_password.html', **session['menu'])
@@ -427,7 +437,7 @@ def user(mode) :
 		return render_template('homepage.html', **session['menu'])
 
 
-
+##### debut page resume a mettre dans une @route '/resume'
 
 	# account
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>

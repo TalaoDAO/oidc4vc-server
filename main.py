@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.10.0"
+VERSION = "0.10.1"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -151,6 +151,7 @@ app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, metho
 app.add_url_rule('/api/v1/create', view_func=web_oauth.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1/issue', view_func=web_oauth.oauth_issue, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 
 
@@ -174,6 +175,9 @@ app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET'
 app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/company/',  view_func=web_data_user.company, methods = ['GET', 'POST'])
+app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
+
 
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -428,7 +432,7 @@ def issue_experience_certificate():
                         mode,
                         mydays=0,
                         privacy='public',
-                         synchronous=True)
+                         synchronous=True)[0]
     if execution is None :
         flash('Operation failed ', 'danger')
     else :

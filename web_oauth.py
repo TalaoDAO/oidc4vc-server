@@ -40,9 +40,12 @@ from eth_account import Account
 import ns
 import environment
 import constante
-from protocol import read_profil, Identity, contractsToOwners, add_key, partnershiprequest, authorize_partnership, has_key_purpose
+from protocol import read_profil, Identity, contractsToOwners, add_key, partnershiprequest, authorize_partnership, has_key_purpose, Document, get_image
 import createidentity
 import privatekey
+
+
+
 
 
 
@@ -204,11 +207,8 @@ def revoke_token():
 
 #@bp.route('/api/v1/oauth/token', methods=['POST'])
 def issue_token():
-    print('request reçue dans /token = ', request.__dict__)
     response = authorization.create_token_response()
     return response
-
-
 
 
 # AUTHORIZATION CODE 
@@ -271,11 +271,7 @@ def user_info(mode):
     client_workspace_contract = get_client_workspace(client_id, mode)
     client_address = contractsToOwners(client_workspace_contract, mode)
     user_id = current_token.user_id
-    #user = User.query.get(user_id)
-    #user_username = user.username
-    #user_workspace_contract = ns.get_data_from_username(user_username, mode).get('workspace_contract')
     user_workspace_contract = get_user_workspace(user_id,mode)
-
     user_address = contractsToOwners(user_workspace_contract, mode)
     user_info = dict()
     profile = read_profil(user_workspace_contract, mode, 'full')[0]
@@ -297,7 +293,6 @@ def user_info(mode):
         for partner in get_partners(user_workspace_contract, mode) :
             if partner['address'] == client_address and partner['authorized'] == 'Authorized' :
                 found = True
-                print('client trouvé dans partner list')
                 user_info['private'] = True
                 break
         if not found :
@@ -307,11 +302,9 @@ def user_info(mode):
     if 'certificate' in current_token.scope :
         # identity issues a 20002 key to client paid by relay
         if not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
-            print(' pas de cle 20002')
             relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
             user_info['certificate'] = add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
         else :
-            print(' il a deja une cle 20002')
             user_info['certificate'] = True
     if 'resume' in current_token.scope :
         user_dict = Identity(user_workspace_contract, mode).__dict__
@@ -332,27 +325,30 @@ def oauth_create(mode):
     # creation d'une identité"
     client_id = current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
-    print('request = ', request)
-    json_data = request.__dict__.get('data').decode("utf-8")
-    data = json.loads(json_data)
+    data = json.loads(request.data.decode("utf-8"))
     if data.get('email') is None or data.get('firstname') is None or data.get('lastname')is None :
-        response_dict = {'status' : '930','msg' : 'Incorect request', **data}
+        response_dict = {'detail' : 'request malformed'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
     # Test de la documentation en ligne
-    elif client_id in ['vJENicdQO38y1pcVRQREeuoy', 'HjoZ7fxzimmUJOCRE2fzeQcd', 'EmiMhjC1gjNVMu7Sek6Hq0Gs'] :
-        response_dict = {'status' : '900','did' : 'TEST - Success - TEST', **data}
-    # cas normal
-    else :
-        creator = None if client_workspace_contract is None else contractsToOwners(client_workspace_contract, mode)
-        identity_username = ns.build_username(data.get('firstname'), data.get('lastname'), mode)
-        try :
-            identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=creator)[2]
-        except :
-            response_dict = {'status' : '921','msg' : 'Blockchain failure, contact Talao support ', **data}
-        # createidentity other problems
-        if identity_workspace_contract is None :
-            response_dict = {'status' : '922','msg' : 'Create Identity failure, contact Talao support ', **data}
-        else :
-            response_dict = {'status' : '900','did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username, **data}
+    if client_id in ['vJENicdQO38y1pcVRQREeuoy', 'HjoZ7fxzimmUJOCRE2fzeQcd', 'EmiMhjC1gjNVMu7Sek6Hq0Gs'] :
+        response_dict = {'did' : 'TEST - Success - TEST', **data}
+        response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
+        return response
+    creator = None if client_workspace_contract is None else contractsToOwners(client_workspace_contract, mode)
+    identity_username = ns.build_username(data.get('firstname'), data.get('lastname'), mode)
+    try :
+        identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=creator)[2]
+    except :
+        response_dict = {'detail' : 'Blockchain failure, contact Talao support '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    # createidentity other problems
+    if identity_workspace_contract is None :
+        response_dict = {'detail' : 'Create Identity failure, contact Talao support '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username, **data}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
 
@@ -361,18 +357,65 @@ def oauth_create(mode):
 #@route('/api/v1/request_partnership')
 @require_oauth('request_partnership')
 def oauth_request_partnership(mode):
-    client = OAuth2Client.query.filter_by(client_id=current_token.client_id).first().__dict__
-    client_username = json.loads(client['_client_metadata'])['client_name']
-    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
-    client_address = ns.get_data_from_username(client_username, mode).get('address')
+    client_id=current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
     relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
     client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
-    json_data = request.__dict__.get('data').decode("utf-8")
-    data = json.loads(json_data)
+    data = json.loads(request.data.decode("utf-8"))
     user_workspace_contract = ns.get_data_from_username(data['username'], mode).get('workspace_contract')
     if not partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode) :
-        response_dict = {'status' : '920','msg' : 'Failed to request parnership, contact Talao support '}
+        response_dict = {'detail' : 'Failed to request parnership, contact Talao support '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
     else :
-        response_dict = {'status' : '900','did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:], **data}
+        response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:], **data}
+    response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
+    return response
+
+
+
+# issue
+#@route('/api/v1/issue')
+@require_oauth(None)
+def oauth_issue(mode):
+    client_id=current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
+    client_private_key = privatekey.get_key(client_address,'private_key', mode)
+    data = json.loads(request.data.decode("utf-8"))
+    try :
+        user_workspace_contract = '0x' + data['did'].split(':')[3]
+        user_address = contractsToOwners(user_workspace_contract, mode)
+        certificate = data['certificate']
+    except :
+        response_dict = {'detail' : 'did malformed or identity not found'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if certificate['type'] not in current_token.scope :
+        response_dict = {'detail' : certificate['type'] + ' certificate not allowed' }
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    certificate['version'] = 1
+    certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
+    certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
+    my_certificate = Document('certificate')
+    """document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
+                        client_workspace_contract,
+                        user_address,
+                        user_workspace_contract,
+                        client_private_key,
+                        certificate,
+                        mode,
+                        mydays=0,
+                        privacy='public')
+    """
+    document_id, ipfs_hash, transaction_hash = 12, 'ggggggg', 'hhhhhh'
+    if document_id is None :
+        response_dict = {'detail' : 'transaction failed'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    response_dict = {'link' : mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:] + ':document:' + str(document_id),
+                      **certificate, 'ipfs hash' : ipfs_hash, 'transaction hash' : transaction_hash}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response

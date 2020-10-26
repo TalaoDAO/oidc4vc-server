@@ -10,9 +10,9 @@ Those API do not provide account setup (company details, signature, logo ...) wh
 Standard use cases for APIs are :
 
 * Issue certificates to Talents.
-* Setup a Talent onboarding process with a reliable source of data.
+* Onboard Talents who have their own Decentralized Identity.
 * Outsource Talent data.
-* Strenghen an employer brand with latest technology features (Blockchain Resume,...).
+* Strenghen an employer brand with latest technology features like Blockchain Resume, Decentralized Identity,...
 
 We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
 Contact us relay-support@talao.io to open your Company Identity and receive your application granted permissions to use those APIs
@@ -115,8 +115,10 @@ Your access token is live for 3000 seconds.
 https://talao.co/api/v1/create
 *******************************
 
-Create an Identity for others. You company is appointed as a referent to issue certificates.
-Identity credentials are sent by email to Talent.
+Create an Identity for Talent.
+Your company is appointed as a referent to issue certificates to this Talent.
+Talent Identity credentials are sent by email to Talent.
+Return JSON with Talent identifier (DID) and username
 
 Example :
 
@@ -127,25 +129,17 @@ Example :
    -H "Content-Type: application/json" \
    -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
 
-Response
+Response (JSON)
 
 .. code-block:: JSON
 
   {
-    "status" : "900",
     "did": "did:talao:talaonet:__TEST__",
     "username" : "jeanpascalet",
     "firstname": "jean",
     "lastname": "pascalet",
     "email": "jean.pascalet@talao.io"}
   }
-
-with status :
-
-* 900 : Ok
-* 910 : Failed, client has no identity
-* 920 : Failed, creation identity (Ethereum transaction failed)
-* 930 : Failed, incorrect request (data missing)
 
 Try for test with your access token :
 
@@ -157,15 +151,53 @@ Try for test with your access token :
 https://talao.co/api/v1/issue
 ******************************
 
-to be done
 
-https://talao.co/api/v1/request_partner
-***************************************
+Example :
 
-to be done
+.. code::
 
+  $ curl -X POST https://talao.co/api/v1/issue  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did" : "did:talao:talonet:2165165", "certificate": JSON_certificate}'
 
-https://talao.co/api/v1/reject_partner
-***************************************
+with JSON_certificate structure depends on certificate type. Example of an experience JSON_certificate :
 
-to be done
+.. code-block:: JSON
+
+  {
+    "type" : "experience",
+    "title" : "Chef de projet Blockchain",
+    "description" : "Conception et realisation d un prototype Ethereum d un suivi de production",
+    "start_date" : "2018/02/22",
+    "end_date" : "2019/01/25",
+    "skills" : ["Ethereum", "Solidity"],
+    "score_recommendation" : 2,
+    "score_delivery" : 3,
+    "score_schedule" : 4,
+    "score_communication" : 4,
+  }
+
+JSON return :
+
+.. code-block:: JSON
+
+  {
+    "link": "http://127.0.0.1:3000/certificate/?certificate_id=did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB:document:12",
+    "type" : "experience",
+    "title" : "Chef de projet Blockchain",
+    "description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
+    "start_date" : "2018/02/22",
+    "end_date" : "2019/01/25",
+    "skills" : ["Ethereum", "Solidity"],
+    "score_recommendation" : 2,
+    "score_delivery" : 3,
+    "score_schedule" : 4,
+    "score_communication" : 4,
+    "manager" : "Jean Permet",
+    "reviewer" : "Paul Jacques",
+    "logo" : "QmRgLUZbLfRR7hW4CB7tqTFrjrfXxVUaP3XnNjC5D5QzT",
+    "signature" : "QmHT7UZbLfRR7hW4CB7tqTFrjrfXxVUaP3XnNjC5D5Qzza",
+    "ipfs_hash" : "456ab656446564f",
+    "transaction_hash" : "46516871335453AB354654CF551651"
+  }

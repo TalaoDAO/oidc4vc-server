@@ -109,7 +109,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow">OAuth 2.0 Client Credentials Flow</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-create">https://talao.co/api/v1/create</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-issue">https://talao.co/api/v1/issue</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-partner">https://talao.co/api/v1/partner</a></li>
 </ul>
 </li>
 </ul>
@@ -192,9 +191,9 @@ For companies it is an easy way to get reliable data about Talents and a powerfu
 <p>Standard use cases for APIs are :</p>
 <ul class="simple">
 <li><p>Issue certificates to Talents.</p></li>
-<li><p>Setup a Talent onboarding process with a reliable source of data.</p></li>
+<li><p>Onboard Talents who have their own Decentralized Identity.</p></li>
 <li><p>Outsource Talent data.</p></li>
-<li><p>Strenghen an employer brand with latest technology features (Blockchain Resume,…).</p></li>
+<li><p>Strenghen an employer brand with latest technology features like Blockchain Resume, Decentralized Identity,…</p></li>
 </ul>
 <p>We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
 Contact us <a class="reference external" href="mailto:relay-support&#37;&#52;&#48;talao&#46;io">relay-support<span>&#64;</span>talao<span>&#46;</span>io</a> to open your Company Identity and receive your application granted permissions to use those APIs</p>
@@ -202,16 +201,21 @@ Contact us <a class="reference external" href="mailto:relay-support&#37;&#52;&#4
 <h2>OAuth 2.0 Authorization Code flow<a class="headerlink" href="#oauth-2-0-authorization-code-flow" title="Permalink to this headline">¶</a></h2>
 <p>For your users, the OAuth 2.0 authentication experience includes a consent screen that describes through ‘scopes’ the information that the user is releasing.
 For example, when the user logs in, they might be asked to give your appication access to their email address, resume and basic account information.
-You request access to this information using the scope parameter, which your app includes in its authentication request.
-You can also use scopes to request access to other client credentials APIs. Scopes available are :</p>
+You request access to this information using the scope parameter, which your app includes in its authentication request.</p>
+<p>If no scope is provided, the flow is only used for authentification.</p>
+<p>Scopes for data access are :</p>
 <ul class="simple">
 <li><p>profile (sub, given_name, family_name, gender,…)</p></li>
 <li><p>birthdate</p></li>
 <li><p>email</p></li>
 <li><p>phone</p></li>
 <li><p>resume : JSON resume see <a class="reference external" href="https://jsonresume.org/">https://jsonresume.org/</a></p></li>
-<li><p>proof_of_identity : see further</p></li>
-<li><p>certification : Request authorization to issue certificates</p></li>
+<li><p>proof_of_identity</p></li>
+</ul>
+<p>Those two other scopes allow special features through other client credentials flow and specific endpoints :</p>
+<ul class="simple">
+<li><p>private : Request authorization to access private data (partnership).</p></li>
+<li><p>certification : Request authorization to issue certificates.</p></li>
 </ul>
 <p>To get a grant code for this flow, redirect your user to <a class="reference external" href="https://talao.co/api/v1/authorize">https://talao.co/api/v1/authorize</a> with a subset of your scope list .
 User will be asked to sign in with their Decentralized Identifier and to consent for your list of scopes.</p>
@@ -270,17 +274,19 @@ Commonly referred to as “OAuth two-legged”, this flow allows your applicatio
 <p>Your access token is live for 3000 seconds.</p>
 <div class="section" id="https-talao-co-api-v1-create">
 <h3><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a><a class="headerlink" href="#https-talao-co-api-v1-create" title="Permalink to this headline">¶</a></h3>
-<p>Create an Identity for others. You company is apointed as a referent. Identity credentials are sent by email to Talent.
-Example :</p>
+<p>Create an Identity for Talent.
+Your company is appointed as a referent to issue certificates to this Talent.
+Talent Identity credentials are sent by email to Talent.
+Return JSON with Talent identifier (DID) and username</p>
+<p>Example :</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -X POST https://talao.co/api/v1/create  \
  -H &quot;Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9&quot; \
  -H &quot;Content-Type: application/json&quot; \
  -d &#39;{&quot;firstname&quot;:&quot;jean&quot;, &quot;lastname&quot;:&quot;pascalet&quot;, &quot;email&quot;:&quot;jean.pascalet@talao.io&quot;}&#39;
 </pre></div>
 </div>
-<p>Response</p>
+<p>Response (JSON)</p>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>{
-  &quot;status&quot; : &quot;900&quot;,
   &quot;did&quot;: &quot;did:talao:talaonet:__TEST__&quot;,
   &quot;username&quot; : &quot;jeanpascalet&quot;,
   &quot;firstname&quot;: &quot;jean&quot;,
@@ -289,13 +295,6 @@ Example :</p>
 }
 </pre></div>
 </div>
-<p>with status :</p>
-<ul class="simple">
-<li><p>900 : Ok</p></li>
-<li><p>910 : Failed, client has no identity</p></li>
-<li><p>920 : Failed, creation identity (Ethereum transaction failed)</p></li>
-<li><p>930 : Failed, incorrect request (data missing)</p></li>
-</ul>
 <p>Try for test with your access token :</p>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>$ curl -X POST https://talao.co/api/v1/create  -H &quot;Authorization: Bearer your_acces_token&quot; -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;firstname&quot;:&quot;jean&quot;, &quot;lastname&quot;:&quot;pascalet&quot;, &quot;email&quot;:&quot;jean.pascalet@talao.io&quot;}&#39;
 </pre></div>
@@ -303,11 +302,52 @@ Example :</p>
 </div>
 <div class="section" id="https-talao-co-api-v1-issue">
 <h3><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a><a class="headerlink" href="#https-talao-co-api-v1-issue" title="Permalink to this headline">¶</a></h3>
-<p>to be done</p>
+<p>Example :</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -X POST https://talao.co/api/v1/issue  \
+ -H &quot;Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9&quot; \
+ -H &quot;Content-Type: application/json&quot; \
+ -d &#39;{&quot;did&quot; : &quot;did:talao:talonet:2165165&quot;, &quot;certificate&quot;: JSON_certificate}&#39;
+</pre></div>
 </div>
-<div class="section" id="https-talao-co-api-v1-partner">
-<h3><a class="reference external" href="https://talao.co/api/v1/partner">https://talao.co/api/v1/partner</a><a class="headerlink" href="#https-talao-co-api-v1-partner" title="Permalink to this headline">¶</a></h3>
-<p>to be done</p>
+<p>with JSON_certificate structure depends on certificate type. Example of an experience JSON_certificate :</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2019/01/25&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ethereum&quot;</span><span class="p">,</span> <span class="s2">&quot;Solidity&quot;</span><span class="p">],</span>
+  <span class="nt">&quot;score_recommendation&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="nt">&quot;score_delivery&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="nt">&quot;score_schedule&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="nt">&quot;score_communication&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Paul Jacques&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>JSON return :</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://127.0.0.1:3000/certificate/?certificate_id=did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB:document:12&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;start_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2018/02/22&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;end_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;2019/01/25&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;skills&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ethereum&quot;</span><span class="p">,</span> <span class="s2">&quot;Solidity&quot;</span><span class="p">],</span>
+  <span class="nt">&quot;score_recommendation&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="nt">&quot;score_delivery&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="nt">&quot;score_schedule&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="nt">&quot;score_communication&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Paul Jacques&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;logo&quot;</span> <span class="p">:</span> <span class="p">,</span>
+  <span class="nt">&quot;signature&quot;</span> <span class="p">:</span> <span class="p">,</span>
+  <span class="nt">&quot;ipfs_hash&quot;</span> <span class="p">:</span> <span class="s2">&quot;456ab656446564f&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;transaction_hash&quot;</span> <span class="p">:</span> <span class="s2">&quot;46516871335453AB354654CF551651&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>

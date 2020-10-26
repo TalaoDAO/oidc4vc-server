@@ -36,6 +36,8 @@ Each server will check the signature, update its data then compare it to other s
 
 This Talao web application https://talao.co is a portal to access Identities with a simple User Interface and automated processus.
 
+.. warning:: As this web application is a third party wallet, we strongly advise not to use your Identity address to store crypto currencies.
+
 
 TalaoNet
 --------
