@@ -174,11 +174,10 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 	if len(a) == 0 :
 		return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	claim_id = a[-1].hex()
-	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) 
-
+	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
 
 def get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) :
-	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) 
+	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
 
 
 def _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) :
@@ -232,7 +231,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	# data decryption
 	if to_be_decrypted :
 
-		# read la cle RSA privee 
+		# read la cle RSA privee
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)

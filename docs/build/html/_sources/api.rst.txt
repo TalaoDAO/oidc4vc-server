@@ -168,7 +168,7 @@ with JSON_certificate structure depends on certificate type. Example of an exper
   {
     "type" : "experience",
     "title" : "Chef de projet Blockchain",
-    "description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
+    "description" : "Conception et realisation d un prototype Ethereum d un suivi de production",
     "start_date" : "2018/02/22",
     "end_date" : "2019/01/25",
     "skills" : ["Ethereum", "Solidity"],
@@ -176,8 +176,6 @@ with JSON_certificate structure depends on certificate type. Example of an exper
     "score_delivery" : 3,
     "score_schedule" : 4,
     "score_communication" : 4,
-    "manager" : "Jean Permet",
-    "reviewer" : "Paul Jacques",
   }
 
 JSON return :
@@ -198,8 +196,8 @@ JSON return :
     "score_communication" : 4,
     "manager" : "Jean Permet",
     "reviewer" : "Paul Jacques",
-    "logo" : ,
-    "signature" : ,
+    "logo" : "QmRgLUZbLfRR7hW4CB7tqTFrjrfXxVUaP3XnNjC5D5QzT",
+    "signature" : "QmHT7UZbLfRR7hW4CB7tqTFrjrfXxVUaP3XnNjC5D5Qzza",
     "ipfs_hash" : "456ab656446564f",
     "transaction_hash" : "46516871335453AB354654CF551651"
   }

@@ -195,13 +195,9 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		# read la cle RSA privee sur le fichier de l identité
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
-		RSA_filename = "./RSA_key/"+mode.BLOCKCHAIN+'/' + address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-		try :
-			fp = open(RSA_filename,"r")
-			rsa_key=fp.read()
-			fp.close()
-		except :
-			print('cannot open rsa file')
+		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
+		if rsa_key is None :
+			print('rsa key not found in file.py')
 			return None
 
 		# decoder la cle AES cryptée avec la cle RSA privée

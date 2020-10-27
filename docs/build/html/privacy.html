@@ -184,127 +184,47 @@
 <h1>Privacy<a class="headerlink" href="#privacy" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="overview-about-encryption-and-privacy">
 <h2>Overview about encryption and privacy<a class="headerlink" href="#overview-about-encryption-and-privacy" title="Permalink to this headline">¶</a></h2>
-<p>An Identity is a smart contract on the Ethereum Blockchain, it is defined by its own Ethereum address.
+<p>An Identity is a smart contract on the public Ethereum Blockchain or a private Blockchain (POA). Identity is defined by its own Ethereum address.
 This smart contract is created at setup by his owner (person or company) through the owner Ethereum address and his associated private key.</p>
-<p>In order to get strong privacy, the Talao protocol uses 2 specific AES encryptions keys (one for private data, one for secret data) to encrypt user data.
-Those 2 keys are stored within the Identity encrypted with a RSA key.</p>
-<p>Consequently for Individuals there are several ways of using the Relay platform depending of who can access to the owner Ethereum private key and his RSA key :</p>
+<p>In order to get strong privacy, the Talao protocol uses 3 specific AES encryptions keys (one for public data, one for private data, one for secret data) to encrypt user data.
+2 keys (private and secret) are stored within the Identity encrypted with a RSA key, the third one for public data is available within the open code.
+User data are mainly stored on a decentralized file system IPFS.</p>
+<p>Consequently for Individuals there are several ways of using the web platform depending of who can access to the owner Ethereum private key and his encryption keys :</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If the Identity has been setup by the Relay itself, the Relay has a copy of the Ethereum Private key and RSA key. They are stored on a Centralized server.
-We say that the Identity is <strong>managed on behalf of the owner</strong>. All services are available through the Relay which is a classic webserver application.</p></li>
-<li><p>If the Identity has been setup by the user externally (see <a class="reference external" href="https://freedapp.io/">freepdapp</a>), the Relay is  <strong>Fully or partially activated</strong> (with ERC725 Keys) to be able to sign transactions on behalf of the owner.
-In this case the Relay does not have a copy of the Ethereum private and RSA keys but the user has limited access to the Relay services.
+<li><p>If the Identity has been setup by the website <a class="reference external" href="https://talao.co">https://talao.co</a>, the website server is a <strong>third party wallet</strong>, it has a copy of the Ethereum Private key and RSA key. They are stored on a Centralized server. We say that the Identity is <strong>managed on behalf of the identity owner</strong>.
+All services are available through the website which is a classic web application.</p></li>
+<li><p>If the Identity has been setup externally by a user (see <a class="reference external" href="https://freedapp.io/">freepdapp</a>), the website is  <strong>fully or partially activated</strong> to act as an agent and sign transactions on behalf of the owner.
+In this case the server does not have a copy of the Ethereum private and RSA keys but the user has limited access to the website services.
 For instance certificate issuance and Partnership services are not available.</p></li>
-<li><p>An other solution is to do a <strong>Change of ownership</strong> : The Identity is setup by the Relay and later on the Identity is transfered to an Ethereum address setup secretly by the owner.
-In this case the Relay does not have a copy of the Ethereum private key. This solution has the advantage to not requiring the setup of an Identity externally.
-Certificate issuance services are not available.</p></li>
+<li><p>An other solution is to setup an identity through the website then later do a <strong>Change of ownership</strong> : Identity is setup by the website and later on the Identity is transfered to an Ethereum address setup secretly by the owner.
+In this case the server does not have a copy of the Ethereum private key. This solution has the advantage to be easy and fast.
+Certificate issuance services will not be available but the identity will able to receive certificates from others.</p></li>
 </ul>
 </div></blockquote>
-<p>For information company Identities are always managed on behalf of the company as they usally do not want to be involved in thoses tasks.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For users who mainly want to request certificates, the easiest solution is to get an Identity <strong>managed on behalf of the owner</strong> by Talao.</p>
 </div>
-<p>List of Relay Services :</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When the website is used as a <strong>third party wallet</strong>, never use your identity address to manage crypto currencies. Best is to use a cold wallet.</p>
+</div>
+<p>List of website services :</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Request certificates,</p></li>
 <li><p>Edit personal settings,</p></li>
 <li><p>Edit resume (Experience, Education, …)</p></li>
 <li><p>Issue certificates,</p></li>
+<li><p>Reqest certificates,</p></li>
 <li><p>Manage Partnership,</p></li>
 <li><p>Manage Alias,</p></li>
 <li><p>Manage Referent,</p></li>
 <li><p>Manage White List,</p></li>
+<li><p>Invit user,</p></li>
 <li><p>Store files.</p></li>
 </ul>
 </div></blockquote>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 27%" />
-<col style="width: 14%" />
-<col style="width: 13%" />
-<col style="width: 46%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Mode</p></th>
-<th class="head"><p>Priv.key</p></th>
-<th class="head"><p>RSA Key</p></th>
-<th class="head"><p>Services and Relay rights</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Managed on behalf of the owner</p></td>
-<td><ul class="simple">
-<li><p>Relay has
-copy</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>Relay has
-copy</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>User can access all services through Relay</p></li>
-<li><p>Relays has acces to all data</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td><p>Fully activated (Key=1)</p></td>
-<td><ul class="simple">
-<li><p>Secret</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>Secret</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>User cannot issue certificates</p></li>
-<li><p>Relay can edit personal settings and resume</p></li>
-<li><p>Relay can add Referent and Alias</p></li>
-<li><p>Relay can issue public data</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td><p>Partially activated (key=20002)</p></td>
-<td><ul class="simple">
-<li><p>Secret</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>Secret</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>User cannot issue certificates</p></li>
-<li><p>User cannot edit Resume and  personal settings</p></li>
-<li><p>User cannot add Alias and Referent</p></li>
-<li><p>User cannot manage partnership</p></li>
-<li><p>Relay  can edit Resume</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td><p>Change of ownership</p></td>
-<td><ul class="simple">
-<li><p>Secret</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>Relays has
-copy</p></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li><p>User cannot issue certificates</p></li>
-<li><p>Relays has access to all data</p></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 </div>
 <div class="section" id="two-factors-authentification">
 <h2>Two-factors authentification<a class="headerlink" href="#two-factors-authentification" title="Permalink to this headline">¶</a></h2>
@@ -324,10 +244,10 @@ who may be looking to break into user accounts.</p>
 <div class="section" id="data-and-privacy">
 <h2>Data and privacy<a class="headerlink" href="#data-and-privacy" title="Permalink to this headline">¶</a></h2>
 <p>Data are either public, private or secret data</p>
-<p>Private and Secret data are protected by AES encrypted keys which are themselves stored encrypted on Ethereum with an RSA key.</p>
+<p>Private and Secret data are protected by AES encrypted keys which are themselves stored encrypted on Ethereum with an RSA key. Public data are encrypted with an AES key stored within the code.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Those keys are determined at Identity creation and cannot be changed later on.</p>
+<p>The private and secret keys are determined at Identity creation and cannot be changed later on.</p>
 </div>
 <p>At creation users can decide what level of privacy for :</p>
 <ul class="simple">
@@ -343,16 +263,12 @@ who may be looking to break into user accounts.</p>
 </ul>
 </div></blockquote>
 <p>Private Data are only available for your Partners. Read more on <a class="reference internal" href="resume.html"><span class="doc">Professional Identity</span></a> .</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>By default for Talents, Contact Email and Contact Name are private.</p></li>
-</ul>
-</div></blockquote>
 <p>Secret Data are only available for users.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Users can store encypted data on decentralized support as IPFS through this option.</p></li>
 <li><p>Authentification Email is always secret (Relay keeps a copy of ths email for authentification)</p></li>
+<li><p>By default for Talents, Email and phone are secret, used for authentification only.</p></li>
 </ul>
 </div></blockquote>
 </div>

@@ -102,9 +102,10 @@ def get_key(address,key_type, mode) :
 		try :
 			fp = open(mode.keystore_path + address[2:].lower() + '.json', "r")
 		except :
-			print('private key not found ', address, ' file = ',mode.keystore_path + address[2:] + '.json' )
+			print('private key not found in privatekey.py')
 			return None
 		encrypted = fp.read()
+		fp.close()
 		return Account.decrypt(encrypted, mode.password).hex()
 	else :
 		# first we try to find a rsa file
@@ -112,10 +113,9 @@ def get_key(address,key_type, mode) :
 		try :
 			fp = open(filename,"r")
 			rsa_key = fp.read()
-			print('rsa key du fichier = ', rsa_key)
 			fp.close()
 		except IOError :
-		#rsa file does not exist on disk the we determine RSA Key
+		#rsa file does not exist on disk then we determine RSA Key
 			print('RSA file not found on file, lets calculate RSA key by algo from prvate key')
 			global salt
 			global master_key
