@@ -12,7 +12,7 @@ from base64 import b64encode, b64decode
 import constante
 import environment
 from Talao_ipfs import ipfs_add, ipfs_get
-
+import privatekey
 
 def contracts_to_owners(workspace_contract, mode) :
 	w3 = mode.w3
@@ -33,16 +33,17 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 
 	# cryptage des données par le user
 	if privacy != 'public' :
-
-		#recuperer les cle AES cryptée
+		"""
 		contract = w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 		mydata = contract.functions.identityInformation().call()
+		"""
 		if privacy == 'private' :
-			aes_encrypted = mydata[5]
+			my_aes = privatekey.get_key(address_to, 'aes_key', mode)
 		if privacy == 'secret' :
-			aes_encrypted = mydata[6]
-
-		# read la cle privee RSA sur le fichier
+			my_aes = privatekey(address_to, 'secret_key', mode)
+		if my_aes is None :
+			return None, None, None
+		"""# read la cle privee RSA sur le fichier
 		RSA_filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_to + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
 		try :
 			fp = open(RSA_filename,"r")
@@ -51,11 +52,11 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 		except :
 			print('cannot open rsa file in add_file.file.py')
 			return None, None, None
-
 		# decoder la cle AES128 cryptée avec la cle RSA privée
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)
 		my_aes = cipher.decrypt(aes_encrypted)
+		"""
 
 		# coder les datas
 		bytesdatajson = bytes(json.dumps(data), 'utf-8') # dict -> json(str) -> bytes

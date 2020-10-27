@@ -400,11 +400,12 @@ def oauth_issue(mode):
         response_dict = {'detail' : certificate['type'] + ' certificate not allowed' }
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    certificate['version'] = 1
-    certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
-    certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
-    certificate['manager'] = 'Director'
-    certificate['reviewer'] = ''
+    if certificate['type'] == 'experience' :
+        certificate['version'] = 1
+        certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
+        certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
+        certificate['manager'] = 'Director'
+        certificate['reviewer'] = ''
     my_certificate = Document('certificate')
     document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
                         client_workspace_contract,

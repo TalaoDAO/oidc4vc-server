@@ -33,16 +33,21 @@ import ns
 import privatekey
 #import ethereum_bridge see later
 
+
+"""
 # Gloval variables for RSA algo
 master_key = ""
 salt = ""
 #Identity_store = 5
 
+
 # deterministic rand function for RSA setup
 def my_rand(n):
-    """ use of kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG """
     my_rand.counter += 1
     return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
+"""
+
+
 
 def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	""" This function signs a claim with sheme #2 and store an encrypted email with secret key (topicvalue = 101109097105108 """
@@ -88,10 +93,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	return True
 
 def create_user(username, email,mode, creator=None):
-	""" Create Identity """
-
 	email = email.lower()
-
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
@@ -99,7 +101,7 @@ def create_user(username, email,mode, creator=None):
 	if mode.test :
 		print('user address = ', address)
 		print('user private key = ', private_key)
-
+	"""
 	# deterministic RSA key https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
 	global salt
 	global master_key
@@ -109,6 +111,8 @@ def create_user(username, email,mode, creator=None):
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	RSA_private = RSA_key.exportKey('PEM')
 	RSA_public = RSA_key.publickey().exportKey('PEM')
+	"""
+	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
 
 	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
@@ -194,22 +198,13 @@ def create_user(username, email,mode, creator=None):
 		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
 		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
 
-	# update private key.db, to store Ethereum private key
-	data = { 'created' : datetime.today(),
-			'username' : username,
-			 'email' : email,
-			 'address' : address,
-			 'private_key' :private_key,
-			 'workspace_contract' : workspace_contract,
-			 'secret' : SECRET_key.hex(),
-			 'aes' : AES_key.hex()}
+	# store Ethereum private key in keystore
+	if not privatekey.add_private_key(private_key, mode) :
+		print('add private key failed')
+		return None, None, None
 
 	# synchro with ICO token
 	#ethereum_bridge.lock_ico_token(address, private_key)
-
-	if not privatekey.add_identity(data, mode) :
-		print('update private key failed')
-		return None, None, None
 
 	if mode.test :
 		print("createidentity is OK")

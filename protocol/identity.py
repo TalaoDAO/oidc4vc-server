@@ -108,16 +108,9 @@ class Identity() :
 		return
 
 	def has_relay_rsa_key(self) :
-		filename = "./RSA_key/" + self.mode.BLOCKCHAIN + '/' + str(self.address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
-		try :
-			fp = open(filename,"r")
-			rsa_key = fp.read()
-			self.rsa_key = True
-			fp.close()
-			self.rsa_key_value = rsa_key
-		except IOError :
-			self.rsa_key = False
-			self.rsa_key_value = None
+		self.rsa_key_value = privatekey.get_key(self.address, 'rsa_key', self.mode)
+		self.rsa_key = False if self.rsa_key_value is None else True
+		return
 
 	# one checks if Relay has a key 1
 	def is_relay_activated(self):

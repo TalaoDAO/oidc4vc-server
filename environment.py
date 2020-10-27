@@ -47,6 +47,7 @@ class currentMode() :
 
 		# En Prod chez AWS avec Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':
+			self.keystore_path = "/home/admin/Talao/keystore/"
 			self.db_path = '/home/admin/db/talaonet/'
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
@@ -56,6 +57,7 @@ class currentMode() :
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :
+			self.keystore_path = "/home/thierry/Talao/keystore/"
 			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
@@ -66,6 +68,7 @@ class currentMode() :
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'livebox' :
+			self.keystore_path = "/home/thierry/Talao/keystore/"
 			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
@@ -76,6 +79,7 @@ class currentMode() :
 
 		# sur PC portable alex
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'freebox' :
+			self.keystore_path = "" # to be defined
 			self.db_path = '/home/jarvis/Bureau/Eth/db/'
 			self.IPCProvider = '/home/jarvis/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/home/jarvis/talaonet/geth.ipc', timeout=20))
@@ -86,6 +90,7 @@ class currentMode() :
 
 		# En Prod sur Rinkeby
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':
+			self.keystore_path = "/home/admin/Talao/keystore/"
 			self.db_path = '/home/admin/db/rinkeby/'
 			self.w3 = Web3(Web3.IPCProvider('/home/admin/rinkeby/geth.ipc', timeout=20))
 			self.IPCProvider = '/home/admin/rinkeby/geth.ipc'
@@ -95,6 +100,7 @@ class currentMode() :
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'livebox' :
+			self.keystore_path = "/home/thierry/Talao/keystore/"
 			self.db_path = '/home/thierry/db/rinkeby/'
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))
@@ -105,6 +111,7 @@ class currentMode() :
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'airbox' :
+			self.keystore_path = "/home/thierry/Talao/keystore/"
 			self.db_path = '/home/thierry/db/rinkeby/'
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))

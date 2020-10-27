@@ -13,7 +13,7 @@ from base64 import b64encode, b64decode
 #dependances
 import constante
 from Talao_ipfs import ipfs_add, ipfs_get
-
+import privatekey
 
 def contracts_to_owners(workspace_contract, mode) :
 	w3 = mode.w3
@@ -47,7 +47,7 @@ def topicname2topicvalue(topicname) :
 		if int(a) < 100 :
 			a='0'+a
 		topicvaluestr = topicvaluestr + a
-	return int(topicvaluestr)	
+	return int(topicvaluestr)
 
 
 def read_profil (workspace_contract, mode, loading) :
@@ -95,34 +95,18 @@ def read_profil (workspace_contract, mode, loading) :
 			data = contract.functions.getClaim(claimId).call()
 			profil[topicname]=data[4].decode('utf-8')
 
-	return profil,category 
+	return profil,category
 
+"""
 def encrypt_data(identity_workspace_contract,data, privacy, mode) :
-	#@ data = dict	
-	w3 = mode.w3	
+	#@ data = dict
+	w3 = mode.w3
 	#recuperer la cle AES cryptée de l identité
-	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
-	mydata = contract.functions.identityInformation().call()
-	if privacy == 'private' :
-		my_aes_encrypted = mydata[5]
-	if privacy == 'secret' :
-		my_aes_encrypted = mydata[6] 
-
 	identity_address = contracts_to_owners(identity_workspace_contract, mode)
-	filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + identity_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
-	try :
-		fp = open(filename,"r")
-		my_rsa_key = fp.read()	
-		fp.close()  
-	except IOError :
-		print('RSA not found')
-		return None 
-
-	# decoder ma cle AES128 cryptée avec ma cle RSA privée
-	key = RSA.importKey(my_rsa_key)
-	cipher = PKCS1_OAEP.new(key)
-	my_aes = cipher.decrypt(my_aes_encrypted)
-
+	if privacy == 'private' :
+		my_aes = privatekey.get_key(identity_address, 'aes_key', mode)
+	if privacy == 'secret' :
+		my_aes = privatekey.get_key(identity_address, 'secret_key', mode)
 	# coder les datas
 	bytesdatajson = bytes(json.dumps(data), 'utf-8') # dict -> json(str) -> bytes
 	header = b"header"
@@ -133,7 +117,7 @@ def encrypt_data(identity_workspace_contract,data, privacy, mode) :
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
 	return dict_data
-
+"""
 
 """ si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstane' ; 'pierre'} """
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
@@ -151,7 +135,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	if privacy == 'public' :
 		ipfs_hash = ""
 	else :
-		data_encrypted = encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
+		data_encrypted = privatekey.encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
 		if data_encrypted is None :
 			return None, None, None
 		ipfs_hash = ipfs_add(data_encrypted, mode)
@@ -227,21 +211,18 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			aes_encrypted = mydata[6]
 
 	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from is not None and workspace_contract_from is not None :
-		print(' private_key ', private_key_from)
 		#recuperer les cle AES cryptée du user sur son partnership de l identité
 		contract = w3.eth.contract(workspace_contract_from, abi = constante.workspace_ABI)
 		acct = Account.from_key(private_key_from)
 		mode.w3.eth.defaultAccount = acct.address
 		partnership_data = contract.functions.getPartnership(identity_workspace_contract).call()
-		print('partnership data = ', partnership_data)
-		privacy = 'private'	
-		# one tests if the user in in partnershipg with identity (pending or authorized) and his aes_key exist (status rejected ?)
+		privacy = 'private'
+		# one tests if the user in partnershipg with identity (pending or authorized) and his aes_key exist (status rejected ?)
 		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
 			aes_encrypted = partnership_data[4]
 			to_be_decrypted = True
 		else :
 			to_be_decrypted = False
-		print('to be decrypted = ', to_be_decrypted)
 
 	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
 		to_be_decrypted = False
@@ -250,24 +231,20 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 
 	# data decryption
 	if to_be_decrypted :
-		# read la cle RSA privee sur le fichier du from
+
+		# read la cle RSA privee 
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
-		RSA_filename = "./RSA_key/"+mode.BLOCKCHAIN+'/' + address_from + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-		try :
-			fp = open(RSA_filename,"r")
-			rsa_key=fp.read()
-			fp.close()
-		except :
-			print(' get_claim : cannot open rsa file to decrypt ')
-			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
+		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
+
 		# upload data encrypted from ipfs
-		print('ipfs hash = ', ipfs_hash, ' topicname = ', privacy, data)
 		data_encrypted = ipfs_get(ipfs_hash)
-		# decoder la cle AEScryptée avec la cle RSA privée
+
+		# decoder la cle AEScryptée du partner avec la cle RSA privée
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)
 		aes = cipher.decrypt(aes_encrypted)
+
 		# decoder les datas
 		try:
 			b64 = data_encrypted
@@ -282,7 +259,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			print("data decryption error")
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
 
-	# get transaction info
+	# transaction 
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
 	event_list = claim_filter.get_all_entries()
@@ -311,12 +288,12 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 
-def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):	
+def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):
 	w3=mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)
 	# Build transaction
-	txn = contract.functions.removeClaim(claim_id).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
+	txn = contract.functions.removeClaim(claim_id).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn=w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash =w3.toHex(w3.keccak(signed_txn.rawTransaction))
@@ -378,7 +355,7 @@ class Claim() :
 
 	def get_by_id(self, workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode, loading='full') :
 		arg = get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
-		return self._get_by(*arg, mode,loading)	
+		return self._get_by(*arg, mode,loading)
 
 	def _get_by(self, issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topicvalue, created, mode, loading) :
 		""" Internal function """

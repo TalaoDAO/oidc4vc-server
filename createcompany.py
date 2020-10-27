@@ -24,8 +24,8 @@ import privatekey
 #import ethereum_bridge see later
 
 # Global variables for RSA
-master_key = ""
-salt = ""
+#master_key = ""
+#salt = ""
 # Global variable for Relay and Talao setup
 relay_address = ""
 
@@ -95,21 +95,23 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 		return None
 	return hash
 
+"""
 # deterministic RSA rand function
 def my_rand(n):
     # kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG
     my_rand.counter += 1
     return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
-
+"""
 
 def create_company(email, username, mode) :
 	""" username is a company name here
 	one does not check if username exist here """
 
 	global relay_address
+	"""
 	global salt
 	global master_key
-
+	"""
 	# wallet init
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
 	address = account.address
@@ -117,6 +119,7 @@ def create_company(email, username, mode) :
 	print('adresse = ', address)
 	print('private key = ', private_key)
 
+	"""
 	# Setup of an  RSA deterministic (bytes) cf https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
 	salt = private_key
 	password = mode.password
@@ -125,6 +128,9 @@ def create_company(email, username, mode) :
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	RSA_private = RSA_key.exportKey('PEM')
 	RSA_public = RSA_key.publickey().exportKey('PEM')
+	"""
+
+	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum ou talaonet
 	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/'+ str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
@@ -198,17 +204,8 @@ def create_company(email, username, mode) :
 	# create databe for manager within the company
 	ns.init_host(username, mode)
 
-	# update private key
-	data = { 'created' : datetime.today(),
-			'username' : username,
-			 'email' : email,
-			 'address' : address,
-			 'private_key' :private_key,
-			 'workspace_contract' : workspace_contract,
-			 'secret' : SECRET_key.hex(),
-			 'aes' : AES_key.hex()}
-	execution = privatekey.add_identity(data, mode)
-	if mode.test and execution :
+	# add private key
+	if privatekey.add_private_key(private_key, mode) :
 		print('New company has been added ')
 		Talao_message.messageLog("no lastname",
 								 "no firstname",
@@ -222,6 +219,9 @@ def create_company(email, username, mode) :
 								 SECRET_key.hex(),
 								 AES_key.hex(),
 								 mode)
+	else :
+		print('add private key failed')
+		return None, None, None
 
 	# synchro with ICO token
 	#ethereum_bridge.lock_ico_token(address, private_key)

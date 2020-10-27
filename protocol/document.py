@@ -81,27 +81,9 @@ def read_profil (workspace_contract, mode, loading) :
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
 	# @data = dict
 
-	# look for AES key
-	if privacy == 'private' :
-		my_aes = privatekey.get_key(address_to,'aes_key', mode)
-	elif privacy == 'secret' :
-		my_aes = privatekey.get_key(address_to,'secret_key', mode)
-	elif privacy == 'public' :
-		my_aes = b'public_ipfs_key_' #16 bytes long
-	else :
-		print('error type of ecryption')
-		return None, None, None
+	#encrypt data
+	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode)
 
-	# encryt data with AES key
-	bytesdatajson = bytes(json.dumps(data), 'utf-8') # dict -> json(str) -> bytes
-	header = b"header"
-	cipher = AES.new(my_aes, AES.MODE_EAX) #https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
-	cipher.update(header)
-	ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
-	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
-	data = dict(zip(json_k, json_v))
-	print('data encyptd ', data)
 	# Date
 	if mydays == 0 :
 		expires = 0
@@ -117,15 +99,13 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	ipfs_hash = ipfs_add(data, mode)
 	if ipfs_hash is None :
 		return None, None, None
-	print('ipfs hash = ', ipfs_hash)
 	# checksum (bytes)
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
 	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
 
-	encrypted =  True # even for public data
 	# Transaction with doctypevesrion = 3 for RGPD constraint
-	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), encrypted).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
@@ -133,7 +113,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if receipt['status'] == 0 :
 			return None, None, None
-	print('receipt = ', receipt)
+
 	# Get document  id on last event
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	from_block = mode.w3.eth.blockNumber - 10
