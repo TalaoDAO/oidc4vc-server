@@ -116,9 +116,12 @@ def create_user(username, email,mode, creator=None):
 
 	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
 	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	fichier = open(filename,"wb")
-	fichier.write(RSA_private)
-	fichier.close()
+	try :
+		file = open(filename,"wb")
+		file.write(RSA_private)
+		file.close()
+	except :
+		print('RSA key not stored')
 
 	# Keys for encryption
 	# Setup a key (symetric) named 'AES' to encrypt private data and to be shared with partnership

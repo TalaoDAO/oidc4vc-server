@@ -50,7 +50,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 
 	# debut de la fonction
 	fromaddr = 'relay@talao.io'
-	toaddr = [mode.admin, 'alexandre.leclerc@gadz.org', 'victor.baconnet@gmail.com']
+	toaddr = [mode.admin, 'alexandre.leclerc@gadz.org', 'victor.baconnet@talao.io']
 #	toaddr = ['thierry.thevenet@talao.io' , 'thevenet_thierry@yahoo.fr']
 
 	# instance of MIMEMultipart

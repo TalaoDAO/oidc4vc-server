@@ -1,5 +1,3 @@
-
-
 """
 External routes for Oauth clients
 flow available :
@@ -22,8 +20,6 @@ flow available :
 """
 
 
-
-
 import os
 import time
 from flask import request, session, url_for, Response, abort, flash
@@ -43,11 +39,6 @@ import constante
 from protocol import read_profil, Identity, contractsToOwners, add_key, partnershiprequest, authorize_partnership, has_key_purpose, Document, get_image
 import createidentity
 import privatekey
-
-
-
-
-
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -124,7 +115,6 @@ def home():
         clients = []
     return render_template('/oauth/home.html', user=user, clients=clients)
 
-
 #@bp.route('/api/v1/oauth_logout')
 def oauth_logout():
     check_login()
@@ -173,7 +163,6 @@ def create_client():
         return redirect('/api/v1')
     if request.method == 'GET':
         return render_template('/oauth/create_client.html')
-
     client_id = gen_salt(24)
     client_id_issued_at = int(time.time())
     client = OAuth2Client(
@@ -210,12 +199,11 @@ def issue_token():
     response = authorization.create_token_response()
     return response
 
-
-# AUTHORIZATION CODE 
+# AUTHORIZATION CODE
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
     user = current_user()
-    scope_list=['profile', 'resume', 'private', 'certificate', 'proof_of_identity', 'birthdate', 'email', 'phone']
+    scope_list=['openid', 'profile', 'resume', 'private', 'certificate', 'proof_of_identity', 'birthdate', 'email', 'phone']
     # if user log status is not true (Auth server), then to log it in
     if not user:
         return redirect(url_for('oauth_login', next=request.url))
@@ -225,7 +213,7 @@ def authorize(mode):
         except OAuth2Error as error:
             return error.error
         checkbox = {key: 'checked' if key in grant.request.scope else ""  for key in scope_list}
-        print(' check box', checkbox)
+
         # client requests partnership to user
         if "private" in grant.request.scope :
             client_id = request.args.get('client_id')
@@ -242,6 +230,8 @@ def authorize(mode):
                 client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
                 user_workspace_contract = ns.get_data_from_username(user.username, mode).get('workspace_contract')
                 partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode, synchronous=False) 
+
+        #ask for consent
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,**checkbox)
     # POST
     if not user and 'username' in request.form:
@@ -250,14 +240,15 @@ def authorize(mode):
     if 'reject' in request.form :
         grant_user = None
         return authorization.create_authorization_response(grant_user=grant_user)
-    # obtain query string as dictionary
-    query_dict = parse_qs(request.query_string.decode("utf-8"))
+    
     # customize scope for this request
-    my_scope = ""
+    query_dict = parse_qs(request.query_string.decode("utf-8"))
+    my_scope = "openid "
     for scope in scope_list :
         if request.form.get(scope) == "on" :
             my_scope = my_scope + scope + " "
     query_dict["scope"] = my_scope
+    print('scope list envoyée sur le token = ', my_scope)
     # We here setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
     return authorization.create_authorization_response(grant_user=user, request=req)
@@ -276,7 +267,6 @@ def user_info(mode):
     user_info = dict()
     profile = read_profil(user_workspace_contract, mode, 'full')[0]
     user_info['sub'] = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
-    print('all scopes = ', current_token.scope)
     if 'profile' in current_token.scope :
         user_info['given_name'] = profile.get('firstname')
         user_info['family_name'] = profile.get('lastname')
@@ -288,8 +278,9 @@ def user_info(mode):
     if 'birthdate' in current_token.scope :
         user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
     if 'private' in current_token.scope :
-        # identity authorizes partnership
+        # If not partner,  identity authorizes the partnership requested by client
         found = False
+        #check if alreday partner
         for partner in get_partners(user_workspace_contract, mode) :
             if partner['address'] == client_address and partner['authorized'] == 'Authorized' :
                 found = True
@@ -300,13 +291,14 @@ def user_info(mode):
             relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
             user_info['private'] = authorize_partnership(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_workspace_contract, user_rsa_key, mode, synchronous=True)
     if 'certificate' in current_token.scope :
-        # identity issues a 20002 key to client paid by relay
+        # identity issues a 20002 key to client. This key is paid by relay
         if not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
             relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
             user_info['certificate'] = add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
         else :
             user_info['certificate'] = True
     if 'resume' in current_token.scope :
+        #a refaire pour un resume standard
         user_dict = Identity(user_workspace_contract, mode).__dict__
         del user_dict['mode']
         del user_dict['partners']

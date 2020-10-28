@@ -105,10 +105,10 @@
 <p class="caption"><span class="caption-text">Talent Connect:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Talent Connect API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-authorization-code-flow">OAuth 2.0 Authorization Code flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#oauth-2-0-client-credentials-flow">OAuth 2.0 Client Credentials Flow</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-create">https://talao.co/api/v1/create</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#https-talao-co-api-v1-issue">https://talao.co/api/v1/issue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authorization-code-flow">Authorization Code flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#client-credentials-flow">Client Credentials Flow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#endpoint-https-talao-co-api-v1-create">Endpoint : https://talao.co/api/v1/create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#endpoint-https-talao-co-api-v1-issue">Endpoint : https://talao.co/api/v1/issue</a></li>
 </ul>
 </li>
 </ul>
@@ -195,39 +195,63 @@ For companies it is an easy way to get reliable data about Talents and a powerfu
 <li><p>Outsource Talent data.</p></li>
 <li><p>Strenghen an employer brand with latest technology features like Blockchain Resume, Decentralized Identity,…</p></li>
 </ul>
-<p>We use OAuth2 Autorization Code flow and OAuth2 Client Credentials flow to manage those cases.
-Contact us <a class="reference external" href="mailto:relay-support&#37;&#52;&#48;talao&#46;io">relay-support<span>&#64;</span>talao<span>&#46;</span>io</a> to open your Company Identity and receive your application granted permissions to use those APIs</p>
-<div class="section" id="oauth-2-0-authorization-code-flow">
-<h2>OAuth 2.0 Authorization Code flow<a class="headerlink" href="#oauth-2-0-authorization-code-flow" title="Permalink to this headline">¶</a></h2>
-<p>For your users, the OAuth 2.0 authentication experience includes a consent screen that describes through ‘scopes’ the information that the user is releasing.
-For example, when the user logs in, they might be asked to give your appication access to their email address, resume and basic account information.
+<p>The Talao API server is an OpenId Connect server. We use OpenID Connect Autorization Code flow and Client Credentials flow to manage those cases.
+Contact us <a class="reference external" href="mailto:relay-support&#37;&#52;&#48;talao&#46;io">relay-support<span>&#64;</span>talao<span>&#46;</span>io</a> to open your Company Identity and receive your application granted permissions to use those APIs.</p>
+<div class="section" id="authorization-code-flow">
+<h2>Authorization Code flow<a class="headerlink" href="#authorization-code-flow" title="Permalink to this headline">¶</a></h2>
+<p>For your users, the OpenID Connect authentication experience includes a consent screen that describes through ‘scopes’ the information that the user is releasing.
+For example, when the user logs in, they might be asked to give your appication access to their name, email address and basic account information.
 You request access to this information using the scope parameter, which your app includes in its authentication request.</p>
-<p>If no scope is provided, the flow is only used for authentification.</p>
-<p>Scopes for data access are :</p>
+<p>Scopes for data access are standard OpenID Connect scopes :</p>
 <ul class="simple">
-<li><p>profile (sub, given_name, family_name, gender,…)</p></li>
+<li><p>openid (sub)</p></li>
+<li><p>profile (sub + given_name + family_name + gender)</p></li>
 <li><p>birthdate</p></li>
 <li><p>email</p></li>
 <li><p>phone</p></li>
-<li><p>resume : JSON resume see <a class="reference external" href="https://jsonresume.org/">https://jsonresume.org/</a></p></li>
-<li><p>proof_of_identity</p></li>
 </ul>
-<p>Those two other scopes allow special features through other client credentials flow and specific endpoints :</p>
+<p>Those data are available through a JWT and at the user_info endpoint. JWT is signed with alg : RS256 and RSA key. RSA Public Key available on request.</p>
+<p>Below data and features which are also available with this flow at the user_info endpoint :</p>
 <ul class="simple">
-<li><p>private : Request authorization to access private data (partnership).</p></li>
-<li><p>certification : Request authorization to issue certificates.</p></li>
+<li><p>resume : JSON current resume (see <a class="reference external" href="https://jsonresume.org/">https://jsonresume.org/</a>)</p></li>
+<li><p>proof_of_identity : last proof of identity</p></li>
+<li><p>private : Request authorization to access private data (partnership). If accepted your company will be added to the Talent’s partner list.</p></li>
+<li><p>certification : Request authorization to issue certificates. If accepted your company will be added to the Talent’s referent list.</p></li>
 </ul>
-<p>To get a grant code for this flow, redirect your user to <a class="reference external" href="https://talao.co/api/v1/authorize">https://talao.co/api/v1/authorize</a> with a subset of your scope list .
-User will be asked to sign in with their Decentralized Identifier and to consent for your list of scopes.</p>
+<p>Other scopes are avaialble for special features through the Client Credentials flow and specific endpoints (see further).</p>
+<p>To get a grant code from Talent, redirect your user to <a class="reference external" href="https://talao.co/api/v1/authorize">https://talao.co/api/v1/authorize</a> with a subset of your scope list .
+Talent will be asked to sign in with his/her Decentralized IDentifier (DID) and to consent for your list of scopes.</p>
 <p>Example :</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>https://talao.co/api/v1/authorize?response_type=code&amp;client_id=your_client_id&amp;scope=your_scopes
 </pre></div>
 </div>
-<p>With the grant code, connect to the token endpoint <a class="reference external" href="https://talao.co/api/v1/auth/token">https://talao.co/api/v1/auth/token</a> to get an access token. You will need your client_secret.</p>
+<p>With the grant code, connect to the token endpoint <a class="reference external" href="https://talao.co/api/v1/auth/token">https://talao.co/api/v1/auth/token</a> to get an Access Token and an ID Token. You will need your client_secret.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">u</span> <span class="n">your_client_id</span><span class="p">:</span><span class="n">your_secret_value</span> <span class="o">-</span><span class="n">XPOST</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">oauth</span><span class="o">/</span><span class="n">token</span> <span class="o">-</span><span class="n">F</span> <span class="n">grant_type</span><span class="o">=</span><span class="n">client_credentials</span> <span class="o">-</span><span class="n">F</span> <span class="n">scope</span><span class="o">=</span><span class="n">your_scopes</span>
 </pre></div>
 </div>
-<p>With the access token you can get Talent data through the user_info endpoint <a class="reference external" href="https://talao.co/api/v1/user_info">https://talao.co/api/v1/user_info</a>.</p>
+<p>With the Access Token you can get Talent data through the user_info endpoint <a class="reference external" href="https://talao.co/api/v1/user_info">https://talao.co/api/v1/user_info</a>.</p>
+<p>With the ID Token you can get user data without any new call.
+For authentication best is to use the ID Token and verify its signature with the RSA key.</p>
+<p>JWT ID Token payload example :</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://talao.co&quot;</span><span class="p">,</span>
+<span class="nt">&quot;aud&quot;</span><span class="p">:</span> <span class="p">[</span>
+  <span class="s2">&quot;iPSoIWDI4shQ0dEG86ZpSFdj&quot;</span>
+<span class="p">],</span>
+<span class="nt">&quot;iat&quot;</span><span class="p">:</span> <span class="mi">1603895896</span><span class="p">,</span>
+<span class="nt">&quot;exp&quot;</span><span class="p">:</span> <span class="mi">1603899496</span><span class="p">,</span>
+<span class="nt">&quot;auth_time&quot;</span><span class="p">:</span> <span class="mi">1603895896</span><span class="p">,</span>
+<span class="nt">&quot;nonce&quot;</span><span class="p">:</span> <span class="s2">&quot;64867&quot;</span><span class="p">,</span>
+<span class="nt">&quot;at_hash&quot;</span><span class="p">:</span> <span class="s2">&quot;uAaDX0YA4NnMkO6fW8-7nw&quot;</span><span class="p">,</span>
+<span class="nt">&quot;sub&quot;</span><span class="p">:</span> <span class="s2">&quot;did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB&quot;</span><span class="p">,</span>
+<span class="nt">&quot;given_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Thierry&quot;</span><span class="p">,</span>
+<span class="nt">&quot;family_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Thevenet&quot;</span><span class="p">,</span>
+<span class="nt">&quot;gender&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+<span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;thierry.thevenet@talao.io&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you need to get data through the user _info endpoint :</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">H</span> <span class="s2">&quot;Authorization: Bearer your_access_token&quot;</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">talao</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">user_info</span>
 </pre></div>
 </div>
@@ -244,13 +268,13 @@ User will be asked to sign in with their Decentralized Identifier and to consent
 </pre></div>
 </div>
 </div>
-<div class="section" id="oauth-2-0-client-credentials-flow">
-<h2>OAuth 2.0 Client Credentials Flow<a class="headerlink" href="#oauth-2-0-client-credentials-flow" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="client-credentials-flow">
+<h2>Client Credentials Flow<a class="headerlink" href="#client-credentials-flow" title="Permalink to this headline">¶</a></h2>
 <p>For basic actions we offer OAuth 2.0 application access via the Client Credentials Flow.
 Commonly referred to as “OAuth two-legged”, this flow allows your application to call Talao’s APIs  :</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a> : to issue certificates depending on scopes (experience, skill, proof_of_identity, recommendation)</p></li>
-<li><p><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a> : to create identity.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a> : to issue certificates.</p></li>
+<li><p><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a> : to create an identity.</p></li>
 <li><p><a class="reference external" href="https://talao.co/api/v1/refer">https://talao.co/api/v1/refer</a> : to add a referent.</p></li>
 <li><p><a class="reference external" href="https://talao.co/api/v1/request_partner">https://talao.co/api/v1/request_partner</a> : to request a partnership.</p></li>
 <li><p><a class="reference external" href="https://talao.co/api/v1/reject_partner">https://talao.co/api/v1/reject_partner</a> : to reject a partnership.</p></li>
@@ -272,8 +296,8 @@ Commonly referred to as “OAuth two-legged”, this flow allows your applicatio
 </pre></div>
 </div>
 <p>Your access token is live for 3000 seconds.</p>
-<div class="section" id="https-talao-co-api-v1-create">
-<h3><a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a><a class="headerlink" href="#https-talao-co-api-v1-create" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="endpoint-https-talao-co-api-v1-create">
+<h3>Endpoint : <a class="reference external" href="https://talao.co/api/v1/create">https://talao.co/api/v1/create</a><a class="headerlink" href="#endpoint-https-talao-co-api-v1-create" title="Permalink to this headline">¶</a></h3>
 <p>Create an Identity for Talent.
 Your company is appointed as a referent to issue certificates to this Talent.
 Talent Identity credentials are sent by email to Talent.
@@ -300,8 +324,10 @@ Return JSON with Talent identifier (DID) and username</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="https-talao-co-api-v1-issue">
-<h3><a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a><a class="headerlink" href="#https-talao-co-api-v1-issue" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="endpoint-https-talao-co-api-v1-issue">
+<h3>Endpoint : <a class="reference external" href="https://talao.co/api/v1/issue">https://talao.co/api/v1/issue</a><a class="headerlink" href="#endpoint-https-talao-co-api-v1-issue" title="Permalink to this headline">¶</a></h3>
+<p>Issue a certificate to a Talent depending on the scope allowed.
+Company must be a in the Talent’s referent list. Use the Authorization Code flow (scope = certification) to be added to that list.</p>
 <p>Example :</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -X POST https://talao.co/api/v1/issue  \
  -H &quot;Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9&quot; \
@@ -326,7 +352,7 @@ Return JSON with Talent identifier (DID) and username</p>
 </div>
 <p>JSON return :</p>
 <div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://127.0.0.1:3000/certificate/?certificate_id=did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB:document:12&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;https://talao.co/certificate/?certificate_id=did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB:document:12&quot;</span><span class="p">,</span>
   <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;experience&quot;</span><span class="p">,</span>
   <span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef de projet Blockchain&quot;</span><span class="p">,</span>
   <span class="nt">&quot;description&quot;</span> <span class="p">:</span> <span class="s2">&quot;Conception et ralisation d un prototype Ethereum d un suivi de production&quot;</span><span class="p">,</span>
@@ -337,8 +363,8 @@ Return JSON with Talent identifier (DID) and username</p>
   <span class="nt">&quot;score_delivery&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
   <span class="nt">&quot;score_schedule&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
   <span class="nt">&quot;score_communication&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-  <span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Jean Permet&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;Paul Jacques&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;manager&quot;</span> <span class="p">:</span> <span class="s2">&quot;Director&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;reviewer&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
   <span class="nt">&quot;logo&quot;</span> <span class="p">:</span> <span class="s2">&quot;QmRgLUZbLfRR7hW4CB7tqTFrjrfXxVUaP3XnNjC5D5QzT&quot;</span><span class="p">,</span>
   <span class="nt">&quot;signature&quot;</span> <span class="p">:</span> <span class="s2">&quot;QmHT7UZbLfRR7hW4CB7tqTFrjrfXxVUaP3XnNjC5D5Qzza&quot;</span><span class="p">,</span>
   <span class="nt">&quot;ipfs_hash&quot;</span> <span class="p">:</span> <span class="s2">&quot;456ab656446564f&quot;</span><span class="p">,</span>

@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.12.1"
+VERSION = "0.13.0"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -100,12 +100,18 @@ app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
-sess = Session()
-sess.init_app(app)
+#sess = Session()
+#sess.init_app(app)
+
+
 
 #config Authorization Server OAuth, OAuth 2, OpenId
 oauth_config = {
-    'SECRET_KEY': 'secret',
+    'OAUTH2_JWT_ENABLED' : True,
+    'OAUTH2_JWT_ISS' : 'http://talao.co',
+    'OAUTH2_JWT_KEY' : '',
+    'OAUTH2_JWT_ALG' : 'RS256',
+    #'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
@@ -117,8 +123,12 @@ oauth_config = {
         }
     }
 app.config.update(oauth_config)
+sess = Session()
+sess.init_app(app)
+
 db.init_app(app)
 config_oauth(app)
+
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)

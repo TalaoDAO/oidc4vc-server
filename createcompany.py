@@ -95,23 +95,13 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 		return None
 	return hash
 
-"""
-# deterministic RSA rand function
-def my_rand(n):
-    # kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG
-    my_rand.counter += 1
-    return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
-"""
 
 def create_company(email, username, mode) :
 	""" username is a company name here
 	one does not check if username exist here """
 
 	global relay_address
-	"""
-	global salt
-	global master_key
-	"""
+
 	# wallet init
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
 	address = account.address
@@ -119,24 +109,16 @@ def create_company(email, username, mode) :
 	print('adresse = ', address)
 	print('private key = ', private_key)
 
-	"""
-	# Setup of an  RSA deterministic (bytes) cf https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
-	salt = private_key
-	password = mode.password
-	master_key = PBKDF2(password, salt, count=10000)  # bigger count is better
-	my_rand.counter = 0
-	RSA_key = RSA.generate(2048, randfunc=my_rand)
-	RSA_private = RSA_key.exportKey('PEM')
-	RSA_public = RSA_key.publickey().exportKey('PEM')
-	"""
-
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum ou talaonet
 	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/'+ str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	fichier=open(filename,"wb")
-	fichier.write(RSA_private)
-	fichier.close()
+	try :
+		file=open(filename,"wb")
+		file.write(RSA_private)
+		file.close()
+	except :
+		print('RSA key not stored')
 
 	# création de la cle AES
 	AES_key = get_random_bytes(16)

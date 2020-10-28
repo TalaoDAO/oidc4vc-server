@@ -1,9 +1,8 @@
-import time
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.sqla_oauth2 import (
     OAuth2ClientMixin,
-    OAuth2AuthorizationCodeMixin,
     OAuth2TokenMixin,
+    OAuth2AuthorizationCodeMixin
 )
 
 db = SQLAlchemy()
@@ -18,9 +17,6 @@ class User(db.Model):
 
     def get_user_id(self):
         return self.id
-
-    def check_password(self, password):
-        return password == 'valid'
 
 
 class OAuth2Client(db.Model, OAuth2ClientMixin):
@@ -48,9 +44,3 @@ class OAuth2Token(db.Model, OAuth2TokenMixin):
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     user = db.relationship('User')
-
-    def is_refresh_token_active(self):
-        if self.revoked:
-            return False
-        expires_at = self.issued_at + self.expires_in * 2
-        return expires_at >= time.time()
