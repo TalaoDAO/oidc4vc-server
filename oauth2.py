@@ -38,6 +38,8 @@ try :
 except :
     print('JWT private RSA key not found')
 
+
+
 JWT_CONFIG = {
     'key': rsa_key,
     'alg': 'RS256',
@@ -140,7 +142,7 @@ class HybridGrant(_OpenIDHybridGrant):
         return exists_nonce(nonce, request)
 
     def get_jwt_config(self):
-        return JWT_CONFIG
+       return JWT_CONFIG
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)

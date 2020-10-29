@@ -450,7 +450,6 @@ def resume(mode) :
         skills = []
         for certificate in issuer_explore.certificate:
             if certificate['type'] == "skill":
-                print(certificate)
                 skills.append(certificate)
 
         carousel_indicators_skill = """<li data-target="#skill-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
@@ -515,7 +514,6 @@ def resume(mode) :
 
                 lines = skill['description'].split("\n")
                 for l in lines:
-                    print(l)
                     carousel_rows_skill +=  l.strip("\r") + "<br>"
 
                 carousel_rows_skill += "</p>"
@@ -530,7 +528,6 @@ def resume(mode) :
                 if i == len(skills)-1:
                     created_row = False
                     if (i+1)%3==0:
-                        print(i)
                         carousel_rows_skill += '<div class="carousel-item"><div class="row">'
                         created_row = True
                     carousel_rows_skill += """<div class="col-md-4 mb-2">

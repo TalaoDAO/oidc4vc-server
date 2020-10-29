@@ -173,7 +173,8 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	else :
 		myexpires = datetime.fromtimestamp(expires)
 		expires = str(myexpires)
-
+	
+	#compatiblité avec les documents non cryptés
 	if privacy  == 'public' and doctypeversion == 2 :
 		return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 

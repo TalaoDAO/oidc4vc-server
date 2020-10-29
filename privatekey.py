@@ -98,7 +98,8 @@ def create_rsa_key(private_key, mode) :
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	return  RSA_key, RSA_key.exportKey('PEM'), RSA_key.publickey().exportKey('PEM')
 
-def get_key(address,key_type, mode) :
+def get_key(address, key_type, mode) :
+
 	if key_type == 'private_key' :
 		try :
 			fp = open(mode.keystore_path + address[2:] + '.json', "r")
@@ -108,37 +109,43 @@ def get_key(address,key_type, mode) :
 		encrypted = fp.read()
 		fp.close()
 		return Account.decrypt(encrypted, mode.password).hex()
-	else :
-		# first we try to find a rsa file
-		filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
-		try :
-			fp = open(filename,"r")
-			rsa_key = fp.read()
-			fp.close()
-		except IOError :
-		#rsa file does not exist on disk then we determine RSA Key
-			print('RSA file not found on file, lets calculate RSA key by algo from prvate key')
-			global salt
-			global master_key
-			salt = get_key(address, 'private_key', mode)
-			if salt is None :
-				print('impossible de calculer la cle rSA sans la private key')
-				return None
-			master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
-			my_rand.counter = 0
-			RSA_key = RSA.generate(2048, randfunc=my_rand)
-			rsa_key = RSA_key.exportKey('PEM')
+
+	# first we try to find a rsa file
+	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+	print('filename = ', filename)
+	try :
+		fp = open(filename,"r")
+		rsa_key = fp.read()
+		fp.close()
+	except IOError :
+	#rsa file does not exist on disk then we determine RSA Key
+		print('RSA file not found on disk, lets calculate RSA key by algo from private key')
+		global salt
+		global master_key
+		salt = get_key(address, 'private_key', mode)
+		if salt is None :
+			print('impossible de calculer la cle RSA sans la private key')
+			return None
+
+		master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
+		my_rand.counter = 0
+		RSA_key = RSA.generate(2048, randfunc=my_rand)
+		rsa_key = RSA_key.exportKey('PEM')
+
 	if key_type == 'rsa_key' :
 		return rsa_key
+
 	workspace_contract = ownersToContracts(address, mode)
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	aes_encrypted = data[5]
 	secret_encrypted = data[6]
+
 	if key_type == 'aes_key' :
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)
 		return cipher.decrypt(aes_encrypted)
+
 	if key_type == 'secret_key' :
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)

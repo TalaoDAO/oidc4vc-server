@@ -235,6 +235,9 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
+		if rsa_key is None :
+			print("data decryption impossible, no RSA key")
+			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
 
 		# upload data encrypted from ipfs
 		data_encrypted = ipfs_get(ipfs_hash)

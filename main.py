@@ -84,7 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.2"
+VERSION = "0.13.3"
 COOKIE_NAME = 'talao'
 
 # Flask and Session setup
@@ -114,10 +114,10 @@ except :
 
 #config Authorization Server OAuth, OAuth 2, OpenId
 oauth_config = {
-    'OAUTH2_JWT_ENABLED' : True,
-    'OAUTH2_JWT_ISS' : 'http://talao.co',
-    'OAUTH2_JWT_KEY' : rsa_key,
-    'OAUTH2_JWT_ALG' : 'RS256',
+   # 'OAUTH2_JWT_ENABLED' : True,
+   # 'OAUTH2_JWT_ISS' : 'http://talao.co',
+   # 'OAUTH2_JWT_KEY' : rsa_key,
+   # 'OAUTH2_JWT_ALG' : 'RS256',
     #'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
@@ -241,11 +241,6 @@ def picture() :
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
         filename = "profile_pic.jpg"
-        # filename = secure_filename(myfile.filename)
-        # print(filename.rsplit(".", 1))
-        # if len(filename.rsplit(".", 1)) == 1 or filename.rsplit(".", 1)[1].lower() not in app.config["ALLOWED_IMAGE_EXTENSIONS"] :
-        #     flash('Only "JPEG", "JPG", "PNG", "GIF" files accepted', 'warning')
-        #     return redirect(mode.server + 'user/picture/')
         myfile.save(os.path.join(mode.uploads_path, filename))
         picturefile = mode.uploads_path  + filename
         session['picture'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)
@@ -776,7 +771,6 @@ def create_kyc() :
         my_kyc['date_of_expiration'] = request.form['date_of_expiration']
         my_kyc['sex'] = request.form['sex']
         my_kyc['country'] = request.form['country']
-        print('kyc = ', my_kyc)
         kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
         kyc = Document('kyc')
         data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)[0]

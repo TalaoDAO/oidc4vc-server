@@ -344,8 +344,6 @@ def user(mode) :
 		print('start first instanciation user')
 		if mode.test :
 			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
-			#session['identity']= user
-			#print('test = ', session['identity'].test(), 'user = ', user)
 
 		else :
 			try :
@@ -367,7 +365,6 @@ def user(mode) :
 		# init session
 		session['resume'] = user_dict
 		session['uploaded'] = True
-		#session['type']=session['identity'].type
 		session['type'] = user.type
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract

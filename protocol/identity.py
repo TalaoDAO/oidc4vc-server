@@ -39,18 +39,19 @@ class Identity() :
 		self.get_all_documents(mode)
 		self.get_issuer_keys(mode)
 		if self.authenticated :
-			self.has_relay_rsa_key(mode)
-			if self.rsa_key :
-				self.get_secret(mode)
-			else :
-				self.secret = 'Encrypted'
-				self.aes = 'Encrypted'
-
 			self.has_relay_private_key(mode)
 			if self.private_key :
 				self.get_partners(mode)
 			else :
 				self.partners = []
+
+			self.has_relay_rsa_key(mode)
+			if self.rsa_key :
+				self.get_secret(mode) # get aes and secret keys
+			else :
+				self.secret = 'Encrypted'
+				self.aes = 'Encrypted'
+
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated(mode)
@@ -207,15 +208,7 @@ class Identity() :
 		else :
 			print('status des partnerships impossible a obtenir, private key  not found')
 		return True
-	"""
-	def topicname2topicvalue(topicname) :
-		topicvalue_str =''
-		for i in range(0, len(topicname))  :
-			a = str(ord(topicname[i]))
-			a = '0'+ a  if int(a) < 100 else a
-			topicvalue_str += a
-		return int(topicvalue_str)
-	"""
+	
 		# always available
 	def get_identity_personal(self,workspace_contract_from, private_key_from, mode) :
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
