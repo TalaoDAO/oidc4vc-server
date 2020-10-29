@@ -118,8 +118,9 @@ def home():
 #@bp.route('/api/v1/oauth_logout')
 def oauth_logout():
     check_login()
+    post_logout = request.args.get('post_logout_redirect_uri')
     del session['id']
-    return redirect('/user')
+    return redirect('post_logout')
 
 """ login pour les utilisateurs qui viennent d'une application cliente par OAuth2
 Le login doit etre de type two factor

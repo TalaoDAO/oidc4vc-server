@@ -54,7 +54,7 @@ def issuer_explore(mode) :
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode, workspace_contract_from = session['workspace_contract'], private_key_from=session['private_key_value']).__dict__.copy()
-		del session['issuer_explore']['mode']
+		#del session['issuer_explore']['mode']
 		session['issuer_username'] = issuer_username
 
 	issuer_picture = session['issuer_explore']['picture']

@@ -104,12 +104,19 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 #sess.init_app(app)
 
 
+filename = mode.db_path + "oauth_RSA_private.txt"
+try :
+    fp = open(filename,"r")
+    rsa_key = fp.read()
+    fp.close()
+except :
+    print('JWT private RSA key not found')
 
 #config Authorization Server OAuth, OAuth 2, OpenId
 oauth_config = {
     'OAUTH2_JWT_ENABLED' : True,
     'OAUTH2_JWT_ISS' : 'http://talao.co',
-    'OAUTH2_JWT_KEY' : '',
+    'OAUTH2_JWT_KEY' : rsa_key,
     'OAUTH2_JWT_ALG' : 'RS256',
     #'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
@@ -162,9 +169,6 @@ app.add_url_rule('/api/v1/create', view_func=web_oauth.oauth_create, methods = [
 app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/issue', view_func=web_oauth.oauth_issue, methods = ['GET', 'POST'], defaults={'mode' : mode})
-
-
-
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -229,8 +233,6 @@ def homepage() :
 """ This is to download the user picture or company logo to the uploads folder """
 @app.route('/user/picture/', methods=['GET', 'POST'])
 def picture() :
-
-
     check_login()
     if request.method == 'GET' :
         if request.args.get('badtype') == 'true' :
