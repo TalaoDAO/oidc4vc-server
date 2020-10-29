@@ -493,11 +493,10 @@ def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchrono
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
 
 def read_workspace_info (address, rsa_key, mode) :
+	#return aes and secret as bytes
 	w3 = mode.w3
 
-	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract=ownersToContracts(address,mode)
-
 	key = RSA.importKey(rsa_key)
 	cipher = PKCS1_OAEP.new(key)
 
@@ -507,7 +506,7 @@ def read_workspace_info (address, rsa_key, mode) :
 
 	#recuperer et decoder le secret crypté
 	secret_encrypted=data[6]
-	secret = cipher.decrypt(secret_encrypted).hex()
+	secret = cipher.decrypt(secret_encrypted)
 
 	#recuperer et decoder la clé AES cryptée
 	aes_encrypted=data[5]

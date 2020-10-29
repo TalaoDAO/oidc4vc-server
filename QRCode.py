@@ -24,7 +24,10 @@ def get_QRCode(mode, link):
 
     #Opens the png file with the logo on it to merge them
     logo = 'Frame_QRCode.png'
-    logo = Image.open(getcwd() + '/static/img/'  + logo)
+    try :
+        logo = Image.open(getcwd() + '/static/img/'  + logo)
+    except :
+        print('pb file open dans qrcode?py')
     logo.convert("RGB")
 
     #merge both png to get the final result and saves it

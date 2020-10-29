@@ -100,7 +100,7 @@ class Identity() :
 		return True
 
 	def get_secret(self,mode) :
-		(self.category, self.secret, self.aes) = read_workspace_info (self.address, self.rsa_key_value, mode)
+		(self.category, self.secret, self.aes) = read_workspace_info(self.address, self.rsa_key_value, mode)
 		return
 
 	def has_relay_private_key(self,mode) :
