@@ -48,8 +48,8 @@ def setup_keystore(mode) :
 		return None
 	for private_key in [pvk[0] for pvk in select] :
 		encrypted = Account.encrypt(private_key, mode.password)
-		print(encrypted)
-		with open(mode.keystore_path + encrypted['address'].lower() +".json", 'w') as f:
+		address = mode.w3.toChecksumAddress(encrypted['address'])
+		with open(mode.keystore_path + address[2:] +".json", 'w') as f:
   			f.write(json.dumps(encrypted))
 		f.close()
 	return
@@ -80,8 +80,9 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 
 def add_private_key(private_key, mode) :
 	encrypted = Account.encrypt(private_key, mode.password)
+	address = mode.w3.toChecksumAddress(encrypted['address'])
 	try :
-		f = open(mode.keystore_path + encrypted['address'].lower() +".json", 'w')
+		f = open(mode.keystore_path + address[2:] +".json", 'w')
 	except :
 		return False
 	f.write(json.dumps(encrypted))
@@ -100,7 +101,7 @@ def create_rsa_key(private_key, mode) :
 def get_key(address,key_type, mode) :
 	if key_type == 'private_key' :
 		try :
-			fp = open(mode.keystore_path + address[2:].lower() + '.json', "r")
+			fp = open(mode.keystore_path + address[2:] + '.json', "r")
 		except :
 			print('private key not found in privatekey.py')
 			return None
@@ -120,6 +121,9 @@ def get_key(address,key_type, mode) :
 			global salt
 			global master_key
 			salt = get_key(address, 'private_key', mode)
+			if salt is None :
+				print('impossible de calculer la cle rSA sans la private key')
+				return None
 			master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
 			my_rand.counter = 0
 			RSA_key = RSA.generate(2048, randfunc=my_rand)

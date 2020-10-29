@@ -359,6 +359,8 @@ def user(mode) :
 		# clean up for resume
 		user_dict = user.__dict__.copy()
 		del user_dict['aes']
+		del user_dict['rsa_key_value']
+		del user_dict['private_key_value']
 		del user_dict['secret']
 		del user_dict['partners']
 
