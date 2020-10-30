@@ -34,7 +34,7 @@
       <span  style="color: white;"><i class="fas fa-search ml-3"></i></span></a>
       <div class="dropdown-menu dropdown-menu-left p-3 animated--grow-in" style="position:absolute;" role="menu" aria-labelledby="searchDropdown">
         <form action="/user/search/" method="POST" class="form-inline mr-auto navbar-search w-100">
-          <div class="input-group"><input id="typeaheadElement" class="bg-light form-control border-0 small" type="text" name="username_to_search" required="" title="Serach for a Professional Identity by username" pattern="[a-z0-9.]{3,30}" type="text"
+          <div class="input-group"><input id="typeaheadElementSM" class="bg-light form-control border-0 small" type="text" name="username_to_search" required="" title="Serach for a Professional Identity by username" pattern="[a-z0-9.]{3,30}" type="text"
               placeholder="Search ...">
             <div class="input-group-append"><button class="btn btn-primary btn-sm py-0" type="submit"><i class="fas fa-search"></i></button></div>
           </div>
@@ -132,6 +132,24 @@
   ind.initialize();
   // Initializing the typeahead
   $('#typeaheadElement').typeahead({
+    hint: true,
+    highlight: true,
+    minLength: 1
+  }, {
+    name: 'ind',
+    displayKey: "username",
+    source: ind.ttAdapter(),
+    templates: {
+      empty: [
+        '<div class="empty-message">',
+        'No other suggestion found',
+        '</div>'
+      ].join('\n'),
+      suggestion: function(item) { return "<p style='padding:6px'><b>" + item.name + "</b> - Username: " + item.name + "</p>"; }
+    }
+  });
+  // Initializing the typeahead
+  $('#typeaheadElementSM').typeahead({
     hint: true,
     highlight: true,
     minLength: 1
