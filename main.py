@@ -58,6 +58,7 @@ import history
 import privatekey
 import sms
 import QRCode
+import user_search
 
 # Centralized  routes
 import web_create_identity
