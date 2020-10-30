@@ -1,3 +1,4 @@
+
 <nav class="navbar navbar-light navbar-expand-md sticky-top shadow mb-3" style="filter: blur(0px);opacity: 1;background: rgba(11,69,128,0.93);">
     <ul class="navbar-nav ml-2" style="flex-direction: row;">
     <!-- No logo for small divice  -->
@@ -33,7 +34,7 @@
       <span  style="color: white;"><i class="fas fa-search ml-3"></i></span></a>
       <div class="dropdown-menu dropdown-menu-left p-3 animated--grow-in" style="position:absolute;" role="menu" aria-labelledby="searchDropdown">
         <form action="/user/search/" method="POST" class="form-inline mr-auto navbar-search w-100">
-          <div class="input-group"><input class="bg-light form-control border-0 small" type="text" name="username_to_search" required="" title="Serach for a Professional Identity by username" pattern="[a-z0-9.]{3,30}" type="text"
+          <div class="input-group"><input id="typeaheadElementSM" class="bg-light form-control border-0 small" type="text" name="username_to_search" required="" title="Serach for a Professional Identity by username" pattern="[a-z0-9.]{3,30}" type="text"
               placeholder="Search ...">
             <div class="input-group-append"><button class="btn btn-primary btn-sm py-0" type="submit"><i class="fas fa-search"></i></button></div>
           </div>
@@ -51,7 +52,7 @@
         <!-- <button class="btn btn-outline-primary btn-sm rounded-left" style="border-bottom-right-radius:0; border-top-right-radius:0; color:#18acdd; border-color:#18acdd;" type="submit"><i class="fas fa-search"></i></button> -->
         <!-- <input class="bg-light form-control border-0 small ml-sm-1" type="text" name="username_to_search" required="" title="Search by username" pattern="[a-zA-Z0-9.]{3,30}" type="text" placeholder="Search ..."> -->
         <button class="btn p-2" type="submit"><i class="fas fa-search my-auto" style="color: rgba(255,255,255,0.71);"></i></button>
-        <input class="form-control-md rounded-pill px-3" type="text" name="username_to_search" pattern="[a-zA-Z0-9.]{3,30}" placeholder="Search" style="width: 300px;height: 30px;margin: 5px;padding: 5px;background: rgba(255,255,255,0.17);border-width: 1px;border-style: none;color: rgba(255,255,255,0.82);">
+        <input id="typeaheadElement" class="form-control-md rounded-pill px-3" type="text" name="username_to_search" pattern="[a-zA-Z0-9.]{3,30}" placeholder="Search" style="width: 300px;height: 30px;margin: 5px;padding: 5px;background: rgba(255,255,255,0.17);border-width: 1px;border-style: none;color: rgba(255,255,255,0.82);">
       </div>
     </form>
 
@@ -113,4 +114,56 @@
     document.execCommand("copy");
     $temp.remove();
   }
+</script>
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='typeahead.bundle.js') }}"></script>
+<script>
+  // Defining the local dataset
+
+  // Constructing the suggestion engine
+  var ind = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace("name"),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    identify: function(obj) {
+      return obj.username;
+    },
+    prefetch: {url : "{{ url_for('static', filename='username.json') }}",ttl: 10000}
+  });
+  ind.initialize();
+  // Initializing the typeahead
+  $('#typeaheadElement').typeahead({
+    hint: true,
+    highlight: true,
+    minLength: 1
+  }, {
+    name: 'ind',
+    displayKey: "username",
+    source: ind.ttAdapter(),
+    templates: {
+      empty: [
+        '<div class="empty-message">',
+        'No other suggestion found',
+        '</div>'
+      ].join('\n'),
+      suggestion: function(item) { return "<p style='padding:6px'><b>" + item.name + "</b> - Username: " + item.name + "</p>"; }
+    }
+  });
+  // Initializing the typeahead
+  $('#typeaheadElementSM').typeahead({
+    hint: true,
+    highlight: true,
+    minLength: 1
+  }, {
+    name: 'ind',
+    displayKey: "username",
+    source: ind.ttAdapter(),
+    templates: {
+      empty: [
+        '<div class="empty-message">',
+        'No other suggestion found',
+        '</div>'
+      ].join('\n'),
+      suggestion: function(item) { return "<p style='padding:6px'><b>" + item.name + "</b> - Username: " + item.name + "</p>"; }
+    }
+  });
 </script>
