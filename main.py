@@ -84,8 +84,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.3"
-COOKIE_NAME = 'talao'
+VERSION = "0.13.4"
 
 # Flask and Session setup
 app = Flask(__name__)
@@ -93,32 +92,15 @@ app.jinja_env.globals['Version'] = VERSION
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.jinja_env.globals['Chain'] = mychain.capitalize()
 app.config['SESSION_PERMANENT'] = True
-app.config['SESSION_COOKIE_NAME'] = COOKIE_NAME
+app.config['SESSION_COOKIE_NAME'] = 'talao'
 app.config['SESSION_TYPE'] = 'redis' # Redis server side session
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifetime
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
-#sess = Session()
-#sess.init_app(app)
 
-
-filename = mode.db_path + "oauth_RSA_private.txt"
-try :
-    fp = open(filename,"r")
-    rsa_key = fp.read()
-    fp.close()
-except :
-    print('JWT private RSA key not found')
-
-#config Authorization Server OAuth, OAuth 2, OpenId
 oauth_config = {
-   # 'OAUTH2_JWT_ENABLED' : True,
-   # 'OAUTH2_JWT_ISS' : 'http://talao.co',
-   # 'OAUTH2_JWT_KEY' : rsa_key,
-   # 'OAUTH2_JWT_ALG' : 'RS256',
-    #'SECRET_KEY': 'secret',
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',

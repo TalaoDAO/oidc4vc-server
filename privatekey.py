@@ -10,7 +10,6 @@ from base64 import b64encode, b64decode
 from eth_account import Account
 import constante
 
-
 # Gloval variables for RSA algo
 master_key = ""
 salt = ""
@@ -21,6 +20,7 @@ def my_rand(n):
     """ use of kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG """
     my_rand.counter += 1
     return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
+
 
 def ownersToContracts(address, mode) :
 	w3 = mode.w3
@@ -34,6 +34,8 @@ def contractsToOwners(workspace_contract, mode) :
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address
 
+
+# to setup keystore first time from previous SQLIte database. To be removed later
 def setup_keystore(mode) :
 	path = mode.db_path
 	try :
@@ -53,6 +55,7 @@ def setup_keystore(mode) :
   			f.write(json.dumps(encrypted))
 		f.close()
 	return
+
 
 def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 	# parameter data is dict
@@ -89,17 +92,18 @@ def add_private_key(private_key, mode) :
 	f.close()
 	return True
 
+# create a RSA key from Ethereum private key
 def create_rsa_key(private_key, mode) :
 	global salt
 	global master_key
 	salt = private_key
-	master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
+	master_key = PBKDF2(mode.password, salt, count=10000)
 	my_rand.counter = 0
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	return  RSA_key, RSA_key.exportKey('PEM'), RSA_key.publickey().exportKey('PEM')
 
-def get_key(address, key_type, mode) :
 
+def get_key(address, key_type, mode) :
 	if key_type == 'private_key' :
 		try :
 			fp = open(mode.keystore_path + address[2:] + '.json', "r")

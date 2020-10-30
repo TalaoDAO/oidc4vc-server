@@ -34,20 +34,6 @@ import privatekey
 #import ethereum_bridge see later
 
 
-"""
-# Gloval variables for RSA algo
-master_key = ""
-salt = ""
-#Identity_store = 5
-
-
-# deterministic rand function for RSA setup
-def my_rand(n):
-    my_rand.counter += 1
-    return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
-"""
-
-
 
 def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	""" This function signs a claim with sheme #2 and store an encrypted email with secret key (topicvalue = 101109097105108 """
@@ -98,20 +84,10 @@ def create_user(username, email,mode, creator=None):
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
 	private_key = account.privateKey.hex()
-	if mode.test :
-		print('user address = ', address)
-		print('user private key = ', private_key)
-	"""
-	# deterministic RSA key https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
-	global salt
-	global master_key
-	salt = private_key
-	master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
-	my_rand.counter = 0
-	RSA_key = RSA.generate(2048, randfunc=my_rand)
-	RSA_private = RSA_key.exportKey('PEM')
-	RSA_public = RSA_key.publickey().exportKey('PEM')
-	"""
+	print('user address = ', address)
+	print('user private key = ', private_key)
+
+	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
 
 	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
@@ -120,12 +96,13 @@ def create_user(username, email,mode, creator=None):
 		file = open(filename,"wb")
 		file.write(RSA_private)
 		file.close()
+		print('RSA key stored on disk')
 	except :
-		print('RSA key not stored')
+		print('Failed, RSA key not stored on disk')
 
-	# Keys for encryption
 	# Setup a key (symetric) named 'AES' to encrypt private data and to be shared with partnership
 	AES_key = get_random_bytes(16)
+
 	# Setup another key named 'SECRET' (symetric) to encrypt secret data
 	SECRET_key = get_random_bytes(16)
 
@@ -155,7 +132,7 @@ def create_user(username, email,mode, creator=None):
 	if mode.test :
 		print('create vault acces hash ', hash)
 
-	# Identity setup , Identity is named "Workspace"
+	# Identity setup 
 	contract = mode.w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address)
 	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 7500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
@@ -164,51 +141,51 @@ def create_user(username, email,mode, creator=None):
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 	if receipt['status'] == 0 :
-		print('Failed transaction createWprkspace')
+		print('Failed transaction createWorkspace')
 		return None, None, None
 
 	# workspace_contract address to be read in fondation smart contract
 	workspace_contract = ownersToContracts(address,mode)
-	if mode.test :
-		print('workspace_contract has been setup = ',workspace_contract)
+	print('workspace_contract has been setup = ',workspace_contract)
 
 	# add username to register in local nameservice Database
 	ns.add_identity(username, workspace_contract, email, mode)
 
-	#ERC725 keys
 	# key 1 issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True)
+
 	# key 5 to Talao be in  White List
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode, synchronous=True)
+
 	# key 20002 to Talao to Issue Proof of Identity
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True)
 
 	# key 20002 to creator to Issue other certificates :
 	if creator is not None and creator != mode.owner_talao :
 		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=True) :
-			print ('key 20002 issued for creator')
+			print('key 20002 issued for creator')
 		else :
 			print('key 20002 for creator failed')
 	else :
-		print('no creator')
+		print('no company creator')
 
-	# rewrite email with scheme 2 to be encrypted
+	# rewrite privious email with scheme 2 in order to get an encrypted email on Blockchain
 	email2(address, workspace_contract, private_key, email, AES_key, mode)
 
 	# emails send to user and admin
-	# pb du smtp depuis mon PC, cf avec Denis pour regler ça!!!!!!!
 	if mode.myenv == 'aws' :
 		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
 		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
 
 	# store Ethereum private key in keystore
 	if not privatekey.add_private_key(private_key, mode) :
-		print('add private key failed')
+		print('add private key in keystore failed')
 		return None, None, None
+	else :
+		print('private key in keystore')
 
 	# synchro with ICO token
 	#ethereum_bridge.lock_ico_token(address, private_key)
 
-	if mode.test :
-		print("createidentity is OK")
+	print("create identity process is OK and over")
 	return address, private_key, workspace_contract

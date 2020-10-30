@@ -393,7 +393,9 @@ def get_data_from_username(username, mode) :
 			'workspace_contract' : workspace_contract,
 			'username' : username,
 			'phone' : phone,
-			'hash_password' : password}
+			'hash_password' : password,
+			'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+			}
 
 def get_alias_list(workspace_contract, mode) :
 	path = mode.db_path

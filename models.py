@@ -19,6 +19,7 @@ class User(db.Model):
         return self.id
 
 
+
 class OAuth2Client(db.Model, OAuth2ClientMixin):
     __tablename__ = 'oauth2_client'
 

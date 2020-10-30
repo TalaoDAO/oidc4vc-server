@@ -4,7 +4,10 @@ from authlib.integrations.sqla_oauth2 import (
     create_query_client_func,
     create_save_token_func,
     create_bearer_token_validator,
+    create_revocation_endpoint,
 )
+
+from authlib.oauth2.rfc6749 import grants # ajout
 from authlib.oauth2.rfc6749.grants import (
     AuthorizationCodeGrant as _AuthorizationCodeGrant,
 )
@@ -30,6 +33,7 @@ mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 mode = environment.currentMode(mychain,myenv)
 
+# JWT configuration
 filename = mode.db_path + "oauth_RSA_private.txt"
 try :
     fp = open(filename,"r")
@@ -37,9 +41,6 @@ try :
     fp.close()
 except :
     print('JWT private RSA key not found')
-
-
-
 JWT_CONFIG = {
     'key': rsa_key,
     'alg': 'RS256',
@@ -54,7 +55,7 @@ def exists_nonce(nonce, req):
     ).first()
     return bool(exists)
 
-
+# for JWT only
 def generate_user_info(user, scope):
     REGISTERED_CLAIMS = [
         'sub', 'name', 'given_name', 'family_name', 'middle_name', 'nickname',
@@ -93,7 +94,6 @@ def create_authorization_code(client, grant_user, request):
     db.session.commit()
     return code
 
-
 class AuthorizationCodeGrant(_AuthorizationCodeGrant):
     def create_authorization_code(self, client, grant_user, request):
         return create_authorization_code(client, grant_user, request)
@@ -122,7 +122,7 @@ class OpenIDCode(_OpenIDCode):
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
 
-
+"""
 class ImplicitGrant(_OpenIDImplicitGrant):
     def exists_nonce(self, nonce, request):
         return exists_nonce(nonce, request)
@@ -132,8 +132,23 @@ class ImplicitGrant(_OpenIDImplicitGrant):
 
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
+"""
 
+#ajout
+class RefreshTokenGrant(grants.RefreshTokenGrant):
+    def authenticate_refresh_token(self, refresh_token):
+        token = OAuth2Token.query.filter_by(refresh_token=refresh_token).first()
+        if token and token.is_refresh_token_active():
+            return token
 
+    def authenticate_user(self, credential):
+        return User.query.get(credential.user_id)
+
+    def revoke_old_credential(self, credential):
+        credential.revoked = True
+        db.session.add(credential)
+        db.session.commit()
+"""
 class HybridGrant(_OpenIDHybridGrant):
     def create_authorization_code(self, client, grant_user, request):
         return create_authorization_code(client, grant_user, request)
@@ -147,6 +162,7 @@ class HybridGrant(_OpenIDHybridGrant):
     def generate_user_info(self, user, scope):
         return generate_user_info(user, scope)
 
+"""
 
 authorization = AuthorizationServer()
 require_oauth = ResourceProtector()
@@ -165,9 +181,17 @@ def config_oauth(app):
     authorization.register_grant(AuthorizationCodeGrant, [
         OpenIDCode(require_nonce=True),
     ])
-    authorization.register_grant(ImplicitGrant)
-    authorization.register_grant(HybridGrant)
+    #authorization.register_grant(ImplicitGrant)
+    #authorization.register_grant(HybridGrant)
+    authorization.register_grant(grants.ClientCredentialsGrant) # ajouté
+    authorization.register_grant(RefreshTokenGrant) # ajouté
+    #authorization.register_grant(PasswordGrant)
 
     # protect resource
     bearer_cls = create_bearer_token_validator(db.session, OAuth2Token)
     require_oauth.register_token_validator(bearer_cls())
+
+    # support revocation
+    revocation_cls = create_revocation_endpoint(db.session, OAuth2Token)
+    authorization.register_endpoint(revocation_cls)
+
