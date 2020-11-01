@@ -1,7 +1,7 @@
 """ Issuer explore is used to display Ientity when search """
 
 import os
-from flask import Flask, session, send_from_directory, flash, send_file, url_for
+from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome

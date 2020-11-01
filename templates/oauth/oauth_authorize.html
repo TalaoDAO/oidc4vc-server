@@ -33,7 +33,7 @@
                                 </div>
                                 <div class="card-body text-center shadow">
                                     <form action="" method="POST">
-                                        <p>Authorize <b>{{grant.client.client_name}}</b> to access your Decentralized Identity.
+                                        <p>Allow <b>{{grant.client.client_name}}</b> to access your Decentralized Identity.
                                             <br><br>
                                             You can restrict data access and permitted actions or reject all requests.</p>
                                         <div class="form-group">
@@ -72,25 +72,25 @@
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
-                                            {% if certificate == 'checked' %}
+                                            {% if referent == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{certificate}} name="certificate" ><label class="form-check-label" >I authorize company to issue certificates</label></div>
+                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{referent}} name="referent" ><label class="form-check-label" >I authorize company to issue certificates</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
-                                            {% if private == 'checked' %}
+                                            {% if partner == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{private}} name="private" ><label class="form-check-label" >I authorize company to access my private data</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{partner}} name="partner" ><label class="form-check-label" >I authorize company to access my private data</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-row">
                                             <div class="col-6 col-xl-3">
-                                                <div class="form-group"><button id="in_progress_button" title="" class="btn btn-primary btn-sm" type="submit">Accept</button></div>
+                                                <div class="form-group"><button id="in_progress_button" title="" class="btn btn-primary btn-sm" type="submit">Allow</button></div>
                                             </div>
                                             <div class="col-6 col-xl-3">
-                                                <div class="form-group"><button class="btn btn-primary btn-sm" name ="reject" type="submit">Reject</button></div>
+                                                <div class="form-group"><button class="btn btn-primary btn-sm" name ="reject" type="submit">Deny</button></div>
                                             </div>
                                         </div>
                                     </form>

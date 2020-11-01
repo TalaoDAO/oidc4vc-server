@@ -96,7 +96,7 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 	return hash
 
 
-def create_company(email, username, mode) :
+def create_company(email, username, mode, creator=None, partner=False) :
 	""" username is a company name here
 	one does not check if username exist here """
 

@@ -8,12 +8,14 @@ import json
 from datetime import datetime
 from eth_account.messages import encode_defunct
 import random
+from eth_account import Account
 
 # dependances
 import Talao_ipfs
 import Talao_message
 import constante
 import ns
+import privatekey
 
 def ownersToContracts(address, mode) :
 	w3 = mode.w3
@@ -135,6 +137,58 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 	if receipt['status'] == 0 :
 		return None
 	return hash
+
+
+# check if address is in teh partner list of identity workspace contract
+def is_partner(address, identity_workspace_contract, mode):
+	# on obtient la liste des partners avec le Relay qui a une cle 1
+	acct = Account.from_key(mode.relay_private_key)
+	mode.w3.eth.defaultAccount = acct.address
+	contract = mode.w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
+	partner_list = contract.functions.getKnownPartnershipsContracts().call()
+	liste = ["Unknown", "Authorized", "Pending", "Rejected", "Removed", ]
+	for partner_workspace_contract in partner_list:
+		try:
+			authorization_index = contract.functions.getPartnership(
+			    partner_workspace_contract).call()[1]
+		except Exception as ex:
+			print(ex)
+			return False
+		partner_address = contractsToOwners(partner_workspace_contract, mode)
+		if partner_address == address and liste[authorization_index] == 'Authorized':
+			return True
+	return False
+
+
+# check if address is in the partner list of identity workspace contract
+def get_partner_status(address, identity_workspace_contract, mode):
+	# on obtient la liste des partners avec le Relay qui a une cle 1
+	acct = Account.from_key(mode.relay_private_key)
+	mode.w3.eth.defaultAccount = acct.address
+	contract = mode.w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
+	partner_list = contract.functions.getKnownPartnershipsContracts().call()
+	liste = ["Unknown", "Authorized", "Pending", "Rejected", "Removed", ]
+	for partner_workspace_contract in partner_list:
+		try:
+			authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
+		except Exception as ex:
+			print(ex)
+			return None, None
+		partner_address = contractsToOwners(partner_workspace_contract, mode)
+		if partner_address == address :
+			local_status = liste[authorization_index]
+			break
+	identity_address = contractsToOwners(identity_workspace_contract, mode)
+	identity_private_key = privatekey.get_key(identity_address, 'private_key', mode)
+	if identity_private_key :
+		acct = Account.from_key(identity_private_key)
+		mode.w3.eth.defaultAccount = acct.address
+		contract = mode.w3.eth.contract(partner_workspace_contract,abi=constante.workspace_ABI)
+		partner_status = liste[contract.functions.getMyPartnershipStatus().call()]
+	else :
+		partner_status = None
+	return local_status, partner_status
+
 
 def authorize_partnership(address_from, workspace_contract_from, identity_address, identity_workspace_contract, private_key_from, partner_workspace_contract, user_rsa_key, mode, synchronous = True) :	
 	# user = address_to
@@ -534,43 +588,4 @@ def getDocumentIndex(address, _doctype,mode) :
 		if doc[0]==_doctype :
 			index=index+1
 	return index
-"""
-#################################################
-#  add self claim
-#################################################
-# @data : bytes
-# @topicname : type str , 'contact'
-# @ipfshash = str exemple  b'qlkjglgh'.decode('utf-8')
-# signature cf https://web3py.readthedocs.io/en/stable/web3.eth.account.html#sign-a-message
 
-def addselfclaim(workspace_contract, private_key, topicname, issuer, data, ipfshash,mode, synchronous=True) :
-
-	w3 = mode.w3
-
-	topicvalue=constante.topic[topicname]
-
-	# calcul du nonce de l envoyeur de token . Ici le caller
-	nonce = w3.eth.getTransactionCount(issuer)
-
-	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
-
-	# calcul de la signature
-	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfshash, 'utf-8')])
-	message = encode_defunct(text=msg)
-	signed_message = w3.eth.account.sign_message(message, private_key=private_key)
-	signature=signed_message['signature']
-
-	# Build transaction
-	txn=contract.functions.addClaim(topicvalue,1,issuer, signature, data,ipfshash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-
-	#sign transaction with caller wallet
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-
-	# send transaction
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-	return hash1
-
-"""

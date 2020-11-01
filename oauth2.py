@@ -76,6 +76,10 @@ def generate_user_info(user, scope):
         user_info['phone']= profile.get('contact_phone') if profile.get('contact_phone') != 'private' else None
     if 'birthdate' in scope :
         user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
+    if 'address' in scope :
+        user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
+    if 'website' in scope :
+        user_info['website'] = profile.get('website') if profile.get('website') != 'private' else None
     return user_info
 
 

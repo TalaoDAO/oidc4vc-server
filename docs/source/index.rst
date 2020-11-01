@@ -37,7 +37,7 @@ Welcome to Talao's documentation!
   	
 .. toctree::
    :maxdepth: 2
-   :caption: Talent Connect:
+   :caption: API Server :
    
    api
    

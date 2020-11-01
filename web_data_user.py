@@ -234,6 +234,7 @@ def use_my_own_address(mode) :
 """ on ne gere aucune information des data en session """
 #@app.route('/data/', methods=['GET'])
 def data(mode) :
+	print('session de workspace = ', session['workspace_contract'])
 	check_login()
 	dataId = request.args['dataId']
 	workspace_contract = '0x' + dataId.split(':')[3]
@@ -344,13 +345,11 @@ def user(mode) :
 		print('start first instanciation user')
 		if mode.test :
 			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
-
 		else :
 			try :
 				user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 			except :
 				flash('session aborted', 'warning')
-				print('pb au niveau de Identity')
 				return render_template('login.html')
 		print('end of first intanciation')
 
@@ -370,6 +369,7 @@ def user(mode) :
 		session['workspace_contract'] = user.workspace_contract
 		session['issuer'] = user.issuer_keys
 		session['whitelist'] = user.white_keys
+		print('session de whitelist = ', session['whitelist'])
 		session['partner'] = user.partners
 		session['did'] = user.did
 		session['eth'] = user.eth
@@ -413,6 +413,7 @@ def user(mode) :
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 			session['profil_title'] = ""
+
 		session['menu'] = {'picturefile' : user.picture,
 							'username' : session['username'],
 							'name' : user.name,
@@ -433,11 +434,12 @@ def user(mode) :
 			flash(message, 'warning')
 
 		# ask update password messsage
-		if ns.must_renew_password(session['username'], mode) :
-			return render_template('ask_update_password.html', **session['menu'])
+		#if ns.must_renew_password(session['username'], mode) :
+		#	return render_template('ask_update_password.html', **session['menu'])
 
 		#Homepage
-		return render_template('homepage.html', **session['menu'])
+		if user.type == 'person' :
+			return render_template('homepage.html', **session['menu'])
 
 
 ##### debut page resume a mettre dans une @route '/resume'
@@ -901,6 +903,7 @@ def user(mode) :
 				</span><br>"""
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
+		print('session de whielist a la fin de user = ', session['whitelist'])
 		return render_template('company_identity.html',
 							**session['menu'],
 							manager=my_access,

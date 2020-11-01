@@ -78,7 +78,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 
 	return True
 
-def create_user(username, email,mode, creator=None):
+def create_user(username, email,mode, creator=None, partner=False):
 	email = email.lower()
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)

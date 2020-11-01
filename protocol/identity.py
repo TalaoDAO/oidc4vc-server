@@ -158,7 +158,6 @@ class Identity() :
 		self.white_keys = []
 		contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(5).call()
-		#white_keys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = ns.get_data_from_publickey('0x' + key[2].hex(), mode)

@@ -14,12 +14,15 @@ $ python main.py
 Many views are inside this script, others are in web_modules.py. See Centralized routes.
 
 """
+
+API_SERVER = True
+
 from Crypto.PublicKey import RSA
 import sys
 import os
 import os.path, time
 from flask import Flask, session, send_from_directory, flash, jsonify, render_template_string
-from flask import request, redirect, render_template,abort, Response, abort
+from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
 import random
@@ -36,10 +39,6 @@ from eth_utils import decode_hex
 import redis
 import requests
 from Crypto.PublicKey import RSA
-from models import db
-from oauth2 import config_oauth
-
-
 
 # dependances
 import Talao_message
@@ -67,8 +66,13 @@ import web_data_user
 import web_issue_certificate
 import web_skills
 import web_CV_blockchain
-import web_oauth
 import web_issuer_explore
+
+if API_SERVER :
+    import web_oauth
+    from models import db
+    from oauth2 import config_oauth
+
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
@@ -101,23 +105,24 @@ app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config['RSA_FOLDER'] = RSA_FOLDER
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 
-oauth_config = {
+sess = Session()
+sess.init_app(app)
+
+if API_SERVER :
+    oauth_config = {
     'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
     'OAUTH2_TOKEN_EXPIRES_IN' : {
-        'authorization_code': 3000,
-        'implicit': 3000,
-        'password': 3000,
+        'authorization_code': 300,
+        #'implicit': 3000,
+        #'password': 3000,
         'client_credentials': 3000
         }
     }
-app.config.update(oauth_config)
-sess = Session()
-sess.init_app(app)
-
-db.init_app(app)
-config_oauth(app)
+    app.config.update(oauth_config)
+    db.init_app(app)
+    config_oauth(app)
 
 
 # bootstrap font managment  -> recheck if needed !!!!!
@@ -139,19 +144,21 @@ app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explor
 app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
+if API_SERVER :
 # Main routes (Endpointd) for OAuth Authorization Server
-app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
-app.add_url_rule('/api/v1/create_client', view_func=web_oauth.create_client, methods = ['GET', 'POST'])
-app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/oauth/token', view_func=web_oauth.issue_token, methods = ['POST'])
-app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, methods = ['GET', 'POST'])
+    app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
+    app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
+    app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+    app.add_url_rule('/api/v1/create_client', view_func=web_oauth.create_client, methods = ['GET', 'POST'])
+    app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/oauth/token', view_func=web_oauth.issue_token, methods = ['POST'])
+    app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, methods = ['GET', 'POST'])
 
-app.add_url_rule('/api/v1/create', view_func=web_oauth.oauth_create, methods = ['GET', 'POST'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/issue', view_func=web_oauth.oauth_issue, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/create_person_identity', view_func=web_oauth.oauth_create_person_identity, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/issue_experience', view_func=web_oauth.oauth_issue_experience, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/get_status', view_func=web_oauth.oauth_get_status, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -183,6 +190,18 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return redirect(mode.server + 'login/')
+
+@app.errorhandler(403)
+def page_abort(e):
+    print('appel abort 403')
+    # note that we set the 403 status explicitly
+    return redirect(mode.server + 'login/')
 
 # Check if session is active and access is fine. To be used for all routes, excetp external call
 def check_login() :
