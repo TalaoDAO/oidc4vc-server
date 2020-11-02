@@ -227,11 +227,11 @@ This flow allows your company to access functionalities previously authorized by
 
 
 Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the Access Token :
-No scope are required.
+Scope is required.
 
 .. code::
 
-  $ curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials 
+  $ curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=your_scope
 
 To call an endpoint :
 

@@ -89,7 +89,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.5"
+VERSION = "0.13.6"
 
 # Flask and Session setup
 app = Flask(__name__)
@@ -158,6 +158,8 @@ if API_SERVER :
     app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/issue_experience', view_func=web_oauth.oauth_issue_experience, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/get_status', view_func=web_oauth.oauth_get_status, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/issue_agreement', view_func=web_oauth.oauth_issue_agreement, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
