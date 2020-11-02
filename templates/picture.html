@@ -16,7 +16,6 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 </head>
 
 <body id="page-top">
@@ -142,7 +141,11 @@
                 processData: false,
                 contentType: false,
                 complete : function(resultat, statut) {
+                  {% if session['type'] == "company" %}
+                  location.replace("/user/")
+                  {% else %}
                   location.replace("/user/account/?success=true")
+                  {% endif %}
                 }
                 }
               )
