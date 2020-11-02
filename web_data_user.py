@@ -386,6 +386,8 @@ def user(mode) :
 		session['picture'] = user.picture
 		session['signature'] = user.signature
 		session['test'] = mode.test
+		session['skills'] = user.skills
+		session['certificate'] = user.certificate
 
 		phone =  ns.get_data_from_username(session['username'], mode).get('phone')
 		session['phone'] = phone if phone is not None else ""
@@ -404,8 +406,6 @@ def user(mode) :
 
 		if user.type == 'person' :
 			session['experience'] = user.experience
-			session['certificate'] = user.certificate
-			session['skills'] = user.skills
 			session['education'] = user.education
 			session['kyc'] = user.kyc
 			session['profil_title'] = user.profil_title
@@ -585,6 +585,22 @@ def user(mode) :
 				</p>"""
 			my_file = my_file + file_html
 
+	# skills
+	if session['skills'] is None or session['skills'].get('id') is None :
+		my_skills =  """<a class="text-info">No data available</a>"""
+	else :
+		my_skills = ""
+		for skill in session['skills']['description'] :
+			skill_html = skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>"""
+			my_skills = my_skills + skill_html
+		my_skills = my_skills + """
+				<p>
+					<a class="text-secondary" href=/data/?dataId="""+ session['skills']['id'] + """:skills>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+					</a>
+				</p>"""
+
+
 
 ####################################################################################################
 	# specific to person
@@ -614,20 +630,7 @@ def user(mode) :
 				</p>"""
 				my_experience = my_experience + exp_html + "<hr>"
 
-		# skills
-		if session['skills'] is None or session['skills'].get('id') is None :
-			my_skills =  """<a class="text-info">No Skills available</a>"""
-		else :
-			my_skills = ""
-			for skill in session['skills']['description'] :
-				skill_html = skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>"""
-				my_skills = my_skills + skill_html
-			my_skills = my_skills + """
-				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ session['skills']['id'] + """:skills>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>"""
+		
 
 		# education
 		my_education = ""
@@ -902,14 +905,56 @@ def user(mode) :
 				</span><br>"""
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
-		print('session  de whitelist a la fin de company user = ', session['whitelist'])
+		# certificates
+		my_certificates = ""
+		if len (session['certificate']) == 0:
+			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
+		else :
+			for counter, certificate in enumerate(session['certificate'],1) :
+				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
+				issuer_username = 'Unknown' if issuer_username is None else issuer_username
+				if certificate['issuer']['category'] == 2001 :
+					issuer_name = certificate['issuer']['name']
+					issuer_type = 'Company'
+				elif  certificate['issuer']['category'] == 1001 :
+					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
+					issuer_type = 'Person'
+				else :
+					print ('issuer category error, data_user.py')
+
+				if certificate['type'] == 'agrement':
+					cert_html = """<hr>
+								<b>Referent Name</b> : """ + issuer_name +"""<br>
+								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
+
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+								<p>
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """">
+								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+								</a>
+								</p>
+								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+
+				my_certificates = my_certificates + cert_html
+
 		return render_template('company_identity.html',
 							**session['menu'],
 							manager=my_access,
 							display_manager= display_manager,
 							personal=my_personal,
+							skills=my_skills,
 							kbis=my_kbis,
 							partner=my_partner,
+							certificates=my_certificates,
 							api=my_api,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,

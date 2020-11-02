@@ -89,7 +89,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.4"
+VERSION = "0.13.5"
 
 # Flask and Session setup
 app = Flask(__name__)
@@ -576,7 +576,10 @@ def update_company_settings() :
                                 contact_phone=personal['contact_phone']['claim_value'],
                                 contact_phone_privacy=privacy['contact_phone'],
                                 website=personal['website']['claim_value'],
-                                about=personal['about']['claim_value']
+                                about=personal['about']['claim_value'],
+                                staff=personal['staff']['claim_value'],
+                                mother_company=personal['mother_company']['claim_value'],
+                                sales=personal['sales']['claim_value']
                                 )
     if request.method == 'POST' :
         form_privacy = dict()
@@ -586,7 +589,10 @@ def update_company_settings() :
         form_privacy['contact_email'] = request.form['contact_email_select']
         form_privacy['name'] = 'public'
         form_privacy['website'] = 'public'
+        form_privacy['sales'] = 'public'
         form_privacy['about'] = 'public'
+        form_privacy['staff'] = 'public'
+        form_privacy['mother_company'] = 'public'
         change = False
         for topicname in session['personal'].keys() :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
@@ -601,7 +607,6 @@ def update_company_settings() :
             session['menu']['name'] = session['personal']['name']['claim_value']
             flash('Company Settings has been updated', 'success')
         return redirect(mode.server + 'user/')
-
 
 # digital vault
 @app.route('/user/store_file/', methods=['GET', 'POST'])
