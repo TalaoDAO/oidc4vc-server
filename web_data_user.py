@@ -922,7 +922,7 @@ def user(mode) :
 				else :
 					print ('issuer category error, data_user.py')
 
-				if certificate['type'] == 'agrement':
+				if certificate['type'] in ['agrement', 'agreement'] :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
