@@ -175,33 +175,19 @@ def issue_token():
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
     user = current_user()
-    scope_list=['openid', 'profile', 'resume', 'partner', 'referent', 'proof_of_identity', 'birthdate', 'email', 'phone']
-
+    scope_list=['openid', 'profile', 'resume', 'partner', 'referent', 'proof_of_identity', 'birthdate', 'email', 'phone', 'about']
     # if user log status is not true (Auth server), then to log it in
     if not user:
         return redirect(url_for('oauth_login', next=request.url))
-
+    # GET
     if request.method == 'GET':
         try:
             grant = authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:
             return error.error
         checkbox = {key: 'checked' if key in grant.request.scope else ""  for key in scope_list}
-
-        # client requests partnership to user
-        user_workspace_contract = ns.get_data_from_username(user.username, mode).get('workspace_contract')
-        user_address = contractsToOwners(user_workspace_contract, mode)
-        client_id = request.args.get('client_id')
-        client_workspace_contract = get_client_workspace(client_id, mode)
-        if "partner" in grant.request.scope and not is_partner(user_address, client_workspace_contract, mode) :
-            client_address = contractsToOwners(client_workspace_contract, mode)
-            relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
-            client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
-            partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode, synchronous=False) 
-
         #ask for consent
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,**checkbox)
-
     # POST
     if not user and 'username' in request.form:
         username = request.form.get('username')
@@ -209,33 +195,13 @@ def authorize(mode):
     if 'reject' in request.form :
         grant_user = None
         return authorization.create_authorization_response(grant_user=grant_user)
-
     # update scopes after consent
     query_dict = parse_qs(request.query_string.decode("utf-8"))
-    client_id = query_dict['client_id'][0]
-    client = OAuth2Client.query.filter_by(client_id=client_id).first()
-    client_username = json.loads(client._client_metadata)['client_name']
-    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
-    client_address = contractsToOwners(client_workspace_contract, mode)
-    user_workspace_contract = get_user_workspace(user.id, mode)
-    user_address = contractsToOwners(user_workspace_contract, mode)
     my_scope = "openid "
     for scope in scope_list :
         if request.form.get(scope) == "on" :
             my_scope = my_scope + scope + " "
     query_dict["scope"] = my_scope
-
-    # user accepts client request for partnership if not already partner
-    if 'partner' in my_scope and not is_partner(client_address, user_workspace_contract,mode) :
-        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
-        user_rsa_key = privatekey.get_key(user_address, 'rsa_key', mode)
-        authorize_partnership(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_workspace_contract, user_rsa_key, mode, synchronous=True)
-
-    # add key 20002
-    if 'referent' in my_scope and not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
-            relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
-            add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
-
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
     return authorization.create_authorization_response(grant_user=user, request=req)
@@ -244,11 +210,8 @@ def authorize(mode):
 #  AUTHORIZATION CODE ENDPOINT
 
 #route('/api/v1/user_info')
-@require_oauth(None)
+@require_oauth('openid profile email phone birthdate address proof_of_identity about resume', 'OR')
 def user_info(mode):
-    #client_id = current_token.client_id
-    #client_workspace_contract = get_client_workspace(client_id, mode)
-    #client_address = contractsToOwners(client_workspace_contract, mode)
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
     user_info = dict()
@@ -267,11 +230,52 @@ def user_info(mode):
     if 'address' in current_token.scope :
         user_info['address'] = profile.get('address') if profile.get('address') != 'private' else None
     if 'resume' in current_token.scope :
-        user_info['resume'] = mode.server + 'resume/?workspace_contract=' + user_workspace_contract
+        user_info['resume'] = 'Not implemented yet'
+    if 'proof_of_identity' in current_token.scope :
+        user_info['proof_of_identity'] = 'Not implemented yet'
+    if 'about' in current_token.scope :
+        user_info['about'] = profile.get('about') if profile.get('about') != 'private' else None
 
     # setup response
     response = Response(json.dumps(user_info), status=200, mimetype='application/json')
     return response
+
+
+#route('/api/v1/company_request')
+@require_oauth('partner referent', 'OR')
+def company_request(mode):
+    user_id = current_token.user_id
+    user_workspace_contract = get_user_workspace(user_id,mode)
+    user_address = contractsToOwners(user_workspace_contract, mode)
+    client_id = current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
+
+    # client requests partnership to user
+    if "partner" in current_token.scope and not is_partner(user_address, client_workspace_contract, mode) :
+        client_address = contractsToOwners(client_workspace_contract, mode)
+        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+        client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
+        partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode, synchronous=False) 
+
+    # user accepts client request for partnership if not already partner
+    if 'partner' in current_token.scope and not is_partner(client_address, user_workspace_contract,mode) :
+        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+        user_rsa_key = privatekey.get_key(user_address, 'rsa_key', mode)
+        authorize_partnership(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_workspace_contract, user_rsa_key, mode, synchronous=True)
+
+    # add key 20002
+    if 'referent' in current_token.scope and not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
+        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+        add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
+        referent = True
+
+    referent = has_key_purpose(user_workspace_contract, client_address, 20002, mode)
+    partnership_in_identity,partnership_in_partner  = get_partner_status(user_address, client_workspace_contract,mode)
+    # setup response
+    response = Response(json.dumps({'referent' : referent, 'partnership_in_identity' : partnership_in_identity, 'partnership_in_partner' : partnership_in_partner}), status=200, mimetype='application/json')
+    return response
+
 
 
 # CLIENT CREDENTIAL ENDPOINT

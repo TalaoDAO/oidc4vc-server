@@ -2,19 +2,19 @@
 Talao Connect API
 ==================
 
-Talao Connect APIs can be used for authentication, authorization, claims issuance and Identity management.
-For instance in the Human Resource sector it is an easy way to get reliable data about Talents and a powerfull and secure tool for onbarding while keeping user's data safe.
+Talao Connect APIs can be used for authentication, identification, claims issuance and more generally for Identity management.
+For instance in the Human Resource sector it is an easy way to get reliable data about Talents and a powerfull and secure tool for onbarding user while keeping their data safe.
 
-Those API do not provide account setup (details, signature, logo ...) which are available through the web platform https://talao.co .
+Those API do not provide basic account setup (details, signature, logo ...) which are available through the web platform https://talao.co .
 
 Standard use cases for APIs are :
 
 * Issue certificates to users (Talents, Companies,...).
 * Onboard users who have their own Decentralized Identity.
-* Outsource user data.
+* Outsource user data to their Digital Identity.
 * Strenghen an employer brand with latest technology features like Blockchain Resume, Decentralized Identity,...
 
-The Talao API server is an OpenId Connect server. We use OpenID Connect Autorization Code flow for authentification and OAuth 2.0 Authorization code flow and Client Credentials flow to manage user acces to their identity and other client specific features.
+The Talao API server is an OpenId Connect server. We use OpenID Connect Autorization Code flow for authentification and OAuth 2.0 Authorization code flow and Client Credentials flow to manage user access to their identity.
 
 Contact us relay-support@talao.io to open your Company Identity and receive your application granted permissions to use those APIs.
 
@@ -22,7 +22,8 @@ From the OIDC and OAuth 2.0 perspective :
 
 * "Company" is the Client application
 * "User" is the Resource Owner, it maybe a Talent or another Company
-* "Talao API server" is the Authorization Server - Resource Server
+* "Talao API server" is the Authorization Server/Resource Server
+
 
 OpenID Connect
 --------------
@@ -31,21 +32,31 @@ For your users, the OpenID Connect authentication experience includes a consent 
 For example, when the user logs in, they might be asked to give your appication access to their name, email address and basic account information.
 You request access to this information using the scope parameter, which your app includes in its authentication request.
 
-Scopes for data access are standard OpenID Connect and specific scopes :
+Scopes available
+****************
 
-* openid (sub)
+Scopes for data access are standard OpenID Connect and specific Talao scopes :
+
+* openid (required)
 * profile (sub + given_name + family_name + gender)
 * birthdate
 * email
 * phone
 * address
-* resume
-* referent
-* partner
+* about : short user description
+* resume : for person identity only
+* proof_of_identity
 
-Those data are available through an ID Token (JWT) or with the Access Token at the user_info endpoint.
+.. note:: "sub" is the  Decentralized IDentier of the user (did). It always starts with "did:talao:talaonet:".
 
-To get a grant code from Talent, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
+Those data are available through an ID Token (JWT) and at the user_info endpoint through an Access Token.
+
+Process
+*******
+
+As defined by OIDC, 3 steps are required :
+
+Step 1 : to get a grant code from user, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
 User will be asked to sign in with his Identity username/password and to consent for your list of scopes.
 
 Example :
@@ -54,39 +65,17 @@ Example :
 
    https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes
 
-With the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an Access Token and an ID Token. You will need your client_secret.
+
+Step 2, with the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an Access Token and an ID Token. You will need your client_secret.
 
 .. code::
 
-   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=client_credentials -F scope=your_scopes
+   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=authorization_code 
 
-With the Access Token you can get Talent data through the user_info endpoint https://talao.co/api/v1/user_info.
+If you nly need user authentication, see further how to decode the JWT to get user data and serveur signature.
 
-With the ID Token you can get user data without any new call.
-For authentication best is to use the ID Token and verify its signature with the RSA key.
 
-JWT ID Token payload example :
-
-.. code-block:: JSON
-
-  {
-  "iss": "https://talao.co",
-  "aud": [
-    "iPSoIWDI4shQ0dEG86ZpSFdj"
-  ],
-  "iat": 1603895896,
-  "exp": 1603899496,
-  "auth_time": 1603895896,
-  "nonce": "64867",
-  "at_hash": "uAaDX0YA4NnMkO6fW8-7nw",
-  "sub": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB",
-  "given_name": "Thierry",
-  "family_name": "Thevenet",
-  "gender": null,
-  "email": "thierry.thevenet@talao.io"
-  }
-
-If you need to get data through the user _info endpoint :
+Step 3 : with the Access Token you can get user data through the user_info endpoint https://talao.co/api/v1/user_info.
 
 .. code::
 
@@ -108,28 +97,114 @@ Return is JSON (example) :
 
 Decode JWT
 **********
+
 JWT can be decoded with Talao RSA public key . Audience is your client_id, algorithm is RS256
 
 .. code-block:: TXT
 
   -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3fMFBmz2y31GlatcZ/ud\nOL9CmCmvtde2Pu5ZggILlBD6yll+O10eH/8J8wX9OZG+e5vAgT5gkzo247ow4auj\niOA87V9bdexI7nUiD5qjdKTcIofJiDkmCIgF/UqwQ7dfyl1jWDVB1CnfAqkL0U2j\nbU+Nb/y1M1/oTFoid+trRFbhM+0awr06grh4viGJ0i5oVCcuybcDuP7bwNiZD1FP\n85L/hlfXvJs+oz6K+583leu1hj7wFnWSv0jgeYHkdgoG3rSKlbTxt+98dTu3Hy8s\nePl9O/2WKi6SSH0wpR+FqaBULAAyWd0cj5mjBLYoUiGP7qyIU5/9Z+pVf+L7SO7t\nlQIDAQAB\n-----END PUBLIC KEY-----
 
+JWT  payload example :
+
+.. code-block:: JSON
+
+  {
+  "iss": "https://talao.co",
+  "aud": [
+    "iPSoIWDI4shQ0dEG86ZpSFdj"
+  ],
+  "iat": 1603895896,
+  "exp": 1603899496,
+  "auth_time": 1603895896,
+  "nonce": "64867",
+  "at_hash": "uAaDX0YA4NnMkO6fW8-7nw",
+  "sub": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB",
+  "given_name": "Thierry",
+  "family_name": "Thevenet",
+  "gender": null,
+  "email": "thierry.thevenet@talao.io"
+  }
+
 
 OAuth 2.0 Authorization code flow
 ----------------------------------
 
-Below list of scopes for data and features which are available with this flow while user is logged :
+For your users, this flow includes a consent screen that describes through 'scopes' the actions that the user allows to your application.
+For example, when the user logs in, they might be asked to accept or reject a partnership.
 
-* proof_of_identity : company requests to access user last proof of identity
-* partner : company requests authorization to exchange private data without any new authorization (partnership). If accepted your company will be added to the user's partner list. Further data access will be available through Client Credentials flow.
-* referent : company requests authorization to issue certificates. If accepted your company will be added to the user's referent list and will be authorized to issue certficates.
+You request an access to these functionalities using the scope parameter, which your app includes in its request.
+
+Below list of scopes  :
+
+* partner : company requests partnership : If accepted partnership allows to exchange private data without any new authorization. Your company will be added to the user's partner list. Further data access will be available through Client Credentials flow.
+* referent : company requests to be appointed as a referent. If accepted your company will be allowed to issue certificatess without any new authorization.
 * delete_certificate : user deletes certificate
 * remove_partner : user removes partner from partner's list
 * remove_referent : user removes referent from referent's list
 
+Step 1, ask for a grant code with your scope list.
+
+.. code::
+
+   https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes
+
+
+Step 2, with the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an Access Token. You will need your client_secret.
+
+.. code::
+
+   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=authorization_code
+
+
+Step 3, with the Access Token you can acces an endpoint
+
+.. code::
+
+   curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/endpoint  your_json_data
+
 
 Endpoint : https://talao.co/api/v1/company_request
 **************************************************
+
+To request a partnership or to be added as referent (scope 'referent or 'partner' is required). No data to provide.
+
+.. code::
+
+   curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/company_request
+
+JSON return :
+
+.. code-block:: JSON
+
+  {
+   "partnernship_in_identity": "Pending",
+   "partnership_in_partner_identity": "Authorized",
+   "referent": false
+  }
+
+partnership_in_identity :
+
+* Authorized : your company has requested a partnership or accepted the partnership.
+* Pending : user is waiting for your decision to accept or reject his request for partnership.
+* Removed : your company removed the partnership.
+* Unknown : no partnership.
+* Rejected : your company refused the user request for partnership.
+
+
+partnership_in_partner_identity :
+
+* Authorized : user has requested a partnership or accepted your request.
+* Pending : user has received your request for partnership but still pending.
+* Rejected : user refused your request.
+* Removed : user removed the partnership.
+* Unknown : no partnership.
+
+
+referent :
+
+* False/True : is your company in the user's referent list.
+
+.. note:: A partnership is effective when both partnership_in_partner_identity and partnership_in_identity are "Authorized".
 
 
 Endpoint : https://talao.co/api/v1/user_identity_management
@@ -139,7 +214,7 @@ Endpoint : https://talao.co/api/v1/user_identity_management
 OAtth 2.0 Client Credentials Flow
 ----------------------------------
 
-This flow allows your company to services previously authorized by users (as referent and/or partner) and to access functionalities of your company identity :
+This flow allows your company to access functionalities previously authorized by users (as referent and/or partner) and to manage your own company identity :
 
 *   https://talao.co/api/v1/issue_experience : to issue experience certificates to a person after your company has been appointed as a referent
 *   https://talao.co/api/v1/issue_skill : to issue skill certificates to a person after your company has been appointed as a referent
@@ -204,8 +279,8 @@ Endpoint : https://talao.co/api/v1/issue_experience
 ***************************************************
 
 Issue an experience certificate to a user.
-Company must be allowed to issuer experience certificate by Talao.
-Company must be a in the user's referent list. Use the Authorization Code flow (scope = referent) to be added to that list.
+Company must be allowed to issue experience certificate.
+Company must be a in the user's referent list.
 
 Issue an experience certificate :
 
@@ -216,7 +291,7 @@ Issue an experience certificate :
    -H "Content-Type: application/json" \
    -d '{"did" : "did:talao:talonet:2165165", "certificate": JSON_certificate}'
 
-with JSON_certificate structure depends on certificate type. Example of an experience JSON_certificate :
+Example of a JSON_certificate :
 
 .. code-block:: JSON
 
@@ -257,15 +332,10 @@ JSON return :
   }
 
 
-Endpoint : https://talao.co/api/v1/client_identity_management
-*************************************************************
-
-
-
 Endpoint : https://talao.co/api/v1/get_status
 *********************************************
 
-This endpoint get the referent status and partnership status between your company and a user.
+Get the referent and partnership status of a user.
 
 .. code::
 
@@ -275,35 +345,5 @@ This endpoint get the referent status and partnership status between your compan
    -d '{"did" : "did:talao:talaonet:fA38BeA7A9b1946B645C16A99FB0eD07D168662b"}'
 
 
-   JSON return :
-
-.. code-block:: JSON
-
-  {
-   "partnernship_in_identity": "Pending",
-   "partnership_in_partner_identity": "Authorized",
-   "referent": false
-  }
-
-partnership_in_identity :
-
-* Authorized : your company has requested a partnership or accepted the partneship
-* Pending : user is waiting for your desicsion to accept or reject his request for partnership
-* Removed : your company removed the partnership
-* Unknown : no partnership
-* Rejected : your company refused the user request for partnership
-
-
-partnership_in_partner_identity :
-
-* Authorized : user has requested a partnership
-* Pending : user has received your request for parnership but still pending
-* Rejected : user refused your request
-* Removed : user removed the partnership
-* Unknown : no partnership
-
-
-referent :
-
-* False/True : is your company in the user's referent list
+JSON return : same as endpoint https://talao.co/api/v1/company_request
 

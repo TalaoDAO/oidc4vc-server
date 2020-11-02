@@ -31,6 +31,8 @@ def owners_to_contracts(address, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
 
+
+
 def read_profil (workspace_contract, mode, loading) :
 	# setup constante person
 	person_topicnames = {'firstname' : 102105114115116110097109101,
@@ -49,7 +51,10 @@ def read_profil (workspace_contract, mode, loading) :
 						'contact_email' : 99111110116097099116095101109097105108,
 						'contact_phone' : 99111110116097099116095112104111110101,
 						'website' : 119101098115105116101,
-						'about' : 97098111117116,}
+						'about' : 97098111117116,
+						'staff' : 115116097102102,
+						'sales' : 115097108101115,
+						'mother_company' : 109111116104101114095099111109112097110121,}
 
 	if loading != 'full' :
 		person_topicnames = {'firstname' : 102105114115116110097109101,
@@ -77,6 +82,8 @@ def read_profil (workspace_contract, mode, loading) :
 			profil[topicname]=data[4].decode('utf-8')
 
 	return profil,category
+
+
 
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
 	# @data = dict

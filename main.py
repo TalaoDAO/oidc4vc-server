@@ -124,7 +124,6 @@ if API_SERVER :
     db.init_app(app)
     config_oauth(app)
 
-
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
 
@@ -192,10 +191,6 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 
-@app.errorhandler(404)
-def page_not_found(e):
-    # note that we set the 404 status explicitly
-    return redirect(mode.server + 'login/')
 
 @app.errorhandler(403)
 def page_abort(e):

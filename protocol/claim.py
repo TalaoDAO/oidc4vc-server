@@ -14,6 +14,7 @@ from base64 import b64encode, b64decode
 import constante
 from Talao_ipfs import ipfs_add, ipfs_get
 import privatekey
+from .document import read_profil
 
 def contracts_to_owners(workspace_contract, mode) :
 	w3 = mode.w3
@@ -49,7 +50,7 @@ def topicname2topicvalue(topicname) :
 		topicvaluestr = topicvaluestr + a
 	return int(topicvaluestr)
 
-
+"""
 def read_profil (workspace_contract, mode, loading) :
 	w3=mode.w3
 	# setup constante person
@@ -61,7 +62,7 @@ def read_profil (workspace_contract, mode, loading) :
 			'birthdate' : 98105114116104100097116101,
 			'about' : 97098111117116,
 			'education' : 101100117099097116105111110,
-			'profil_title' : 112114111102105108095116105116108101
+			'profil_title' : 112114111102105108095116105116108101,
 			}
 	# setup constant company
 	company_topicnames = {'name' : 110097109101,
@@ -98,6 +99,8 @@ def read_profil (workspace_contract, mode, loading) :
 	return profil,category
 
 """
+
+"""
 def encrypt_data(identity_workspace_contract,data, privacy, mode) :
 	#@ data = dict
 	w3 = mode.w3
@@ -124,6 +127,8 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	# @data = str
 	w3 = mode.w3
 
+	topic_value = topicname2topicvalue(topicname)
+	"""
 	topicvaluestr =''
 	for i in range(0, len(topicname))  :
 		a = str(ord(topicname[i]))
@@ -131,6 +136,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 			a='0'+ a
 		topicvaluestr = topicvaluestr + a
 	topic_value = int(topicvaluestr)
+	"""
 
 	if privacy == 'public' :
 		ipfs_hash = ""
@@ -146,6 +152,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 
 	nonce = w3.eth.getTransactionCount(address_from)
 	issuer = address_from
+
 	# calcul de la signature
 	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())

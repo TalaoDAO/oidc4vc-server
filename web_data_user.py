@@ -9,7 +9,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file, url_for
+from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -71,7 +71,7 @@ def starter(mode) :
 				pass
 
 
-#@app.route('/login/', methods = ['GET', 'POST'])
+#@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
 	if request.method == 'GET' :
 		session.clear()
@@ -128,10 +128,10 @@ def login_authentification(mode) :
 		del session['try_number']
 		del session['code']
 		del session['support']
-		return redirect(url_for('user'))
+		return redirect(mode.server + 'user/')
 	elif session['code_delay'] < datetime.now() :
 		flash("Code expired", "warning")
-		return redirect(url_for('user'))
+		return redirect(mode.server + 'user/')
 	elif session['try_number'] > 3 :
 		flash("Too many trials (3 max)", "warning")
 		return render_template("authentification.html")
@@ -369,7 +369,6 @@ def user(mode) :
 		session['workspace_contract'] = user.workspace_contract
 		session['issuer'] = user.issuer_keys
 		session['whitelist'] = user.white_keys
-		print('session de whitelist = ', session['whitelist'])
 		session['partner'] = user.partners
 		session['did'] = user.did
 		session['eth'] = user.eth
@@ -903,7 +902,7 @@ def user(mode) :
 				</span><br>"""
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
-		print('session de whielist a la fin de user = ', session['whitelist'])
+		print('session  de whitelist a la fin de company user = ', session['whitelist'])
 		return render_template('company_identity.html',
 							**session['menu'],
 							manager=my_access,

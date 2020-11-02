@@ -57,11 +57,6 @@ def exists_nonce(nonce, req):
 
 # for JWT only
 def generate_user_info(user, scope):
-    REGISTERED_CLAIMS = [
-        'sub', 'name', 'given_name', 'family_name', 'middle_name', 'nickname',
-        'preferred_username', 'profile', 'picture', 'website', 'email',
-        'email_verified', 'gender', 'birthdate', 'zoneinfo', 'locale',
-        'phone_number', 'phone_number_verified', 'address', 'updated_at',]
     user_workspace_contract = ns.get_data_from_username(user.username, mode).get('workspace_contract')
     sub = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
     user_info = UserInfo(sub=sub)
@@ -78,8 +73,14 @@ def generate_user_info(user, scope):
         user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
     if 'address' in scope :
         user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
+    if 'about' in scope :
+        user_info['about'] = profile.get('about') if profile.get('about') != 'private' else None
     if 'website' in scope :
         user_info['website'] = profile.get('website') if profile.get('website') != 'private' else None
+    if 'proof_of_identity' in scope :
+        user_info['proof_of_identity'] = 'Not implemented yet'
+    if 'resume' in scope :
+        user_info['resume'] = 'Not implemented yet'
     return user_info
 
 
