@@ -30,25 +30,6 @@ To log to the company Identity through Relay the manager will use a 2 parts user
 
 
 NS is today supported by SQLite3 with one DB per company for Managers and one DB for DID, Publickey and Alias (Migration to a decentralied support in progress).
-	
-.. code-block:: python
-
-   def init():
-	  conn = sqlite3.connect('nameservice.db')
-	  cur = conn.cursor()
-	  cur.execute('create table alias(alias_name text, identity_name text, email text, date real)')
-	  cur.execute('create table resolver(identity_name text, identity_workspace_contract text, date real)')
-	  cur.execute('create table publickey(address text, key text)')
-	  conn.commit()
-	  cur.close()
-	  return
-	
-   def init_host(host_name) :
-	  conn = sqlite3.connect(host_name + '.db')
-	  cur = conn.cursor()
-	  cur.execute('create table manager(manager_name text, alias_name text, email text, date real)')
-	  conn.commit()
-	  cur.close()
 
 IPFS
 ----
@@ -70,7 +51,7 @@ For User Identity, it depends on the way it has been created. Talao might have n
 If user Identity has been created by Relay, Talao has a copy of the private key, RSA key and secret key. 
 
 
-Talao ERC725 Keys 
+Talao ERC725 Keys
 -----------------
 
 
@@ -79,7 +60,7 @@ Talao ERC725 Keys
 +====================+===================================+
 | 1                  |   Relay if activated              |
 +--------------------+-----------------------------------+
-| 2                  |   Not Used                        |    
+| 2                  |   Not Used                        |
 +--------------------+-----------------------------------+
 | 3                  |   Personal/Company settings       |
 +--------------------+-----------------------------------+
@@ -122,108 +103,3 @@ One document is defined through is 'doctype' (int). A document can be **Public**
 | experience         |   50000   |   50001   |   50002   |
 +--------------------+-----------+-----------+-----------+
 
-
-Kbis
-____
-
-
-.. code-block:: JSON
-
-   { "siret" : "662 042 449 00014",
-   "date" : "1966-09-23",
-   "name" : "BNP",
-   "legal_form" : "SA",
-   "naf" : "6419Z",
-   "capital" : "2 499 597 122 EUROS",
-   "address" : "16 BOULEVARD DES ITALIENS, 75009 PARIS", 
-   "activity" : "Servics financiers",
-   "ceo" : null,
-   "managing_director" : null} 
-	
-
-
-
-Kyc
-___
-
-	
-.. code-block:: JSON
-
-	{"country" : "FRA3",
-	"id" : "15CA98225",
-	"lastname" : "Houlle",
-	"firstname" : "Pierre david",
-	"sex" : "M",
-	"nationality" : "Francaise",
-	"date_of_birth" : "1980-1212",
-	"date_of_issue" : "2012-02-13",
-	"date_of-expiration" : "2022-02-12",
-	"authority" : "Prefecture de Police de Paris",
-	"country" : "France",
-	"card_id" : "xxxxxxxx"}
-
-
-
-Certificate
-___________
-
-
-.. code-block:: JSON
-
-	{"type" : "experience",	
-	"title" : "Chef de projet Blockchain",
-	"description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
-	"start_date" : "2018/02/22",
-	"end_date" : "2019/01/25",
-	"skills" : ["Ethereum", "Solidity"],  		
-	"score_recommendation" : 2,
-	"score_delivery" : 3,
-	"score_schedule" : 4,
-	"score_communication" : 4,
-	"logo" : "thales.png",
-	"signature" : "permet.png",
-	"manager" : "Jean Permet",
-	"reviewer" : "Paul Jacques"}
-
-
-
-	    
-Experience
-__________
-
-
-
-.. code-block:: JSON
-
-	{"company" : {"contact_email" : "Pierre@bnp.com",
-				"name" : "Thales",
-				"contact_name" : "Jean Dujardin",
-				"contact_phone" : "0607254589"},
-	"title" : "Chef de projet Blockchain",
-	"description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
-	"start_date" : "2018/02/22",
-	"end_date" : "2019/01/25",
-	"skills" : ["Ethereum", "Solidity"],
-	"certificate_link" : ""}
-
-
-
-	    
-Education
-_________
-
-
-
-
-.. code-block:: JSON
-
-	{"organization" : {"contact_email" : "Pierre@bnp.com",
-				"name" : "Ensam",
-				"contact_name" : "Jean Meleze",
-				"contact_phone" : "0607255656"},
-	"title" : "Master Engineer",
-	"description" : "General Study",
-	"start_date" : "1985/02/22",
-	"end_date" : "1988/01/25",
-	"skills" : [],
-	"certificate_link" : ""}
