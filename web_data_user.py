@@ -907,6 +907,7 @@ def user(mode) :
 
 		# certificates
 		my_certificates = ""
+		cert_html = ""
 		if len (session['certificate']) == 0:
 			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
 		else :
@@ -921,7 +922,7 @@ def user(mode) :
 					issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
-
+				
 				if certificate['type'] == 'agreement' :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>

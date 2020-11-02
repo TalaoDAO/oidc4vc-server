@@ -789,7 +789,7 @@ def create_kyc() :
         return redirect(mode.server + 'user/')
 
 
-# Create skill certificate
+# Create skill certificate A reprendre !!!!
 @app.route('/user/create_skill_certificate/', methods=['GET', 'POST'])
 def create_skill_certificate() :
     check_login()

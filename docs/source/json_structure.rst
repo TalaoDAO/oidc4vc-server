@@ -72,10 +72,22 @@ ____________
 	"description" : "xxx",
 	"date_of_issue" : "xxx",
 	"valid_until" : "xxx",
-	"location" : "xxx"
+	"location" : "xxx",
 	"service_product_group" : "xxx",
 	"logo" : "xxx",
 	"signature" : "xxx"}
+
+
+.. code-block:: JSON
+
+    {
+	"version" : 1,
+    "type" : "recommendation",
+    "description" : "",
+    "relationship" : ""
+	}
+
+
 
 
 Experience
