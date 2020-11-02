@@ -100,7 +100,7 @@ Decode JWT
 
 JWT can be decoded with Talao RSA public key . Audience is your client_id, algorithm is RS256
 
-.. code-block:: TXT
+.. code-block:: TEXT
 
   -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3fMFBmz2y31GlatcZ/ud\nOL9CmCmvtde2Pu5ZggILlBD6yll+O10eH/8J8wX9OZG+e5vAgT5gkzo247ow4auj\niOA87V9bdexI7nUiD5qjdKTcIofJiDkmCIgF/UqwQ7dfyl1jWDVB1CnfAqkL0U2j\nbU+Nb/y1M1/oTFoid+trRFbhM+0awr06grh4viGJ0i5oVCcuybcDuP7bwNiZD1FP\n85L/hlfXvJs+oz6K+583leu1hj7wFnWSv0jgeYHkdgoG3rSKlbTxt+98dTu3Hy8s\nePl9O/2WKi6SSH0wpR+FqaBULAAyWd0cj5mjBLYoUiGP7qyIU5/9Z+pVf+L7SO7t\nlQIDAQAB\n-----END PUBLIC KEY-----
 
@@ -272,7 +272,7 @@ JSON Response
     "username" : "jeanpascalet",
     "firstname": "jean",
     "lastname": "pascalet",
-    "email": "jean.pascalet@talao.io"}
+    "email": "jean.pascalet@talao.io"
   }
 
 Endpoint : https://talao.co/api/v1/issue_experience
