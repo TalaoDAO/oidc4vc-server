@@ -15,12 +15,12 @@ from datetime import datetime
 from base64 import b64encode, b64decode
 
 # dependances
-from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key
+from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, authorize_partnership, partnershiprequest
 from Talao_ipfs import ipfs_add, ipfs_get
 import Talao_message
 import constante
 import ns
-import privatekey
+from privatekey import get_key, create_rsa_key
 #import ethereum_bridge see later
 
 # Global variables for RSA
@@ -109,7 +109,7 @@ def create_company(email, username, mode, creator=None, partner=False) :
 	print('adresse = ', address)
 	print('private key = ', private_key)
 
-	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
+	RSA_key, RSA_private, RSA_public = create_rsa_key(private_key, mode)
 
 	# stockage de la cle privée RSA dans un fichier du repertoire ./RSA_key/rinkeby ou ethereum ou talaonet
 	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/'+ str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
@@ -180,6 +180,32 @@ def create_company(email, username, mode, creator=None, partner=False) :
 		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5 , mode, synchronous=True) 
 	else :
 		pass
+
+	# Creator
+	if creator and creator != mode.owner_talao :
+		creator_address = creator
+		creator_workspace_contract = ownersToContracts(creator_address, mode)
+		creator_rsa_key = get_key(creator, 'rsa_key', mode)
+		creator_private_key = get_key(creator,'private_key', mode)
+		# setup parnership with creator
+		if partner :
+			# creator requests partnership
+			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode, synchronous= True) :
+				# user(company) accepts partnership
+				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_key, mode, synchronous = True) :
+					print('partnership has been setup with creator')
+				else :
+					print('authorize partnership failed')
+			else :
+				print('request partnership failed')
+		#add creator as referent
+		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=True) :
+			print('key 20002 issued for creator')
+		else :
+			print('key 20002 for creator failed')
+
+
+
 
 	# update resolver and create local database for this company
 	ns.add_identity(username, workspace_contract, email, mode)

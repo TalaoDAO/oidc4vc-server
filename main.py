@@ -790,11 +790,11 @@ def create_kyc() :
 
 
 # Create skill certificate A reprendre !!!!
-@app.route('/user/create_skill_certificate/', methods=['GET', 'POST'])
+@app.route('/user/issue_skill_certificate/', methods=['GET', 'POST'])
 def create_skill_certificate() :
     check_login()
     if request.method == 'GET' :
-        return render_template('create_skill_certificate.html', **session['menu'])
+        return render_template('issue_skill_certificate.html', **session['menu'])
     if request.method == 'POST' :
         identity_username = request.form['identity_username'].lower()
         certificate = {
@@ -802,13 +802,13 @@ def create_skill_certificate() :
                     "type" : "skill",
                     "title" : request.form['title'],
                     "description" : request.form['description'],
-                    "start_date" : "",
                     "end_date" : request.form['date'],
-                    "skills" : "",
-                    "score_recommendation" : "",
-                    "score_delivery" : "",
-                    "score_schedule" : "",
-                    "score_communication" : "",
+                    "date_of_issue" : "",
+ #                   "skills" : "",
+ #                   "score_recommendation" : "",
+ #                   "score_delivery" : "",
+ #                   "score_schedule" : "",
+ #                   "score_communication" : "",
                     "logo" : session['picture'],
                     "signature" : session['signature'],
                     "manager" : "Director",

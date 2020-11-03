@@ -49,6 +49,7 @@ ____________
 .. code-block:: JSON
 
 	{"type" : "experience",	
+	"version" : 1,
 	"title" : "Chef de projet Blockchain",
 	"description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
 	"start_date" : "2018/02/22",
@@ -67,6 +68,7 @@ ____________
 .. code-block:: JSON
 
 	{"type" : "agreement",
+	"version" : 1,
 	"registration_number" : "xxx",
 	"title" : "xxx",
 	"description" : "xxx",
@@ -81,14 +83,26 @@ ____________
 .. code-block:: JSON
 
     {
-	"version" : 1,
     "type" : "recommendation",
-    "description" : "",
+    "version" : 1,
+	"description" : "",
     "relationship" : ""
 	}
 
 
+.. code-block:: JSON
 
+	{
+    "type" : "skill",
+	"version" : 1,
+    "title" : "",
+    "description" : "",
+    "date_of_issue" : "",
+    "logo" : "",
+    "signature" : "",
+    "manager" : "",
+	"reviewer" : ""
+	}
 
 Experience
 __________

@@ -3,6 +3,7 @@ from Crypto.Cipher import PKCS1_OAEP
 import csv
 import sys
 import time
+
 import hashlib
 import json
 from datetime import datetime
@@ -191,7 +192,7 @@ def get_partner_status(address, identity_workspace_contract, mode):
 
 
 def authorize_partnership(address_from, workspace_contract_from, identity_address, identity_workspace_contract, private_key_from, partner_workspace_contract, user_rsa_key, mode, synchronous = True) :	
-	# user = address_to
+	# user = identity
 	w3 = mode.w3
 	partner_address = contractsToOwners(partner_workspace_contract, mode)
 
@@ -459,6 +460,8 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 			return None
 	return picture_hash
 
+
+""" deprecated
 ############################################################
 #  Mise a jour du profil 2 000 000 gas
 ############################################################
@@ -507,6 +510,8 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 		return None
 	return hash1
 
+"""
+"""
 ############################################################
 # 	@chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
 #	@topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
@@ -532,7 +537,7 @@ def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchrono
 		if receipt['status'] == 0 :
 			return None
 	return hash1
-
+"""
 
  
 ############################################################
