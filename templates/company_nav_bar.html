@@ -6,9 +6,22 @@
     <!-- Logo Talao -->
     <div class="container-fluid"><a href="/user/"><img src="/static/img/logo.png" style="width: 120px;"></a> </div>
 
+</ul>
+    <ul class="navbar-nav w-100 d-none d-md-block" style="flex-direction: row;">
+      <!-- search only for large device -->
 
 
+      <form action="/user/search/" method="POST" class="form-inline d-none d-md-inline-block w-100 navbar-search ">
+        <div class="input-group justify-content-center">
+          <button class="btn p-2" type="submit"><i class="fas fa-search my-auto" style="color: rgba(255,255,255,0.71);"></i></button>
+          <input id="typeaheadElement" class="form-control-md rounded-pill px-3" type="text" name="username_to_search" pattern="[a-zA-Z0-9.]{3,30}" placeholder="Search"
+            style="width: 300px;height: 30px;margin: 5px;padding: 5px;background: rgba(255,255,255,0.17);border-width: 1px;border-style: none;color: rgba(255,255,255,0.82);outline:none;color:white;">
+        </div>
+      </form>
 
+    </ul>
+
+    <ul class="navbar-nav ml-2" style="flex-direction: row;">
 
 
     {% if session['username'] == 'talao' %}
@@ -48,19 +61,7 @@
        </form>
       -->
   </ul>
-  <ul class="navbar-nav w-100 d-none d-md-block" style="flex-direction: row;">
-    <!-- search only for large device -->
 
-
-    <form action="/user/search/" method="POST" class="form-inline d-none d-md-inline-block w-100 navbar-search ">
-      <div class="input-group justify-content-center">
-        <button class="btn p-2" type="submit"><i class="fas fa-search my-auto" style="color: rgba(255,255,255,0.71);"></i></button>
-        <input id="typeaheadElement" class="form-control-md rounded-pill px-3" type="text" name="username_to_search" pattern="[a-zA-Z0-9.]{3,30}" placeholder="Search"
-          style="width: 300px;height: 30px;margin: 5px;padding: 5px;background: rgba(255,255,255,0.17);border-width: 1px;border-style: none;color: rgba(255,255,255,0.82);outline:none;color:white;">
-      </div>
-    </form>
-
-  </ul>
   <ul class="navbar-nav mr-2 " style="flex-direction: row;">
     <div class="d-inline-flex justify-content-center">
     <li class="nav-item mx-1"><a class="nav-link active py-auto" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>{{name}}</strong></h4></a></li>
