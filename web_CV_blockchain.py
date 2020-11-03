@@ -277,9 +277,9 @@ def resume(mode) :
                 carousel_rows_experience += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
                 #image
                 try:
-                    carousel_rows_experience +=""""{}" style="height: 200px;" alt="sample59"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+                    carousel_rows_experience +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
                 except:
-                    carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="sample59"/></div><figcaption >"""
+                    carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
                 #verified
                 if experience['topic']=='experience':
                     carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
@@ -314,7 +314,7 @@ def resume(mode) :
                 #Footer
                 if experience['topic']=='experience':
                     carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-                    carousel_rows_experience += """<a href= /certificate/data/?dataId=""" + experience['id'] + """:experience> </a>"""
+                    carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
                 else:
                     carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
                     carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
@@ -363,9 +363,9 @@ def resume(mode) :
                 carousel_rows_recommendation += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
                 #image
                 try:
-                    carousel_rows_recommendation +=""""{}" style="height: 200px;" alt="sample59"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+                    carousel_rows_recommendation +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
                 except:
-                    carousel_rows_recommendation +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="sample59"/></div><figcaption >"""
+                    carousel_rows_recommendation +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
                 #verified
                 carousel_rows_recommendation +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
                 #header
@@ -375,9 +375,9 @@ def resume(mode) :
                 carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation['relationship'] + "<br>"
                 carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:150]
                 if len(recommendation['description'])>150:
-                    carousel_rows_experience += "...<br>"
+                    carousel_rows_recommendation += "...<br>"
                 else:
-                    carousel_rows_experience += "<br>"
+                    carousel_rows_recommendation += "<br>"
 
                 carousel_rows_recommendation += "</p>"
                 #Footer
@@ -422,9 +422,9 @@ def resume(mode) :
                 carousel_rows_education += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
                 #image
                 try:
-                    carousel_rows_education +=""""{}" style="height: 200px;" alt="sample59"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+                    carousel_rows_education +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
                 except:
-                    carousel_rows_education +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="sample59"/></div><figcaption >"""
+                    carousel_rows_education +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
                 #verified
                 carousel_rows_education +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
                 #header
@@ -439,7 +439,7 @@ def resume(mode) :
                 #Footer
                 carousel_rows_education += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
                 #Lien certificates
-                carousel_rows_education += """<a href=  /certificate/data/?dataId="""+education['id'] + """:education></a>"""
+                carousel_rows_education += """<a href=  /certificate/?certificate_id="""+education['id'] + """:education></a>"""
 
                 carousel_rows_education += """</figure></div>"""
                 if (i+1)%3==0 and len(educations)%3!=0:
@@ -459,7 +459,7 @@ def resume(mode) :
                 carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
                 carousel_rows_skill += """<div class="col-md-4 mb-2">
                         <figure class="snip1253 mw-100" style="height: 410px; ">
-                          <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="sample59" /></div>
+                          <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
                           <figcaption class="p-0">
                             <div class="row overflow-hidden" style="flex-direction: row;height: 50px">
                               <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
@@ -473,7 +473,7 @@ def resume(mode) :
                     if i<4:
                         carousel_rows_skill += skill['skill_name'] + "<br>"
                     elif i==4:
-                        carousel_rows_skill += "..."
+                        carousel_rows_skill += ""
                 carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
                 carousel_rows_skill += """<a href=  /data/?dataId="""+ issuer_explore.skills['id'] + """:skills></a>"""
                 carousel_rows_skill += """</figure></div>"""
@@ -502,9 +502,9 @@ def resume(mode) :
                 carousel_rows_skill += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
                 #image
                 try:
-                    carousel_rows_skill +=""""{}" style="height: 200px;" alt="sample59"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+                    carousel_rows_skill +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
                 except:
-                    carousel_rows_skill +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="sample59"/></div><figcaption >"""
+                    carousel_rows_skill +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
                 #verified
                 carousel_rows_skill +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
                 #header
@@ -532,7 +532,7 @@ def resume(mode) :
                         created_row = True
                     carousel_rows_skill += """<div class="col-md-4 mb-2">
                             <figure class="snip1253 mw-100" style="height: 410px; ">
-                              <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="sample59" /></div>
+                              <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
                               <figcaption class="p-0">
                                 <div class="row overflow-hidden" style="flex-direction: row;height: 50px">
                                   <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>

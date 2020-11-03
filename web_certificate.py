@@ -18,15 +18,15 @@ import ns
 import analysis
 
 def convert(obj):
-    if type(obj) == list:
-        for x in obj:
-            convert(x)
-    elif type(obj) == dict:
-        for k, v in obj.items():
-            if v is None:
-                obj[k] = 'Unknown'
-            else:
-                convert(v)
+	if type(obj) == list:
+		for x in obj:
+			convert(x)
+	elif type(obj) == dict:
+		for k, v in obj.items():
+			if v is None:
+				obj[k] = 'Unknown'
+			else:
+				convert(v)
 
 # display experience certificate for anybody. Stand alone routine
 # #route /guest/certificate
@@ -38,6 +38,12 @@ def show_certificate(mode):
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+	self_claim = None
+
+	try:
+		self_claim = certificate_id.split(':')[6]
+	except:
+		pass
 
 	if session.get('certificate_id') != certificate_id :
 		certificate = Document('certificate')
@@ -52,6 +58,52 @@ def show_certificate(mode):
 	identity_profil= read_profil(identity_workspace_contract, mode, 'light')[0]
 	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
 	identity_username = None if 'username' not in session else session['username']
+
+	if self_claim == "experience" :
+		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
+
+		my_badge = ''
+		for skill in session['displayed_certificate']['skills'] :
+			skill_to_display = skill.replace(" ", "").capitalize().strip(',')
+			my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
+		return render_template('./certificate/self_claim.html',
+							**menu,
+							type = 'Experience',
+							certificate_id= certificate_id,
+							company = session['displayed_certificate']['company']['name'],
+							email = session['displayed_certificate']['company']['contact_email'],
+							tel = session['displayed_certificate']['company']['contact_phone'],
+							contact_name = session['displayed_certificate']['company']['contact_name'],
+							start_date = session['displayed_certificate']['start_date'],
+							end_date = session['displayed_certificate']['end_date'],
+							description = description,
+							badge = my_badge,
+							title = session['displayed_certificate']['title'],
+							)
+
+	if self_claim == "education" :
+		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
+
+		my_badge = ''
+		for skill in session['displayed_certificate']['skills'] :
+			skill_to_display = skill.replace(" ", "").capitalize().strip(',')
+			if skill_to_display != '':
+				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
+		return render_template('./certificate/self_claim.html',
+							**menu,
+							type = 'Education',
+							certificate_id= certificate_id,
+							company = session['displayed_certificate']['organization']['name'],
+							email = session['displayed_certificate']['organization']['contact_email'],
+							tel = session['displayed_certificate']['organization']['contact_phone'],
+							contact_name = session['displayed_certificate']['organization']['contact_name'],
+							start_date = session['displayed_certificate']['start_date'],
+							end_date = session['displayed_certificate']['end_date'],
+							description = description,
+							badge = my_badge,
+							title = session['displayed_certificate']['title'],
+							link = session['displayed_certificate']['certificate_link']
+							)
 
 	# Experience Certificate Display
 	if session['displayed_certificate']['type'] == 'experience' :
@@ -146,7 +198,7 @@ def show_certificate(mode):
 		if issuer_picture != None :
 			if not path.exists(mode.uploads_path + issuer_picture) :
 				print('picture already on disk')
-				url='https://gateway.pinata.cloud/ipfs/'+ issuer_picture 
+				url='https://gateway.pinata.cloud/ipfs/'+ issuer_picture
 				response = requests.get(url, stream=True)
 				with open(mode.uploads_path + issuer_picture, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
@@ -213,10 +265,47 @@ def show_certificate(mode):
 							issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer
 							)
+	if session['displayed_certificate']['type'] == 'agrement' :
+		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
+
+		signature = session['displayed_certificate']['signature']
+		logo = session['displayed_certificate']['logo']
+		# if there is no signature one uses Picasso signature
+		if signature is None :
+			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
+		# if there is no logo one uses default logo
+		if logo is None :
+			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+
+		if not path.exists(mode.uploads_path + signature) :
+				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
+				response = requests.get(url, stream=True)
+				with open(mode.uploads_path + signature, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+				del response
+
+		if not path.exists(mode.uploads_path + logo) :
+			url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+			response = requests.get(url, stream=True)
+			with open(mode.uploads_path + logo, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
+
+		return render_template('./certificate/agreement_certificate.html',
+							**menu,
+							date_of_issue = session['displayed_certificate']['date_of_issue'],
+							date_of_validity = session['displayed_certificate']['valid_until'],
+							location = session['displayed_certificate']['location'],
+							description=description,
+							logo=logo,
+							signature=signature,
+							registration_number = session['displayed_certificate']['registration_number'],
+							service_product_group = session['displayed_certificate']['service_product_group']
+							)
 
 
 
-#         verify certificate
+#		 verify certificate
 #@app.route('/certificate/verify/<dataId>', methods=['GET'])
 def certificate_verify(mode) :
 
@@ -244,14 +333,14 @@ def certificate_verify(mode) :
 	if issuer_type == 'Company' :
 		issuer = """
 				<span>
-				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """> 
+				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check Issuer Identity"></i></a>
 				<br><b>DID</b> : """ + certificate['issuer']['id']
 	if issuer_type == 'Person' :
 		issuer = """
 				<span>
 				<hr>
-				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +""">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check Issuer Identity"></i></a>
 				<br><b>DID</b> : """ + certificate['issuer']['id']
 
@@ -261,14 +350,14 @@ def certificate_verify(mode) :
 		user = """
 				<span>
 				<hr>
-				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
 				<br><b>DID</b> : """ + certificate['issuer']['id'] + """<br>"""
 	if user_type == 'Person' :
 		user = """
 				<span>
 				<hr>
-				<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +"""> 
+				<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
 				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
 
@@ -347,7 +436,7 @@ def certificate_issuer_explore(mode) :
 				'contact_phone' : 'Contact Phone',
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}
-		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract, mode)
+		issuer_username =	 ns.get_username_from_resolver(issuer_workspace_contract, mode)
 		issuer_username = 'Unknown' if issuer_username is None else issuer_username
 		issuer_personal = """<span><b>Username</b> : """ + issuer_username +"""<br>"""
 		for topic_name in issuer_explore.personal.keys() :
@@ -496,7 +585,7 @@ def certificate_issuer_explore(mode) :
 
 
 	if issuer_explore.type == 'company' :
-		print('issuer explore', issuer_explore.__dict__) 
+		print('issuer explore', issuer_explore.__dict__)
 		# do something specific
 
 		# kbis
@@ -516,10 +605,10 @@ def certificate_issuer_explore(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
-			my_kbis = my_kbis + kbis_html 
+			my_kbis = my_kbis + kbis_html
 
 		# personal
-		issuer_username = 	ns.get_username_from_resolver(issuer_workspace_contract, mode)
+		issuer_username =	 ns.get_username_from_resolver(issuer_workspace_contract, mode)
 		issuer_username = 'Unknown' if issuer_username is None else issuer_username
 		issuer_personal = """ <span><b>Username</b> : """ + issuer_username	+ """<br>"""
 		for topic_name in issuer_explore.personal.keys() :
@@ -745,4 +834,3 @@ def certificate_data_analysis(mode) :
 		return render_template('dashboard.html',
 								viewer= viewer,
 								**my_analysis)
-
