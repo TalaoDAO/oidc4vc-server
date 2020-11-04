@@ -214,14 +214,23 @@ Endpoint : https://talao.co/api/v1/user_identity_management
 OAtth 2.0 Client Credentials Flow
 ----------------------------------
 
-This flow allows your company to access functionalities previously authorized by users (as referent and/or partner) and to manage your own company identity :
+This flow allows your company to access functionalities previously authorized by users (as referent and/or partner) and to manage your own company identity.
+
+to manage other person Identity :
 
 *   https://talao.co/api/v1/issue_experience : to issue experience certificates to a person after your company has been appointed as a referent
 *   https://talao.co/api/v1/issue_skill : to issue skill certificates to a person after your company has been appointed as a referent
-*   https://talao.co/api/v1/issue_recommendation : to issue recommendation certificates to user (person or company) after your company has been appointed as a referent
-*   https://talao.co/api/v1/issue_company_certificate : to issue certificates to a company after your company has been appointed as a referent
+*   https://talao.co/api/v1/issue_recommendation : to issue recommendation certificates to a person after your company has been appointed as a referent
 *   https://talao.co/api/v1/create_person_identity : to create an identity for a person
+
+to manage other company Identity :
+
 *   https://talao.co/api/v1/create_company_identity : to create an identity for a company
+*   https://talao.co/api/v1/issue_agreement : to issue agreement certificates to a company after your company has been appointed as a referent
+*   https://talao.co/api/v1/issue_reference : to issue reference certificates to a person after your company has been appointed as a referent
+
+to manage your own Identity :
+
 *   https://talao.co/api/v1/client_identity_management : to add/remove a referent to your company's referent list or to request/reject a partnership
 *   https://talao.co/api/v1/get_status : to get referent and partner status with a user
 
@@ -279,7 +288,7 @@ Endpoint : https://talao.co/api/v1/issue_experience
 ***************************************************
 
 Issue an experience certificate to a user.
-Company must be allowed to issue experience certificate.
+Company must be allowed to issue experience certificate (scope = reference).
 Company must be a in the user's referent list.
 
 Issue an experience certificate :
@@ -347,3 +356,39 @@ Get the referent and partnership status of a user.
 
 JSON return : same as endpoint https://talao.co/api/v1/company_request
 
+
+Endpoint : https://talao.co/api/v1/issue_reference
+***************************************************
+
+Issue an experience certificate to a company.
+Company must be allowed to issue reference certificate (scope = reference).
+Company must be a in the company's referent list.
+
+Issue a reference certificate :
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/issue_reference  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did" : "did:talao:talonet:2165165", "certificate": JSON_certificate}'
+
+Example of a JSON_certificate :
+
+.. code-block:: JSON
+
+  {
+    "project_title" : "Ligne de production moteur NFG-1000",
+    "project_description" : "Conception, réalisation et installation d'une nouvelle ligne de production",
+    "project_budget" : "2000000",
+    "project_staff" : "12",
+    "project_location" : "Bordeaux",
+    "start_date" : "2019-02-22",
+    "end_date" : "2020-01-25",
+    "competencies" : ["CATIA V6",],
+    "score_recommendation" : 4,
+    "score_delivery" : 3,
+    "score_schedule" : 4,
+    "score_communication" : 4,
+    "score_budget" : 4,
+   }

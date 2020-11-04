@@ -41,6 +41,7 @@
     <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" class="nav-link active" href="/user/issue_kbis/">Issue a Kbis</a></li>
     <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" class="nav-link active" href="/user/issue_kyc/">Issue a Kyc</a></li>
     <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" class="nav-link active" href="/user/issue_skill_certificate/">Issue a Skill Certificate</a></li>
+    <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" class="nav-link active" href="/user/add_key/">Add key</a></li>
 
 
     {% else %}
@@ -48,20 +49,7 @@
     {% endif %}
     <!--			<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/search/" style="color: rgb(133,135,150);">Search</a></li>  -->
 
-    {% if session['username'] == 'skillvalue' %}
-    <li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/issue_skill_certificate/">Issue a Skill Certificate</a></li>
-    {% endif %}
-
-    <!-- Search
-       <form action="/user/search/" method="POST" class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-         <div class="input-group">
-          <input type="text" class="typeahead form-control bg-light border-0 small" autocomplete="off" spellcheck="false" name="username_to_search" placeholder="Search by username" pattern="[a-z0-9]{3,30}">
-           <div class="input-group-append">
-             <button class="btn btn-primary btn-sm " type="submit"><i class="fas fa-search"></i></button>
-           </div>
-         </div>
-       </form>
-      -->
+   
   </ul>
 
   <ul class="navbar-nav mr-2 " style="flex-direction: row;">

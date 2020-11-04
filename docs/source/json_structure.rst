@@ -71,6 +71,30 @@ ____________
 	}
 
 
+
+.. code-block:: JSON
+
+	{
+	"type" : "reference",
+	"version" : 1,
+	"project_title" : "",
+	"project_description" : "",
+	"project_budget" : "",
+	"project_staff" : "",
+	"project_location" : "",
+	"start_date" : "2018-02-22",
+	"end_date" : "2019-01-25",
+	"competencies" : ["", ""],
+	"score_recommendation" : 2,
+	"score_delivery" : 3,
+	"score_schedule" : 4,
+	"score_communication" : 4,
+	"score_budget" : 4,
+	"logo" : "",
+	"signature" : "",
+	"manager" : "",
+	}
+
 .. code-block:: JSON
 
 	{
@@ -79,6 +103,7 @@ ____________
 	"registration_number" : "xxx",
 	"title" : "xxx",
 	"description" : "xxx",
+	"standard" : "",
 	"date_of_issue" : "xxx",
 	"valid_until" : "xxx",
 	"location" : "xxx",

@@ -87,7 +87,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.6"
+VERSION = "0.13.7"
 API_SERVER = True
 
 # Flask and Session setup
@@ -1476,9 +1476,6 @@ def add_issuer() :
         if not add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) :
             flash('transaction failed', 'danger')
         else :
-            # update issuer list in session
-            #issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
-            #contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
             issuer_workspace_contract = ownersToContracts(issuer_address, mode)
             session['issuer'].append(ns.get_data_from_username(session['referent_username'], mode))
             # email to issuer
@@ -1492,6 +1489,25 @@ def add_issuer() :
             # message to user
             flash(session['referent_username'] + ' has been added as a Referent. An email has been sent too.', 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
+
+# Talao only add Key to anyone
+@app.route('/user/add_key/', methods=['GET', 'POST'])
+def add_key_for_other() :
+    check_login()
+    if session['username'] != 'talao' :
+        return redirect (mode.server +'user/')
+    if request.method == 'GET' :
+        return render_template('add_key.html', **session['menu'])
+    elif request.method == 'POST' :
+        identity_workspace_contract = ns.get_data_from_username(request.form.get('identity_username'), mode)['workspace_contract']
+        identity_address = contractsToOwners(identity_workspace_contract, mode)
+        third_party_address = ns.get_data_from_username(request.form.get('third_party_username'),mode)['address']
+        key = request.form.get('key')
+    if not add_key(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, third_party_address, int(key), mode, synchronous=True) :
+        flash('transaction failed', 'danger')
+    else :
+        flash('Key added', 'danger')
+    return redirect (mode.server +'user/')
 
 # remove issuer
 @app.route('/user/remove_issuer/', methods=['GET', 'POST'])

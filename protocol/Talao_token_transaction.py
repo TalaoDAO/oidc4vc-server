@@ -511,33 +511,7 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	return hash1
 
 """
-"""
-############################################################
-# 	@chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
-#	@topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-# 	@offset [len(_givenName), len(_familyName), len(_jobTitle), len(_worksFor), len(_workLocation), len(_url), len(_email), len(_description)]
 
-def updateSelfclaims(address, private_key, topic,chaine, offset, mode, synchronous=True) :
-
-	w3 = mode.w3
-	bchaine = bytes(chaine, 'utf-8')
-	workspace_contract = ownersToContracts(address,mode)
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	# calcul du nonce de l envoyeur de token . Ici le caller
-	nonce = w3.eth.getTransactionCount(address)
-	# Build transaction
-	txn=contract.functions.updateSelfClaims(topic, bchaine,offset).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})	
-	#sign transaction with caller wallet
-	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-	# send transaction
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
-		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
-			return None
-	return hash1
-"""
 
  
 ############################################################

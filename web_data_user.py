@@ -28,6 +28,7 @@ from protocol import Claim, File, Identity, Document, read_profil, get_data_from
 import hcode
 import ns
 import sms
+import vpi
 
 
 def check_login() :
@@ -255,10 +256,6 @@ def data(mode) :
 		expires = 'Unlimited'
 		my_topic = 'Personal'
 	myvisibility = my_data.privacy
-	issuer_is_white = False
-	for issuer in session['whitelist'] :
-		if issuer['workspace_contract'] == my_data.issuer['workspace_contract'] :
-			issuer_is_white = True
 
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
@@ -280,17 +277,8 @@ def data(mode) :
 		myissuer = myissuer + """
 				 <a class="text-warning">Self Declaration</a>
 				</span>"""
-
-	elif issuer_is_white :
-		myissuer = myissuer + """
-				<br>
-				  <a class="text-success">This issuer is in your White List</a>
-				</span>"""
 	else :
-		myissuer = myissuer + """
-					<br>
-					<a class="text-warning">This issuer is not in your White List</a>
-				</span>"""
+		myissuer = myissuer + "<br>Issuer fiability : " + str(vpi.check_proof_of_identity(session.get('workspace_contract'), my_data.issuer['workspace_contract'], mode)*100)+'%'
 
 
 	# advanced """
@@ -922,12 +910,37 @@ def user(mode) :
 				else :
 					print ('issuer category error, data_user.py')
 
-				if certificate['type'] in ['agrement', 'agreement'] :
+				if certificate['type'] in ['agreement', 'agrement'] :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+								<b>Title</b> : """ + certificate.get('title').capitalize()+"""<br>
+								<b>Registration number</b> : """ + certificate.get('registration_number').capitalize()+"""<br>
 								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
 
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+								<p>
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """">
+								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+								</a>
+								</p>
+								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+				
+				if certificate['type'] ==  "reference" :
+					cert_html = """<hr>
+								<b>Referent Name</b> : """ + issuer_name +"""<br>
+								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+								<b>Title</b> : """ + certificate.get('project_title').capitalize()+"""<br>
+								<b>Description</b> : " """ + certificate['project_description'][:100]+"""..."<br>
+								<b>Budget</b> : """ + certificate['project_budget'] + """<br>
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 								<p>
 								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """">
@@ -953,6 +966,7 @@ def user(mode) :
 							personal=my_personal,
 							skills=my_skills,
 							kbis=my_kbis,
+							issuer=my_issuer,
 							partner=my_partner,
 							certificates=my_certificates,
 							api=my_api,

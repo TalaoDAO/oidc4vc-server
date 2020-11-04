@@ -35,5 +35,6 @@ def config_api_server(app, mode) :
     app.add_url_rule('/api/v1/issue_experience', view_func=web_oauth.oauth_issue_experience, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/get_status', view_func=web_oauth.oauth_get_status, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/issue_agreement', view_func=web_oauth.oauth_issue_agreement, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/issue_reference', view_func=web_oauth.oauth_issue_reference, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
     return

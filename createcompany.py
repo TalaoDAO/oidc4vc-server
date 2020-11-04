@@ -20,7 +20,7 @@ from Talao_ipfs import ipfs_add, ipfs_get
 import Talao_message
 import constante
 import ns
-from privatekey import get_key, create_rsa_key
+from privatekey import get_key, create_rsa_key, add_private_key
 #import ethereum_bridge see later
 
 # Global variables for RSA
@@ -174,12 +174,12 @@ def create_company(email, username, mode, creator=None, partner=False) :
 	email2(address, workspace_contract, private_key, email, AES_key, mode)
 
 	if username != 'talao' and username != 'relay' :
-		# key 20002 to Talao to Issue Proof of Identity
+		# key 20002 to Talao to ask Talao to issue Proof of Identity
 		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True) 
-		# key 5 to Talao to be in White List
-		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5 , mode, synchronous=True) 
-	else :
-		pass
+		# key 5 to put Talao in White List
+		# add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5 , mode, synchronous=True)
+		# key 5 to put ourself in Whitelist
+		add_key(address, workspace_contract, address, workspace_contract, private_key, address, 5 , mode, synchronous=True)
 
 	# Creator
 	if creator and creator != mode.owner_talao :
@@ -191,13 +191,12 @@ def create_company(email, username, mode, creator=None, partner=False) :
 		if partner :
 			# creator requests partnership
 			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode, synchronous= True) :
-				# user(company) accepts partnership
 				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_key, mode, synchronous = True) :
-					print('partnership has been setup with creator')
+					print('partnership request from creator has been accepted')
 				else :
-					print('authorize partnership failed')
+					print('authorize partnership with creator failed')
 			else :
-				print('request partnership failed')
+				print('creator partnership request failed')
 		#add creator as referent
 		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=True) :
 			print('key 20002 issued for creator')
@@ -213,7 +212,7 @@ def create_company(email, username, mode, creator=None, partner=False) :
 	ns.init_host(username, mode)
 
 	# add private key
-	if privatekey.add_private_key(private_key, mode) :
+	if add_private_key(private_key, mode) :
 		print('New company has been added ')
 		Talao_message.messageLog("no lastname",
 								 "no firstname",

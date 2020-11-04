@@ -227,7 +227,6 @@ class Identity() :
 			claim = Claim()
 			claim.get_by_topic_name(workspace_contract_from, private_key_from, self.workspace_contract, topicname, mode)
 			self.personal[topicname] = claim.__dict__
-		print('personal = ', self.personal)
 		return True
 
 	def get_all_documents(self, mode) :
