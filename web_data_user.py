@@ -234,7 +234,6 @@ def use_my_own_address(mode) :
 """ on ne gere aucune information des data en session """
 #@app.route('/data/', methods=['GET'])
 def data(mode) :
-	print('session de workspace = ', session['workspace_contract'])
 	check_login()
 	dataId = request.args['dataId']
 	workspace_contract = '0x' + dataId.split(':')[3]
@@ -922,8 +921,8 @@ def user(mode) :
 					issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
-				
-				if certificate['type'] == 'agreement' :
+
+				if certificate['type'] in ['agrement', 'agreement'] :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>

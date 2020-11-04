@@ -7,27 +7,30 @@ ____
 
 .. code-block:: JSON
 
-   { "siret" : "662 042 449 00014",
-   "date" : "1966-09-23",
-   "name" : "BNP",
-   "legal_form" : "SA",
-   "naf" : "6419Z",
-   "capital" : "2 499 597 122 EUROS",
-   "address" : "16 BOULEVARD DES ITALIENS, 75009 PARIS", 
-   "activity" : "Servics financiers",
-   "ceo" : null,
-   "managing_director" : null} 
-	
+	{
+	"siret" : "662 042 449 00014",
+	"date" : "1966-09-23",
+	"name" : "BNP",
+	"legal_form" : "SA",
+	"naf" : "6419Z",
+	"capital" : "2 499 597 122 EUROS",
+	"address" : "16 BOULEVARD DES ITALIENS, 75009 PARIS", 
+	"activity" : "Servics financiers",
+	"ceo" : null,
+	"managing_director" : null
+	}
+
 
 
 
 Kyc
 ___
 
-	
+
 .. code-block:: JSON
 
-	{"country" : "FRA3",
+	{
+	"country" : "FRA3",
 	"id" : "15CA98225",
 	"lastname" : "Houlle",
 	"firstname" : "Pierre david",
@@ -38,7 +41,8 @@ ___
 	"date_of-expiration" : "2022-02-12",
 	"authority" : "Prefecture de Police de Paris",
 	"country" : "France",
-	"card_id" : "xxxxxxxx"}
+	"card_id" : "xxxxxxxx"
+	}
 
 
 
@@ -48,7 +52,8 @@ ____________
 
 .. code-block:: JSON
 
-	{"type" : "experience",	
+	{
+	"type" : "experience",
 	"version" : 1,
 	"title" : "Chef de projet Blockchain",
 	"description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
@@ -62,12 +67,14 @@ ____________
 	"logo" : "thales.png",
 	"signature" : "permet.png",
 	"manager" : "Jean Permet",
-	"reviewer" : "Paul Jacques"}
+	"reviewer" : "Paul Jacques"
+	}
 
 
 .. code-block:: JSON
 
-	{"type" : "agreement",
+	{
+	"type" : "agreement",
 	"version" : 1,
 	"registration_number" : "xxx",
 	"title" : "xxx",
@@ -77,7 +84,8 @@ ____________
 	"location" : "xxx",
 	"service_product_group" : "xxx",
 	"logo" : "xxx",
-	"signature" : "xxx"}
+	"signature" : "xxx"
+	}
 
 
 .. code-block:: JSON
@@ -85,7 +93,7 @@ ____________
     {
     "type" : "recommendation",
     "version" : 1,
-	"description" : "",
+    "description" : "",
     "relationship" : ""
 	}
 
@@ -94,39 +102,40 @@ ____________
 
 	{
     "type" : "skill",
-	"version" : 1,
+    "version" : 1,
     "title" : "",
     "description" : "",
     "date_of_issue" : "",
     "logo" : "",
     "signature" : "",
     "manager" : "",
-	"reviewer" : ""
+    "reviewer" : ""
 	}
+
 
 Experience
 __________
 
-
-
 .. code-block:: JSON
 
-	{"company" : {"contact_email" : "Pierre@bnp.com",
-				"name" : "Thales",
-				"contact_name" : "Jean Dujardin",
-				"contact_phone" : "0607254589"},
+	{
+	"company" : {
+		"contact_email" : "Pierre@bnp.com",
+		"name" : "Thales",
+		"contact_name" : "Jean Dujardin",
+		"contact_phone" : "0607254589"
+				},
 	"title" : "Chef de projet Blockchain",
 	"description" : "Conception et ralisation d un prototype Ethereum d un suivi de production",
 	"start_date" : "2018/02/22",
 	"end_date" : "2019/01/25",
 	"skills" : ["Ethereum", "Solidity"],
-	"certificate_link" : ""}
-
+	"certificate_link" : ""
+	}
 
 
 Skills
 _______
-
 
 to be defined
 
@@ -137,13 +146,15 @@ _________
 
 .. code-block:: JSON
 
-	{"organization" : {"contact_email" : "Pierre@bnp.com",
-				"name" : "Ensam",
-				"contact_name" : "Jean Meleze",
-				"contact_phone" : "0607255656"},
+	{
+	"organization" : {"contact_email" : "Pierre@bnp.com",
+		"name" : "Ensam",
+		"contact_name" : "Jean Meleze",
+		"contact_phone" : "0607255656"},
 	"title" : "Master Engineer",
 	"description" : "General Study",
 	"start_date" : "1985/02/22",
 	"end_date" : "1988/01/25",
 	"skills" : [],
-	"certificate_link" : ""}
+	"certificate_link" : ""
+	}

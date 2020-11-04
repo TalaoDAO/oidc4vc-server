@@ -265,7 +265,7 @@ def show_certificate(mode):
 							issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer
 							)
-	if session['displayed_certificate']['type'] == 'agrement' :
+	if session['displayed_certificate']['type'] in ['agreement', 'agrement'] :
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
 		signature = session['displayed_certificate']['signature']
