@@ -461,6 +461,7 @@ def resume(mode) :
 		website = issuer_explore.personal['website']['claim_value']
 		about = issuer_explore.personal['about']['claim_value']
 		staff = issuer_explore.personal['staff']['claim_value']
+		siret = issuer_explore.personal['siret']['claim_value']
 		try:
 			sales = "{:,}".format(int(issuer_explore.personal['sales']['claim_value'])).replace(',', ' ')
 		except:
@@ -618,6 +619,7 @@ def resume(mode) :
 							about = about,
 							staff = staff,
 							sales = sales,
+							siret = siret,
 							issuer_logo = issuer_explore.picture,
 							carousel_indicators_agreement=carousel_indicators_agreement,
 							carousel_rows_agreement=carousel_rows_agreement,
