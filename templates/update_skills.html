@@ -70,7 +70,13 @@
 									 <div class="form-row">
 										  <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                                                 <div class="form-group">
-                                                    <p><strong>Skill</strong></p>
+                                                    <p><strong>
+                                                      {% if session['type'] == 'person' %}
+                                                      Skills
+                                                      {% else%}
+                                                      Core Competencies
+                                                      {% endif %}
+                                                    </strong></p>
                                                 </div>
                                             </div>
                                             <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
@@ -93,10 +99,16 @@
 								{% endif %}
 
                                 <hr>
-                                
+
                                 <div  class="form-row">
                                     <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
-                                        <div class="form-group"><label><strong>&nbsp;Skill&nbsp;</strong><br></label><input class="form-control" type="text" title="Your skill" name="skill_name"></div>
+                                        <div class="form-group"><label><strong>&nbsp;
+                                          {% if session['type'] == 'person' %}
+                                          Skills
+                                          {% else%}
+                                          Core Competencies
+                                          {% endif %}
+                                          &nbsp;</strong><br></label><input class="form-control" type="text" title="Your skill" name="skill_name"></div>
                                     </div>
                                     <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                                         <div class="form-group"><label><strong>Level</strong><br></label>
