@@ -359,7 +359,7 @@ def show_certificate(mode):
 
 		my_badge = ''
 		for competencies in session['displayed_certificate']['competencies'] :
-			competencies_to_display = competencies.replace(" ", "").capitalize().strip(',')
+			competencies_to_display = competencies.capitalize().strip(',')
 			my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ competencies_to_display + """</span>"""
 
 		return render_template('./certificate/reference_certificate.html',
