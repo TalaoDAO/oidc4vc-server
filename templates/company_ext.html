@@ -70,13 +70,14 @@
             </div>
             <div class="col-md">
               <!-- Agreement carousel large screen  -->
-              {% if carousel_rows_agreement != "" %}
+
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
                     <h4>Agreement</h4>
                   </div>
                   <div class="card-body ">
+                    {% if carousel_rows_agreement != "" %}
                     <!--Carousel Wrapper-->
                     <div id="agreement-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
 
@@ -104,20 +105,23 @@
                       <!--/.Slides-->
 
                     </div>
+                    {% else %}
+                      <a class="text-info">No data available</a>
+                    {% endif %}
                     <!--/.Carousel Wrapper-->
                   </div>
                 </div>
               </div>
-              {% endif %}
+
               <!-- /.Agreement carousel  -->
               <!-- Reference carousel large screen  -->
-              {% if carousel_rows_reference != "" %}
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
                     <h4>Reference</h4>
                   </div>
                   <div class="card-body ">
+                    {% if carousel_rows_reference != "" %}
                     <!--Carousel Wrapper-->
                     <div id="reference-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
 
@@ -146,16 +150,19 @@
 
                     </div>
                     <!--/.Carousel Wrapper-->
+                    {% else %}
+                      <a class="text-info">No data available</a>
+                    {% endif %}
                   </div>
                 </div>
               </div>
-              {% endif %}
+
               <!-- /.Reference carousel  -->
               <div class="row mb-3">
                 <div class="col-md-5 p-0">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
-                    <h4>Core competencies</h4>
+                    <h4>Core Competencies</h4>
                   </div>
                   <div class="card-body ">
                     <p style="font-size:18px;">
