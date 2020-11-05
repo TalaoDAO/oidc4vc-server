@@ -583,7 +583,7 @@ def resume(mode) :
                     carousel_rows_reference += "<br>"
                 carousel_rows_reference += "</p>"
                 #Footer
-                carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+                carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by """ + reference['issuer']['name'] + """</footer>"""
                 #Lien certificates
                 carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """></a>"""
 

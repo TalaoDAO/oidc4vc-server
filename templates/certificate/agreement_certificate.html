@@ -50,7 +50,7 @@
                         <h1 class="text-dark mt-4" style="text-align: center;margin-bottom: 10px;font-family: Arimo, sans-serif;"><em>Certificate&nbsp;</em></h1>
                         <h1 class="text-dark" style="text-align: center;font-size: 16px;font-family: Arimo, sans-serif;">No. {{registration_number}}</h1>
                         <hr>
-                        <div class="row" style="height: 75px;margin-bottom: 10px;">
+                        <div class="row" style="margin-bottom: 10px;">
                             <div class="col" style="margin-left: 15px;">
                                 <p class="text-dark" style="font-family: Arimo, sans-serif;">This certificate was issued to :&nbsp;<br></p>
                             </div>
@@ -84,31 +84,21 @@
                                 <p class="text-dark ml-2 m-0">This certificate is valid for the following scope :&nbsp;</p>
                                 {{service_product_group|safe}}
                                 <br>
-                                <p class="text-dark text-center ml-2 m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This certificate was issued through the Talao plateform.&nbsp; Blablabla Improvise Adapt Overcome</p>
+                                <p class="text-dark text-center ml-2 m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This certificate was issued through the Talao plateform.&nbsp; </p>
                             </div>
                         </div>
                         <hr style="margin-bottom: 0px;">
                         <div class="row mt-3" >
                             <div class="col">
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Date of issue :</p>
-                                    </div>
-                                    <div class="col">
-                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;"><strong>{{date_of_issue}}</strong></p>
-                                    </div>
-                                </div>
-                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Issued by :</p><img src="{{ url_for('send_file', filename=logo) }}" style="width: 150px;margin-left: 150px;"></div>
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Date of issue : <strong>{{date_of_issue}}</strong></p>
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Issued by :</p>
+                                <div class="text-center"><img src="{{ url_for('send_file', filename=logo) }}" style="width: 250px;"></div>
+                            </div>
                             <div class="col" style="height: 350px;">
-                                <div class="row">
-                                    <div class="col" style="height: 34px;">
-                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Valid until :</p>
-                                    </div>
-                                    <div class="col" style="height: 34px;">
-                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;"><strong>{{date_of_validity}}</strong></p>
-                                    </div>
-                                </div>
-                                <p class="text-dark mt-4 ml-2" style="font-family: Arimo, sans-serif;">Signature :</p><img src="{{ url_for('send_file', filename=signature) }}" style="width: 200px;margin-left: 150px;"></div>
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Valid until : <strong>{{date_of_validity}}</strong></p>
+                                <p class="text-dark mt-4 ml-2" style="font-family: Arimo, sans-serif;">Signature :</p>
+                                <div class="text-center"><img src="{{ url_for('send_file', filename=signature) }}" style="width: 200px;"></div>
+                            </div>
                         </div>
                       </div>
                     </div>
