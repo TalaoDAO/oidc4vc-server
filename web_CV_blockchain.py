@@ -460,10 +460,11 @@ def resume(mode) :
         contact_phone = issuer_explore.personal['contact_phone']['claim_value']
         website = issuer_explore.personal['website']['claim_value']
         about = issuer_explore.personal['about']['claim_value']
+        staff = issuer_explore.personal['staff']['claim_value']
         try:
-            staff = issuer_explore.personal['staff']['claim_value']
+            sales = "{:,}".format(int(issuer_explore.personal['sales']['claim_value'])).replace(',', ' ')
         except:
-            staff = "Unknown"
+            sales = issuer_explore.personal['sales']['claim_value']
 
         agreements = []
         for certificate in issuer_explore.certificate:
@@ -602,6 +603,7 @@ def resume(mode) :
                             website = website,
                             about = about,
                             staff = staff,
+                            sales = sales,
                             issuer_logo = issuer_explore.picture,
                             carousel_indicators_agreement=carousel_indicators_agreement,
                             carousel_rows_agreement=carousel_rows_agreement,
