@@ -520,7 +520,7 @@ def resume(mode) :
                     carousel_rows_agreement += "<br>"
                 carousel_rows_agreement += "</p>"
                 #Footer
-                carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+                carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by """ + agreement['issuer']['name'] + """</footer>"""
                 #Lien certificates
                 carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """></a>"""
 
