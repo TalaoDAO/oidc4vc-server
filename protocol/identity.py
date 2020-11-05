@@ -70,6 +70,7 @@ class Identity() :
 			self.type = "company"
 			self.name = self.personal['name']['claim_value']
 			self.get_identity_kbis(mode)
+			self.get_identity_certificate(mode)
 
 		if self.category == 1001 : # person
 			self.profil_title = "" if self.personal['profil_title']['claim_value'] is None else self.personal['profil_title']['claim_value']
@@ -81,7 +82,6 @@ class Identity() :
 			self.get_identity_certificate(mode)
 			self.get_identity_education(mode)
 			self.get_identity_kyc(mode)
-			self.get_identity_certificate(mode)
 			self.get_identity_skills(mode)
 
 		#get image/logo and signature ipfs and download files to upload folder

@@ -438,6 +438,179 @@ def resume(mode) :
                             carousel_rows_recommendation=carousel_rows_recommendation,
                             carousel_rows_education=carousel_rows_education,
                             carousel_rows_skill=carousel_rows_skill)
+
+    elif issuer_explore.type == 'company' :
+        session['resume']= issuer_explore.__dict__
+        """ clean up """
+        #del session['resume']['mode']
+        del session['resume']['file_list']
+        del session['resume']['experience_list']
+        del session['resume']['education_list']
+        del session['resume']['other_list']
+        del session['resume']['kbis_list']
+        del session['resume']['kyc_list']
+        del session['resume']['certificate_list']
+        del session['resume']['partners']
+        del session['resume']['synchronous']
+        del session['resume']['authenticated']
+        del session['resume']['rsa_key']
+        del session['resume']['relay_activated']
+        del session['resume']['private_key']
+        del session['resume']['category']
+        session['resume']['topic'] = 'resume'
+        contact_name = issuer_explore.personal['contact_name']['claim_value']
+        contact_email = issuer_explore.personal['contact_email']['claim_value']
+        contact_phone = issuer_explore.personal['contact_phone']['claim_value']
+        website = issuer_explore.personal['website']['claim_value']
+        about = issuer_explore.personal['about']['claim_value']
+        try:
+            staff = issuer_explore.personal['staff']['claim_value']
+        except:
+            staff = "Unknown"
+
+        agreements = []
+        for certificate in issuer_explore.certificate:
+            if certificate['type'] == "agreement" or certificate['type'] == "agrement":
+                agreements.append(certificate)
+        carousel_indicators_agreement = """<li data-target="#agreement-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+        carousel_rows_agreement = ""
+        if agreements == []:
+            pass
+        else:
+            nbr_rows = (len(agreements)-1)//3
+            for i in range(nbr_rows):
+                carousel_indicators_agreement += '<li data-target="#agreement-carousel" data-slide-to="{}"></li>'.format(i+1)
+            for i, agreement in enumerate(agreements):
+                try:
+                    logo = agreement['logo']
+                except:
+                    try :
+                        logo = agreement['picture']
+                    except:
+                        logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+                if logo != None:
+                    if not path.exists(mode.uploads_path + logo) :
+                        url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+                        response = requests.get(url, stream=True)
+                        with open(mode.uploads_path + logo, 'wb') as out_file:
+                            shutil.copyfileobj(response.raw, out_file)
+                            del response
+
+                if i%3==0:
+                    carousel_rows_agreement += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+                carousel_rows_agreement += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+                #image
+                try:
+                    carousel_rows_agreement +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+                except:
+                    carousel_rows_agreement +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+                #verified
+                carousel_rows_agreement += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+                #header
+                carousel_rows_agreement += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + agreement['title'] + "</h4></div></div>"
+                #body
+                carousel_rows_agreement += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + agreement['issuer']['name'] + '<br>'
+
+                carousel_rows_agreement += """<b>Issue date</b> : """ + agreement['date_of_issue'] + """<br> """
+                carousel_rows_agreement += """<b>End of validity date</b> : """ + agreement['valid_until'] + """<br>"""
+
+                carousel_rows_agreement += """<b> Description: </b>""" + agreement['description'][:150]
+                if len(agreement['description'])>150:
+                    carousel_rows_agreement += "...<br>"
+                else:
+                    carousel_rows_agreement += "<br>"
+                carousel_rows_agreement += "</p>"
+                #Footer
+                carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+                #Lien certificates
+                carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """:agreement></a>"""
+
+                carousel_rows_agreement += """</figure></div>"""
+                if (i+1)%3==0 and len(agreements)%3!=0:
+                    carousel_rows_agreement += '</div></div>'
+                if i == len(agreements)-1:
+                    carousel_rows_agreement += '</div></div>'
+
+        references = []
+        for certificate in issuer_explore.certificate:
+            if certificate['type'] == "reference":
+                references.append(certificate)
+        carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+        carousel_rows_reference = ""
+        if references == []:
+            pass
+        else:
+            nbr_rows = (len(references)-1)//3
+            for i in range(nbr_rows):
+                carousel_indicators_reference += '<li data-target="#reference-carousel" data-slide-to="{}"></li>'.format(i+1)
+            for i, reference in enumerate(references):
+                try:
+                    logo = reference['logo']
+                except:
+                    try :
+                        logo = reference['picture']
+                    except:
+                        logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+                if logo != None:
+                    if not path.exists(mode.uploads_path + logo) :
+                        url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+                        response = requests.get(url, stream=True)
+                        with open(mode.uploads_path + logo, 'wb') as out_file:
+                            shutil.copyfileobj(response.raw, out_file)
+                            del response
+
+                if i%3==0:
+                    carousel_rows_reference += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+                carousel_rows_reference += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+                #image
+                try:
+                    carousel_rows_reference +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+                except:
+                    carousel_rows_reference +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+                #verified
+                carousel_rows_reference += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+                #header
+                carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + reference['project_title'] + "</h4></div></div>"
+                #body
+                carousel_rows_reference += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + reference['issuer']['name'] + '<br>'
+
+                carousel_rows_reference += """<b>Start date</b> : """ + reference['start_date'] + """<b>    End date</b> : """ + reference['end_date'] + """<br> """
+                carousel_rows_reference += """<b>Project Budget</b> : """ + reference['project_budget'] + """<br> """
+
+                carousel_rows_reference += """<b> Description: </b>""" + reference['project_description'][:150]
+                if len(reference['project_description'])>150:
+                    carousel_rows_reference += "...<br>"
+                else:
+                    carousel_rows_reference += "<br>"
+                carousel_rows_reference += "</p>"
+                #Footer
+                carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+                #Lien certificates
+                carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """:reference></a>"""
+
+                carousel_rows_reference += """</figure></div>"""
+                if (i+1)%3==0 and len(references)%3!=0:
+                    carousel_rows_reference += '</div></div>'
+                if i == len(references)-1:
+                    carousel_rows_reference += '</div></div>'
+
+
+        return render_template('./company_ext.html',
+                            issuer_name = issuer_explore.name,
+                            contact_name = contact_name,
+                            contact_email = contact_email,
+                            contact_phone = contact_phone,
+                            website = website,
+                            about = about,
+                            staff = staff,
+                            issuer_logo = issuer_explore.picture,
+                            carousel_indicators_agreement=carousel_indicators_agreement,
+                            carousel_rows_agreement=carousel_rows_agreement,
+                            carousel_indicators_reference=carousel_indicators_reference,
+                            carousel_rows_reference=carousel_rows_reference,
+                            )
     # issuer is a company
     else :
         abort(403)

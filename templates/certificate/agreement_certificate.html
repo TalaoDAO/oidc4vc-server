@@ -46,22 +46,69 @@
                       </div>
                     </div>
                     <div class="card-body">
-                      <h1 style="font-size: 16px;color: rgb(0,0,0);text-align: center;"><strong>Mise en place de la fabrication additive sur une chaîne de production</strong></h1>
-                      <div class="row">
-                        <div class="col" style="background: rgba(255,255,255,0.9);height: 450px;">
-                            <p class="text-dark text-center">Issued : <strong>{{date_of_issue}}</strong> - Valid until : <strong>{{date_of_validity}}</strong></p>
-                            <p class="text-dark m-0">Location : {{location}}</p>
-                            <p class="text-dark m-0">Description :</p>
-                            <p class="text-dark p-2 text-justify overflow-auto" style="height: 150px;font-weight: 400;font-size: 16px;border: 1px solid #ced4da;border-radius: .25rem;">{{description}}</p>
-                            <hr>
-                            <p class="text-dark m-0">This certificate is valid for the following scope :&nbsp;</p>
-                            <li class="text-dark my-2 mx-4">{{service_product_group}}</li>
-                            <hr><img src="/static/img/logo_noir.png" style="width: 100px;"></div>
-                        <div class="col" style="background: rgba(255,255,255,0.81);width: 768px;height: 450px;">
-                            <p class="text-dark m-0"><strong>Issued by :&nbsp;</strong></p><img src="{{ url_for('send_file', filename=logo) }}" style="width:  250px;">
-                            <p class="text-dark m-0">Signature :&nbsp;</p><img src="{{ url_for('send_file', filename=signature) }}" style="width: 150px;">
-                            <p class="text-dark m-0"><br>Registration Number : <strong>{{registration_number}}</strong></p>
-                            <div></div>
+                      <div class="col">
+                        <h1 class="text-dark mt-4" style="text-align: center;margin-bottom: 10px;font-family: Arimo, sans-serif;"><em>Certificate&nbsp;</em></h1>
+                        <h1 class="text-dark" style="text-align: center;font-size: 16px;font-family: Arimo, sans-serif;">No. {{registration_number}}</h1>
+                        <hr>
+                        <div class="row" style="height: 75px;margin-bottom: 10px;">
+                            <div class="col" style="margin-left: 15px;">
+                                <p class="text-dark" style="font-family: Arimo, sans-serif;">This certificate was issued to :&nbsp;<br></p>
+                            </div>
+                            <div class="col">
+                                <h4 class="text-dark ml-2" style="font-family: Arimo, sans-serif;">{{issuer_name}}</h4>
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Adresse, numéro reglementation (SIRET ou NAF)</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">We confirm that the following project was carried out in accordance with our expectations :</p>
+                                <h5 class="text-dark text-center mb-4" style="font-family: Arimo, sans-serif;"><strong>{{title}}</strong></h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-8">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">In compliance with the requirements of the following standard</p>
+                                    </div>
+                                    <div class="col">
+                                        <p class="text-dark text-center mb-4" style="font-family: Arimo, sans-serif;">{{stantard}}</p>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-bottom: 5px;">
+                                    <div class="col">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Location :</p>
+                                    </div>
+                                    <div class="col">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;"><strong>{{location}}</strong></p>
+                                    </div>
+                                </div>
+                                <p class="text-dark ml-2 m-0" style="font-family: Arimo, sans-serif;">Description :</p>
+                                <p class="text-dark ml-2 p-2 text-justify overflow-auto" style="font-family: Arimo, sans-serif;height: 120px;font-weight: 400;font-size: 16px;border: 1px solid #ced4da;border-radius: .25rem;">{{description}}</p>
+                                <p class="text-dark ml-2 m-0">This certificate is valid for the following scope :&nbsp;</p>
+                                {{service_product_group|safe}}
+                                <br>
+                                <p class="text-dark text-center ml-2 m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This certificate was issued through the Talao plateform.&nbsp; Blablabla Improvise Adapt Overcome</p>
+                            </div>
+                        </div>
+                        <hr style="margin-bottom: 0px;">
+                        <div class="row mt-3" >
+                            <div class="col">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Date of issue :</p>
+                                    </div>
+                                    <div class="col">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;"><strong>{{date_of_issue}}</strong></p>
+                                    </div>
+                                </div>
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Issued by :</p><img src="{{ url_for('send_file', filename=logo) }}" style="width: 150px;margin-left: 150px;"></div>
+                            <div class="col" style="height: 350px;">
+                                <div class="row">
+                                    <div class="col" style="height: 34px;">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Valid until :</p>
+                                    </div>
+                                    <div class="col" style="height: 34px;">
+                                        <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;"><strong>{{date_of_validity}}</strong></p>
+                                    </div>
+                                </div>
+                                <p class="text-dark mt-4 ml-2" style="font-family: Arimo, sans-serif;">Signature :</p><img src="{{ url_for('send_file', filename=signature) }}" style="width: 200px;margin-left: 150px;"></div>
                         </div>
                       </div>
                     </div>

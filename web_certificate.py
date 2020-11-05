@@ -265,7 +265,8 @@ def show_certificate(mode):
 							issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer
 							)
-	if session['displayed_certificate']['type'] == 'agrement' :
+
+	if session['displayed_certificate']['type'] == 'agrement' or session['displayed_certificate']['type'] == 'agreement' :
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
 		signature = session['displayed_certificate']['signature']
@@ -291,6 +292,11 @@ def show_certificate(mode):
 				shutil.copyfileobj(response.raw, out_file)
 			del response
 
+		products = session['displayed_certificate']['service_product_group'].split(",")
+		for product in products:
+			service_product_group = """<li class="text-dark my-2 mx-5">""" + product + "</li>"
+
+		print(session['displayed_certificate'])
 		return render_template('./certificate/agreement_certificate.html',
 							**menu,
 							date_of_issue = session['displayed_certificate']['date_of_issue'],
@@ -298,10 +304,79 @@ def show_certificate(mode):
 							location = session['displayed_certificate']['location'],
 							description=description,
 							logo=logo,
+							issuer_name = session['displayed_certificate']['issuer']['name'],
+							title = session['displayed_certificate']['title'],
 							signature=signature,
 							registration_number = session['displayed_certificate']['registration_number'],
-							service_product_group = session['displayed_certificate']['service_product_group']
+							service_product_group = service_product_group,
+							certificate_id=certificate_id,
 							)
+
+	if session['displayed_certificate']['type'] == 'reference' :
+		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
+		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
+
+		# Icon "fa-star" treatment
+		score = []
+		context = dict()
+		score.append(int(session['displayed_certificate']['score_delivery']))
+		score.append(int(session['displayed_certificate']['score_schedule']))
+		score.append(int(session['displayed_certificate']['score_communication']))
+		score.append(int(session['displayed_certificate']['score_budget']))
+		score.append(int(session['displayed_certificate']['score_recommendation']))
+
+		for q in range(0,5) :
+			for i in range(0,score[q]) :
+				context["star"+str(q)+str(i)] = yellow_star
+			for i in range(score[q],5) :
+				context ["star"+str(q)+str(i)] = black_star
+
+		description = session['displayed_certificate']['project_description'].replace('\r\n','<br>')
+
+		signature = session['displayed_certificate']['signature']
+		logo = session['displayed_certificate']['logo']
+		# if there is no signature one uses Picasso signature
+		if signature is None :
+			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
+		# if there is no logo one uses default logo
+		if logo is None :
+			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+
+		if not path.exists(mode.uploads_path + signature) :
+				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
+				response = requests.get(url, stream=True)
+				with open(mode.uploads_path + signature, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+				del response
+
+		if not path.exists(mode.uploads_path + logo) :
+			url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+			response = requests.get(url, stream=True)
+			with open(mode.uploads_path + logo, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
+
+		my_badge = ''
+		for competencies in session['displayed_certificate']['competencies'] :
+			competencies_to_display = competencies.replace(" ", "").capitalize().strip(',')
+			my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ competencies_to_display + """</span>"""
+
+		return render_template('./certificate/reference_certificate.html',
+							**menu,
+							start_date = session['displayed_certificate']['start_date'],
+							end_date = session['displayed_certificate']['end_date'],
+							location = session['displayed_certificate']['project_location'],
+							staff = session['displayed_certificate']['project_staff'],
+							budget = session['displayed_certificate']['project_budget'],
+							description=description,
+							logo=logo,
+							issuer_name = session['displayed_certificate']['issuer']['name'],
+							title = session['displayed_certificate']['project_title'],
+							signature=signature,
+							badge = my_badge,
+							manager = session['displayed_certificate']['manager'],
+							certificate_id=certificate_id,
+							**context)
 
 
 
