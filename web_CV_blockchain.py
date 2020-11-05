@@ -595,7 +595,7 @@ def resume(mode) :
 					carousel_rows_reference += '</div></div>'
 
 		if session['skills'] is None or session['skills'].get('id') is None :
-			my_competencies =  """<a class="text-info">No data available</a>"""
+			my_competencies =  """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
 		else:
 			my_competencies = ""
 			for competencie in session['skills']['description'] :
