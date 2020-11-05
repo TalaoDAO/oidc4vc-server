@@ -43,10 +43,14 @@
             <div class="container-fluid">
               <div class="text-center">
                 <h3 class="text-dark mb-4">{{name}}
+                  <a class="text-secondary" onclick="copyToClipboard('#p100')">
+                    <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+                  </a>
                   <a class="text-secondary" href={{clipboard}}>
                     <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-address-card " title="Open the external view"></i>
                   </a>
                 </h3>
+                <p hidden id="p100">{{clipboard}}</p>
               </div>
                 <div class="row">
                     <div class="col-xl-6 offset-xl-3">
@@ -218,6 +222,13 @@
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>function copyToClipboard(element) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(element).text()).select();
+        document.execCommand("copy");
+        $temp.remove();
+      }</script>
 
 </body>
 

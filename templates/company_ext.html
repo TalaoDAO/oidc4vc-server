@@ -59,24 +59,25 @@
                   <p>Name : {{contact_name}}<br>Phone number : {{contact_phone}}<br>Email : {{contact_email}}<br>Website : <a href="{{website}}">{{website}}</a></p>
                   <hr>
                   <h5><i class="fa fa-info-circle"></i>&nbsp;General Informations :&nbsp;</h5>
-                  <p>Manager<br>Staff : {{staff}}<br>CA :<br>SIRET :<br>Associated Members</p>
+                  <p>Staff : {{staff}}<br>CA : {{sales}}<br>SIRET :<br>Associated Members</p>
                   <hr>
                   <h5><i class="fa fa-bars"></i>&nbsp;About :</h5>
                   <p class="text-justify">{{about}}</p>
                   <hr>
-                  <div class="text-center"><button class="btn btn-primary shadow" type="button" style="background: rgba(30,170,220,0.95);width: 150px;font-size: 14px;border-width: 0px;/*margin-top: 35px;*/">Get more features</button></div>
+                  <div class="text-center"><a href="/register/"><button class="btn btn-primary shadow" type="button" style="background: rgba(30,170,220,0.95);width: 150px;font-size: 14px;border-width: 0px;/*margin-top: 35px;*/">Get more features</button></a></div>
                 </div>
               </div>
             </div>
             <div class="col-md">
               <!-- Agreement carousel large screen  -->
-              {% if carousel_rows_agreement != "" %}
+
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
                     <h4>Agreement</h4>
                   </div>
                   <div class="card-body ">
+                    {% if carousel_rows_agreement != "" %}
                     <!--Carousel Wrapper-->
                     <div id="agreement-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
 
@@ -104,20 +105,23 @@
                       <!--/.Slides-->
 
                     </div>
+                    {% else %}
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                    {% endif %}
                     <!--/.Carousel Wrapper-->
                   </div>
                 </div>
               </div>
-              {% endif %}
+
               <!-- /.Agreement carousel  -->
               <!-- Reference carousel large screen  -->
-              {% if carousel_rows_reference != "" %}
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
                     <h4>Reference</h4>
                   </div>
                   <div class="card-body ">
+                    {% if carousel_rows_reference != "" %}
                     <!--Carousel Wrapper-->
                     <div id="reference-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
 
@@ -146,11 +150,28 @@
 
                     </div>
                     <!--/.Carousel Wrapper-->
+                    {% else %}
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
-              {% endif %}
+
               <!-- /.Reference carousel  -->
+              <div class="row mb-3">
+                <div class="col-md-5 p-0">
+                <div class="card shadow mx-lg-5 mx-1 w-100 ">
+                  <div class="card-header">
+                    <h4>Core Competencies</h4>
+                  </div>
+                  <div class="card-body ">
+                    <p style="font-size:18px;">
+                    {{competencies|safe}}
+                    </p>
+                  </div>
+                </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
