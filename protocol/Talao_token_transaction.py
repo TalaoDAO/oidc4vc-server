@@ -118,7 +118,7 @@ def createVaultAccess(address,private_key,mode) :
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash=w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		return None
 	return hash
 
@@ -135,7 +135,7 @@ def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,b
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		return None
 	return hash
 
@@ -218,7 +218,7 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print('Echec remove key of address, purpose = ', purpose, 'hash = ', hash)
 			return False
 		else :
@@ -234,7 +234,7 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print(' echec remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 			return False
 		else :
@@ -269,9 +269,9 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 	# send transaction
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	h = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
+	if synchronous  :
 		receipt = w3.eth.waitForTransactionReceipt(h, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status']  :
 			print('echec transaction de authorize partnership')
 			return False
 	return True
@@ -311,7 +311,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print('Echec remove key of address, purpose = ', purpose, 'hash = ', hash)
 			return False
 		else :
@@ -327,7 +327,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print(' echec remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 			return False
 		else :
@@ -363,7 +363,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	print('talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print('echec transaction de request partnership')
 			return False
 	return True
@@ -384,7 +384,7 @@ def remove_partnership(address_from, workspace_contract_from, address_to, worksp
 	print('hash de remove partnership = ', hash1)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print('echec transaction de remove partnership')
 			return False
 	return True
@@ -406,7 +406,7 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 	print('hash de reject parnership = ', hash1)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			print('echec transaction de request partnership')
 			return False
 	return True
@@ -425,7 +425,7 @@ def get_image(workspace_contract, image_type, mode) :
 	except Exception as res :
 		print('get picture in talao_transaction ', res)
 		return None
-	if len(a) != 0:
+	if len(a) :
 		claim_Id = a[-1].hex()
 		picture_hash = contract.functions.getClaim(claim_Id).call()[5]
 		return picture_hash
@@ -454,9 +454,9 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 	# send transaction
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
+	if synchronous :
 		receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			return None
 	return picture_hash
 

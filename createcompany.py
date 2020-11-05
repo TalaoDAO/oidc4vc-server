@@ -204,8 +204,6 @@ def create_company(email, username, mode, creator=None, partner=False) :
 			print('key 20002 for creator failed')
 
 
-
-
 	# update resolver and create local database for this company
 	ns.add_identity(username, workspace_contract, email, mode)
 	# create databe for manager within the company
@@ -214,18 +212,8 @@ def create_company(email, username, mode, creator=None, partner=False) :
 	# add private key
 	if add_private_key(private_key, mode) :
 		print('New company has been added ')
-		Talao_message.messageLog("no lastname",
-								 "no firstname",
-								 username, email,
-								 'Company created by Talao',
-								 address,
-								 private_key,
-								 workspace_contract,
-								 "",
-								 email,
-								 SECRET_key.hex(),
-								 AES_key.hex(),
-								 mode)
+		Talao_message.messageLog("no lastname","no firstname", username, email, 'Company created by Talao', address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
+		Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
 	else :
 		print('add private key failed')
 		return None, None, None

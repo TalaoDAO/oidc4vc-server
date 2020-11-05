@@ -377,7 +377,7 @@ def user(mode) :
 		session['certificate'] = user.certificate
 
 		phone =  ns.get_data_from_username(session['username'], mode).get('phone')
-		session['phone'] = phone if phone is not None else ""
+		session['phone'] = phone if phone else ""
 
 		""" Probablement a virer !!! """
 		# Identity List
@@ -598,7 +598,6 @@ def user(mode) :
 		if len (session['experience']) == 0:
 			my_experience = my_experience + """<a class="text-info">No Experience available</a>"""
 		else :
-
 			for experience in sorted(session['experience'], key= lambda d: time.strptime(d['start_date'], "%Y-%m-%d"), reverse=True) :
 				exp_html = """
 				<b>Company</b> : """+experience['company']['name']+"""<br>
@@ -616,8 +615,6 @@ def user(mode) :
 					</a>
 				</p>"""
 				my_experience = my_experience + exp_html + "<hr>"
-
-		
 
 		# education
 		my_education = ""
@@ -652,7 +649,7 @@ def user(mode) :
 				'education' : 'Education'}
 		my_personal = ""
 		for topicname in session['personal'].keys() :
-			if session['personal'][topicname]['claim_value'] is not None :
+			if session['personal'][topicname]['claim_value'] :
 				topicname_value = session['personal'][topicname]['claim_value']
 				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
@@ -880,7 +877,7 @@ def user(mode) :
 		my_personal = """<a href="/user/picture/">Change Logo</a><br>
 						<a href="/user/signature/">Change Signature</a><br>"""
 		for topicname in session['personal'].keys() :
-			if session['personal'][topicname]['claim_value'] is not None :
+			if session['personal'][topicname]['claim_value'] :
 				topicname_value = session['personal'][topicname]['claim_value']
 				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
@@ -895,7 +892,7 @@ def user(mode) :
 		# certificates
 		my_certificates = ""
 		cert_html = ""
-		if len (session['certificate']) == 0:
+		if  len (session['certificate']) == 0:
 			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
 		else :
 			for counter, certificate in enumerate(session['certificate'],1) :
@@ -933,7 +930,7 @@ def user(mode) :
 								</a>
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-				
+
 				if certificate['type'] ==  "reference" :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>

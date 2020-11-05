@@ -71,7 +71,7 @@ from config_apiserver import config_api_server
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 
-if mychain is None or myenv is None :
+if not mychain or not myenv :
     print('environment variables missing')
     print('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
     exit()
@@ -87,7 +87,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.8"
+VERSION = "0.13.9"
 API_SERVER = True
 
 # Flask and Session setup
@@ -169,7 +169,7 @@ def page_abort(e):
 # Check if session is active and access is fine. To be used for all routes, excetp external call
 def check_login() :
     """ check if the user is correctly logged. This function is called everytime a user function is called """
-    if session.get('username') is None :
+    if not session.get('username') :
         abort(403)
     else :
         return session['username']
@@ -291,7 +291,6 @@ def data_analysis() :
         else :
             my_analysis = analysis.dashboard(session['workspace_contract'],session['resume'], mode)
             history_string = history.history_html(session['workspace_contract'],15, mode)
-
         return render_template('dashboard.html', **session['menu'],    history=history_string,    **my_analysis)
 
 # Test only
@@ -547,7 +546,8 @@ def update_company_settings() :
                                 about=personal['about']['claim_value'],
                                 staff=personal['staff']['claim_value'],
                                 mother_company=personal['mother_company']['claim_value'],
-                                sales=personal['sales']['claim_value']
+                                sales=personal['sales']['claim_value'],
+                                siret=personal['siret']['claim_value']
                                 )
     if request.method == 'POST' :
         form_privacy = dict()
@@ -561,6 +561,8 @@ def update_company_settings() :
         form_privacy['about'] = 'public'
         form_privacy['staff'] = 'public'
         form_privacy['mother_company'] = 'public'
+        form_privacy['siret'] = 'public'
+
         change = False
         for topicname in session['personal'].keys() :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
@@ -744,7 +746,7 @@ def create_kyc() :
         kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
         kyc = Document('kyc')
         data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)[0]
-        if data is None :
+        if not data :
             flash('Transaction failed', 'danger')
         else :
             flash('New kyc added for '+ kyc_username, 'success')
@@ -770,30 +772,25 @@ def create_skill_certificate() :
                     "description" : request.form['description'],
                     "end_date" : request.form['date'],
                     "date_of_issue" : "",
- #                   "skills" : "",
- #                   "score_recommendation" : "",
- #                   "score_delivery" : "",
- #                   "score_schedule" : "",
- #                   "score_communication" : "",
                     "logo" : session['picture'],
                     "signature" : session['signature'],
                     "manager" : "Director",
                     "reviewer" : ""}
         workspace_contract_to = ns.get_data_from_username(identity_username, mode)['workspace_contract']
-        #address_to = contractsToOwners(workspace_contract_to, mode)
+        address_to = contractsToOwners(workspace_contract_to, mode)
         my_certificate = Document('certificate')
-        doc_id = my_certificate.talao_add(workspace_contract_to, certificate, mode)[0]
-        #execution = my_certificate.add(session['address'],
-        #                session['workspace_contract'],
-        #                address_to,
-        #                workspace_contract_to,
-        #                session['private_key_value'],
-        #                certificate,
-        #                mode,
-        #                mydays=0,
-        #                privacy='public',
-        #                 synchronous=True)
-        if doc_id is None :
+        #doc_id = my_certificate.talao_add(workspace_contract_to, certificate, mode)[0]
+        doc_id = my_certificate.add(session['address'],
+                        session['workspace_contract'],
+                        address_to,
+                        workspace_contract_to,
+                        session['private_key_value'],
+                        certificate,
+                        mode,
+                        mydays=0,
+                        privacy='public',
+                         synchronous=True)[0]
+        if not doc_id :
             flash('Operation failed ', 'danger')
         else :
             flash('Certificate has been issued', 'success')
@@ -855,7 +852,7 @@ def issue_kbis() :
         my_kbis['siret'] = request.form['siret']
         my_kbis['managing_director'] = request.form['managing_director']
         data = kbis.talao_add(kbis_workspace_contract, my_kbis, mode)[0]
-        if data is None :
+        if not data :
             flash('Transaction failed', 'danger')
         else :
             flash('New kbis added for '+ kbis_username, 'success')

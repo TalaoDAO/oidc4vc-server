@@ -50,77 +50,7 @@ def topicname2topicvalue(topicname) :
 		topicvaluestr = topicvaluestr + a
 	return int(topicvaluestr)
 
-"""
-def read_profil (workspace_contract, mode, loading) :
-	w3=mode.w3
-	# setup constante person
-	person_topicnames = {'firstname' : 102105114115116110097109101,
-			'lastname' : 108097115116110097109101,
-			'contact_email' : 99111110116097099116095101109097105108,
-			'contact_phone' : 99111110116097099116095112104111110101,
-			'postal_address' : 112111115116097108095097100100114101115115,
-			'birthdate' : 98105114116104100097116101,
-			'about' : 97098111117116,
-			'education' : 101100117099097116105111110,
-			'profil_title' : 112114111102105108095116105116108101,
-			}
-	# setup constant company
-	company_topicnames = {'name' : 110097109101,
-				'contact_name' : 99111110116097099116095110097109101,
-				'contact_email' : 99111110116097099116095101109097105108,
-				'contact_phone' : 99111110116097099116095112104111110101,
-				'website' : 119101098115105116101,
-				'about' : 97098111117116,
-				}
-	if loading != 'full' :
-		person_topicnames = {'firstname' : 102105114115116110097109101,
-							'lastname' : 108097115116110097109101,
-							}
-		# setup constant company
-		company_topicnames = {'name' : 110097109101,
-							}
 
-	profil = dict()
-	# category
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	category = contract.functions.identityInformation().call()[1]
-
-	topic_dict = person_topicnames if category == 1001 else company_topicnames
-
-	for topicname, topic in topic_dict.items() :
-		claim = contract.functions.getClaimIdsByTopic(topic).call()
-		if len(claim) == 0 :
-			profil[topicname] = None
-		else :
-			claimId = claim[-1].hex()
-			data = contract.functions.getClaim(claimId).call()
-			profil[topicname]=data[4].decode('utf-8')
-
-	return profil,category
-
-"""
-
-"""
-def encrypt_data(identity_workspace_contract,data, privacy, mode) :
-	#@ data = dict
-	w3 = mode.w3
-	#recuperer la cle AES cryptée de l identité
-	identity_address = contracts_to_owners(identity_workspace_contract, mode)
-	if privacy == 'private' :
-		my_aes = privatekey.get_key(identity_address, 'aes_key', mode)
-	if privacy == 'secret' :
-		my_aes = privatekey.get_key(identity_address, 'secret_key', mode)
-	# coder les datas
-	bytesdatajson = bytes(json.dumps(data), 'utf-8') # dict -> json(str) -> bytes
-	header = b"header"
-	cipher = AES.new(my_aes, AES.MODE_EAX) #https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
-	cipher.update(header)
-	ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
-	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
-	dict_data = dict(zip(json_k, json_v))
-	return dict_data
-"""
 
 """ si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstane' ; 'pierre'} """
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
@@ -128,24 +58,15 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	w3 = mode.w3
 
 	topic_value = topicname2topicvalue(topicname)
-	"""
-	topicvaluestr =''
-	for i in range(0, len(topicname))  :
-		a = str(ord(topicname[i]))
-		if int(a) < 100 :
-			a='0'+ a
-		topicvaluestr = topicvaluestr + a
-	topic_value = int(topicvaluestr)
-	"""
 
 	if privacy == 'public' :
 		ipfs_hash = ""
 	else :
 		data_encrypted = privatekey.encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
-		if data_encrypted is None :
+		if not data_encrypted :
 			return None, None, None
 		ipfs_hash = ipfs_add(data_encrypted, mode)
-		if ipfs_hash is None :
+		if not ipfs_hash :
 			print('ipfs hash error create_claim')
 			return None, None, None
 		data = privacy
@@ -166,9 +87,9 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	if synchronous == True :
+	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
 			return None, None, None
 	return claim_id, ipfs_hash, transaction_hash
 
@@ -178,7 +99,7 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 	topic_value =  topicname2topicvalue(topicname)
 	contract = w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
 	a = contract.functions.getClaimIdsByTopic(topic_value).call()
-	if len(a) == 0 :
+	if not len(a) :
 		return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	claim_id = a[-1].hex()
 	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
@@ -242,7 +163,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
-		if rsa_key is None :
+		if not rsa_key :
 			print("data decryption impossible, no RSA key")
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
 
@@ -307,7 +228,7 @@ def delete_claim(address_from, workspace_contract_from, address_to, workspace_co
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash =w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		return None, None, None
 	transaction = w3.eth.getTransaction(transaction_hash)
 	gas_price = transaction['gasPrice']

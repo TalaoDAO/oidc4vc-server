@@ -88,13 +88,13 @@ class Identity() :
 
 		#get image/logo and signature ipfs and download files to upload folder
 		self.picture = get_image(self.workspace_contract, 'picture', mode)
-		if self.picture is None :
+		if not self.picture :
 			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
 		if not os.path.exists(mode.uploads_path + self.picture) :
 			Talao_ipfs.get_picture(self.picture, mode.uploads_path + self.picture)
 
 		self.signature = get_image(self.workspace_contract, 'signature', mode)
-		if self.signature is None :
+		if not self.signature  :
 			self.signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
 		if not os.path.exists(mode.uploads_path + self.signature) :
 			Talao_ipfs.get_picture(self.signature, mode.uploads_path + self.signature)
@@ -146,9 +146,7 @@ class Identity() :
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = ns.get_data_from_publickey('0x' +key[2].hex(), mode) # most important part of the function.....see what it implies !
-			if issuer is None :
-				pass
-			else :
+			if issuer :
 				self.issuer_keys.append({"address": issuer['address'],
 									"publickey": key[2].hex(),
 									"workspace_contract" : issuer['workspace_contract'],
@@ -163,9 +161,7 @@ class Identity() :
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			issuer = ns.get_data_from_publickey('0x' + key[2].hex(), mode)
-			if issuer is None :
-				pass
-			else :
+			if issuer  :
 				self.white_keys.append({"address": issuer['address'],
 									"publickey": key[2].hex(),
 									"workspace_contract" : issuer['workspace_contract'],
@@ -214,7 +210,7 @@ class Identity() :
 	def get_identity_personal(self,workspace_contract_from, private_key_from, mode) :
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education']
-		company = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales']
+		company = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siret']
 
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		self.category = contract.functions.identityInformation().call()[1]

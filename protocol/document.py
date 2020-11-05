@@ -54,7 +54,8 @@ def read_profil (workspace_contract, mode, loading) :
 						'about' : 97098111117116,
 						'staff' : 115116097102102,
 						'sales' : 115097108101115,
-						'mother_company' : 109111116104101114095099111109112097110121,}
+						'mother_company' : 109111116104101114095099111109112097110121,
+						'siret' : 115105114101116, }
 
 	if loading != 'full' :
 		person_topicnames = {'firstname' : 102105114115116110097109101,
@@ -92,7 +93,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode)
 
 	# Date
-	if mydays == 0 :
+	if not mydays :
 		expires = 0
 	else :
 		myexpires = datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
@@ -104,7 +105,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 
 	# store bytes on ipfs
 	ipfs_hash = ipfs_add(data, mode)
-	if ipfs_hash is None :
+	if not ipfs_hash :
 		return None, None, None
 	# checksum (bytes)
 	_data = json.dumps(data)
@@ -175,12 +176,12 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	# recuperation du msg
 	data = ipfs_get(ipfshash.decode('utf-8'))
 	# calcul de la date
-	if expires == 0 :
+	if not expires :
 		expires = 'Unlimited'
 	else :
 		myexpires = datetime.fromtimestamp(expires)
 		expires = str(myexpires)
-	
+
 	#compatiblité avec les documents non cryptés
 	if privacy  == 'public' and doctypeversion == 2 :
 		return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
@@ -269,7 +270,7 @@ class Document() :
 	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :
 		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 
-		if issuer_address is None :
+		if not issuer_address :
 			return False
 		else :
 			self.__dict__.update(data)
