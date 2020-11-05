@@ -14,7 +14,6 @@ import time
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
-#import environment
 import constante
 import ns
 import analysis
@@ -34,7 +33,6 @@ def resume(mode) :
     if issuer_explore.type == 'person' :
         session['resume']= issuer_explore.__dict__
         """ clean up """
-        #del session['resume']['mode']
         del session['resume']['file_list']
         del session['resume']['experience_list']
         del session['resume']['education_list']
@@ -442,7 +440,6 @@ def resume(mode) :
     elif issuer_explore.type == 'company' :
         session['resume']= issuer_explore.__dict__
         """ clean up """
-        #del session['resume']['mode']
         del session['resume']['file_list']
         del session['resume']['experience_list']
         del session['resume']['education_list']
@@ -524,7 +521,7 @@ def resume(mode) :
                 #Footer
                 carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
                 #Lien certificates
-                carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """:agreement></a>"""
+                carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """></a>"""
 
                 carousel_rows_agreement += """</figure></div>"""
                 if (i+1)%3==0 and len(agreements)%3!=0:
@@ -588,7 +585,7 @@ def resume(mode) :
                 #Footer
                 carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
                 #Lien certificates
-                carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """:reference></a>"""
+                carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """></a>"""
 
                 carousel_rows_reference += """</figure></div>"""
                 if (i+1)%3==0 and len(references)%3!=0:

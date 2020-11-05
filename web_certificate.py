@@ -36,6 +36,7 @@ def show_certificate(mode):
 	menu = session.get('menu', dict())
 	viewer = 'guest' if session.get('username') is None else 'user'
 	certificate_id = request.args['certificate_id']
+	print('certificate_id = ', certificate_id)
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	self_claim = None
@@ -265,7 +266,7 @@ def show_certificate(mode):
 							issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer
 							)
-  
+
 	if session['displayed_certificate']['type'] in ['agreement', 'agrement'] :
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
@@ -391,6 +392,7 @@ def certificate_verify(mode) :
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract']
 	certificate = copy.deepcopy(session['displayed_certificate'])
+	print('certificate ', certificate)
 	convert(certificate)
 
 	if certificate_id != certificate['id'] :
