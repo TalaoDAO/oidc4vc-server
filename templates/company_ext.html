@@ -59,7 +59,7 @@
                   <p>Name : {{contact_name}}<br>Phone number : {{contact_phone}}<br>Email : {{contact_email}}<br>Website : <a href="{{website}}">{{website}}</a></p>
                   <hr>
                   <h5><i class="fa fa-info-circle"></i>&nbsp;General Informations :&nbsp;</h5>
-                  <p>Manager<br>Staff : {{staff}}<br>CA : {{sales}}<br>SIRET :<br>Associated Members</p>
+                  <p>Staff : {{staff}}<br>CA : {{sales}}<br>SIRET :<br>Associated Members</p>
                   <hr>
                   <h5><i class="fa fa-bars"></i>&nbsp;About :</h5>
                   <p class="text-justify">{{about}}</p>
@@ -151,6 +151,20 @@
               </div>
               {% endif %}
               <!-- /.Reference carousel  -->
+              <div class="row mb-3">
+                <div class="col-md-5 p-0">
+                <div class="card shadow mx-lg-5 mx-1 w-100 ">
+                  <div class="card-header">
+                    <h4>Core competencies</h4>
+                  </div>
+                  <div class="card-body ">
+                    <p style="font-size:18px;">
+                    {{competencies|safe}}
+                    </p>
+                  </div>
+                </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
