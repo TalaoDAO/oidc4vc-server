@@ -74,6 +74,7 @@ class Identity() :
 			self.type = "company"
 			self.name = self.personal['name']['claim_value']
 			self.get_identity_kbis(mode)
+			self.get_identity_certificate(mode)
 
 		if self.category == 1001 : # person
 			self.profil_title = "" if self.personal['profil_title']['claim_value'] is None else self.personal['profil_title']['claim_value']
