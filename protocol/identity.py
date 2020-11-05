@@ -38,6 +38,10 @@ class Identity() :
 		self.address = contractsToOwners(self.workspace_contract,mode)
 		self.get_all_documents(mode)
 		self.get_issuer_keys(mode)
+		self.get_identity_skills(mode)
+		self.get_identity_certificate(mode)
+
+
 		if self.authenticated :
 			self.has_relay_private_key(mode)
 			if self.private_key :
@@ -79,10 +83,8 @@ class Identity() :
 			lastname = "" if self.personal['lastname']['claim_value'] is None else self.personal['lastname']['claim_value']
 			self.name = firstname + ' ' + lastname
 			self.get_identity_experience(mode)
-			self.get_identity_certificate(mode)
 			self.get_identity_education(mode)
 			self.get_identity_kyc(mode)
-			self.get_identity_skills(mode)
 
 		#get image/logo and signature ipfs and download files to upload folder
 		self.picture = get_image(self.workspace_contract, 'picture', mode)
@@ -207,12 +209,12 @@ class Identity() :
 		else :
 			print('status des partnerships impossible a obtenir, private key  not found')
 		return True
-	
+
 		# always available
 	def get_identity_personal(self,workspace_contract_from, private_key_from, mode) :
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education']
-		company = ['name','contact_name','contact_email','contact_phone','website', 'about']
+		company = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales']
 
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		self.category = contract.functions.identityInformation().call()[1]

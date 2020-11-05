@@ -48,6 +48,7 @@ Welcome to Talao's documentation!
    
    workflow
    internal
-   betatest
+   json_structure
+
 
    

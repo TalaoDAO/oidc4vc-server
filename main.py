@@ -15,8 +15,6 @@ Many views are inside this script, others are in web_modules.py. See Centralized
 
 """
 
-API_SERVER = True
-
 from Crypto.PublicKey import RSA
 import sys
 import os
@@ -67,16 +65,16 @@ import web_issue_certificate
 import web_skills
 import web_CV_blockchain
 import web_issuer_explore
-
-if API_SERVER :
-    import web_oauth
-    from models import db
-    from oauth2 import config_oauth
-
+from config_apiserver import config_api_server
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
+
+if mychain is None or myenv is None :
+    print('environment variables missing')
+    print('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
+    exit()
 
 # Environment setup
 print('Start to init environment')
@@ -89,7 +87,8 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.4"
+VERSION = "0.13.7"
+API_SERVER = True
 
 # Flask and Session setup
 app = Flask(__name__)
@@ -108,21 +107,9 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 sess = Session()
 sess.init_app(app)
 
+# define everything about API server, constante and route for endpoints
 if API_SERVER :
-    oauth_config = {
-    'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
-    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
-    'OAUTH2_TOKEN_EXPIRES_IN' : {
-        'authorization_code': 300,
-        #'implicit': 3000,
-        #'password': 3000,
-        'client_credentials': 3000
-        }
-    }
-    app.config.update(oauth_config)
-    db.init_app(app)
-    config_oauth(app)
+    config_api_server(app, mode)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
@@ -142,22 +129,6 @@ app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.cert
 app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
 app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
-
-if API_SERVER :
-# Main routes (Endpointd) for OAuth Authorization Server
-    app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
-    app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
-    app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
-    app.add_url_rule('/api/v1/create_client', view_func=web_oauth.create_client, methods = ['GET', 'POST'])
-    app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/api/v1/oauth/token', view_func=web_oauth.issue_token, methods = ['POST'])
-    app.add_url_rule('/api/v1/oauth_revoke', view_func=web_oauth.revoke_token, methods = ['GET', 'POST'])
-
-    app.add_url_rule('/api/v1/create_person_identity', view_func=web_oauth.oauth_create_person_identity, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/api/v1/request_partnership', view_func=web_oauth.oauth_request_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/api/v1/issue_experience', view_func=web_oauth.oauth_issue_experience, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/api/v1/get_status', view_func=web_oauth.oauth_get_status, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -181,7 +152,6 @@ app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, method
 app.add_url_rule('/company/',  view_func=web_data_user.company, methods = ['GET', 'POST'])
 app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
 
-
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -189,8 +159,6 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
-
-
 
 @app.errorhandler(403)
 def page_abort(e):
@@ -576,7 +544,10 @@ def update_company_settings() :
                                 contact_phone=personal['contact_phone']['claim_value'],
                                 contact_phone_privacy=privacy['contact_phone'],
                                 website=personal['website']['claim_value'],
-                                about=personal['about']['claim_value']
+                                about=personal['about']['claim_value'],
+                                staff=personal['staff']['claim_value'],
+                                mother_company=personal['mother_company']['claim_value'],
+                                sales=personal['sales']['claim_value']
                                 )
     if request.method == 'POST' :
         form_privacy = dict()
@@ -586,7 +557,10 @@ def update_company_settings() :
         form_privacy['contact_email'] = request.form['contact_email_select']
         form_privacy['name'] = 'public'
         form_privacy['website'] = 'public'
+        form_privacy['sales'] = 'public'
         form_privacy['about'] = 'public'
+        form_privacy['staff'] = 'public'
+        form_privacy['mother_company'] = 'public'
         change = False
         for topicname in session['personal'].keys() :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
@@ -601,7 +575,6 @@ def update_company_settings() :
             session['menu']['name'] = session['personal']['name']['claim_value']
             flash('Company Settings has been updated', 'success')
         return redirect(mode.server + 'user/')
-
 
 # digital vault
 @app.route('/user/store_file/', methods=['GET', 'POST'])
@@ -782,12 +755,12 @@ def create_kyc() :
         return redirect(mode.server + 'user/')
 
 
-# Create skill certificate
-@app.route('/user/create_skill_certificate/', methods=['GET', 'POST'])
+# Create skill certificate A reprendre !!!!
+@app.route('/user/issue_skill_certificate/', methods=['GET', 'POST'])
 def create_skill_certificate() :
     check_login()
     if request.method == 'GET' :
-        return render_template('create_skill_certificate.html', **session['menu'])
+        return render_template('issue_skill_certificate.html', **session['menu'])
     if request.method == 'POST' :
         identity_username = request.form['identity_username'].lower()
         certificate = {
@@ -795,13 +768,13 @@ def create_skill_certificate() :
                     "type" : "skill",
                     "title" : request.form['title'],
                     "description" : request.form['description'],
-                    "start_date" : "",
                     "end_date" : request.form['date'],
-                    "skills" : "",
-                    "score_recommendation" : "",
-                    "score_delivery" : "",
-                    "score_schedule" : "",
-                    "score_communication" : "",
+                    "date_of_issue" : "",
+ #                   "skills" : "",
+ #                   "score_recommendation" : "",
+ #                   "score_delivery" : "",
+ #                   "score_schedule" : "",
+ #                   "score_communication" : "",
                     "logo" : session['picture'],
                     "signature" : session['signature'],
                     "manager" : "Director",
@@ -1503,9 +1476,6 @@ def add_issuer() :
         if not add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) :
             flash('transaction failed', 'danger')
         else :
-            # update issuer list in session
-            #issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
-            #contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
             issuer_workspace_contract = ownersToContracts(issuer_address, mode)
             session['issuer'].append(ns.get_data_from_username(session['referent_username'], mode))
             # email to issuer
@@ -1519,6 +1489,25 @@ def add_issuer() :
             # message to user
             flash(session['referent_username'] + ' has been added as a Referent. An email has been sent too.', 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
+
+# Talao only add Key to anyone
+@app.route('/user/add_key/', methods=['GET', 'POST'])
+def add_key_for_other() :
+    check_login()
+    if session['username'] != 'talao' :
+        return redirect (mode.server +'user/')
+    if request.method == 'GET' :
+        return render_template('add_key.html', **session['menu'])
+    elif request.method == 'POST' :
+        identity_workspace_contract = ns.get_data_from_username(request.form.get('identity_username'), mode)['workspace_contract']
+        identity_address = contractsToOwners(identity_workspace_contract, mode)
+        third_party_address = ns.get_data_from_username(request.form.get('third_party_username'),mode)['address']
+        key = request.form.get('key')
+    if not add_key(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, third_party_address, int(key), mode, synchronous=True) :
+        flash('transaction failed', 'danger')
+    else :
+        flash('Key added', 'danger')
+    return redirect (mode.server +'user/')
 
 # remove issuer
 @app.route('/user/remove_issuer/', methods=['GET', 'POST'])
@@ -1559,7 +1548,7 @@ def add_white_issuer() :
             issuer_workspace_contract = ownersToContracts(issuer_address, mode)
             session['whitelist'].append(ns.get_data_from_username(session['whitelist_username'], mode))
             flash(session['whitelist_username'] + ' has been added as Issuer in your White List', 'success')
-        return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
+        return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['whitelist_username'])
 
 # remove white issuer
 @app.route('/user/remove_white_issuer/', methods=['GET', 'POST'])

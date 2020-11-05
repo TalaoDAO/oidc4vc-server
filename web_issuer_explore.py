@@ -390,8 +390,22 @@ def issuer_explore(mode) :
 		#services : le reader est une company , le profil vu est celui d'une company
 		else : # session['type'] == 'company' :
 			services = ""
+			if not is_username_in_list(session['issuer'], issuer_username) :
+				services = """<br><a class="text-warning">This Company is not in your Referent List.</a><br>
+						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Referent List to request Certificates.</a><br>"""
+			else :
+				services = """<br><a class="text-success">This Company is in your Referent List.</a><br>
+						<a href="/user/request_certificate/?issuer_username="""+ issuer_username +"""">Request a certificate to this Company.</a><br>"""
+
+			if not is_username_in_list(session['whitelist'], issuer_username) :
+				services = services + """<br><a class="text-warning">This Company is not in your White List.</a><br>
+						<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Company in your White List to increase your rating.</a><br>"""
+			else :
+				services = services + """<br><a class="text-success">This Company is in your White list.</a><br>"""
 
 
+
+			services = services + "<br><br>"
 
 		return render_template('company_issuer_identity.html',
 							**session['menu'],

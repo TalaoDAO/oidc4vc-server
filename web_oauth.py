@@ -427,3 +427,98 @@ def oauth_issue_experience(mode):
                       **certificate, 'ipfs hash' : ipfs_hash, 'transaction hash' : transaction_hash}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
+
+
+
+# issue an agrement certificates
+#@route('/api/v1/issue_agreement')
+@require_oauth('agreement')
+def oauth_issue_agreement(mode):
+    client_id=current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
+    client_private_key = privatekey.get_key(client_address,'private_key', mode)
+    data = json.loads(request.data.decode("utf-8"))
+    try :
+        user_workspace_contract = '0x' + data['did'].split(':')[3]
+        user_address = contractsToOwners(user_workspace_contract, mode)
+        certificate = data['certificate']
+    except :
+        response_dict = {'detail' : 'did or request malformed '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if user_address is None :
+        response_dict = {'detail' : 'did does not exist'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    certificate['type'] = 'agreement'
+    certificate['version'] = 1
+    certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
+    certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
+    certificate['manager'] = 'Director'
+    certificate['reviewer'] = ''
+    my_certificate = Document('certificate')
+    document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
+                        client_workspace_contract,
+                        user_address,
+                        user_workspace_contract,
+                        client_private_key,
+                        certificate,
+                        mode,
+                        mydays=0,
+                        privacy='public')
+    if document_id is None :
+        response_dict = {'detail' : 'transaction failed'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    response_dict = {'link' : mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:] + ':document:' + str(document_id),
+                      **certificate, 'ipfs hash' : ipfs_hash, 'transaction hash' : transaction_hash}
+    response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
+    return response
+
+
+
+# issue a reference certificates
+#@route('/api/v1/issue_reference')
+@require_oauth('reference')
+def oauth_issue_reference(mode):
+    client_id=current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
+    client_private_key = privatekey.get_key(client_address,'private_key', mode)
+    data = json.loads(request.data.decode("utf-8"))
+    try :
+        user_workspace_contract = '0x' + data['did'].split(':')[3]
+        user_address = contractsToOwners(user_workspace_contract, mode)
+        certificate = data['certificate']
+    except :
+        response_dict = {'detail' : 'did or request malformed '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if user_address is None :
+        response_dict = {'detail' : 'did does not exist'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    certificate['type'] = 'reference'
+    certificate['version'] = 1
+    certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
+    certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
+    certificate['manager'] = 'Director'
+    my_certificate = Document('certificate')
+    document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
+                        client_workspace_contract,
+                        user_address,
+                        user_workspace_contract,
+                        client_private_key,
+                        certificate,
+                        mode,
+                        mydays=0,
+                        privacy='public')
+    if document_id is None :
+        response_dict = {'detail' : 'transaction failed'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    response_dict = {'link' : mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:] + ':document:' + str(document_id),
+                      **certificate, 'ipfs hash' : ipfs_hash, 'transaction hash' : transaction_hash}
+    response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
+    return response

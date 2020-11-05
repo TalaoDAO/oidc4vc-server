@@ -160,8 +160,13 @@ def create_user(username, email,mode, creator=None, partner=False):
 	# key 20002 to Talao to Issue Proof of Identity
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True)
 
-	# key 20002 to creator to Issue other certificates :
-	if creator is not None and creator != mode.owner_talao :
+	# Creator
+	if creator and creator != mode.owner_talao :
+		# setup parnership with creator to be done
+		if partner  :
+			pass
+
+		#add creator as referent
 		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=True) :
 			print('key 20002 issued for creator')
 		else :
