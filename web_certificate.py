@@ -270,8 +270,8 @@ def show_certificate(mode):
 	if session['displayed_certificate']['type'] in ['agreement', 'agrement'] :
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
-		signature = session['displayed_certificate']['signature']
-		logo = session['displayed_certificate']['logo']
+		signature = session['displayed_certificate']['issued_by']['signature']
+		logo = session['displayed_certificate']['issued_by']['logo']
 		# if there is no signature one uses Picasso signature
 		if signature is None :
 			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
@@ -305,8 +305,9 @@ def show_certificate(mode):
 							location = session['displayed_certificate']['location'],
 							description=description,
 							logo=logo,
-							issuer_name = session['displayed_certificate']['issuer']['name'],
-							issuer_siret = session['displayed_certificate']['issuer']['siret'],
+							issued_to_name = session['displayed_certificate']['issued_to']['name'],
+							issuer_name = session['displayed_certificate']['issued_by']['name'],
+							issuer_siret = session['displayed_certificate']['issued_by']['siret'],
 							title = session['displayed_certificate']['title'],
 							signature=signature,
 							registration_number = session['displayed_certificate']['registration_number'],
@@ -335,8 +336,8 @@ def show_certificate(mode):
 
 		description = session['displayed_certificate']['project_description'].replace('\r\n','<br>')
 
-		signature = session['displayed_certificate']['signature']
-		logo = session['displayed_certificate']['logo']
+		signature = session['displayed_certificate']['issued_by']['signature']
+		logo = session['displayed_certificate']['issued_by']['logo']
 		# if there is no signature one uses Picasso signature
 		if signature is None :
 			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
@@ -372,11 +373,11 @@ def show_certificate(mode):
 							budget = session['displayed_certificate']['project_budget'],
 							description=description,
 							logo=logo,
-							issuer_name = session['displayed_certificate']['issuer']['name'],
+							issuer_name = session['displayed_certificate']['issued_by']['name'],
 							title = session['displayed_certificate']['project_title'],
 							signature=signature,
 							badge = my_badge,
-							manager = session['displayed_certificate']['manager'],
+							manager = session['displayed_certificate']['issued_by']['manager'],
 							certificate_id=certificate_id,
 							**context)
 

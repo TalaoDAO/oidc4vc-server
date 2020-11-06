@@ -480,12 +480,9 @@ def resume(mode) :
 				carousel_indicators_agreement += '<li data-target="#agreement-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, agreement in enumerate(agreements):
 				try:
-					logo = agreement['logo']
+					logo = agreement['issued_by']['logo']
 				except:
-					try :
-						logo = agreement['picture']
-					except:
-						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
 				if logo != None:
 					if not path.exists(mode.uploads_path + logo) :
@@ -544,12 +541,9 @@ def resume(mode) :
 				carousel_indicators_reference += '<li data-target="#reference-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, reference in enumerate(references):
 				try:
-					logo = reference['logo']
+					logo = reference['issued_by']['logo']
 				except:
-					try :
-						logo = reference['picture']
-					except:
-						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
 				if logo != None:
 					if not path.exists(mode.uploads_path + logo) :
