@@ -55,7 +55,8 @@ def read_profil (workspace_contract, mode, loading) :
 						'staff' : 115116097102102,
 						'sales' : 115097108101115,
 						'mother_company' : 109111116104101114095099111109112097110121,
-						'siret' : 115105114101116, }
+						'siret' : 115105114101116,
+						'postal_address' : 112111115116097108095097100100114101115115, }
 
 	if loading != 'full' :
 		person_topicnames = {'firstname' : 102105114115116110097109101,
@@ -119,7 +120,8 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	if synchronous :
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-		if receipt['status'] == 0 :
+		if not receipt['status'] :
+			print('transaction to create document failed. See receipt : ', receipt)
 			return None, None, None
 
 	# Get document  id on last event

@@ -24,7 +24,6 @@ import analysis
 #@app.route('/resume/', methods=['GET'])
 def resume(mode) :
 	""" This is always an external entry point"""
-
 	issuer_workspace_contract = request.args. get('workspace_contract')
 	if issuer_workspace_contract is None :
 		abort(403)

@@ -451,12 +451,25 @@ def oauth_issue_agreement(mode):
         response_dict = {'detail' : 'did does not exist'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
+    user_profil, c = read_profil(user_workspace_contract, mode, 'full')
+    client_profil, c = read_profil(client_workspace_contract, mode, 'full')
     certificate['type'] = 'agreement'
     certificate['version'] = 1
-    certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
-    certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
-    certificate['manager'] = 'Director'
-    certificate['reviewer'] = ''
+    certificate["issued_by"]  = {
+		"name" : client_profil['name'],
+		"postal_address" : client_profil['postal_address'],
+		"siret" : client_profil['siret'],
+		"logo" :get_image(client_workspace_contract, 'logo', mode),
+		"signature" : get_image(client_workspace_contract, 'signature', mode),
+        "manager" : "Director",
+		}
+    certificate["issued_to"]  = {
+		"name" : user_profil['name'],
+		"postal_address" : user_profil['postal_address'],
+		"siret" : user_profil['siret'],
+		"logo" : get_image(user_workspace_contract, 'logo', mode),
+		"signature" : get_image(user_workspace_contract, 'signature', mode),
+		}
     my_certificate = Document('certificate')
     document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
                         client_workspace_contract,
@@ -499,11 +512,25 @@ def oauth_issue_reference(mode):
         response_dict = {'detail' : 'did does not exist'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
+    user_profil, c = read_profil(user_workspace_contract, mode, 'full')
+    client_profil, c = read_profil(client_workspace_contract, mode, 'full')
     certificate['type'] = 'reference'
     certificate['version'] = 1
-    certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
-    certificate['signature'] = get_image(client_workspace_contract, 'signature', mode)
-    certificate['manager'] = 'Director'
+    certificate["issued_by"]  = {
+		"name" : client_profil['name'],
+		"postal_address" : client_profil['postal_address'],
+		"siret" : client_profil['siret'],
+		"logo" :get_image(client_workspace_contract, 'logo', mode),
+		"signature" : get_image(client_workspace_contract, 'signature', mode),
+        "manager" : "Director",
+		}
+    certificate["issued_to"]  = {
+		"name" : user_profil['name'],
+		"postal_address" : user_profil['postal_address'],
+		"siret" : user_profil['siret'],
+		"logo" : get_image(user_workspace_contract, 'logo', mode),
+		"signature" : get_image(user_workspace_contract, 'signature', mode),
+		}
     my_certificate = Document('certificate')
     document_id, ipfs_hash, transaction_hash = my_certificate.add(client_address,
                         client_workspace_contract,
@@ -515,7 +542,7 @@ def oauth_issue_reference(mode):
                         mydays=0,
                         privacy='public')
     if document_id is None :
-        response_dict = {'detail' : 'transaction failed'}
+        response_dict = {'detail' : 'transaction failed, check if this your company is a referent'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     response_dict = {'link' : mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:] + ':document:' + str(document_id),

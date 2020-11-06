@@ -51,7 +51,9 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		if synchronous :
-			w3.eth.waitForTransactionReceipt(hash_transaction)
+			receipt = w3.eth.waitForTransactionReceipt(hash_transaction)
+			if not receipt['status'] :
+				print('transaction failed . See receipt :', receipt)
 		print("hash = ", hash_transaction)
 		return True
 

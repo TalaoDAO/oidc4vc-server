@@ -90,9 +90,21 @@ ____________
 	"score_schedule" : 4,
 	"score_communication" : 4,
 	"score_budget" : 4,
-	"logo" : "",
-	"signature" : "",
-	"manager" : "",
+	"issued_by" : {
+		"name" : "",
+		"postal_address" : "",
+		"siret" : "",
+		"logo" : "xxx",
+		"signature" : "xxx",
+		"manager" : ""
+		}
+	"issued_to" : {
+		"name" : "",
+		"postal_address" : "",
+		"siret" : "",
+		"logo" : "",
+		"signature" : "",
+		}
 	}
 
 .. code-block:: JSON
@@ -108,8 +120,21 @@ ____________
 	"valid_until" : "xxx",
 	"location" : "xxx",
 	"service_product_group" : "xxx",
-	"logo" : "xxx",
-	"signature" : "xxx"
+	"issued_by" : {
+		"name" : "",
+		"postal_address" : "",
+		"siret" : "",
+		"logo" : "xxx",
+		"signature" : "xxx",
+		"manager" : "",
+		}
+	"issued_to" : {
+		"name" : "",
+		"postal_address" : "",
+		"siret" : "",
+		"logo" : "",
+		"signature" : "",
+		}
 	}
 
 
