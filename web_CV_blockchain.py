@@ -594,16 +594,16 @@ def resume(mode) :
 				if i == len(references)-1:
 					carousel_rows_reference += '</div></div>'
 
-		if session['skills'] is None or session['skills'].get('id') is None :
+		if issuer_explore.skills is None or issuer_explore.skills.get('id') is None :
 			my_competencies =  """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
 		else:
 			my_competencies = ""
-			for competencie in session['skills']['description'] :
-				competencie_html = competencie['skill_name'] + """ (""" + competencie['skill_level'] + """)""" + """<br>"""
+			for competencie in issuer_explore.skills['description'] :
+				competencie_html = competencie['skill_name'] + """<br>"""
 				my_competencies = my_competencies + competencie_html
 			my_competencies = my_competencies + """
 				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ session['skills']['id'] + """:skills>
+					<a class="text-secondary" href=/data/?dataId="""+ issuer_explore.skills['id'] + """:skills>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""

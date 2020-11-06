@@ -96,7 +96,10 @@ def update_skills(mode) :
 				return redirect( mode.server + 'user/')
 			doc_id = data[0]
 			session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
-			flash('Your skills have been updated', 'success')
+			if session['type'] == 'person' :
+				flash('Your skills have been updated', 'success')
+			else:
+				flash('Your competencies have been updated', 'success')
 			return redirect( mode.server + 'user/')
 
 		# delete the skill
