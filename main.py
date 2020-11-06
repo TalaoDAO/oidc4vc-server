@@ -87,7 +87,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.10"
+VERSION = "0.13.11"
 API_SERVER = True
 
 # Flask and Session setup
@@ -547,7 +547,8 @@ def update_company_settings() :
                                 staff=personal['staff']['claim_value'],
                                 mother_company=personal['mother_company']['claim_value'],
                                 sales=personal['sales']['claim_value'],
-                                siret=personal['siret']['claim_value']
+                                siret=personal['siret']['claim_value'],
+                                postal_address=personal['postal_address']['claim_value'],
                                 )
     if request.method == 'POST' :
         form_privacy = dict()
@@ -562,6 +563,7 @@ def update_company_settings() :
         form_privacy['staff'] = 'public'
         form_privacy['mother_company'] = 'public'
         form_privacy['siret'] = 'public'
+        form_privacy['postal_address'] = 'public'
 
         change = False
         for topicname in session['personal'].keys() :

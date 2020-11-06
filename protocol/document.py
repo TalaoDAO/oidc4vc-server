@@ -102,8 +102,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 
 	# Build transaction
 	contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
-	nonce = mode.w3.eth.getTransactionCount(address_from)
-
+	nonce = mode.w3.eth.getTransactionCount(address_from) + 1
 	# store bytes on ipfs
 	ipfs_hash = ipfs_add(data, mode)
 	if not ipfs_hash :
@@ -114,9 +113,17 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
 
 	# Transaction with doctypevesrion = 3 for RGPD constraint
-	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
-	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	try :
+		mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	except ValueError :
+		print('ValueError dans create dovument')
+		nonce = nonce + 1
+		gasprice = 2 * mode.w3.toWei(mode.GASPRICE, 'gwei')
+		txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': gasprice,'nonce': nonce,})
+		signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
+		mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	if synchronous :
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)

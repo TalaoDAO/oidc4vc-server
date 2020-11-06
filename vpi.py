@@ -61,9 +61,9 @@ def check_proof_of_identity(identity_workspace_contract, user_workspace_contract
         return False
 
     # display input parameters
-    identity_username = ns.get_username_from_resolver(identity_workspace_contract, mode)
-    user_username = ns.get_username_from_resolver(user_workspace_contract, mode)
-    print('Identity ' + identity_workspace_contract + '/'+ identity_username  + ' is checking the Identity ' + user_workspace_contract + '/' + user_username)
+    #identity_username = ns.get_username_from_resolver(identity_workspace_contract, mode)
+    #user_username = ns.get_username_from_resolver(user_workspace_contract, mode)
+    #print('Identity ' + identity_workspace_contract + '/'+ identity_username  + ' is checking the Identity ' + user_workspace_contract + '/' + user_username)
 
     # setup white list
     white_list = get_white_list(identity_workspace_contract, mode)
