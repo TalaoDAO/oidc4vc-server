@@ -306,6 +306,7 @@ def show_certificate(mode):
 							description=description,
 							logo=logo,
 							issuer_name = session['displayed_certificate']['issuer']['name'],
+							issuer_siret = session['displayed_certificate']['issuer']['siret'],
 							title = session['displayed_certificate']['title'],
 							signature=signature,
 							registration_number = session['displayed_certificate']['registration_number'],
