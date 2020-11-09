@@ -1640,7 +1640,7 @@ def talao_search() :
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
-# This is the DID proof
+# This is the visual DID proof
 @app.route('/did/', methods=['GET'])
 def did_check () :
     html = """<!DOCTYPE html>
@@ -1656,6 +1656,11 @@ def did_check () :
             </body>
         </html>"""
     return render_template_string(html)
+
+# This is the online DID proof
+@app.route('/online_did/', methods=['GET'])
+def did_check_2 () :
+    return True
 
 # This is to call the DID proof
 @app.route('/call_did/', methods=['GET'])

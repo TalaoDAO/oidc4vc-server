@@ -668,9 +668,17 @@ def certificate_issuer_explore(mode) :
 		# do something specific
 
 		# kbis
-		#print(issuer_explore.__dict__)
+		response = requests.post( issuer_explore.personal['website']['claim_value'] + '/on_line_did/' )
+		print('response = ', response)
+		print(issuer_explore.personal['website']['claim_value'] + '/on_line_did/')
+		if response.status_code == 200 :
+			on_line_check = "True"
+		else :
+			on_line_check = "False"
 		my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] + """ <br>
-				<b>On-Line check</b> : <a class = "card-link" href=/call_did/?website=""" + issuer_explore.personal['website']['claim_value'] + """>""" + issuer_explore.personal['website']['claim_value'] + """</a>"""
+				<b>Visual check</b> : <a class = "card-link" href=/call_did/?website=""" + issuer_explore.personal['website']['claim_value'] + """>""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
+				<b>On-Line check</b> : """ + on_line_check
+
 		for kbis in issuer_explore.kbis :
 			my_kbis = my_kbis + "<hr><b>Certificate issued by Talao</b><br><br>"
 			kbis_html = """

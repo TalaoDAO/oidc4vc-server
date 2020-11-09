@@ -148,7 +148,7 @@ class currentMode() :
 
 		elif self.BLOCKCHAIN == 'talaonet' :
 			self.start_block = 10000
-			self.GASPRICE='1'
+			self.GASPRICE='2'
 			self.fromBlock= 1000
 			self.CHAIN_ID = 50000
 			# POA middleware

@@ -136,8 +136,12 @@ You request an access to these functionalities using the scope parameter, which 
 
 Below list of scopes  :
 
-* partner : company requests partnership : If accepted partnership allows to exchange private data without any new authorization. Your company will be added to the user's partner list. Further data access will be available through Client Credentials flow.
-* referent : company requests to be appointed as a referent. If accepted your company will be allowed to issue certificatess without any new authorization.
+* issue_reference_on_behalf :
+* issue_agreement_on_behalf :
+
+* partner : company requests a partnership status : If accepted partnership allows to exchange private data without any new authorization. Your company will be added to the user's partner list. Further data access will be available through Client Credentials flow.
+* referent : company requests a referent status. If accepted your company will be allowed to issue certificatess without any new authorization.
+
 * delete_certificate : user deletes certificate
 * remove_partner : user removes partner from partner's list
 * remove_referent : user removes referent from referent's list
@@ -163,14 +167,84 @@ Step 3, with the Access Token you can acces an endpoint
    curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/endpoint  your_json_data
 
 
-Endpoint : https://talao.co/api/v1/company_request
-**************************************************
+Endpoint : https://talao.co/api/v1/issue_agreement_on_behalf
+************************************************************
 
-To request a partnership or to be added as referent (scope 'referent or 'partner' is required). No data to provide.
+Issue a, agreement certificate to a company on behalf of user
+Your company must be allowed to issue agreement certificates on behalf of the sur.
+User must be a in the company's referent list.
+
+Issue an agreement certificate :
 
 .. code::
 
-   curl -H "Authorization: Bearer your_access_token" https://talao.co/api/v1/company_request
+  $ curl -X POST https://talao.co/api/v1/issue_agreement_on_behalf  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did_issued_to" : "did:talao:talonet:2165165", "certificate": JSON_certificate}'
+
+Example of a JSON_certificate :
+
+.. code-block:: JSON
+
+  {
+    "registration_number" : "2020-11-31003",
+    "title" : "IQ - ISO9001:2020",
+    "description" : "Quality Management Process",
+    "standard" : "ISO 9001",
+    "date_of_issue" : "2020-11-01",
+    "valid_until" : "2030-10-31",
+    "location" : "Toulouse Bordeaux Paris",
+    "service_product_group" : "Drone Serie production line",
+  }
+
+
+Endpoint : https://talao.co/api/v1/issue_reference_on_behalf
+************************************************************
+
+Issue a reference certificate to a company on behalf of user
+Your company must be allowed to issue reference certificates on behalf.
+User must be a in the company's referent list.
+
+Issue a reference certificate :
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/issue_reference_on_behalf  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did_issued_to" : "did:talao:talonet:2165165", "certificate": JSON_certificate}'
+
+Example of a JSON_certificate :
+
+.. code-block:: JSON
+
+  {
+    "project_title" : "Ligne de production moteur NFG-1000",
+    "project_description" : "Conception, réalisation et installation d'une nouvelle ligne de production",
+    "project_budget" : "2000000",
+    "project_staff" : "12",
+    "project_location" : "Bordeaux",
+    "start_date" : "2019-02-22",
+    "end_date" : "2020-01-25",
+    "competencies" : ["CATIA V6",],
+    "score_recommendation" : 4,
+    "score_delivery" : 3,
+    "score_schedule" : 4,
+    "score_communication" : 4,
+    "score_budget" : 4,
+   }
+
+
+Endpoint : https://talao.co/api/v1/company_status_request
+**********************************************************
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/company_status_request  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did" : "did:talao:talaonet:fA38BeA7A9b1946B645C16A99FB0eD07D168662b"}'
 
 JSON return :
 
@@ -182,33 +256,7 @@ JSON return :
    "referent": false
   }
 
-partnership_in_identity :
-
-* Authorized : your company has requested a partnership or accepted the partnership.
-* Pending : user is waiting for your decision to accept or reject his request for partnership.
-* Removed : your company removed the partnership.
-* Unknown : no partnership.
-* Rejected : your company refused the user request for partnership.
-
-
-partnership_in_partner_identity :
-
-* Authorized : user has requested a partnership or accepted your request.
-* Pending : user has received your request for partnership but still pending.
-* Rejected : user refused your request.
-* Removed : user removed the partnership.
-* Unknown : no partnership.
-
-
-referent :
-
-* False/True : is your company in the user's referent list.
-
-.. note:: A partnership is effective when both partnership_in_partner_identity and partnership_in_identity are "Authorized".
-
-
-Endpoint : https://talao.co/api/v1/user_identity_management
-***********************************************************
+see further get_status endpoint to get more details.
 
 
 OAtth 2.0 Client Credentials Flow
@@ -216,23 +264,29 @@ OAtth 2.0 Client Credentials Flow
 
 This flow allows your company to access functionalities previously authorized by users (as referent and/or partner) and to manage your own company identity.
 
-to manage other person Identity :
+to manage Identities :
+
+*   https://talao.co/api/v1/create_person_identity : to create an identity for a person (with partnership setup)
+*   https://talao.co/api/v1/create_company_identity : to create an identity for a company (with parnership setup)
+*   https://talao.co/api/v1/get_status : to get its own referent/partner status with an identity
+
+*   https://talao.co/api/v1/update_company_identity : to update a company identity after your company has been appointed as partner
+*   https://talao.co/api/v1/get_certificate_list : to get the list of all agreement/reference certificates of a company after your company has been appointed as partner
+*   https://talao.co/api/v1/get_certificate : to get the certificate data fater your company has been appointed as partner
+
+to issue certificates to others :
 
 *   https://talao.co/api/v1/issue_experience : to issue experience certificates to a person after your company has been appointed as a referent
 *   https://talao.co/api/v1/issue_skill : to issue skill certificates to a person after your company has been appointed as a referent
 *   https://talao.co/api/v1/issue_recommendation : to issue recommendation certificates to a person after your company has been appointed as a referent
-*   https://talao.co/api/v1/create_person_identity : to create an identity for a person
 
-to manage other company Identity :
-
-*   https://talao.co/api/v1/create_company_identity : to create an identity for a company
-*   https://talao.co/api/v1/issue_agreement : to issue agreement certificates to a company after your company has been appointed as a referent
+*   https://talao.co/api/v1/issue_agreement : to issue agreement certificates to a company after your own company has been appointed as a referent
 *   https://talao.co/api/v1/issue_reference : to issue reference certificates to a person after your company has been appointed as a referent
+
 
 to manage your own Identity :
 
 *   https://talao.co/api/v1/client_identity_management : to add/remove a referent to your company's referent list or to request/reject a partnership
-*   https://talao.co/api/v1/get_status : to get referent and partner status with a user
 
 
 Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the Access Token :
@@ -249,40 +303,6 @@ To call an endpoint :
   $ curl -H "Authorization: Bearer your_access_token" -H "Content-Type: application/json" https://talao.co/api/v1/endpoint   your_json_data
 
 Your Access Token will be live for 3000 seconds.
-
-Endpoint : https://talao.co/api/v1/create_person_identity
-**********************************************************
-
-Create an Identity for a user.
-Your company is appointed as a referent to issue certificates to this user.
-Your company is apointed as a partner to access all data without any new user authorization.
-User Identity username/password are sent by email to user.
-Return JSON with did (sub) and username
-
-
-.. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
-
-
-Create a new identity :
-
-.. code::
-
-  $ curl -X POST https://talao.co/api/v1/create_person_identity \
-   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
-   -H "Content-Type: application/json" \
-   -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
-
-JSON Response
-
-.. code-block:: JSON
-
-  {
-    "did": "did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE",
-    "username" : "jeanpascalet",
-    "firstname": "jean",
-    "lastname": "pascalet",
-    "email": "jean.pascalet@talao.io"
-  }
 
 Endpoint : https://talao.co/api/v1/issue_experience
 ***************************************************
@@ -341,10 +361,46 @@ JSON return :
   }
 
 
+Endpoint : https://talao.co/api/v1/create_person_identity
+**********************************************************
+
+Create an Identity for a user.
+Your company is appointed as a referent to issue certificates to this user.
+Your company is apointed as a partner to access all data without any new user authorization.
+User Identity username/password are sent by email to user.
+Return JSON with did (sub) and username
+
+
+.. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
+
+
+Create a new identity :
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/create_person_identity \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
+
+JSON Response
+
+.. code-block:: JSON
+
+  {
+    "did": "did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE",
+    "username" : "jeanpascalet",
+    "firstname": "jean",
+    "lastname": "pascalet",
+    "email": "jean.pascalet@talao.io"
+  }
+
+
+
 Endpoint : https://talao.co/api/v1/get_status
 *********************************************
 
-Get the referent and partnership status of a user.
+Get the referent and partnership status of a user with your company
 
 .. code::
 
@@ -354,15 +410,83 @@ Get the referent and partnership status of a user.
    -d '{"did" : "did:talao:talaonet:fA38BeA7A9b1946B645C16A99FB0eD07D168662b"}'
 
 
-JSON return : same as endpoint https://talao.co/api/v1/company_request
+JSON return :
+
+.. code-block:: JSON
+
+  {
+   "partnernship_in_identity": "Pending",
+   "partnership_in_partner_identity": "Authorized",
+   "referent": false
+  }
+
+partnership_in_identity :
+
+* Authorized : your company has requested a partnership or accepted the partnership.
+* Pending : user is waiting for your decision to accept or reject his request for partnership.
+* Removed : your company removed the partnership.
+* Unknown : no partnership.
+* Rejected : your company refused the user request for partnership.
+
+
+partnership_in_partner_identity :
+
+* Authorized : user has requested a partnership or accepted your request.
+* Pending : user has received your request for partnership but still pending.
+* Rejected : user refused your request.
+* Removed : user removed the partnership.
+* Unknown : no partnership.
+
+
+referent :
+
+* False/True : is your company in the user's referent list.
+
+.. note:: A partnership is effective when both partnership_in_partner_identity and partnership_in_identity are "Authorized".
+
+
+
+
+Endpoint : https://talao.co/api/v1/create_company_identity
+**********************************************************
+
+Create an Identity for a company.
+Your company is appointed as a referent to issue certificates to this company.
+Your company is apointed as a partner to access all data without any new user authorization.
+User Identity username/password are sent by email to user.
+Return JSON with did (sub) and username
+
+
+.. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
+
+
+Create a new identity :
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/create_person_identity \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"name":"NewIndus", "email":"jean.petit@newindus.io"}'
+
+JSON Response
+
+.. code-block:: JSON
+
+  {
+    "did": "did:talao:talaonet:1a50a9eE2E780281637bd93C13076cc5E342c9aE",
+    "username" : "newindus",
+    "name": "NewIndus",
+    "email": "jean.petit@newindus.io"
+  }
 
 
 Endpoint : https://talao.co/api/v1/issue_reference
 ***************************************************
 
-Issue an experience certificate to a company.
-Company must be allowed to issue reference certificate (scope = reference).
-Company must be a in the company's referent list.
+Issue a reference certificate to a company.
+Your company must be allowed to issue reference certificates (scope = reference).
+Your company must be a in the company's referent list.
 
 Issue a reference certificate :
 
@@ -392,3 +516,91 @@ Example of a JSON_certificate :
     "score_communication" : 4,
     "score_budget" : 4,
    }
+
+
+
+
+Endpoint : https://talao.co/api/v1/issue_agreement
+************************************************************
+
+Issue an agreement certificate to a company.
+Your company must be allowed to issue agreement certificates.
+Yourcompany must be a in the company's referent list.
+
+Issue an agreement certificate :
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/issue_agreement_on_behalf  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did" : "did:talao:talonet:2165165", "certificate": JSON_certificate}'
+
+Example of a JSON_certificate :
+
+.. code-block:: JSON
+
+  {
+    "registration_number" : "2020-11-31003",
+    "title" : "IQ - ISO9001:2020",
+    "description" : "Quality Management Process",
+    "standard" : "ISO 9001",
+    "date_of_issue" : "2020-11-01",
+    "valid_until" : "2030-10-31",
+    "location" : "Toulouse Bordeaux Paris",
+    "service_product_group" : "Drone Serie production line",
+  }
+
+
+Endpoint : https://talao.co/api/v1/update_company_identity
+***********************************************************
+
+Your company must be a partner of the company
+
+to be done
+
+
+
+Endpoint : https://talao.co/api/v1/get_certificate_list
+*******************************************************
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/get_certificate_list  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Content-Type: application/json" \
+   -d '{"did" : "did:talao:talonet:2165165", "certificate_type": "reference"}'
+
+Example of a JSON_certificate :
+
+.. code-block:: JSON
+
+  {
+    "certificate_list" : [did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE:document:6,
+     did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE:document:12]
+  }
+
+Endpoint : https://talao.co/api/v1/get_certificate
+**************************************************
+
+to be done
+
+
+
+a faire
+*******
+
+use case #1 : Une entreprise de formation pfessionnelle utilise talao pour emettre des attestations pour ces clients (personens hysiques)
+
+use acse #2 : un portail qui dispose d'une base d'adherents (entreprise), propose a ses membres de se faire certifier pour des missions ralisées par des sociétés tiers.
+les certificats sont ajoutés au profil des adhérents.
+
+
+process pour que C1 emette un certificat a C2
+
+1 Talao : creer l identité pour la plateforme sur le web
+2 Talao creer les API credentials avec les scopes = create_company_identity +
+3 Plateforme : creer les identites pour les 2 societes avec le endpoint create_company_identity
+4 ajouter les infos des settings : siret, addresses, logo, signature -> API : update_settings
+5 il faut que C1 soit dans la referent list de C2 : add partner depuis C2
+6 emettre un certificat pour C2 signé par C1
