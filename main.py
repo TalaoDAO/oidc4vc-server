@@ -223,6 +223,17 @@ def success() :
             flash('Logo has been updated', 'success')
         return redirect(mode.server + 'user/')
 
+@app.route('/user/update_search_setting/', methods=['POST'])
+def update_search_setting() :
+    check_login()
+    try:
+        user_search.update_user(session, request.form["CheckBox"] == "on")
+        flash('Your Name has been added to the search bar', 'success')
+    except:
+        user_search.update_user(session, False)
+        flash('Your Name has been removed from the search bar', 'success')
+    return redirect(mode.server + 'user/')
+
 
 @app.route('/user/update_phone/', methods=['GET', 'POST'])
 def update_phone() :

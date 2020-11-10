@@ -21,15 +21,7 @@
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
-        {% if viewer == 'guest' %}
         {% include 'guest_nav_bar.html' %}
-        {% else %}
-        {% if session['type'] == "company" %}
-        {% include 'company_nav_bar.html' %}
-        {% else %}
-        {% include 'user_nav_bar.html' %}
-        {% endif %}
-        {% endif %}
         <div class="container-fluid">
           <div class="row mb-3">
             <div class="col-lg-8 col-xl-8 offset-xl-2">
@@ -87,7 +79,7 @@
                         <div class="row mt-3" >
                             <div class="col">
                                 <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Date of issue : <strong>{{date_of_issue}}</strong></p>
-                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Issued by :</p>
+                                <p class="text-dark ml-2" style="font-family: Arimo, sans-serif;">Issued by {{issuer_name}} :</p>
                                 <div class="text-center"><img src="{{ url_for('send_file', filename=logo) }}" style="width: 250px;"></div>
                             </div>
                             <div class="col" style="height: 350px;">
