@@ -94,7 +94,7 @@ def home():
 def oauth_logout():
     check_login()
     post_logout = request.args.get('post_logout_redirect_uri')
-    #session.clear()
+    session.clear()
     return redirect(post_logout)
 
 
@@ -122,7 +122,7 @@ def oauth_login(mode):
             db.session.commit()
         session['id'] = user.id
         print('User logged in Talao.co')
-        #session['username']=username
+        session['username']=username
     return redirect(url)
 
 
@@ -176,7 +176,8 @@ def issue_token():
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
     user = current_user()
-    scope_list=['openid', 'profile', 'resume', 'partner', 'referent', 'proof_of_identity', 'birthdate', 'email', 'phone', 'about']
+    scope_list=['openid', 'profile', 'resume', 'proof_of_identity', 'birthdate', 'email', 'phone', 'about',
+            'user_manages_referent', 'user_manages_partner', 'user_issues_certificate' ]
     # if user log status is not true (Auth server), then to log it in
     if not user:
         return redirect(url_for('oauth_login', next=request.url))
@@ -186,8 +187,9 @@ def authorize(mode):
             grant = authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:
             return error.error
+        # configure oauth_authorize.html
         checkbox = {key: 'checked' if key in grant.request.scope else ""  for key in scope_list}
-        #ask for consent
+        # Display view to ask for user consent
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,**checkbox)
     # POST
     if not user and 'username' in request.form:
@@ -196,8 +198,9 @@ def authorize(mode):
     if 'reject' in request.form :
         grant_user = None
         return authorization.create_authorization_response(grant_user=grant_user)
-    # update scopes after consent
+    # update scopes after user consent
     query_dict = parse_qs(request.query_string.decode("utf-8"))
+    # always JWT.....check if needed
     my_scope = "openid "
     for scope in scope_list :
         if request.form.get(scope) == "on" :
@@ -208,7 +211,7 @@ def authorize(mode):
     return authorization.create_authorization_response(grant_user=user, request=req)
 
 
-#  AUTHORIZATION CODE ENDPOINT
+#########################################  AUTHORIZATION CODE ENDPOINT   ################################
 
 #route('/api/v1/user_info')
 @require_oauth('openid profile email phone birthdate address proof_of_identity about resume', 'OR')
@@ -252,12 +255,14 @@ def user_accepts_company_referent(mode):
     client_workspace_contract = get_client_workspace(client_id, mode)
     client_address = contractsToOwners(client_workspace_contract, mode)
     # add key 20002
-    if 'referent' in current_token.scope and not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
+    if not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
         relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
-        add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
+        if not add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False) :
+            referent = False
+        else :
+            referent = True
+    else :
         referent = True
-    referent = has_key_purpose(user_workspace_contract, client_address, 20002, mode)
-    # setup response
     response = Response(json.dumps({'referent' : referent}), status=200, mimetype='application/json')
     return response
 
@@ -274,14 +279,14 @@ def user_accepts_company_partnership(mode):
     client_address = contractsToOwners(client_workspace_contract, mode)
 
     # client requests partnership to user
-    if "partner" in current_token.scope and not is_partner(user_address, client_workspace_contract, mode) :
+    if not is_partner(user_address, client_workspace_contract, mode) :
         client_address = contractsToOwners(client_workspace_contract, mode)
         relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
         client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
         partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode, synchronous=False) 
 
     # user accepts client request for partnership if not already partner
-    if 'partner' in current_token.scope and not is_partner(client_address, user_workspace_contract,mode) :
+    if not is_partner(client_address, user_workspace_contract,mode) :
         relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
         user_rsa_key = privatekey.get_key(user_address, 'rsa_key', mode)
         authorize_partnership(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_workspace_contract, user_rsa_key, mode, synchronous=True)
@@ -290,9 +295,6 @@ def user_accepts_company_partnership(mode):
     # setup response
     response = Response(json.dumps({'partnership_in_identity' : partnership_in_identity, 'partnership_in_partner' : partnership_in_partner}), status=200, mimetype='application/json')
     return response
-
-
-
 
 
 # issue a certificates on behalf of user
@@ -576,7 +578,6 @@ def oauth_issue_agreement(mode):
     return response
 
 
-
 # issue a reference certificates
 #@route('/api/v1/issue_reference')
 @require_oauth('reference')
@@ -671,5 +672,42 @@ def oauth_get_certificate_list(mode):
                 if certificate.type == certificate_type :
                     certificate_list.append(data['did'] + ':document:' + str(doc_id))
     response_dict = {'certificate_list' : certificate_list}
+    response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
+    return response
+
+
+
+
+# get certificate data
+#@route('/api/v1/get_certificate')
+@require_oauth(None)
+def oauth_get_certificate(mode):
+    client_id=current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
+    data = json.loads(request.data.decode("utf-8"))
+    try :
+        user_workspace_contract = '0x' + data['certificate_id'].split(':')[3]
+        user_address = contractsToOwners(user_workspace_contract, mode)
+        doc_id =  int(data['certificate_id'].split(':')[5])
+    except :
+        response_dict = {'detail' : 'did or request malformed '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if user_address is None :
+        response_dict = {'detail' : 'did does not exist'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    # check if client is in the partner list of identity
+    if not is_partner(client_address, user_workspace_contract, mode):
+        response_dict = {'detail' : 'Your company is not in the partner list of this Identity'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    certificate = Document('certificate')
+    if not certificate.relay_get(user_workspace_contract, doc_id, mode, loading='light') :
+        response_dict = {'detail' : 'Certificate not found'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+    else :
+        response_dict = {'certificate_data' : certificate.__dict__}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response

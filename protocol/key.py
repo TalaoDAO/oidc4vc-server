@@ -36,12 +36,12 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 			w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 			hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 			if synchronous :
-				w3.eth.waitForTransactionReceipt(hash_transaction)
-			print("add key hash = ", hash_transaction)
-			return True
-		else : # purpose exists
+				receipt = w3.eth.waitForTransactionReceipt(hash_transaction)
+				if not receipt['status'] :
+					return False
+		else :
 			print("purpose and key already exists")
-			return False
+		return True
 
 	else :
 		print("key does not exist")

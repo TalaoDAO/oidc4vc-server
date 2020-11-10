@@ -244,7 +244,7 @@ def data(mode) :
 		my_topic = dataId.split(':')[6]
 		my_data = Document(my_topic)
 		exist = my_data.relay_get(workspace_contract, doc_id, mode)
-		if exist is None :
+		if not exist :
 			print('Error data in webserver.py, Class instance needed')
 			return redirect(mode.server + 'user/')
 		expires = my_data.expires
@@ -260,7 +260,7 @@ def data(mode) :
 	# issuer
 	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
 	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
-	issuer_username = 'Unknown' if issuer_username is None else issuer_username
+	issuer_username = 'Unknown' if not issuer_username  else issuer_username
 	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
 
 	myissuer = """
@@ -296,7 +296,8 @@ def data(mode) :
 	if support == 'document' :
 		myadvanced = """
 				<b>Advanced</b>
-				<li><b>Document Id</b> : """ + str(doc_id) + """<br></li>
+				<li><b>Document Id</b> : """ + dataId + """<br></li>
+				<li><b>Doc Id</b> : """ + str(doc_id) + """<br></li>
 				<li><b>Privacy</b> : """ + myvisibility.capitalize() + """<br></li>
 				<li><b>Created</b> : """ + my_data.created + """<br></li>
 				<li><b>Expires</b> : """ + expires + """<br></li>
