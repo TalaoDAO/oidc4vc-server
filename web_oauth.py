@@ -242,9 +242,30 @@ def user_info(mode):
     return response
 
 
-#route('/api/v1/company_status_request')
-@require_oauth('partner referent', 'OR')
-def company_status_request(mode):
+#route('/api/v1/user_accepts_company_referent')
+@require_oauth('user_manages_referent')
+def user_accepts_company_referent(mode):
+    user_id = current_token.user_id
+    user_workspace_contract = get_user_workspace(user_id,mode)
+    user_address = contractsToOwners(user_workspace_contract, mode)
+    client_id = current_token.client_id
+    client_workspace_contract = get_client_workspace(client_id, mode)
+    client_address = contractsToOwners(client_workspace_contract, mode)
+    # add key 20002
+    if 'referent' in current_token.scope and not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
+        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+        add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
+        referent = True
+    referent = has_key_purpose(user_workspace_contract, client_address, 20002, mode)
+    # setup response
+    response = Response(json.dumps({'referent' : referent}), status=200, mimetype='application/json')
+    return response
+
+
+
+#route('/api/v1/user_accepts_company_partnership')
+@require_oauth('user_manages_partner')
+def user_accepts_company_partnership(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
     user_address = contractsToOwners(user_workspace_contract, mode)
@@ -265,22 +286,19 @@ def company_status_request(mode):
         user_rsa_key = privatekey.get_key(user_address, 'rsa_key', mode)
         authorize_partnership(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_workspace_contract, user_rsa_key, mode, synchronous=True)
 
-    # add key 20002
-    if 'referent' in current_token.scope and not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
-        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
-        add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, client_address, 20002 , mode, synchronous=False)
-        referent = True
-
-    referent = has_key_purpose(user_workspace_contract, client_address, 20002, mode)
     partnership_in_identity,partnership_in_partner  = get_partner_status(user_address, client_workspace_contract,mode)
     # setup response
-    response = Response(json.dumps({'referent' : referent, 'partnership_in_identity' : partnership_in_identity, 'partnership_in_partner' : partnership_in_partner}), status=200, mimetype='application/json')
+    response = Response(json.dumps({'partnership_in_identity' : partnership_in_identity, 'partnership_in_partner' : partnership_in_partner}), status=200, mimetype='application/json')
     return response
 
-# issue a reference certificates on behalf of user
-#@route('/api/v1/issue_reference_on_behalf')
-@require_oauth('reference_on_behalf')
-def oauth_issue_reference_on_behalf(mode):
+
+
+
+
+# issue a certificates on behalf of user
+#@route('/api/v1/user_issues_certificate')
+@require_oauth('user_issues_certificate')
+def oauth_user_issues_certificate(mode):
     user_id = current_token.user_id
     issued_by_workspace_contract = get_user_workspace(user_id,mode)
     issued_by_address = contractsToOwners(issued_by_workspace_contract, mode)
@@ -293,6 +311,7 @@ def oauth_issue_reference_on_behalf(mode):
         issued_to_address = contractsToOwners(issued_to_workspace_contract, mode)
         issued_by_private_key = privatekey.get_key(issued_by_address,'private_key', mode)
         certificate = data['certificate']
+        certificate_type = data['certificate_type']
     except :
         response_dict = {'detail' : 'did or request malformed '}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
@@ -303,7 +322,7 @@ def oauth_issue_reference_on_behalf(mode):
         return response
     issued_to_profil, c = read_profil(issued_to_workspace_contract, mode, 'full')
     issued_by_profil, c = read_profil(issued_by_workspace_contract, mode, 'full')
-    certificate['type'] = 'reference'
+    certificate['type'] = certificate_type
     certificate['version'] = 1
     certificate["issued_by"]  = {
 		"name" : issued_by_profil['name'],
@@ -339,7 +358,7 @@ def oauth_issue_reference_on_behalf(mode):
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
 
-# CLIENT CREDENTIAL ENDPOINT
+############################################ CLIENT CREDENTIAL ENDPOINT ######################################################################
 
 # create a person identity with a key2002 key and partnership
 #@route('/api/v1/create_person_identity')
