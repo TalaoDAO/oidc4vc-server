@@ -394,7 +394,6 @@ def certificate_verify(mode) :
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract']
 	certificate = copy.deepcopy(session['displayed_certificate'])
-	print('certificate ', certificate)
 	convert(certificate)
 
 	if certificate_id != certificate['id'] :
@@ -431,7 +430,7 @@ def certificate_verify(mode) :
 				<hr>
 				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
-				<br><b>DID</b> : """ + certificate['issuer']['id'] + """<br>"""
+				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
 	if user_type == 'Person' :
 		user = """
 				<span>
