@@ -36,55 +36,77 @@
         {% include 'user_nav_bar.html' %}
         <div class="container-fluid">
           <div class="text-center">
-          <h3 class="text-dark mb-4">{{name}}
-            <a class="text-secondary" onclick="copyToClipboard('#p100')">
-              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-            </a>
-          </h3>
-          <p hidden id="p100">{{clipboard}}</p>
-          <h6 class="text-dark mb-4">{{profil_title}}</h6>
+            <h3 class="text-dark mb-4">{{name}}
+              <a class="text-secondary" onclick="copyToClipboard('#p100')">
+                <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+              </a>
+            </h3>
+            <p hidden id="p100">{{clipboard}}</p>
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
           </div>
-            <div class="row">
-              <div class="col-lg-8 col-xl-4 offset-xl-4">
-                <div class="card shadow mb-5">
-                  <div class="card-body">
-                    <h4 title="Services available." class="text-center">Settings</h4>
-                    <div role="tablist" id="accordion-2">
-                      <!-- Update picture -->
-                      <div class="card">
-                        <div class="card-header" role="tab">
-                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-user-circle"></i>
-                            <a class="text-secondary" href="/user/picture/">&nbsp;Update picture</a></h5>
+          <div class="row">
+            <div class="col-lg-8 col-xl-4 offset-xl-4">
+              <div class="card shadow mb-5">
+                <div class="card-body">
+                  <h4 title="Services available." class="text-center">Settings</h4>
+                  <div role="tablist" id="accordion-2">
+                    <!-- Update picture -->
+                    <div class="card">
+                      <div class="card-header" role="tab">
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-user-circle"></i>
+                          <a class="text-secondary" href="/user/picture/">&nbsp;Update picture</a>
+                        </h5>
+                      </div>
+                    </div>
+                    <!-- Update signature -->
+                    <div class="card">
+                      <div class="card-header" role="tab">
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-pencil"></i>
+                          <a class="text-secondary" href="/user/signature/">&nbsp;Update signature</a>
+                        </h5>
+                      </div>
+                    </div>
+                    <!-- Update password -->
+                    <div class="card">
+                      <div class="card-header" role="tab">
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-key"></i>
+                          <a class="text-secondary" href="/user/update_password/">&nbsp;Update password</a>
+                        </h5>
+                      </div>
+                    </div>
+                    <!-- Update phone number -->
+                    <div class="card">
+                      <div class="card-header" role="tab">
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-phone"></i>
+                          <a class="text-secondary" href="/user/update_phone/">&nbsp;Update phone number</a>
+                        </h5>
+                      </div>
+                    </div>
+                    <!-- Change Alias -->
+                    <div class="card">
+                      <div class="card-header" role="tab">
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-laptop"></i>
+                          <a class="text-secondary" href="/user/add_alias/">&nbsp;Create Alias</a>
+                        </h5>
+                      </div>
+                    </div>
+                    <!-- Change Alias -->
+                    <div class="card">
+                      <div class="card-header" role="tab">
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3"
+                            href="#accordion-2 .item-3">&nbsp; Search Bar settings</a></h5>
+                      </div>
+                      <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
+                        <div class="card-body">
+                          <form action="/user/update_search_setting/" method="POST">
+                            <div class="form-group form-check">
+                              <input type="checkbox" class="form-check-input" name="CheckBox" id="Check1" {{checkBox}}>
+                              <label class="form-check-label" for="Check1">I would like to have my name appear has a suggestion in the search bar</label>
+                              <button class="btn btn-primary btn-sm" id="in_progress_button" type="submit">Update</button></div>
+                          </form>
                         </div>
                       </div>
-                      <!-- Update signature -->
-                      <div class="card">
-                        <div class="card-header" role="tab">
-                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-pencil"></i>
-                            <a class="text-secondary" href="/user/signature/">&nbsp;Update signature</a></h5>
-                        </div>
-                      </div>
-                      <!-- Update password -->
-                      <div class="card">
-                        <div class="card-header" role="tab">
-                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-key"></i>
-                            <a class="text-secondary" href="/user/update_password/">&nbsp;Update password</a></h5>
-                        </div>
-                      </div>
-                      <!-- Update phone number -->
-                      <div class="card">
-                        <div class="card-header" role="tab">
-                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-phone"></i>
-                            <a class="text-secondary" href="/user/update_phone/">&nbsp;Update phone number</a></h5>
-                        </div>
-                      </div>
-                      <!-- Change Alias -->
-                      <div class="card">
-                        <div class="card-header" role="tab">
-                          <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-laptop"></i>
-                            <a class="text-secondary" href="/user/add_alias/">&nbsp;Create Alias</a></h5>
-                        </div>
-                      </div>
+                    </div>
                   </div>
                   <br>
                   <div class="form-row">
@@ -97,11 +119,11 @@
                 </div>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  {% include 'user_footer.html' %}
+    {% include 'user_footer.html' %}
 
 
   </div>

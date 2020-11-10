@@ -49,7 +49,7 @@
     {% endif %}
     <!--			<li class="nav-item d-none d-none d-md-block" role="presentation"><a class="nav-link active" href="/user/search/" style="color: rgb(133,135,150);">Search</a></li>  -->
 
-   
+
   </ul>
 
   <ul class="navbar-nav mr-2 " style="flex-direction: row;">
@@ -96,7 +96,7 @@
     },
     prefetch: {
       url: "{{ url_for('static', filename='username.json') }}",
-      ttl: 10000
+      ttl: 1000
     }
   });
   ind.initialize();
@@ -142,4 +142,3 @@
   });
 
 </script>
-

@@ -125,7 +125,7 @@
     identify: function(obj) {
       return obj.username;
     },
-    prefetch: {url : "{{ url_for('static', filename='username.json') }}",ttl: 10000}
+    prefetch: {url : "{{ url_for('static', filename='username.json') }}",ttl: 1000}
   });
   ind.initialize();
   // Initializing the typeahead

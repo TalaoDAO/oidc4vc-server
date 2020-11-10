@@ -29,6 +29,7 @@ import hcode
 import ns
 import sms
 import vpi
+import user_search
 
 
 def check_login() :
@@ -1120,10 +1121,15 @@ def user_advanced(mode) :
 # account settings
 def user_account(mode) :
 	check_login()
+	if user_search.search_user(session):
+		checkBox = "checked"
+	else:
+		checkBox = ""
 	if request.args.get('success') == 'true' :
 		if session['type'] == 'person' :
 			flash('Picture has been updated', 'success')
 		else :
 			flash('Logo has been updated', 'success')
 	return render_template('account.html',
-							**session['menu'])
+							**session['menu'],
+							checkBox = checkBox)
