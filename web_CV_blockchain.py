@@ -48,30 +48,6 @@ def resume(mode) :
 		del session['resume']['category']
 		session['resume']['topic'] = 'resume'
 
-		# personal
-		Topic = {'firstname' : 'Firstname',
-				'lastname' : 'Lastname',
-				'about' : 'About',
-				'profil_title' : 'Title',
-				'birthdate' : 'Birth Date',
-				'contact_email' : 'Contact Email',
-				'contact_phone' : 'Contact Phone',
-				'postal_address' : 'Postal Address',
-				'education' : 'Education'}
-		issuer_username =	 ns.get_username_from_resolver(issuer_workspace_contract, mode)
-		issuer_username = 'Unknown' if issuer_username is None else issuer_username
-		issuer_personal = """<span><b>Username</b> : """ + issuer_username +"""<br>"""
-		for topic_name in issuer_explore.personal.keys() :
-			if issuer_explore.personal[topic_name]['claim_value'] is not None :
-				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
-				issuer_personal = issuer_personal + """
-				<span><b>"""+ Topic[topic_name] +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""
-
-					<a class="text-secondary" href=/certificate/data/?dataId=""" + topicname_id + """:personal>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</span><br>"""
-
 		# file
 		if issuer_explore.identity_file == []:
 			my_file = """<a class="text-info">No Files available</a>"""
@@ -189,7 +165,7 @@ def resume(mode) :
 				#carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
 
 				carousel_rows_experience += """</figure></div>"""
-				if (i+1)%3==0 and len(experiences)%3!=0:
+				if (i+1)%3==0 and (len(experiences)%3!=0 or len(experiences)!=i+1):
 					carousel_rows_experience += '</div></div>'
 				if i == len(experiences)-1:
 					carousel_rows_experience += '</div></div>'
@@ -252,7 +228,7 @@ def resume(mode) :
 				carousel_rows_recommendation += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(recommendation['doc_id']) + """></a>"""
 
 				carousel_rows_recommendation += """</figure></div>"""
-				if (i+1)%3==0 and len(recommendations)%3!=0:
+				if (i+1)%3==0 and (len(recommendations)%3!=0 or len(recommendations)!=i+1):
 					carousel_rows_recommendation += '</div></div>'
 				if i == len(recommendations)-1:
 					carousel_rows_recommendation += '</div></div>'
@@ -308,7 +284,7 @@ def resume(mode) :
 				carousel_rows_education += """<a href=  /certificate/?certificate_id="""+education['id'] + """:education></a>"""
 
 				carousel_rows_education += """</figure></div>"""
-				if (i+1)%3==0 and len(educations)%3!=0:
+				if (i+1)%3==0 and (len(educations)%3!=0 or len(educations)!=i+1):
 					carousel_rows_education += '</div></div>'
 				if i == len(educations)-1:
 					carousel_rows_education += '</div></div>'
@@ -343,7 +319,6 @@ def resume(mode) :
 				carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
 				carousel_rows_skill += """<a href=  /data/?dataId="""+ issuer_explore.skills['id'] + """:skills></a>"""
 				carousel_rows_skill += """</figure></div>"""
-				carousel_rows_skill += '</div></div>'
 				carousel_rows_skill += '</div></div>'
 		else:
 			nbr_rows = (len(skills)-1)//3
@@ -389,7 +364,7 @@ def resume(mode) :
 				carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
 
 				carousel_rows_skill += """</figure></div>"""
-				if (i+1)%3==0 and len(skills)%3!=0:
+				if (i+1)%3==0 and (len(skills)%3!=0 or len(skills)!=i+1):
 					carousel_rows_skill += '</div></div>'
 				if i == len(skills)-1:
 					created_row = False
@@ -420,13 +395,23 @@ def resume(mode) :
 					if created_row:
 						carousel_rows_skill += '</div></div>'
 					carousel_rows_skill += '</div></div>'
-
+		adress = issuer_explore.personal['postal_address']['claim_value']
+		phone = issuer_explore.personal['contact_phone']['claim_value']
+		email = issuer_explore.personal['contact_email']['claim_value']
+		birth_date = issuer_explore.personal['birthdate']['claim_value']
+		education = issuer_explore.personal['education']['claim_value']
+		about = issuer_explore.personal['about']['claim_value']
 		return render_template('./CV_blockchain.html',
 							issuer_name=issuer_explore.name,
 							issuer_profil_title = issuer_explore.profil_title,
-							personal=issuer_personal,
 							issuer_picturefile=issuer_explore.picture,
 							digitalvault=my_file,
+							adress = adress,
+							phone = phone,
+							email = email,
+							birth_date = birth_date,
+							education = education,
+							about = about,
 							carousel_indicators_experience=carousel_indicators_experience,
 							carousel_indicators_recommendation=carousel_indicators_recommendation,
 							carousel_indicators_education=carousel_indicators_education,

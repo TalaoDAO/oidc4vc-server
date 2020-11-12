@@ -1430,7 +1430,12 @@ def import_rsa_key() :
 def add_manager() :
     check_login()
     if request.method == 'GET' :
-        return render_template('add_manager.html', **session['menu'])
+        if request.args.get('issuer_username') != None :
+            manager_username = request.args.get('issuer_username')
+        else:
+            manager_username = ''
+        print(manager_username)
+        return render_template('add_manager.html', **session['menu'], manager_username = manager_username)
     if request.method == 'POST' :
         if not ns.username_exist(request.form['manager_username'].lower(),mode)  :
             flash('Username not found' , 'warning')

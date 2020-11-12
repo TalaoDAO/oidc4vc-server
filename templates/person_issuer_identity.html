@@ -2,199 +2,480 @@
 <html>
 
 <head>
-   <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='carousel.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Article-Cards.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='material-icons.min.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
 
         {% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				{% for category, message in messages %}
-            <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-                <span>{{ message }}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
-
-                  {% if session['type'] == "company" %}
-                 {% include 'company_nav_bar.html' %}
-             {% else %}
-                 {% include 'user_nav_bar.html' %}
-             {% endif %}
-
-
-
-
-            <div class="container-fluid">
-              <div class="text-center">
-                <h3 class="text-dark mb-4">{{issuer_name}}</h3>
-                  <p class="text-dark mb-4">{{issuer_profil_title}}</p>
-                </div>
-                <div class="row">
-                    <div class="col-xl-6 offset-xl-3">
-                        <div class="card-deck">
-                            <div class="card shadow mb-5">
-                                <div class="card-body">
-                                    <h4><img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}" style="max-width: 300px"></h4>
-                                    <div role="tablist" id="accordion-1">
-
-										<div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0" title="text experience"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-7" href="#accordion-1 .item-7">&nbsp; Proof of Identity</a></h5>
-                                            </div>
-                                            <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{kyc|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
-                                                <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal Details</a></h5>
-                                            </div>
-                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-													<div  style="height:200px;overflow:auto;overflow-x: hidden;">
-														<p class="card-text">{{personal|safe}}</p>
-													</div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0" title="text experience"><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-2">&nbsp; Files Store</a></h5>
-                                            </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{digitalvault|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
-                                                <h5 class="mb-0" title="text experience"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
-                                            </div>
-                                            <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-
-													{% if session['issuer_explore']['experience'] != [] %}
-														 <div  style="height:400px;overflow:auto;overflow-x: hidden;">
-															<p class="card-text">{{experience|safe}}</p>
-														</div>
-													{% else %}
-													 	<p class="card-text">{{experience|safe}}</p>
-													 {% endif %}
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text edication"><i class="fa fa-graduation-cap"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-4" href="#accordion-1 .item-4">&nbsp;Education</a></h5>
-                                            </div>
-                                            <div class="collapse item-4" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-
-														{% if session['issuer_explore']['education'] != [] %}
-															<div  style="height:400px;overflow:auto;overflow-x: hidden;">
-															<p class="card-text">{{education|safe}}</p>
-															</div>
-														{% else %}
-															<p class="card-text">{{education|safe}}</p>
-														{% endif %}
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab" title="List of all your education and training degrees you provided." >
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6" href="#accordion-1 .item-6">&nbsp; Skills</a></h5>
-                                            </div>
-                                            <div class="collapse item-6" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{skills|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text skills"><i class="fa fa-paste"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-8" href="#accordion-1 .item-8">&nbsp;Certificates</a></h5>
-                                            </div>
-                                            <div class="collapse item-8" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-
-															{% if session['issuer_explore']['certificates'] != [] %}
-															<div  style="height:400px;overflow:auto;overflow-x: hidden;">
-															<p class="card-text">{{certificates|safe}}</p>
-															</div>
-														{% else %}
-															<p class="card-text">{{certificates|safe}}</p>
-														{% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="card shadow mb-5">
-                                <div class="card-body">
-                                    <h4 class="text-dark mb-4">Services</h4>
-
-											{{services|safe}}
-
-
-											<div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
-								  </div>
-								  </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {% if messages %}
+        {% for category, message in messages %}
+        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% if session['type'] == "company" %}
+        {% include 'company_nav_bar.html' %}
+        {% else %}
+        {% include 'user_nav_bar.html' %}
+        {% endif %}
+
+
+
+
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-2 ml-md-3  p-0">
+              <div class="card shadow mb-2">
+                <div class="card-body">
+                  <div class="text-center">
+                    <img class="mx-auto d-block card-img" src="{{ url_for('send_file', filename=issuer_picturefile) }}">
+                  </div>
+                </div>
+              </div>
+              <!-- <span class="sticky-top" style="z-index:1;top:80px;"> -->
+              <div class="card shadow my-2 ">
+                <div class="card-body">
+                  <h1 style="text-align: center;">{{issuer_name}}</h1>
+                  <h5 style="text-align: center;">{{issuer_profil_title}}</h5>
+                  <hr>
+                  <div class="row">
+                    <div class="col-8">
+                      <p class="m-0 text-dark">Proof of Identity :</p>
+                    </div>
+                    <div class="col">
+                      <p class="m-0">
+                        {% if kyc %}
+                        <i class="fa fa-check" style="font-size: 25px;color: rgb(48,225,56)" title="This user has provided a Proof of Identity"></i>
+                        {% else %}
+                        <i class="fa fa-remove" style="font-size: 25px;color: rgb(179,61,61);" title="This user has not provided a Proof of Identity"></i>
+                        {% endif %}
+                      </p>
+                    </div>
+                  </div>
+                  <hr>
+                  <h5><i class="fa fa-phone-square"></i>&nbsp;Contact :</h5>
+                  <p>Adress : {{adress}}<br>Phone number : {{phone}}<br>Email : {{email}}</p>
+                  <hr>
+                  <h5><i class="fa fa-info-circle"></i>&nbsp;General Informations :&nbsp;</h5>
+                  <p>Birth Date : {{birth_date}}<br>Education : {{education}}</p>
+                  <hr>
+                  <h5><i class="fa fa-bars"></i>&nbsp;About :</h5>
+                  <p class="text-justify">{{about}}</p>
+                </div>
+              </div>
+              {% if username != issuer_username %}
+              <span class="sticky-top" style="z-index:1;top:80px;">
+                <div class="card shadow my-2 ">
+                  <div class="card-body">
+                    {% if user_type == "person" %}
+                    <div class="row m-2">
+                      {% if referent_list %}
+                      <div class="col p-0 text-center">
+                        <a href="/user/request_certificate/?issuer_username={{issuer_username}}">
+                          <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
+                            Request a certificate</button>
+                        </a>
+                      </div>
+                      {% else %}
+                      <div class="col p-0 text-center">
+                        <button class="btn btn-primary py-0 w-100" title="User need to be in your referent list to request a certificate" type="button"
+                          style="background: rgba(0,123,255,0);color: #c9c9c9;font-size: 15px;border-color: #c9c9c9;height: 50px;">
+                          Request a certificate</button>
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="row m-2">
+                      {% if in_referent_list %}
+                      <div class="col p-0 text-center">
+                        <a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username={{issuer_username}}">
+                          <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
+                            Issue a Certificate</button>
+                        </a>
+                      </div>
+                      {% else %}
+                      <div class="col p-0 text-center">
+                        <button class="btn btn-primary py-0 w-100" title="You are not in this Talent Referent list" type="button" style="background: rgba(0,123,255,0);color: #c9c9c9;font-size: 15px;border-color: #c9c9c9;height: 50px;">
+                          Issue a Certificate</button>
+                      </div>
+                      {% endif %}
+                    </div>
+                    <div class="row mt-3">
+                      <div class="col">
+                      </div>
+                      <div class="col">
+                        <a href="/user/send_memo/?issuer_username={{issuer_username}}">
+                          <p class="shadow m-0" data-toggle="tooltip" data-bs-tooltip="" data-placement="bottom" style="width: 50px;height: 50px;background: rgba(11,69,128,0.93);border-radius: 25px;text-align: center;" title="Send a memo"><svg
+                              xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                              class="icon icon-tabler icon-tabler-message" style="font-size: 28px;margin-top: 10px;color: rgb(255,255,255);">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
+                              <line x1="8" y1="9" x2="16" y2="9"></line>
+                              <line x1="8" y1="13" x2="14" y2="13"></line>
+                            </svg></p>
+                        </a>
+                      </div>
+                      <div class="col">
+                        <a href="/user/data_analysis/?user=issuer_explore">
+                          <p class="shadow m-0" data-toggle="tooltip" data-bs-tooltip="" data-placement="bottom" style="width: 50px;height: 50px;background: rgba(11,69,128,0.93);border-radius: 25px;text-align: center;margin-right: 10px;"
+                            title="Check Dashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                              class="icon icon-tabler icon-tabler-presentation" style="font-size: 28px;margin-top: 10px;color: rgb(255,255,255);">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <line x1="3" y1="4" x2="21" y2="4"></line>
+                              <path d="M4 4v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-10"></path>
+                              <line x1="12" y1="16" x2="12" y2="20"></line>
+                              <line x1="9" y1="20" x2="15" y2="20"></line>
+                              <path d="M8 12l3 -3l2 2l3 -3"></path>
+                            </svg>
+                          </p>
+                        </a>
+                      </div>
+                      <div class="col">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card shadow my-2">
+                  <div class="card-body">
+                    {% if user_type == "person" %}
+                    <div class="row m-2">
+
+                      {% if referent_list %}
+
+                      <div class="col-9 p-0 w-100">
+                        <button class="btn btn-primary py-0" title="{{issuer_name}} can issue certificate to you at anytime" type="button"
+                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          This user is in your <strong>Referent List</strong></button>
+                      </div>
+                      <div class="col ml-2 p-0 text-right">
+                        <a class="text-secondary" href="/user/remove_issuer/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
+                          <button class="btn btn-primary " type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your Referent List">
+                            <i class="fas fa-times" style="font-size: 20px;"></i>
+                        </a></button>
+                      </div>
+
+                      {% else %}
+                      <div class="col w-100 p-0">
+                        <a href="/user/add_issuer/?issuer_username={{issuer_username}}">
+                          <button class="btn btn-primary w-100" title="Allow {{issuer_name}} to issue certificate to you at anytime" type="button"
+                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">Add this user to
+                            you <strong>Referent List</strong></button></a>
+                      </div>
+                      {% endif %}
+
+                    </div>
+                    {% else %}
+                    <div class="row m-2">
+                      {% if is_manager %}
+                      <div class="col-9 p-0 w-100">
+                        <button class="btn btn-primary py-0" title="{{issuer_name}} can issue certificate in the name of {{name}} at anytime" type="button"
+                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          This user is a <strong>Manager</strong></button>
+                      </div>
+                      <div class="col ml-2 p-0 text-right">
+                        <a class="text-secondary" href="/user/remove_manager/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
+                          <button class="btn btn-primary " type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your Referent List">
+                            <i class="fas fa-times" style="font-size: 20px;"></i>
+                        </a></button>
+                      </div>
+                      {% else %}
+                      <div class="col w-100 p-0">
+                        <a href="/user/add_manager/?issuer_username={{issuer_username}}">
+                          <button class="btn btn-primary w-100" title="Allow {{issuer_name}} to issue certificate in the name of {{name}} at anytime" type="button"
+                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">
+                            Maker this user a <strong>Manager</strong></button></a>
+                      </div>
+                      {% endif %}
+                    </div>
+
+                    {% endif %}
+                    <div class="row m-2">
+
+                      {% if white_list %}
+
+                      <div class="col-9 p-0 w-100">
+                        <button class="btn btn-primary py-0" title="Your Whitelist is made up of issuers you rely on" type="button"
+                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          This user is in your <strong> White List</strong></button>
+                      </div>
+                      <div class="col ml-2 p-0 text-right">
+                        <a class="text-secondary" href="/user/remove_white_issuer/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
+                          <button class="btn btn-primary" type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your White List">
+                            <i class="fas fa-times" style="font-size: 20px;"></i>
+                        </a></button>
+                      </div>
+
+                      {% else %}
+                      <div class="col w-100 p-0">
+                        <a href="/user/add_white_issuer/?issuer_username={{issuer_username}}">
+                          <button class="btn btn-primary w-100" title="Your Whitelist is made up of issuers you rely on" type="button"
+                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">Add this user to
+                            you <strong>White List</strong></button>
+                        </a>
+                      </div>
+                      {% endif %}
+
+                    </div>
+                    <div class="row m-2">
+
+                      {% if partner_list %}
+
+                      <div class="col-9 p-0 w-100">
+                        <button class="btn btn-primary py-0" title="{{issuer_name}} has access to your private information and stored files" type="button"
+                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          This user is in your <strong>Partner List</strong></button>
+                      </div>
+                      <div class="col ml-2 p-0 text-right">
+                        <a class="text-secondary" href="/user/remove_partner/?partner_username={{issuer_username}}&partner_workspace_contract={{issuer_address}}">
+                          <button class="btn btn-primary" type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your Partner List">
+                            <i class="fas fa-times" style="font-size: 20px;"></i>
+                        </a></button>
+                      </div>
+
+                      {% else %}
+                      <div class="col w-100 p-0">
+                        <a href="/user/request_partnership/?issuer_username={{issuer_username}}">
+                          <button class="btn btn-primary w-100" title="Authorize {{issuer_name}} to have access to your private information and stored files" type="button"
+                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">Add this user to
+                            you <strong>Partner List</strong></button>
+                        </a>
+                      </div>
+                      {% endif %}
+
+                    </div>
+                  </div>
+                </div>
+              </span>
+              {% endif %}
+            </div>
+            <!-- Col carousels -->
+            <div class="col-md p-0">
+              <!-- Experience carousel large screen  -->
+              {% if carousel_rows_experience != "" %}
+              <div class="row mb-3">
+                <div class="card shadow mx-lg-5 mx-1 w-100 ">
+                  <div class="card-header">
+                    <h4>Experience</h4>
+                  </div>
+                  <div class="card-body ">
+                    <!--Carousel Wrapper-->
+                    <div id="experience-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                      <!--Controls-->
+                      <div class="controls-top text-center">
+                        <a class="btn-floating" href="#experience-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                        <a class="btn-floating" href="#experience-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                      </div>
+
+                      <!--/.Controls-->
+
+                      <!--Indicators-->
+                      <ol class="carousel-indicators " style="margin-bottom: 0;">
+                        {{carousel_indicators_experience|safe}}
+                      </ol>
+
+                      <!--/.Indicators-->
+
+                      <!--Slides-->
+
+                      <div class="carousel-inner" role="listbox">
+                        {{carousel_rows_experience|safe}}
+                      </div>
+
+                      <!--/.Slides-->
+
+                    </div>
+                    <!--/.Carousel Wrapper-->
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              <!-- /.Experience carousel  -->
+              <!-- Recommendation carousel large screen -->
+              {% if carousel_rows_recommendation != "" %}
+              <div class="row mb-3">
+                <div class="card shadow mx-lg-5 mx-1 w-100">
+                  <div class="card-header">
+                    <h4>Recommendation</h4>
+                  </div>
+                  <div class="card-body ">
+                    <!--Carousel Wrapper-->
+                    <div id="recommendation-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                      <!--Controls-->
+                      <div class="controls-top text-center">
+                        <a class="btn-floating" href="#recommendation-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                        <a class="btn-floating" href="#recommendation-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                      </div>
+
+                      <!--/.Controls-->
+
+                      <!--Indicators-->
+                      <ol class="carousel-indicators " style="margin-bottom: 0;">
+                        {{carousel_indicators_recommendation|safe}}
+                      </ol>
+
+                      <!--/.Indicators-->
+
+                      <!--Slides-->
+
+                      <div class="carousel-inner" role="listbox">
+                        {{carousel_rows_recommendation|safe}}
+                      </div>
+
+                      <!--/.Slides-->
+
+                    </div>
+                    <!--/.Carousel Wrapper-->
+                  </div>
+                </div>
+              </div>
+
+              {% endif %}
+              <!-- /.Recommendation carousel  -->
+              <!-- Education carousel large screen -->
+              {% if carousel_rows_education != "" %}
+              <div class="row mb-3">
+                <div class="card shadow mx-lg-5 mx-1 w-100">
+                  <div class="card-header">
+                    <h4>Education</h4>
+                  </div>
+                  <div class="card-body ">
+                    <!--Carousel Wrapper-->
+                    <div id="education-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                      <!--Controls-->
+                      <div class="controls-top text-center">
+                        <a class="btn-floating" href="#education-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                        <a class="btn-floating" href="#education-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                      </div>
+                      <!--/.Controls-->
+
+                      <!--Indicators-->
+                      <ol class="carousel-indicators " style="margin-bottom: 0;">
+                        {{carousel_indicators_education|safe}}
+                      </ol>
+
+                      <!--/.Indicators-->
+
+                      <!--Slides-->
+
+                      <div class="carousel-inner" role="listbox">
+                        {{carousel_rows_education|safe}}
+                      </div>
+
+                      <!--/.Slides-->
+
+                    </div>
+                    <!--/.Carousel Wrapper-->
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              <!-- /.Education carousel  -->
+              <!-- Skills carousel large screen -->
+              {% if carousel_rows_skill != "" %}
+              <div class="row mb-3">
+                <div class="card shadow mx-lg-5 mx-1 w-100">
+                  <div class="card-header">
+                    <h4>Skills</h4>
+                  </div>
+                  <div class="card-body ">
+                    <!--Carousel Wrapper-->
+                    <div id="skill-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+                      <!--Controls-->
+                      <div class="controls-top text-center">
+                        <a class="btn-floating" href="#skill-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
+                        <a class="btn-floating" href="#skill-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
+                      </div>
+                      <!--/.Controls-->
+
+                      <!--Indicators-->
+                      <ol class="carousel-indicators " style="margin-bottom: 0;">
+                        {{carousel_indicators_skill|safe}}
+                      </ol>
+
+                      <!--/.Indicators-->
+
+                      <!--Slides-->
+
+                      <div class="carousel-inner" role="listbox">
+                        {{carousel_rows_skill|safe}}
+                      </div>
+
+                      <!--/.Slides-->
+
+                    </div>
+                    <!--/.Carousel Wrapper-->
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              <!-- ./Skills carousels -->
+              <!-- Row for stored files  -->
+              <div class="row mb-3">
+                <div class="col px-5">
+                  <div class="card shadow">
+                    <div class="card-header">
+                      <h4 class="text-dark"> Stored file </h4>
+                    </div>
+                    <div class="card-body ">
+                      <p class="card-text text-dark">{{digitalvault|safe}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.Row for skills and stored files  -->
+            </div>
+            <!-- /.Col carousels -->
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
-                        {% include 'user_footer.html' %}
-    </div>
-    <script type="text/javascript">window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000); </script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script>function goBack() {  window.history.back();}</script>
+  </div>
+  {% include 'user_footer.html' %}
+  </div>
+  <script type="text/javascript">
+    window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000);
+  </script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
 </body>
 
 </html>
