@@ -14,7 +14,7 @@ from base64 import b64encode, b64decode
 import constante
 from Talao_ipfs import ipfs_add, ipfs_get
 import privatekey
-from .document import read_profil
+from .Talao_token_transaction import read_profil
 
 def contracts_to_owners(workspace_contract, mode) :
 	w3 = mode.w3

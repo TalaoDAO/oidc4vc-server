@@ -11,7 +11,6 @@
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
- <!-- <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}"   -->
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -55,7 +54,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="p-5">
-                                    <div class="text-center"><h4 class="text-dark mb-4">Sign In with your Decentralized ID</h4></div>
+                                    <div class="text-center"><h4 class="text-dark mb-4">Sign-In with your Identity</h4></div>
 
                                     <form class="user" action="/api/v1/oauth_login" method="POST">
                                         <div class="form-group"><input class="form-control" type="text" placeholder="Enter your username" value="{{name}}" name="username" style="color: rgb(133,135,150);" required></div>
@@ -63,7 +62,7 @@
 
                                         <button class="btn btn-primary btn-block text-white btn-user" id="" type="submit">Sign In</button>
                                     </form>
-                                   <div class="text-center"><a class="small" href="/forgot_password/">Forgot Password</a></div>  
+                                   <div class="text-center"><a class="small" href="/forgot_password/">Forgot Password</a></div>
                                     <div class="text-center"><a class="small" href="/forgot_username/">Forgot Username</a></div>
                                 </div>
                             </div>
@@ -72,10 +71,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
-   
 </body>
-
 </html>

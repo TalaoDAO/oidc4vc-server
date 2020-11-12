@@ -21,7 +21,8 @@ import shutil
 import constante
 from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, get_image,  read_workspace_info
 from .claim import Claim
-from .document import Document, read_profil
+from .Talao_token_transaction import read_profil
+from .document import Document
 from .file import File
 import ns
 import privatekey

@@ -58,24 +58,26 @@ As defined by OIDC, 3 steps are required :
 
 Step 1 : to get a grant code from user, redirect your user to https://talao.co/api/v1/authorize with a subset of your scope list .
 User will be asked to sign in with his Identity username/password and to consent for your list of scopes.
+scope "openid" is required to get a JWT.
 
 Example :
 
 .. code::
 
-   https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes
+   https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=openid+profile&state=state&nonce=nonce
+
 
 
 Step 2, with the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an Access Token and an ID Token. You will need your client_secret.
 
 .. code::
 
-   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=authorization_code 
+   curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=authorization_code
 
-If you nly need user authentication, see further how to decode the JWT to get user data and serveur signature.
+If you only need user authentication, see further how to decode the JWT and get user data with server signature.
 
 
-Step 3 : with the Access Token you can get user data through the user_info endpoint https://talao.co/api/v1/user_info.
+Step 3 : with the Access Token you can also get user data through the user_info endpoint https://talao.co/api/v1/user_info.
 
 .. code::
 
@@ -137,15 +139,15 @@ You request an access to these functionalities using the scope parameter, which 
 Below list of scopes  :
 
 * user_issues_certificate : This scope allows your company to issue certificate signed by users
-* user_manages_partner : This scope allows your company to request, accept or reject partnership with all Identities
-* user_manages_referent : this scop allow your company to add or remove referent
-* to be completed : user_deletes_certificate, user_removes_partner, etc
+* user_manages_partner : This scope allows your company to request, accept or reject partnership with all Identities on behalf of a user
+* user_manages_referent : this scop allow your company to add or remove referent on behalf of a user
 
-Step 1, ask for a grant code with your scope list.
+Step 1, ask for a grant code with your scope list, nonce, state.
+
 
 .. code::
 
-   https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes
+   https://talao.co/api/v1/authorize?response_type=code&client_id=your_client_id&scope=your_scopes&state=state&nonce=nonce
 
 
 Step 2, with the grant code, connect to the token endpoint https://talao.co/api/v1/auth/token to get an Access Token. You will need your client_secret.
@@ -166,7 +168,7 @@ Endpoint : https://talao.co/api/v1/user_issues_certificate
 ***********************************************************
 Issue a reference or agreement certificate to a company on behalf of user
 User must be a in the company's referent list.
-Scope required : user_issue_certificate
+Scope required : user_issues_certificate
 
 
 Issue an agreement certificate :
@@ -234,8 +236,6 @@ scope required : user_manages_partner
 
   $ curl -X POST https://talao.co/api/v1/user_accepts_company_partnership  \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
-   -H "Content-Type: application/json" \
-   -d '{"did" : "did:talao:talaonet:fA38BeA7A9b1946B645C16A99FB0eD07D168662b"}'
 
 JSON return :
 
@@ -258,8 +258,31 @@ scope required : user_manages_referent
 
   $ curl -X POST https://talao.co/api/v1/user_accepts_company_referent  \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+
+JSON return :
+
+.. code-block:: JSON
+
+  {
+   "referent": True
+  }
+
+
+
+Endpoint : https://talao.co/api/v1/user_adds_referent
+******************************************************
+
+To add an Identity to the user referent list
+scope required : user_manages_referent
+
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/user_adds_referent  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
    -H "Content-Type: application/json" \
-   -d '{"did" : "did:talao:talaonet:fA38BeA7A9b1946B645C16A99FB0eD07D168662b"}'
+   -d '{"did_referent" : "did:talao:talaonet:fA38BeA7A9b1946B645C16A99FB0eD07D168662b"}'
+
 
 JSON return :
 

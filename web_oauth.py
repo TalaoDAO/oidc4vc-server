@@ -1,24 +1,3 @@
-"""
-Scope list
-
-OIDC
-'sub', 'name', 'given_name', 'family_name', 'middle_name', 'nickname',
-        'preferred_username', 'profile', 'picture', 'website', 'email',
-        'email_verified', 'gender', 'birthdate', 'zoneinfo', 'locale',
-        'phone_number', 'phone_number_verified', 'address', 'updated_at'
-
-
-CLIENT CREDENTIAL 
-create_person_identity
-create_company_identity
-
-issue_experience
-issue_skill
-
-
-
-"""
-
 
 import os
 import time
@@ -42,7 +21,7 @@ import createcompany
 import privatekey
 
 def check_login() :
-	""" check if the user is correctly logged. This function is called everytime a user function is called """
+	#check if the user is correctly logged. This function is called everytime a user function is called 
 	if session.get('username') is None :
 		abort(403)
 	else :
@@ -67,9 +46,8 @@ def get_user_workspace(user_id, mode):
     user_username = user.username
     return  ns.get_data_from_username(user_username, mode).get('workspace_contract')
 
-#@bp.route('/api/v1', methods=('GET', 'POST'))
+#@route('/api/v1', methods=('GET', 'POST'))
 def home():
-    check_login()
     if request.method == 'POST':
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
@@ -90,15 +68,14 @@ def home():
         clients = []
     return render_template('/oauth/home.html', user=user, clients=clients)
 
-#@bp.route('/api/v1/oauth_logout')
+#@route('/api/v1/oauth_logout')
 def oauth_logout():
-    check_login()
     post_logout = request.args.get('post_logout_redirect_uri')
     session.clear()
     return redirect(post_logout)
 
 
-#@bp.route('/api/v1/oauth_login')
+#@route('/api/v1/oauth_login')
 def oauth_login(mode):
     if request.method == 'GET' :
         session['url'] = request.args.get('next')
@@ -121,13 +98,12 @@ def oauth_login(mode):
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        print('User logged in Talao.co')
-        session['username']=username
+        #session['username']=username
     return redirect(url)
 
 
-#@bp.route('/api/v1/create_client', methods=('GET', 'POST'))
-""" gestion des grant client 
+#@route('/api/v1/create_client', methods=('GET', 'POST'))
+""" gestion minimaliste des grants client qui sont dans la base db.sqlite
 """
 def create_client():
     check_login()
@@ -162,12 +138,11 @@ def create_client():
     db.session.commit()
     return redirect('/api/v1')
 
-#@bp.route('/oauth/revoke', methods=['POST'])
+#@route('/oauth/revoke', methods=['POST'])
 def revoke_token():
-    check_login()
     return authorization.create_endpoint_response('revocation')
 
-#@bp.route('/api/v1/oauth/token', methods=['POST'])
+#@route('/api/v1/oauth/token', methods=['POST'])
 def issue_token():
     response = authorization.create_token_response()
     return response
@@ -213,6 +188,7 @@ def authorize(mode):
 
 #########################################  AUTHORIZATION CODE ENDPOINT   ################################
 
+# endpoint standard OIDC
 #route('/api/v1/user_info')
 @require_oauth('openid profile email phone birthdate address proof_of_identity about resume', 'OR')
 def user_info(mode):
@@ -267,6 +243,32 @@ def user_accepts_company_referent(mode):
     return response
 
 
+#route('/api/v1/user_adds_referent')
+@require_oauth('user_manages_referent')
+def user_adds_referent(mode):
+    user_id = current_token.user_id
+    user_workspace_contract = get_user_workspace(user_id,mode)
+    user_address = contractsToOwners(user_workspace_contract, mode)
+    data = json.loads(request.data.decode("utf-8"))
+    try :
+        referent_workspace_contract = '0x' + data['did_referent'].split(':')[3]
+        referent_address = contractsToOwners(referent_workspace_contract, mode)
+    except :
+        response_dict = {'detail' : 'did_referent or request malformed '}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    # add key 20002
+    if not has_key_purpose(user_workspace_contract, referent_address, 20002, mode) :
+        relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
+        if not add_key(mode.relay_address, mode.relay_workspace_contract, user_address, user_workspace_contract, relay_private_key, referent_address, 20002 , mode, synchronous=False) :
+            referent = False
+        else :
+            referent = True
+    else :
+        referent = True
+    response = Response(json.dumps({'referent' : referent}), status=200, mimetype='application/json')
+    return response
+
 
 #route('/api/v1/user_accepts_company_partnership')
 @require_oauth('user_manages_partner')
@@ -297,16 +299,13 @@ def user_accepts_company_partnership(mode):
     return response
 
 
-# issue a certificates on behalf of user
+# issue a certificates on behalf of user(user=issued_by)
 #@route('/api/v1/user_issues_certificate')
 @require_oauth('user_issues_certificate')
-def oauth_user_issues_certificate(mode):
+def user_issues_certificate(mode):
     user_id = current_token.user_id
     issued_by_workspace_contract = get_user_workspace(user_id,mode)
     issued_by_address = contractsToOwners(issued_by_workspace_contract, mode)
-    #client_id=current_token.client_id
-    #client_workspace_contract = get_client_workspace(client_id, mode)
-    #client_address = contractsToOwners(client_workspace_contract, mode)
     data = json.loads(request.data.decode("utf-8"))
     try :
         issued_to_workspace_contract = '0x' + data['did_issued_to'].split(':')[3]
@@ -322,10 +321,16 @@ def oauth_user_issues_certificate(mode):
         response_dict = {'detail' : 'did does not exist'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    issued_to_profil, c = read_profil(issued_to_workspace_contract, mode, 'full')
-    issued_by_profil, c = read_profil(issued_by_workspace_contract, mode, 'full')
+    issued_to_profil, issued_to_category = read_profil(issued_to_workspace_contract, mode, 'full')
+    issued_by_profil, issued_by_category = read_profil(issued_by_workspace_contract, mode, 'full')
     certificate['type'] = certificate_type
     certificate['version'] = 1
+    # issued_by is always a company
+    if issued_by_category == 1001 :
+        print(' certificate issued by a person ????')
+        response_dict = {'detail' : 'One person cannot issue a certificate, contact relay-suport@talao.co'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
     certificate["issued_by"]  = {
 		"name" : issued_by_profil['name'],
 		"postal_address" : issued_by_profil['postal_address'],
@@ -334,13 +339,22 @@ def oauth_user_issues_certificate(mode):
 		"signature" : get_image(issued_by_workspace_contract, 'signature', mode),
         "manager" : "Director",
 		}
-    certificate["issued_to"]  = {
-		"name" : issued_to_profil['name'],
-		"postal_address" : issued_to_profil['postal_address'],
-		"siret" : issued_to_profil['siret'],
-		"logo" : get_image(issued_to_workspace_contract, 'logo', mode),
-		"signature" : get_image(issued_to_workspace_contract, 'signature', mode),
-		}
+    if issued_to_category == 2001 : # company
+        certificate["issued_to"]  = {
+		    "name" : issued_to_profil['name'],
+		    "postal_address" : issued_to_profil['postal_address'],
+		    "siret" : issued_to_profil['siret'],
+		    "logo" : get_image(issued_to_workspace_contract, 'logo', mode),
+		    "signature" : get_image(issued_to_workspace_contract, 'signature', mode),
+		    }
+    else :# person
+         certificate["issued_to"]  = {
+		    "firstname" : issued_to_profil['firstname'],
+            "lastname" : issued_to_profil['lastname'],
+		    "postal_address" : issued_to_profil['postal_address'],
+		    "picture" : get_image(issued_to_workspace_contract, 'picture', mode),
+		    "signature" : get_image(issued_to_workspace_contract, 'signature', mode),
+		    }
     my_certificate = Document('certificate')
     document_id, ipfs_hash, transaction_hash = my_certificate.add(issued_by_address,
                         issued_by_workspace_contract,
@@ -421,28 +435,6 @@ def oauth_create_company_identity(mode):
     response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username, **data}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
-
-"""
-# request partnership
-#@route('/api/v1/request_partnership')
-@require_oauth(None)
-def oauth_request_partnership(mode):
-    client_id=current_token.client_id
-    client_workspace_contract = get_client_workspace(client_id, mode)
-    client_address = contractsToOwners(client_workspace_contract, mode)
-    relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
-    client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
-    data = json.loads(request.data.decode("utf-8"))
-    user_workspace_contract = ns.get_data_from_username(data['username'], mode).get('workspace_contract')
-    if not partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode) :
-        response_dict = {'detail' : 'Failed to request parnership, contact Talao support '}
-        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
-        return response
-    else :
-        response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:], **data}
-    response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
-    return response
-"""
 
 
 # get status

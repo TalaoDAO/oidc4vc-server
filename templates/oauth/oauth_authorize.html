@@ -33,8 +33,7 @@
                                 </div>
                                 <div class="card-body text-center shadow">
                                     <form action="" method="POST">
-                                        <p>Allow <b>{{grant.client.client_name}}</b> to access your Decentralized Identity.
-                                            <br><br>
+                                        <p>Allow <b>{{grant.client.client_name}}</b> to access your Identity.
                                             You can restrict data access and permitted actions or reject all requests.</p>
                                         <div class="form-group">
                                             {% if profile == 'checked' %}
@@ -81,7 +80,7 @@
                                         <div class="form-group">
                                             {% if user_manages_referent == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{user_manages_referent}} name="user_manages_referent" ><label class="form-check-label" >I authorize company to add referents.</label></div>
+                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{user_manages_referent}} name="user_manages_referent" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to add referents.</p></label></div>
                                             </div>
                                             {% endif %}
                                         </div>
@@ -93,7 +92,13 @@
                                             {% endif %}
                                         </div>
 
-
+                                        <div class="form-group">
+                                            {% if user_issues_certificate == 'checked' %}
+                                            <div class="form-inline custom-control-inline">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_issues_certificate}} name="user_issues_certificate" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to issue certificates with my signature.</p></label></div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
 
 
 

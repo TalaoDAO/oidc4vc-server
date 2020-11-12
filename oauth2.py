@@ -117,6 +117,7 @@ class AuthorizationCodeGrant(_AuthorizationCodeGrant):
         return User.query.get(authorization_code.user_id)
 
 
+
 class OpenIDCode(_OpenIDCode):
     def exists_nonce(self, nonce, request):
         return exists_nonce(nonce, request)
@@ -139,6 +140,7 @@ class ImplicitGrant(_OpenIDImplicitGrant):
         return generate_user_info(user, scope)
 """
 
+
 #ajout
 class RefreshTokenGrant(grants.RefreshTokenGrant):
     def authenticate_refresh_token(self, refresh_token):
@@ -153,6 +155,7 @@ class RefreshTokenGrant(grants.RefreshTokenGrant):
         credential.revoked = True
         db.session.add(credential)
         db.session.commit()
+
 """
 class HybridGrant(_OpenIDHybridGrant):
     def create_authorization_code(self, client, grant_user, request):
@@ -188,8 +191,8 @@ def config_oauth(app):
     ])
     #authorization.register_grant(ImplicitGrant)
     #authorization.register_grant(HybridGrant)
-    authorization.register_grant(grants.ClientCredentialsGrant) # ajouté
-    authorization.register_grant(RefreshTokenGrant) # ajouté
+    authorization.register_grant(grants.ClientCredentialsGrant)
+    authorization.register_grant(RefreshTokenGrant)
     #authorization.register_grant(PasswordGrant)
 
     # protect resource

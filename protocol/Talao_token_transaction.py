@@ -18,6 +18,63 @@ import constante
 import ns
 import privatekey
 
+
+
+
+def read_profil (workspace_contract, mode, loading) :
+	# setup constante person
+	person_topicnames = {'firstname' : 102105114115116110097109101,
+						'lastname' : 108097115116110097109101,
+						'contact_email' : 99111110116097099116095101109097105108,
+						'contact_phone' : 99111110116097099116095112104111110101,
+						'postal_address' : 112111115116097108095097100100114101115115,
+						'birthdate' : 98105114116104100097116101,
+						'about' : 97098111117116,
+						'education' : 101100117099097116105111110,
+						'profil_title' : 112114111102105108095116105116108101}
+
+	# setup constant company
+	company_topicnames = {'name' : 110097109101,
+						'contact_name' : 99111110116097099116095110097109101,
+						'contact_email' : 99111110116097099116095101109097105108,
+						'contact_phone' : 99111110116097099116095112104111110101,
+						'website' : 119101098115105116101,
+						'about' : 97098111117116,
+						'staff' : 115116097102102,
+						'sales' : 115097108101115,
+						'mother_company' : 109111116104101114095099111109112097110121,
+						'siret' : 115105114101116,
+						'postal_address' : 112111115116097108095097100100114101115115, }
+
+	if loading != 'full' :
+		person_topicnames = {'firstname' : 102105114115116110097109101,
+							'lastname' : 108097115116110097109101,
+							}
+
+		# setup constant company
+		company_topicnames = {'name' : 110097109101,
+							}
+
+	profil = dict()
+	# category
+	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	category = contract.functions.identityInformation().call()[1]
+
+	topic_dict = person_topicnames if category == 1001 else company_topicnames
+
+	for topicname, topic in topic_dict.items() :
+		claim = contract.functions.getClaimIdsByTopic(topic).call()
+		if len(claim) == 0 :
+			profil[topicname] = None
+		else :
+			claimId = claim[-1].hex()
+			data = contract.functions.getClaim(claimId).call()
+			profil[topicname]=data[4].decode('utf-8')
+
+	return profil,category
+
+
+
 def ownersToContracts(address, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)

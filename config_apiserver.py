@@ -1,7 +1,15 @@
 import web_oauth
 from models import db
 from oauth2 import config_oauth
+import random
 
+"""
+def gen_token(client, grant_type, user, scope):
+    # generate token according to these parameters
+    token = str(random.randint(0, 99999))
+    print('gen token = ', f'{client.id}-{user.id}-{token}')
+    return f'{client.id}-{user.id}-{token}'
+"""
 
 def config_api_server(app, mode) :
 
@@ -33,9 +41,8 @@ def config_api_server(app, mode) :
     app.add_url_rule('/api/v1/user_info', view_func=web_oauth.user_info, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/user_accepts_company_partnership', view_func=web_oauth.user_accepts_company_partnership, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/user_accepts_company_referent', view_func=web_oauth.user_accepts_company_referent, methods = ['GET', 'POST'], defaults={'mode' : mode})   
-    app.add_url_rule('/api/v1/user_issues_certificate', view_func=web_oauth.oauth_user_issues_certificate, methods = ['GET', 'POST'], defaults={'mode' : mode})
-
-
+    app.add_url_rule('/api/v1/user_issues_certificate', view_func=web_oauth.user_issues_certificate, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/user_adds_referent', view_func=web_oauth.user_adds_referent, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
     # client credentials code flow
     app.add_url_rule('/api/v1/create_person_identity', view_func=web_oauth.oauth_create_person_identity, methods = ['GET', 'POST'], defaults={'mode' : mode})

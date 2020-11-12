@@ -21,7 +21,7 @@ from base64 import b64encode, b64decode
 from Talao_ipfs import ipfs_add, ipfs_get
 import constante
 import privatekey
-
+from .Talao_token_transaction import read_profil
 
 def contracts_to_owners(workspace_contract, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -31,7 +31,7 @@ def owners_to_contracts(address, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
 
-
+"""
 
 def read_profil (workspace_contract, mode, loading) :
 	# setup constante person
@@ -85,7 +85,7 @@ def read_profil (workspace_contract, mode, loading) :
 
 	return profil,category
 
-
+"""
 
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
 	# @data = dict

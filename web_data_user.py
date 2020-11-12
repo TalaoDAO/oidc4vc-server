@@ -714,12 +714,12 @@ def user(mode) :
 
 		# certificates
 		my_certificates = ""
-		if len (session['certificate']) == 0:
+		if len(session['certificate']) == 0:
 			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
 		else :
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
-				issuer_username = 'Unknown' if issuer_username is None else issuer_username
+				issuer_username = 'Unknown' if not issuer_username else issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					issuer_name = certificate['issuer']['name']
 					issuer_type = 'Company'
@@ -728,75 +728,25 @@ def user(mode) :
 					issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
+				cert_html = """<hr>
+							<b>Referent Name</b> : """ + issuer_name +"""<br>
+							<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+							<b>Title</b> : """ + certificate['title']+"""<br>
+							<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
-				if certificate['type'] == 'experience':
-					cert_html = """<hr>
-								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-								<b>Title</b> : """ + certificate['title']+"""<br>
-								<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-
-								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-
-								<p>
-								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
-								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
-								</a>
-								</p>
-								<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-
-				if certificate['type'] == 'recommendation':
-					cert_html = """<hr>
-								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
-
-								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-								<p>
-								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """"">
-								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
-								</a>
-								</p>
-								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-
-				if certificate['type'] == 'skill':
-					cert_html = """<hr>
-								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
-
-								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-								<p>
-								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """">
-								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
-								</a>
-								</p>
-								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-
+							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+							<p>
+							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
+							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+							</a>
+							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+							</a>
+							<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+							<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+							</a>
+							</p>
+							<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				my_certificates = my_certificates + cert_html
 
 		return render_template('person_identity.html',
@@ -908,8 +858,7 @@ def user(mode) :
 					issuer_type = 'Person'
 				else :
 					print ('issuer category error, data_user.py')
-
-				if certificate['type'] in ['agreement', 'agrement'] :
+				if certificate['type'] == 'agreement' :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
