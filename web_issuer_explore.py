@@ -1,6 +1,8 @@
 """ Issuer explore is used to display Ientity when search """
 
 import os
+from os import path
+import time
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
@@ -59,358 +61,604 @@ def issuer_explore(mode) :
 
 	issuer_picture = session['issuer_explore']['picture']
 	if session['issuer_explore']['type'] == 'person' :
-
-		# personal
-		Topic = {'firstname' : 'Firstname',
-				'lastname' : 'Lastname',
-				'about' : 'About',
-				'profil_title' : 'Title',
-				'birthdate' : 'Birth Date',
-				'contact_email' : 'Contact Email',
-				'contact_phone' : 'Contact Phone',
-				'postal_address' : 'Postal Address',
-				'education' : 'Education'}
-		issuer_personal = """<span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)+"""<br>"""
-		is_encrypted = False
-		for topic_name in session['issuer_explore']['personal'].keys() :
-			if session['issuer_explore']['personal'][topic_name]['claim_value'] is not None :
-
-				if session['issuer_explore']['personal'][topic_name]['claim_value'] != 'private' and session['issuer_explore']['personal'][topic_name]['claim_value'] != 'secret'  :
-					topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
-					issuer_personal = issuer_personal + """
-						<span><b>"""+ Topic[topic_name] +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""
-
-						<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """:personal>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
-					</span><br>"""
-				elif session['issuer_explore']['personal'][topic_name]['claim_value'] == 'private' :
+		# file
+		if session['issuer_explore']['identity_file'] == []:
+			my_file = """<a class="text-info">No Files available</a>"""
+		else:
+			my_file = ""
+			is_encrypted = False
+			for one_file in session['issuer_explore']['identity_file']:
+				if one_file.get('content') == 'Encrypted':
 					is_encrypted = True
-					topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
-					issuer_personal = issuer_personal + """
-						<span><b>"""+ Topic[topic_name] +"""</b> : Not available - Encrypted
-					</span><br>"""
+					file_html = """
+					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + 'Not available - Encrypted ' + """ ) <br>
+					<b>Created</b> : """ + one_file['created'] + """<br>"""
+				else:
+					file_html = """
+					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + one_file['privacy'] + """ ) <br>
+					<b>Created</b> : """ + one_file['created'] + """<br>
+					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
+						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
+					</a>"""
+				my_file = my_file + file_html + """<br>"""
 
-				else  :
-					pass
-					print('test')
-		if is_encrypted :
-			issuer_personal = issuer_personal + """<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to acces his private data.</a><br>"""
+		experiences = []
+		for experience in session['issuer_explore']['certificate']:
+			if experience['type']=='experience':
+				experiences.append(experience)
+		for experience in session['issuer_explore']['experience']:
+			experiences.append(experience)
 
-		# kyc
-		my_kyc = """ <b>ECDSA Key</b> : """+ session['issuer_explore']['address'] +"""<br><hr>"""
-		if len(session['issuer_explore']['kyc']) == 0 :
-			my_kyc = my_kyc + """ <a class="text-danger">No other proof of identity available.</a>"""
+		for i, experience in enumerate(experiences):
+			min = i
+			DTmin = time.strptime(experience['end_date'], "%Y-%m-%d")
+			for j, certi in enumerate(experiences[i::]):
+				DTcerti = time.strptime(certi['end_date'], "%Y-%m-%d")
+				if DTcerti < DTmin:
+					min = j + i
+					DTmin = DTcerti
+			experiences[i] , experiences[min] = experiences[min], experiences[i]
+		experiences = experiences[::-1]
+
+		carousel_indicators_experience = """<li data-target="#experience-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+		carousel_rows_experience = ""
+		if experiences == []:
+			pass
 		else :
-			for kyc in session['issuer_explore']['kyc'] :
-				kyc_html = """
-				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
-				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
-				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-				<b>Gender</b> : """+ kyc['sex'].capitalize() +"""<br>
-				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
-				<b>Card Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>
-				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ kyc['id'] + """:kyc>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>"""
-				my_kyc = my_kyc + kyc_html
+			nbr_rows = (len(experiences)-1)//3
+			for i in range(nbr_rows):
+				carousel_indicators_experience += '<li data-target="#experience-carousel" data-slide-to="{}"></li>'.format(i+1)
+			for i, experience in enumerate(experiences):
+				try:
+					logo = experience['logo']
+				except:
+					try :
+						logo = experience['picture']
+					except:
+						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-		# experience
-		issuer_experience = ''
-		if session['issuer_explore']['experience'] == [] :
-			issuer_experience = """  <a class="text-info">No Experience available</a>"""
-		else :
-			for experience in session['issuer_explore']['experience'] :
-				exp_html = """
-					<b>Company</b> : """+experience['company']['name']+"""<br>
-					<b>Title</b> : """+experience['title']+"""<br>
-					<b>Description</b> : """+experience['description'][:100]+"""...<br>
-					<p>
-						<a class="text-secondary" href=/data/?dataId="""+experience['id'] + """:experience>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
-					</p>"""
-				issuer_experience = issuer_experience + exp_html + """<hr>"""
+				if logo != None:
+					if not path.exists(mode.uploads_path + logo) :
+						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+						response = requests.get(url, stream=True)
+						with open(mode.uploads_path + logo, 'wb') as out_file:
+							shutil.copyfileobj(response.raw, out_file)
+							del response
 
-		# education
-		issuer_education = ''
-		if session['issuer_explore']['education'] == [] :
-			issuer_education = """  <a class="text-info">No Education available</a>"""
-		else :
-			for education in session['issuer_explore']['education'] :
-				edu_html = """
-					<b>Company</b> : """+education['organization']['name']+"""<br>
-					<b>Title</b> : """+education['title']+"""<br>
-					<b>Description</b> : """+education['description'][:100]+"""...<br>
-					<p>
-						<a class="text-secondary" href=/data/?dataId="""+ education['id'] + """:education>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
-					</p>"""
-				issuer_education = issuer_education + edu_html + """<hr>"""
+				if i%3==0:
+					carousel_rows_experience += '<div class="carousel-item px-2 {a}"><div class="row" style="flex-direction: row;">'.format(a = "active" if (i == 0) else '')
+				carousel_rows_experience += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+				#image
+				try:
+					carousel_rows_experience +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+				except:
+					carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+				#verified
+				if experience['topic']=='experience':
+					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
+				else:
+					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+				#header
+				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div><hr class='my-1'>"
+				#body
+				if experience['topic']!='experience':
+					carousel_rows_experience += """<p  style="font-size: 1em"><b>Referent name: </b>"""
 
-		# skills
+					if experience['issuer']['category']==2001:
+						carousel_rows_experience += experience['issuer']['name'] + """<br>"""
+					else:
+						carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br>"""
+
+				carousel_rows_experience += """<b>Start Date</b> : """ + experience['start_date'] + """<br> """
+				carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
+				if experience['topic']!='experience':
+					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:100:]
+					if len(experience['description'])>100:
+						carousel_rows_experience += "...<br>"
+					else:
+						carousel_rows_experience += "<br>"
+				else:
+					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:250:]
+					if len(experience['description'])>250:
+						carousel_rows_experience += "...<br>"
+					else:
+						carousel_rows_experience += "<br>"
+				carousel_rows_experience += "</p>"
+				#Footer
+				if experience['topic']=='experience':
+					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+					carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
+				else:
+					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+					carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
+
+				carousel_rows_experience += """</figure></div>"""
+				if (i+1)%3==0 and (len(experiences)%3!=0 or len(experiences)!=i+1):
+					carousel_rows_experience += '</div></div>'
+				if i == len(experiences)-1:
+					carousel_rows_experience += '</div></div>'
+
+		recommendations = []
+		for certificate in session['issuer_explore']['certificate']:
+			if certificate['type'] == "recommendation":
+				recommendations.append(certificate)
+
+		carousel_indicators_recommendation = """<li data-target="#recommendation-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+		carousel_rows_recommendation = ""
+		if recommendations == []:
+			pass
+		else:
+			nbr_rows = (len(recommendations)-1)//3
+			for i in range(nbr_rows):
+				carousel_indicators_recommendation += '<li data-target="#recommendation-carousel" data-slide-to="{}"></li>'.format(i+1)
+			for i, recommendation in enumerate(recommendations):
+				try:
+					logo = recommendation['logo']
+				except:
+					try :
+						logo = recommendation['picture']
+					except:
+						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+				if logo != None:
+					if not path.exists(mode.uploads_path + logo) :
+						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+						response = requests.get(url, stream=True)
+						with open(mode.uploads_path + logo, 'wb') as out_file:
+							shutil.copyfileobj(response.raw, out_file)
+							del response
+
+				if i%3==0:
+					carousel_rows_recommendation += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+				carousel_rows_recommendation += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+				#image
+				try:
+					carousel_rows_recommendation +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+				except:
+					carousel_rows_recommendation +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+				#verified
+				carousel_rows_recommendation +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+				#header
+				carousel_rows_recommendation += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + recommendation['title'] + "</h4></div></div>"
+				#body
+				carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + "<br>"
+				carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation['relationship'] + "<br>"
+				carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:100]
+				if len(recommendation['description'])>100:
+					carousel_rows_recommendation += "...<br>"
+				else:
+					carousel_rows_recommendation += "<br>"
+
+				carousel_rows_recommendation += "</p>"
+				#Footer
+				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #4ED07A; text-align:center;font-size: 1em; color:white;">Certified by """ + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + """</footer>"""
+				#Lien certificates
+				carousel_rows_recommendation += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(recommendation['doc_id']) + """></a>"""
+
+				carousel_rows_recommendation += """</figure></div>"""
+				if (i+1)%3==0 and (len(recommendations)%3!=0 or len(recommendations)!=i+1):
+					carousel_rows_recommendation += '</div></div>'
+				if i == len(recommendations)-1:
+					carousel_rows_recommendation += '</div></div>'
+
+		carousel_indicators_education = """<li data-target="#education-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+		carousel_rows_education = ""
+		if session['issuer_explore']['education'] == []:
+			pass
+		else:
+			educations = session['issuer_explore']['education']
+			nbr_rows = (len(educations)-1)//3
+			for i in range(nbr_rows):
+				carousel_indicators_education += '<li data-target="#education-carousel" data-slide-to="{}"></li>'.format(i+1)
+			for i, education in enumerate(session['issuer_explore']['education']):
+				try:
+					logo = education['logo']
+				except:
+					try :
+						logo = education['picture']
+					except:
+						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+				if logo != None:
+					if not path.exists(mode.uploads_path + logo) :
+						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+						response = requests.get(url, stream=True)
+						with open(mode.uploads_path + logo, 'wb') as out_file:
+							shutil.copyfileobj(response.raw, out_file)
+							del response
+
+				if i%3==0:
+					carousel_rows_education += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+				carousel_rows_education += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+				#image
+				try:
+					carousel_rows_education +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+				except:
+					carousel_rows_education +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+				#verified
+				carousel_rows_education +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
+				#header
+				carousel_rows_education += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + education['title'] + "</h4></div></div>"
+				#body
+				carousel_rows_education += """<hr class="my-1"><p style="font-size: 1em"><b>Name: </b>""" + education['organization']['name'] + '<br>'
+
+				carousel_rows_education += """<b>Start Date</b> : """ + education['start_date'] + """<br> """
+				carousel_rows_education += """<b>End Date</b> : """ + education['end_date'] + """<br>"""
+
+				carousel_rows_education += "</p>"
+				#Footer
+				carousel_rows_education += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+				#Lien certificates
+				carousel_rows_education += """<a href=  /certificate/?certificate_id="""+education['id'] + """:education></a>"""
+
+				carousel_rows_education += """</figure></div>"""
+				if (i+1)%3==0 and (len(educations)%3!=0 or len(educations)!=i+1):
+					carousel_rows_education += '</div></div>'
+				if i == len(educations)-1:
+					carousel_rows_education += '</div></div>'
+
+		skills = []
+		for certificate in session['issuer_explore']['certificate']:
+			if certificate['type'] == "skill":
+				skills.append(certificate)
+
+		carousel_indicators_skill = """<li data-target="#skill-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+		carousel_rows_skill = ""
+		if skills == []:
+			if session['issuer_explore']['skills']['description'] != None:
+				carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
+				carousel_rows_skill += """<div class="col-md-4 mb-2">
+						<figure class="snip1253 mw-100" style="height: 410px; ">
+						  <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
+						  <figcaption class="p-0">
+							<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
+							  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
+							  <div class='col px-0 my-auto'>
+								<h4 class='align-center' style='color: black;font-size: 1.4em'>Self claimed skills</h4>
+							  </div>
+							</div>
+							<hr class="my-1">
+							<p class="text-center" style="font-size: 1em;">"""
+				for i, skill in enumerate(session['issuer_explore']['skills']['description']) :
+					if i<4:
+						carousel_rows_skill += skill['skill_name'] + "<br>"
+					elif i==4:
+						carousel_rows_skill += ""
+				carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+				carousel_rows_skill += """<a href=  /data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
+				carousel_rows_skill += """</figure></div>"""
+				carousel_rows_skill += '</div></div>'
+		else:
+			nbr_rows = (len(skills)-1)//3
+			for i in range(nbr_rows):
+				carousel_indicators_skill += '<li data-target="#skill-carousel" data-slide-to="{}"></li>'.format(i+1)
+			for i, skill in enumerate(skills):
+				try:
+					logo = skill['logo']
+				except:
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+				if logo != None:
+					if not path.exists(mode.uploads_path + logo) :
+						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+						response = requests.get(url, stream=True)
+						with open(mode.uploads_path + logo, 'wb') as out_file:
+							shutil.copyfileobj(response.raw, out_file)
+							del response
+
+				if i%3==0:
+					carousel_rows_skill += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+				carousel_rows_skill += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+				#image
+				try:
+					carousel_rows_skill +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+				except:
+					carousel_rows_skill +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+				#verified
+				carousel_rows_skill +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+				#header
+				carousel_rows_skill += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + skill['title'] + "</h4></div></div>"
+				#body
+				carousel_rows_skill += """<hr class="my-1"><p class="text-center" style="font-size: 1em;">"""
+
+				lines = skill['description'].split("\n")
+				for l in lines:
+					carousel_rows_skill +=  l.strip("\r") + "<br>"
+
+				carousel_rows_skill += "</p>"
+				#Footer
+				carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+				#Lien certificates
+				carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
+
+				carousel_rows_skill += """</figure></div>"""
+				if (i+1)%3==0 and (len(skills)%3!=0 or len(skills)!=i+1):
+					carousel_rows_skill += '</div></div>'
+				if i == len(skills)-1:
+					created_row = False
+					if (i+1)%3==0:
+						carousel_rows_skill += '<div class="carousel-item"><div class="row">'
+						created_row = True
+					carousel_rows_skill += """<div class="col-md-4 mb-2">
+							<figure class="snip1253 mw-100" style="height: 410px; ">
+							  <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
+							  <figcaption class="p-0">
+								<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
+								  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
+								  <div class='col px-0 my-auto'>
+									<h4 class='align-center' style='color: black;font-size: 1.4em'>Self claimed skills</h4>
+								  </div>
+								</div>
+								<hr class="my-1">
+								<p class="text-center" style="font-size: 1em;">"""
+					for i, skill in enumerate(session['issuer_explore']['skills']['description']) :
+						if i<4:
+							carousel_rows_skill += skill['skill_name'] + "<br>"
+						elif i==4:
+							carousel_rows_skill += "..."
+					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+					carousel_rows_skill += """<a href=  /data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
+					carousel_rows_skill += """</figure></div>"""
+
+					if created_row:
+						carousel_rows_skill += '</div></div>'
+					carousel_rows_skill += '</div></div>'
+		#Services
+		if session['type'] == 'person' :
+			referent_list =  is_username_in_list(session['issuer'], issuer_username)
+			white_list =  is_username_in_list(session['whitelist'], issuer_username)
+			# est ce qu il est dans ma partnership list
+			partner_list =  is_username_in_list_for_partnership(session['partner'], issuer_username)
+			# est ce que je suis dans l'issuer list de ce Talent ?
+			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], session['username'])
+
+		is_manager = False
+		if session['type'] == 'company' :
+			host_name = session['username'] if len(session['username'].split('.')) == 1 else session['username'].split('.')[1]
+			referent_list =  is_username_in_list(session['issuer'], issuer_username)
+			white_list =  is_username_in_list(session['whitelist'], issuer_username)
+			is_manager = ns.does_manager_exist(issuer_username, host_name, mode)
+			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
+			partner_list = not is_username_in_list_for_partnership(session['partner'], issuer_username)
+
+		#kyc
+		kyc = (len(session['issuer_explore']['kyc']) != 0)
+		adress = session['issuer_explore']['personal']['postal_address']['claim_value']
+		phone = session['issuer_explore']['personal']['contact_phone']['claim_value']
+		email = session['issuer_explore']['personal']['contact_email']['claim_value']
+		birth_date = session['issuer_explore']['personal']['birthdate']['claim_value']
+		education = session['issuer_explore']['personal']['education']['claim_value']
+		about = session['issuer_explore']['personal']['about']['claim_value']
+		return render_template('./person_issuer_identity.html',
+							**session['menu'],
+							issuer_name=session['issuer_explore']['name'],
+							issuer_address=session['issuer_explore']['address'],
+							issuer_username = issuer_username,
+							issuer_profil_title = session['issuer_explore']['profil_title'],
+							issuer_picturefile=session['issuer_explore']['picture'],
+							digitalvault=my_file, adress = adress, phone = phone,
+							email = email, birth_date = birth_date, education = education,
+							about = about, kyc = kyc, user_type = session['type'],
+							referent_list = referent_list,white_list = white_list, partner_list = partner_list,
+							in_referent_list = in_referent_list, is_manager = is_manager,
+							carousel_indicators_experience=carousel_indicators_experience,
+							carousel_indicators_recommendation=carousel_indicators_recommendation,
+							carousel_indicators_education=carousel_indicators_education,
+							carousel_indicators_skill=carousel_indicators_skill,
+							carousel_rows_experience=carousel_rows_experience,
+							carousel_rows_recommendation=carousel_rows_recommendation,
+							carousel_rows_education=carousel_rows_education,
+							carousel_rows_skill=carousel_rows_skill)
+
+
+	if session['issuer_explore']['type'] == 'company' :
+
+		# file
+		if session['issuer_explore']['identity_file'] == []:
+			my_file = """<a class="text-info">No Files available</a>"""
+		else:
+			my_file = ""
+			is_encrypted = False
+			for one_file in session['issuer_explore']['identity_file']:
+				if one_file.get('content') == 'Encrypted':
+					is_encrypted = True
+					file_html = """
+					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + 'Not available - Encrypted ' + """ ) <br>
+					<b>Created</b> : """ + one_file['created'] + """<br>"""
+				else:
+					file_html = """
+					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + one_file['privacy'] + """ ) <br>
+					<b>Created</b> : """ + one_file['created'] + """<br>
+					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
+						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
+					</a>"""
+				my_file = my_file + file_html + """<br>"""
+
+		agreements = []
+		for certificate in session['issuer_explore']['certificate']:
+			if certificate['type'] == "agreement" or certificate['type'] == "agrement":
+				agreements.append(certificate)
+		carousel_indicators_agreement = """<li data-target="#agreement-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+		carousel_rows_agreement = ""
+		if agreements == []:
+			pass
+		else:
+			nbr_rows = (len(agreements)-1)//3
+			for i in range(nbr_rows):
+				carousel_indicators_agreement += '<li data-target="#agreement-carousel" data-slide-to="{}"></li>'.format(i+1)
+			for i, agreement in enumerate(agreements):
+				try:
+					logo = agreement['issued_by']['logo']
+				except:
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+				if logo != None:
+					if not path.exists(mode.uploads_path + logo) :
+						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+						response = requests.get(url, stream=True)
+						with open(mode.uploads_path + logo, 'wb') as out_file:
+							shutil.copyfileobj(response.raw, out_file)
+							del response
+
+				if i%3==0:
+					carousel_rows_agreement += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+				carousel_rows_agreement += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+				#image
+				try:
+					carousel_rows_agreement +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+				except:
+					carousel_rows_agreement +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+				#verified
+				carousel_rows_agreement += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+				#header
+				carousel_rows_agreement += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + agreement['title'] + "</h4></div></div>"
+				#body
+				carousel_rows_agreement += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + agreement['issuer']['name'] + '<br>'
+
+				carousel_rows_agreement += """<b>Issue date</b> : """ + agreement['date_of_issue'] + """<br> """
+				carousel_rows_agreement += """<b>End of validity date</b> : """ + agreement['valid_until'] + """<br>"""
+
+				carousel_rows_agreement += """<b> Description: </b>""" + agreement['description'][:150]
+				if len(agreement['description'])>150:
+					carousel_rows_agreement += "...<br>"
+				else:
+					carousel_rows_agreement += "<br>"
+				carousel_rows_agreement += "</p>"
+				#Footer
+				carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by """ + agreement['issuer']['name'] + """</footer>"""
+				#Lien certificates
+				carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """></a>"""
+
+				carousel_rows_agreement += """</figure></div>"""
+				if (i+1)%3==0 and len(agreements)%3!=0:
+					carousel_rows_agreement += '</div></div>'
+				if i == len(agreements)-1:
+					carousel_rows_agreement += '</div></div>'
+
+		references = []
+		for certificate in session['issuer_explore']['certificate']:
+			if certificate['type'] == "reference":
+				references.append(certificate)
+		carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
+		carousel_rows_reference = ""
+		if references == []:
+			pass
+		else:
+			nbr_rows = (len(references)-1)//3
+			for i in range(nbr_rows):
+				carousel_indicators_reference += '<li data-target="#reference-carousel" data-slide-to="{}"></li>'.format(i+1)
+			for i, reference in enumerate(references):
+				try:
+					logo = reference['issued_by']['logo']
+				except:
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+
+				if logo != None:
+					if not path.exists(mode.uploads_path + logo) :
+						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+						response = requests.get(url, stream=True)
+						with open(mode.uploads_path + logo, 'wb') as out_file:
+							shutil.copyfileobj(response.raw, out_file)
+							del response
+
+				if i%3==0:
+					carousel_rows_reference += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
+				carousel_rows_reference += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+				#image
+				try:
+					carousel_rows_reference +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+				except:
+					carousel_rows_reference +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
+				#verified
+				carousel_rows_reference += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+				#header
+				carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + reference['project_title'] + "</h4></div></div>"
+				#body
+				carousel_rows_reference += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + reference['issuer']['name'] + '<br>'
+
+				carousel_rows_reference += """<b>Start date</b> : """ + reference['start_date'] + """<b>	End date</b> : """ + reference['end_date'] + """<br> """
+				carousel_rows_reference += """<b>Project Budget</b> : """ + reference['project_budget'] + """<br> """
+
+				carousel_rows_reference += """<b> Description: </b>""" + reference['project_description'][:150]
+				if len(reference['project_description'])>150:
+					carousel_rows_reference += "...<br>"
+				else:
+					carousel_rows_reference += "<br>"
+				carousel_rows_reference += "</p>"
+				#Footer
+				carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #1c5289; text-align:center;font-size: 1em;" >Certified by """ + reference['issuer']['name'] + """</footer>"""
+				#Lien certificates
+				carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """></a>"""
+
+				carousel_rows_reference += """</figure></div>"""
+				if (i+1)%3==0 and len(references)%3!=0:
+					carousel_rows_reference += '</div></div>'
+				if i == len(references)-1:
+					carousel_rows_reference += '</div></div>'
+		#Services
+		referent_list = False
+		white_list = False
+		partner_list = False
+		in_referent_list = False
+		if session['type'] == 'person' :
+			referent_list =  is_username_in_list(session['issuer'], issuer_username)
+			white_list =  is_username_in_list(session['whitelist'], issuer_username)
+			# est ce qu il est dans ma partnership list
+			partner_list =  is_username_in_list_for_partnership(session['partner'], issuer_username)
+			# est ce que je suis dans l'issuer list de ce Talent ?
+			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], session['username'])
+
+		if session['type'] == 'company' :
+			host_name = session['username'] if len(session['username'].split('.')) == 1 else session['username'].split('.')[1]
+			referent_list =  is_username_in_list(session['issuer'], issuer_username)
+			white_list =  is_username_in_list(session['whitelist'], issuer_username)
+			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
+			partner_list = not is_username_in_list_for_partnership(session['partner'], issuer_username)
+
+
+
+
+		#kyc
+		kyc = False
+		user_type = session['type']
+		contact_name = session['issuer_explore']['personal']['contact_name']['claim_value']
+		contact_email = session['issuer_explore']['personal']['contact_email']['claim_value']
+		contact_phone = session['issuer_explore']['personal']['contact_phone']['claim_value']
+		website = session['issuer_explore']['personal']['website']['claim_value']
+		about = session['issuer_explore']['personal']['about']['claim_value']
+		staff = session['issuer_explore']['personal']['staff']['claim_value']
+		siret = session['issuer_explore']['personal']['siret']['claim_value']
+		try:
+			sales = "{:,}".format(int(session['issuer_explore']['personal']['sales']['claim_value'])).replace(',', ' ')
+		except:
+			sales = session['issuer_explore']['personal']['sales']['claim_value']
+
 		if session['issuer_explore']['skills'] is None or session['issuer_explore']['skills'].get('id') is None :
-			issuer_skills =  """<a class="text-info">No Skills Available</a>"""
-		else :
-			issuer_skills = ""
-			for skill in session['issuer_explore']['skills']['description'] :
-				skill_html = """
-				"""+ skill['skill_name'] + """ (""" + skill['skill_level'] + """)""" + """<br>
-	<!--			<b>Domain</b> : """+skill['skill_domain'] + """<br>
-				<b>Level</b> : """+ skill['skill_level'] + """...<br>
-				<p>
-					<a class="text-secondary" href="/user/remove_experience/?experience_id="""  + """>
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-
-					<a class="text-secondary" href=/data/?dataId=""" + """:experience>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>  -->"""
-				issuer_skills = issuer_skills + skill_html
-			issuer_skills = issuer_skills + """
+			my_competencies =  """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
+		else:
+			my_competencies = ""
+			for competencie in session['issuer_explore']['skills']['description'] :
+				competencie_html = competencie['skill_name'] + """<br>"""
+				my_competencies = my_competencies + competencie_html
+			my_competencies = my_competencies + """
 				<p>
 					<a class="text-secondary" href=/data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills>
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
-
-		# certificates
-		issuer_certificates = ""
-		if session['issuer_explore']['certificate'] == [] :
-			issuer_certificates = """<a class="text-info">No Certificates available</a>"""
-		else :
-			for certificate in session['issuer_explore']['certificate'] :
-				certificate_issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
-				certificate_issuer_username = 'Unknown' if certificate_issuer_username is None else certificate_issuer_username
-				if certificate['issuer']['category'] == 2001 :
-					certificate_issuer_name = certificate['issuer']['name']
-					certificate_issuer_type = 'Company'
-				elif  certificate['issuer']['category'] == 1001 :
-					certificate_issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					certificate_issuer_type = 'Person'
-				else :
-					print ('issuer category error, data_user.py')
-				if certificate['type'] == 'experience' :
-					cert_html = """
-						<b>Referent Name</b> : """ + certificate_issuer_name +"""<br>
-						<b>Referent Username</b> : """ + certificate_issuer_username +"""<br>
-						<b>Referent Type</b> : """ + certificate_issuer_type +"""<br>
-						<b>Title</b> : """ + certificate['title']+"""<br>
-						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-						<p>
-							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-							</a>
-						</p>"""
-				elif certificate['type'] == 'recommendation' :
-					cert_html = """
-						<b>Referent Name</b> : """ + certificate_issuer_name +"""<br>
-						<b>Referent Username</b> : """ + certificate_issuer_username +"""<br>
-						<b>Referent Type</b> : """ + certificate_issuer_type +"""<br>
-						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
-						<b>Relationship</b> : """ + certificate['relationship']+"""...<br>
-						<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-						<p>
-							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-							</a>
-						</p>"""
-				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
-
-		# file
-		if session['issuer_explore']['identity_file'] == [] :
-			my_file = """<a class="text-info">No Files available</a>"""
-		else :
-			my_file = ""
-			is_encrypted = False
-			for one_file in session['issuer_explore']['identity_file'] :
-				if one_file.get('content') == 'Encrypted' :
-					is_encrypted = True
-					file_html = """
-					<b>File Name</b> : """+one_file['filename']+ """ ( """+ 'Not available - Encrypted ' + """ ) <br>
-					<b>Created</b> : """+ one_file['created'] + """<br>"""
-				else :
-					file_html = """
-					<b>File Name</b> : """+one_file['filename']+ """ ( """+ one_file['privacy'] + """ ) <br>
-					<b>Created</b> : """+ one_file['created'] + """<br>
-					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
-						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
-					</a>"""
-				my_file = my_file + file_html + """<br>"""
-			if is_encrypted :
-				my_file = my_file + """<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to access his encrypted Data.</a><br>"""
-
-		#services : le reader est une persone, le profil vu est celui dune personne
-		services = ""
-		if session['type'] == 'person' :
-			if not is_username_in_list(session['issuer'], issuer_username) : # est ce que ce talent est dans mon issuer list ?
-				services = services + """<br><a class="text-warning">This Talent is not in your Referent List.</a><br>
-							<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Talent in your Referent List to request him certificates.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Talent is in your Referent List.</a><br>
-							<a href="/user/request_certificate/?issuer_username="""+ issuer_username + """">Request to this Talent a Certificate to strengthen your Resume.</a><br>"""
-
-			if not is_username_in_list(session['whitelist'], issuer_username) : # est ce que ce Talent est dans ma white list ?
-				services = services + """<br><a class="text-warning">This Talent is not in your White List.</a><br>
-							<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Talent to your White List to build your Identity efficiently.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Talent is in your White list.</a><br>"""
-
-			if not is_username_in_list_for_partnership(session['partner'], issuer_username)  : # est ce qu il est dans ma partnership list
-				services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a><br>
-										<a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to this Talent to access his private Data.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
-
-			if is_username_in_list(session['issuer_explore']['issuer_keys'], session['username']) : # est ce que je suis dans l'issuer list de ce Talent ?
-				services = services + """<br><a class="text-success">You are in this Talent Referent list.</a><br>
-							<a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username="""+ issuer_username +"""" >Issue a Certificate to this Talent.</a><br>"""
-			else :
-				services = services + """<br><a class="text-warning">You are not in this Talent Referent list.</a><br>"""
-
-			services = services + """<br><a href="/user/send_memo/?issuer_username="""+ issuer_username +""" ">Send a memo to this Talent.</a><br>"""
-			services = services + """<br><a href="/user/data_analysis/?user=issuer_explore">Check Dashboard</a><br>"""
-			services = services + """<br><br><br><br>"""
-
-		#services : les reader est une company, le profil vu est celui d une personne. Attention au "jean.bnp"
-		if session['type'] == 'company' :
-			host_name = session['username'] if len(session['username'].split('.')) == 1 else session['username'].split('.')[1]
-			if ns.does_manager_exist(issuer_username, host_name, mode) :
-				services = services + """<br><a class="text-success">This Talent is a Manager.</a><br>"""
-
-			if is_username_in_list(session['issuer_explore']['issuer_keys'], host_name) :
-				services = services + """ <br><a class="text-success">Talent has authorized the Company to issue Certificates.</a><br>
-										<a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username="""+ issuer_username +""" ">Issue a new Certificate.</a><br>"""
-			else :
-				services = services + """<br><br>"""
-
-			if not is_username_in_list_for_partnership(session['partner'], issuer_username) : # est ce qu il est dans ma partnership list
-				services = services + """<br><a class="text-warning">This Talent is not in your Partner List.</a>
-										<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to share private Data.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Talent is in your Partner list.</a><br>"""
-
-			services = services + """<br><a href="/user/send_memo/?issuer_username="""+ issuer_username +""" ">Send a memo to this Talent.</a><br>"""
-			services = services + """<br><a href="/user/data_analysis/?user=issuer_explore">Check Dashboard</a><br><br>"""
-			services = services + """<br><br><br><br><br><br><br><br><br><br>"""
-
-		services = services + """<br><br><br><br><br>"""
-
-		return render_template('person_issuer_identity.html',
+		return render_template('./company_issuer_identity.html',
 							**session['menu'],
 							issuer_name=session['issuer_explore']['name'],
-							issuer_profil_title = session['issuer_explore']['profil_title'],
-							kyc=my_kyc,
-							personal=issuer_personal,
-							experience=issuer_experience,
-							certificates=issuer_certificates,
-							education=issuer_education,
-							services=services,
-							digitalvault=my_file,
-							skills=issuer_skills,
-							issuer_picturefile=issuer_picture)
-
-
-	if session['issuer_explore']['type'] == 'company' :
-
-		# kbis
-		kbis_list = session['issuer_explore']['kbis']
-		if len (kbis_list) == 0:
-			my_kbis = """<a class="text-danger">No Proof of Identity available</a>"""
-		else :
-			my_kbis = ""
-			for kbis in kbis_list :
-				kbis_html = """
-				<b>Name</b> : """+ kbis['name'] +"""<br>
-				<b>Siret</b> : """+ kbis['siret'] +"""<br>
-				<b>Creation</b> : """+ kbis['date'] + """<br>
-				<b>Capital</b> : """+ kbis['capital']+"""<br>
-				<b>Address</b> : """+ kbis['address']+"""<br>
-				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ kbis['id'] + """:kbis>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</p>"""
-				my_kbis = my_kbis + kbis_html
-
-		# personal
-		issuer_personal = """ <span><b>Username</b> : """ + ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)	+ """<br>"""
-		for topic_name in session['issuer_explore']['personal'].keys() :
-			if session['issuer_explore']['personal'][topic_name]['claim_value'] is not None :
-				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['issuer_explore']['workspace_contract'][2:] + ':claim:' + session['issuer_explore']['personal'][topic_name]['claim_id']
-				issuer_personal = issuer_personal + """
-				<span><b>"""+ topic_name +"""</b> : """+ session['issuer_explore']['personal'][topic_name]['claim_value']+"""
-
-					<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """:personal>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Explore"></i>
-					</a>
-				</span><br>"""
-
-
-
-
-		#services : le reader est une persone, le profil vu est celui d'une company
-		if session['type'] == 'person' :
-
-			if not is_username_in_list(session['issuer'], issuer_username) :
-				services = """<br><a class="text-warning">This Company is not in your Referent List.</a><br>
-						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Referent List to request Certificates.</a><br>"""
-			else :
-				services = """<br><a class="text-success">This Company is in your Referent List.</a><br>
-						<a href="/user/request_certificate/?issuer_username="""+ issuer_username +"""">Request a certificate to this Company.</a><br>"""
-
-			if not is_username_in_list(session['whitelist'], issuer_username) :
-				services = services + """<br><a class="text-warning">This Company is not in your White List.</a><br>
-						<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Company in your White List to increase your rating.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Company is in your White list.</a><br>"""
-
-			if not is_username_in_list_for_partnership(session['partner'], issuer_username) :
-				services = services + """<br><a class="text-warning">This Company is not in your Partner List.</a>
-						<br><a href="/user/request_partnership/?issuer_username=""" + issuer_username + """">Request a Partnership to access private information.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Company is in your Partner list.</a><br>"""
-
-			if is_username_in_list(session['issuer_explore']['issuer_keys'], session['username']) :
-				services = services + """<br><a href="/user/issue_referral/?issuer_username="""+ issuer_username + """&issuer_name=""" + session['issuer_explore']['name'] + """ ">Issue a Review.</a><br>"""
-			else :
-				services = services + """<br><a class="text-warning">You are not in this Company Referent List.</a><br>"""
-
-			services = services + """<br><a href="/user/send_memo/?issuer_username="""+ issuer_username +""" ">Send a memo to this Company.</a><br>"""
-
-			services = services + """<br><br><br><br><br><br>"""
-
-
-
-		#services : le reader est une company , le profil vu est celui d'une company
-		else : # session['type'] == 'company' :
-			services = ""
-			if not is_username_in_list(session['issuer'], issuer_username) :
-				services = """<br><a class="text-warning">This Company is not in your Referent List.</a><br>
-						<a href="/user/add_issuer/?issuer_username=""" + issuer_username + """">Add this Company in your Referent List to request Certificates.</a><br>"""
-			else :
-				services = """<br><a class="text-success">This Company is in your Referent List.</a><br>
-						<a href="/user/request_certificate/?issuer_username="""+ issuer_username +"""">Request a certificate to this Company.</a><br>"""
-
-			if not is_username_in_list(session['whitelist'], issuer_username) :
-				services = services + """<br><a class="text-warning">This Company is not in your White List.</a><br>
-						<a href="/user/add_white_issuer/?issuer_username=""" + issuer_username + """"> Add this Company in your White List to increase your rating.</a><br>"""
-			else :
-				services = services + """<br><a class="text-success">This Company is in your White list.</a><br>"""
-
-
-
-			services = services + "<br><br>"
-
-		return render_template('company_issuer_identity.html',
-							**session['menu'],
-							issuer_name=session['issuer_explore']['name'],
-							kbis=my_kbis,
-							services=services,
-							personal=issuer_personal,
-							issuer_picturefile=issuer_picture)
+							issuer_address=session['issuer_explore']['address'],
+							issuer_username = issuer_username, user_type = user_type,
+							issuer_picturefile=session['issuer_explore']['picture'],
+							contact_name = contact_name, contact_email = contact_email, contact_phone = contact_phone,
+							website = website,about = about, staff = staff, sales = sales, siret = siret,
+							digitalvault=my_file, kyc = kyc,
+							referent_list = referent_list,white_list = white_list, partner_list = partner_list,
+							in_referent_list = in_referent_list,
+							carousel_indicators_agreement=carousel_indicators_agreement,
+							carousel_rows_agreement=carousel_rows_agreement,
+							carousel_indicators_reference=carousel_indicators_reference,
+							carousel_rows_reference=carousel_rows_reference,
+							competencies = my_competencies)
