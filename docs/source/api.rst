@@ -138,9 +138,9 @@ You request an access to these functionalities using the scope parameter, which 
 
 Below list of scopes  :
 
-* user_issues_certificate : This scope allows your company to issue certificate signed by users
-* user_manages_partner : This scope allows your company to request, accept or reject partnership with all Identities on behalf of a user
-* user_manages_referent : this scop allow your company to add or remove referent on behalf of a user
+* user:manage:certificate : This scope allows your company to issue/delete certificate signed by users
+* user:manage:partner : This scope allows your company to request, accept or reject partnership with all Identities on behalf of a user
+* user:manage:referent : this scop allow your company to add or remove referent on behalf of a user
 
 Step 1, ask for a grant code with your scope list, nonce, state.
 
@@ -168,7 +168,7 @@ Endpoint : https://talao.co/api/v1/user_issues_certificate
 ***********************************************************
 Issue a reference or agreement certificate to a company on behalf of user
 User must be a in the company's referent list.
-Scope required : user_issues_certificate
+Scope required : user:manage:certificate
 
 
 Issue an agreement certificate :
@@ -230,7 +230,7 @@ Endpoint : https://talao.co/api/v1/user_accepts_company_partnership
 ********************************************************************
 
 This is a straightforward process to build a partnership with an Identity. It combines your company request for a partnership and an authorization from Identity.
-scope required : user_manages_partner
+scope required : user:manage:partner
 
 .. code::
 
@@ -251,7 +251,7 @@ Endpoint : https://talao.co/api/v1/user_accepts_company_referent
 *****************************************************************
 
 To add your company in the Identity referent list
-scope required : user_manages_referent
+scope required : user:manage:referent
 
 
 .. code::
@@ -273,7 +273,7 @@ Endpoint : https://talao.co/api/v1/user_adds_referent
 ******************************************************
 
 To add an Identity to the user referent list
-scope required : user_manages_referent
+scope required : user:manage:referent
 
 
 .. code::
@@ -340,7 +340,7 @@ Endpoint : https://talao.co/api/v1/issue_experience
 ***************************************************
 
 Issue an experience certificate to a user.
-Company must be allowed to issue experience certificate (scope = reference).
+Scope required client:issue:experience.
 Company must be a in the user's referent list.
 
 Issue an experience certificate :
@@ -515,7 +515,7 @@ Endpoint : https://talao.co/api/v1/issue_reference
 ***************************************************
 
 Issue a reference certificate to a company.
-Your company must be allowed to issue reference certificates (scope = reference).
+scop required client:issue:reference
 Your company must be a in the company's referent list.
 
 Issue a reference certificate :
@@ -554,7 +554,7 @@ Endpoint : https://talao.co/api/v1/issue_agreement
 ************************************************************
 
 Issue an agreement certificate to a company.
-Your company must be allowed to issue agreement certificates.
+scopre required client:issue:agreement
 Yourcompany must be a in the company's referent list.
 
 Issue an agreement certificate :

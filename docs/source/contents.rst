@@ -8,7 +8,7 @@ Talao is a Blockchain protocol to manage a professional Digital Identity.
 
 Traditionnal architectures to validate, certify, and manage professional data are based on centralized, top-down approaches that rely on third-party private operators.
 Unfortunatky these solutions often lead to inappropriate use of personal data and hacks. Whatever the GDPR could impose to private operators, the fact is that our data
-are stored on their servers and they will utlimatly do what they want with our data to make profits.
+are stored on their servers and they will utlimatly do what they want with our data.
 
 Talao approaches this issue starting from a user perspective through a Blockchain decentralized Identity focused on professional data :
 

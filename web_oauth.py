@@ -152,7 +152,7 @@ def issue_token():
 def authorize(mode):
     user = current_user()
     scope_list=['openid', 'profile', 'resume', 'proof_of_identity', 'birthdate', 'email', 'phone', 'about',
-            'user_manages_referent', 'user_manages_partner', 'user_issues_certificate' ]
+            'user:manage:referent', 'user:manage:partner', 'user:manage:certificate' ]
     # if user log status is not true (Auth server), then to log it in
     if not user:
         return redirect(url_for('oauth_login', next=request.url))
@@ -222,7 +222,7 @@ def user_info(mode):
 
 
 #route('/api/v1/user_accepts_company_referent')
-@require_oauth('user_manages_referent')
+@require_oauth('user:manage:referent')
 def user_accepts_company_referent(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -244,7 +244,7 @@ def user_accepts_company_referent(mode):
 
 
 #route('/api/v1/user_adds_referent')
-@require_oauth('user_manages_referent')
+@require_oauth('user:manage:referent')
 def user_adds_referent(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -271,7 +271,7 @@ def user_adds_referent(mode):
 
 
 #route('/api/v1/user_accepts_company_partnership')
-@require_oauth('user_manages_partner')
+@require_oauth('user:manage:partner')
 def user_accepts_company_partnership(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -301,7 +301,7 @@ def user_accepts_company_partnership(mode):
 
 # issue a certificates on behalf of user(user=issued_by)
 #@route('/api/v1/user_issues_certificate')
-@require_oauth('user_issues_certificate')
+@require_oauth('user:manage:certificate')
 def user_issues_certificate(mode):
     user_id = current_token.user_id
     issued_by_workspace_contract = get_user_workspace(user_id,mode)
@@ -461,7 +461,7 @@ def oauth_get_status(mode):
 
 # issue experience certificates
 #@route('/api/v1/issue_experience')
-@require_oauth('experience')
+@require_oauth('client:issue:experience')
 def oauth_issue_experience(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -509,7 +509,7 @@ def oauth_issue_experience(mode):
 
 # issue an agrement certificates
 #@route('/api/v1/issue_agreement')
-@require_oauth('agreement')
+@require_oauth('client:issue:agreement')
 def oauth_issue_agreement(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -572,7 +572,7 @@ def oauth_issue_agreement(mode):
 
 # issue a reference certificates
 #@route('/api/v1/issue_reference')
-@require_oauth('reference')
+@require_oauth('client:issue:reference')
 def oauth_issue_reference(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)

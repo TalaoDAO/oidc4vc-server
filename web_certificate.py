@@ -134,10 +134,10 @@ def show_certificate(mode):
 			logo = session['displayed_certificate']['logo']
 
 			# if there is no signature one uses Picasso signature
-			if signature is None :
+			if not signature :
 				signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
 			# if there is no logo one uses default logo
-			if logo is None :
+			if not logo  :
 				logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
 
 			if not path.exists(mode.uploads_path + signature) :

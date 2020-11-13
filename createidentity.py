@@ -68,7 +68,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		print('Failed transaction addClaim for email')
 		return False
 
@@ -140,7 +140,7 @@ def create_user(username, email,mode, creator=None, partner=False):
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		print('Failed transaction createWorkspace')
 		return None, None, None
 
