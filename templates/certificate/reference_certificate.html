@@ -112,7 +112,9 @@
                           <hr><img src="/static/img/logo_noir.png" style="width: 100px;">
                         </div>
                         <div class="col">
-                          <p class="text-dark m-0"><strong>Issued by {{issuer_name}} :&nbsp;</strong></p><img src="{{ url_for('send_file', filename=logo) }}" style="width:  250px;">
+                          <p class="text-dark m-0"><strong>Issued to: {{issued_to_name}} &nbsp;</strong></p>
+                          <hr>
+                          <p class="text-dark m-0"><strong>Issued by: {{issuer_name}} &nbsp;</strong></p><img src="{{ url_for('send_file', filename=logo) }}" style="width:  250px;">
                           <hr>
                           <p class="mt-4 text-dark m-0"><strong>Signature :&nbsp;</strong></p><div class="mt-3 text-center" ><img src="{{ url_for('send_file', filename=signature) }}" style="width: 150px;"> </div>
                           <hr class="mt-4">

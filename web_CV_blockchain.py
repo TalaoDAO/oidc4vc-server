@@ -147,8 +147,8 @@ def resume(mode) :
 					else:
 						carousel_rows_experience += "<br>"
 				else:
-					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:250:]
-					if len(experience['description'])>250:
+					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:150:]
+					if len(experience['description'])>150:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"

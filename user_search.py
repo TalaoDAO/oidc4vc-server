@@ -19,6 +19,20 @@ def update_user(session, bool):
     with open('./static/username.json', 'w') as outfile:
         json.dump(profillist, outfile)
 
+def add_user(session, name, username):
+    profillist = []
+    with open('./static/username.json', 'r') as json_file:
+        data = json.load(json_file)
+        for id in data:
+            if id['username'] != username:
+                profillist.append(id)
+
+    if bool:
+        profillist.append({"username" : username, "name" : name})
+
+    with open('./static/username.json', 'w') as outfile:
+        json.dump(profillist, outfile)
+
 def search_user(session):
     username = session['username']
     name = session['name']
