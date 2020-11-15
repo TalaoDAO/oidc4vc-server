@@ -1,20 +1,12 @@
 import web_oauth
 from models import db
 from oauth2 import config_oauth
-import random
 
-"""
-def gen_token(client, grant_type, user, scope):
-    # generate token according to these parameters
-    token = str(random.randint(0, 99999))
-    print('gen token = ', f'{client.id}-{user.id}-{token}')
-    return f'{client.id}-{user.id}-{token}'
-"""
 
 def config_api_server(app, mode) :
 
     oauth_config = {
-    'OAUTH2_REFRESH_TOKEN_GENERATOR': True,
+    'OAUTH2_REFRESH_TOKEN_GENERATOR': False,
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + mode.db_path + '/db.sqlite',
     'OAUTH2_TOKEN_EXPIRES_IN' : {

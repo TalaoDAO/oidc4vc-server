@@ -78,29 +78,27 @@
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
-                                            {% if user:manages:referent == 'checked' %}
+                                            {% if user_manage_referent == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{user:manages:referent}} name="user:manages:referent" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to add referents.</p></label></div>
+                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{user_manage_referent}} name="user:manage:referent" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to add referents.</p></label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
-                                            {% if user:manages:partner == 'checked' %}
+                                            {% if user_manage_partner == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user:manages:partner}} name="user:manages:partner" ><label class="form-check-label" >I authorize company to manage my parnerships.</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_manage_partner}} name="user:manage:partner" ><label class="form-check-label" >I authorize company to manage my parnerships.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
 
                                         <div class="form-group">
-                                            {% if user:manages:certificate == 'checked' %}
+                                            {% if user_manage_certificate == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user:manages:certificate}} name="user:manages:certificate" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to issue or delete certificates with my signature.</p></label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_manage_certificate}} name="user:manage:certificate" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to issue or delete certificates with my signature.</p></label></div>
                                             </div>
                                             {% endif %}
                                         </div>
-
-
 
                                         <div class="form-row">
                                             <div class="col-6 col-xl-3">

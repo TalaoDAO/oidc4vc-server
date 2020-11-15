@@ -134,11 +134,17 @@ OAuth 2.0 Authorization code flow
 For your users, this flow includes a consent screen that describes through 'scopes' the actions that the user allows to your application.
 For example, when the user logs in, they might be asked to accept or reject a partnership.
 
+There is no off-line access through Refresh Token but Talao partnership allows your company to get user data as long as the partnership is authorized.
+It means that you always need consent of an online user who signed-in Talao to issue or delete a certificate on his/her behalf.
+
+.. note:: If your company needs to sign and issue a certificate, see further the Client Credential flow.
+
+
 You request an access to these functionalities using the scope parameter, which your app includes in its request.
 
 Below list of scopes  :
 
-* user:manage:certificate : This scope allows your company to issue/delete certificate signed by users
+* user:manage:certificate : This scope allows your company to issue/delete certificate on behalf of a user
 * user:manage:partner : This scope allows your company to request, accept or reject partnership with all Identities on behalf of a user
 * user:manage:referent : this scop allow your company to add or remove referent on behalf of a user
 
@@ -156,6 +162,7 @@ Step 2, with the grant code, connect to the token endpoint https://talao.co/api/
 
    curl -u your_client_id:your_secret_value -XPOST https://talao.co/api/v1/oauth/token -F grant_type=authorization_code
 
+Access Token is live 500 seconds.
 
 Step 3, with the Access Token you can acces an endpoint
 
@@ -322,7 +329,7 @@ To manage your own Identity
 
 
 Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the Access Token :
-Scope is required.
+Scope are required for most endpoints.
 
 .. code::
 
@@ -401,6 +408,7 @@ Your company is appointed as a referent to issue certificates to this user.
 Your company is apointed as a partner to access all data without any new user authorization.
 User Identity username/password are sent by email to user.
 Return JSON with did (sub) and username
+Scope required : client:create:identity
 
 
 .. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
@@ -422,9 +430,6 @@ JSON Response
   {
     "did": "did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE",
     "username" : "jeanpascalet",
-    "firstname": "jean",
-    "lastname": "pascalet",
-    "email": "jean.pascalet@talao.io"
   }
 
 
@@ -485,7 +490,7 @@ Your company is appointed as a referent to issue certificates to this company.
 Your company is apointed as a partner to access all data without any new user authorization.
 User Identity username/password are sent by email to user.
 Return JSON with did (sub) and username
-
+Scope required : client:create:identity
 
 .. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
 
@@ -506,8 +511,6 @@ JSON Response
   {
     "did": "did:talao:talaonet:1a50a9eE2E780281637bd93C13076cc5E342c9aE",
     "username" : "newindus",
-    "name": "NewIndus",
-    "email": "jean.petit@newindus.io"
   }
 
 

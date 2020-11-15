@@ -74,7 +74,6 @@ def oauth_logout():
     session.clear()
     return redirect(post_logout)
 
-
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
     if request.method == 'GET' :
@@ -163,7 +162,7 @@ def authorize(mode):
         except OAuth2Error as error:
             return error.error
         # configure oauth_authorize.html
-        checkbox = {key: 'checked' if key in grant.request.scope else ""  for key in scope_list}
+        checkbox = {key.replace(':', '_') : 'checked' if key in grant.request.scope else ""  for key in scope_list}
         # Display view to ask for user consent
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,**checkbox)
     # POST
@@ -378,17 +377,17 @@ def user_issues_certificate(mode):
 
 # create a person identity with a key2002 key and partnership
 #@route('/api/v1/create_person_identity')
-@require_oauth('create_person_identity')
+@require_oauth('client:create:identity')
 def oauth_create_person_identity(mode):
     # creation d'une identité"
     client_id = current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
     data = json.loads(request.data.decode("utf-8"))
-    if data.get('email') is None or data.get('firstname') is None or data.get('lastname')is None :
+    if not data.get('email') or not data.get('firstname') or not data.get('lastname') :
         response_dict = {'detail' : 'request malformed'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    creator = None if client_workspace_contract is None else contractsToOwners(client_workspace_contract, mode)
+    creator = None if not client_workspace_contract else contractsToOwners(client_workspace_contract, mode)
     identity_username = ns.build_username(data.get('firstname'), data.get('lastname'), mode)
     try :
         identity_workspace_contract = createidentity.create_user(identity_username, data.get('email'), mode, creator=creator, partner=True)[2]
@@ -397,17 +396,17 @@ def oauth_create_person_identity(mode):
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     # createidentity other problems
-    if identity_workspace_contract is None :
+    if not identity_workspace_contract :
         response_dict = {'detail' : 'Create Identity failure, contact Talao support '}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username, **data}
+    response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username,}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
 
 # create a company identity with key20002 and partnership
 #@route('/api/v1/create_company_identity')
-@require_oauth('create_company_identity')
+@require_oauth('create:client:identity')
 def oauth_create_company_identity(mode):
     # creation d'une identité"
     client_id = current_token.client_id
@@ -432,7 +431,7 @@ def oauth_create_company_identity(mode):
         response_dict = {'detail' : 'Create Identity failure, contact Talao support '}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username, **data}
+    response_dict = {'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:], 'username' : identity_username,}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
 
@@ -459,7 +458,7 @@ def oauth_get_status(mode):
     return response
 
 
-# issue experience certificates
+# company issues experience certificates to user
 #@route('/api/v1/issue_experience')
 @require_oauth('client:issue:experience')
 def oauth_issue_experience(mode):
@@ -480,6 +479,10 @@ def oauth_issue_experience(mode):
         response_dict = {'detail' : 'did does not exist'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
+    if not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
+        response_dict = {'detail' : 'Your company is not in the user referent list'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
     certificate['type'] = 'experience'
     certificate['version'] = 1
     certificate['logo'] = get_image(client_workspace_contract, 'logo', mode)
@@ -496,7 +499,7 @@ def oauth_issue_experience(mode):
                         mode,
                         mydays=0,
                         privacy='public')
-    if document_id is None :
+    if not document_id :
         response_dict = {'detail' : 'transaction failed'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
@@ -504,7 +507,6 @@ def oauth_issue_experience(mode):
                       **certificate, 'ipfs hash' : ipfs_hash, 'transaction hash' : transaction_hash}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
-
 
 
 # issue an agrement certificates
@@ -516,9 +518,6 @@ def oauth_issue_agreement(mode):
     client_address = contractsToOwners(client_workspace_contract, mode)
     client_private_key = privatekey.get_key(client_address,'private_key', mode)
     data = json.loads(request.data.decode("utf-8"))
-    print('client private key = ', client_private_key)
-    print('client address = ', client_address)
-    print('client workspace contract = ', client_workspace_contract)
     try :
         user_workspace_contract = '0x' + data['did'].split(':')[3]
         user_address = contractsToOwners(user_workspace_contract, mode)
@@ -529,6 +528,10 @@ def oauth_issue_agreement(mode):
         return response
     if user_address is None :
         response_dict = {'detail' : 'did does not exist'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
+        response_dict = {'detail' : 'Your company is not in the user referent list'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     user_profil, c = read_profil(user_workspace_contract, mode, 'full')
@@ -560,7 +563,7 @@ def oauth_issue_agreement(mode):
                         mode,
                         mydays=0,
                         privacy='public')
-    if document_id is None :
+    if not document_id :
         response_dict = {'detail' : 'transaction failed'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
@@ -568,7 +571,6 @@ def oauth_issue_agreement(mode):
                       **certificate, 'ipfs hash' : ipfs_hash, 'transaction hash' : transaction_hash}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
-
 
 # issue a reference certificates
 #@route('/api/v1/issue_reference')
@@ -589,6 +591,10 @@ def oauth_issue_reference(mode):
         return response
     if user_address is None :
         response_dict = {'detail' : 'did does not exist'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    if not has_key_purpose(user_workspace_contract, client_address, 20002, mode) :
+        response_dict = {'detail' : 'Your company is not in the user referent list'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     user_profil, c = read_profil(user_workspace_contract, mode, 'full')
@@ -620,8 +626,8 @@ def oauth_issue_reference(mode):
                         mode,
                         mydays=0,
                         privacy='public')
-    if document_id is None :
-        response_dict = {'detail' : 'transaction failed, check if this your company is a referent'}
+    if not document_id :
+        response_dict = {'detail' : 'transaction failed'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     response_dict = {'link' : mode.server + 'certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + user_workspace_contract[2:] + ':document:' + str(document_id),
@@ -666,8 +672,6 @@ def oauth_get_certificate_list(mode):
     response_dict = {'certificate_list' : certificate_list}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response
-
-
 
 
 # get certificate data
