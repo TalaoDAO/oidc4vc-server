@@ -297,7 +297,6 @@ def show_certificate(mode):
 		for product in products:
 			service_product_group = """<li class="text-dark my-2 mx-5">""" + product + "</li>"
 
-		print(session['displayed_certificate'])
 		return render_template('./certificate/agreement_certificate.html',
 							**menu,
 							date_of_issue = session['displayed_certificate']['date_of_issue'],
@@ -366,6 +365,7 @@ def show_certificate(mode):
 
 		return render_template('./certificate/reference_certificate.html',
 							**menu,
+							issued_to_name = session['displayed_certificate']['issued_to']['name'],
 							start_date = session['displayed_certificate']['start_date'],
 							end_date = session['displayed_certificate']['end_date'],
 							location = session['displayed_certificate']['project_location'],

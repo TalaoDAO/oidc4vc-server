@@ -19,6 +19,8 @@ import createidentity
 import sms
 from protocol import Claim
 import ns
+import user_search
+
 
 exporting_threads = {}
 
@@ -55,6 +57,7 @@ def authentification(mode) :
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['code'] + request.form['phone']
+		user_search.add_user(session,session['firstname'] + ' ' + session['lastname'], session['username'])
 		if not sms.check_phone(session['phone'], mode) :
 			return render_template("create.html",message='Phone number incorrect')
 		else :
@@ -89,4 +92,3 @@ def POST_authentification_2(mode) :
 		return render_template("create3.html", message="Code expired")
 	else :
 		return render_template("create2.html", message='This code is incorrect')
-
