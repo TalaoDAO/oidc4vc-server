@@ -20,6 +20,9 @@ def config_api_server(app, mode) :
     db.init_app(app)
     config_oauth(app)
 
+    # Resolver
+    app.add_url_rule('/resolver', view_func=web_oauth.resolver, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+
     # Main routes (Endpointd) for OAuth Authorization Server
     app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])
     app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])

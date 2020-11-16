@@ -20,9 +20,27 @@ import createidentity
 import createcompany
 import privatekey
 
+# Resolver pour l acces a un did. Cela retourne un debut de DID Document....
+#@route('/resolver')
+def resolver(mode):
+    username = request.args.get('username')
+    workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
+    if not workspace_contract :
+        payload = {'detail' : "username not found"}
+        response = Response(json.dumps(payload), status=400, mimetype='application/json')
+        return response
+    address = contractsToOwners(workspace_contract, mode)
+    did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+    contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+    rsa_public_key = contract.functions.identityInformation().call()[4]
+    payload = {'username' : username, 'did' : did, 'address' : address, 'RSA_public_key' : rsa_public_key.decode('utf-8')}
+    response = Response(json.dumps(payload), status=200, mimetype='application/json')
+    return response
+
+
 def check_login() :
 	#check if the user is correctly logged. This function is called everytime a user function is called 
-	if session.get('username') is None :
+	if not session.get('username') :
 		abort(403)
 	else :
 		return session['username']

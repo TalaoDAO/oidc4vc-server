@@ -173,8 +173,10 @@ Step 3, with the Access Token you can acces an endpoint
 
 Endpoint : https://talao.co/api/v1/user_issues_certificate
 ***********************************************************
-Issue a reference or agreement certificate to a company on behalf of user
+Issue a reference or agreement certificate to a company on behalf of user.
+
 User must be a in the company's referent list.
+
 Scope required : user:manage:certificate
 
 
@@ -407,7 +409,8 @@ Create an Identity for a user.
 Your company is appointed as a referent to issue certificates to this user.
 Your company is apointed as a partner to access all data without any new user authorization.
 User Identity username/password are sent by email to user.
-Return JSON with did (sub) and username
+Return JSON with did (sub) and username.
+
 Scope required : client:create:identity
 
 
@@ -554,12 +557,11 @@ Example of a JSON_certificate :
 
 
 Endpoint : https://talao.co/api/v1/issue_agreement
-************************************************************
+**************************************************
 
 Issue an agreement certificate to a company.
-scopre required client:issue:agreement
-Yourcompany must be a in the company's referent list.
-
+scope required client:issue:agreement.
+Your company must be in the company's referent list.
 Issue an agreement certificate :
 
 .. code::
