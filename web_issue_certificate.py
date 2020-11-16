@@ -39,7 +39,7 @@ class ExportingThread(threading.Thread):
 		self.certificate = certificate
 		self.mode = mode
 	def run(self):
-		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)	
+		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)
 
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
@@ -62,7 +62,7 @@ def issue_logout(mode) :
 
 #@app.route('/issue/', methods=['GET', 'POST'])
 def issue_certificate_for_guest(mode) :
-	""" MAIN GUEST view, issuer are either new or user but they have been requested to issue, Do not mix with issuer_experience_certificate. 
+	""" MAIN GUEST view, issuer are either new or user but they have been requested to issue, Do not mix with issuer_experience_certificate.
 	we display a form to complete the certificate draft and put everything in session for next phase
 	this route is a hub to dispatcg according to certificate type"""
 
@@ -267,7 +267,7 @@ def create_authorize_issue(mode) :
 
 	# New user, call to thread to authorize, issue and create
 	if session['issuer_username'] == "new" :
-		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname'], mode) 
+		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname'], mode)
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(issuer_username,
 														session['issuer_email'],
@@ -294,7 +294,7 @@ def create_authorize_issue(mode) :
 			return render_template('login.html')
 		workspace_contract = session['talent_workspace_contract']
 		address = contractsToOwners(session['talent_workspace_contract'],mode)
-		doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True)[0] 
+		doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True)[0]
 		# message to issuer
 		flash('Thank you, the Certificate has been issued', 'success')
 		# Email to issuer
@@ -324,7 +324,7 @@ def create_authorize_issue_thread(username,
 									mode) :
 	if mode.test :
 		print('debut thread ')
-	issuer_address,issuer_private_key, issuer_workspace_contract = createidentity.create_user(username, issuer_email, mode) 
+	issuer_address,issuer_private_key, issuer_workspace_contract = createidentity.create_user(username, issuer_email, mode)
 	if issuer_workspace_contract is None :
 		print('Thread to create new identity failed')
 		return

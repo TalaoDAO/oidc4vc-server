@@ -58,7 +58,6 @@
                   </div>
                 </div>
               </div>
-              <!-- <span class="sticky-top" style="z-index:1;top:80px;"> -->
               <div class="card shadow my-2 ">
                 <div class="card-body">
                   <h1 style="text-align: center;">{{issuer_name}}</h1>
@@ -171,12 +170,12 @@
 
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="{{issuer_name}} can issue certificate to you at anytime" type="button"
-                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
                           This user is in your <strong>Referent List</strong></button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_issuer/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
-                          <button class="btn btn-primary " type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your Referent List">
+                          <button class="btn btn-primary " type="button" style="color: white;background: #D2D2D2;border-color: #D2D2D2;height: 50px;width: 50px" title="Remove this user from your Referent List">
                             <i class="fas fa-times" style="font-size: 20px;"></i>
                         </a></button>
                       </div>
@@ -185,7 +184,7 @@
                       <div class="col w-100 p-0">
                         <a href="/user/add_issuer/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Allow {{issuer_name}} to issue certificate to you at anytime" type="button"
-                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">Add this user to
+                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">Add this user to
                             you <strong>Referent List</strong></button></a>
                       </div>
                       {% endif %}
@@ -196,12 +195,12 @@
                       {% if is_manager %}
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="{{issuer_name}} can issue certificate in the name of {{name}} at anytime" type="button"
-                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
                           This user is a <strong>Manager</strong></button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_manager/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
-                          <button class="btn btn-primary " type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your Referent List">
+                          <button class="btn btn-primary " type="button" style="color: white;background: #D2D2D2;border-color: #D2D2D2;height: 50px;width: 50px" title="Remove this user from your Referent List">
                             <i class="fas fa-times" style="font-size: 20px;"></i>
                         </a></button>
                       </div>
@@ -209,7 +208,7 @@
                       <div class="col w-100 p-0">
                         <a href="/user/add_manager/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Allow {{issuer_name}} to issue certificate in the name of {{name}} at anytime" type="button"
-                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">
+                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">
                             Make this user a <strong>Manager</strong></button></a>
                       </div>
                       {% endif %}
@@ -222,12 +221,12 @@
 
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="Your Whitelist is made up of issuers you rely on" type="button"
-                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
                           This user is in your <strong> White List</strong></button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_white_issuer/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
-                          <button class="btn btn-primary" type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your White List">
+                          <button class="btn btn-primary" type="button" style="color: white;background: #D2D2D2;border-color: #D2D2D2;height: 50px;width: 50px" title="Remove this user from your White List">
                             <i class="fas fa-times" style="font-size: 20px;"></i>
                         </a></button>
                       </div>
@@ -236,7 +235,7 @@
                       <div class="col w-100 p-0">
                         <a href="/user/add_white_issuer/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Your Whitelist is made up of issuers you rely on" type="button"
-                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">Add this user to
+                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">Add this user to
                             you <strong>White List</strong></button>
                         </a>
                       </div>
@@ -249,12 +248,12 @@
 
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="{{issuer_name}} has access to your private information and stored files" type="button"
-                          style="background: rgba(0,123,255,0);color: rgba(26,184,33,0.93);font-size: 15px;border-color: rgba(26,184,33,0.93);height: 50px;">
+                          style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
                           This user is in your <strong>Partner List</strong></button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_partner/?partner_username={{issuer_username}}&partner_workspace_contract={{issuer_address}}">
-                          <button class="btn btn-primary" type="button" style="color: rgba(108,108,108,0.93);background: rgba(0,0,0,0);border-color: rgba(108,108,108,0.93);height: 50px;width: 50px" title="Remove this user from your Partner List">
+                          <button class="btn btn-primary" type="button" style="color: white;background: #D2D2D2;border-color: #D2D2D2;height: 50px;width: 50px" title="Remove this user from your Partner List">
                             <i class="fas fa-times" style="font-size: 20px;"></i>
                         </a></button>
                       </div>
@@ -263,7 +262,7 @@
                       <div class="col w-100 p-0">
                         <a href="/user/request_partnership/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Authorize {{issuer_name}} to have access to your private information and stored files" type="button"
-                            style="background: rgba(0,123,255,0);border-color: rgba(11,69,128,0.93);color: rgba(11,69,128,0.93);font-size: 15px;height: 50px;">Add this user to
+                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">Add this user to
                             you <strong>Partner List</strong></button>
                         </a>
                       </div>

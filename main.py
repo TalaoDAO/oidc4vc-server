@@ -310,6 +310,12 @@ def test() :
     check_login()
     return render_template('test.html', **session['menu'],test=json.dumps(session['resume'], indent=4))
 
+# Tutorial
+@app.route('/user/tutorial/', methods=['GET'])
+def tutorial() :
+    check_login()
+    return render_template('tutorial.html', **session['menu'])
+
 # search
 @app.route('/user/search/', methods=['GET', 'POST'])
 def search() :
