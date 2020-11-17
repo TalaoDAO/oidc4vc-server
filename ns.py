@@ -523,7 +523,12 @@ def get_credentials(username, mode) :
 	for row in select :
 		metadata = json.loads(row[2])
 		if metadata['client_name'] == username :
-			credentials.append({'client_id' : row[0], 'client_secret' : row[1], 'grant_types' : metadata['grant_types'], 'scope' : metadata['scope'] })
+			credentials.append({'client_id' : row[0],
+			 'client_secret' : row[1],
+			 'client_uri' : metadata['client_uri'],
+			 'redirect_uris' : metadata['redirect_uris'],
+			 'grant_types' : metadata['grant_types'],
+			 'scope' : metadata['scope'] })
 	print('credentials = ', credentials)
 	return credentials
 

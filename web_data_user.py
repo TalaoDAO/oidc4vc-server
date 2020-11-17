@@ -199,30 +199,18 @@ def forgot_password(mode) :
 	if request.method == 'GET' :
 		return render_template('forgot_password_init.html')
 	if request.method == 'POST' :
-		# envoyer un email avec un lien
-#
-# return render_template('forgot_password.html')
-#	if request.method == 'POST' :
-		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
-		if request.form['code'] in authorized_codes and datetime.now() < session['code_for_password_delay'] :
-			ns.update_password(session['username_to_log'], request.form['password'], mode)
-			flash('Password has been updated' , 'success')
-			del session['try_number_for_password']
-			del session['code_for_password']
-			del session['support']
+		username = request.form.get('username')
+		if not ns.username_exist(username, mode) :
+			flash("Username not found", "warning")
 			return render_template('login.html')
-		elif session['code_delay_for_password'] < datetime.now() :
-			flash("Code expired", "warning")
-			return render_template("login.html")
-		elif session['try_number_for_password'] > 3 :
-			flash("Too many trials (3 max)", "warning")
-			return render_template("login.html")
-		else :
-			if session['try_number_for_password'] == 2 :
-				flash('This code is incorrect, 2 trials left', 'warning')
-			if session['try_number_for_password'] == 3 :
-				flash('This code is incorrect, 1 trial left', 'warning')
-			return render_template("forgot_password.html", support=session['support'])
+		new_password = username + str(random.randint(10000, 99999))
+		ns.update_password(username, new_password, mode)
+		subject = 'Talao new password'
+		to = ns.get_data_from_username(username, mode)['email']
+		messagetext = 'Hello\r\n\r\nYour new password is ' + new_password 
+		Talao_message.message(subject, to, messagetext, mode)
+		flash("A new password has been sent by email", "success")
+		return render_template('login.html')
 
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
@@ -796,9 +784,12 @@ def user(mode) :
 		credentials = ns.get_credentials(session['username'], mode)
 		my_api = ""
 		for cred in credentials :
+			print('cred =', cred)
 			my_api = my_api + """
 				<b>client_id</b> : """+ cred['client_id'] +"""<br>
 				<b>client_secret</b> : """+ cred['client_secret'] + """<br>
+				<b>client_uri</b> : """+ cred['client_uri'] + """<br>
+				<b>redirect_uri</b> : """+ cred['redirect_uris'][0] + """<br>
 				<b>scope</b> : """+ cred['scope'] + """<br>
 				<b>grant_types</b> : """+ " ".join(cred['grant_types']) + """<br><hr> """
 
