@@ -65,6 +65,8 @@ import web_issue_certificate
 import web_skills
 import web_CV_blockchain
 import web_issuer_explore
+
+# API server
 from config_apiserver import config_api_server
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
@@ -87,7 +89,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.13.15"
+VERSION = "0.13.16"
 API_SERVER = True
 
 # Flask and Session setup
@@ -633,7 +635,7 @@ def store_file() :
             flash('File ' + filename + ' has been uploaded.', "success")
         return redirect(mode.server + 'user/')
 
-# create company (Talao only)
+# create company (Talao only and newco for test)
 @app.route('/user/create_company/', methods=['GET', 'POST'])
 def create_company() :
     check_login()
@@ -664,7 +666,7 @@ def create_person() :
         person_firstname = request.form['firstname']
         person_lastname = request.form['lastname']
         person_username = ns.build_username(person_firstname, person_lastname, mode)
-        workspace_contract = createidentity.create_user(person_username, person_email, mode, creator=session['address'])[2]
+        workspace_contract = createidentity.create_user(person_username, person_email, mode, creator=session['address'], partner=True)[2]
         if workspace_contract is not None :
             claim=Claim()
             claim.relay_add(workspace_contract, 'firstname', person_firstname, 'public', mode)

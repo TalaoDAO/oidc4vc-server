@@ -44,12 +44,9 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
-
 	ipfs_hash = ipfs_add(dict_data,mode)
-
 	if mode.test :
 		print('ipfs_hash email2 = ', ipfs_hash)
-
 
 	# Signature
 	nonce = w3.eth.getTransactionCount(address)
@@ -68,13 +65,11 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		return False
-
 	if mode.test :
 		print ('email claim Id = ', claim_id)
 		print('email 2 transaction hash = ', transaction_hash)
-
 	return True
 
 def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
@@ -90,7 +85,7 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		print('Failed transaction createWprkspace')
 		return None
 	return hash
@@ -152,7 +147,7 @@ def create_company(email, username, mode, creator=None, partner=False) :
 	# Transaction pour la creation du workspace :
 	bemail = bytes(email , 'utf-8')
 	hash =_createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode)
-	if hash is None :
+	if not hash :
 		return None, None, None
 	print('hash de createWorkspace =', hash)
 
@@ -191,7 +186,7 @@ def create_company(email, username, mode, creator=None, partner=False) :
 		if partner :
 			# creator requests partnership
 			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode, synchronous= True) :
-				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_key, mode, synchronous = True) :
+				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_private, mode, synchronous = True) :
 					print('partnership request from creator has been accepted')
 				else :
 					print('authorize partnership with creator failed')

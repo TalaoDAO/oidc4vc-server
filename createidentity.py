@@ -28,7 +28,7 @@ from base64 import b64encode, b64decode
 import Talao_message
 from Talao_ipfs import ipfs_add, ipfs_get
 import constante
-from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
+from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key, partnershiprequest, authorize_partnership
 import ns
 import privatekey
 #import ethereum_bridge see later
@@ -132,7 +132,7 @@ def create_user(username, email,mode, creator=None, partner=False):
 	if mode.test :
 		print('create vault acces hash ', hash)
 
-	# Identity setup 
+	# Identity setup
 	contract = mode.w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address)
 	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 7500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
@@ -162,10 +162,20 @@ def create_user(username, email,mode, creator=None, partner=False):
 
 	# Creator
 	if creator and creator != mode.owner_talao :
-		# setup parnership with creator to be done
+		creator_address = creator
+		creator_workspace_contract = ownersToContracts(creator_address, mode)
+		creator_rsa_key = privatekey.get_key(creator, 'rsa_key', mode)
+		creator_private_key = privatekey.get_key(creator,'private_key', mode)
+		# setup partnership
 		if partner  :
-			pass
-
+			# creator requests partnership
+			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode, synchronous= True) :
+				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_private, mode, synchronous = True) :
+					print('partnership request from creator has been accepted by Identity')
+				else :
+					print('authorize partnership with creator failed')
+			else :
+				print('creator partnership request failed')
 		#add creator as referent
 		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=True) :
 			print('key 20002 issued for creator')

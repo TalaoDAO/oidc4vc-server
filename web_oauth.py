@@ -395,7 +395,7 @@ def user_issues_certificate(mode):
 
 # create a person identity with a key2002 key and partnership
 #@route('/api/v1/create_person_identity')
-@require_oauth('client:create:identity')
+@require_oauth('client:create:identity') #scope
 def oauth_create_person_identity(mode):
     # creation d'une identité"
     client_id = current_token.client_id
@@ -424,7 +424,7 @@ def oauth_create_person_identity(mode):
 
 # create a company identity with key20002 and partnership
 #@route('/api/v1/create_company_identity')
-@require_oauth('create:client:identity')
+@require_oauth('client:create:identity')
 def oauth_create_company_identity(mode):
     # creation d'une identité"
     client_id = current_token.client_id
@@ -439,7 +439,7 @@ def oauth_create_company_identity(mode):
     if ns.username_exist(identity_username, mode)   :
         identity_username = identity_username + str(random.randint(1, 100))
     try :
-        identity_workspace_contract = createcompany.create_company(identity_username, data.get('email'), mode, creator=creator, partner=True)[2]
+        identity_workspace_contract = createcompany.create_company(data['email'], identity_username, mode, creator=creator, partner=True)[2]
     except :
         response_dict = {'detail' : 'Blockchain failure, contact Talao support '}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')

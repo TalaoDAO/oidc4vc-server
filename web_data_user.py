@@ -369,18 +369,6 @@ def user(mode) :
 		phone =  ns.get_data_from_username(session['username'], mode).get('phone')
 		session['phone'] = phone if phone else ""
 
-		""" Probablement a virer !!! """
-		# Identity List
-		identity_list = ns.identity_list(mode)
-		my_list = """ <div  style="height:200px;overflow:auto;overflow-x: hidden;">"""
-		for identity in identity_list :
-			identity_workspace_contract = ns.get_data_from_username(identity, mode)['workspace_contract']
-			contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
-			data = contract.functions.identityInformation().call()
-			icon = "fa-industry" if data[1] == 2001 else "fa-user"
-			my_list = my_list + """ <a class="dropdown-item " title="" role="presentation" href="/user/issuer_explore/?issuer_username=""" + identity + """" ><i class="fa """ + icon + """ fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;""" + identity + """&nbsp;</a>"""
-		my_list = my_list + """</div>"""
-
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['education'] = user.education
@@ -396,7 +384,6 @@ def user(mode) :
 							'private_key_value' : user.private_key_value,
 							'rsa_filename': session['rsa_filename'],
 							'profil_title' : session['profil_title'],
-							'list' : my_list,
 							'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
 
 
@@ -475,6 +462,7 @@ def user(mode) :
 	if session['partner'] == [] :
 		my_partner = """<a class="text-info">No Partners available</a>"""
 	else :
+		print('partner list = ', session['partner'])
 		my_partner = ""
 		for partner in session['partner'] :
 			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])

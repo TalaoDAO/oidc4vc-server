@@ -520,15 +520,16 @@ def get_credentials(username, mode) :
 	c.execute("SELECT client_id, client_secret,client_metadata FROM oauth2_client ")
 	select = c.fetchall()
 	credentials = list()
-	for row in select :
-		metadata = json.loads(row[2])
-		if metadata['client_name'] == username :
-			credentials.append({'client_id' : row[0],
-			 'client_secret' : row[1],
-			 'client_uri' : metadata['client_uri'],
-			 'redirect_uris' : metadata['redirect_uris'],
-			 'grant_types' : metadata['grant_types'],
-			 'scope' : metadata['scope'] })
+	for row in select  :
+		if row[2] :
+			metadata = json.loads(row[2])
+			if metadata['client_name'] == username :
+				credentials.append({'client_id' : row[0],
+				 'client_secret' : row[1],
+				 'client_uri' : metadata['client_uri'],
+				 'redirect_uris' : metadata['redirect_uris'],
+				 'grant_types' : metadata['grant_types'],
+				 'scope' : metadata['scope'] })
 	print('credentials = ', credentials)
 	return credentials
 
