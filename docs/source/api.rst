@@ -44,12 +44,12 @@ Scopes for data access are standard OpenID Connect and specific Talao scopes :
 * phone
 * address
 * about : short user description
-* resume : for person identity only
-* proof_of_identity
+* resume (in progress on 11-17-2020) : for person identity only
+* proof_of_identity (in progress on 11-17-2020)
 
-.. note:: "sub" is the  Decentralized IDentier of the user (did). It always starts with "did:talao:talaonet:".
+.. note:: "sub" is the  Decentralized IDentier of the user (did). It always starts with "did:talao:".
 
-Those data are available through an ID Token (JWT) and at the user_info endpoint through an Access Token.
+Those data are available through an ID Token (JWT) and at the user_info endpoint with an Access Token.
 
 Process
 *******
@@ -102,6 +102,8 @@ Decode JWT
 
 JWT can be decoded with Talao RSA public key . Audience is your client_id, algorithm is RS256
 
+Talao RSA key :
+
 .. code-block:: TEXT
 
   -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3fMFBmz2y31GlatcZ/ud\nOL9CmCmvtde2Pu5ZggILlBD6yll+O10eH/8J8wX9OZG+e5vAgT5gkzo247ow4auj\niOA87V9bdexI7nUiD5qjdKTcIofJiDkmCIgF/UqwQ7dfyl1jWDVB1CnfAqkL0U2j\nbU+Nb/y1M1/oTFoid+trRFbhM+0awr06grh4viGJ0i5oVCcuybcDuP7bwNiZD1FP\n85L/hlfXvJs+oz6K+583leu1hj7wFnWSv0jgeYHkdgoG3rSKlbTxt+98dTu3Hy8s\nePl9O/2WKi6SSH0wpR+FqaBULAAyWd0cj5mjBLYoUiGP7qyIU5/9Z+pVf+L7SO7t\nlQIDAQAB\n-----END PUBLIC KEY-----
@@ -135,18 +137,18 @@ For your users, this flow includes a consent screen that describes through 'scop
 For example, when the user logs in, they might be asked to accept or reject a partnership.
 
 There is no off-line access through Refresh Token but Talao partnership allows your company to get user data as long as the partnership is authorized.
-It means that you always need consent of an online user who signed-in Talao to issue or delete a certificate on his/her behalf.
+However it means that you always need consent of an online user who signed-in Talao to issue or delete a certificate on his/her behalf.
 
-.. note:: If your company needs to sign and issue a certificate, see further the Client Credential flow.
+.. note:: If your company needs to sign a certificate as an issuer, see further the Client Credential flow.
 
 
 You request an access to these functionalities using the scope parameter, which your app includes in its request.
 
 Below list of scopes  :
 
-* user:manage:certificate : This scope allows your company to issue/delete certificate on behalf of a user
-* user:manage:partner : This scope allows your company to request, accept or reject partnership with all Identities on behalf of a user
-* user:manage:referent : this scop allow your company to add or remove referent on behalf of a user
+* user:manage:certificate : This scope if accepted by user allows your company to issue/delete certificates on behalf of a user
+* user:manage:partner : This scope if accepted by user allows your company to request, accept or reject partnerships with all Identities on behalf of a user
+* user:manage:referent : this is accepted by user scope allows your company to add or remove referents on behalf of a user
 
 Step 1, ask for a grant code with your scope list, nonce, state.
 
@@ -173,12 +175,12 @@ Step 3, with the Access Token you can acces an endpoint
 
 Endpoint : https://talao.co/api/v1/user_issues_certificate
 ***********************************************************
-Issue a reference or agreement certificate to a company on behalf of user.
 
-User must be a in the company's referent list.
+Issue a certificate to an Identity(person or company) on behalf of a user.
+certificate is "reference" or "agreement or "experience" or "skill" or "recommendation".
+User must be in the identity's referent list.
 
 Scope required : user:manage:certificate
-
 
 Issue an agreement certificate :
 
@@ -239,7 +241,8 @@ Endpoint : https://talao.co/api/v1/user_accepts_company_partnership
 ********************************************************************
 
 This is a straightforward process to build a partnership with an Identity. It combines your company request for a partnership and an authorization from Identity.
-scope required : user:manage:partner
+
+Scope required : user:manage:partner
 
 .. code::
 
@@ -260,7 +263,8 @@ Endpoint : https://talao.co/api/v1/user_accepts_company_referent
 *****************************************************************
 
 To add your company in the Identity referent list
-scope required : user:manage:referent
+
+Scope required : user:manage:referent
 
 
 .. code::
@@ -282,7 +286,8 @@ Endpoint : https://talao.co/api/v1/user_adds_referent
 ******************************************************
 
 To add an Identity to the user referent list
-scope required : user:manage:referent
+
+Scope required : user:manage:referent
 
 
 .. code::
@@ -331,6 +336,7 @@ To manage your own Identity
 
 
 Using the Client Credentials Flow is straightforward - simply issue an HTTP GET against the token endpoint with both your client_id and client_secret set appropriately to get the Access Token :
+
 Scope are required for most endpoints.
 
 .. code::
@@ -349,8 +355,9 @@ Endpoint : https://talao.co/api/v1/issue_experience
 ***************************************************
 
 Issue an experience certificate to a user.
-Scope required client:issue:experience.
 Company must be a in the user's referent list.
+
+Scope required client:issue:experience.
 
 Issue an experience certificate :
 
@@ -417,7 +424,7 @@ Scope required : client:create:identity
 .. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
 
 
-Create a new identity :
+Create a new person identity :
 
 .. code::
 
@@ -436,11 +443,12 @@ JSON Response
   }
 
 
-
 Endpoint : https://talao.co/api/v1/get_status
 *********************************************
 
-Get the referent and partnership status of a user with your company
+Get the referent and partnership status of a user with your company.
+
+No scope required.
 
 .. code::
 
@@ -489,10 +497,12 @@ Endpoint : https://talao.co/api/v1/create_company_identity
 **********************************************************
 
 Create an Identity for a company.
+
 Your company is appointed as a referent to issue certificates to this company.
 Your company is apointed as a partner to access all data without any new user authorization.
 User Identity username/password are sent by email to user.
-Return JSON with did (sub) and username
+Return JSON with did (sub) and username.
+
 Scope required : client:create:identity
 
 .. warning:: As your company has an access to all user data, you should give users access to their identity in order them to manage authorizations by themselves.
@@ -502,7 +512,7 @@ Create a new identity :
 
 .. code::
 
-  $ curl -X POST https://talao.co/api/v1/create_person_identity \
+  $ curl -X POST https://talao.co/api/v1/create_company_identity \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
    -H "Content-Type: application/json" \
    -d '{"name":"NewIndus", "email":"jean.petit@newindus.io"}'
@@ -521,8 +531,9 @@ Endpoint : https://talao.co/api/v1/issue_reference
 ***************************************************
 
 Issue a reference certificate to a company.
-scop required client:issue:reference
 Your company must be a in the company's referent list.
+
+Scope required client:issue:reference
 
 Issue a reference certificate :
 
@@ -555,14 +566,15 @@ Example of a JSON_certificate :
 
 
 
-
 Endpoint : https://talao.co/api/v1/issue_agreement
 **************************************************
 
 Issue an agreement certificate to a company.
-scope required client:issue:agreement.
 Your company must be in the company's referent list.
 Issue an agreement certificate :
+
+Scope required client:issue:agreement.
+
 
 .. code::
 
@@ -598,6 +610,11 @@ to be done
 Endpoint : https://talao.co/api/v1/get_certificate_list
 *******************************************************
 
+Get the certificate list of an Identity.
+Your company must be in the partner list.
+
+No scope required.
+
 .. code::
 
   $ curl -X POST https://talao.co/api/v1/get_certificate_list  \
@@ -617,6 +634,10 @@ Example of a JSON return :
 Endpoint : https://talao.co/api/v1/get_certificate
 **************************************************
 
+Get certificate data.
+Your company must be in the partner list of the Identity.
+
+No scope required.
 
 .. code::
 

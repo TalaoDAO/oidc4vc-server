@@ -57,7 +57,6 @@ Main contract addresses are :
 - Foundation : 0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6
 - Workspace Factory : 0x0969E4E66f47D543a9Debb7b0B1F2928f1F50AAf
 
-Protocol code available at https://github.com/TalaoDAO/talao-contracts
 
 Credits
 -------

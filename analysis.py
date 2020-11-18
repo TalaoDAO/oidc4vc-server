@@ -53,8 +53,6 @@ def dashboard(workspace_contract,resume, mode) :
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
-				print(doctype, i)
-				print(resume[doctype])
 				if doctype == 'skills' :
 					created = datetime.fromisoformat(resume[doctype]['created'])
 					issuer_workspace_contract = resume[doctype]['issuer']['workspace_contract']
@@ -234,7 +232,6 @@ def dashboard(workspace_contract,resume, mode) :
 	a = ['.', '(', ')', ',', ':'] + english_no_words + french_no_words
 
 	token_description = word_tokenize(description.lower())
-	#print(nltk.pos_tag(token_description))
 
 	token_skills = word_tokenize(" ".join(skills).lower())
 	token_position = word_tokenize(position.lower())

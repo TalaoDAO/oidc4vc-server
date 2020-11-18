@@ -23,20 +23,32 @@ import privatekey
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')
 def resolver(mode):
-    username = request.args.get('username')
-    workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
-    if not workspace_contract :
-        payload = {'detail' : "username not found"}
-        response = Response(json.dumps(payload), status=400, mimetype='application/json')
-        return response
-    address = contractsToOwners(workspace_contract, mode)
-    did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
-    contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-    rsa_public_key = contract.functions.identityInformation().call()[4]
-    payload = {'username' : username, 'did' : did, 'address' : address, 'RSA_public_key' : rsa_public_key.decode('utf-8')}
-    response = Response(json.dumps(payload), status=200, mimetype='application/json')
-    return response
-
+    if request.method == 'GET':
+        return render_template('resolver.html', output="")
+    if request.method == 'POST':
+        input = request.form.get('input')
+        try :
+            if input[:3] == 'did' :
+                did = input
+                workspace_contract = '0x' + input.split(':')[3]
+                username = ns.get_username_from_resolver(workspace_contract, mode)
+            else :
+                username = input.lower()
+                workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
+                did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+        except :
+            output =  "Username, workspace_contract or did not found"
+            return render_template('resolver.html', output=output)
+        address = contractsToOwners(workspace_contract, mode)
+        contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+        rsa_public_key = contract.functions.identityInformation().call()[4]
+        payload = {'blockchain' : mode.BLOCKCHAIN,
+                     'username' : username,
+                     'did' : did,
+                     'address' : address,
+                     'workspace contract' : workspace_contract,
+                     'RSA public key' : rsa_public_key.decode('utf-8')}
+        return render_template('resolver.html', output=json.dumps(payload, indent=4))
 
 def check_login() :
 	#check if the user is correctly logged. This function is called everytime a user function is called 
@@ -324,12 +336,11 @@ def user_issues_certificate(mode):
     issued_by_workspace_contract = get_user_workspace(user_id,mode)
     issued_by_address = contractsToOwners(issued_by_workspace_contract, mode)
     data = json.loads(request.data.decode("utf-8"))
+    certificate = data['certificate']
     try :
         issued_to_workspace_contract = '0x' + data['did_issued_to'].split(':')[3]
         issued_to_address = contractsToOwners(issued_to_workspace_contract, mode)
         issued_by_private_key = privatekey.get_key(issued_by_address,'private_key', mode)
-        certificate = data['certificate']
-        certificate_type = data['certificate_type']
     except :
         response_dict = {'detail' : 'did or request malformed '}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
@@ -338,24 +349,32 @@ def user_issues_certificate(mode):
         response_dict = {'detail' : 'did does not exist'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    issued_to_profil, issued_to_category = read_profil(issued_to_workspace_contract, mode, 'full')
-    issued_by_profil, issued_by_category = read_profil(issued_by_workspace_contract, mode, 'full')
-    certificate['type'] = certificate_type
-    certificate['version'] = 1
-    # issued_by is always a company
-    if issued_by_category == 1001 :
-        print(' certificate issued by a person ????')
-        response_dict = {'detail' : 'One person cannot issue a certificate, contact relay-suport@talao.co'}
+    if data['certificate_type'] not in ['reference', 'agreement', 'experience', 'skill', 'recommendation' ] :
+        response_dict = {'detail' : 'This type of certificate cannot be issued'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    certificate["issued_by"]  = {
-		"name" : issued_by_profil['name'],
-		"postal_address" : issued_by_profil['postal_address'],
-		"siret" : issued_by_profil['siret'],
-		"logo" :get_image(issued_by_workspace_contract, 'logo', mode),
-		"signature" : get_image(issued_by_workspace_contract, 'signature', mode),
-        "manager" : "Director",
-		}
+    issued_to_profil, issued_to_category = read_profil(issued_to_workspace_contract, mode, 'full')
+    issued_by_profil, issued_by_category = read_profil(issued_by_workspace_contract, mode, 'full')
+    certificate['type'] = data['certificate_type']
+    certificate['version'] = 1
+
+    if issued_by_category == 1001 : # person
+        certificate["issued_by"]  = {
+		    "firstname" : issued_by_profil['firstname'],
+            "lastname" : issued_by_profil['lastname'],
+		    "postal_address" : issued_by_profil['postal_address'],
+		    "picture" : get_image(issued_by_workspace_contract, 'picture', mode),
+		    "signature" : get_image(issued_by_workspace_contract, 'signature', mode),
+		    }
+    else : # company
+        certificate["issued_by"]  = {
+		    "name" : issued_by_profil['name'],
+		    "postal_address" : issued_by_profil['postal_address'],
+		    "siret" : issued_by_profil['siret'],
+		    "logo" :get_image(issued_by_workspace_contract, 'logo', mode),
+		    "signature" : get_image(issued_by_workspace_contract, 'signature', mode),
+            "manager" : "Director",
+		    }
     if issued_to_category == 2001 : # company
         certificate["issued_to"]  = {
 		    "name" : issued_to_profil['name'],
