@@ -13,6 +13,7 @@ from Crypto.Cipher import AES
 from base64 import b64encode
 from datetime import datetime
 from base64 import b64encode, b64decode
+import random
 
 # dependances
 from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, authorize_partnership, partnershiprequest
@@ -91,7 +92,7 @@ def _createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,
 	return hash
 
 
-def create_company(email, username, mode, creator=None, partner=False) :
+def create_company(email, username, mode, creator=None, partner=False, send_email=True) :
 	""" username is a company name here
 	one does not check if username exist here """
 
@@ -199,16 +200,20 @@ def create_company(email, username, mode, creator=None, partner=False) :
 			print('key 20002 for creator failed')
 
 
-	# update resolver and create local database for this company
+	# update resolver and create local database for this company with last check on username
+	if ns.username_exist(username, mode) :
+		username = username + str(random.randint(1, 100))
 	ns.add_identity(username, workspace_contract, email, mode)
 	# create databe for manager within the company
 	ns.init_host(username, mode)
 
-	# add private key
+	# add private key in keystore
 	if add_private_key(private_key, mode) :
 		print('New company has been added ')
 		Talao_message.messageLog("no lastname","no firstname", username, email, 'Company created by Talao', address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
-		Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
+		# one sends an email by default
+		if send_email :
+			Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
 	else :
 		print('add private key failed')
 		return None, None, None

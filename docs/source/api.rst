@@ -415,7 +415,7 @@ Endpoint : https://talao.co/api/v1/create_person_identity
 Create an Identity for a user.
 Your company is appointed as a referent to issue certificates to this user.
 Your company is apointed as a partner to access all data without any new user authorization.
-User Identity username/password are sent by email to user.
+User Identity username/password are sent by email to user by defaul. Setup "send_email" to False to disable.
 Return JSON with did (sub) and username.
 
 Scope required : client:create:identity
@@ -431,7 +431,7 @@ Create a new person identity :
   $ curl -X POST https://talao.co/api/v1/create_person_identity \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
    -H "Content-Type: application/json" \
-   -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io"}'
+   -d '{"firstname":"jean", "lastname":"pascalet", "email":"jean.pascalet@talao.io", "send_email" : false}'
 
 JSON Response
 
@@ -500,7 +500,7 @@ Create an Identity for a company.
 
 Your company is appointed as a referent to issue certificates to this company.
 Your company is apointed as a partner to access all data without any new user authorization.
-User Identity username/password are sent by email to user.
+User Identity username/password are sent by email to user by default,  Setup "send_email" to False to disable.
 Return JSON with did (sub) and username.
 
 Scope required : client:create:identity
@@ -515,7 +515,7 @@ Create a new identity :
   $ curl -X POST https://talao.co/api/v1/create_company_identity \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
    -H "Content-Type: application/json" \
-   -d '{"name":"NewIndus", "email":"jean.petit@newindus.io"}'
+   -d '{"name":"NewIndus", "email":"jean.petit@newindus.io", "send_email" : false}'
 
 JSON Response
 

@@ -6,88 +6,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Google-Style-Login.css') }}">
 </head>
 
 <body id="page-top">
-    <br><br><br><br><br><br>
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-xl-1"></div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-lg-4 offset-xl-4">
-                            <div class="card mb-3">
-                                <div class="card-header py-3">
-                                    <p class="text-primary m-0 font-weight-bold">Confirm your consent</p>
-                                </div>
-                                <div class="card-body text-center shadow">
+                                <div class="login-card text-center">
+                                    <img style="width: 96px;  display: block;  margin-left: auto; margin-right: auto;"  src="{{ url_for('static', filename='img/logo_noir.png')}}">
+                                    <p class="profile-name-card"> </p>
                                     <form action="" method="POST">
-                                        <p>Allow <b>{{grant.client.client_name}}</b> to access your Identity.
-                                            You can restrict data access and permitted actions or reject all requests.</p>
+                                        <p>Allow an application of <b>{{grant.client.client_name}}</b> to access your Digital Identity.</p>
                                         <div class="form-group">
                                             {% if profile == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{profile}} type="checkbox" name="profile" ><label class="form-check-label" >I authorize company to access my public profile</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{profile}} type="checkbox" name="profile" ><label class="form-check-label" >I authorize this application to access my public profile.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if birthdate == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{birthdate}} type="checkbox" name="birthdate" ><label class="form-check-label" >I authorize company to access my birthdate</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{birthdate}} type="checkbox" name="birthdate" ><label class="form-check-label" >I authorize this application to access my birthdate.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if resume == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{resume}} type="checkbox" name="resume"><label class="form-check-label" >I authorize company to access my public resume</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{resume}} type="checkbox" name="resume"><label class="form-check-label" >I authorize this application to access my professional resume.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if proof_of_identity == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input"  {{proof_of_identity}} type="checkbox" name="proof_of_identity"><label class="form-check-label" >I authorize company to access my proof of identity</label></div>
+                                                <div class="form-check"><input class="form-check-input"  {{proof_of_identity}} type="checkbox" name="proof_of_identity"><label class="form-check-label" >I authorize this application to access my proof of identity.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if email == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{email}} type="checkbox" name="email" ><label class="form-check-label" >I authorize company to access my public email</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{email}} type="checkbox" name="email" ><label class="form-check-label" >I authorize this application to access my email.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if phone == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                                <div class="form-check"><input class="form-check-input" {{phone}} type="checkbox" name="phone" ><label class="form-check-label" >I authorize company to access my public phone</label></div>
+                                                <div class="form-check"><input class="form-check-input" {{phone}} type="checkbox" name="phone" ><label class="form-check-label" >I authorize this application to access my phone number.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if user_manage_referent == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{user_manage_referent}} name="user:manage:referent" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to add referents.</p></label></div>
+                                            <div class="form-check"><input class="form-check-input"  type="checkbox" {{user_manage_referent}} name="user:manage:referent" ><label class="form-check-label" ><p>I authorize this application to add referents to my Identity.</p></label></div>
                                             </div>
                                             {% endif %}
                                         </div>
                                         <div class="form-group">
                                             {% if user_manage_partner == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_manage_partner}} name="user:manage:partner" ><label class="form-check-label" >I authorize company to manage my parnerships.</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_manage_partner}} name="user:manage:partner" ><label class="form-check-label" >I authorize this application to manage my parnerships.</label></div>
                                             </div>
                                             {% endif %}
                                         </div>
@@ -95,23 +79,20 @@
                                         <div class="form-group">
                                             {% if user_manage_certificate == 'checked' %}
                                             <div class="form-inline custom-control-inline">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_manage_certificate}} name="user:manage:certificate" ><label class="form-check-label" ><p>I authorize <b>{{grant.client.client_name}}</b> to issue or delete certificates with my signature.</p></label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" {{user_manage_certificate}} name="user:manage:certificate" ><label class="form-check-label" ><p>I authorize this app:ication to issue or delete certificates with my signature.</p></label></div>
                                             </div>
                                             {% endif %}
                                         </div>
 
                                         <div class="form-row">
-                                            <div class="col-6 col-xl-3">
-                                                <div class="form-group"><button id="in_progress_button" title="" class="btn btn-primary btn-sm" type="submit">Allow</button></div>
+                                            <div class="col-4 col-xl-3">
+                                                <div class="form-group"><button  title="" class="btn btn-primary btn-block btn-lg btn-signin" type="submit">Allow</button></div>
                                             </div>
-                                            <div class="col-6 col-xl-3">
-                                                <div class="form-group"><button class="btn btn-primary btn-sm" name ="reject" type="submit">Deny</button></div>
+                                            <div class="col-4 col-xl-3">
+                                                <div class="form-group"><button class="btn btn-primary btn-block btn-lg btn-signin" name ="reject" type="submit">Reject</button></div>
                                             </div>
-                                        </div>
                                     </form>
                                 </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -119,7 +100,6 @@
     </div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>

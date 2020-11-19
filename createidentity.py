@@ -78,7 +78,7 @@ def email2(address, workspace_contract, private_key, email, AES_key, mode) :
 
 	return True
 
-def create_user(username, email,mode, creator=None, partner=False):
+def create_user(username, email,mode, creator=None, partner=False, send_email=True):
 	email = email.lower()
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -148,7 +148,9 @@ def create_user(username, email,mode, creator=None, partner=False):
 	workspace_contract = ownersToContracts(address,mode)
 	print('workspace_contract has been setup = ',workspace_contract)
 
-	# add username to register in local nameservice Database
+	# add username to register in local nameservice Database with last check
+	if ns.username_exist(username, mode) :
+		username = username + str(random.randint(1, 100))
 	ns.add_identity(username, workspace_contract, email, mode)
 
 	# key 1 issued to Web Relay to act as agent.
@@ -190,7 +192,9 @@ def create_user(username, email,mode, creator=None, partner=False):
 	# emails send to user and admin
 	if mode.myenv == 'aws' :
 		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
-		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
+		# By default an email is sent to user
+		if send_email :
+			Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
 
 	# store Ethereum private key in keystore
 	if not privatekey.add_private_key(private_key, mode) :
