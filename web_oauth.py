@@ -117,10 +117,11 @@ def oauth_login(mode):
         if not ns.username_exist(username, mode)  :
             flash('Username not found', "warning")
             return redirect(url)
+        # if secret code wrong redirect to url
         if not ns.check_password(username, request.form['password'].lower(), mode)  :
             flash('Wrong password', "warning")
             return redirect(url)
-        # if secret code wrong redirect to url
+        session['remember_me'] = request.form.get('checkbox')
         user = User.query.filter_by(username=username).first()
         if not user:
             user = User(username=username)
@@ -183,7 +184,7 @@ def authorize(mode):
     scope_list=['openid', 'profile', 'resume', 'proof_of_identity', 'birthdate', 'email', 'phone', 'about',
             'user:manage:referent', 'user:manage:partner', 'user:manage:certificate' ]
     # if user log status is not true (Auth server), then to log it in
-    if not user:
+    if not user :
         return redirect(url_for('oauth_login', next=request.url))
     # GET
     if request.method == 'GET':
@@ -207,11 +208,13 @@ def authorize(mode):
     # always JWT.....check if needed
     my_scope = "openid "
     for scope in scope_list :
-        if request.form.get(scope) == "on" :
+        if request.form.get(scope) :
             my_scope = my_scope + scope + " "
     query_dict["scope"] = my_scope
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
+    if not session['remember_me'] :
+        session.clear()
     return authorization.create_authorization_response(grant_user=user, request=req)
 
 
@@ -706,7 +709,7 @@ def oauth_get_certificate_list(mode):
         if contract.functions.getDocument(doc_id).call()[0] == 20000 :
             certificate = Document('certificate')
             if certificate.relay_get(user_workspace_contract, doc_id, mode, loading='light') :
-                if certificate.type == certificate_type :
+                if certificate.type == certificate_type or certificate_type.lower() == 'all' :
                     certificate_list.append(data['did'] + ':document:' + str(doc_id))
     response_dict = {'certificate_list' : certificate_list}
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
@@ -743,6 +746,6 @@ def oauth_get_certificate(mode):
         response_dict = {'detail' : 'Certificate not found'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
     else :
-        response_dict = {'certificate_data' : certificate.__dict__}
+        response_dict = certificate.__dict__
     response = Response(json.dumps(response_dict), status=200, mimetype='application/json')
     return response

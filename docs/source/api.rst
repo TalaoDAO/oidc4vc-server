@@ -571,10 +571,10 @@ Endpoint : https://talao.co/api/v1/issue_agreement
 
 Issue an agreement certificate to a company.
 Your company must be in the company's referent list.
-Issue an agreement certificate :
 
 Scope required client:issue:agreement.
 
+Issue an agreement :
 
 .. code::
 
@@ -612,6 +612,8 @@ Endpoint : https://talao.co/api/v1/get_certificate_list
 
 Get the certificate list of an Identity.
 Your company must be in the partner list.
+
+certificate_type is : "experience", "skill", "agreement", "reference", "recommendation" or "all".
 
 No scope required.
 
@@ -651,54 +653,52 @@ Example of a JSON return :
 .. code-block:: JSON
 
   {
-    "certificate_data": {
-      "created": "2020-09-28 14:37:59",
-      "data_location": "https://gateway.pinata.cloud/ipfs/QmWrsG2RSVmJFpLsfwHJttv4DC7RhdN5oxnsJ3k5EVh7cP",
-      "description": "D\u00e9veloppement d'un application web d\u2019acc\u00e8s au protocole Talao permettant de mettre en oeuvre toutes les fonctionnalit\u00e9s du protocole et en particulier la gestion des cl\u00e9s priv\u00e9es, les partenariats et le cryptage des donn\u00e9es.",
-      "doc_id": 12,
-      "doctype": 20000,
-      "doctypeversion": 2,
-      "end_date": "2020-07-30",
-      "expires": "Unlimited",
-      "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB:document:12",
-      "identity": {
-        "address": "0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8",
-        "category": 1001,
-        "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB",
-        "workspace_contract": "0x81d8800eDC8f309ccb21472d429e039E0d9C79bB"
-      },
-      "ipfshash": "QmWrsG2RSVmJFpLsfwHJttv4DC7RhdN5oxnsJ3k5EVh7cP",
-      "issuer": {
-        "address": "0xEE09654eEdaA79429F8D216fa51a129db0f72250",
-        "category": 2001,
-        "id": "did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68",
-        "name": "Talao",
-        "workspace_contract": "0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68"
-      },
-      "logo": "Qme3vLZP6n8xNQj6qmL8piGyWVUhm4oYhmYXMqvczzN3Z1",
-      "manager": "Director",
-      "privacy": "public",
-      "reviewer": "",
-      "score_communication": "4",
-      "score_delivery": "4",
-      "score_recommendation": "4",
-      "score_schedule": "4",
-      "signature": "QmdMBfNut5GosNKrN73GhncbvkWqGLLNZJR5omEpAi9bkD",
-      "skills": [
-        "Blockchain",
-        " Solidity",
-        " Talao",
-        " ERC725",
-        " Python"
-      ],
-      "start_date": "2020-03-01",
-      "title": "Project Leader",
-      "topic": "certificate",
-      "transaction_fee": 1000000000000,
-      "transaction_hash": "0x0e4600aab98d171078509f51bb12b1d16def8574f57251c1fc94a9b5e7cf66ca",
-      "type": "experience",
-      "version": 1
-    }
+    "created": "2020-09-28 14:37:59",
+    "data_location": "https://gateway.pinata.cloud/ipfs/QmWrsG2RSVmJFpLsfwHJttv4DC7RhdN5oxnsJ3k5EVh7cP",
+    "description": "D\u00e9veloppement d'un application web d\u2019acc\u00e8s au protocole Talao permettant de mettre en oeuvre toutes les fonctionnalit\u00e9s du protocole et en particulier la gestion des cl\u00e9s priv\u00e9es, les partenariats et le cryptage des donn\u00e9es.",
+    "doc_id": 12,
+    "doctype": 20000,
+    "doctypeversion": 2,
+    "end_date": "2020-07-30",
+    "expires": "Unlimited",
+    "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB:document:12",
+    "identity": {
+      "address": "0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8",
+      "category": 1001,
+      "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB",
+      "workspace_contract": "0x81d8800eDC8f309ccb21472d429e039E0d9C79bB"
+    },
+    "ipfshash": "QmWrsG2RSVmJFpLsfwHJttv4DC7RhdN5oxnsJ3k5EVh7cP",
+    "issuer": {
+      "address": "0xEE09654eEdaA79429F8D216fa51a129db0f72250",
+      "category": 2001,
+      "id": "did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68",
+      "name": "Talao",
+      "workspace_contract": "0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68"
+    },
+    "logo": "Qme3vLZP6n8xNQj6qmL8piGyWVUhm4oYhmYXMqvczzN3Z1",
+    "manager": "Director",
+    "privacy": "public",
+    "reviewer": "",
+    "score_communication": "4",
+    "score_delivery": "4",
+    "score_recommendation": "4",
+    "score_schedule": "4",
+    "signature": "QmdMBfNut5GosNKrN73GhncbvkWqGLLNZJR5omEpAi9bkD",
+    "skills": [
+      "Blockchain",
+      " Solidity",
+      " Talao",
+      " ERC725",
+      " Python"
+    ],
+    "start_date": "2020-03-01",
+    "title": "Project Leader",
+    "topic": "certificate",
+    "transaction_fee": 1000000000000,
+    "transaction_hash": "0x0e4600aab98d171078509f51bb12b1d16def8574f57251c1fc94a9b5e7cf66ca",
+    "type": "experience",
+    "version": 1
   }
 
 Use Case a tester
