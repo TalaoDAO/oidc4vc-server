@@ -790,7 +790,7 @@ def user(mode) :
 			for kbis in session['kbis'] :
 				kbis_html = """
 				<b>Name</b> : """+ kbis['name'] +"""<br>
-				<b>Siret</b> : """+ kbis['siret'] +"""<br>
+				<b>SIREN</b> : """+ kbis['siren'] +"""<br>
 				<b>Creation</b> : """+ kbis['date'] + """<br>
 				<b>Capital</b> : """+ kbis['capital']+"""<br>
 				<b>Address</b> : """+ kbis['address']+"""<br>

@@ -211,16 +211,12 @@ class Identity() :
 	def get_identity_personal(self,workspace_contract_from, private_key_from, mode) :
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education']
-		company = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siret', 'postal_address']
+		company = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address']
 
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
 		self.category = contract.functions.identityInformation().call()[1]
 		self.personal = dict()
-
-		if self.category == 1001 :
-			topiclist = person
-		if self.category == 2001 :
-			topiclist = company
+		topiclist = person if self.category == 1001 else company
 		for topicname in topiclist :
 			claim = Claim()
 			claim.get_by_topic_name(workspace_contract_from, private_key_from, self.workspace_contract, topicname, mode)

@@ -28,7 +28,7 @@ From the OIDC and OAuth 2.0 perspective :
 OpenID Connect
 --------------
 
-For your users, the OpenID Connect authentication experience includes a consent screen that describes through 'scopes' the information that the user is releasing.
+For your users (as a person), the OpenID Connect authentication experience includes a consent screen that describes through 'scopes' the information that the user is releasing.
 For example, when the user logs in, they might be asked to give your appication access to their name, email address and basic account information.
 You request access to this information using the scope parameter, which your app includes in its authentication request.
 
@@ -37,7 +37,7 @@ Scopes available
 
 Scopes for data access are standard OpenID Connect and specific Talao scopes :
 
-* openid (required)
+* openid (required to get a JWT)
 * profile (sub + given_name + family_name + gender)
 * birthdate
 * email
@@ -50,6 +50,8 @@ Scopes for data access are standard OpenID Connect and specific Talao scopes :
 .. note:: "sub" is the  Decentralized IDentier of the user (did). It always starts with "did:talao:".
 
 Those data are available through an ID Token (JWT) and at the user_info endpoint with an Access Token.
+
+For companies, there is only the "openid" scope available.
 
 Process
 *******
@@ -149,6 +151,7 @@ Below list of scopes  :
 * user:manage:certificate : This scope if accepted by user allows your company to issue/delete certificates on behalf of a user
 * user:manage:partner : This scope if accepted by user allows your company to request, accept or reject partnerships with all Identities on behalf of a user
 * user:manage:referent : this is accepted by user scope allows your company to add or remove referents on behalf of a user
+* user:manage:data : this is accepted by user scope allows your company to add or remove data (account settings) on behalf of a user
 
 Step 1, ask for a grant code with your scope list, nonce, state.
 
@@ -173,8 +176,8 @@ Step 3, with the Access Token you can acces an endpoint
    curl -H "Authorization: Bearer your_access_token" -H "Content-Type: application/json"  https://talao.co/api/v1/endpoint  -d your_json_data
 
 
-Endpoint : https://talao.co/api/v1/user_issues_certificate
-***********************************************************
+Endpoint : POST https://talao.co/api/v1/user_issues_certificate
+****************************************************************
 
 Issue a certificate to an Identity(person or company) on behalf of a user.
 certificate is "reference" or "agreement or "experience" or "skill" or "recommendation".
@@ -237,8 +240,8 @@ Example of a reference_JSON_certificate :
    }
 
 
-Endpoint : https://talao.co/api/v1/user_accepts_company_partnership
-********************************************************************
+Endpoint : POST https://talao.co/api/v1/user_accepts_company_partnership
+*************************************************************************
 
 This is a straightforward process to build a partnership with an Identity. It combines your company request for a partnership and an authorization from Identity.
 
@@ -259,8 +262,42 @@ JSON return :
   }
 
 
-Endpoint : https://talao.co/api/v1/user_accepts_company_referent
-*****************************************************************
+
+Endpoint : POST https://talao.co/api/v1/user_updates_company_settings
+*************************************************************************
+
+To update identity settings of a company.
+This endpoint allos to get all settings if no data are provided.
+
+Scope required : user:manage:data
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/user_updates_company_settings  \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -d {"staff" : "6"}
+
+JSON return :
+
+.. code-block:: JSON
+
+  {
+    "name" : "Talao",
+    "contact_name" : "Nicolas Muller",
+    "contact_email" : "nicolas.muller@talao.io",
+    "contact_phone" : "0607182594",
+    "website" : "https://talao.co",
+    "about" : "Talao focuses on professional identity management based on an extension of the ERC725 protocol, through a BtoB go-to-market strategy and a network of partners to develop compatibility with corporate IT systems.",
+    "staff" : "6",
+    "sales" : "3200000",
+    "mother_company" : null,
+    "siren" : "837674480",
+    "postal_address" : null
+  }
+
+
+Endpoint : POST https://talao.co/api/v1/user_accepts_company_referent
+**********************************************************************
 
 To add your company in the Identity referent list
 
@@ -270,20 +307,20 @@ Scope required : user:manage:referent
 .. code::
 
   $ curl -X POST https://talao.co/api/v1/user_accepts_company_referent  \
-   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
+   -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" 
 
 JSON return :
 
 .. code-block:: JSON
 
   {
-   "referent": True
+   "referent": true
   }
 
 
 
-Endpoint : https://talao.co/api/v1/user_adds_referent
-******************************************************
+Endpoint : POST https://talao.co/api/v1/user_adds_referent
+***********************************************************
 
 To add an Identity to the user referent list
 
@@ -303,7 +340,7 @@ JSON return :
 .. code-block:: JSON
 
   {
-   "referent": True
+   "referent": true
   }
 
 
@@ -351,8 +388,8 @@ To call an endpoint :
 
 Your Access Token will be live for 3000 seconds.
 
-Endpoint : https://talao.co/api/v1/issue_experience
-***************************************************
+Endpoint : POST https://talao.co/api/v1/issue_experience
+*********************************************************
 
 Issue an experience certificate to a user.
 Company must be a in the user's referent list.
@@ -409,8 +446,8 @@ JSON return :
   }
 
 
-Endpoint : https://talao.co/api/v1/create_person_identity
-**********************************************************
+Endpoint : POST https://talao.co/api/v1/create_person_identity
+***************************************************************
 
 Create an Identity for a user.
 Your company is appointed as a referent to issue certificates to this user.
@@ -443,8 +480,8 @@ JSON Response
   }
 
 
-Endpoint : https://talao.co/api/v1/get_status
-*********************************************
+Endpoint : POST https://talao.co/api/v1/get_status
+***************************************************
 
 Get the referent and partnership status of a user with your company.
 
@@ -493,8 +530,8 @@ referent :
 .. note:: A partnership is effective when both partnership_in_partner_identity and partnership_in_identity are "Authorized".
 
 
-Endpoint : https://talao.co/api/v1/create_company_identity
-**********************************************************
+Endpoint : POST https://talao.co/api/v1/create_company_identity
+****************************************************************
 
 Create an Identity for a company.
 
@@ -527,8 +564,8 @@ JSON Response
   }
 
 
-Endpoint : https://talao.co/api/v1/issue_reference
-***************************************************
+Endpoint : POST https://talao.co/api/v1/issue_reference
+********************************************************
 
 Issue a reference certificate to a company.
 Your company must be a in the company's referent list.
@@ -566,8 +603,8 @@ Example of a JSON_certificate :
 
 
 
-Endpoint : https://talao.co/api/v1/issue_agreement
-**************************************************
+Endpoint : POST https://talao.co/api/v1/issue_agreement
+********************************************************
 
 Issue an agreement certificate to a company.
 Your company must be in the company's referent list.
@@ -599,16 +636,16 @@ Example of a JSON_certificate:
   }
 
 
-Endpoint : https://talao.co/api/v1/update_identity_settings
-***********************************************************
+Endpoint : POST https://talao.co/api/v1/update_identity_settings
+*****************************************************************
 
 
 to be done
 
 
 
-Endpoint : https://talao.co/api/v1/get_certificate_list
-*******************************************************
+Endpoint : POST https://talao.co/api/v1/get_certificate_list
+*************************************************************
 
 Get the certificate list of an Identity.
 Your company must be in the partner list.
@@ -629,12 +666,12 @@ Example of a JSON return :
 .. code-block:: JSON
 
   {
-    "certificate_list" : [did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE:document:6,
-     did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE:document:12]
+    "certificate_list" : ["did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE:document:6",
+     "did:talao:talaonet:b8a0a9eE2E780281637bd93C13076cc5E342c9aE:document:12"]
   }
 
-Endpoint : https://talao.co/api/v1/get_certificate
-**************************************************
+Endpoint : POST https://talao.co/api/v1/get_certificate
+********************************************************
 
 Get certificate data.
 Your company must be in the partner list of the Identity.

@@ -15,7 +15,7 @@ import random
 import ns
 import environment
 import constante
-from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, has_key_purpose, Document, get_image, is_partner, get_partner_status
+from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
 import createidentity
 import createcompany
 import privatekey
@@ -181,8 +181,8 @@ def issue_token():
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
     user = current_user()
-    scope_list=['openid', 'profile', 'resume', 'proof_of_identity', 'birthdate', 'email', 'phone', 'about',
-            'user:manage:referent', 'user:manage:partner', 'user:manage:certificate' ]
+    client_id = request.args['client_id']
+    client = OAuth2Client.query.filter_by(client_id=client_id).first()
     # if user log status is not true (Auth server), then to log it in
     if not user :
         return redirect(url_for('oauth_login', next=request.url))
@@ -192,11 +192,16 @@ def authorize(mode):
             grant = authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:
             return error.error
-        # configure oauth_authorize.html
-        checkbox = {key.replace(':', '_') : 'checked' if key in grant.request.scope else ""  for key in scope_list}
+        # configure consent screen : oauth_authorize.html
+        consent_screen_scopes = ['openid', 'user:manage:referent', 'user:manage:partner', 'user:manage:certificate', 'user:manage:data']
+        user_workspace_contract = ns.get_data_from_username(user.username, mode)['workspace_contract']
+        category = read_profil(user_workspace_contract, mode, 'light')[1]
+        if category == 1001 : # person
+            consent_screen_scopes.extend(['address', 'profile', 'about', 'birthdate', 'resume', 'proof_of_identity', 'email', 'phone'])
+        checkbox = {key.replace(':', '_') : 'checked' if key in grant.request.scope and key in client.scope.split() else ""  for key in consent_screen_scopes}
         # Display view to ask for user consent
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,**checkbox)
-    # POST
+    # POST, call from consent screen
     if not user and 'username' in request.form:
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
@@ -205,12 +210,11 @@ def authorize(mode):
         return authorization.create_authorization_response(grant_user=grant_user)
     # update scopes after user consent
     query_dict = parse_qs(request.query_string.decode("utf-8"))
-    # always JWT.....check if needed
-    my_scope = "openid "
-    for scope in scope_list :
+    my_scope = ""
+    for scope in query_dict['scope'][0].split() :
         if request.form.get(scope) :
             my_scope = my_scope + scope + " "
-    query_dict["scope"] = my_scope
+    query_dict["scope"] = [my_scope[:-1]]
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
     if not session['remember_me'] :
@@ -222,32 +226,32 @@ def authorize(mode):
 
 # endpoint standard OIDC
 #route('/api/v1/user_info')
-@require_oauth('openid profile email phone birthdate address proof_of_identity about resume', 'OR')
+@require_oauth('address openid profile email birthdate proof_of_identity about resume gender name contact_phone website', 'OR')
 def user_info(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
     user_info = dict()
-    profile = read_profil(user_workspace_contract, mode, 'full')[0]
+    profile, category = read_profil(user_workspace_contract, mode, 'full')
     user_info['sub'] = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
-    if 'profile' in current_token.scope :
-        user_info['given_name'] = profile.get('firstname')
-        user_info['family_name'] = profile.get('lastname')
-        user_info['gender'] = profile.get('gender')
-    if 'email' in current_token.scope :
-        user_info['email']= profile.get('contact_email') if profile.get('contact_email') != 'private' else None
-    if 'phone' in current_token.scope :
-        user_info['phone']= profile.get('contact_phone') if profile.get('contact_phone') != 'private' else None
-    if 'birthdate' in current_token.scope :
-        user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
-    if 'address' in current_token.scope :
-        user_info['address'] = profile.get('address') if profile.get('address') != 'private' else None
-    if 'resume' in current_token.scope :
-        user_info['resume'] = 'Not implemented yet'
+    print('token scope reçu = ', current_token.scope)
     if 'proof_of_identity' in current_token.scope :
         user_info['proof_of_identity'] = 'Not implemented yet'
-    if 'about' in current_token.scope :
-        user_info['about'] = profile.get('about') if profile.get('about') != 'private' else None
 
+    if category == 1001 : # person
+        if 'profile' in current_token.scope :
+            user_info['given_name'] = profile.get('firstname')
+            user_info['family_name'] = profile.get('lastname')
+            user_info['gender'] = profile.get('gender')
+        for scope in ['email', 'phone', 'birthdate', 'about'] :
+            if scope in current_token.scope :
+                user_info[scope] = profile.get(scope) if profile.get(scope) != 'private' else None
+        if 'resume' in current_token.scope :
+            user_info['resume'] = 'Not implemented yet'
+        if 'address' in current_token.scope :
+            user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
+    if category == 2001 : # company
+        pass
+    print('user info = ', user_info)
     # setup response
     response = Response(json.dumps(user_info), status=200, mimetype='application/json')
     return response
@@ -330,6 +334,27 @@ def user_accepts_company_partnership(mode):
     response = Response(json.dumps({'partnership_in_identity' : partnership_in_identity, 'partnership_in_partner' : partnership_in_partner}), status=200, mimetype='application/json')
     return response
 
+
+#route('/api/v1/user_updates_company_settings')
+@require_oauth('user:manage:data')
+def user_updates_company_settings(mode):
+    user_id = current_token.user_id
+    user_workspace_contract = get_user_workspace(user_id,mode)
+    #user_address = contractsToOwners(user_workspace_contract, mode)
+    #client_id = current_token.client_id
+    #client_workspace_contract = get_client_workspace(client_id, mode)
+    #client_address = contractsToOwners(client_workspace_contract, mode)
+    data = json.loads(request.data.decode("utf-8"))
+    company_settings = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address']
+    print('data = ', data)
+    for setting in company_settings :
+        if data.get(setting) :
+            print('settting = ', setting, data.get(setting))
+            Claim().relay_add(user_workspace_contract,setting, data.get(setting), 'public', mode)[0]
+    profil = read_profil(user_workspace_contract, mode, 'full')[0]
+    # setup response
+    response = Response(json.dumps(profil), status=200, mimetype='application/json')
+    return response
 
 # issue a certificates on behalf of user(user=issued_by)
 #@route('/api/v1/user_issues_certificate')

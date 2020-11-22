@@ -38,6 +38,7 @@ def config_api_server(app, mode) :
     app.add_url_rule('/api/v1/user_accepts_company_referent', view_func=web_oauth.user_accepts_company_referent, methods = ['GET', 'POST'], defaults={'mode' : mode})   
     app.add_url_rule('/api/v1/user_issues_certificate', view_func=web_oauth.user_issues_certificate, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/api/v1/user_adds_referent', view_func=web_oauth.user_adds_referent, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/api/v1/user_updates_company_settings', view_func=web_oauth.user_updates_company_settings, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
     # client credentials code flow
     app.add_url_rule('/api/v1/create_person_identity', view_func=web_oauth.oauth_create_person_identity, methods = ['GET', 'POST'], defaults={'mode' : mode})

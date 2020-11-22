@@ -18,9 +18,6 @@ import constante
 import ns
 import privatekey
 
-
-
-
 def read_profil (workspace_contract, mode, loading) :
 	# setup constante person
 	person_topicnames = {'firstname' : 102105114115116110097109101,
@@ -30,6 +27,7 @@ def read_profil (workspace_contract, mode, loading) :
 						'postal_address' : 112111115116097108095097100100114101115115,
 						'birthdate' : 98105114116104100097116101,
 						'about' : 97098111117116,
+						'gender' : 103101110100101114,
 						'education' : 101100117099097116105111110,
 						'profil_title' : 112114111102105108095116105116108101}
 
@@ -44,6 +42,7 @@ def read_profil (workspace_contract, mode, loading) :
 						'sales' : 115097108101115,
 						'mother_company' : 109111116104101114095099111109112097110121,
 						'siret' : 115105114101116,
+						'siren' : 115105114101110,
 						'postal_address' : 112111115116097108095097100100114101115115, }
 
 	if loading != 'full' :
@@ -53,6 +52,7 @@ def read_profil (workspace_contract, mode, loading) :
 
 		# setup constant company
 		company_topicnames = {'name' : 110097109101,
+								'siren' : 115105114101110,
 							}
 
 	profil = dict()
