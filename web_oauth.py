@@ -340,10 +340,6 @@ def user_accepts_company_partnership(mode):
 def user_updates_company_settings(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
-    #user_address = contractsToOwners(user_workspace_contract, mode)
-    #client_id = current_token.client_id
-    #client_workspace_contract = get_client_workspace(client_id, mode)
-    #client_address = contractsToOwners(client_workspace_contract, mode)
     data = json.loads(request.data.decode("utf-8"))
     company_settings = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address']
     print('data = ', data)

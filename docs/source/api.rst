@@ -267,7 +267,8 @@ Endpoint : POST https://talao.co/api/v1/user_updates_company_settings
 *************************************************************************
 
 To update identity settings of a company.
-This endpoint allos to get all settings if no data are provided.
+You can set 'name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address'.
+If no data is provided you get all current Identity settings.
 
 Scope required : user:manage:data
 

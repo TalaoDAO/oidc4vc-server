@@ -629,7 +629,7 @@ def issuer_explore(mode) :
 		website = session['issuer_explore']['personal']['website']['claim_value']
 		about = session['issuer_explore']['personal']['about']['claim_value']
 		staff = session['issuer_explore']['personal']['staff']['claim_value']
-		siret = session['issuer_explore']['personal']['siret']['claim_value']
+		siren = session['issuer_explore']['personal']['siren']['claim_value']
 		try:
 			sales = "{:,}".format(int(session['issuer_explore']['personal']['sales']['claim_value'])).replace(',', ' ')
 		except:
@@ -655,7 +655,7 @@ def issuer_explore(mode) :
 							issuer_username = issuer_username, user_type = user_type,
 							issuer_picturefile=session['issuer_explore']['picture'],
 							contact_name = contact_name, contact_email = contact_email, contact_phone = contact_phone,
-							website = website,about = about, staff = staff, sales = sales, siret = siret,
+							website = website,about = about, staff = staff, sales = sales, siren = siren,
 							digitalvault=my_file, kyc = kyc,
 							referent_list = referent_list,white_list = white_list, partner_list = partner_list,
 							in_referent_list = in_referent_list,
