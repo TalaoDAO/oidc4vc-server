@@ -167,22 +167,6 @@ def add_alias(alias_name, identity_name, email, mode, phone=None, password='iden
 	conn.close()
 	return True
 
-""" deprecated replaced by def username_exist
-def does_alias_exist(alias_name, mode) :
-	path = mode.db_path
-	conn = sqlite3.connect(path + 'nameservice.db')
-	c = conn.cursor()
-	data = {'alias_name' : alias_name}
-	c.execute("SELECT identity_name FROM lias WHERE alias_name = :alias_name " , data)
-	select = c.fetchall()
-	conn.commit()
-	conn.close()
-	if select == [] :
-		return False
-	else :
-		return True
-"""
-
 
 
 def remove_alias(alias_name, mode) :

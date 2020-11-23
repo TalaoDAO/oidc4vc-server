@@ -76,7 +76,6 @@ def POST_authentification_2(mode) :
 	if not session.get('code') :
 		flash('Registration error', 'warning')
 		return redirect(mode.server + 'login/')
-
 	session['try_number'] +=1
 	print('code retourné = ', mycode)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]

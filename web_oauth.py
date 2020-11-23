@@ -394,7 +394,7 @@ def user_uploads_picture(mode):
                             mode,
                             synchronous = False)
     if not image_hash :
-        response_dict = {'detail' : 'Transaction failed'}
+        response_dict = {'detail' : 'Transaction failed.'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     response = Response(json.dumps({'hash' : image_hash}), status=200, mimetype='application/json')
@@ -421,8 +421,6 @@ def user_updates_company_settings(mode):
     # setup response
     response = Response(json.dumps(profil), status=200, mimetype='application/json')
     return response
-
-
 
 
 # issue a certificates on behalf of user(user=issued_by)
