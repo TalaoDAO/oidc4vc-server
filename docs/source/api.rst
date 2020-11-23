@@ -150,8 +150,8 @@ Below list of scopes  :
 
 * user:manage:certificate : This scope if accepted by user allows your company to issue/delete certificates on behalf of a user
 * user:manage:partner : This scope if accepted by user allows your company to request, accept or reject partnerships with all Identities on behalf of a user
-* user:manage:referent : this is accepted by user scope allows your company to add or remove referents on behalf of a user
-* user:manage:data : this is accepted by user scope allows your company to add or remove data (account settings) on behalf of a user
+* user:manage:referent : this scope if accepted by user allows your company to add or remove referents on behalf of a user
+* user:manage:data : this scope if accepted by user allows your company to add or remove data (account settings) on behalf of a user
 
 Step 1, ask for a grant code with your scope list, nonce, state.
 
@@ -295,6 +295,39 @@ JSON return :
     "siren" : "837674480",
     "postal_address" : null
   }
+
+
+
+Endpoint : POST https://talao.co/api/v1/user_uploads_signature
+***************************************************************
+
+To add a signature file to an Identity. Image format are jpeg, png, jpg. Image will be displayed with size in pixels : height="150" width="200".
+
+Scope required : user:manage:data
+
+the Content-Type of the Header of the POST request will be multipart/form-data.
+
+.. code::
+
+  $ curl -X POST https://talao.co/api/v1/user_accepts_company_referent  \
+  -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9"  \
+  -H "Content-Type : multipart/form-data" \
+  -F "data=@signature.png"
+
+JSON return :
+
+.. code-block:: JSON
+
+  {
+   "hash": "QmNr71LjJPGUYKASinx2R5u63Zpmj8ZUqniFxHhqqHBujh"
+  }
+
+
+Endpoint : POST https://talao.co/api/v1/user_uploads_logo
+************************************************************
+
+Same as prevous one with logo. Image will be displayed with size in pixels : height="200" width="200".
+
 
 
 Endpoint : POST https://talao.co/api/v1/user_accepts_company_referent

@@ -15,7 +15,8 @@ import random
 import ns
 import environment
 import constante
-from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
+from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership
+from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
 import createidentity
 import createcompany
 import privatekey
@@ -334,6 +335,70 @@ def user_accepts_company_partnership(mode):
     response = Response(json.dumps({'partnership_in_identity' : partnership_in_identity, 'partnership_in_partner' : partnership_in_partner}), status=200, mimetype='application/json')
     return response
 
+#route('/api/v1/user_uploads_signature')
+#@app.route("/user_uploads_signature", methods=["POST"])
+@require_oauth('user:manage:data')
+def user_uploads_signature(mode):
+    user_id = current_token.user_id
+    user_workspace_contract = get_user_workspace(user_id,mode)
+    user_address = contractsToOwners(user_workspace_contract, mode)
+    try :
+        signature_file = request.files['image']
+    except :
+        response_dict = {'detail' : 'Image file not found or incorrect.'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    # Read the image via file.stream
+    filename = "api_signature"
+    signature_file.save(os.path.join(mode.uploads_path, filename))
+    picturefile = mode.uploads_path  + filename
+    image_hash = save_image(mode.relay_address,
+                            mode.relay_workspace_contract,
+                            user_address,
+                            user_workspace_contract,
+                            mode.relay_private_key,
+                            picturefile,
+                            'signature',
+                            mode,
+                            synchronous = False)
+    if not image_hash :
+        response_dict = {'detail' : 'Transaction failed'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    response = Response(json.dumps({'hash' : image_hash}), status=200, mimetype='application/json')
+    return response
+
+#route('/api/v1/user_uploads_logo')
+@require_oauth('user:manage:data')
+def user_uploads_picture(mode):
+    user_id = current_token.user_id
+    user_workspace_contract = get_user_workspace(user_id,mode)
+    user_address = contractsToOwners(user_workspace_contract, mode)
+    try :
+        signature_file = request.files['image']
+    except :
+        response_dict = {'detail' : 'Image file not found or incorrect.'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    # Read the image via file.stream
+    filename = "api_picture"
+    signature_file.save(os.path.join(mode.uploads_path, filename))
+    picturefile = mode.uploads_path  + filename
+    image_hash = save_image(mode.relay_address,
+                            mode.relay_workspace_contract,
+                            user_address,
+                            user_workspace_contract,
+                            mode.relay_private_key,
+                            picturefile,
+                            'picture',
+                            mode,
+                            synchronous = False)
+    if not image_hash :
+        response_dict = {'detail' : 'Transaction failed'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
+    response = Response(json.dumps({'hash' : image_hash}), status=200, mimetype='application/json')
+    return response
 
 #route('/api/v1/user_updates_company_settings')
 @require_oauth('user:manage:data')
@@ -341,16 +406,24 @@ def user_updates_company_settings(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
     data = json.loads(request.data.decode("utf-8"))
+    profil, category = read_profil(user_workspace_contract, mode, 'full')
+    if category == 1001 :
+        response_dict = {'detail' : 'This Identity is owned by a person. This endpoint is only available for a company Identity'}
+        response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
+        return response
     company_settings = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address']
-    print('data = ', data)
     for setting in company_settings :
         if data.get(setting) :
-            print('settting = ', setting, data.get(setting))
-            Claim().relay_add(user_workspace_contract,setting, data.get(setting), 'public', mode)[0]
-    profil = read_profil(user_workspace_contract, mode, 'full')[0]
+            if Claim().relay_add(user_workspace_contract,setting, data.get(setting), 'public', mode)[0] :
+                profil[setting] = data.get(setting)
+            else :
+                print('user_updates_company_settings transaction failed")')
     # setup response
     response = Response(json.dumps(profil), status=200, mimetype='application/json')
     return response
+
+
+
 
 # issue a certificates on behalf of user(user=issued_by)
 #@route('/api/v1/user_issues_certificate')
