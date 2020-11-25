@@ -9,15 +9,15 @@ div.jumbotron.carousel-hero {
   height: 500px;
 }
 
-div.jumbotron.hero-nature {
+div.jumbotron.hero-1 {
   background-image: url('./img/jumbotron1.png');
 }
 
-div.jumbotron.hero-photography {
+div.jumbotron.hero-2 {
   background-image: url('./img/jumbotron2.png');
 }
 
-div.jumbotron.hero-technology {
+div.jumbotron.hero-3 {
   background-image: url('./img/jumbotron3.png');
 }
 
