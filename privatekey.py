@@ -116,7 +116,6 @@ def get_key(address, key_type, mode) :
 
 	# first we try to find a rsa file
 	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
-	print('filename = ', filename)
 	try :
 		fp = open(filename,"r")
 		rsa_key = fp.read()

@@ -20,34 +20,43 @@ from authlib.oidc.core import UserInfo
 from werkzeug.security import gen_salt
 from models import db, User
 from models import OAuth2Client, OAuth2AuthorizationCode, OAuth2Token
-
-import ns
-import os
-import environment
-import privatekey
+from authlib.jose import jwk
+from Crypto.PublicKey import RSA
 from protocol import read_profil
+import ns
+import environment
 
+import os
 
 # Environment setup
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 mode = environment.currentMode(mychain,myenv)
 
-# JWT configuration
-filename = mode.db_path + "oauth_RSA_private.txt"
+
+# API Server has its own identity
+api_server_address = '0xEE09654eEdaA79429F8D216fa51a129db0f72250' # = owner_talao
+
+# JWT configuration with JWK, JWT is signed with Talao RSA key, the public rsa key is sent with the JWT
+filename = './RSA_key/talaonet/' + api_server_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 try :
-    fp = open(filename,"r")
-    rsa_key = fp.read()
-    fp.close()
+	fp = open(filename,"r")
+	private_rsa_key = fp.read()
+	fp.close()
 except :
-    print('JWT private RSA key not found')
+    print('RSA private key of API Server not found')
+RSA_KEY = RSA.import_key(private_rsa_key)
+public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
+# Generate JWK from rsa key
+JWK = jwk.dumps(private_rsa_key)
+# set up 'kid' in the JWK header with public rsa key to check signature in client application
+JWK['kid'] = public_rsa_key
 JWT_CONFIG = {
-    'key': rsa_key,
+    'key':  JWK,
     'alg': 'RS256',
     'iss': 'https://talao.co',
     'exp': 3600,
 }
-
 
 def exists_nonce(nonce, req):
     exists = OAuth2AuthorizationCode.query.filter_by(
@@ -55,12 +64,13 @@ def exists_nonce(nonce, req):
     ).first()
     return bool(exists)
 
-# for JWT only
+# for JWT generation only
 def generate_user_info(user, scope):
     user_workspace_contract = ns.get_data_from_username(user.username, mode).get('workspace_contract')
-    sub = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
-    user_info = UserInfo(sub=sub)
-    profile = read_profil(user_workspace_contract, mode, 'full')[0]
+    user_info = UserInfo(sub='did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:])
+    profile, category  = read_profil(user_workspace_contract, mode, 'full')
+    if category == 2001 : #  company
+        return user_info
     if 'profile' in scope :
         user_info['given_name'] = profile.get('firstname')
         user_info['family_name'] = profile.get('lastname')
@@ -82,6 +92,7 @@ def generate_user_info(user, scope):
     if 'resume' in scope :
         user_info['resume'] = 'Not implemented yet'
     return user_info
+
 
 
 def create_authorization_code(client, grant_user, request):
@@ -115,7 +126,6 @@ class AuthorizationCodeGrant(_AuthorizationCodeGrant):
 
     def authenticate_user(self, authorization_code):
         return User.query.get(authorization_code.user_id)
-
 
 
 class OpenIDCode(_OpenIDCode):
