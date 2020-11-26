@@ -292,6 +292,63 @@ def signature() :
         flash('Your signature has been updated', 'success')
         return redirect(mode.server + 'user/')
 
+# Job offer
+@app.route('/view_job_offer', methods=['GET', 'POST'])
+def view_job_offer() :
+    check_login()
+    if request.method == 'GET' :
+        offer_num = request.args.get('offer')
+        print(offer_num)
+        offer = dict()
+        print(session['menu'])
+        if offer_num == "1":
+            offer['number'] = 1
+            offer['title'] = "Intership Health & Employee Benefits Business Development H/F"
+            offer['company'] = "AXA Group"
+            offer['location'] = "Madrid"
+            offer['position'] = "Stage"
+            offer['logo'] = "/static/img/Logo AXA.jpg"
+            offer['description'] = """The AXA Group is a worldwide leader in insurance and asset management, with 165,000 employees serving 107 million clients in 64 countries. In 2016, IFRS revenues amounted to Euro 100.2 billion and IFRS underlying earnings to Euro 5.7 billion. AXA had Euro 1,429 billion in assets under management as of December 31, 2016.<br>
+                                    To learn more about AXA: <a href='www.axa.com'>www.axa.com</a><br>
+                                    AXA International & New Markets is the business unit of the global insurer AXA gathering AXA´s businesses in Eastern & Central Europe, Middle East & Africa, Latin America and some countries in Asia (Singapore, India, Malaysia). The central team is mostly based in Madrid. <br>
+                                    <br>
+                                     <strong>Job Purpose</strong><br><br>
+
+                                    The intern will support the Head of Health Bus development to create P&L impact by enabling and driving business opportunities, and the sharing of best practices on Health Insurance and Services value propositions <br>
+                                    <br>
+                                    <strong>Key Accountabilities</strong><br><br>
+
+                                    Support multi-countries deals or clients/borkers requests (coordinate requests to entities, consolidate their outputs and produces regional presentations)<br>
+
+                                     Produce tools for international business development such as mult-countries clients lists, etc.<br>
+
+                                    Support Health services mapping (content, KPIs) and best practices sharing/communication across INM Office and entities<br>
+
+                                    <br>
+                                    <strong>STUDENT PROFILE</strong>:  Business Administration, Engineering Degree  <br>
+                                    <br>
+                                    <strong>LANGUAGES / MINIMUM REQUIREMENTS</strong>: Fluent in English and Spanish (written / oral)<br>
+                                    <br><br>
+                                    We will value :<br>
+
+                                     ▪ Previous succesfull experience in working in a international / multicultural environement and in being involved in complex projects  ▪ Capacity to adapt and learn fast ▪ Organizational skills and emotional intelligence ▪ Excellent oral and written communication skills, including Power Point (story telling capabilities) ▪ Knowledge of Excel mostly to analyse data """
+        return render_template('view_job_offer.html', **session['menu'], offer = offer)
+    if request.method == 'POST' :
+        offer_num = request.args.get('offer')
+        if offer_num == 1:
+            email = "alexandre.leclerc@talao.io"
+        else :
+            email = "alexandre.leclerc@talao.io"
+        subject = "New application for your job offer"
+        messagetext = """Hello,
+
+You have received a new application for your job offer !
+The application is comming from this talao user: {link}
+
+Feel free to contact him derectly if your are interested.""".format(link = session['menu']['clipboard'])
+        Talao_message.message(subject, email, messagetext, mode)
+        flash('You have succesfulllly applied to this job offer', "success")
+        return redirect(mode.server + 'homepage/')
 
 # Dashboard, Analysis, history
 @app.route('/user/data_analysis/', methods=['GET'])
