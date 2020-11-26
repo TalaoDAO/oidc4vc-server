@@ -297,7 +297,7 @@ def resume(mode) :
 		carousel_indicators_skill = """<li data-target="#skill-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_skill = ""
 		if skills == []:
-			if issuer_explore.skills['description'] != None:
+			if issuer_explore.skills != None and issuer_explore.skills['description'] != None:
 				carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
 				carousel_rows_skill += """<div class="col-md-4 mb-2">
 						<figure class="snip1253 mw-100" style="height: 410px; ">

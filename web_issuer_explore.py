@@ -307,29 +307,32 @@ def issuer_explore(mode) :
 		carousel_indicators_skill = """<li data-target="#skill-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_skill = ""
 		if skills == []:
-			if session['issuer_explore']['skills']['description'] != None:
-				carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
-				carousel_rows_skill += """<div class="col-md-4 mb-2">
-						<figure class="snip1253 mw-100" style="height: 410px; ">
-						  <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
-						  <figcaption class="p-0">
-							<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
-							  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
-							  <div class='col px-0 my-auto'>
-								<h4 class='align-center' style='color: black;font-size: 1.4em'>Self claimed skills</h4>
-							  </div>
-							</div>
-							<hr class="my-1">
-							<p class="text-center" style="font-size: 1em;">"""
-				for i, skill in enumerate(session['issuer_explore']['skills']['description']) :
-					if i<4:
-						carousel_rows_skill += skill['skill_name'] + "<br>"
-					elif i==4:
-						carousel_rows_skill += ""
-				carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-				carousel_rows_skill += """<a href=  /data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
-				carousel_rows_skill += """</figure></div>"""
-				carousel_rows_skill += '</div></div>'
+			if session['issuer_explore']['skills'] == None:
+				pass
+			else:
+				if session['issuer_explore']['skills']['description'] != None:
+					carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
+					carousel_rows_skill += """<div class="col-md-4 mb-2">
+							<figure class="snip1253 mw-100" style="height: 410px; ">
+							  <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
+							  <figcaption class="p-0">
+								<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
+								  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
+								  <div class='col px-0 my-auto'>
+									<h4 class='align-center' style='color: black;font-size: 1.4em'>Self claimed skills</h4>
+								  </div>
+								</div>
+								<hr class="my-1">
+								<p class="text-center" style="font-size: 1em;">"""
+					for i, skill in enumerate(session['issuer_explore']['skills']['description']) :
+						if i<4:
+							carousel_rows_skill += skill['skill_name'] + "<br>"
+						elif i==4:
+							carousel_rows_skill += ""
+					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+					carousel_rows_skill += """<a href=  /data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
+					carousel_rows_skill += """</figure></div>"""
+					carousel_rows_skill += '</div></div>'
 		else:
 			nbr_rows = (len(skills)-1)//3
 			for i in range(nbr_rows):
