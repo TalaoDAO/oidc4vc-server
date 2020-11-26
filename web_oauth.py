@@ -13,7 +13,6 @@ from urllib.parse import urlencode, parse_qs, urlparse
 import random
 
 import ns
-import environment
 import constante
 from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership
 from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
@@ -109,7 +108,7 @@ def oauth_logout():
 def oauth_login(mode):
     if request.method == 'GET' :
         session['url'] = request.args.get('next')
-        return render_template('/oauth/oauth_login.html')
+        return render_template('/oauth/oauth_login.html', client_name=request.args.get('client_name'))
     if request.method  == 'POST' :
         url = session.get('url')
         if url is None :
@@ -184,10 +183,14 @@ def authorize(mode):
     user = current_user()
     client_id = request.args['client_id']
     client = OAuth2Client.query.filter_by(client_id=client_id).first()
+    client_username = json.loads(client._client_metadata)['client_name']
+    client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
+    profil,category = read_profil(client_workspace_contract, mode, 'light)')
+    client_name = profil['name']
     # if user log status is not true (Auth server), then to log it in
     if not user :
-        return redirect(url_for('oauth_login', next=request.url))
-    # GET
+        return redirect(url_for('oauth_login', next=request.url, client_name=client_name))
+    # if user is already logged we prepare the consent screen
     if request.method == 'GET':
         try:
             grant = authorization.validate_consent_request(end_user=user)
@@ -200,8 +203,8 @@ def authorize(mode):
         if category == 1001 : # person
             consent_screen_scopes.extend(['address', 'profile', 'about', 'birthdate', 'resume', 'proof_of_identity', 'email', 'phone'])
         checkbox = {key.replace(':', '_') : 'checked' if key in grant.request.scope and key in client.scope.split() else ""  for key in consent_screen_scopes}
-        # Display view to ask for user consent
-        return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,**checkbox)
+        # Display view to ask for user consent if scope is more than just openid
+        return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,client_name=client_name, **checkbox)
     # POST, call from consent screen
     if not user and 'username' in request.form:
         username = request.form.get('username')
@@ -408,12 +411,12 @@ def user_updates_company_settings(mode):
     data = json.loads(request.data.decode("utf-8"))
     profil, category = read_profil(user_workspace_contract, mode, 'full')
     if category == 1001 :
-        response_dict = {'detail' : 'This Identity is owned by a person. This endpoint is only available for a company Identity'}
+        response_dict = {'detail' : 'Only company Identity allowed.'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
     company_settings = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address']
     for setting in company_settings :
-        if data.get(setting) :
+        if data.get(setting) and data.get(setting) != profil[setting] :
             if Claim().relay_add(user_workspace_contract,setting, data.get(setting), 'public', mode)[0] :
                 profil[setting] = data.get(setting)
             else :
@@ -668,8 +671,8 @@ def oauth_issue_agreement(mode):
         response_dict = {'detail' : 'Your company is not in the user referent list'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    user_profil, c = read_profil(user_workspace_contract, mode, 'full')
-    client_profil, c = read_profil(client_workspace_contract, mode, 'full')
+    user_profil = read_profil(user_workspace_contract, mode, 'full')[0]
+    client_profil = read_profil(client_workspace_contract, mode, 'full')[0]
     certificate['type'] = 'agreement'
     certificate['version'] = 1
     certificate["issued_by"]  = {

@@ -518,9 +518,21 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 	return picture_hash
 
 
-""" deprecated
+
+
+def topicname2topicvalue(topicname) :
+	topicvaluestr =''
+	for i in range(0, len(topicname))  :
+		a = str(ord(topicname[i]))
+		if int(a) < 100 :
+			a='0'+a
+		topicvaluestr = topicvaluestr + a
+	return int(topicvaluestr)
+
+
+
 ############################################################
-#  Mise a jour du profil 2 000 000 gas
+#  Mise a jour du profil 
 ############################################################
 #
 # function updateSelfClaims(
@@ -528,37 +540,23 @@ def save_image(address_from, workspace_contract_from, address_to, workspace_cont
 #        bytes _data,
 #        uint256[] _offsets
 
-def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitle, _worksFor, _workLocation, _url, _email, _description,mode) :
+def update_self_claims(address, private_key, dict, mode) :
+	# dict
 	w3 = mode.w3
-
-	givenName = 103105118101110078097109101
-	familyName = 102097109105108121078097109101
-	jobTitle = 106111098084105116108101
-	worksFor = 119111114107115070111114
-	workLocation = 119111114107076111099097116105111110
-	url = 117114108
-	email = 101109097105108
-	description = 100101115099114105112116105111110
-	topic =[givenName, familyName, jobTitle, worksFor, workLocation, url, email, description]
-	#image= 105109097103101
-
-	chaine=_givenName+_familyName+_jobTitle+_worksFor+_workLocation+_url+_email+_description
+	chaine = ''
+	offset = list()
+	topic = list()
+	for key in dict :
+		chaine = chaine + '_' + dict[key]
+		offset.append(len('_' +  dict[key]))
+		topic.append(topicname2topicvalue(key))
 	bchaine=bytes(chaine, 'utf-8')
-
-	offset=[len(_givenName), len(_familyName), len(_jobTitle), len(_worksFor), len(_workLocation), len(_url), len(_email), len(_description)]
-
 	workspace_contract=ownersToContracts(address,mode)
 	contract=w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-
 	# calcul du nonce de l envoyeur de token . Ici le caller
 	nonce = w3.eth.getTransactionCount(address)
-
-	# Build transaction
 	txn=contract.functions.updateSelfClaims(topic, bchaine,offset).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-
-	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
-
 	# send transaction
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
@@ -566,9 +564,6 @@ def saveworkspaceProfile(address, private_key, _givenName, _familyName, _jobTitl
 	if receipt['status'] == 0 :
 		return None
 	return hash1
-
-"""
-
 
  
 ############################################################

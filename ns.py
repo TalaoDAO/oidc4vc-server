@@ -167,8 +167,6 @@ def add_alias(alias_name, identity_name, email, mode, phone=None, password='iden
 	conn.close()
 	return True
 
-
-
 def remove_alias(alias_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')

@@ -18,8 +18,8 @@
                                     <img style="width: 96px;  display: block;  margin-left: auto; margin-right: auto;"  src="{{ url_for('static', filename='img/logo_noir.png')}}">
                                     <p class="profile-name-card"> </p>
                                     <form action="" method="POST">
-                                        <p>Allow <b>{{grant.client.client_name}}</b> to access your Digital Identity.</p>
-                            
+                                        <p>Allow <b>{{client_name}}</b> to access your data.</p>
+
                                         <div class="form-group">
                                             {% if openid == 'checked' %}
                                             <div class="form-inline custom-control-inline">
@@ -27,7 +27,7 @@
                                             </div>
                                             {% endif %}
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             {% if profile == 'checked' %}
                                             <div class="form-inline custom-control-inline">

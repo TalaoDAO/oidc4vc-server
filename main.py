@@ -89,7 +89,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.14.2"
+VERSION = "0.14.3"
 API_SERVER = True
 
 # Flask and Session setup
@@ -416,7 +416,7 @@ def issue_experience_certificate():
                         mydays=0,
                         privacy='public',
                          synchronous=True)[0]
-    if execution is None :
+    if not execution[0] :
         flash('Operation failed ', 'danger')
     else :
         flash('Certificate has been issued', 'success')
@@ -442,7 +442,7 @@ def issue_recommendation():
         address_to = contractsToOwners(workspace_contract_to, mode)
         my_recommendation = Document('certificate')
         execution = my_recommendation.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], recommendation, mode, mydays=0, privacy='public', synchronous=True)
-        if execution[0] is None :
+        if not execution[0] :
             flash('Operation failed ', 'danger')
         else :
             flash('Certificate has been issued', 'success')
@@ -544,7 +544,7 @@ def update_company_settings() :
                 (p1,p2,p3) = ("", "selected", "")
             if session['personal'][topicname]['privacy']=='public' :
                 (p1,p2,p3) = ("selected", "", "")
-            if session['personal'][topicname]['privacy'] is None :
+            if not session['personal'][topicname]['privacy'] :
                 (p1,p2,p3) = ("", "", "")
             privacy[topicname] = """
                     <optgroup """ +  """ label="Select">
@@ -587,8 +587,8 @@ def update_company_settings() :
         change = False
         for topicname in session['personal'].keys() :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
-            if     form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
-                if form_value[topicname] is not None :
+            if form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
+                if form_value[topicname] :
                     claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)[0]
                     change = True
                     session['personal'][topicname]['claim_value'] = form_value[topicname]
@@ -619,7 +619,7 @@ def store_file() :
                              filename,
                              privacy,
                             mode)
-        if data[0] is None :
+        if not data[0] :
             flash('Transaction failed', "danger")
         else :
             new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(data[0]),
@@ -647,7 +647,7 @@ def create_company() :
         if ns.username_exist(company_username, mode)   :
             company_username = company_username + str(random.randint(1, 100))
         workspace_contract = createcompany.create_company(company_email, company_username, mode)[2]
-        if workspace_contract is not None :
+        if workspace_contract :
             claim=Claim()
             claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
             flash(company_username + ' has been created as company', 'success')
@@ -667,7 +667,7 @@ def create_person() :
         person_lastname = request.form['lastname']
         person_username = ns.build_username(person_firstname, person_lastname, mode)
         workspace_contract = createidentity.create_user(person_username, person_email, mode, creator=session['address'], partner=True)[2]
-        if workspace_contract is not None :
+        if workspace_contract :
             claim=Claim()
             claim.relay_add(workspace_contract, 'firstname', person_firstname, 'public', mode)
             claim=Claim()
@@ -698,7 +698,7 @@ def add_experience() :
 		privacy = 'public'
 		# issue experience document
 		doc_id_exp = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
-		if doc_id_exp is None :
+		if not doc_id_exp  :
 			flash('Transaction failed', 'danger')
 		else :
 			if experience['skills']!= [''] :
@@ -726,7 +726,7 @@ def add_experience() :
 				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
 				# issue new skill document
 				data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
-				if data[0] is None :
+				if not data[0] :
 					flash('Transaction to add skill failed', 'danger')
 					return redirect( mode.server + 'user/')
 				doc_id = data[0]
@@ -751,7 +751,7 @@ def create_kyc() :
         my_kyc = dict()
         kyc_username = request.form['username'].lower()
         kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
-        if kyc_workspace_contract is None :
+        if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
         my_kyc['firstname'] = request.form['firstname']
@@ -859,7 +859,7 @@ def issue_kbis() :
         my_kbis = dict()
         kbis_username = request.form['username']
         kbis_workspace_contract = ns.get_data_from_username(kbis_username,mode).get('workspace_contract')
-        if kbis_workspace_contract is None :
+        if not kbis_workspace_contract :
             flash(kbis_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
         my_kbis['name'] = request.form['name']
@@ -915,7 +915,7 @@ def remove_experience() :
         Id = session['experience_to_remove'].split(':')[5]
         my_experience = Document('experience')
         data = my_experience.relay_delete(session['workspace_contract'], int(Id), mode)
-        if data is None :
+        if not data :
             flash('Transaction failed', 'danger')
         else :
             del session['experience_to_remove']
@@ -936,7 +936,7 @@ def remove_certificate() :
         Id = session['certificate_to_remove'].split(':')[5]
         my_experience = Document('certificate')
         data = my_experience.relay_delete(session['workspace_contract'], int(Id), mode)
-        if data is None :
+        if not data :
             flash('Transaction failed', 'danger')
         else :
             del session['certificate_to_remove']
@@ -957,7 +957,7 @@ def remove_file() :
         Id = session['file_id_to_remove'].split(':')[5]
         my_file = File()
         data = my_file.relay_delete(session['workspace_contract'], int(Id), mode)
-        if data is None :
+        if not data :
             flash('Transaction failed', 'danger')
         else :
             del session['file_id_to_remove']
@@ -986,7 +986,7 @@ def add_education() :
         education['certificate_link'] = request.form['certificate_link']
         privacy = 'public'
         doc_id = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)[0]
-        if doc_id is None :
+        if not doc_id[0]  :
             flash('Transaction failed', 'danger')
         else :
             # add experience in session
@@ -1010,7 +1010,7 @@ def remove_education() :
         doc_id = session['education_to_remove'].split(':')[5]
         my_education = Document('education')
         data = my_education.relay_delete(session['workspace_contract'], int(doc_id), mode)
-        if data is None :
+        if not data :
             flash('Transaction failed', 'danger')
         else :
             for counter,edu in enumerate(session['education'], 0) :
@@ -1212,7 +1212,7 @@ def request_certificate() :
     if request.method == 'GET' :
         session['certificate_issuer_username'] = request.args.get('issuer_username')
         # The call comes from Menu, we ask for email
-        if session['certificate_issuer_username'] is None :
+        if not session.get('certificate_issuer_username') :
             display_email = True
             # always recommendation option displayed
             reco = True
@@ -1226,13 +1226,13 @@ def request_certificate() :
                 reco = False
             # Check if issuer has private key
             issuer_address = session['issuer_explore']['address']
-            if privatekey.get_key(issuer_address, 'private_key', mode) is None :
+            if not privatekey.get_key(issuer_address, 'private_key', mode) :
                 flash('Sorry, this Referent cannot issue Certificates.', 'warning')
                 return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
         return render_template('request_certificate.html', **session['menu'], display_email=display_email, reco=reco)
     if request.method == 'POST' :
         # From Menu, if issuer does not exist, he has to be created
-        if session.get('certificate_issuer_username') is None :
+        if not session.get('certificate_issuer_username')  :
             session['issuer_email'] = request.form['issuer_email']
             # One checks if the issuer exists
             username_list = ns.get_username_list_from_email(request.form['issuer_email'], mode)
@@ -1288,7 +1288,7 @@ def request_recommendation_certificate() :
     user_email = ns.get_data_from_username(session['username'], mode)['email']
     Talao_message.message(subject, user_email, text, mode)
     del session['issuer_email']
-    if session.get('certificate_issuer_username') is not None :
+    if session.get('certificate_issuer_username') :
         del session['certificate_issuer_username']
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
     return redirect(mode.server + 'user/')
@@ -1336,7 +1336,7 @@ def request_experience_certificate() :
     # message to user/Talent
     flash('Your request for an Experience Certificate has been sent.', 'success')
     del session['issuer_email']
-    if session.get('certificate_issuer_username') is not None :
+    if session.get('certificate_issuer_username') :
         del session['certificate_issuer_username']
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
     else :
@@ -1397,7 +1397,7 @@ def import_private_key() :
             return redirect (mode.server +'user/')
         session['private_key'] = True
         session['private_key_value'] = request.form['private_key']
-        privatekey.add_identity(data, mode)
+        privatekey.add_private_key(request.form['private_key'], mode)
         flash('Private Key has been imported',  'success')
         return redirect (mode.server +'user/')
 
@@ -1438,7 +1438,7 @@ def import_rsa_key() :
 def add_manager() :
     check_login()
     if request.method == 'GET' :
-        if request.args.get('issuer_username') != None :
+        if request.args.get('issuer_username') :
             manager_username = request.args.get('issuer_username')
         else:
             manager_username = ''
@@ -1691,7 +1691,6 @@ def did_check_2 () :
 def call_did_check () :
     link = request.args['website']+'/did/'
     return redirect (link)
-
 
 
 #######################################################

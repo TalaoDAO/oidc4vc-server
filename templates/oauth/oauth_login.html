@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Sign In</title>
+    <title>Talao Sign-In</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Google-Style-Login.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
@@ -13,6 +13,7 @@
 <body>
     <div class="login-card"><img style="width: 96px;  display: block;  margin-left: auto; margin-right: auto;"  src="{{ url_for('static', filename='img/logo_noir.png')}}">
         <p class="profile-name-card"> </p>
+        <p> Log in to use your Digital Identity with <b>{{client_name}}.</b></p>
         <form class="form-signin" action="/api/v1/oauth_login" method="POST" ><span class="reauth-email"> </span>
             <input class="form-control" type="text" name="username" required="" placeholder="Username" autofocus="">
             <input name="password" class="form-control" type="password" id="inputPassword" required="" placeholder="Password">
