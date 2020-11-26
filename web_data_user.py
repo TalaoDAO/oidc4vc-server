@@ -788,9 +788,10 @@ def user(mode) :
 		else :
 			my_kbis = ""
 			for kbis in session['kbis'] :
+				print('kbis = ', kbis)
 				kbis_html = """
 				<b>Name</b> : """+ kbis['name'] +"""<br>
-				<b>SIREN</b> : """+ kbis['siren'] +"""<br>
+				<b>SIREN</b> : """+ kbis.get('siren', '') +"""<br>
 				<b>Creation</b> : """+ kbis['date'] + """<br>
 				<b>Capital</b> : """+ kbis['capital']+"""<br>
 				<b>Address</b> : """+ kbis['address']+"""<br>

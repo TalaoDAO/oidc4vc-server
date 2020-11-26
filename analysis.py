@@ -386,15 +386,15 @@ def ups_and_downs(update_duration_value,
 	if update_duration_value < UPDATE_LIMIT :
 		up.append("This resume has been updated less than " + update_duration_string + " ago. This strengthens the resume as it brings more trust to data." )
 	else :
-		down.append("The resume has benn update more than 15 days agos. This may be an issue.")
+		down.append("The resume has been update more than 15 days agos.")
 
 	if self_completion_value < SELF_COMPLETION_THRESHOLD  and nb_doc > DOCUMENT_THRESHOLD :
 		up.append("A large part of the information of this resume are provided by third parties. This strengthens the resume and brings more reliability to data." )
 	else :
-		down.append("Most of the information are self declared. This weakens the resume.")
+		down.append("Most of the information are self declared.")
 
 	if person_completion_value > PERSON_COMPLETION_THRESHOLD  :
-		down.append("Most of the certificates are provided by Individuals. This weakens the resume.")
+		down.append("Most of the certificates are provided by individuals.")
 
 	if company_completion_value > COMPANY_COMPLETION_THRESHOLD  :
 		up.append("Most of the certificates are provided by Companies. This provides very reliable data for third parties.")
@@ -402,7 +402,7 @@ def ups_and_downs(update_duration_value,
 	if nb_certificate != 0 and sorted_issuers[0][1]/nb_certificate < 0.15  :
 		up.append("Certicates are issued by several different referents. This brings more reliability to data.")
 	else :
-		down.append("Most Certificates are issued by the same referents. This weakens the resume.")
+		down.append("Most Certificates are issued by the same referents.")
 
 	if is_kyc == 'Yes' :
 		up.append("Proof of Identity is available. Third party can now rely on this Identity.")
@@ -415,17 +415,17 @@ def ups_and_downs(update_duration_value,
 		down.append("Weak Personal information.This resume is not sufficiently detailed to be efficient.")
 
 	if nb_certificate > CERTIFICATE_THRESHOLD :
-		up.append("The profil is has numerous cerificates. This brings more reliability to data.")
+		up.append("The profil is has numerous cerificates.")
 	else :
 		down.append("Weak number of certificates, few reliable Data.")
 
 	if nb_experience > EXPERIENCE_THRESHOLD :
-		up.append("The profil has numerous experiences. This brings more information to the resume.")
+		up.append("The profil has numerous experiences.")
 	else :
 		down.append("Weak number of experience. This does not provide enough information to third parties.")
 
 	if average_description > DESCRIPTION_THRESHOLD  :
-		up.append("Descriptions are precise. This strengthen the resume")
+		up.append("Descriptions are precise.")
 	else :
 		down.append("Descriptions are weak because not very precise.")
 

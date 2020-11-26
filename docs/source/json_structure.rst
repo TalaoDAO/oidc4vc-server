@@ -8,7 +8,7 @@ ____
 .. code-block:: JSON
 
 	{
-	"siret" : "662 042 449 00014",
+	"siren" : "662 042 449",
 	"date" : "1966-09-23",
 	"name" : "BNP",
 	"legal_form" : "SA",

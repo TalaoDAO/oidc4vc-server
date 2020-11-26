@@ -89,7 +89,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.14.3"
+VERSION = "0.14.4"
 API_SERVER = True
 
 # Flask and Session setup
@@ -936,7 +936,7 @@ def issue_kbis() :
         my_kbis['activity'] = request.form['activity']
         my_kbis['address'] = request.form['address']
         my_kbis['ceo'] = request.form['ceo']
-        my_kbis['siret'] = request.form['siret']
+        my_kbis['siren'] = request.form['siren']
         my_kbis['managing_director'] = request.form['managing_director']
         data = kbis.talao_add(kbis_workspace_contract, my_kbis, mode)[0]
         if not data :
