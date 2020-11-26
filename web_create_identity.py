@@ -59,7 +59,7 @@ def authentification(mode) :
 		session['phone'] = request.form['code'] + request.form['phone']
 		user_search.add_user(session,session['firstname'] + ' ' + session['lastname'], session['username'])
 		if not sms.check_phone(session['phone'], mode) :
-			return render_template("create.html",message='Phone number incorrect')
+			return render_template("create.html",message='Incorrect phone number')
 		else :
 			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)

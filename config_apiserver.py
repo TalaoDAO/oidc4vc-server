@@ -21,7 +21,7 @@ def config_api_server(app, mode) :
     config_oauth(app)
 
     # Resolver
-    app.add_url_rule('/resolver', view_func=web_oauth.resolver, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+    app.add_url_rule('/resolver/', view_func=web_oauth.resolver, methods = ['GET', 'POST'], defaults ={'mode' : mode})
 
     # Create credentials
     app.add_url_rule('/api/v1', view_func=web_oauth.home, methods = ['GET', 'POST'])

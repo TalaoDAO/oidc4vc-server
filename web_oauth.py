@@ -21,34 +21,36 @@ import createcompany
 import privatekey
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
-#@route('/resolver')
+#@route('/resolver/')
 def resolver(mode):
-    if request.method == 'GET':
+    if request.method == 'GET' and not request.args.get('username') :
         return render_template('resolver.html', output="")
-    if request.method == 'POST':
+    elif request.method == 'GET' :
+        input = request.args.get('username')
+    else :
         input = request.form.get('input')
-        try :
-            if input[:3] == 'did' :
-                did = input
-                workspace_contract = '0x' + input.split(':')[3]
-                username = ns.get_username_from_resolver(workspace_contract, mode)
-            else :
-                username = input.lower()
-                workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
-                did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
-        except :
-            output =  "Username, workspace_contract or did not found"
-            return render_template('resolver.html', output=output)
-        address = contractsToOwners(workspace_contract, mode)
-        contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-        rsa_public_key = contract.functions.identityInformation().call()[4]
-        payload = {'blockchain' : mode.BLOCKCHAIN,
+    try :
+        if input[:3] == 'did' :
+            did = input
+            workspace_contract = '0x' + input.split(':')[3]
+            username = ns.get_username_from_resolver(workspace_contract, mode)
+        else :
+            username = input.lower()
+            workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
+            did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+    except :
+        output =  "Username, workspace_contract or did not found"
+        return render_template('resolver.html', output=output)
+    address = contractsToOwners(workspace_contract, mode)
+    contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+    rsa_public_key = contract.functions.identityInformation().call()[4]
+    payload = {'blockchain' : mode.BLOCKCHAIN,
                      'username' : username,
                      'did' : did,
                      'address' : address,
                      'workspace contract' : workspace_contract,
                      'RSA public key' : rsa_public_key.decode('utf-8')}
-        return render_template('resolver.html', output=json.dumps(payload, indent=4))
+    return render_template('resolver.html', output=json.dumps(payload, indent=4))
 
 def check_login() :
 	#check if the user is correctly logged. This function is called everytime a user function is called 
