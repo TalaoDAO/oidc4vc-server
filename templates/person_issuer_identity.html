@@ -277,7 +277,7 @@
             <!-- Col carousels -->
             <div class="col-md p-0">
               <!-- Experience carousel large screen  -->
-              {% if carousel_rows_experience != "" %}
+
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
@@ -286,7 +286,7 @@
                   <div class="card-body ">
                     <!--Carousel Wrapper-->
                     <div id="experience-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
-
+                      {% if carousel_rows_experience != "" %}
                       <!--Controls-->
                       <div class="controls-top text-center">
                         <a class="btn-floating" href="#experience-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
@@ -309,16 +309,18 @@
                       </div>
 
                       <!--/.Slides-->
-
+                      {% else %}
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                      {% endif %}
                     </div>
                     <!--/.Carousel Wrapper-->
                   </div>
                 </div>
               </div>
-              {% endif %}
+
               <!-- /.Experience carousel  -->
               <!-- Recommendation carousel large screen -->
-              {% if carousel_rows_recommendation != "" %}
+
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100">
                   <div class="card-header">
@@ -327,7 +329,7 @@
                   <div class="card-body ">
                     <!--Carousel Wrapper-->
                     <div id="recommendation-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
-
+                      {% if carousel_rows_recommendation != "" %}
                       <!--Controls-->
                       <div class="controls-top text-center">
                         <a class="btn-floating" href="#recommendation-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
@@ -350,17 +352,19 @@
                       </div>
 
                       <!--/.Slides-->
-
+                      {% else %}
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                      {% endif %}
                     </div>
                     <!--/.Carousel Wrapper-->
                   </div>
                 </div>
               </div>
 
-              {% endif %}
+
               <!-- /.Recommendation carousel  -->
               <!-- Education carousel large screen -->
-              {% if carousel_rows_education != "" %}
+
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100">
                   <div class="card-header">
@@ -369,7 +373,7 @@
                   <div class="card-body ">
                     <!--Carousel Wrapper-->
                     <div id="education-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
-
+                      {% if carousel_rows_education != "" %}
                       <!--Controls-->
                       <div class="controls-top text-center">
                         <a class="btn-floating" href="#education-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
@@ -391,13 +395,15 @@
                       </div>
 
                       <!--/.Slides-->
-
+                      {% else %}
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                      {% endif %}
                     </div>
                     <!--/.Carousel Wrapper-->
                   </div>
                 </div>
               </div>
-              {% endif %}
+
               <!-- /.Education carousel  -->
               <!-- Skills carousel large screen -->
               {% if carousel_rows_skill != "" %}

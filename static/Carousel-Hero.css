@@ -1,0 +1,36 @@
+div.jumbotron.carousel-hero {
+  color: #fff;
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+  padding-top: 100px;
+  padding-bottom: 100px;
+  margin-bottom: 0;
+  height: 500px;
+}
+
+div.jumbotron.hero-1 {
+  background-image: url('./img/jumbotron1.png');
+}
+
+div.jumbotron.hero-2 {
+  background-image: url('./img/jumbotron2.png');
+}
+
+div.jumbotron.hero-3 {
+  background-image: url('./img/jumbotron3.png');
+}
+
+h1.hero-title, h2.hero-title, h3.hero-title {
+  text-shadow: 0 3px 3px rgba(0,0,0,0.4);
+  color: #fff;
+  font-weight: bold;
+}
+
+p.hero-subtitle {
+  max-width: 600px;
+  margin: 25px auto;
+  padding: 10px 15px;
+  color: #fff;
+  font-size: 25px;
+}

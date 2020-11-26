@@ -84,8 +84,8 @@ class currentMode() :
 			self.IPCProvider = '/home/jarvis/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/home/jarvis/talaonet/geth.ipc', timeout=20))
 			self.uploads_path = '/home/jarvis/Bureau/Eth/Talao/uploads/'
-			self.server = 'http://192.168.1.14:3000/'
-			self.flaskserver = "192.168.1.14"
+			self.server = 'http://192.168.1.8:3000/'
+			self.flaskserver = "192.168.1.8"
 			self.port = 3000
 
 		# En Prod sur Rinkeby
@@ -168,7 +168,7 @@ class currentMode() :
 			# Talao company
 			self.owner_talao = '0xEE09654eEdaA79429F8D216fa51a129db0f72250'
 			self.workspace_contract_talao = '0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'
-		
+
 		else :
 			print('Chain variable problem')
 

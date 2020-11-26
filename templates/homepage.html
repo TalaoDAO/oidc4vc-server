@@ -13,6 +13,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Carousel-Hero.css') }}">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -52,6 +53,110 @@
 
         <div class="text-center"><a href="/user/tutorial"><button class="btn btn-primary shadow" type="button" style="background: rgb(6,169,222);margin: 50px;border-style: none;">Get started with our video tutorial</button></a></div>
 
+      </div>
+    </div>
+    <!-- Carousel News -->
+    <div class="row">
+      <div class="carousel slide w-100" data-ride="carousel" id="carousel-1">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div class="jumbotron hero-1 carousel-hero">
+              <h1 class="hero-title">Talao launches it's own private Blockchain</h1>
+              <p class="hero-subtitle">Great speed and easier onboarding than ever while maintaining security for your data</p>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="jumbotron hero-2 carousel-hero">
+              <h1 class="hero-title">Ma societe has joined Talao</h1>
+              <p class="hero-subtitle">Ma societe is a test company contact us if you want your name here</p>
+              <p><a class="btn btn-primary btn-lg hero-button" style="background: rgb(6,169,222);border-style: none;" role="button" href="/user/issuer_explore/?issuer_username=masociete">Check there board</a></p>
+            </div>
+          </div>
+          <!-- <div class="carousel-item">
+            <div class="jumbotron hero-3 carousel-hero">
+              <h1 class="hero-title">Hero Technology</h1>
+              <p class="hero-subtitle">Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
+              <p><a class="btn btn-primary btn-lg hero-button" style="background: rgb(6,169,222);border-style: none;" role="button" href="#">Learn more</a></p>
+            </div>
+          </div> -->
+        </div>
+        <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-slide="prev"><i class="fa fa-chevron-left"></i><span class="sr-only">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button"
+            data-slide="next"><i class="fa fa-chevron-right"></i><span class="sr-only">Next</span></a></div>
+        <ol class="carousel-indicators">
+          <li data-target="#carousel-1" data-slide-to="0" class="active"></li>
+          <li data-target="#carousel-1" data-slide-to="1"></li>
+          <li data-target="#carousel-1" data-slide-to="2"></li>
+        </ol>
+      </div>
+    </div>
+    <!-- Job offers -->
+    <div class="row justify-content-center mt-3" style='height:650px'>
+      <div class="row  w-100">
+        <h2 class="text-center w-100" style="color: rgb(6,169,222);font-size: 45px;"> <strong>Job offers</strong> </h2>
+      </div>
+      <div class="row justify-content-center w-100 overflow-auto border rounded mx-md-5" style='height:550px'>
+        <div class="card shadow w-100 mt-4 mb-2 mx-5" style="max-width: 1000px">
+          <a href="/view_job_offer?offer=1">
+            <div class="card-body">
+              <div class="d-inline-flex w-100 m-0">
+                <div class="col-md-2"><img src="https://remoteok.io/assets/jobs/9c5575e19af49e0b36f113ca19c070111606338825.png?1606338826" style="width: 110px;"></div>
+                <div class="col-md-10 text-dark">
+                  <p style="font-size: 18px;margin-bottom: 2px;"><strong>Senior Software Engineer</strong></p>
+                  <p style="color: rgb(59,59,59);margin-bottom: 0px;">Message Bird</p>
+                    <p style="margin-top: 5px;"><i class="fa fa-map-marker"></i>&nbsp;(Remote) Time zone: Worldwide&nbsp; &nbsp; &nbsp; &nbsp;</p>
+                    <p style="margin-top: 5px;">
+                    <!-- <i class="fa fa-map-marker"></i>&nbsp;Madrid&nbsp; &nbsp; &nbsp; &nbsp; -->
+                    <!-- <i class="fa fa-pencil"></i>&nbsp;Stage -->
+                  </p>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="card shadow w-100 my-2 mx-5" style="max-width: 1000px">
+          <a href="/view_job_offer?offer=2">
+            <div class="card-body">
+              <div class="d-inline-flex w-100 m-0">
+                <div class="col-md-2"><img src="https://remoteok.io/assets/jobs/e2010fabb8ee4790893304be300b1a1a1606338563.png?1606338563g" style="width: 110px;"></div>
+                <div class="col-md-10 text-dark">
+                  <p style="font-size: 18px;margin-bottom: 2px;"><strong>Head of Demand Generation</strong></p>
+                  <p style="color: rgb(59,59,59);margin-bottom: 0px;">Catapult</p>
+                  <p style="margin-top: 5px;"><i class="fa fa-map-marker"></i>&nbsp;(Remote) Time zone: Worldwide&nbsp; &nbsp; &nbsp; &nbsp;</p>
+                  <!-- <p style="margin-top: 5px;"><i class="fa fa-map-marker"></i>&nbsp;Paris&nbsp; &nbsp; &nbsp; &nbsp;<i class="fa fa-pencil"></i>&nbsp;CDD</p> -->
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="card shadow w-100 my-2 mx-5" style="max-width: 1000px">
+          <a href="/view_job_offer?offer=3">
+            <div class="card-body">
+              <div class="d-inline-flex w-100">
+                <div class="col-md-2"><img src="https://remoteok.io/assets/jobs/cc56ebc7b233b6f48fecad5a443a6ced1606287634.png?1606287634" style="width: 110px;"></div>
+                <div class="col-md-10 text-dark">
+                  <p style="font-size: 18px;margin-bottom: 2px;"><strong>WP All Import Customer Support</strong></p>
+                  <p style="color: rgb(59,59,59);margin-bottom: 0px;">Soflyy</p>
+                  <p style="margin-top: 5px;"><i class="fa fa-map-marker"></i>&nbsp;(Remote) Time zone: Worldwide&nbsp; &nbsp; &nbsp; &nbsp;</p>
+                  <!-- <p style="margin-top: 5px;"><i class="fa fa-map-marker"></i>&nbsp;Paris&nbsp; &nbsp; &nbsp; &nbsp;<i class="fa fa-pencil"></i>&nbsp;CDD</p> -->
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="card shadow w-100 my-2 mx-5" style="max-width: 1000px">
+        <a href="/view_job_offer?offer=4">
+          <div class="card-body">
+            <div class="d-inline-flex w-100">
+              <div class="col-md-2"><img src="https://remoteok.io/assets/jobs/fad53491c6ead3968bd151440ca6474c1606240028.png?1606240028" style="width: 110px;"></div>
+              <div class="col-md-10 text-dark">
+                <p style="font-size: 18px;margin-bottom: 2px;"><strong>Web Developer</strong></p>
+                <p style="color: rgb(59,59,59);margin-bottom: 0px;">LearnCube</p>
+                <p style="margin-top: 5px;"><i class="fa fa-map-marker"></i>&nbsp;(Remote) Time zone: Worldwide&nbsp; &nbsp; &nbsp; &nbsp;</p>
+              </div>
+            </div>
+          </div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="article-list py-5" style="background: url('/static/img/Petit_BG.jpg') center / contain repeat;">
