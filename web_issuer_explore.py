@@ -65,7 +65,7 @@ def issuer_explore(mode) :
 	if session['issuer_explore']['type'] == 'person' :
 		# file
 		if session['issuer_explore']['identity_file'] == []:
-			my_file = """<a class="text-info">No Files available</a>"""
+			my_file = """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
 		else:
 			my_file = ""
 			is_encrypted = False
