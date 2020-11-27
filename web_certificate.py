@@ -10,6 +10,7 @@ import shutil
 from flask_fontawesome import FontAwesome
 import json
 from sys import getsizeof
+import random
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
@@ -662,21 +663,22 @@ def certificate_issuer_explore(mode) :
 
 
 	if issuer_explore.type == 'company' :
-		print('issuer explore', issuer_explore.__dict__)
 		# do something specific
 
 		# kbis
+		code = str(random.randint(10000, 99999))
+		url =  issuer_explore.personal['website']['claim_value'] + '/did/'
 		try :
-			response = requests.post( issuer_explore.personal['website']['claim_value'] + '/on_line_did/' )
-			if response.status_code == 200 :
+			response = requests.post( url, data={ 'code' : code})
+			if response.status_code == 200 and response.json().get('code') == code :
 				on_line_check = "True"
 			else :
 				on_line_check = "False"
-		except :
+		except:
 			on_line_check = "False"
-			
+
 		my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] + """ <br>
-				<b>Visual check</b> : <a class = "card-link" href=/call_did/?website=""" + issuer_explore.personal['website']['claim_value'] + """>""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
+				<b>Visual check</b> : <a href=" """ + issuer_explore.personal['website']['claim_value'] + """/did/">""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
 				<b>On-Line check</b> : """ + on_line_check
 
 		for kbis in issuer_explore.kbis :

@@ -18,6 +18,8 @@ import time
 import json
 import random
 from Crypto.PublicKey import RSA
+from authlib.jose import JsonWebEncryption
+from urllib.parse import urlencode
 
 # dependances
 import Talao_message
@@ -30,7 +32,7 @@ import ns
 import sms
 import vpi
 import user_search
-
+import privatekey
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -194,6 +196,7 @@ def forgot_username(mode) :
 # forgot password
 """ @app.route('/forgot_password/', methods = ['GET', 'POST'])
 This function is called from the starter and login view.
+build JWE to store timestamp, username and email, we use Talao RSA key
 """
 def forgot_password(mode) :
 	if request.method == 'GET' :
@@ -203,14 +206,54 @@ def forgot_password(mode) :
 		if not ns.username_exist(username, mode) :
 			flash("Username not found", "warning")
 			return render_template('login.html')
-		new_password = username + str(random.randint(10000, 99999))
-		ns.update_password(username, new_password, mode)
-		subject = 'Talao new password'
-		to = ns.get_data_from_username(username, mode)['email']
-		messagetext = 'Hello\r\n\r\nYour new password is ' + new_password 
-		Talao_message.message(subject, to, messagetext, mode)
-		flash("A new password has been sent by email", "success")
+		email= ns.get_data_from_username(username, mode)['email']
+		private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+		RSA_KEY = RSA.import_key(private_rsa_key)
+		public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
+		expired = datetime.timestamp(datetime.now()) + 180 # 3 minutes live
+		# build JWE
+		jwe = JsonWebEncryption()
+		header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
+		json_string = json.dumps({'username' : username, 'email' : email, 'expired' : expired})
+		payload = bytes(json_string, 'utf-8')
+		token = jwe.serialize_compact(header, payload, public_rsa_key)
+		link = mode.server + 'forgot_password_2/?'+ urlencode({'token'  : token.decode('utf-8')}, doseq=True)
+		messagetext = 'Hello\r\n\r\nFollow this link to renew your password : ' +  link
+		if Talao_message.message('Renew your password', email, messagetext, mode) :
+			flash("You are going to receive an email to renew your password.", "success")
 		return render_template('login.html')
+
+# forgot password 2
+""" @app.route('/forgot_password_2/', methods = ['GET', 'POST'])
+This function is called from the starter and login view.
+"""
+def forgot_password_2(mode) :
+	if request.method == 'GET' :
+		token = request.args.get('token')
+		key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+		jwe = JsonWebEncryption()
+		try :
+			data = jwe.deserialize_compact(token, key)
+		except :
+			flash ('Incorrect data', 'danger')
+			return render_template('login.html')
+		payload = json.loads(data['payload'].decode('utf-8'))
+		if payload['expired'] < datetime.timestamp(datetime.now()) :
+			flash ('Delay expired (3 minutes maximum)', 'danger')
+			return render_template('login.html')
+		session['email_password'] = payload['email']
+		session['username_password'] = payload['username']
+		return render_template('update_password_external.html')
+	if request.method == 'POST' :
+		if session['email_password'] != request.form['email'] :
+			flash('Incorrect email', 'danger')
+			return render_template('update_password_external.html')
+		#ns.update_password(session['username_password'], request.form['password'], mode)
+		flash('Password updated', "success")
+		del session['email_password']
+		del session['username_password']
+		return render_template('login.html')
+
 
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
@@ -462,7 +505,6 @@ def user(mode) :
 	if session['partner'] == [] :
 		my_partner = """<a class="text-info">No Partners available</a>"""
 	else :
-		print('partner list = ', session['partner'])
 		my_partner = ""
 		for partner in session['partner'] :
 			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
@@ -772,7 +814,6 @@ def user(mode) :
 		credentials = ns.get_credentials(session['username'], mode)
 		my_api = ""
 		for cred in credentials :
-			print('cred =', cred)
 			my_api = my_api + """
 				<b>client_id</b> : """+ cred['client_id'] +"""<br>
 				<b>client_secret</b> : """+ cred['client_secret'] + """<br>
@@ -788,7 +829,6 @@ def user(mode) :
 		else :
 			my_kbis = ""
 			for kbis in session['kbis'] :
-				print('kbis = ', kbis)
 				kbis_html = """
 				<b>Name</b> : """+ kbis['name'] +"""<br>
 				<b>SIREN</b> : """+ kbis.get('siren', '') +"""<br>
