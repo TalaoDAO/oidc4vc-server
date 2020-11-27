@@ -292,9 +292,27 @@ def signature() :
         flash('Your signature has been updated', 'success')
         return redirect(mode.server + 'user/')
 
-@app.route('/email', methods=['GET', 'POST'])
-def email():
-    return render_template('email.html')
+@app.route('/report', methods=['GET', 'POST'])
+def report():
+    if request.method == 'GET' :
+        return render_template('report.html', **session['menu'])
+    if request.method == 'POST' :
+        email = "thierry.thevenet@talao.io"
+        email2 = "alexandre.leclerc@talao.io"
+        subject = "Bug Report"
+        messagetext = """Hello,
+
+A bug has been reported by this identity: {link}
+His email is : {email}
+
+Description given by the user:
+
+{description}
+""".format(link = session['menu']['clipboard'], email = request.form['email'], description = request.form['description'])
+        Talao_message.message(subject, email, messagetext, mode)
+        Talao_message.message(subject, email2, messagetext, mode)
+        flash('The bug has been reported ! Thank you for your help ! ', "success")
+        return redirect(mode.server + 'homepage/')
 
 # Job offer
 @app.route('/view_job_offer', methods=['GET', 'POST'])
@@ -716,6 +734,7 @@ def create_company() :
         if workspace_contract :
             claim=Claim()
             claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
+            user_search.add_user(request.form['name'], company_username)
             flash(company_username + ' has been created as company', 'success')
         else :
             flash('Company Creation failed', 'danger')

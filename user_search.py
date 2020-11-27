@@ -19,7 +19,7 @@ def update_user(session, bool):
     with open('./static/username.json', 'w') as outfile:
         json.dump(profillist, outfile)
 
-def add_user(session, name, username):
+def add_user(name, username):
     profillist = []
     with open('./static/username.json', 'r') as json_file:
         data = json.load(json_file)

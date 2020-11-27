@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -21,21 +21,21 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-               
-                {% if viewer == 'guest' %}    
-                 {% include 'guest_nav_bar.html' %}    
-             {% else %} 
-                   {% if session['type'] == "company" %}    
-						{% include 'company_nav_bar.html' %}    
-					{% else %} 
-						{% include 'user_nav_bar.html' %} 
-					{% endif %}
-               
-             {% endif %}
-                         
-                                                                                     
 
-                <div class="container-fluid">
+                {% if viewer == 'guest' %}
+                 {% include 'guest_nav_bar.html' %}
+             {% else %}
+                   {% if session['type'] == "company" %}
+						{% include 'company_nav_bar.html' %}
+					{% else %}
+						{% include 'user_nav_bar.html' %}
+					{% endif %}
+
+             {% endif %}
+
+
+
+                <div class="container-fluid mt-3">
                     <div class="row mb-3">
                         <div class="col-lg-8 col-xl-4 offset-xl-4">
                             <div class="row">
@@ -47,17 +47,17 @@
                                                     <p class="text-secondary m-0 font-weight-bold"><strong>{{identity_firstname}} {{identity_lastname}}&nbsp;</strong>Professional Certificate issued by {{manager}}.
                                                     <a  class="text-secondary"  href="/certificate/verify/?certificate_id={{certificate_id}}"><i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a></p>
                                                 </div>
-                                                
-                                                
+
+
 												<div class="col">
-                                
-                                                   
+
+
                                                 </div>
-                                                
+
                                             </div>
                                         </div>
-                                                
-                                       
+
+
                                         <div class="card-body">
                                             <form action="/user/user_settings/" method="POST">
                                                 <div class="form-row">
@@ -68,11 +68,11 @@
                                                         <hr>
                                                         <div>
                                                             <div class="text-center">
-                                                                  		{{badge|safe}}  
+                                                                  		{{badge|safe}}
                                                             </div>
                                                             <hr>
-                                                            
-                                                               
+
+
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
@@ -81,8 +81,8 @@
                                                                 </div>
                                                                  <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star" style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
                                                             </div>
-                                                            
-                                                            
+
+
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
@@ -91,8 +91,8 @@
                                                                 </div>
                                                                  <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star" style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
                                                             </div>
-                                                            
-                                                            
+
+
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
@@ -101,8 +101,8 @@
                                                                 </div>
                                                                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star" style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
                                                             </div>
-                                                          
-                                                          
+
+
                                                            <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
@@ -111,8 +111,8 @@
                                                                 </div>
                                                                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star" style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
                                                             </div>
-                                                            
-                                                            
+
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -121,7 +121,7 @@
 												{% if viewer == 'user'  %}
 												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
 													{% endif %}
-										</div>                   
+										</div>
 									</div>
 								</div>
 							</div>
@@ -130,13 +130,13 @@
 					</div>
                 </div>
             </div>
-               {% include 'user_footer.html' %} 
+               {% include 'user_footer.html' %}
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
      	<script>function goBack() {  window.history.back();}</script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>

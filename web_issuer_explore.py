@@ -171,7 +171,10 @@ def issuer_explore(mode) :
 					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
 					carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
 				else:
-					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+					if experience['issuer']['category']==2001:
+						carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  experience['issuer']['name'] + """</footer>"""
+					else:
+						carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + experience['issuer']['firstname'] + " " +  experience['issuer']['lastname'] + """</footer>"""
 					carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
 
 				carousel_rows_experience += """</figure></div>"""
@@ -372,7 +375,10 @@ def issuer_explore(mode) :
 
 				carousel_rows_skill += "</p>"
 				#Footer
-				carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by Talao</footer>"""
+				if skill['issuer']['category']==2001:
+					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  skill['issuer']['name'] + """</footer>"""
+				else:
+					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
 				#Lien certificates
 				carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
 
@@ -530,7 +536,7 @@ def issuer_explore(mode) :
 					carousel_rows_agreement += "<br>"
 				carousel_rows_agreement += "</p>"
 				#Footer
-				carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + agreement['issuer']['name'] + """</footer>"""
+				carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  agreement['issuer']['name'] + """</footer>"""
 				#Lien certificates
 				carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """></a>"""
 

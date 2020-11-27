@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,41 +22,41 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                 {% if viewer == 'guest' %}    
-                 {% include 'guest_nav_bar.html' %}    
-             {% else %} 
-                   {% if session['type'] == "company" %}    
-						{% include 'company_nav_bar.html' %}    
-					{% else %} 
-						{% include 'user_nav_bar.html' %} 
+                 {% if viewer == 'guest' %}
+                 {% include 'guest_nav_bar.html' %}
+             {% else %}
+                   {% if session['type'] == "company" %}
+						{% include 'company_nav_bar.html' %}
+					{% else %}
+						{% include 'user_nav_bar.html' %}
 					{% endif %}
-               
+
              {% endif %}
-                
-                <div class="container-fluid">
+
+                <div class="container-fluid mt-3">
                     <div class="row mb-3">
                         <div class="col-md-10 col-lg-8 col-xl-6 offset-md-1 offset-lg-2 offset-xl-3">
                             <div class="card shadow mb-3">
                                 <div class="card-header py-3">
                                     <div class="row">
-                                       
+
                                         <div class="col-xl-6">
                                             <p class="text-secondary m-0 font-weight-bold"><strong>{{identity_firstname}} {{identity_lastname}} Recommendation</strong>
                                            <a  class="text-secondary"  href="/certificate/verify/?certificate_id={{certificate_id}}"><i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a></p>
 											</p>
                                         </div>
-                                        
-                                       
+
+
                                     </div>
                                 </div>
                                 <div class="card-body">
                                     <form action="/user/user_settings/" method="POST">
                                         <div class="form-row">
-										  {% if session['displayed_certificate'].get('picture') != None %}   
+										  {% if session['displayed_certificate'].get('picture') != None %}
                                             <div class="col-md-3 col-lg-3 col-xl-3 offset-xl-0 text-center"><img class="rounded-circle" src="{{ url_for('send_file', filename=issuer_picture) }}" width="150" height="150"></div>
                                          {% endif %}
 
-                                            
+
                                             <div class="col-md-3 col-lg-3 col-xl-3">
                                                 <h6><strong>{{issuer_firstname}} {{issuer_lastname}}</strong></h6>
                                                 <h6>{{issuer_title}}</h6>
@@ -78,7 +78,7 @@
                     </div>
                 </div>
             </div>
-                                   {% include 'user_footer.html' %}    
+                                   {% include 'user_footer.html' %}
 
     	<script>function goBack() {  window.history.back();}</script>
 
