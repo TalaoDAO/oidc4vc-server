@@ -485,7 +485,6 @@ def certificate_issuer_explore(mode) :
 	if issuer_explore.type == 'person' :
 		session['resume']= issuer_explore.__dict__
 		""" clean up """
-		del session['resume']['mode']
 		del session['resume']['file_list']
 		del session['resume']['experience_list']
 		del session['resume']['education_list']
