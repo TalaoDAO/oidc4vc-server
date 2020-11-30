@@ -21,8 +21,16 @@
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
+        {% if viewer == 'guest' %}
         {% include 'guest_nav_bar.html' %}
-        <div class="container-fluid">
+        {% else %}
+        {% if session['type'] == "company" %}
+        {% include 'company_nav_bar.html' %}
+        {% else %}
+        {% include 'user_nav_bar.html' %}
+        {% endif %}
+        {% endif %}
+        <div class="container-fluid mt-3">
           <div class="row mb-3">
             <div class="col-lg-8 col-xl-8 offset-xl-2">
               <div class="row">

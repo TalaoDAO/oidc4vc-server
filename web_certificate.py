@@ -80,6 +80,7 @@ def show_certificate(mode):
 							end_date = session['displayed_certificate']['end_date'],
 							description = description,
 							badge = my_badge,
+							viewer=viewer,
 							title = session['displayed_certificate']['title'],
 							)
 
@@ -103,6 +104,7 @@ def show_certificate(mode):
 							end_date = session['displayed_certificate']['end_date'],
 							description = description,
 							badge = my_badge,
+							viewer=viewer,
 							title = session['displayed_certificate']['title'],
 							link = session['displayed_certificate']['certificate_link']
 							)
@@ -310,6 +312,7 @@ def show_certificate(mode):
 							issuer_siret = session['displayed_certificate']['issued_by']['siret'],
 							title = session['displayed_certificate']['title'],
 							signature=signature,
+							viewer=viewer,
 							registration_number = session['displayed_certificate']['registration_number'],
 							service_product_group = service_product_group,
 							certificate_id=certificate_id,
@@ -380,6 +383,7 @@ def show_certificate(mode):
 							badge = my_badge,
 							manager = session['displayed_certificate']['issued_by']['manager'],
 							certificate_id=certificate_id,
+							viewer=viewer,
 							**context)
 
 

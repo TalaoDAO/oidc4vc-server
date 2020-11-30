@@ -57,7 +57,7 @@ def authentification(mode) :
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['code'] + request.form['phone']
-		user_search.add_user(session,session['firstname'] + ' ' + session['lastname'], session['username'])
+		user_search.add_user(session['firstname'] + ' ' + session['lastname'], session['username'])
 		if not sms.check_phone(session['phone'], mode) :
 			return render_template("create.html",message='Incorrect phone number')
 		else :

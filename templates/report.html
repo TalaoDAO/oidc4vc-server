@@ -23,7 +23,7 @@
       <div id="content">
 
         {% include 'user_nav_bar.html' %}
-        <div class="container-fluid">
+        <div class="container-fluid  mt-3">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}
               <a class="text-secondary" onclick="copyToClipboard('#p100')">
@@ -40,58 +40,28 @@
                 <div class="card-header py-3">
                   <div class="row">
                     <div class="col-xl-6">
-                      <p class="text-primary m-0 font-weight-bold">&nbsp;Experience</p>
+                      <p class="text-primary m-0 font-weight-bold">&nbsp;Bug repport</p>
                     </div>
                   </div>
                 </div>
                 <div class="card-body">
-                  <form name="form" action="/user/add_experience/" method="POST">
+                  <form name="form" action="/report" method="POST">
                     <div class="form-row">
                       <div class="col">
-                        <div class="form-group"><label><strong>Company</strong><br></label><input class="form-control" type="text" title="Company Name where you worked." name="company_name" id='requiredName' required></div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group"><label for="email"><strong>Position</strong><br></label><input class="form-control" type="text" title="Your position within the team."  id='requiredPosition' required name="title"></div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group"><label for="startdate"><strong>Start Date</strong><br></label><input class="form-control" id="datePickerId1" type="date" required="" name="from"></div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group"><label for="email"><strong>End Date</strong><br></label><input class="form-control" id="datePickerId2" type="date" required="" name="to"></div>
-                      </div>
-
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group"><label for="username"><strong>Contact Name (optional)</strong></label><input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" title="Name of your contact wthin the company."
-                            name="contact_name"></div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group"><label for="email"><strong>Contact Email (Optional)</strong><br></label><input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip=""
-                            title="Email of your contact within the company." name="contact_email"></div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col" id="checkbox1">
-                        <div class="form-group"><label for="checkbox1"><strong>Skills (Optional) with comma separator</strong><br></label><textarea class="form-control" row="2" name="skills" title="skill1, skill2, skill3, ..."></textarea></div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group"><label for="email"><strong>Contact Phone (Optional)</strong><br></label><input class="form-control" type="tel" name="contact_phone" title="Phone number of your contact within the company."></div>
+                        <div class="form-group text-dark"><label><strong>Email</strong> (we migth need to contact you)<br></label><input class="form-control" type="email" title="Your email" name="email" required></div>
                       </div>
                     </div>
 
                     <div class="form-row">
                       <div class="col">
-                        <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea title="Description of the project, with objectives, budget, technos, delays...." class="form-control" data-toggle="tooltip"
-                            data-bs-tooltip="" rows="3" name="description" required=""></textarea></div>
+                        <div class="form-group text-dark"><label><strong>Please describe the bug you had :</strong></label><textarea title="" class="form-control" data-toggle="tooltip"
+                            data-bs-tooltip="" rows="8" name="description" required=""></textarea></div>
                       </div>
                     </div>
 
                     <div class="form-row">
                       <div class="col-6 col-xl-3">
-                        <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Add</button></div>
+                        <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Send</button></div>
                       </div>
                       <div class="col-6 col-xl-3">
                         <a href="/user/">

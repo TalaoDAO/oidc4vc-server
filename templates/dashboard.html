@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,18 +22,18 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-				
-				  {% if viewer == 'guest' %}    
-                 {% include 'guest_nav_bar.html' %}    
-             {% else %} 
-                 {% include 'user_nav_bar.html' %} 
+
+				  {% if viewer == 'guest' %}
+                 {% include 'guest_nav_bar.html' %}
+             {% else %}
+                 {% include 'user_nav_bar.html' %}
              {% endif %}
-				
-                 
-            <div class="container-fluid">
+
+
+            <div class="container-fluid mt-3">
                 <div class="d-sm-flex justify-content-between align-items-center mb-4">
                     <h3 class="text-dark mb-0">Professional Identity (Fiability Index = {{index}})</h3>
-                    
+
       <!--              <a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Generate Report</a> -->
                     </div>
                 <div class="row">
@@ -270,9 +270,9 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        
-                        
+
+
+
                         <div class="row">
                             <div class="col-xl-4">
                                 <div class="card shadow mb-4">
@@ -331,10 +331,10 @@
                                     <div class="card-body">
                                         <h4 class="card-title">History</h4>
                                         <h6 class="text-muted card-subtitle mb-2">Transactions of the last 2 weeks</h6>
-                                     <div  style="height:300px;overflow:auto;overflow-x: hidden;"> 
+                                     <div  style="height:300px;overflow:auto;overflow-x: hidden;">
                                       <p class="card-text">{{history|safe}}</p>
                                       </div>
-                                      
+
                                    </div>
                                 </div>
                             </div>
@@ -346,7 +346,7 @@
                 </div>
             </div>
         </div>
-                                                               {% include 'user_footer.html' %}    
+                                                               {% include 'user_footer.html' %}
 
     </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
@@ -354,7 +354,7 @@
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>     
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>
