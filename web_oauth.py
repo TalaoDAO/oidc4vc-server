@@ -21,14 +21,16 @@ import createcompany
 import privatekey
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
-#@route('/resolver/')
+#@route('/resolver')
 def resolver(mode):
+    if 'method' not in session :
+        session['method'] = request.method
     if request.method == 'GET' and not request.args.get('username') :
         return render_template('resolver.html', output="")
     elif request.method == 'GET' :
         input = request.args.get('username')
     else :
-        input = request.form.get('input')
+        input = json.loads(request.data.decode("utf-8"))['input']
     try :
         if input[:3] == 'did' :
             did = input
@@ -39,8 +41,10 @@ def resolver(mode):
             workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
             did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
     except :
+        print('except')
         output =  "Username, workspace_contract or did not found"
         return render_template('resolver.html', output=output)
+
     address = contractsToOwners(workspace_contract, mode)
     contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
     rsa_public_key = contract.functions.identityInformation().call()[4]
@@ -50,7 +54,18 @@ def resolver(mode):
                      'address' : address,
                      'workspace contract' : workspace_contract,
                      'RSA public key' : rsa_public_key.decode('utf-8')}
-    return render_template('resolver.html', output=json.dumps(payload, indent=4))
+    print('avant return ')
+    if session['method'] == 'GET' :
+        print(' get method')
+        del session['method']
+        return render_template('resolver.html', output=json.dumps(payload, indent=4))
+    else :
+        print('post method')
+        del session['method']
+        response = Response(json.dumps(payload), status=200, mimetype='application/json')
+        return response
+
+
 
 def check_login() :
 	#check if the user is correctly logged. This function is called everytime a user function is called 
