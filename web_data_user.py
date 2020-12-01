@@ -48,12 +48,11 @@ def send_secret_code (username, code, mode) :
 		return None
 	if data['phone'] is None :
 		if not mode.test :
-			print('avant envoi de message par email')
 			Talao_message.messageAuth(data['email'], code, mode)
-			print('envoi du code par email')
+			print('Warning : code sent by email')
 		return 'email'
 	else :
-		print('envoi du code par sms')
+		print('Warning : code snet by sms')
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
@@ -111,7 +110,7 @@ def login(mode) :
 				flash("Problem to send secret code", 'warning')
 				return redirect(mode.server + 'login/')
 			else :
-				print('secret code sent = ', session['code'])
+				print('Warning : secret code sent = ', session['code'])
 				flash("Secret code sent by " + session['support'], 'success')
 				session['try_number'] = 1
 				return render_template("authentification.html", support=session['support'])
@@ -124,7 +123,7 @@ def login_authentification(mode) :
 		return render_template('login.html')
 	code = request.form['code']
 	session['try_number'] +=1
-	print('code retourné = ', code)
+	print('Warning : code retourné = ', code)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if code in authorized_codes and datetime.now() < session['code_delay'] :
 		session['username'] = session['username_to_log']
@@ -146,6 +145,7 @@ def login_authentification(mode) :
 			flash('This code is incorrect, 1 trial left', 'warning')
 		return render_template("authentification.html", support=session['support'])
 
+
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout(mode) :
@@ -155,13 +155,13 @@ def logout(mode) :
 		os.remove(mode.uploads_path + session['picture'])
 		os.remove(mode.uploads_path + session['signature'])
 	except :
-		print('effacement picture/signature erreur')
+		print('Error : effacement picture/signature erreur')
 
 	for one_file in session['identity_file'] :
 		try :
 			os.remove(mode.uploads_path + one_file['filename'])
 		except :
-			print('effacement file error')
+			print('Error : effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return render_template('login.html', name="")
@@ -248,7 +248,7 @@ def forgot_password_2(mode) :
 		if session['email_password'] != request.form['email'] :
 			flash('Incorrect email', 'danger')
 			return render_template('update_password_external.html')
-		#ns.update_password(session['username_password'], request.form['password'], mode)
+		ns.update_password(session['username_password'], request.form['password'], mode)
 		flash('Password updated', "success")
 		del session['email_password']
 		del session['username_password']
@@ -322,7 +322,7 @@ def data(mode) :
 	elif mode.BLOCKCHAIN == 'talaonet' :
 		transaction_hash = my_data.transaction_hash
 	else :
-		print('chain probleme')
+		print('Error : blockchain problem')
 		transaction_hash = my_data.transaction_hash = ""
 
 	if support == 'document' :
@@ -362,7 +362,8 @@ def data(mode) :
 def user(mode) :
 	check_login()
 	if not session.get('uploaded', False) :
-		print('start first instanciation user')
+		print('Warning : start first instanciation user')
+		print('session info = ', request.__dict__)
 		if mode.test :
 			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 		else :
@@ -371,7 +372,7 @@ def user(mode) :
 			except :
 				flash('session aborted', 'warning')
 				return render_template('login.html')
-		print('end of first intanciation')
+		print('Warning : end of first intanciation')
 
 		# clean up for resume
 		user_dict = user.__dict__.copy()
@@ -745,7 +746,7 @@ def user(mode) :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 					issuer_type = 'Person'
 				else :
-					print ('issuer category error, data_user.py')
+					print ('Error : issuer category error, data_user.py')
 				cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
 							<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
@@ -877,7 +878,7 @@ def user(mode) :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 					issuer_type = 'Person'
 				else :
-					print ('issuer category error, data_user.py')
+					print ('Error : issuer category error, data_user.py')
 				if certificate['type'] == 'agreement' :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>

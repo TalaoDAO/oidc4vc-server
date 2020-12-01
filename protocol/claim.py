@@ -55,6 +55,7 @@ def topicname2topicvalue(topicname) :
 """ si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstane' ; 'pierre'} """
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
 	# @data = str
+	# scheme 2
 	w3 = mode.w3
 
 	topic_value = topicname2topicvalue(topicname)
@@ -67,7 +68,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 			return None, None, None
 		ipfs_hash = ipfs_add(data_encrypted, mode)
 		if not ipfs_hash :
-			print('ipfs hash error create_claim')
+			print('Error : ipfs hash error create_claim')
 			return None, None, None
 		data = privacy
 
@@ -119,7 +120,6 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	scheme = claim[1]
 	topic_value = claim[0]
 	topicname = topicvalue2topicname(topic_value)
-	print('topicname calculé = ', topicname)
 
 	if data != 'private' and data != 'secret' :
 		to_be_decrypted = False
@@ -154,7 +154,6 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
 		to_be_decrypted = False
 		privacy = 'secret'
-		print('workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None')
 
 	# data decryption
 	if to_be_decrypted :
@@ -164,7 +163,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
 		if not rsa_key :
-			print("data decryption impossible, no RSA key")
+			print("Error : no RSA key")
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
 
 		# upload data encrypted from ipfs
@@ -186,7 +185,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			msg = json.loads(plaintext.decode('utf-8'))
 			data =  msg[topicname] 
 		except ValueError :
-			print("data decryption error")
+			print("Error : data decryption")
 			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
 
 	# transaction 
@@ -210,11 +209,11 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 				#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 				created = str(date)
 			except :
-				print( 'probleme avec dans get claim')
+				print( 'Error : probleme avec dans get claim')
 				return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 			break
 	if not found :
-		print( 'probleme avec dans get claim')
+		print( 'Error : problem , not found in claim')
 		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 

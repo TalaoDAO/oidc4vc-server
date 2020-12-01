@@ -41,7 +41,7 @@ def resolver(mode):
             workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
             did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
     except :
-        print('except')
+        print('Error : wrong input')
         output =  "Username, workspace_contract or did not found"
         return render_template('resolver.html', output=output)
 
@@ -54,13 +54,10 @@ def resolver(mode):
                      'address' : address,
                      'workspace contract' : workspace_contract,
                      'RSA public key' : rsa_public_key.decode('utf-8')}
-    print('avant return ')
     if session['method'] == 'GET' :
-        print(' get method')
         del session['method']
         return render_template('resolver.html', output=json.dumps(payload, indent=4))
     else :
-        print('post method')
         del session['method']
         response = Response(json.dumps(payload), status=200, mimetype='application/json')
         return response
@@ -119,6 +116,7 @@ def home():
 def oauth_logout():
     post_logout = request.args.get('post_logout_redirect_uri')
     session.clear()
+    print('Warning : logout ID provider')
     return redirect(post_logout)
 
 #@route('/api/v1/oauth_login')
@@ -145,6 +143,7 @@ def oauth_login(mode):
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
+        print('Warning : user is logged')
         #session['username']=username
     return redirect(url)
 
@@ -254,7 +253,7 @@ def user_info(mode):
     user_info = dict()
     profile, category = read_profil(user_workspace_contract, mode, 'full')
     user_info['sub'] = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
-    print('token scope reçu = ', current_token.scope)
+    print('Warning : token scope received = ', current_token.scope)
     if 'proof_of_identity' in current_token.scope :
         user_info['proof_of_identity'] = 'Not implemented yet'
 
@@ -271,8 +270,7 @@ def user_info(mode):
         if 'address' in current_token.scope :
             user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
     if category == 2001 : # company
-        pass
-    print('user info = ', user_info)
+        print('Error : OIDC request for company')
     # setup response
     response = Response(json.dumps(user_info), status=200, mimetype='application/json')
     return response
@@ -356,7 +354,6 @@ def user_accepts_company_partnership(mode):
     return response
 
 #route('/api/v1/user_uploads_signature')
-#@app.route("/user_uploads_signature", methods=["POST"])
 @require_oauth('user:manage:data')
 def user_uploads_signature(mode):
     user_id = current_token.user_id
@@ -437,7 +434,7 @@ def user_updates_company_settings(mode):
             if Claim().relay_add(user_workspace_contract,setting, data.get(setting), 'public', mode)[0] :
                 profil[setting] = data.get(setting)
             else :
-                print('user_updates_company_settings transaction failed")')
+                print('Error : user_updates_company_settings transaction failed")')
     # setup response
     response = Response(json.dumps(profil), status=200, mimetype='application/json')
     return response

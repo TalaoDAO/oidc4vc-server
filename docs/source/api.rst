@@ -11,7 +11,7 @@ Those API do not provide basic account setup (details, signature, logo ...) whic
 
 Standard use cases for APIs are :
 
-* Issue claims (certificates, diplomas, agreements, ...) to persons, companies and all sorts of orgqnizations.
+* Issue claims (certificates, diplomas, agreements, ...) to persons, companies and all sorts of organizations.
 * Authenticate users who have their own Decentralized Identity.
 * Create decentralized Identities for others.
 * Strenghen an employer brand with latest technology features like Blockchain Resume, Decentralized Identity,...
@@ -29,7 +29,8 @@ From the OIDC and OAuth 2.0 perspective :
 Resolver
 ********
 
-The Resolver allows to get public data about and Identity. It provides for a username or a DID (Decentralized IDientifier) the asssociated DID or username and RSA Public Key to authenticate the Identity.
+The Resolver allows to get public data about and Identity. It provides for a username or a DID (Decentralized IDientifier) the asssociated DID or username, 
+the Identity owner address and the RSA Public Key to authenticate the Identity.
 
 .. code::
 

@@ -26,7 +26,7 @@ exporting_threads = {}
 
 # Multithreading creatidentity setup
 class ExportingThread(threading.Thread):
-	def __init__(self, username, firstname, lastname, email, phone, mode):
+	def __init__(self, username, firstname, lastname, email, phone, mode, password):
 		super().__init__()
 		self.username = username
 		self.firstname = firstname
@@ -34,10 +34,11 @@ class ExportingThread(threading.Thread):
 		self.email = email
 		self.phone = phone
 		self.mode = mode
+		self.password = password
 	def run(self):
-		workspace_contract = createidentity.create_user(self.username, self.email, self.mode)[2]
+		workspace_contract = createidentity.create_user(self.username, self.email, self.mode, password=self.password)[2]
 		if workspace_contract is None :
-			print('Thread to create new Identity failed')
+			print('Error : thread to create new Identity failed')
 			return
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
@@ -66,28 +67,33 @@ def authentification(mode) :
 			session['try_number'] = 1
 			sms.send_code(session['phone'], session['code'], mode)
 			#Talao_message.messageAuth(email, str(code), mode)
-			print('secret code = ', session['code'])
+			print('Warning : secret code = ', session['code'])
 			return render_template("create2.html", message = '')
 
 # route /register/authentification/
 def POST_authentification_2(mode) :
-	global exporting_threads
 	mycode = request.form['mycode']
 	if not session.get('code') :
 		flash('Registration error', 'warning')
 		return redirect(mode.server + 'login/')
 	session['try_number'] +=1
-	print('code retourné = ', mycode)
+	print('Warning : code received = ', mycode)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
-		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], mode)
-		print("appel de createidentity")
-		exporting_threads[thread_id].start()
-		return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.')
+		return render_template('register_update_password.html')
 	elif session['try_number'] > 3 :
 		return render_template("create3.html", message="Too many trials (3 max)")
 	elif datetime.now() > session['code_delay'] :
 		return render_template("create3.html", message="Code expired")
 	else :
 		return render_template("create2.html", message='This code is incorrect')
+
+#@app.route('/register/update_password/', methods=['GET'])
+def register_update_password(mode) :
+	global exporting_threads
+	thread_id = str(random.randint(0,10000 ))
+	exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], mode, request.form['password'])
+	print("Warning : appel de createidentity")
+	exporting_threads[thread_id].start()
+	session.clear()
+	return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.')

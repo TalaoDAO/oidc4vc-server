@@ -121,7 +121,7 @@ class currentMode() :
 			self.port = 3000
 
 		else :
-			print('Environment variable problem')
+			print('Error : environment variable problem')
 
 		if self.BLOCKCHAIN == 'rinkeby' :
 			self.start_block = 6400000
@@ -170,14 +170,14 @@ class currentMode() :
 			self.workspace_contract_talao = '0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'
 
 		else :
-			print('Chain variable problem')
+			print('Error : chain variable problem')
 
 
 		if self.w3.isConnected()== False :
-			print('Not Connected, network problem')
+			print('Error : not Connected, network problem')
 			sys.exit()
 		else :
-			print('Connected to ' + self.BLOCKCHAIN)
+			print('Success : connected to ' + self.BLOCKCHAIN)
 
 		""" unlock main account for IPC node only...
 		Faire >>>personal.importRawKey(relay, "password") avec address sans '0x' et correct password """

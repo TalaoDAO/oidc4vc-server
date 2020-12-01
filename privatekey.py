@@ -108,7 +108,7 @@ def get_key(address, key_type, mode) :
 		try :
 			fp = open(mode.keystore_path + address[2:] + '.json', "r")
 		except :
-			print('private key not found in privatekey.py')
+			print('Error : private key not found in privatekey.py')
 			return None
 		encrypted = fp.read()
 		fp.close()
@@ -122,12 +122,12 @@ def get_key(address, key_type, mode) :
 		fp.close()
 	except IOError :
 	#rsa file does not exist on disk then we determine RSA Key
-		print('RSA file not found on disk, lets calculate RSA key by algo from private key')
+		print('Warning : RSA file not found on disk, lets calculate RSA key by algo from private key')
 		global salt
 		global master_key
 		salt = get_key(address, 'private_key', mode)
 		if salt is None :
-			print('impossible de calculer la cle RSA sans la private key')
+			print('Error : cannot get  RSA withour private key')
 			return None
 
 		master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
