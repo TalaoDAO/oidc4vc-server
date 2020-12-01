@@ -58,7 +58,7 @@
                                             <input class="form-control" type="password" placeholder="Enter your secret code" name="code" style="color: rgb(133,135,150);">
                                         </div>
                                         <div>
-                                            <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Send</button> 
+                                            <button id="in_progress_button" class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Next</button> 
                                         </div>
                                     </form>
                                 </div>
@@ -72,6 +72,7 @@
     </div>
    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>

@@ -89,7 +89,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.1"
+VERSION = "0.15.2"
 API_SERVER = True
 
 # Flask and Session setup
@@ -398,6 +398,10 @@ def data_analysis() :
 @app.route('/user/test/', methods=['GET'])
 def test() :
     check_login()
+    print('request IP = ', request.remote_addr)
+    print('request remote user = ', request.remote_user)
+    print('request user agent = ', request.user_agent)
+    print('request origin = ', request.origin())
     return render_template('test.html', **session['menu'],test=json.dumps(session['resume'], indent=4))
 
 # Tutorial
@@ -727,25 +731,24 @@ def store_file() :
 def create_company() :
     check_login()
     if request.method == 'GET' and request.args.get('two_factor') :
-        #workspace_contract = createcompany.create_company(company_email, company_username, mode, siren=company_siren)[2]
-        workspace_contract = None
+        workspace_contract = createcompany.create_company(session['company_email'], session['company_username'], mode, siren=session['company_siren'])[2]
         if workspace_contract :
-            claim=Claim()
-            claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
-            user_search.add_user(request.form['name'], company_username)
-            flash(company_username + ' has been created as company', 'success')
+            Claim().relay_add(workspace_contract, 'name', session['company_name'], 'public', mode)
+            user_search.add_user(session['company_name'], session['company_username'])
+            flash(session['company_username'] + ' has been created as company', 'success')
         else :
             flash('Company Creation failed', 'danger')
         return redirect(mode.server + 'user/')
     elif request.method == 'GET' :
         return render_template('create_company.html', **session['menu'])
     elif request.method == 'POST' :
-        company_email = request.form['email']
-        company_username = request.form['name'].lower()
-        company_siren = request.form['siren']
-        if ns.username_exist(company_username, mode)   :
-            company_username = company_username + str(random.randint(1, 100))
-        # check two factor :
+        session['company_email'] = request.form['email']
+        session['company_name'] = request.form['name']
+        session['company_username'] = session['company_name'].lower()
+        session['company_siren'] = request.form['siren']
+        if ns.username_exist(session['company_username'], mode)   :
+            session['company_username'] = session['company_username'] + str(random.randint(1, 100))
+        # two factor check :
         return redirect(mode.server + 'user/two_factor/?callback=user/create_company/')
 
 # create a user/identity
@@ -1707,9 +1710,9 @@ def delete_identity() :
             flash('Wrong password', 'danger')
             return redirect (mode.server +'user/')
         else :
-            print('workspace contract = ', session['workspace_contract'])
             destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
-            ns.delete_identity(session['username'], mode)
+            category = 1001 if session['type'] == 'person' else 2001
+            ns.delete_identity(session['username'], mode, category = category)
             flash('Your Identity has been deleted from Blockchain', 'success')
             return redirect (mode.server +'login/')
 

@@ -93,14 +93,6 @@ def setup(mode) :
 ####################################### Standard Functions ###############################################################################################################
 
 
-def _get_category (workspace_contract, mode) :
-	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	try :
-		category = contract.functions.identityInformation().call()[1]
-	except :
-		return None
-		print('Error : identity does not exist')
-	return category
 
 def _contractsToOwners(workspace_contract, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
@@ -156,13 +148,12 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 	conn.close()
 	return True
 
-def delete_identity(identity_name, mode) :
+def delete_identity(identity_name, mode, category=1001) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	# remove database for company
-	workspace_contract = get_data_from_username(identity_name, mode)['workspace_contract']
-	if _get_category(workspace_contract, mode) == 2001 :
+	if category == 2001 :
 		os.remove(path + identity_name + '.db')
 	data = {'identity_name' : identity_name}
 	# we do not remove the publicHex key

@@ -124,7 +124,6 @@ def login(mode) :
 	if request.method == 'GET' :
 		session.clear()
 		return render_template('login.html')
-
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1

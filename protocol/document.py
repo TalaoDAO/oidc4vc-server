@@ -31,10 +31,9 @@ def owners_to_contracts(address, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
 
-
-def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous) :
+def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request) :
 	# @data = dict
-
+	
 	#encrypt data
 	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode)
 
@@ -210,16 +209,16 @@ class Document() :
 		if my_topic == 'certificate' :
 			return 20000
 
-	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True) :
-		return create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous)
+	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
+		return create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
-	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
+	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
+		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
-	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True) :
+	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous)
+		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
 	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :
 		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
