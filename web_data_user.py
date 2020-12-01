@@ -87,7 +87,7 @@ def login(mode) :
 			flash('Username not found', "warning")
 			session['try_number'] = 1
 			return render_template('login.html', name="")
-		if not ns.check_password(session['username_to_log'], request.form['password'].lower(), mode)  :
+		if not ns.check_password(session['username_to_log'], request.form['password'], mode)  :
 			session['try_number'] +=1
 			if session['try_number'] == 2 :
 				flash('This password is incorrect, 2 trials left', 'warning')

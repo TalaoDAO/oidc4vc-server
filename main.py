@@ -121,6 +121,7 @@ print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/password',  view_func=web_create_identity.authentification_password, methods = [ 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
 
 # Centralized @route to display certificates
