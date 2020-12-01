@@ -83,12 +83,12 @@ def login(mode) :
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1
-		session['username_to_log'] = request.form['username'].lower()
+		session['username_to_log'] = request.form['username']
 		if not ns.username_exist(session['username_to_log'], mode)  :
 			flash('Username not found', "warning")
 			session['try_number'] = 1
 			return render_template('login.html', name="")
-		if not ns.check_password(session['username_to_log'], request.form['password'].lower(), mode)  :
+		if not ns.check_password(session['username_to_log'], request.form['password'], mode)  :
 			session['try_number'] +=1
 			if session['try_number'] == 2 :
 				flash('This password is incorrect, 2 trials left', 'warning')
