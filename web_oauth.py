@@ -62,8 +62,6 @@ def resolver(mode):
         response = Response(json.dumps(payload), status=200, mimetype='application/json')
         return response
 
-
-
 def check_login() :
 	#check if the user is correctly logged. This function is called everytime a user function is called 
 	if not session.get('username') :

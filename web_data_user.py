@@ -9,7 +9,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import Flask, session, send_from_directory, flash, send_file, jsonify
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -72,6 +72,51 @@ def starter(mode) :
 				return redirect(mode.server + 'starter/') # tobe done
 			else :
 				pass
+
+# two factor check
+#@app.route('/user/two_factor/', methods=['GET', 'POST'])
+""" this route has to be used as a function to check code before signing a certificate
+CF create_company to see how to use it with redirect and callback """
+def two_factor(mode) :
+	check_login()
+	if request.method == 'GET' :
+		session['callback'] = request.args.get('callback')
+		session['code'] = str(random.randint(10000, 99999))
+		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+		# send code by sms if phone exist else email
+		session['support'] = send_secret_code(session['username'], session['code'],mode)
+		if session['support'] is None :
+			flash("Problem to send secret code", 'warning')
+			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
+		else :
+			print('Warning : secret code sent = ', session['code'])
+			flash("Secret code sent by " + session['support'], 'success')
+			session['try_number'] = 1
+			return render_template("two_factor.html", support=session['support'],  **session['menu'])
+	if request.method == 'POST' :
+		print('dans post')
+		code = request.form['code']
+		session['try_number'] +=1
+		print('Warning : code retourné = ', code)
+		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
+		# True exit
+		if code in authorized_codes and datetime.now() < session['code_delay'] :
+			del session['try_number']
+			del session['code']
+			del session['support']
+			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : True}))
+		elif session['code_delay'] < datetime.now() :
+			flash("Code expired", "warning")
+			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
+		elif session['try_number'] > 3 :
+			flash("Too many trials (3 max)", "warning")
+			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
+		else :
+			if session['try_number'] == 2 :
+				flash('This code is incorrect, 2 trials left', 'warning')
+			if session['try_number'] == 3 :
+				flash('This code is incorrect, 1 trial left', 'warning')
+			return render_template("two_factor.html", support=session['support'],  **session['menu'])
 
 
 #@app.route('login/', methods = ['GET', 'POST'])

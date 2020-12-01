@@ -155,6 +155,7 @@ app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, meth
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/company/',  view_func=web_data_user.company, methods = ['GET', 'POST'])
 app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
+app.add_url_rule('/user/two_factor/',  view_func=web_data_user.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -190,6 +191,7 @@ def is_username_in_list_for_partnership(partner_list, username) :
         if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
             return True
     return False
+
 
 #HomePage
 @app.route('/homepage/', methods=['GET'])
@@ -724,15 +726,9 @@ def store_file() :
 @app.route('/user/create_company/', methods=['GET', 'POST'])
 def create_company() :
     check_login()
-    if request.method == 'GET' :
-        return render_template('create_company.html', **session['menu'])
-    if request.method == 'POST' :
-        company_email = request.form['email']
-        company_username = request.form['name'].lower()
-        company_siren = request.form['siren']
-        if ns.username_exist(company_username, mode)   :
-            company_username = company_username + str(random.randint(1, 100))
-        workspace_contract = createcompany.create_company(company_email, company_username, mode, siren=company_siren)[2]
+    if request.method == 'GET' and request.args.get('two_factor') :
+        #workspace_contract = createcompany.create_company(company_email, company_username, mode, siren=company_siren)[2]
+        workspace_contract = None
         if workspace_contract :
             claim=Claim()
             claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
@@ -741,6 +737,16 @@ def create_company() :
         else :
             flash('Company Creation failed', 'danger')
         return redirect(mode.server + 'user/')
+    elif request.method == 'GET' :
+        return render_template('create_company.html', **session['menu'])
+    elif request.method == 'POST' :
+        company_email = request.form['email']
+        company_username = request.form['name'].lower()
+        company_siren = request.form['siren']
+        if ns.username_exist(company_username, mode)   :
+            company_username = company_username + str(random.randint(1, 100))
+        # check two factor :
+        return redirect(mode.server + 'user/two_factor/?callback=user/create_company/')
 
 # create a user/identity
 @app.route('/user/create_person/', methods=['GET', 'POST'])
@@ -1701,6 +1707,7 @@ def delete_identity() :
             flash('Wrong password', 'danger')
             return redirect (mode.server +'user/')
         else :
+            print('workspace contract = ', session['workspace_contract'])
             destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
             ns.delete_identity(session['username'], mode)
             flash('Your Identity has been deleted from Blockchain', 'success')
