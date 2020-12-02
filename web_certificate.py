@@ -32,12 +32,23 @@ def convert(obj):
 # display experience certificate for anybody. Stand alone routine
 # #route /guest/certificate
 # @route /certificate/
-def show_certificate(mode):
 
+def on_line_checking(website) :
+	code = str(random.randint(10000, 99999))
+	url =  website + '/did/'
+	try :
+		response = requests.post( url, data={ 'code' : code})
+		if response.status_code == 200 and response.json().get('code') == code :
+			return "True"
+		else :
+			return "False"
+	except :
+		return "False"
+
+def show_certificate(mode):
 	menu = session.get('menu', dict())
 	viewer = 'guest' if session.get('username') is None else 'user'
 	certificate_id = request.args['certificate_id']
-	print('certificate_id = ', certificate_id)
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 	self_claim = None
@@ -201,14 +212,14 @@ def show_certificate(mode):
 
 		if issuer_picture != None :
 			if not path.exists(mode.uploads_path + issuer_picture) :
-				print('picture already on disk')
+				print('Warning : picture already on disk')
 				url='https://gateway.pinata.cloud/ipfs/'+ issuer_picture
 				response = requests.get(url, stream=True)
 				with open(mode.uploads_path + issuer_picture, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
 			else :
-				print('no picture on disk')
+				print('Warning : no picture on disk')
 		description = """ " """ + session['displayed_certificate']['description'] + """ " """
 		return render_template('./certificate/recommendation.html',
 							**menu,
@@ -458,8 +469,13 @@ def certificate_verify(mode) :
 				<b>Document Id</b> : """ + certificate['id'] + """<br>
 				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>
 				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>
-				<b>Certificate expires on </b> : """ + certificate['expires'] + """<br>
-				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a> <hr>"""
+				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a><br>
+				<b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br>
+				<b>IP Address</b> : """ + certificate['request_remote_addr'] + """<br>
+				<b>Issuer Agent</b> : """ + certificate['request_remote_user_agent'].get('string', 'None') + """<br>
+				<b>Issuer Browser</b> : """ + certificate['request_remote_user_agent'].get('browser', 'None') + """<br>
+				<b>Issuer Platform</b> : """ + certificate['request_remote_user_agent'].get('platform', 'None') + """<br><hr>"""
+
 
 	my_verif = "".join([ advanced, issuer, user, '<br>'])
 
@@ -484,7 +500,6 @@ def certificate_issuer_explore(mode) :
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
 	#session['certificate_id'] = certificate_id
-	#print('certificate id ', certificate_id)
 	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
 
 	if issuer_explore.type == 'person' :
@@ -670,17 +685,7 @@ def certificate_issuer_explore(mode) :
 		# do something specific
 
 		# kbis
-		code = str(random.randint(10000, 99999))
-		url =  issuer_explore.personal['website']['claim_value'] + '/did/'
-		try :
-			response = requests.post( url, data={ 'code' : code})
-			if response.status_code == 200 and response.json().get('code') == code :
-				on_line_check = "True"
-			else :
-				on_line_check = "False"
-		except:
-			on_line_check = "False"
-
+		on_line_check = on_line_checking(issuer_explore.personal['website']['claim_value'])
 		my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] + """ <br>
 				<b>Visual check</b> : <a href=" """ + issuer_explore.personal['website']['claim_value'] + """/did/">""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
 				<b>On-Line check</b> : """ + on_line_check
@@ -730,7 +735,6 @@ def certificate_issuer_explore(mode) :
 
 #@app.route('/certificate/data/', methods=['GET'])
 def certificate_data(mode) :
-
 	menu = session.get('menu', dict())
 	viewer = 'guest' if session.get('username') is None else 'user'
 	dataId = request.args['dataId']
@@ -743,7 +747,7 @@ def certificate_data(mode) :
 			my_data = Document(my_topic)
 			my_data.relay_get(workspace_contract, doc_id, mode)
 		else :
-			print('Error data in webserver.py, Class instance needed')
+			print('Error : data in webserver.py, Class instance needed')
 			content = json.dumps({'topic' : 'error', 'msg' : 'Data Not Found'})
 			response = Response(content, status=406, mimetype='application/json')
 			return response
@@ -784,6 +788,14 @@ def certificate_data(mode) :
 				<li><b>Username</b> : """ + issuer_username +"""<br></li>
 				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
 
+	# for audit
+	if support == 'document' :
+		myissuer= myissuer + """
+				<li><b>IP Address</b> : """ + my_data.request_remote_addr + """<br></li>
+				<li><b>Issuer Agent</b> : """ + my_data.request_remote_user_agent.get('string', 'None') + """<br></li>
+				<li><b>Issuer Browser</b> : """ + my_data.request_remote_user_agent.get('browser', 'None') + """<br></li>
+				<li><b>Issuer Platform</b> : """ + my_data.request_remote_user_agent.get('platform', 'None') + """<br></li>"""
+
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
 	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
@@ -795,7 +807,9 @@ def certificate_data(mode) :
 				<li><b>Created</b> : """ + my_data.created + """<br></li>
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
+				<li><b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br></li>
+				"""
 	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
 		path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
@@ -898,7 +912,7 @@ def certificate_data(mode) :
 			myvalue = myvalue + """<li>  """+ skill_to_display + """</li>"""
 
 	else :
-		print(('topic not found'))
+		print('Error : topic not found')
 		content = json.dumps({'topic' : 'error', 'msg' : 'Data Not Found'})
 		response = Response(content, status=406, mimetype='application/json')
 		return response

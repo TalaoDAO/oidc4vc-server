@@ -52,7 +52,7 @@ def send_secret_code (username, code, mode) :
 			print('Warning : code sent by email')
 		return 'email'
 	else :
-		print('Warning : code snet by sms')
+		print('Warning : code sent by sms')
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
@@ -84,20 +84,24 @@ def two_factor(mode) :
 		session['code'] = str(random.randint(10000, 99999))
 		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 		# send code by sms if phone exist else email
-		session['support'] = send_secret_code(session['username'], session['code'],mode)
-		if session['support'] is None :
+		support = send_secret_code(session['username'], session['code'],mode)
+		if not support :
 			flash("Problem to send secret code", 'warning')
 			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
 		else :
-			print('Warning : secret code sent = ', session['code'])
-			flash("Secret code sent by " + session['support'], 'success')
+			print('Warning : secret code sent = ', session['code'], 'by ', support)
+			flash("Secret code sent by " + support, 'success')
 			session['try_number'] = 1
-			return render_template("two_factor.html", support=session['support'],  **session['menu'])
+			if support == 'sms':
+				consign = "Check your phone for SMS"
+			else :
+				consign = "Check your email"
+			session['support'] = support
+			return render_template("two_factor.html", support=support,  **session['menu'], consign = consign)
 	if request.method == 'POST' :
-		print('dans post')
 		code = request.form['code']
-		session['try_number'] +=1
-		print('Warning : code retourné = ', code)
+		session['try_number'] += 1
+		print('Warning : code received = ', code)
 		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 		# True exit
 		if code in authorized_codes and datetime.now() < session['code_delay'] :
@@ -342,12 +346,18 @@ def data(mode) :
 	myissuer = """
 				<span>
 				<b>Issuer</b><a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username + """ >
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
 				<li><b>Name</b> : """ + issuer_name + """<br></li>
 				<li><b>Username</b> : """ + issuer_username +"""<br></li>
-				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
-
+				<li><b>Type</b> : """ + issuer_type + """<br></li>
+				"""
+	# for audit
+	if support == 'document' :
+		myissuer= myissuer + """
+				<li><b>IP Address</b> : """ + my_data.request_remote_addr + """<br></li>
+				<li><b>Issuer Agent</b> : """ + my_data.request_remote_user_agent.get('string', 'None') + """<br></li>
+				<li><b>Issuer Browser</b> : """ + my_data.request_remote_user_agent.get('browser', 'None') + """<br></li>
+				<li><b>Issuer Platform</b> : """ + my_data.request_remote_user_agent.get('platform', 'None') + """<br></li>"""
 
 	if my_data.issuer['workspace_contract'] == session.get('workspace_contract') or my_data.issuer['workspace_contract'] == mode.relay_workspace_contract :
 		myissuer = myissuer + """
@@ -378,7 +388,8 @@ def data(mode) :
 				<li><b>Created</b> : """ + my_data.created + """<br></li>
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
+				<li><b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br></li>"""
 	# if support is an ERC725 Claim
 	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
@@ -407,7 +418,6 @@ def user(mode) :
 	check_login()
 	if not session.get('uploaded', False) :
 		print('Warning : start first instanciation user')
-		print('session info = ', request.__dict__)
 		if mode.test :
 			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 		else :

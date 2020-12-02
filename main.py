@@ -37,6 +37,7 @@ from eth_utils import decode_hex
 import redis
 import requests
 from Crypto.PublicKey import RSA
+from authlib.jose import jwt
 
 # dependances
 import Talao_message
@@ -89,7 +90,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.2"
+VERSION = "0.15.4"
 API_SERVER = True
 
 # Flask and Session setup
@@ -398,10 +399,6 @@ def data_analysis() :
 @app.route('/user/test/', methods=['GET'])
 def test() :
     check_login()
-    print('request IP = ', request.remote_addr)
-    print('request remote user = ', request.remote_user)
-    print('request user agent = ', request.user_agent)
-    print('request origin = ', request.origin())
     return render_template('test.html', **session['menu'],test=json.dumps(session['resume'], indent=4))
 
 # Tutorial
@@ -506,7 +503,8 @@ def issue_experience_certificate():
                         mode,
                         mydays=0,
                         privacy='public',
-                         synchronous=True)[0]
+                        synchronous=True,
+                        request=request)
     if not execution[0] :
         flash('Operation failed ', 'danger')
     else :
@@ -532,7 +530,17 @@ def issue_recommendation():
         workspace_contract_to = ns.get_data_from_username(session['talent_to_issue_certificate_username'], mode)['workspace_contract']
         address_to = contractsToOwners(workspace_contract_to, mode)
         my_recommendation = Document('certificate')
-        execution = my_recommendation.add(session['address'], session['workspace_contract'], address_to, workspace_contract_to, session['private_key_value'], recommendation, mode, mydays=0, privacy='public', synchronous=True)
+        execution = my_recommendation.add(session['address'],
+                                        session['workspace_contract'],
+                                        address_to,
+                                        workspace_contract_to,
+                                        session['private_key_value'],
+                                        recommendation,
+                                        mode,
+                                        mydays=0,
+                                        privacy='public',
+                                        synchronous=True,
+                                        request=request)
         if not execution[0] :
             flash('Operation failed ', 'danger')
         else :
@@ -1354,7 +1362,7 @@ def request_recommendation_certificate() :
     issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
 
     # email to Referent/issuer
-    parameters = {'issuer_email' : session['issuer_email'],
+    payload = {'issuer_email' : session['issuer_email'],
                     'issuer_username' : issuer_username,
                     'issuer_workspace_contract' : issuer_workspace_contract,
                     'issuer_name' : issuer_name,
@@ -1363,8 +1371,10 @@ def request_recommendation_certificate() :
                     'talent_username' : session['username'],
                     'talent_workspace_contract' : session['workspace_contract']
                     }
-    link = urllib.parse.urlencode(parameters)
-    url = mode.server + 'issue/?' + link
+    header = {'alg': 'RS256'}
+    key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    token = jwt.encode(header, payload, key).decode('utf-8')
+    url = mode.server + 'issue/?token=' + token
     if memo == "" or memo is None :
         memo = "Hello,"
     text = "".join([memo,
@@ -1398,7 +1408,7 @@ def request_experience_certificate() :
     issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
     issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
     issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
-    parameters = {'issuer_email' : session['issuer_email'],
+    payload = {'issuer_email' : session['issuer_email'],
             'certificate_type' : 'experience',
             'title' : request.form['title'],
              'description' : request.form['description'],
@@ -1411,9 +1421,10 @@ def request_experience_certificate() :
              'issuer_username' : issuer_username,
              'issuer_workspace_contract' : issuer_workspace_contract,
              'issuer_name' : issuer_name}
-
-    link = urllib.parse.urlencode(parameters)
-    url = mode.server + 'issue/?' + link
+    header = {'alg': 'RS256'}
+    key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    token = jwt.encode(header, payload, key).decode('utf-8')
+    url = mode.server + 'issue/?token=' + token
     if memo == "" or memo is None :
         memo = "Hello,"
     text = "".join([memo,
@@ -1759,33 +1770,26 @@ def talao_search() :
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
-# This is the visual DID proof
-@app.route('/did/', methods=['GET'])
+
+# This is the DID proof
+@app.route('/did/', methods=['GET', 'POST'])
 def did_check () :
-    html = """<!DOCTYPE html>
-        <html lang="en">
-            <body>
-                <h1>Talao</h1>
-                <h2>https://talao.co and https://talao.io</h2>
+    if request.method == 'GET' :
+	    html = """<!DOCTYPE html>
+		<html lang="en">
+			<body>
+				<h1>Talao - https://talao.co</h1>
                 <h2>Our Decentralized IDentifiers are : </h2>
                 <p>
                     <li><b>did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68</b></li>
                     <li><b>did:talao:rinkeby:fafDe7ae75c25d32ec064B804F9D83F24aB14341</b></li>
                 </p>
-            </body>
-        </html>"""
-    return render_template_string(html)
+			</body>
+		</html>"""
+	    return render_template_string(html)
+    if request.method == 'POST' :
+        return jsonify({"code" : request.form.get('code')}), 200
 
-# This is the online DID proof
-@app.route('/online_did/', methods=['GET'])
-def did_check_2 () :
-    return True
-
-# This is to call the DID proof
-@app.route('/call_did/', methods=['GET'])
-def call_did_check () :
-    link = request.args['website']+'/did/'
-    return redirect (link)
 
 
 #######################################################

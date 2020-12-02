@@ -45,22 +45,35 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;"><br>You are going to receive a SMS with a secret code. Copy this secret code for authentification.<br>
+                                    <p class="text-center" style="margin: 75px 50px 0px;"><br><br>You are going to receive a secret code.
+                                        <br> Copy this secret code for authentification.<br>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Check your phone for SMS</h4>
+                                        <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">{{consign}}</h4>
                                     </div>
+
                                     <form class="user" action="/user/two_factor/" method="post">
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox small"><h6 class="text-warning">{{message}}</h6></div>
+                                        <div class="form-group">
+                                            <input class="form-control" type="password" placeholder="Enter your secret code" name="code" style="color: rgb(133,135,150);"></div>  
+                                        </div>
+                                        <button id="in_progress_button" class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Next</button> 
+                                    </form>
+
+                                    <!-- <form class="user" action="/user/two_factor/" method="post">
                                         <div class="form-group">
                                             <input class="form-control" type="password" placeholder="Enter your secret code" name="code" style="color: rgb(133,135,150);">
                                         </div>
                                         <div>
                                             <button id="in_progress_button" class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Next</button> 
                                         </div>
-                                    </form>
+                                    </form>  -->
+
+
                                 </div>
                             </div>
                         </div>
