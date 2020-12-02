@@ -11,6 +11,8 @@ from oauth2 import authorization, require_oauth
 import json
 from urllib.parse import urlencode, parse_qs, urlparse
 import random
+import sms
+from datetime import datetime, timedelta
 
 import ns
 import constante
@@ -19,6 +21,7 @@ from protocol import save_image, has_key_purpose, Document, get_image, is_partne
 import createidentity
 import createcompany
 import privatekey
+import Talao_message
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')
@@ -62,12 +65,27 @@ def resolver(mode):
         response = Response(json.dumps(payload), status=200, mimetype='application/json')
         return response
 
-def check_login() :
-	#check if the user is correctly logged. This function is called everytime a user function is called 
-	if not session.get('username') :
-		abort(403)
+def send_secret_code (username, code, mode) :
+	data = ns.get_data_from_username(username, mode)
+	if data == dict() :
+		return None
+	if data['phone'] is None :
+		if not mode.test :
+			Talao_message.messageAuth(data['email'], code, mode)
+			print('Warning : code sent by email')
+		return 'email'
 	else :
-		return session['username']
+		print('Warning : code sent by sms')
+		sms.send_code(data['phone'], code, mode)
+	return 'sms'
+
+def check_login() :
+    #check if the user is correctly logged. This function is called everytime a user function is called 
+    if not session.get('username') :
+        print('Warning : call abort 403')
+        abort(403)
+    else :
+        return session['username']
 
 def current_user():
     if 'id' in session:
@@ -117,33 +135,92 @@ def oauth_logout():
     print('Warning : logout ID provider')
     return redirect(post_logout)
 
+#@app.route('/api/v1/oauth_two_factor', methods=['GET', 'POST'])
+def oauth_two_factor(mode) :
+    check_login()
+    if request.method == 'GET' :
+        session['callback'] = request.args.get('callback')
+        session['code'] = str(random.randint(10000, 99999))
+        session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+        # send code by sms if phone exist else email
+        support = send_secret_code(session['username'], session['code'],mode)
+        if not support :
+            flash("Problem to send secret code", 'warning')
+            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
+        else :
+            print('Warning : secret code sent = ', session['code'], 'by ', support)
+            flash("Secret code sent by " + support, 'success')
+            session['try_number'] = 1
+            if support == 'sms':
+                consign = "Check your phone for SMS"
+            else :
+                consign = "Check your email"
+            session['support'] = support
+            return render_template("/oauth/oauth_two_factor.html", support=support, consign = consign)
+    if request.method == 'POST' :
+        code = request.form['code']
+        session['try_number'] += 1
+        print('Warning : code received = ', code)
+        authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
+        # True exit
+        if code in authorized_codes and datetime.now() < session['code_delay'] :
+            del session['try_number']
+            del session['code']
+            del session['support']
+            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : "on"}))
+        elif session['code_delay'] < datetime.now() :
+            #flash("Code expired", "warning")
+            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : "Code expired. Renew your login."}))
+        elif session['try_number'] > 3 :
+            consign = 'Too many trials (3 max)'
+            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : "Too many trials. Renew your login."}))
+        else :
+            if session['try_number'] == 2 :
+                consign = 'Wrong code, 2 trials left'
+            if session['try_number'] == 3 :
+                consign = 'Wrong code, only 1 trial left'
+            return render_template("/oauth/oauth_two_factor.html", support=session['support'], consign=consign)
+
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
-    if request.method == 'GET' :
-        session['url'] = request.args.get('next')
-        return render_template('/oauth/oauth_login.html', client_name=request.args.get('client_name'))
-    if request.method  == 'POST' :
-        url = session.get('url')
-        if url is None :
-            return 'Session lost'
-        username = request.form.get('username')
-        if not ns.username_exist(username, mode)  :
-            flash('Username not found', "warning")
-            return redirect(url)
-        # if secret code wrong redirect to url
-        if not ns.check_password(username, request.form['password'].lower(), mode)  :
-            flash('Wrong password', "warning")
-            return redirect(url)
-        session['remember_me'] = request.form.get('checkbox')
-        user = User.query.filter_by(username=username).first()
+    # Call from two_factor, Correct with code, return to /authorization
+    if request.method == 'GET' and request.args.get('two_factor') == "on" :
+        user = User.query.filter_by(username=session['username']).first()
         if not user:
-            user = User(username=username)
+            user = User(username=session['username'])
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
         print('Warning : user is logged')
-        #session['username']=username
-    return redirect(url)
+        del session['client_name']
+        del session['username']
+        return redirect(session['url'])
+    # Call from two_factor, failed with code
+    if request.method == 'GET' and request.args.get('two_factor') :
+        return render_template('/oauth/oauth_login.html', consign=request.args.get('two_factor'))
+    # Call from /authorization
+    if request.method == 'GET' :
+        session['url'] = request.args.get('next')
+        session['client_name'] = request.args.get('client_name')
+        consign = 'Log in to use your Digital Identity with : ' + session['client_name']
+        return render_template('/oauth/oauth_login.html', consign=consign)
+    # Call from oauth_login.html
+    if request.method  == 'POST' :
+        url = session.get('url')
+        if url is None :
+            return 'Session lost'
+        session['username'] = request.form.get('username')
+        session['url'] = url
+        if not ns.username_exist(session['username'], mode)  :
+            consign =  'Username does not exist.'
+            return render_template('/oauth/oauth_login.html', consign=consign)
+        # if secret code wrong redirect to url
+        if not ns.check_password(session['username'], request.form['password'], mode)  :
+            consign =  'Wrong password.'
+            return render_template('/oauth/oauth_login.html', consign=consign)
+        session['remember_me'] = request.form.get('checkbox')
+        # two factor check :
+        return redirect(mode.server + 'api/v1/oauth_two_factor?callback=api/v1/oauth_login')
 
 
 #@route('/api/v1/create_client', methods=('GET', 'POST'))

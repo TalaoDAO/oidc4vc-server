@@ -76,7 +76,7 @@ def starter(mode) :
 # two factor check
 #@app.route('/user/two_factor/', methods=['GET', 'POST'])
 """ this route has to be used as a function to check code before signing a certificate
-CF create_company to see how to use it with redirect and callback """
+CF create_company in main.py to see how to use it with redirect and callback """
 def two_factor(mode) :
 	check_login()
 	if request.method == 'GET' :
