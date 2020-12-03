@@ -73,54 +73,48 @@ def starter(mode) :
 			else :
 				pass
 
-# two factor check
+# two factor checking function
 #@app.route('/user/two_factor/', methods=['GET', 'POST'])
 """ this route has to be used as a function to check code before signing a certificate
 CF create_company in main.py to see how to use it with redirect and callback """
 def two_factor(mode) :
 	check_login()
 	if request.method == 'GET' :
-		session['callback'] = request.args.get('callback')
-		session['code'] = str(random.randint(10000, 99999))
-		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+		session['two_factor'] = {'callback' : request.args.get('callback'),
+								'code' : str(random.randint(10000, 99999)),
+								'code_delay' : datetime.now() + timedelta(seconds= 180),
+								'try_number': 1,
+								'consign' : None}
 		# send code by sms if phone exist else email
-		support = send_secret_code(session['username'], session['code'],mode)
-		if not support :
-			flash("Problem to send secret code", 'warning')
-			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
-		else :
-			print('Warning : secret code sent = ', session['code'], 'by ', support)
-			flash("Secret code sent by " + support, 'success')
-			session['try_number'] = 1
-			if support == 'sms':
-				consign = "Check your phone for SMS"
-			else :
-				consign = "Check your email"
-			session['support'] = support
-			return render_template("two_factor.html", support=support,  **session['menu'], consign = consign)
+		support = send_secret_code(session['username'], session['two_factor']['code'],mode)
+		session['two_factor']['consign'] = "Check your phone for SMS." if support == 'sms' else "Check your email."
+		print('Info : secret code sent = ', session['two_factor']['code'], 'by ', support)
+		flash("Secret code sent by " + support, 'success')
+		return render_template("two_factor.html", **session['menu'], consign = session['two_factor']['consign'])
 	if request.method == 'POST' :
 		code = request.form['code']
-		session['try_number'] += 1
+		session['two_factor']['try_number'] += 1
 		print('Warning : code received = ', code)
-		authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
-		# True exit
-		if code in authorized_codes and datetime.now() < session['code_delay'] :
-			del session['try_number']
-			del session['code']
-			del session['support']
-			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : True}))
-		elif session['code_delay'] < datetime.now() :
-			flash("Code expired", "warning")
-			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
-		elif session['try_number'] > 3 :
-			flash("Too many trials (3 max)", "warning")
-			return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
-		else :
-			if session['try_number'] == 2 :
+		authorized_codes = [session['two_factor']['code'], '123456'] if mode.test else [session['two_factor']['code']]
+		# loop for incorrect code
+		if code not in authorized_codes and datetime.now() < session['two_factor']['code_delay'] and session['two_factor']['try_number'] < 4 :
+			if session['two_factor']['try_number'] == 2 :
 				flash('This code is incorrect, 2 trials left', 'warning')
-			if session['try_number'] == 3 :
+			if session['two_factor']['try_number'] == 3 :
 				flash('This code is incorrect, 1 trial left', 'warning')
-			return render_template("two_factor.html", support=session['support'],  **session['menu'])
+			return render_template("two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
+		# exit to callback
+		if code in authorized_codes and datetime.now() < session['two_factor']['code_delay'] :
+			two_factor = "True"
+		elif datetime.now() > session['two_factor']['code_delay']  :
+			two_factor = "False"
+			flash("Code expired", "warning")
+		elif session['two_factor']['try_number'] > 3 :
+			two_factor = "False"
+			flash("Too many trials (3 max)", "warning")
+		callback = session['two_factor']['callback']
+		del session['two_factor']
+		return redirect (mode.server + callback + "?two_factor=" + two_factor)
 
 
 #@app.route('login/', methods = ['GET', 'POST'])
@@ -793,23 +787,24 @@ def user(mode) :
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				issuer_username = 'Unknown' if not issuer_username else issuer_username
-				if certificate['issuer']['category'] == 2001 :
+				if certificate['issuer']['category'] == 2001 : # company
 					issuer_name = certificate['issuer']['name']
-					issuer_type = 'Company'
+					#issuer_type = 'Company'
 				elif  certificate['issuer']['category'] == 1001 :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					issuer_type = 'Person'
+					#issuer_type = 'Person'
 				else :
-					print ('Error : issuer category error, data_user.py')
+					pass
+				# <b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 				cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
 							<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-							<b>Title</b> : """ + certificate['title']+"""<br>
+							<b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 							<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
 							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 							<p>
-							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
+							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
 							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 							</a>
 							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>

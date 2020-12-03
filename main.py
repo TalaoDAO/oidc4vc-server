@@ -432,11 +432,9 @@ def issue_certificate():
         flash('Relay does not have your Private Key to issue a Certificate', 'warning')
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
     if request.method == 'GET' :
-        goback= request.args['goback']
         return render_template('issue_certificate.html',
                                 **session['menu'],
-                                issuer_username=session['issuer_username'],
-                                goback = goback)
+                                issuer_username=session['issuer_username'])
     if request.method == 'POST' :
         if request.form['certificate_type'] == 'experience' :
             if len(session['username'].split('.')) == 2 :
@@ -463,19 +461,52 @@ def issue_certificate():
                                     issuer_username=session['issuer_username'],
                                     talent_name=session['issuer_explore']['name'] )
         elif request.form['certificate_type'] == 'skill' :
-            issuer_explore_username = ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)
             return render_template("create_skill_certificate.html",
                                     **session['menu'],
-                                    identity_username=issuer_explore_username )
+                                    identity_username=session['issuer_username'] )
+        elif request.form['certificate_type'] == 'recommendation'  :
+            return render_template('issue_recommendation.html',
+                                    **session['menu'],
+                                    issuer_username=session['issuer_username'],
+                                    issuer_name = session['issuer_explore']['name'])
         else :
             flash('This certificate is not implemented yet !', 'warning')
             return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
-@app.route('/user/issuer_experience_certificate/', methods=['POST'])
+# issue experience certificate for person with  with two factor check
+@app.route('/user/issuer_experience_certificate/', methods=['GET','POST'])
 def issue_experience_certificate():
     """ The signature is the manager's signature except if the issuer is the company """
     check_login()
-    certificate = {
+    # call from two factor checking function
+    if request.method == 'GET' :
+        if request.args.get('two_factor') == "True" :     # code is correct
+            workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
+            address_to = contractsToOwners(workspace_contract_to, mode)
+            execution = Document('certificate').add(session['address'],
+                        session['workspace_contract'],
+                        address_to,
+                        workspace_contract_to,
+                        session['private_key_value'],
+                        session['certificate_to_sign'],
+                        mode,
+                        mydays=0,
+                        privacy='public',
+                        synchronous=True,
+                        request=request)
+            if not execution[0] :
+                flash('Transaction failed ', 'danger')
+            else :
+                flash('Certificate has been issued', 'success')
+        else :   # fail to check code
+            print('Warning : incorrect code in issue experience certificate ', request.args.get('two_factor'))
+        del session['certificate_signature']
+        del session['certificate_signatory']
+        del session['certificate_to_sign']
+        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
+    # call from issue_experience_certificate.html
+    if request.method == 'POST' :
+        session['certificate_to_sign'] = {
                     "version" : 1,
                     "type" : "experience",
                     "title" : request.form['title'],
@@ -491,63 +522,44 @@ def issue_experience_certificate():
                     "signature" : session['certificate_signature'],
                     "manager" : session['certificate_signatory'],
                     "reviewer" : request.form['reviewer_name']}
-    workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
-    address_to = contractsToOwners(workspace_contract_to, mode)
-    my_certificate = Document('certificate')
-    execution = my_certificate.add(session['address'],
-                        session['workspace_contract'],
-                        address_to,
-                        workspace_contract_to,
-                        session['private_key_value'],
-                        certificate,
-                        mode,
-                        mydays=0,
-                        privacy='public',
-                        synchronous=True,
-                        request=request)
-    if not execution[0] :
-        flash('Operation failed ', 'danger')
-    else :
-        flash('Certificate has been issued', 'success')
-    del session['certificate_signature']
-    del session['certificate_signatory']
-    return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
+        # call the two factor checking function :
+        return redirect(mode.server + 'user/two_factor/?callback=user/issuer_experience_certificate/')
 
-
-# issue recommendation for person
+# issue recommendation for person with two factor check
 @app.route('/user/issue_recommendation/', methods=['GET', 'POST'])
 def issue_recommendation():
     check_login()
+     # call from two factor checking function
     if request.method == 'GET' :
-        session['talent_to_issue_certificate_username'] = session['issuer_username']
-        return render_template('issue_recommendation.html',**session['menu'], issuer_username=request.args['issuer_username'], issuer_name = request.args['issuer_name'])
-    if request.method == 'POST' :
-        issuer_username = session['talent_to_issue_certificate_username']
-        recommendation = {    "version" : 1,
-                    "type" : "recommendation",
-                    "description" : request.form['description'],
-                    "relationship" : request.form['relationship']}
-        workspace_contract_to = ns.get_data_from_username(session['talent_to_issue_certificate_username'], mode)['workspace_contract']
-        address_to = contractsToOwners(workspace_contract_to, mode)
-        my_recommendation = Document('certificate')
-        execution = my_recommendation.add(session['address'],
+        if request.args.get('two_factor') == "True" :     # code is correct
+            execution = Document('certificate').add(session['address'],
                                         session['workspace_contract'],
-                                        address_to,
-                                        workspace_contract_to,
+                                        session['issuer_explore']['address'],
+                                        session['issuer_explore']['workspace_contract'],
                                         session['private_key_value'],
-                                        recommendation,
+                                        session['recommendation_to_sign'],
                                         mode,
                                         mydays=0,
                                         privacy='public',
                                         synchronous=True,
                                         request=request)
-        if not execution[0] :
-            flash('Operation failed ', 'danger')
-        else :
-            flash('Certificate has been issued', 'success')
-        del session['talent_to_issue_certificate_username']
-        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
-
+            if not execution[0] :
+                flash('Operation failed ', 'danger')
+            else :
+                flash('Certificate has been issued', 'success')
+        else : # fail to check code
+            print('Warning : incorrect code in issue recommendation ', request.args.get('two_factor'))
+        del session['recommendation_to_sign']
+        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
+    if request.method == 'POST' :
+        session['recommendation_to_sign'] = {"version" : 1,
+                    "type" : "recommendation",
+                    "description" : request.form['description'],
+                    "relationship" : request.form['relationship'],
+			        "picture" : session['picture'],
+			        "title" : session['title']}
+        # call the two factor checking function :
+        return redirect(mode.server + 'user/two_factor/?callback=user/issue_recommendation/')
 
 # personal settings
 @app.route('/user/update_personal_settings/', methods=['GET', 'POST'])
@@ -738,7 +750,7 @@ def store_file() :
 @app.route('/user/create_company/', methods=['GET', 'POST'])
 def create_company() :
     check_login()
-    if request.method == 'GET' and request.args.get('two_factor') :
+    if request.method == 'GET' and request.args.get('two_factor') == "True" :
         workspace_contract = createcompany.create_company(session['company_email'], session['company_username'], mode, siren=session['company_siren'])[2]
         if workspace_contract :
             Claim().relay_add(workspace_contract, 'name', session['company_name'], 'public', mode)
@@ -747,7 +759,7 @@ def create_company() :
         else :
             flash('Company Creation failed', 'danger')
         return redirect(mode.server + 'user/')
-    elif request.method == 'GET' :
+    elif request.method == 'GET' and request.args.get('two_factor') == "False" :
         return render_template('create_company.html', **session['menu'])
     elif request.method == 'POST' :
         session['company_email'] = request.form['email']
@@ -1028,25 +1040,36 @@ def remove_experience() :
         return redirect (mode.server +'user/')
 
 
+# delete a certificate with two factor checking
 @app.route('/user/remove_certificate/', methods=['GET', 'POST'])
 def remove_certificate() :
     check_login()
     if request.method == 'GET' :
-        session['certificate_to_remove'] = request.args['certificate_id']
-        session['certificate_title'] = request.args['certificate_title']
-        return render_template('remove_certificate.html', **session['menu'], certificate_title=session['certificate_title'])
-    elif request.method == 'POST' :
-        session['certificate'] = [certificate for certificate in session['certificate'] if certificate['id'] != session['certificate_to_remove']]
-        Id = session['certificate_to_remove'].split(':')[5]
-        my_experience = Document('certificate')
-        data = my_experience.relay_delete(session['workspace_contract'], int(Id), mode)
-        if not data :
-            flash('Transaction failed', 'danger')
-        else :
+         # call from two factor checking function, code is ok
+        if request.args.get('two_factor') == "True" :
+            session['certificate'] = [certificate for certificate in session['certificate'] if certificate['id'] != session['certificate_to_remove']]
+            Id = session['certificate_to_remove'].split(':')[5]
+            data = Document('certificate').relay_delete(session['workspace_contract'], int(Id), mode)
+            if not data :
+                flash('Transaction failed', 'danger')
+            else :
+                flash('The certificate has been removed', 'success')
             del session['certificate_to_remove']
             del session['certificate_title']
-            flash('The certificate has been removed', 'success')
-        return redirect (mode.server +'user/')
+            return redirect (mode.server +'user/')
+        # call from two factor checking function, code incorrect
+        elif request.args.get('two_factor') == "False" :
+            del session['certificate_to_remove']
+            del session['certificate_title']
+            return redirect (mode.server +'user/')
+        # first call
+        else :
+            session['certificate_to_remove'] = request.args['certificate_id']
+            session['certificate_title'] = request.args['certificate_title']
+            return render_template('remove_certificate.html', **session['menu'], certificate_title=session['certificate_title'])
+    elif request.method == 'POST' :
+        # call the two factor checking function :
+        return redirect(mode.server + 'user/two_factor/?callback=user/remove_certificate/')
 
 
 @app.route('/user/remove_file/', methods=['GET', 'POST'])
