@@ -46,10 +46,9 @@ def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data == dict() :
 		return None
-	if data['phone'] is None :
-		if not mode.test :
-			Talao_message.messageAuth(data['email'], code, mode)
-			print('Warning : code sent by email')
+	if not data['phone'] :
+		Talao_message.messageAuth(data['email'], code, mode)
+		print('Warning : code sent by email')
 		return 'email'
 	else :
 		print('Warning : code sent by sms')

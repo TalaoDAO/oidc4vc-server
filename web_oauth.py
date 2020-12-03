@@ -69,10 +69,9 @@ def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data == dict() :
 		return None
-	if data['phone'] is None :
-		if not mode.test :
-			Talao_message.messageAuth(data['email'], code, mode)
-			print('Warning : code sent by email')
+	if not data['phone'] :
+		Talao_message.messageAuth(data['email'], code, mode)
+		print('Warning : code sent by email')
 		return 'email'
 	else :
 		print('Warning : code sent by sms')
@@ -139,51 +138,37 @@ def oauth_logout():
 def oauth_two_factor(mode) :
     check_login()
     if request.method == 'GET' :
-        session['callback'] = request.args.get('callback')
-        session['code'] = str(random.randint(10000, 99999))
-        session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+        session['two_factor'] = {'callback' : request.args.get('callback'),'code' : str(random.randint(10000, 99999)),'code_delay' : datetime.now() + timedelta(seconds= 180),'try_number' : 1}
         # send code by sms if phone exist else email
-        support = send_secret_code(session['username'], session['code'],mode)
-        if not support :
-            flash("Problem to send secret code", 'warning')
-            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : False}))
-        else :
-            print('Warning : secret code sent = ', session['code'], 'by ', support)
-            flash("Secret code sent by " + support, 'success')
-            session['try_number'] = 1
-            if support == 'sms':
-                consign = "Check your phone for SMS"
-            else :
-                consign = "Check your email"
-            session['support'] = support
-            return render_template("/oauth/oauth_two_factor.html", support=support, consign = consign)
+        support = send_secret_code(session['username'], session['two_factor']['code'],mode)
+        print('Warning : secret code sent = ', session['two_factor']['code'], 'by ', support)
+        consign = "Check your phone for SMS" if support == 'sms' else "Check your email"
+        return render_template("/oauth/oauth_two_factor.html", consign = consign)
     if request.method == 'POST' :
         code = request.form['code']
-        session['try_number'] += 1
+        session['two_factor']['try_number'] += 1
         print('Warning : code received = ', code)
-        authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
-        # True exit
-        if code in authorized_codes and datetime.now() < session['code_delay'] :
-            del session['try_number']
-            del session['code']
-            del session['support']
-            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : "on"}))
-        elif session['code_delay'] < datetime.now() :
-            #flash("Code expired", "warning")
-            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : "Code expired. Renew your login."}))
-        elif session['try_number'] > 3 :
-            consign = 'Too many trials (3 max)'
-            return redirect (mode.server + session['callback'] + '?'+ urlencode({'two_factor' : "Too many trials. Renew your login."}))
-        else :
-            if session['try_number'] == 2 :
-                consign = 'Wrong code, 2 trials left'
-            if session['try_number'] == 3 :
-                consign = 'Wrong code, only 1 trial left'
-            return render_template("/oauth/oauth_two_factor.html", support=session['support'], consign=consign)
+        authorized_codes = [session['two_factor']['code'], '123456'] if mode.test else [session['two_factor']['code']]
+        callback= session['two_factor']['callback']
+        if code in authorized_codes and datetime.now() < session['two_factor']['code_delay'] :   # Correct code return
+            del session['two_factor']
+            return redirect (mode.server + callback + '?' + urlencode({'two_factor' : 'on'}))
+        elif session['two_factor']['code_delay'] < datetime.now() :
+            del session['two_factor']
+            return redirect (mode.server + callback + '?' + urlencode({'two_factor' : 'Code expired. Renew your login.'}))
+        elif session['two_factor']['try_number'] > 3 :
+            del session['two_factor']
+            return redirect (mode.server + callback + '?' + urlencode({'two_factor' : 'Too many trials. Renew your login.'}))
+        # loop on code
+        elif session['two_factor']['try_number'] == 2 :
+            consign = 'Wrong code, 2 trials left'
+        elif session['two_factor']['try_number'] == 3 :
+            consign = 'Wrong code, only 1 trial left'
+        return render_template("/oauth/oauth_two_factor.html", consign=consign)
 
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
-    # Call from two_factor, Correct with code, return to /authorization
+    # Call from two_factor, correct code, return to /authorization
     if request.method == 'GET' and request.args.get('two_factor') == "on" :
         user = User.query.filter_by(username=session['username']).first()
         if not user:
@@ -191,35 +176,28 @@ def oauth_login(mode):
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        print('Warning : user is logged')
-        del session['client_name']
         del session['username']
+        print('Warning : user is logged in Talao')
         return redirect(session['url'])
     # Call from two_factor, failed with code
     if request.method == 'GET' and request.args.get('two_factor') :
-        return render_template('/oauth/oauth_login.html', consign=request.args.get('two_factor'))
-    # Call from /authorization
+        return render_template('/oauth/oauth_login.html', username=session['username'], consign=request.args.get('two_factor'))
+    # Inital call from /authorization
     if request.method == 'GET' :
         session['url'] = request.args.get('next')
-        session['client_name'] = request.args.get('client_name')
-        consign = 'Log in to use your Digital Identity with : ' + session['client_name']
+        consign = 'Log in to use your Digital Identity with : ' + request.args.get('client_name')
         return render_template('/oauth/oauth_login.html', consign=consign)
-    # Call from oauth_login.html
+    # Call from the login page
     if request.method  == 'POST' :
-        url = session.get('url')
-        if url is None :
-            return 'Session lost'
+        # if username does not exist redirect to login page
         session['username'] = request.form.get('username')
-        session['url'] = url
         if not ns.username_exist(session['username'], mode)  :
-            consign =  'Username does not exist.'
-            return render_template('/oauth/oauth_login.html', consign=consign)
-        # if secret code wrong redirect to url
+            return render_template('/oauth/oauth_login.html', consign='Username does not exist.')
+        # if  wrong password redirect to login page
         if not ns.check_password(session['username'], request.form['password'], mode)  :
-            consign =  'Wrong password.'
-            return render_template('/oauth/oauth_login.html', consign=consign)
+            return render_template('/oauth/oauth_login.html', username=session['username'], consign='Wrong password.')
         session['remember_me'] = request.form.get('checkbox')
-        # two factor check :
+        # call the two factor checking function :
         return redirect(mode.server + 'api/v1/oauth_two_factor?callback=api/v1/oauth_login')
 
 
@@ -297,12 +275,12 @@ def authorize(mode):
         # Display view to ask for user consent if scope is more than just openid
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,client_name=client_name, **checkbox)
     # POST, call from consent screen
+    print('request form = ', request.form)
     if not user and 'username' in request.form:
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
     if 'reject' in request.form :
-        grant_user = None
-        return authorization.create_authorization_response(grant_user=grant_user)
+        return authorization.create_authorization_response(grant_user=None)
     # update scopes after user consent
     query_dict = parse_qs(request.query_string.decode("utf-8"))
     my_scope = ""

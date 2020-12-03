@@ -16,7 +16,7 @@
         <p>{{consign}}</p>
 
         <form class="form-signin" action="/api/v1/oauth_login" method="POST" ><span class="reauth-email"> </span>
-            <input class="form-control" type="text" name="username" required="" placeholder="Username" autofocus="">
+            <input class="form-control" type="text" name="username" value="{{username}}" required="" placeholder="Username" autofocus="">
             <input name="password" class="form-control" type="password" id="inputPassword" required="" placeholder="Password">
             <div
                 class="checkbox">
