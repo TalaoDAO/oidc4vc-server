@@ -4,6 +4,8 @@ import unidecode
 import random
 import json
 import constante
+import os
+import constante
 
 """ SQLite init functions , not used in normal operation
 
@@ -90,6 +92,8 @@ def setup(mode) :
 
 ####################################### Standard Functions ###############################################################################################################
 
+
+
 def _contractsToOwners(workspace_contract, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
@@ -144,10 +148,13 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 	conn.close()
 	return True
 
-def delete_identity(identity_name, mode) :
+def delete_identity(identity_name, mode, category=1001) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
+	# remove database for company
+	if category == 2001 :
+		os.remove(path + identity_name + '.db')
 	data = {'identity_name' : identity_name}
 	# we do not remove the publicHex key
 	c.execute("DELETE FROM resolver WHERE identity_name = :identity_name", data)

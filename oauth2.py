@@ -45,12 +45,13 @@ try :
 	fp.close()
 except :
     print('RSA private key of API Server not found')
-RSA_KEY = RSA.import_key(private_rsa_key)
-public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
+
+
 # Generate JWK from rsa key
 JWK = jwk.dumps(private_rsa_key)
-# set up 'kid' in the JWK header with public rsa key to check signature in client application
-JWK['kid'] = public_rsa_key
+# set up 'kid' in the JWK header 
+JWK['kid'] = 'Talao public RSA key'
+print('JWK = ', JWK)
 JWT_CONFIG = {
     'key':  JWK,
     'alg': 'RS256',

@@ -70,10 +70,16 @@ def read_profil (workspace_contract, mode, loading) :
 			claimId = claim[-1].hex()
 			data = contract.functions.getClaim(claimId).call()
 			profil[topicname]=data[4].decode('utf-8')
-
 	return profil,category
 
-
+def get_category (workspace_contract, mode) :
+	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
+	try :
+		category = contract.functions.identityInformation().call()[1]
+	except :
+		print('Error : identity does not exist')
+		return None
+	return category
 
 def ownersToContracts(address, mode) :
 	w3 = mode.w3

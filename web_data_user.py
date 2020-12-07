@@ -9,7 +9,9 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
+
 from flask import Flask, session, send_from_directory, flash, send_file, get_flashed_messages
+
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -46,13 +48,12 @@ def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data == dict() :
 		return None
-	if data['phone'] is None :
-		if not mode.test :
-			Talao_message.messageAuth(data['email'], code, mode)
-			print('Warning : code sent by email')
+	if not data['phone'] :
+		Talao_message.messageAuth(data['email'], code, mode)
+		print('Warning : code sent by email')
 		return 'email'
 	else :
-		print('Warning : code snet by sms')
+		print('Warning : code sent by sms')
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
@@ -73,6 +74,49 @@ def starter(mode) :
 			else :
 				pass
 
+# two factor checking function
+#@app.route('/user/two_factor/', methods=['GET', 'POST'])
+""" this route has to be used as a function to check code before signing a certificate
+CF create_company in main.py to see how to use it with redirect and callback """
+def two_factor(mode) :
+	check_login()
+	if request.method == 'GET' :
+		session['two_factor'] = {'callback' : request.args.get('callback'),
+								'code' : str(random.randint(10000, 99999)),
+								'code_delay' : datetime.now() + timedelta(seconds= 180),
+								'try_number': 1,
+								'consign' : None}
+		# send code by sms if phone exist else email
+		support = send_secret_code(session['username'], session['two_factor']['code'],mode)
+		session['two_factor']['consign'] = "Check your phone for SMS." if support == 'sms' else "Check your email."
+		print('Info : secret code sent = ', session['two_factor']['code'], 'by ', support)
+		flash("Secret code sent by " + support, 'success')
+		return render_template("two_factor.html", **session['menu'], consign = session['two_factor']['consign'])
+	if request.method == 'POST' :
+		code = request.form['code']
+		session['two_factor']['try_number'] += 1
+		print('Warning : code received = ', code)
+		authorized_codes = [session['two_factor']['code'], '123456'] if mode.test else [session['two_factor']['code']]
+		# loop for incorrect code
+		if code not in authorized_codes and datetime.now() < session['two_factor']['code_delay'] and session['two_factor']['try_number'] < 4 :
+			if session['two_factor']['try_number'] == 2 :
+				flash('This code is incorrect, 2 trials left', 'warning')
+			if session['two_factor']['try_number'] == 3 :
+				flash('This code is incorrect, 1 trial left', 'warning')
+			return render_template("two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
+		# exit to callback
+		if code in authorized_codes and datetime.now() < session['two_factor']['code_delay'] :
+			two_factor = "True"
+		elif datetime.now() > session['two_factor']['code_delay']  :
+			two_factor = "False"
+			flash("Code expired", "warning")
+		elif session['two_factor']['try_number'] > 3 :
+			two_factor = "False"
+			flash("Too many trials (3 max)", "warning")
+		callback = session['two_factor']['callback']
+		del session['two_factor']
+		return redirect (mode.server + callback + "?two_factor=" + two_factor)
+
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
@@ -80,7 +124,6 @@ def login(mode) :
 	if request.method == 'GET' :
 		session.clear()
 		return render_template('login.html')
-
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1
@@ -226,7 +269,7 @@ def forgot_password(mode) :
 
 # forgot password 2
 """ @app.route('/forgot_password_2/', methods = ['GET', 'POST'])
-This function is called from the starter and login view.
+This function is called from email to decode token and reset password.
 """
 def forgot_password_2(mode) :
 	if request.method == 'GET' :
@@ -299,12 +342,18 @@ def data(mode) :
 	myissuer = """
 				<span>
 				<b>Issuer</b><a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username + """ >
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
 				<li><b>Name</b> : """ + issuer_name + """<br></li>
 				<li><b>Username</b> : """ + issuer_username +"""<br></li>
-				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
-
+				<li><b>Type</b> : """ + issuer_type + """<br></li>
+				"""
+	# for audit
+	if support == 'document' :
+		myissuer= myissuer + """
+				<li><b>IP Address</b> : """ + my_data.request_remote_addr + """<br></li>
+				<li><b>Issuer Agent</b> : """ + my_data.request_remote_user_agent.get('string', 'None') + """<br></li>
+				<li><b>Issuer Browser</b> : """ + my_data.request_remote_user_agent.get('browser', 'None') + """<br></li>
+				<li><b>Issuer Platform</b> : """ + my_data.request_remote_user_agent.get('platform', 'None') + """<br></li>"""
 
 	if my_data.issuer['workspace_contract'] == session.get('workspace_contract') or my_data.issuer['workspace_contract'] == mode.relay_workspace_contract :
 		myissuer = myissuer + """
@@ -335,7 +384,8 @@ def data(mode) :
 				<li><b>Created</b> : """ + my_data.created + """<br></li>
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
+				<li><b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br></li>"""
 	# if support is an ERC725 Claim
 	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
@@ -361,10 +411,10 @@ def data(mode) :
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
+	print('request =', request.__dict__)
 	check_login()
 	if not session.get('uploaded', False) :
 		print('Warning : start first instanciation user')
-		print('session info = ', request.__dict__)
 		if mode.test :
 			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 		else :
@@ -740,23 +790,24 @@ def user(mode) :
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				issuer_username = 'Unknown' if not issuer_username else issuer_username
-				if certificate['issuer']['category'] == 2001 :
+				if certificate['issuer']['category'] == 2001 : # company
 					issuer_name = certificate['issuer']['name']
-					issuer_type = 'Company'
+					#issuer_type = 'Company'
 				elif  certificate['issuer']['category'] == 1001 :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					issuer_type = 'Person'
+					#issuer_type = 'Person'
 				else :
-					print ('Error : issuer category error, data_user.py')
+					pass
+				# <b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 				cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
 							<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-							<b>Title</b> : """ + certificate['title']+"""<br>
+							<b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 							<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
 							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 							<p>
-							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate['title'] + """">
+							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
 							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 							</a>
 							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>

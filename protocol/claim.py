@@ -53,7 +53,7 @@ def topicname2topicvalue(topicname) :
 
 
 """ si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstane' ; 'pierre'} """
-def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
+def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous) :
 	# @data = str
 	# scheme 2
 	w3 = mode.w3
@@ -63,7 +63,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	if privacy == 'public' :
 		ipfs_hash = ""
 	else :
-		data_encrypted = privatekey.encrypt_data(workspace_contract_to,{topicname : data}, privacy, mode)
+		data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode)
 		if not data_encrypted :
 			return None, None, None
 		ipfs_hash = ipfs_add(data_encrypted, mode)
@@ -267,12 +267,12 @@ class Claim() :
 		self.identity = identity
 		self.claim_value = claim_value
 
-	def relay_add(self, identity_workspace_contract, topicname, data, privacy, mode) :
+	def relay_add(self, identity_workspace_contract, topicname, data, privacy, mode, synchronous=True) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_claim(mode.relay_address,mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, topicname, data, privacy, mode, synchronous = True) 
+		return create_claim(mode.relay_address,mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, topicname, data, privacy, mode, synchronous)
 
 	def add(self, address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True) :
-		return create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous = True)
+		return create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous)
 
 	def relay_delete(self, identity_workspace_contract, claim_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)

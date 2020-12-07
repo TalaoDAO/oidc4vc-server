@@ -11,9 +11,7 @@
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -22,10 +20,7 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-              
-                                               {% include 'user_nav_bar.html' %}    
-           
-              
+                                               {% include 'user_nav_bar.html' %}
         <div class="container-fluid">
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-6 offset-xl-3">
@@ -34,12 +29,10 @@
                             <p class="text-primary m-0 font-weight-bold">&nbsp;Issue a Recommendation</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/issue_referral/" method="post">
+                            <form action="/user/issue_recommendation/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-										
 										<p><strong>You want to recommend {{issuer_name}}</strong></p>
-										
                                         <div class="form-group">
 											<label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>How to you know him/her ?</strong><br></label>
 											<select name ="relationship" class="form-control">
@@ -52,24 +45,20 @@
 												<option value="You studied together">You studied together</option>
 												<option value="He/her is a friend of yours">He/her is a friend of yours</option>
 											</optgroup></select></div>
-                                        
                                         <div
-                                            class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Write your recommendation here :</strong><br></label><textarea name="description" class="form-control"></textarea></div>
+                                            class="form-group"><label data-toggle="tooltip" data-bs-tooltip=""><strong>Write your recommendation here :</strong><br></label><textarea name="description" class="form-control"></textarea></div>
                                 </div>
                         </div>
-                        
                            <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Issue</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Next</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
 										<a href="/user/issuer_explore/?issuer_username={{issuer_username}}">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
-                                        </a> 
+                                        </a>
                                     </div>
                                 </div>
-                        
-                        
                         </form>
                     </div>
                 </div>
@@ -79,10 +68,7 @@
     </div>
     </div>
     </div>
-   
-   
-                                  {% include 'user_footer.html' %}    
-
+                                  {% include 'user_footer.html' %}
     </div>
     <script>function goBack() { window.history.back();}
 </script>
