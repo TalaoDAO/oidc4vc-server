@@ -19,20 +19,22 @@ import createidentity
 import sms
 from protocol import Claim
 import ns
-import user_search
+import directory
 
 
 exporting_threads = {}
 
 # Multithreading creatidentity setup
 class ExportingThread(threading.Thread):
-	def __init__(self, username, firstname, lastname, email, phone, mode, password):
+	def __init__(self, username, firstname, lastname, email, phone, password, search, mode):
 		super().__init__()
 		self.username = username
 		self.firstname = firstname
 		self.lastname = lastname
 		self.email = email
 		self.phone = phone
+		self.password = password
+		self.search = search
 		self.mode = mode
 		self.password = password
 	def run(self):
@@ -45,6 +47,9 @@ class ExportingThread(threading.Thread):
 		claim = Claim()
 		claim.relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
 		ns.update_phone(self.username, self.phone, self.mode)
+		ns.update_password(self.username, self.password, self.mode)
+		if self.search:
+			directory.add_user(self.mode, self.firstname+ ' ' + self.lastname, self.username, None)
 		return
 
 # route /register/
@@ -58,17 +63,26 @@ def authentification(mode) :
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['code'] + request.form['phone']
-		user_search.add_user(session['firstname'] + ' ' + session['lastname'], session['username'])
+		try:
+			if request.form["CheckBox"] == "on":
+				session['search'] = True
+		except:
+			session['search'] = False
 		if not sms.check_phone(session['phone'], mode) :
 			return render_template("create.html",message='Incorrect phone number')
 		else :
-			session['code'] = str(random.randint(10000, 99999))
-			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
-			session['try_number'] = 1
-			sms.send_code(session['phone'], session['code'], mode)
-			#Talao_message.messageAuth(email, str(code), mode)
-			print('Warning : secret code = ', session['code'])
-			return render_template("create2.html", message = '')
+			return render_template("create_password.html")
+
+# route /register/password
+def authentification_password(mode):
+	session['password'] = request.form['password']
+	session['code'] = str(random.randint(10000, 99999))
+	session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+	session['try_number'] = 1
+	sms.send_code(session['phone'], session['code'], mode)
+	#Talao_message.messageAuth(email, str(code), mode)
+	print('secret code = ', session['code'])
+	return render_template("create2.html", message = '')
 
 # route /register/authentification/
 def POST_authentification_2(mode) :
@@ -80,7 +94,14 @@ def POST_authentification_2(mode) :
 	print('Warning : code received = ', mycode)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
-		return render_template('register_update_password.html')
+		thread_id = str(random.randint(0,10000 ))
+		exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'],
+		 											   session['lastname'], session['email'],
+													   session['phone'], session['password'],
+													   session['search'], mode)
+		print("appel de createidentity")
+		exporting_threads[thread_id].start()
+		return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.')
 	elif session['try_number'] > 3 :
 		return render_template("create3.html", message="Too many trials (3 max)")
 	elif datetime.now() > session['code_delay'] :

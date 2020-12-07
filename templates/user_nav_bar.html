@@ -122,7 +122,7 @@
     identify: function(obj) {
       return obj.username;
     },
-    prefetch: {url : "{{ url_for('static', filename='username.json') }}",ttl: 1000}
+    remote: {url : "/prefetch?q=%QUERY", wildcard: '%QUERY'} //can be heavy on the db 
   });
   ind.initialize();
   // Initializing the typeahead

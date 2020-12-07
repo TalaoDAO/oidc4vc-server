@@ -9,7 +9,9 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file, jsonify
+
+from flask import Flask, session, send_from_directory, flash, send_file, get_flashed_messages
+
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -31,7 +33,7 @@ import hcode
 import ns
 import sms
 import vpi
-import user_search
+import directory
 import privatekey
 
 def check_login() :
@@ -118,6 +120,7 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
+	get_flashed_messages()
 	if request.method == 'GET' :
 		session.clear()
 		return render_template('login.html')
@@ -1141,7 +1144,7 @@ def user_advanced(mode) :
 # account settings
 def user_account(mode) :
 	check_login()
-	if user_search.search_user(session):
+	if directory.search_user(mode, session):
 		checkBox = "checked"
 	else:
 		checkBox = ""

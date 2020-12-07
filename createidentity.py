@@ -1,7 +1,7 @@
 """
 Pour la cration d'un workspace vierge Identity) depuis le webserver :
 Creation d' un wallet pour le owner
-Creation des cle de cyryptage : 1 RSA (asymetric) , et 2 cle symetriques 
+Creation des cle de cyryptage : 1 RSA (asymetric) , et 2 cle symetriques
 L email est gardé uniquement pour l authentification, il est crypté dans l identité
 Pour la base SQL (nameservice) on y met "prenom.nom" ou un equivalent
 une cle 1 (ERC725) est donnée au Web Relay pour uen délégation de signature
@@ -153,7 +153,7 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 		print('Error : email update')
 
 	# emails send to user and admin
-	if mode.myenv == 'aws' :
+	if mode.myenv == 'aws' or True:
 		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
 		# By default an email is sent to user
 		if send_email :

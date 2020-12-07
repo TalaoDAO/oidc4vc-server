@@ -315,7 +315,7 @@ def create_authorize_issue(mode) :
 		# Email to talent
 		subject = 'A new Certificate has been issued to you'
 		talent_email = ns.get_data_from_username(session['talent_username'], mode)['email']
-		Talao_message.message(subject, talent_email, text, mode)
+		Talao_message.certificate_issued(subject, talent_email, session['talent_username'], link, mode)
 		if mode.test :
 			print('Success : msg to user sent')
 		return render_template('login.html')
@@ -361,7 +361,7 @@ def create_authorize_issue_thread(username,
 	# send message to talent
 	subject = 'A new Certificate has been issued to you'
 	talent_email = ns.get_data_from_username(talent_username, mode)['email']
-	Talao_message.message(subject, talent_email, text, mode)
+	Talao_message.certificate_issued(subject, talent_email, talent_username, link, mode)
 	if mode.test :
 		print('Success : msg to user sent')
 	return
