@@ -55,10 +55,12 @@ import history
 import privatekey
 import sms
 import QRCode
-import user_search
+import directory
+import siren
 
 # Centralized  routes
 import web_create_identity
+import web_create_company_ext
 import web_certificate
 import web_data_user
 import web_issue_certificate
@@ -123,6 +125,11 @@ print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/password',  view_func=web_create_identity.authentification_password, methods = [ 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
+
+# Centralized @route for create company from the ext
+app.add_url_rule('/create_company_ext/',  view_func=web_create_company_ext.authentification_company, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_ext/password',  view_func=web_create_company_ext.authentification_password_company, methods = [ 'POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_ext/code/', view_func=web_create_company_ext.POST_authentification_2_company, methods = ['POST'], defaults={'mode': mode})
 
 # Centralized @route to display certificates
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})
@@ -230,10 +237,13 @@ def success() :
 def update_search_setting() :
     check_login()
     try:
-        user_search.update_user(session, request.form["CheckBox"] == "on")
-        flash('Your Name has been added to the search bar', 'success')
+        response = directory.update_user(mode, session, request.form["CheckBox"] == "on")
+        if response:
+            flash('Your Name has been added to the search bar', 'success')
+        else:
+            flash('There has been an error, please contact support', 'warning')
     except:
-        user_search.update_user(session, False)
+        directory.update_user(mode, session, False)
         flash('Your Name has been removed from the search bar', 'success')
     return redirect(mode.server + 'user/')
 
@@ -357,7 +367,7 @@ def view_job_offer() :
         return render_template('view_job_offer.html', **session['menu'], offer = offer)
     if request.method == 'POST' :
         offer_num = request.args.get('offer')
-        email = "Denis@techtalent.fr"
+        email = "alexandre.leclerc@talao.io"
         subject = "New application for your job offer"
         job = ""
         if offer_num == "1":
@@ -402,6 +412,12 @@ def test() :
 def tutorial() :
     check_login()
     return render_template('tutorial.html', **session['menu'])
+
+#Prefetch for typehead
+@app.route('/prefetch', methods=['GET', 'POST'])
+def prefetch() :
+    user_list = directory.user_list_complete(mode)
+    return json.dumps(user_list)
 
 # search
 @app.route('/user/search/', methods=['GET', 'POST'])
@@ -638,22 +654,48 @@ def update_company_settings() :
                     <option """ + p3 + """ value="secret">Secret</option>
                     </opgroup>"""
 
+        if 'siren' in request.args:
+            settings = siren.company(session['personal']['siren']['claim_value'])
+            if settings ==  None:
+                flash('Company not found in SIREN database', 'warning')
+            else:
+                return render_template('update_company_settings.html',
+                                        **session['menu'],
+                                        contact_name=personal['contact_name']['claim_value'],
+                                        contact_name_privacy=privacy['contact_name'],
+                                        contact_email=personal['contact_email']['claim_value'],
+                                        contact_email_privacy=privacy['contact_email'],
+                                        contact_phone=personal['contact_phone']['claim_value'],
+                                        contact_phone_privacy=privacy['contact_phone'],
+                                        website=personal['website']['claim_value'],
+                                        about=settings['activity'] + """
+
+""" + personal['about']['claim_value'],
+                                        staff=settings['staff'],
+                                        mother_company=personal['mother_company']['claim_value'],
+                                        sales=personal['sales']['claim_value'],
+                                        siren=personal['siren']['claim_value'],
+                                        postal_address=settings['address'],
+                                        )
         return render_template('update_company_settings.html',
-                                **session['menu'],
-                                contact_name=personal['contact_name']['claim_value'],
-                                contact_name_privacy=privacy['contact_name'],
-                                contact_email=personal['contact_email']['claim_value'],
-                                contact_email_privacy=privacy['contact_email'],
-                                contact_phone=personal['contact_phone']['claim_value'],
-                                contact_phone_privacy=privacy['contact_phone'],
-                                website=personal['website']['claim_value'],
-                                about=personal['about']['claim_value'],
-                                staff=personal['staff']['claim_value'],
-                                mother_company=personal['mother_company']['claim_value'],
-                                sales=personal['sales']['claim_value'],
-                                siren=personal['siren']['claim_value'],
-                                postal_address=personal['postal_address']['claim_value'],
-                                )
+                            **session['menu'],
+                            contact_name=personal['contact_name']['claim_value'],
+                            contact_name_privacy=privacy['contact_name'],
+                            contact_email=personal['contact_email']['claim_value'],
+                            contact_email_privacy=privacy['contact_email'],
+                            contact_phone=personal['contact_phone']['claim_value'],
+                            contact_phone_privacy=privacy['contact_phone'],
+                            website=personal['website']['claim_value'],
+                            about=personal['about']['claim_value'],
+                            staff=personal['staff']['claim_value'],
+                            mother_company=personal['mother_company']['claim_value'],
+                            sales=personal['sales']['claim_value'],
+                            siren=personal['siren']['claim_value'],
+                            postal_address=personal['postal_address']['claim_value'],
+                            )
+
+
+
     if request.method == 'POST' :
         form_privacy = dict()
         form_value = dict()
@@ -735,7 +777,8 @@ def create_company() :
         if workspace_contract :
             claim=Claim()
             claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
-            user_search.add_user(request.form['name'], company_username)
+            siren = request.form['siren'] if siren in session else None
+            directory.add_user(mode, request.form['name'], company_username, siren)
             flash(company_username + ' has been created as company', 'success')
         else :
             flash('Company Creation failed', 'danger')
@@ -902,11 +945,9 @@ def create_skill_certificate() :
         else :
             flash('Certificate has been issued', 'success')
             link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract_to[2:] + ':document:' + str(doc_id)
-            text =     "\r\nYour Skill Certificate has been issued by Talao.\r\n"
-            text = text + '\r\nFollow the link to see the Certificate : ' + link
             subject = 'Your skill certificate'
             identity_email = ns.get_data_from_username(identity_username, mode)['email']
-            Talao_message.message(subject, identity_email, text, mode)
+            Talao_message.certificate_issued(subject, identity_email, identity_username, link, mode)
         return redirect(mode.server + 'user/')
 
 # remove kyc
@@ -1116,20 +1157,14 @@ def invit() :
         return render_template('invit.html', **session['menu'])
     if request.method == 'POST' :
         talent_email = request.form['email']
-        memo = request.form['memo']
         username_list = ns.get_username_list_from_email(talent_email, mode)
         if username_list != [] :
             msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar.'
             flash(msg , 'warning')
             return redirect(mode.server + 'user/')
-        link = mode.server + 'register/'
-        if memo in [None, "", " " ] :
-            memo = "hello,"
-        msg = "".join([memo,
-                        "\r\n\r\nYou can follow this link to register through the Talao platform.\r\n\r\nYour Identity will be tamper proof.\r\n\r\nFollow this link to proceed : ",
-                        link])
-        subject = 'You have received an invitation from '+ session['name']
-        execution = Talao_message.message(subject, talent_email, msg, mode)
+        subject = 'You have been invited to join Talao'
+        name = session['personal']['firstname']['claim_value'] + session['personal']['lastname']['claim_value']
+        execution = Talao_message.invite(subject, talent_email, name, mode)
         if execution :
             flash('Your invit has been sent', 'success')
         else :

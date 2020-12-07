@@ -9,7 +9,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import Flask, session, send_from_directory, flash, send_file, get_flashed_messages
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -75,6 +75,7 @@ def starter(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
+	get_flashed_messages()
 	if request.method == 'GET' :
 		session.clear()
 		return render_template('login.html')
@@ -207,7 +208,7 @@ def forgot_password(mode) :
 		ns.update_password(username, new_password, mode)
 		subject = 'Talao new password'
 		to = ns.get_data_from_username(username, mode)['email']
-		messagetext = 'Hello\r\n\r\nYour new password is ' + new_password 
+		messagetext = 'Hello\r\n\r\nYour new password is ' + new_password
 		Talao_message.message(subject, to, messagetext, mode)
 		flash("A new password has been sent by email", "success")
 		return render_template('login.html')
@@ -1051,7 +1052,7 @@ def user_advanced(mode) :
 # account settings
 def user_account(mode) :
 	check_login()
-	if user_search.search_user(session):
+	if user_search.search_user(mode, session):
 		checkBox = "checked"
 	else:
 		checkBox = ""
