@@ -102,7 +102,7 @@
     identify: function(obj) {
       return obj.username;
     },
-    remote: {url : "/prefetch"} //can be heavy on the db 
+    remote: {url : "/prefetch?q=%QUERY", wildcard: '%QUERY'} //can be heavy on the db 
   });
   ind.initialize();
   // Initializing the typeahead

@@ -418,7 +418,7 @@ def tutorial() :
 #Prefetch for typehead
 @app.route('/prefetch', methods=['GET', 'POST'])
 def prefetch() :
-    user_list = directory.user_list_complete(mode)
+    user_list = directory.user_list_search(request.args['q'], mode)
     return json.dumps(user_list)
 
 # search

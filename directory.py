@@ -65,6 +65,23 @@ def user_list_complete(mode) :
         my_list.append(user)
     return my_list
 
+def user_list_search(query, mode) :
+    """ Return list of username, name """
+    path = mode.db_path
+    conn = sqlite3.connect(path + 'directory.db')
+    c = conn.cursor()
+    data = {'query' : '%' + query + '%'}
+    c.execute("SELECT username, name FROM directory WHERE username LIKE :query OR name LIKE :query", data)
+    select = c.fetchall()
+    conn.close()
+    my_list = []
+    for item in select:
+        user = dict()
+        user['username'] = item[0]
+        user['name'] = item[1]
+        my_list.append(user)
+    return my_list
+
 def add_user(mode, username, name, siren):
     """ Add user"""
     path = mode.db_path
