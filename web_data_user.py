@@ -29,7 +29,7 @@ import hcode
 import ns
 import sms
 import vpi
-import user_search
+import directory
 
 
 def check_login() :
@@ -1052,7 +1052,7 @@ def user_advanced(mode) :
 # account settings
 def user_account(mode) :
 	check_login()
-	if user_search.search_user(mode, session):
+	if directory.search_user(mode, session):
 		checkBox = "checked"
 	else:
 		checkBox = ""

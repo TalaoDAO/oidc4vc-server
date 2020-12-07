@@ -12,10 +12,11 @@ def update_user(mode, session, bool):
     else:
         siren = None
     list = user_list(mode)
-
     if bool:
         if not(username in list):
             return add_user(mode, username, name, siren)
+        else:
+            return "User already in database"
     else:
         if username in list:
             return remove_user(mode, username)

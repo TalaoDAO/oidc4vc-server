@@ -238,7 +238,9 @@ def update_search_setting() :
     check_login()
     try:
         response = directory.update_user(mode, session, request.form["CheckBox"] == "on")
-        if response:
+        if response == "User already in database":
+            flash('Your Name was already in the search bar', 'success')
+        elif response:
             flash('Your Name has been added to the search bar', 'success')
         else:
             flash('There has been an error, please contact support', 'warning')
