@@ -266,7 +266,7 @@ def forgot_password(mode) :
 
 # forgot password 2
 """ @app.route('/forgot_password_2/', methods = ['GET', 'POST'])
-This function is called from the starter and login view.
+This function is called from email to decode token and reset password.
 """
 def forgot_password_2(mode) :
 	if request.method == 'GET' :
@@ -408,6 +408,7 @@ def data(mode) :
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
+	print('request =', request.__dict__)
 	check_login()
 	if not session.get('uploaded', False) :
 		print('Warning : start first instanciation user')

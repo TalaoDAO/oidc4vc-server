@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 import ns
 import constante
-from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership
+from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category
 from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
 import createidentity
 import createcompany
@@ -249,6 +249,7 @@ def issue_token():
 # AUTHORIZATION CODE
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
+   
     user = current_user()
     client_id = request.args['client_id']
     client = OAuth2Client.query.filter_by(client_id=client_id).first()
@@ -268,7 +269,7 @@ def authorize(mode):
         # configure consent screen : oauth_authorize.html
         consent_screen_scopes = ['openid', 'user:manage:referent', 'user:manage:partner', 'user:manage:certificate', 'user:manage:data']
         user_workspace_contract = ns.get_data_from_username(user.username, mode)['workspace_contract']
-        category = read_profil(user_workspace_contract, mode, 'light')[1]
+        category = get_category(user_workspace_contract, mode)
         if category == 1001 : # person
             consent_screen_scopes.extend(['address', 'profile', 'about', 'birthdate', 'resume', 'proof_of_identity', 'email', 'phone'])
         checkbox = {key.replace(':', '_') : 'checked' if key in grant.request.scope and key in client.scope.split() else ""  for key in consent_screen_scopes}
