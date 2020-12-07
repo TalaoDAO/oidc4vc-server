@@ -76,14 +76,14 @@ mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 
 if not mychain or not myenv :
-    print('environment variables missing')
-    print('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
+    print('Error : environment variables missing')
+    print('Error : export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
     exit()
 
 # Environment setup
-print('Start to init environment')
+print('Success : start to init environment')
 mode = environment.currentMode(mychain,myenv)
-print('End of init')
+print('Success : end of init')
 
 # Global variable
 exporting_threads = {}
@@ -91,7 +91,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.14.4"
+VERSION = "0.15.1"
 API_SERVER = True
 
 # Flask and Session setup
@@ -119,12 +119,13 @@ if API_SERVER :
 fa = FontAwesome(app)
 
 # info release
-print(__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
+print('Warning : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/password',  view_func=web_create_identity.authentification_password, methods = [ 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
+app.add_url_rule('/register/update_password/',  view_func=web_create_identity.register_update_password, methods = ['POST'], defaults={'mode': mode})
 
 # Centralized @route for create company from the ext
 app.add_url_rule('/create_company_ext/',  view_func=web_create_company_ext.authentification_company, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -152,6 +153,7 @@ app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], def
 app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/forgot_password_2/',  view_func=web_data_user.forgot_password_2, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'], defaults={'mode': mode})
 app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
@@ -172,7 +174,7 @@ app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, me
 
 @app.errorhandler(403)
 def page_abort(e):
-    print('appel abort 403')
+    print('Warning : appel abort 403')
     # note that we set the 403 status explicitly
     return redirect(mode.server + 'login/')
 
@@ -433,7 +435,6 @@ def search() :
             flash('Here you are !', 'success')
             return redirect(mode.server + 'user/')
         if not ns.username_exist(username_to_search, mode) :
-            print('test username_exist')
             flash('Username not found', "warning")
             return redirect(mode.server + 'user/')
         else :
@@ -773,9 +774,10 @@ def create_company() :
     if request.method == 'POST' :
         company_email = request.form['email']
         company_username = request.form['name'].lower()
+        company_siren = request.form['siren']
         if ns.username_exist(company_username, mode)   :
             company_username = company_username + str(random.randint(1, 100))
-        workspace_contract = createcompany.create_company(company_email, company_username, mode)[2]
+        workspace_contract = createcompany.create_company(company_email, company_username, mode, siren=company_siren)[2]
         if workspace_contract :
             claim=Claim()
             claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
@@ -1565,7 +1567,6 @@ def add_manager() :
             manager_username = request.args.get('issuer_username')
         else:
             manager_username = ''
-        print(manager_username)
         return render_template('add_manager.html', **session['menu'], manager_username = manager_username)
     if request.method == 'POST' :
         if not ns.username_exist(request.form['manager_username'].lower(),mode)  :
@@ -1656,7 +1657,6 @@ def add_key_for_other() :
         if not third_party_address :
             third_party_address = ns.get_data_from_username(request.form.get('third_party_username'),mode)['address']
         key = request.form.get('key')
-    print('third party address = ', third_party_address)
     if not add_key(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, third_party_address, int(key), mode, synchronous=True) :
         flash('transaction failed', 'danger')
     else :
@@ -1782,7 +1782,7 @@ def typehead() :
 # To manage the navbar search field. !!!! The json file is uploaded once
 @app.route('/user/data/', methods=['GET', 'POST'])
 def talao_search() :
-    print('Upload prefetch file')
+    print('Warning : upload prefetch file')
     filename = request.args['filename']
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
@@ -1821,7 +1821,7 @@ def call_did_check () :
 #######################################################
 # setup du registre nameservice
 
-print('initialisation du serveur')
+print('Warning : flask serveur init')
 
 
 if __name__ == '__main__':

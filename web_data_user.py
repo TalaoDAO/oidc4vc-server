@@ -18,6 +18,8 @@ import time
 import json
 import random
 from Crypto.PublicKey import RSA
+from authlib.jose import JsonWebEncryption
+from urllib.parse import urlencode
 
 # dependances
 import Talao_message
@@ -30,7 +32,7 @@ import ns
 import sms
 import vpi
 import directory
-
+import privatekey
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -46,12 +48,11 @@ def send_secret_code (username, code, mode) :
 		return None
 	if data['phone'] is None :
 		if not mode.test :
-			print('avant envoi de message par email')
 			Talao_message.messageAuth(data['email'], code, mode)
-			print('envoi du code par email')
+			print('Warning : code sent by email')
 		return 'email'
 	else :
-		print('envoi du code par sms')
+		print('Warning : code snet by sms')
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
@@ -83,7 +84,7 @@ def login(mode) :
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1
-		session['username_to_log'] = request.form['username'].lower()
+		session['username_to_log'] = request.form['username']
 		if not ns.username_exist(session['username_to_log'], mode)  :
 			flash('Username not found', "warning")
 			session['try_number'] = 1
@@ -110,7 +111,7 @@ def login(mode) :
 				flash("Problem to send secret code", 'warning')
 				return redirect(mode.server + 'login/')
 			else :
-				print('secret code sent = ', session['code'])
+				print('Warning : secret code sent = ', session['code'])
 				flash("Secret code sent by " + session['support'], 'success')
 				session['try_number'] = 1
 				return render_template("authentification.html", support=session['support'])
@@ -123,7 +124,7 @@ def login_authentification(mode) :
 		return render_template('login.html')
 	code = request.form['code']
 	session['try_number'] +=1
-	print('code retourné = ', code)
+	print('Warning : code retourné = ', code)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if code in authorized_codes and datetime.now() < session['code_delay'] :
 		session['username'] = session['username_to_log']
@@ -145,6 +146,7 @@ def login_authentification(mode) :
 			flash('This code is incorrect, 1 trial left', 'warning')
 		return render_template("authentification.html", support=session['support'])
 
+
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout(mode) :
@@ -154,13 +156,13 @@ def logout(mode) :
 		os.remove(mode.uploads_path + session['picture'])
 		os.remove(mode.uploads_path + session['signature'])
 	except :
-		print('effacement picture/signature erreur')
+		print('Error : effacement picture/signature erreur')
 
 	for one_file in session['identity_file'] :
 		try :
 			os.remove(mode.uploads_path + one_file['filename'])
 		except :
-			print('effacement file error')
+			print('Error : effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return render_template('login.html', name="")
@@ -195,6 +197,7 @@ def forgot_username(mode) :
 # forgot password
 """ @app.route('/forgot_password/', methods = ['GET', 'POST'])
 This function is called from the starter and login view.
+build JWE to store timestamp, username and email, we use Talao RSA key
 """
 def forgot_password(mode) :
 	if request.method == 'GET' :
@@ -204,14 +207,54 @@ def forgot_password(mode) :
 		if not ns.username_exist(username, mode) :
 			flash("Username not found", "warning")
 			return render_template('login.html')
-		new_password = username + str(random.randint(10000, 99999))
-		ns.update_password(username, new_password, mode)
-		subject = 'Talao new password'
-		to = ns.get_data_from_username(username, mode)['email']
-		messagetext = 'Hello\r\n\r\nYour new password is ' + new_password
-		Talao_message.message(subject, to, messagetext, mode)
-		flash("A new password has been sent by email", "success")
+		email= ns.get_data_from_username(username, mode)['email']
+		private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+		RSA_KEY = RSA.import_key(private_rsa_key)
+		public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
+		expired = datetime.timestamp(datetime.now()) + 180 # 3 minutes live
+		# build JWE
+		jwe = JsonWebEncryption()
+		header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
+		json_string = json.dumps({'username' : username, 'email' : email, 'expired' : expired})
+		payload = bytes(json_string, 'utf-8')
+		token = jwe.serialize_compact(header, payload, public_rsa_key)
+		link = mode.server + 'forgot_password_2/?'+ urlencode({'token'  : token.decode('utf-8')}, doseq=True)
+		messagetext = 'Hello\r\n\r\nFollow this link to renew your password : ' +  link
+		if Talao_message.message('Renew your password', email, messagetext, mode) :
+			flash("You are going to receive an email to renew your password.", "success")
 		return render_template('login.html')
+
+# forgot password 2
+""" @app.route('/forgot_password_2/', methods = ['GET', 'POST'])
+This function is called from the starter and login view.
+"""
+def forgot_password_2(mode) :
+	if request.method == 'GET' :
+		token = request.args.get('token')
+		key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+		jwe = JsonWebEncryption()
+		try :
+			data = jwe.deserialize_compact(token, key)
+		except :
+			flash ('Incorrect data', 'danger')
+			return render_template('login.html')
+		payload = json.loads(data['payload'].decode('utf-8'))
+		if payload['expired'] < datetime.timestamp(datetime.now()) :
+			flash ('Delay expired (3 minutes maximum)', 'danger')
+			return render_template('login.html')
+		session['email_password'] = payload['email']
+		session['username_password'] = payload['username']
+		return render_template('update_password_external.html')
+	if request.method == 'POST' :
+		if session['email_password'] != request.form['email'] :
+			flash('Incorrect email', 'danger')
+			return render_template('update_password_external.html')
+		ns.update_password(session['username_password'], request.form['password'], mode)
+		flash('Password updated', "success")
+		del session['email_password']
+		del session['username_password']
+		return render_template('login.html')
+
 
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
@@ -280,7 +323,7 @@ def data(mode) :
 	elif mode.BLOCKCHAIN == 'talaonet' :
 		transaction_hash = my_data.transaction_hash
 	else :
-		print('chain probleme')
+		print('Error : blockchain problem')
 		transaction_hash = my_data.transaction_hash = ""
 
 	if support == 'document' :
@@ -320,7 +363,8 @@ def data(mode) :
 def user(mode) :
 	check_login()
 	if not session.get('uploaded', False) :
-		print('start first instanciation user')
+		print('Warning : start first instanciation user')
+		print('session info = ', request.__dict__)
 		if mode.test :
 			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
 		else :
@@ -329,7 +373,7 @@ def user(mode) :
 			except :
 				flash('session aborted', 'warning')
 				return render_template('login.html')
-		print('end of first intanciation')
+		print('Warning : end of first intanciation')
 
 		# clean up for resume
 		user_dict = user.__dict__.copy()
@@ -463,7 +507,6 @@ def user(mode) :
 	if session['partner'] == [] :
 		my_partner = """<a class="text-info">No Partners available</a>"""
 	else :
-		print('partner list = ', session['partner'])
 		my_partner = ""
 		for partner in session['partner'] :
 			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
@@ -704,7 +747,7 @@ def user(mode) :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 					issuer_type = 'Person'
 				else :
-					print ('issuer category error, data_user.py')
+					print ('Error : issuer category error, data_user.py')
 				cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
 							<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
@@ -773,7 +816,6 @@ def user(mode) :
 		credentials = ns.get_credentials(session['username'], mode)
 		my_api = ""
 		for cred in credentials :
-			print('cred =', cred)
 			my_api = my_api + """
 				<b>client_id</b> : """+ cred['client_id'] +"""<br>
 				<b>client_secret</b> : """+ cred['client_secret'] + """<br>
@@ -789,7 +831,6 @@ def user(mode) :
 		else :
 			my_kbis = ""
 			for kbis in session['kbis'] :
-				print('kbis = ', kbis)
 				kbis_html = """
 				<b>Name</b> : """+ kbis['name'] +"""<br>
 				<b>SIREN</b> : """+ kbis.get('siren', '') +"""<br>
@@ -838,7 +879,7 @@ def user(mode) :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 					issuer_type = 'Person'
 				else :
-					print ('issuer category error, data_user.py')
+					print ('Error : issuer category error, data_user.py')
 				if certificate['type'] == 'agreement' :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>

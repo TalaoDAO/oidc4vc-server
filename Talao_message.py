@@ -41,7 +41,7 @@ def messageAuth (email_to, random, mode) :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
-		print ('error sending mail')
+		print ('Error : sending mail')
 	s.quit()
 	return True
 
@@ -105,9 +105,9 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('email sent')
+		print ('Success : email sent')
 	except:
-		print ('error sending mail')
+		print ('Error : sending mail')
 	s.quit()
 	return True
 
@@ -140,9 +140,9 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('email sent')
+		print ('Success : email sent')
 	except:
-		print ('error sending mail')
+		print ('Error : sending mail')
 	s.quit()
 	return True
 
@@ -171,7 +171,7 @@ def message(subject, to, messagetext, mode) :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
-		print ('error sending mail')
+		print ('Error : sending mail')
 		return False
 	s.quit()
 	return True
@@ -202,7 +202,7 @@ def certificate_issued(subject, to, username, link, mode) :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
-		print ('error sending mail')
+		print ('Error : sending mail')
 		return False
 	s.quit()
 	return True
@@ -290,8 +290,8 @@ def message_file(to, text, subject, filename, path, mode)  :
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('email sent')
+		print ('Success : email sent')
 	except:
-		print ('error sending mail')
+		print ('Error : sending mail')
 	s.quit()
 	return True

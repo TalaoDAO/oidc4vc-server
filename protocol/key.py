@@ -19,7 +19,7 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 
 	# keccak (publickey)
 	key = w3.soliditySha3(['address'], [address_partner])
-	print(" key = ", key.hex())
+	print("Success : key = ", key.hex())
 
 	# one checks if key with purpose exists
 	key_description = contract.functions.getKey(key).call()
@@ -29,7 +29,7 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 	if len(purpose_list) != 0 :
 		if purpose not in purpose_list :
 			# key exists without this purpose, one adds this purpose
-			print(" key exists, purpose does not exist")
+			print("Warning : key exists, purpose does not exist")
 			# Build, sign and send transaction
 			txn = contract.functions.addPurpose(key, purpose).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 			signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
@@ -40,11 +40,11 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 				if not receipt['status'] :
 					return False
 		else :
-			print("purpose and key already exists")
+			print("Warning : purpose and key already exists")
 		return True
 
 	else :
-		print("key does not exist")
+		print("Warning : key does not exist")
 		# Build, sign and send transaction
 		txn = contract.functions.addKey(key, purpose, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 		signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
@@ -53,8 +53,8 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 		if synchronous :
 			receipt = w3.eth.waitForTransactionReceipt(hash_transaction)
 			if not receipt['status'] :
-				print('transaction failed . See receipt :', receipt)
-		print("hash = ", hash_transaction)
+				print('Error : transaction failed . See receipt :', receipt)
+		print("Success : hash = ", hash_transaction)
 		return True
 
 
@@ -70,7 +70,7 @@ def delete_key(address_from, workspace_contract_from, address_to, workspace_cont
 	key_description = contract.functions.getKey(key).call()
 	purpose_list = key_description[0]
 	if purpose not in purpose_list :
-		print('key does not exist or purpose dies not exist')
+		print('Error : this purpose does not exist, cannot delete')
 		return False
 	else :
 		# build, sign and send transaction
@@ -80,7 +80,7 @@ def delete_key(address_from, workspace_contract_from, address_to, workspace_cont
 		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		if synchronous :
 			w3.eth.waitForTransactionReceipt(hash_transaction)
-		print("hash = ", hash_transaction)
+		print("Success : delete key hash = ", hash_transaction)
 		return True
 
 def has_key_purpose(identity_workspace_contract, address_partner, purpose, mode) :

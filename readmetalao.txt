@@ -50,7 +50,7 @@ sous python :
   >>>> nltk.download('stopwords')
 
 pip install 'unidecode'
-pip install authlib
+pip install authlib  (attention vers 0.15 . ne pas upgrader a la 1.0.)
 pip install Flask-SQLAlchemy
 pip install qrcode[pil]
 

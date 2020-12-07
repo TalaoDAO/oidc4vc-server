@@ -21,14 +21,16 @@ import createcompany
 import privatekey
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
-#@route('/resolver/')
+#@route('/resolver')
 def resolver(mode):
+    if 'method' not in session :
+        session['method'] = request.method
     if request.method == 'GET' and not request.args.get('username') :
         return render_template('resolver.html', output="")
     elif request.method == 'GET' :
         input = request.args.get('username')
     else :
-        input = request.form.get('input')
+        input = json.loads(request.data.decode("utf-8"))['input']
     try :
         if input[:3] == 'did' :
             did = input
@@ -39,8 +41,10 @@ def resolver(mode):
             workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
             did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
     except :
+        print('Error : wrong input')
         output =  "Username, workspace_contract or did not found"
         return render_template('resolver.html', output=output)
+
     address = contractsToOwners(workspace_contract, mode)
     contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
     rsa_public_key = contract.functions.identityInformation().call()[4]
@@ -50,7 +54,15 @@ def resolver(mode):
                      'address' : address,
                      'workspace contract' : workspace_contract,
                      'RSA public key' : rsa_public_key.decode('utf-8')}
-    return render_template('resolver.html', output=json.dumps(payload, indent=4))
+    if session['method'] == 'GET' :
+        del session['method']
+        return render_template('resolver.html', output=json.dumps(payload, indent=4))
+    else :
+        del session['method']
+        response = Response(json.dumps(payload), status=200, mimetype='application/json')
+        return response
+
+
 
 def check_login() :
 	#check if the user is correctly logged. This function is called everytime a user function is called 
@@ -104,6 +116,7 @@ def home():
 def oauth_logout():
     post_logout = request.args.get('post_logout_redirect_uri')
     session.clear()
+    print('Warning : logout ID provider')
     return redirect(post_logout)
 
 #@route('/api/v1/oauth_login')
@@ -130,6 +143,7 @@ def oauth_login(mode):
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
+        print('Warning : user is logged')
         #session['username']=username
     return redirect(url)
 
@@ -239,7 +253,7 @@ def user_info(mode):
     user_info = dict()
     profile, category = read_profil(user_workspace_contract, mode, 'full')
     user_info['sub'] = 'did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:]
-    print('token scope reçu = ', current_token.scope)
+    print('Warning : token scope received = ', current_token.scope)
     if 'proof_of_identity' in current_token.scope :
         user_info['proof_of_identity'] = 'Not implemented yet'
 
@@ -256,8 +270,7 @@ def user_info(mode):
         if 'address' in current_token.scope :
             user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
     if category == 2001 : # company
-        pass
-    print('user info = ', user_info)
+        print('Error : OIDC request for company')
     # setup response
     response = Response(json.dumps(user_info), status=200, mimetype='application/json')
     return response
@@ -341,7 +354,6 @@ def user_accepts_company_partnership(mode):
     return response
 
 #route('/api/v1/user_uploads_signature')
-#@app.route("/user_uploads_signature", methods=["POST"])
 @require_oauth('user:manage:data')
 def user_uploads_signature(mode):
     user_id = current_token.user_id
@@ -422,7 +434,7 @@ def user_updates_company_settings(mode):
             if Claim().relay_add(user_workspace_contract,setting, data.get(setting), 'public', mode)[0] :
                 profil[setting] = data.get(setting)
             else :
-                print('user_updates_company_settings transaction failed")')
+                print('Error : user_updates_company_settings transaction failed")')
     # setup response
     response = Response(json.dumps(profil), status=200, mimetype='application/json')
     return response

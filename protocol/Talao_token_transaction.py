@@ -125,7 +125,7 @@ def token_transfer(address_to, value, mode) :
 	# Build transaction
 	valueTalao=value*10**18
 	w3.eth.defaultAccount=mode.Talaogen_public_key
-	print ("token balance Talaogen = ", token_balance(mode.Talaogen_public_key,mode))
+	print ("Success : token balance Talaogen = ", token_balance(mode.Talaogen_public_key,mode))
 	# tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
 	transaction_hash=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
@@ -179,13 +179,13 @@ def createVaultAccess(address,private_key,mode) :
 		return None
 	return hash
 
-def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode) :
+def createWorkspace(address,private_key,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail,mode, user_type=1001) :
 	w3 = mode.w3
 	contract=w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	# calcul du nonce de l envoyeur de token . Ici le caller
 	nonce = w3.eth.getTransactionCount(address)
 	# Build transaction
-	txn=contract.functions.createWorkspace(1001,1,1,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn=contract.functions.createWorkspace(user_type,1,1,bRSAPublicKey,bAESEncryptedKey,bsecret,bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 6500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	#sign transaction with caller wallet
 	signed_txn=w3.eth.account.signTransaction(txn,private_key)
 	# send transaction
@@ -210,7 +210,7 @@ def is_partner(address, identity_workspace_contract, mode):
 			authorization_index = contract.functions.getPartnership(
 			    partner_workspace_contract).call()[1]
 		except Exception as ex:
-			print(ex)
+			print('Error : ',ex)
 			return False
 		partner_address = contractsToOwners(partner_workspace_contract, mode)
 		if partner_address == address and liste[authorization_index] == 'Authorized':
@@ -230,7 +230,7 @@ def get_partner_status(address, identity_workspace_contract, mode):
 		try:
 			authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
 		except Exception as ex:
-			print(ex)
+			print('Error : ',ex)
 			return None, None
 		partner_address = contractsToOwners(partner_workspace_contract, mode)
 		if partner_address == address :
@@ -257,11 +257,9 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 	key = mode.w3.soliditySha3(['address'], [partner_address])
 	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
 	address_purpose_list = contract.functions.getKeyPurposes(key).call()
-	print('purpose de address ', address_purpose_list)
 	key = mode.w3.soliditySha3(['address'], [partner_workspace_contract])
 	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
 	workspace_contract_purpose_list = contract.functions.getKeyPurposes(key).call()
-	print('purpose de woorkspace contract ', workspace_contract_purpose_list)
 
 
 	# Check if partner has key in Identity, it has to be removed first.
@@ -276,10 +274,10 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('Echec remove key of address, purpose = ', purpose, 'hash = ', hash)
+			print('Error : remove key of address, purpose = ', purpose, 'hash = ', hash)
 			return False
 		else :
-			print('Success remove key of address, purpose = ', purpose, 'hash = ', hash)
+			print('Success : remove key of address, purpose = ', purpose, 'hash = ', hash)
 
 	# if partner workspace contract has a key in Identity, it has to be removed first.
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
@@ -292,10 +290,10 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print(' echec remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
+			print('Error : remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 			return False
 		else :
-			print(' success remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
+			print('Success : remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 
 	# calcul du nonce de l envoyeur de token . Ici le from
 	nonce = w3.eth.getTransactionCount(address_from)
@@ -307,7 +305,7 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 	key = RSA.importKey(user_rsa_key)
 	cipher = PKCS1_OAEP.new(key)
 	user_aes=cipher.decrypt(user_aes_encrypted)
-	print('user aes =', user_aes)
+	print('Success : user aes =', user_aes)
 	#recuperer la cle RSA publique du partner
 	contract=w3.eth.contract(partner_workspace_contract,abi=constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
@@ -329,7 +327,7 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 	if synchronous  :
 		receipt = w3.eth.waitForTransactionReceipt(h, timeout=2000, poll_latency=1)
 		if not receipt['status']  :
-			print('echec transaction de authorize partnership')
+			print('Error : transaction authorize partnership')
 			return False
 	return True
 
@@ -351,12 +349,9 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	key = mode.w3.soliditySha3(['address'], [partner_address])
 	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
 	address_purpose_list = contract.functions.getKeyPurposes(key).call()
-	print('purpose de address ', address_purpose_list)
 	key = mode.w3.soliditySha3(['address'], [partner_workspace_contract])
 	contract = w3.eth.contract(identity_workspace_contract,abi = constante.workspace_ABI)
 	workspace_contract_purpose_list = contract.functions.getKeyPurposes(key).call()
-	print('purpose de woorkspace contract ', workspace_contract_purpose_list)
-
 
 	# Check if partner has key in Identity, it has to be removed first.
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
@@ -369,10 +364,10 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('Echec remove key of address, purpose = ', purpose, 'hash = ', hash)
+			print('Eroor : remove key of address, purpose = ', purpose, 'hash = ', hash)
 			return False
 		else :
-			print('Success remove key of address, purpose = ', purpose, 'hash = ', hash)
+			print('Success : remove key of address, purpose = ', purpose, 'hash = ', hash)
 
 	# if partner workspace contract has a key in Identity, it has to be removed first.
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
@@ -385,10 +380,10 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print(' echec remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
+			print('Error : remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 			return False
 		else :
-			print(' success remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
+			print('Success : remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
 
 	#recuperer la cle AES cryptée de l identité
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
@@ -417,11 +412,11 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	print('talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
+	print('Success : talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('echec transaction de request partnership')
+			print('Error : transaction request partnership failed')
 			return False
 	return True
 
@@ -438,11 +433,11 @@ def remove_partnership(address_from, workspace_contract_from, address_to, worksp
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	print('hash de remove partnership = ', hash1)
+	print('Success : hash de remove partnership = ', hash1)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('echec transaction de remove partnership')
+			print('Error : echec transaction de remove partnership')
 			return False
 	return True
 
@@ -460,11 +455,11 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	print('hash de reject parnership = ', hash1)
+	print('Success : hash reject parnership = ', hash1)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('echec transaction de request partnership')
+			print('Error : transaction request partnership failed')
 			return False
 	return True
 
@@ -480,7 +475,7 @@ def get_image(workspace_contract, image_type, mode) :
 	try :
 		a = contract.functions.getClaimIdsByTopic(topicvalue).call()
 	except Exception as res :
-		print('get picture in talao_transaction ', res)
+		print('Error : get picture in talao_transaction ', res)
 		return None
 	if len(a) :
 		claim_Id = a[-1].hex()

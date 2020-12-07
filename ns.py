@@ -252,7 +252,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print(username + ' n existe pas dans la table des alias de nameservice')
+			print('Warning : ' + username + ' n existe pas dans la table des alias de nameservice')
 			return None
 
 		(identity_name, alias_email, phone, password) = select
@@ -262,7 +262,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('l alias ' + username + ' n a pas d identity dans le resolver')
+			print('Warning : l alias ',username + ' n a pas d identity dans le resolver')
 			return None
 		identity_workspace_contract = select[0]
 		conn.commit()
@@ -276,14 +276,14 @@ def _get_data(username, mode) :
 		try :
 			c.execute("SELECT identity_name, email, phone, password FROM manager WHERE manager_name = :manager_name " , data)
 		except sqlite3.OperationalError :
-			print('la database ' + host_name + ' n existe pas')
+			print('Error : la database ' + host_name + ' n existe pas')
 			return None
 
 		select = c.fetchone()
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('le manager name : '+ manager_name + ' n existe pas dans la table locale de '+ host_name)
+			print('Error : le manager name : '+ manager_name + ' n existe pas dans la table locale de '+ host_name)
 			return None
 
 		(identity_name, manager_email, phone, password) = select
@@ -298,7 +298,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print(' le host n existe pas das le resolver')
+			print('Error : le host n existe pas das le resolver')
 			return None
 		host_workspace_contract = select[0]
 		data ={'identity_name' : identity_name}
@@ -420,7 +420,7 @@ def get_manager_list(workspace_contract, mode) :
 	try :
 		c.execute("SELECT manager_name, email FROM manager " , data)
 	except sqlite3.OperationalError :
-		print('la database ' + host_name + ' n existe pas')
+		print('Error : la database ' + host_name + ' n existe pas')
 		return []
 	select = c.fetchall()
 	alias = list()
@@ -512,7 +512,6 @@ def get_credentials(username, mode) :
 				 'redirect_uris' : metadata['redirect_uris'],
 				 'grant_types' : metadata['grant_types'],
 				 'scope' : metadata['scope'] })
-	print('credentials = ', credentials)
 	return credentials
 
 """

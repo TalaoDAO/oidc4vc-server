@@ -392,11 +392,3 @@ Example of a JSON return :
     "type": "experience",
     "version": 1
   }
-
-Use Case a tester
-*****************
-
-Use Case #1 : Une entreprise de formation professionnelle souhaite emettre des attestations de compétences sur la Blockchain pour ses clients (personnes physiques).
-
-Use Case #2 : Un groupement qui dispose d'une base d'adherents (entreprises), souhaite proposer à ses membres de se faire "certifier" sur la Blockchain par des sociétés tiers pour lesquelles elles ont prestées.
-les certificats sont ajoutés au profil des adhérents sur le portail du groupement. On peut sur ce portail rechercher les entreprises selon des criteres de compétence certifiés.

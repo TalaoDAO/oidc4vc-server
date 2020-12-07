@@ -145,7 +145,7 @@ Scope required : user:manage:data
 
   $ curl -X POST https://talao.co/api/v1/user_updates_company_settings  \
    -H "Authorization: Bearer rp9maPLRQEJ3bviGwTMPXvQdcx8YlqONuVDFZSAqupDdgXb9" \
-   -d {"staff" : "6"}
+   -d '{"staff" : "6"}'
 
 JSON return :
 

@@ -4,31 +4,34 @@ Overview
 What is Talao ?
 ---------------
 
-Talao is a Blockchain protocol to manage a professional Digital Identity.
+Talao is a Blockchain protocol to manage a professional Self Sovereign Digital Identity.
 
 Traditionnal architectures to validate, certify, and manage professional data are based on centralized, top-down approaches that rely on third-party private operators.
 Unfortunatky these solutions often lead to inappropriate use of personal data and hacks. Whatever the GDPR could impose to private operators, the fact is that our data
 are stored on their servers and they will utlimatly do what they want with our data.
 
-Talao approaches this issue starting from a user perspective through a Blockchain decentralized Identity focused on professional data :
+Talao approaches this issue starting from a user perspective through a Blockchain Decentralized IDentity (DID) focused on professional data :
 
   - You own your data for your lifetime.
   - No private operators or government agencies can decide to update or delete your data.
   - No one can access your encrypted data without your permission.
   - No storage costs.
-  - Certificates are tamper proof and tracable.
-  - Certificates issuers are identified.
+  - Claims are tamper proof and tracable.
+  - Claims issuers are identified.
 
-Talao allows Professional Identities for Talents, Companies and certificates issuers such as Schools or Training Centers.
+Talao allows Professional Identities for Talents, Companies and claims issuers such as Schools or Training Centers.
 It is for everyone the opportunity to use a new technology to get tamper proof professional data while keping the ownership of those data.
 
-Identities with their certificates can be displayed anywhere on digital plateforms : social medias, websites, Jobboards, etc. They provide to third parties reliable data about professional experiences, skills and education.
+Identities with their verifiable claims can be displayed anywhere on digital plateforms : social medias, websites, Jobboards, etc. They provide to third parties reliable data about professional experiences, skills and education.
+
+Terminology : in this document we will consider "Self Soverign Identity" as an equivalent to 'Decentralized IDentity'.
 
 
 How does Talao work ?
 ---------------------
 
 Talao is based on Ethereum smart contracts Identities.
+
 Smart contract Identities are like digital vault where you can store your data as diplomas, professional certificates, business contracts, pay slips,...
 Each individual or company is given its own private key to access and update its Identity.
 
@@ -36,13 +39,43 @@ Thanks to cryptographic algorithms those private keys are only used to sign mess
 If someone wants to update its data, he/she will sign a message with a private key and send it to all Blockchain servers.
 Each server will check the signature, update data then compare them to other server copies. As those data are duplicated on thousands of servers, no one can alone hack the Identity.
 
-This Talao web application https://talao.co is a portal to access Identities with a simple User Interface and automated processus.
+This Talao web application https://talao.co is a trust service to access Self Sovereign Identities with a simple User Interface and automated processus.
+From a blockchain perspective, this application is a third party wallet which manage htrough a two factor authentification process user's cryptographic keys.
+
 
 .. warning:: As this web application is a third party wallet, we strongly advise not to use your Identity address to store crypto currencies.
 
 
-What Blockchain does Talao use ?
----------------------------------
+Whate are Decentralized IDentities (DID) ?
+------------------------------------------
+
+The Decentralized Digital Identity concept is based on the use of Decentralised Identifiers. As defined in the current DID
+specification of W3C1 :
+
+“Decentralized Identifiers (DIDs) are a new type of identifier for verifiable, "self-sovereign" digital
+identity. DIDs are fully under the control of the DID subject, independent from any centralized
+registry, identity provider, or certificate authority. DIDs are URLs that relate a DID subject to means
+for trustable interactions with that subject. DIDs resolve to DID Documents — simple documents
+that describe how to use that specific DID. Each DID Document may contain at least three things:
+proof purposes, verification methods, and service endpoints. Proof purposes are combined with
+verification methods to provide mechanisms for proving things. For example, a DID Document can
+specify that a particular verification method, such as a cryptographic public key or pseudonymous
+biometric protocol, can be used to verify a proof that was created for the purpose of authentication.
+Service endpoints enable trusted interactions with the DID controller.”
+
+Furthermore eIDAS regulations now in place in Europe are taking the opportunity to include Self Sovereign Identiy technologies to expand security 
+and data protection (see the SSI-eIDAS Bridge project launched by EU)..
+
+
+More information available :
+
+  * https://identity.foundation/
+  * https://ec.europa.eu/futurium/en/system/files/ged/eidas_supported_ssi_may_2019_0.pdf
+  * https://joinup.ec.europa.eu/collection/ssi-eidas-bridge/about
+
+
+What blockchain suport does Talao use ?
+----------------------------------------
 
 Talao is available on the public Ethereum Mainet and Rinkeby. See https://github.com/TalaoDAO/talao-contracts for details.
 
