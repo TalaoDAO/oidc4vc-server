@@ -222,9 +222,6 @@ def invite(subject, to, name, mode) :
 	html = str(codecs.open("templates/emails/invite_to_join.html", 'r', 'utf-8').read()).format(name = name)
 	msg.attach(MIMEText(html, 'html', 'utf-8'))
 
-	# Define the image's ID as referenced above
-	msgImage.add_header('Content-ID', '<twitter>')
-	msg.attach(msgImage)
 	# creates SMTP session
 	s = smtplib.SMTP('smtp.gmail.com', 587)
 	s.starttls()
