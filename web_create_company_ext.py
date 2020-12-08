@@ -54,7 +54,7 @@ def authentification_company(mode) :
 			referer = request.environ['HTTP_REFERER']
 		except KeyError:
 			referer = None
-		whitelist = ['http://127.0.0.1:5000/profile']
+		whitelist = ['http://127.0.0.1:5000/profile', 'masociete.com', 'http://127.0.0.1:4000']
 		if referer in whitelist:
 			return render_template("create_company/create_company_ext.html",message='')
 		else:
