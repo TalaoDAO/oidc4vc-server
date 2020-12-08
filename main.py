@@ -58,6 +58,7 @@ import sms
 import QRCode
 import directory
 import siren
+import talao_x509
 
 # Centralized  routes
 import web_create_identity
@@ -92,7 +93,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.5"
+VERSION = "0.15.7"
 API_SERVER = True
 
 # Flask and Session setup
@@ -1807,12 +1808,38 @@ def download():
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
+
+@app.route('/get_talao_CA/', methods=['GET', 'POST'])
+def download_talao_CA():
+    filename = 'talao.pem'
+    return send_from_directory(app.config['RSA_FOLDER'],filename, as_attachment=True)
+
 @app.route('/user/download_rsa_key/', methods=['GET', 'POST'])
 def download_rsa_key():
     filename = request.args['filename']
-    return send_from_directory(app.config['RSA_FOLDER'],
-                               filename, as_attachment=True)
+    attachment_filename = session['workspace_contract']+ '.key'
+    print(attachment_filename)
+    return send_from_directory(app.config['RSA_FOLDER'],filename, attachment_filename = attachment_filename,as_attachment=True)
 
+@app.route('/user/download_x509/', methods=['GET', 'POST'])
+def download_x509():
+    check_login()
+    filename = session['workspace_contract'] + '.pem'
+    password = ns.get_data_from_username(session['username'], mode)['email']
+    if not talao_x509.generate_X509(session['workspace_contract'],password, mode) :
+        flash('Certificate PKCS12 not available', 'danger')
+        return redirect (mode.server +'login/')
+    return send_from_directory(mode.uploads_path,filename, as_attachment=True)
+
+@app.route('/user/download_pkcs12/', methods=['GET', 'POST'])
+def download_pkcs12():
+    check_login()
+    filename = session['workspace_contract'] + '.p12'
+    password = ns.get_data_from_username(session['username'], mode)['email']
+    if not talao_x509.generate_X509(session['workspace_contract'], password, mode) :
+        flash('Certificate PKCS12 not available', 'danger')
+        return redirect (mode.server +'login/')
+    return send_from_directory(mode.uploads_path,filename, as_attachment=True)
 
 @app.route('/user/download_QRCode/', methods=['GET', 'POST'])
 def download_QRCode():

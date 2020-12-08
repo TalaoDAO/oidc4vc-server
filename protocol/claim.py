@@ -120,7 +120,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	scheme = claim[1]
 	topic_value = claim[0]
 	topicname = topicvalue2topicname(topic_value)
-
+	print('data = ', data)
 	if data != 'private' and data != 'secret' :
 		to_be_decrypted = False
 		privacy = 'public'

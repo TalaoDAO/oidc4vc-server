@@ -51,7 +51,6 @@ except :
 JWK = jwk.dumps(private_rsa_key)
 # set up 'kid' in the JWK header 
 JWK['kid'] = 'Talao public RSA key'
-print('JWK = ', JWK)
 JWT_CONFIG = {
     'key':  JWK,
     'alg': 'RS256',

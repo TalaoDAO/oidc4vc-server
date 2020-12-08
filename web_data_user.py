@@ -411,7 +411,6 @@ def data(mode) :
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
-	print('request =', request.__dict__)
 	check_login()
 	if not session.get('uploaded', False) :
 		print('Warning : start first instanciation user')
