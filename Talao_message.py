@@ -125,11 +125,8 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = 'Your professional Identity by Talao'
 	# string to store the body of the mail
-	did = 'did:talao:' + mode.BLOCKCHAIN +  ':' + str(workspace_contract_address)[2:]
 
-	html = str(codecs.open("templates/emails/register.html", 'r', 'utf-8').read()).format(username = username,
-                                                      address = eth_a,
-													  did = did)
+	html = str(codecs.open("templates/emails/register.html", 'r', 'utf-8').read()).format(username = username)
 	msg.attach(MIMEText(html, 'html', 'utf-8'))
 	#p = MIMEBase('application', 'octet-stream')
 
