@@ -43,7 +43,7 @@ class ExportingThread(threading.Thread):
 		claim = Claim()
 		claim.relay_add(workspace_contract,'siren', self.siren, 'public', self.mode)
 		ns.update_password(self.username, self.password, self.mode)
-		directory.add_user(self.mode, self.name, self.username, self.siren)
+		directory.add_user(self.mode, self.username, self.name, self.siren)
 		return
 
 # route /create_company_ext
