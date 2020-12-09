@@ -57,19 +57,16 @@
           <!--retrer dropdown-toggle de la class du nav linkComment-->
         </a>
         <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
-          <a class="dropdown-item " role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit a Talent&nbsp;</a>
+          <a class="dropdown-item " role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit a User&nbsp;</a>
 
           {% if session['username'] == 'talao' %}
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
-          <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
+            <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
           {% endif %}
           <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create User&nbsp;</a>
-          {% if session['username'] == 'newco' %}
-          <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
-          {% endif %}
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
+          <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete this Identity</a>
           <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/update_password/"><i class="fa fa-key fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Update password</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" role="presentation" href="http://talao.rtfd.io/"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>

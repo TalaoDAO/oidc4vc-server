@@ -63,7 +63,7 @@
 
 
                                         <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text personal">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Update your company details.">
                                                 <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company Details</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
@@ -77,7 +77,7 @@
          {% if session['username'] != 'talao' %}
 
                                         <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text contact">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Ask for a Proof of Identity to share data with third parties.">
                                                 <h5 class="mb-0"><i class="fa fa-industry"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Proof of Identity</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-1">
@@ -89,7 +89,7 @@
           {% endif %}
 
                                         <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all your technical skills, soft skills or languages capacity.">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of the core competencies or references of the company.">
                                                 <h5 class="mb-0"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6"href="#accordion-1 .item-6">&nbsp; Core Competencies</a></h5>
                                             </div>
                                             <div class="collapse item-6" role="tabpanel" data-parent="#accordion-1">
@@ -110,9 +110,7 @@
                                             </div>
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
-													<div  style="height:400px;overflow:auto;overflow-x: hidden;">
-														<p class="card-text">{{certificates|safe}}</p>
-													</div>
+													<p class="card-text">{{certificates|safe}}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -142,7 +140,7 @@
 
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="text partner"><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Partners are Identities with whom you share private data."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner</a></h5>
                                             </div>
                                             <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
@@ -151,7 +149,7 @@
 
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; White List</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Chain of Trust. List of the Identities you rely on to issue all types of certitificates."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; White List</a></h5>
                                             </div>
                                             <div class="collapse item-3" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{whitelist|safe}}</p></div>
@@ -160,7 +158,7 @@
 
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Referent</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="This is the list of the companies/users allowed to issue certificates to the company."><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Referent</a></h5>
                                             </div>
                                             <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{issuer|safe}}</p></div>
@@ -169,30 +167,24 @@
 
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Digital Vault is a solution to store your private data encrypted (ID Card, Passport, Invoices, Payslip..."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; Data Store</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Store company data (encrypted)."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; File Store</a></h5>
                                             </div>
                                             <div class="collapse  item-4" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>
                                             </div>
                                         </div>
-
-         {% if session['username'] != 'talao' %}
                                         <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Get your client_id and client_secret for the API server.">
                                                 <h5 class="mb-0"><i class="fa fa-gears"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; API Credentials</a></h5>
                                             </div>
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body">
-                                                    <div style="height:400px;overflow:auto;overflow-x: hidden;">
                                                         <p class="card-text">{{api|safe}}</p>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-         {% endif %}
-
                                         <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="text account">
+                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced data about the company blockchain Identity.">
                                                 <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Advanced</a></h5>
                                             </div>
                                             <div class="collapse item-6" role="tabpanel" data-parent="#accordion-2">

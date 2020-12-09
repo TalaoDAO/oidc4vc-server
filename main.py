@@ -93,7 +93,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.7"
+VERSION = "0.15.8"
 API_SERVER = True
 
 # Flask and Session setup
@@ -1789,7 +1789,7 @@ def download():
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
-@app.route('/get_talao_x509/', methods=['GET', 'POST'])
+@app.route('/talao_x509/', methods=['GET', 'POST'])
 def download_talao_x509():
     return send_from_directory(app.config['RSA_FOLDER'],'talao.pem', as_attachment=True)
 
