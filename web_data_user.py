@@ -10,7 +10,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 """
 import os
 
-from flask import Flask, session, send_from_directory, flash, send_file, get_flashed_messages
+from flask import Flask, session, send_from_directory, flash, send_file
 
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
@@ -120,7 +120,6 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
-	#get_flashed_messages()
 	if request.method == 'GET' :
 		session.clear()
 		return render_template('login.html')

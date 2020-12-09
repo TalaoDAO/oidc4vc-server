@@ -43,7 +43,7 @@ class ExportingThread(threading.Thread):
 		claim = Claim()
 		claim.relay_add(workspace_contract,'siren', self.siren, 'public', self.mode)
 		ns.update_password(self.username, self.password, self.mode)
-		directory.add_user(self.mode, self.name, self.username, self.siren)
+		directory.add_user(self.mode, self.username, self.name, self.siren)
 		return
 
 # route /create_company_ext
@@ -59,7 +59,7 @@ def authentification_company(mode) :
 			return render_template("create_company/create_company_ext.html",message='')
 		else:
 			flash('Incorrect referer, you do not have access to this page', 'warning')
-			return redirect("/login")
+			return redirect("/starter")
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
 		session['name'] = request.form['name']

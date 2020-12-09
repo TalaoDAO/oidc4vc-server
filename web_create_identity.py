@@ -49,7 +49,7 @@ class ExportingThread(threading.Thread):
 		ns.update_phone(self.username, self.phone, self.mode)
 		ns.update_password(self.username, self.password, self.mode)
 		if self.search:
-			directory.add_user(self.mode, self.firstname+ ' ' + self.lastname, self.username, None)
+			directory.add_user(self.mode, self.username, self.firstname+ ' ' + self.lastname, None)
 		return
 
 # route /register/
