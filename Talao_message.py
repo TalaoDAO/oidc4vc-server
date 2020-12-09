@@ -1,5 +1,7 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
+from email.header import Header
+from email.utils import formataddr
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
@@ -22,7 +24,7 @@ def messageAuth (email_to, random, mode) :
 
 	# instance of MIMEMultipart
 	msg = MIMEMultipart()
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = 'Talao : Email authentification  '
 
@@ -58,7 +60,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# instance of MIMEMultipart
 	msg = MIMEMultipart()
 	# storing the senders email address
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	# storing the receivers email address
 	msg['To'] = ", ".join(toaddr)
 	# storing the subject
@@ -119,7 +121,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	toaddr = [email]
 
 	msg = MIMEMultipart()
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] = 'Your professional Identity by Talao'
 	# string to store the body of the mail
@@ -154,7 +156,7 @@ def message(subject, to, messagetext, mode) :
 	toaddr = [to]
 
 	msg = MIMEMultipart()
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] =  subject
 	body = messagetext + signature
@@ -184,7 +186,7 @@ def certificate_issued(subject, to, username, link, mode) :
 	toaddr = [to]
 
 	msg = MIMEMultipart()
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] =  subject
 
@@ -207,6 +209,219 @@ def certificate_issued(subject, to, username, link, mode) :
 	s.quit()
 	return True
 
+
+def certificate_issued_issuer(subject, to, name, link, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/certificate_issued_issuer.html", 'r', 'utf-8').read()).format(name = name,
+                                                      link = link)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+def request_partnership(subject, to, name, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/request_partnership.html", 'r', 'utf-8').read()).format(name = name)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+def request_partnership_rejected(subject, to, name, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/request_partnership_rejected.html", 'r', 'utf-8').read()).format(name = name, text=text)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+def forgot_password(subject, to, link, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/forgot_password.html", 'r', 'utf-8').read()).format(link=link)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+def added_referent(subject, to, name, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/added_referent.html", 'r', 'utf-8').read()).format(name=name)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+def request_POI_sent(subject, to, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/request_POI_sent.html", 'r', 'utf-8').read())
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+def POI_isssued(subject, to, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/POI_issued.html", 'r', 'utf-8').read())
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('Error : sending mail')
+		return False
+	s.quit()
+	return True
+
+
 def invite(subject, to, name, mode) :
 
 	password = mode.smtp_password
@@ -215,16 +430,103 @@ def invite(subject, to, name, mode) :
 	toaddr = [to]
 
 	msg = MIMEMultipart()
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	msg['To'] = ", ".join(toaddr)
 	msg['Subject'] =  subject
 
 	html = str(codecs.open("templates/emails/invite_to_join.html", 'r', 'utf-8').read()).format(name = name)
 	msg.attach(MIMEText(html, 'html', 'utf-8'))
 
-	# Define the image's ID as referenced above
-	msgImage.add_header('Content-ID', '<twitter>')
-	msg.attach(msgImage)
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('error sending mail')
+		return False
+	s.quit()
+	return True
+
+def joboffer(subject, to, name, job, link, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/job_offer.html", 'r', 'utf-8').read()).format(name = name, job = job, link = link)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('error sending mail')
+		return False
+	s.quit()
+	return True
+
+def memo(subject, to, name, memo, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/memo.html", 'r', 'utf-8').read()).format(name = name, memo = memo)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+	# creates SMTP session
+	s = smtplib.SMTP('smtp.gmail.com', 587)
+	s.starttls()
+	s.login(fromaddr, password)
+	text = msg.as_string()
+
+	# sending the mail
+	try:
+		s.sendmail(msg['from'],  msg["To"].split(","), text)
+	except:
+		print ('error sending mail')
+		return False
+	s.quit()
+	return True
+
+def request_certificate(subject, to, name, link, mode) :
+
+	password = mode.smtp_password
+
+	fromaddr = "relay@talao.io"
+	toaddr = [to]
+
+	msg = MIMEMultipart()
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
+	msg['To'] = ", ".join(toaddr)
+	msg['Subject'] =  subject
+
+	html = str(codecs.open("templates/emails/request_certificate.html", 'r', 'utf-8').read()).format(name = name, link = link)
+	msg.attach(MIMEText(html, 'html', 'utf-8'))
+
 	# creates SMTP session
 	s = smtplib.SMTP('smtp.gmail.com', 587)
 	s.starttls()
@@ -253,7 +555,7 @@ def message_file(to, text, subject, filename, path, mode)  :
 	# instance of MIMEMultipart
 	msg = MIMEMultipart()
 	# storing the senders email address
-	msg['From'] = fromaddr
+	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	# storing the receivers email address
 	msg['To'] = ", ".join(toaddr)
 	# storing the subject
