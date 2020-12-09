@@ -327,7 +327,9 @@ His email is : {email}
 Description given by the user:
 
 {description}
-""".format(link = session['menu']['clipboard'], email = request.form['email'], description = request.form['description'])
+""".format(link = session['menu']['clipboard'],
+           email = ns.get_data_from_username(session['username'], mode)['email'],
+           description = request.form['description'])
         Talao_message.message(subject, email, messagetext, mode)
         Talao_message.message(subject, email2, messagetext, mode)
         flash('The bug has been reported ! Thank you for your help ! ', "success")
