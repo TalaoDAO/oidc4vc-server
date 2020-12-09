@@ -58,6 +58,7 @@ import sms
 import QRCode
 import directory
 import siren
+import talao_x509
 
 # Centralized  routes
 import web_create_identity
@@ -92,7 +93,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.5"
+VERSION = "0.15.8"
 API_SERVER = True
 
 # Flask and Session setup
@@ -114,13 +115,14 @@ sess.init_app(app)
 
 # define everything about API server, constante and route for endpoints
 if API_SERVER :
+    print('Info : API server init')
     config_api_server(app, mode)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
 
 # info release
-print('Warning : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
+print('Info : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -200,7 +202,6 @@ def is_username_in_list_for_partnership(partner_list, username) :
         if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
             return True
     return False
-
 
 #HomePage
 @app.route('/homepage/', methods=['GET'])
@@ -1788,12 +1789,37 @@ def download():
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
+@app.route('/talao_x509/', methods=['GET', 'POST'])
+def download_talao_x509():
+    return send_from_directory(app.config['RSA_FOLDER'],'talao.pem', as_attachment=True)
+
 @app.route('/user/download_rsa_key/', methods=['GET', 'POST'])
 def download_rsa_key():
+    check_login()
     filename = request.args['filename']
-    return send_from_directory(app.config['RSA_FOLDER'],
-                               filename, as_attachment=True)
+    attachment_filename = session['workspace_contract']+ '.key'
+    print(attachment_filename)
+    return send_from_directory(app.config['RSA_FOLDER'],filename, attachment_filename = attachment_filename,as_attachment=True)
 
+@app.route('/user/download_x509/', methods=['GET', 'POST'])
+def download_x509():
+    check_login()
+    filename = session['workspace_contract'] + '.pem'
+    password = ns.get_data_from_username(session['username'], mode)['email']
+    if not talao_x509.generate_X509(session['workspace_contract'],password, mode) :
+        flash('Certificate PKCS12 not available', 'danger')
+        return redirect (mode.server +'login/')
+    return send_from_directory(mode.uploads_path,filename, as_attachment=True)
+
+@app.route('/user/download_pkcs12/', methods=['GET', 'POST'])
+def download_pkcs12():
+    check_login()
+    filename = session['workspace_contract'] + '.p12'
+    password = ns.get_data_from_username(session['username'], mode)['email']
+    if not talao_x509.generate_X509(session['workspace_contract'], password, mode) :
+        flash('Certificate PKCS12 not available', 'danger')
+        return redirect (mode.server +'login/')
+    return send_from_directory(mode.uploads_path,filename, as_attachment=True)
 
 @app.route('/user/download_QRCode/', methods=['GET', 'POST'])
 def download_QRCode():

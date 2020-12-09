@@ -33,6 +33,7 @@ Welcome to Talao's documentation!
    add_a_referent
    use_its_own_address
    proof_of_identity
+   sign_documents
 
   	
 .. toctree::

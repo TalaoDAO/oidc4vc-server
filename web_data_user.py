@@ -410,7 +410,6 @@ def data(mode) :
 """ fonction principale d'affichage de l identité """
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
-	print('request =', request.__dict__)
 	check_login()
 	if not session.get('uploaded', False) :
 		print('Warning : start first instanciation user')
@@ -546,11 +545,6 @@ def user(mode) :
 
 
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
-
-
-	# TEST only
-	if mode.test :
-		my_advanced = my_advanced + """<br><a href="/user/test/">For Test Only</a>"""
 
 	# Partners
 	if session['partner'] == [] :
@@ -864,16 +858,19 @@ def user(mode) :
 
 		# API
 		credentials = ns.get_credentials(session['username'], mode)
-		my_api = ""
-		for cred in credentials :
-			my_api = my_api + """
+		if not len (credentials) :
+			my_api = """<a class="text-info">Contact relay@talao.io to get your API credentials.</a>"""
+		else :
+			my_api = """ <div style="height:200px;overflow:auto;overflow-x: hidden;">"""
+			for cred in credentials :
+				my_api = my_api + """
 				<b>client_id</b> : """+ cred['client_id'] +"""<br>
 				<b>client_secret</b> : """+ cred['client_secret'] + """<br>
 				<b>client_uri</b> : """+ cred['client_uri'] + """<br>
 				<b>redirect_uri</b> : """+ cred['redirect_uris'][0] + """<br>
 				<b>scope</b> : """+ cred['scope'] + """<br>
 				<b>grant_types</b> : """+ " ".join(cred['grant_types']) + """<br><hr> """
-
+			my_api = my_api + """</div>"""
 		# kbis
 		if len (session['kbis']) == 0:
 			my_kbis = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
@@ -914,22 +911,17 @@ def user(mode) :
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
 		# certificates
-		my_certificates = ""
-		cert_html = ""
-		if  len (session['certificate']) == 0:
-			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
+		if  not len (session['certificate']) :
+			my_certificates =  """<a class="text-info">No Certificates available</a>"""
 		else :
+			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				issuer_username = 'Unknown' if issuer_username is None else issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					issuer_name = certificate['issuer']['name']
-					issuer_type = 'Company'
-				elif  certificate['issuer']['category'] == 1001 :
-					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					issuer_type = 'Person'
 				else :
-					print ('Error : issuer category error, data_user.py')
+					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 				if certificate['type'] == 'agreement' :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
@@ -954,7 +946,7 @@ def user(mode) :
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 
-				if certificate['type'] ==  "reference" :
+				elif certificate['type'] ==  "reference" :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
 								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
@@ -976,8 +968,11 @@ def user(mode) :
 								</a>
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-
+				else :
+					cert_html =""
+					print('Error : incorrect certificate type : ' + certificate.get('type', 'Unknown'))
 				my_certificates = my_certificates + cert_html
+			my_certificates = my_certificates + """</div>"""
 
 		return render_template('company_identity.html',
 							**session['menu'],

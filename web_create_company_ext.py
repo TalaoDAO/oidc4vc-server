@@ -54,12 +54,12 @@ def authentification_company(mode) :
 			referer = request.environ['HTTP_REFERER']
 		except KeyError:
 			referer = None
-		whitelist = ['http://127.0.0.1:5000/profile']
-		# if referer in whitelist:
-		return render_template("create_company/create_company_ext.html",message='')
-		# else:
-		# 	flash('Incorrect referer, you do not have access to this page', 'warning')
-		# 	return redirect("/starter/")
+		whitelist = ['http://127.0.0.1:5000/profile', 'http://masociete.co/', 'http://127.0.0.1:4000']
+		if referer in whitelist:
+			return render_template("create_company/create_company_ext.html",message='')
+		else:
+			flash('Incorrect referer, you do not have access to this page', 'warning')
+			return redirect("/starter")
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
 		session['name'] = request.form['name']
