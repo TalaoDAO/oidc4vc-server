@@ -1808,14 +1808,13 @@ def download():
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
-
-@app.route('/get_talao_CA/', methods=['GET', 'POST'])
-def download_talao_CA():
-    filename = 'talao.pem'
-    return send_from_directory(app.config['RSA_FOLDER'],filename, as_attachment=True)
+@app.route('/get_talao_x509/', methods=['GET', 'POST'])
+def download_talao_x509():
+    return send_from_directory(app.config['RSA_FOLDER'],'talao.pem', as_attachment=True)
 
 @app.route('/user/download_rsa_key/', methods=['GET', 'POST'])
 def download_rsa_key():
+    check_login()
     filename = request.args['filename']
     attachment_filename = session['workspace_contract']+ '.key'
     print(attachment_filename)
