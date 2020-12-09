@@ -6,14 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
   <title>Talao Professional Identity</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -114,7 +108,7 @@
                             <br><br>
                             PKCS12 Certificate (password = your email)
                             <a title="Download this certificate to sign documents and emails. Keep this certificate private." role="presentation" href="/user/download_pkcs12/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.p12</a>
-                          </div>  
+                          </div> 
                           {% else %}
                           <div class="card m-2">
                             <div class="card-header py-3">
@@ -142,6 +136,7 @@
                           {% endif %}
                         </div>
                       </div>
+
                     <div class="card">
                       <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Access to your private key">
                         <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Private Key</a></h5>

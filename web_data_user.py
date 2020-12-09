@@ -120,9 +120,9 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
-	get_flashed_messages()
+	#get_flashed_messages()
 	if request.method == 'GET' :
-		#session.clear()
+		session.clear()
 		return render_template('login.html')
 	if request.method == 'POST' :
 		if session.get('try_number') is None :

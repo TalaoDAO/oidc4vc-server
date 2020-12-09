@@ -22,4 +22,4 @@ For Thunderbird Mozilla : https://www.ssl.com/how-to/installing-an-s-mime-certif
 
 For Outlook : https://www.thesslstore.com/knowledgebase/email-signing-support/install-e-mail-signing-certificates-outlook/
 
-To get the Talao Conformity Authority certificate clic `here <https://talao.io/get_talao_CA/>`_ .
+To get the Talao Conformity Authority certificate clic `here <https://talao.io/talao_x509/>`_ .

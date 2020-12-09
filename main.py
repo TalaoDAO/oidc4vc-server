@@ -115,13 +115,14 @@ sess.init_app(app)
 
 # define everything about API server, constante and route for endpoints
 if API_SERVER :
+    print('Info : API server init')
     config_api_server(app, mode)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
 
 # info release
-print('Warning : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
+print('Info : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -201,7 +202,6 @@ def is_username_in_list_for_partnership(partner_list, username) :
         if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
             return True
     return False
-
 
 #HomePage
 @app.route('/homepage/', methods=['GET'])
