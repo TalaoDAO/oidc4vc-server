@@ -7,7 +7,6 @@ $ gunicorn -c gunicornconf.py  --reload wsgi:app
 if script is launched without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
 $ export MYENV=livebox
-$ export WEB3_INFURA_PROJECT_ID=f2be8a3bf04d4a528eb416566f7b5ad6
 $ export AUTHLIB_INSECURE_TRANSPORT=1
 $ python main.py
 
@@ -62,7 +61,7 @@ import talao_x509
 
 # Centralized  routes
 import web_create_identity
-import web_create_company_ext
+import web_create_company_cci
 import web_certificate
 import web_data_user
 import web_issue_certificate
@@ -93,7 +92,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.8"
+VERSION = "0.15.9"
 API_SERVER = True
 
 # Flask and Session setup
@@ -130,10 +129,10 @@ app.add_url_rule('/register/password',  view_func=web_create_identity.authentifi
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
 app.add_url_rule('/register/update_password/',  view_func=web_create_identity.register_update_password, methods = ['POST'], defaults={'mode': mode})
 
-# Centralized @route for create company from the ext
-app.add_url_rule('/create_company_ext/',  view_func=web_create_company_ext.authentification_company, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_ext/password',  view_func=web_create_company_ext.authentification_password_company, methods = [ 'POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_ext/code/', view_func=web_create_company_ext.POST_authentification_2_company, methods = ['POST'], defaults={'mode': mode})
+# Centralized @route for create company CCI
+app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.authentification_company, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_cci/password',  view_func=web_create_company_cci.authentification_password_company, methods = [ 'POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_cci/code/', view_func=web_create_company_cci.POST_authentification_2_company, methods = ['POST'], defaults={'mode': mode})
 
 # Centralized @route to display certificates
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})

@@ -69,7 +69,7 @@ def authentification(mode) :
 		except:
 			session['search'] = False
 		if not sms.check_phone(session['phone'], mode) :
-			return render_template("create.html",message='Incorrect phone number')
+			return render_template("create.html", message_class='text-danger', message='Incorrect phone number')
 		else :
 			return render_template("create_password.html")
 
@@ -99,22 +99,26 @@ def POST_authentification_2(mode) :
 		 											   session['lastname'], session['email'],
 													   session['phone'], session['password'],
 													   session['search'], mode)
-		print("appel de createidentity")
+		print("Warning : call createidentity")
 		exporting_threads[thread_id].start()
-		return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.')
+		return render_template("create3.html", message_class='text-info', message='Registation in progress. You will receive an email with your credentials soon.')
 	elif session['try_number'] > 3 :
-		return render_template("create3.html", message="Too many trials (3 max)")
+		return render_template("create4.html", message_class='text-danger', message="Too many trials (3 max)")
 	elif datetime.now() > session['code_delay'] :
-		return render_template("create3.html", message="Code expired")
+		return render_template("create4.html", message_class='text-danger', message="Code expired")
 	else :
-		return render_template("create2.html", message='This code is incorrect')
+		if session['try_number'] == 2 :
+			message = 'Code is incorrect, 2 trials left'
+		if session['try_number'] == 3 :
+			message = 'Code is incorrect, last trial'
+		return render_template("create2.html", message_class='text-danger', message=message)
 
 #@app.route('/register/update_password/', methods=['GET'])
 def register_update_password(mode) :
 	global exporting_threads
 	thread_id = str(random.randint(0,10000 ))
-	exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], mode, request.form['password'])
+	exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], request.form['password'], session['search'], mode)
 	print("Warning : appel de createidentity")
 	exporting_threads[thread_id].start()
 	session.clear()
-	return render_template("create3.html", message='Registation in progress. You will receive an email with your credentials soon.')
+	return render_template("create3.html", message_class='text-info', message='Registation in progress. You will receive an email with your credentials soon.')
