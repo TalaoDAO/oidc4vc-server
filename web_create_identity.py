@@ -39,13 +39,11 @@ class ExportingThread(threading.Thread):
 		self.password = password
 	def run(self):
 		workspace_contract = createidentity.create_user(self.username, self.email, self.mode, password=self.password)[2]
-		if workspace_contract is None :
+		if not workspace_contract :
 			print('Error : thread to create new Identity failed')
 			return
-		claim = Claim()
-		claim.relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
-		claim = Claim()
-		claim.relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
+		Claim().relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
+		Claim().relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
 		ns.update_phone(self.username, self.phone, self.mode)
 		ns.update_password(self.username, self.password, self.mode)
 		if self.search:
@@ -63,11 +61,7 @@ def authentification(mode) :
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['code'] + request.form['phone']
-		try:
-			if request.form["CheckBox"] == "on":
-				session['search'] = True
-		except:
-			session['search'] = False
+		session['search'] = request.form.get('CheckBox')
 		if not sms.check_phone(session['phone'], mode) :
 			return render_template("create.html", message_class='text-danger', message='Incorrect phone number')
 		else :
@@ -75,21 +69,24 @@ def authentification(mode) :
 
 # route /register/password
 def authentification_password(mode):
+	if not session.get('email') :
+		flash('Registration error', 'warning')
+		return redirect(mode.server + 'login/')
 	session['password'] = request.form['password']
 	session['code'] = str(random.randint(10000, 99999))
 	session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 	session['try_number'] = 1
 	sms.send_code(session['phone'], session['code'], mode)
 	#Talao_message.messageAuth(email, str(code), mode)
-	print('secret code = ', session['code'])
+	print('Info : secret code = ', session['code'])
 	return render_template("create2.html", message = '')
 
 # route /register/authentification/
 def POST_authentification_2(mode) :
-	mycode = request.form['mycode']
-	if not session.get('code') :
+	if not session.get('password') :
 		flash('Registration error', 'warning')
 		return redirect(mode.server + 'login/')
+	mycode = request.form['mycode']
 	session['try_number'] +=1
 	print('Warning : code received = ', mycode)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
@@ -115,10 +112,13 @@ def POST_authentification_2(mode) :
 
 #@app.route('/register/update_password/', methods=['GET'])
 def register_update_password(mode) :
+	if not session.get('code') :
+		flash('Registration error', 'warning')
+		return redirect(mode.server + 'login/')
 	global exporting_threads
 	thread_id = str(random.randint(0,10000 ))
 	exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], request.form['password'], session['search'], mode)
-	print("Warning : appel de createidentity")
+	print("Warning : call createidentity")
 	exporting_threads[thread_id].start()
 	session.clear()
 	return render_template("create3.html", message_class='text-info', message='Registation in progress. You will receive an email with your credentials soon.')
