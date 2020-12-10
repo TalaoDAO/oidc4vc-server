@@ -1786,14 +1786,14 @@ def send_fonts(filename):
     return send_from_directory(FONTS_FOLDER, filename)
 
 @app.route('/user/download/', methods=['GET', 'POST'])
-def download():
+def download_file():
     filename = request.args['filename']
     return send_from_directory(mode.uploads_path,
-                               filename, as_attachment=True)
+                               filename, as_attachment=True, cache_timeout=1)
 
-@app.route('/talao_x509/', methods=['GET', 'POST'])
+@app.route('/talao_ca/', methods=['GET', 'POST'])
 def download_talao_x509():
-    return send_from_directory(app.config['RSA_FOLDER'],'talao.pem', as_attachment=True)
+    return send_from_directory(app.config['RSA_FOLDER'],'talao.pem', as_attachment=True, cache_timeout=1)
 
 @app.route('/user/download_rsa_key/', methods=['GET', 'POST'])
 def download_rsa_key():
@@ -1801,7 +1801,7 @@ def download_rsa_key():
     filename = request.args['filename']
     attachment_filename = session['workspace_contract']+ '.key'
     print(attachment_filename)
-    return send_from_directory(app.config['RSA_FOLDER'],filename, attachment_filename = attachment_filename,as_attachment=True)
+    return send_from_directory(app.config['RSA_FOLDER'],filename, attachment_filename = attachment_filename,as_attachment=True,cache_timeout=1)
 
 @app.route('/user/download_x509/', methods=['GET', 'POST'])
 def download_x509():
@@ -1811,17 +1811,21 @@ def download_x509():
     if not talao_x509.generate_X509(session['workspace_contract'],password, mode) :
         flash('Certificate PKCS12 not available', 'danger')
         return redirect (mode.server +'login/')
-    return send_from_directory(mode.uploads_path,filename, as_attachment=True)
+    return send_from_directory(mode.uploads_path,filename, as_attachment=True, cache_timeout=1)
 
 @app.route('/user/download_pkcs12/', methods=['GET', 'POST'])
 def download_pkcs12():
     check_login()
-    filename = session['workspace_contract'] + '.p12'
-    password = ns.get_data_from_username(session['username'], mode)['email']
-    if not talao_x509.generate_X509(session['workspace_contract'], password, mode) :
-        flash('Certificate PKCS12 not available', 'danger')
-        return redirect (mode.server +'login/')
-    return send_from_directory(mode.uploads_path,filename, as_attachment=True)
+    if request.method == 'GET' :
+        return render_template('create_password_pkcs12.html', **session['menu'])
+    if request.method == 'POST' :
+        filename = session['workspace_contract'] + '.p12'
+        password = request.form['password']
+        if not talao_x509.generate_X509(session['workspace_contract'], password, mode) :
+            flash('Certificate PKCS12 not available', 'danger')
+            return redirect (mode.server +'login/')
+        return send_from_directory(mode.uploads_path,filename, as_attachment=True, cache_timeout=1)
+
 
 @app.route('/user/download_QRCode/', methods=['GET', 'POST'])
 def download_QRCode():
