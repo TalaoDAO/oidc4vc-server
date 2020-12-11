@@ -32,8 +32,8 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;"><br><br>Vous allez recevoir un code secret par mail. Entrez ce code pour vérifier votre adresse mail.<br>
-                                    <br>A chaque connexion vous recevrez un code pour vous authentifier.<br><br><br><br><br></p>
+                                    <p class="text-center" style="margin: 75px 50px 0px;">Vous allez recevoir un code secret par mail. Entrez ce code pour valider votre adresse mail et lançer la création de votre Identité.<br>
+                                    <br>Le délais de déploiement sur la Blockchain est de l'orde de 2 minutes.<br><br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -44,10 +44,8 @@
                                     <form class="user" action="/create_company_cci/code/" method="post">
                                         <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class={{message_class}} >{{message}}</h6></div>
                                         <div class="form-group"><input class="form-control" type="password" placeholder="Entrez votre code secret" name="mycode" style="color: rgb(133,135,150);"></div>
-                                      </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Suivant</button>
+                                      <div class="form-group"><button class="btn btn-primary text-white btn-block border rounded btn-user" id="in_progress_button" type="submit">Suivant</button></div> 
                                     </form>
-                                    <div class="text-center"><a class="small" href="">Pseudonyme oublié ?</a></div>
-                                    <div class="text-center"><a class="small" href="/login/">Connexion</a></div>
                                 </div>
                             </div>
                         </div>
@@ -55,18 +53,19 @@
                 </div>
             </div>
         </div>
-
+        </div>
 
                              {% include 'user_footer.html' %}
 
 
     </div>
-   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='deploiement_en_cours.js') }}"></script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>

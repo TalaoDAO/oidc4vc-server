@@ -120,9 +120,11 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
+	print('request args = ', request.args.get('username', ""))
 	if request.method == 'GET' :
 		session.clear()
-		return render_template('login.html')
+		print('request args = ', request.args.get('username', ""))
+		return render_template('login.html', username=request.args.get('username', ""))
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1

@@ -26,7 +26,8 @@ def generate_CA() :
     x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Talao"),
     x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "talao.io"),
     #x509.NameAttribute(NameOID.POSTAL_ADDRESS, "16 rue de wattignies, 75012 Paris"),
-    x509.NameAttribute(NameOID.COMMON_NAME, "talao"),])
+    x509.NameAttribute(NameOID.COMMON_NAME, "talao"),
+    x509.NameAttribute(NameOID.USER_ID, 'did:talao:taleaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'),])
 
     # issue CA certificate for Talao
     cert = x509.CertificateBuilder()
@@ -54,9 +55,9 @@ def generate_CA() :
     cert=cert.sign(talao_rsa_key, hashes.SHA256())
 
     # Write this CA certificate out to disk.
-    with open("talao.pem", "wb") as f:
+    with open('talao.pem', "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
-    return True
+    return 
 
 
 ############# generate certificate for user
@@ -68,7 +69,8 @@ def generate_X509(workspace_contract, password, mode) :
     x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Talao"),
     x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "talao.io"),
     #x509.NameAttribute(NameOID.POSTAL_ADDRESS, "16 rue de wattignies, 75012 Paris"),
-    x509.NameAttribute(NameOID.COMMON_NAME, "talao"),])
+    x509.NameAttribute(NameOID.COMMON_NAME, "talao"),
+    x509.NameAttribute(NameOID.USER_ID, 'did:talao:taleaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'),])
 
     # upload the Talao private rsa key
     filename = './RSA_key/talaonet/0xEE09654eEdaA79429F8D216fa51a129db0f72250_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt'
@@ -135,3 +137,7 @@ def generate_X509(workspace_contract, password, mode) :
         f.write(certificate)
     return True
 
+
+
+if __name__ == '__main__':
+    generate_CA()

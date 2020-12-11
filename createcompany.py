@@ -87,6 +87,8 @@ def create_company(email, username, mode, creator=None, partner=False, send_emai
 	workspace_contract = ownersToContracts(address, mode)
 	print( 'Success : workspace contract = ', workspace_contract)
 
+
+
 	# For setup of new chain one need to first create workspaces for Relay and Talao
 	if username != 'relay' and username != 'talao' :
 		# management key (1) issued to Relay
@@ -96,6 +98,7 @@ def create_company(email, username, mode, creator=None, partner=False, send_emai
 		relay_address = address
 	if username == 'talao' :
 		add_key(address, workspace_contract, address, workspace_contract, private_key, relay_address, 1, mode, synchronous=True) 
+
 
 	# rewrite encrypted email with scheme 2 to differenciate from freedapp email that are not encrypted
 	claim_id = Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode)[0]

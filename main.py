@@ -92,7 +92,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.9"
+VERSION = "0.15.10"
 API_SERVER = True
 
 # Flask and Session setup
@@ -130,9 +130,10 @@ app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentif
 app.add_url_rule('/register/update_password/',  view_func=web_create_identity.register_update_password, methods = ['POST'], defaults={'mode': mode})
 
 # Centralized @route for create company CCI
-app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.authentification_company, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_cci/password',  view_func=web_create_company_cci.authentification_password_company, methods = [ 'POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_cci/code/', view_func=web_create_company_cci.POST_authentification_2_company, methods = ['POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_cci/password/',  view_func=web_create_company_cci.cci_password, methods = [ 'GET','POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_cci/code/', view_func=web_create_company_cci.cci_code, methods = ['GET','POST'], defaults={'mode': mode})
+app.add_url_rule('/create_company_cci/post_code/', view_func=web_create_company_cci.cci_post_code, methods = ['GET','POST'], defaults={'mode': mode})
 
 # Centralized @route to display certificates
 app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})
@@ -1787,12 +1788,7 @@ def send_fonts(filename):
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download_file():
     filename = request.args['filename']
-    return send_from_directory(mode.uploads_path,
-                               filename, as_attachment=True, cache_timeout=1)
-
-@app.route('/talao_ca/', methods=['GET', 'POST'])
-def download_talao_x509():
-    return send_from_directory(app.config['RSA_FOLDER'],'talao.pem', as_attachment=True, cache_timeout=1)
+    return send_from_directory(mode.uploads_path, filename, as_attachment=True, cache_timeout=1)
 
 @app.route('/user/download_rsa_key/', methods=['GET', 'POST'])
 def download_rsa_key():
@@ -1802,13 +1798,18 @@ def download_rsa_key():
     print(attachment_filename)
     return send_from_directory(app.config['RSA_FOLDER'],filename, attachment_filename = attachment_filename,as_attachment=True,cache_timeout=1)
 
+@app.route('/talao_ca/', methods=['GET', 'POST'])
+def ca():
+    talao_x509.generate_CA()
+    return send_from_directory('./','talao.pem', as_attachment=True, cache_timeout=1)
+
 @app.route('/user/download_x509/', methods=['GET', 'POST'])
 def download_x509():
     check_login()
     filename = session['workspace_contract'] + '.pem'
     password = ns.get_data_from_username(session['username'], mode)['email']
     if not talao_x509.generate_X509(session['workspace_contract'],password, mode) :
-        flash('Certificate PKCS12 not available', 'danger')
+        flash('Certificate X.509 not available', 'danger')
         return redirect (mode.server +'login/')
     return send_from_directory(mode.uploads_path,filename, as_attachment=True, cache_timeout=1)
 
