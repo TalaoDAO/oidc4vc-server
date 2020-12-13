@@ -68,7 +68,7 @@ def cci_password(mode):
 	session['password'] = request.form['password']
 	session['code'] = str(random.randint(10000, 99999))
 	session['code_delay'] = datetime.now() + timedelta(seconds= 180)
-	session['try_number'] = 1
+	session['try_number'] = 0
 	Talao_message.messageAuth(session['email'], session['code'], mode)
 	print("Warning : code sent =" + session['code'])
 	return render_template("CCI/create_company_cci_code.html", message_class='text-info', message = '')
@@ -86,14 +86,14 @@ def cci_code(mode) :
 		if not synchrounous_create_company(session['username'], session['name'], session['email'], session['password'],session['siren'], mode) :
 			return render_template("CCI/create4_cci.html", message_class ="text-danger", message="Echec du déploiement de l'Identité.")
 		return render_template("CCI/create3_cci.html", username=session['username'])
-	elif session['try_number'] > 3 :
-		return render_template("CCI/create4_cci.html", message_class ="text-danger", message="Nombre d'essais maximum atteint (3 max)")
+	elif session['try_number'] == 3 :
+		return render_template("CCI/create4_cci.html", message="Nombre d'essais maximum atteint (3 max)")
 	elif datetime.now() > session['code_delay'] :
-		return render_template("CCI/create4_cci.html", message_class ="text-danger", message="Code expiré")
+		return render_template("CCI/create4_cci.html", message="Code expiré")
 	else :
-		if session['try_number'] == 2 :
+		if session['try_number'] == 1 :
 			message = 'Code incorrect, encore 2 essais'
-		if session['try_number'] == 3 :
+		if session['try_number'] == 2 :
 			message = 'Code incorrect, dernier essai'
 		return render_template("CCI/create_company_cci_code.html", message_class='text-danger', message=message)
 

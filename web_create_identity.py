@@ -8,9 +8,10 @@ app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentif
 """
 
 from flask import request, redirect, render_template, session, flash
-import threading
+#import threading
 import random
 import unidecode
+import time
 from datetime import timedelta, datetime
 
 # dependances
@@ -22,8 +23,9 @@ import ns
 import directory
 
 
-exporting_threads = {}
+#exporting_threads = {}
 
+"""
 # Multithreading creatidentity setup
 class ExportingThread(threading.Thread):
 	def __init__(self, username, firstname, lastname, email, phone, password, search, mode):
@@ -49,76 +51,98 @@ class ExportingThread(threading.Thread):
 		if self.search:
 			directory.add_user(self.mode, self.username, self.firstname+ ' ' + self.lastname, None)
 		return
+"""
+
+def synchronous_create_identity(username, firstname, lastname, email, phone, password, search, mode) :
+	workspace_contract = createidentity.create_user(username, email, mode, password=password)[2]
+	if not workspace_contract :
+		print('Error : thread to create new Identity failed')
+		return
+	Claim().relay_add(workspace_contract, 'firstname', firstname, 'public', mode)
+	Claim().relay_add(workspace_contract, 'lastname', lastname, 'public', mode)
+	ns.update_phone(username, phone, mode)
+	ns.update_password(username, password, mode)
+	if search:
+		directory.add_user(mode, username, firstname+ ' ' + lastname, None)
+	return
 
 # route /register/
-def authentification(mode) :
-	session.clear()
+def register(mode) :
 	if request.method == 'GET' :
-		return render_template("create.html",message='')
+		session.clear()
+		session['is_active'] = True
+		message = request.args.get('message', "")
+		return render_template("register.html",message=message, )
 	if request.method == 'POST' :
+		print('is active dans post ? ',session.get('is_active'))
+
 		session['email'] = request.form['email']
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['code'] + request.form['phone']
 		session['search'] = request.form.get('CheckBox')
-		if not sms.check_phone(session['phone'], mode) :
-			return render_template("create.html", message_class='text-danger', message='Incorrect phone number')
-		else :
-			return render_template("create_password.html")
+		try :
+			if not sms.check_phone(session['phone'], mode) :
+				return render_template("register.html", message='Incorrect phone number.',
+												firstname=session['firstname'],
+												lastname=session['lastname'],
+												email=session['email'])
+			else :
+				return redirect (mode.server + 'register/password/')
+		except :
+			return render_template("register.html",message='SMS connexion problem.', )
 
-# route /register/password
-def authentification_password(mode):
-	if not session.get('email') :
-		flash('Registration error', 'warning')
-		return redirect(mode.server + 'login/')
-	session['password'] = request.form['password']
-	session['code'] = str(random.randint(10000, 99999))
-	session['code_delay'] = datetime.now() + timedelta(seconds= 180)
-	session['try_number'] = 1
-	sms.send_code(session['phone'], session['code'], mode)
-	#Talao_message.messageAuth(email, str(code), mode)
-	print('Info : secret code = ', session['code'])
-	return render_template("create2.html", message = '')
+# route /register/password/
+def register_password(mode):
+	if not session.get('is_active') :
+		return redirect(mode.server + 'register/?message=Session+expired.')
+	if request.method == 'GET' :
+		return render_template("create_password.html")
+	if request.method == 'POST' :
+		session['password'] = request.form['password']
+		session['code'] = str(random.randint(10000, 99999))
+		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+		session['try_number'] = 0
+		sms.send_code(session['phone'], session['code'], mode)
+		print('Info : secret code = ', session['code'])
+		return render_template("register_code.html")
 
-# route /register/authentification/
-def POST_authentification_2(mode) :
-	if not session.get('password') :
-		flash('Registration error', 'warning')
-		return redirect(mode.server + 'login/')
+# route /register/code/
+def register_code(mode) :
+	if not session.get('is_active') or 'try_number' not in session :
+		return redirect(mode.server + 'register/?message=session+expired.')
 	mycode = request.form['mycode']
 	session['try_number'] +=1
 	print('Warning : code received = ', mycode)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
+		print("Warning : call createidentity")
+		synchronous_create_identity(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], session['password'], session['search'], mode)
+		"""
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'],
 		 											   session['lastname'], session['email'],
 													   session['phone'], session['password'],
 													   session['search'], mode)
-		print("Warning : call createidentity")
 		exporting_threads[thread_id].start()
-		return render_template("create3.html", message_class='text-info', message='Registation in progress. You will receive an email with your credentials soon.')
-	elif session['try_number'] > 3 :
-		return render_template("create4.html", message_class='text-danger', message="Too many trials (3 max)")
+		"""
+		session['is_active'] = False
+		return render_template("create3.html", username=session['username'])
+	elif session['try_number'] == 3 :
+		session['is_active'] = False
+		return render_template("create4.html", message="Code is incorrect. Too many trials.")
 	elif datetime.now() > session['code_delay'] :
-		return render_template("create4.html", message_class='text-danger', message="Code expired")
+		session['is_active'] = False
+		return render_template("create4.html",  message="Code expired.")
 	else :
+		if session['try_number'] == 1 :
+			message = 'Code is incorrect, 2 trials left.'
 		if session['try_number'] == 2 :
-			message = 'Code is incorrect, 2 trials left'
-		if session['try_number'] == 3 :
-			message = 'Code is incorrect, last trial'
-		return render_template("create2.html", message_class='text-danger', message=message)
+			message = 'Code is incorrect, last trial.'
+		return render_template("register_code.html", message=message)
 
-#@app.route('/register/update_password/', methods=['GET'])
-def register_update_password(mode) :
-	if not session.get('code') :
-		flash('Registration error', 'warning')
-		return redirect(mode.server + 'login/')
-	global exporting_threads
-	thread_id = str(random.randint(0,10000 ))
-	exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], request.form['password'], session['search'], mode)
-	print("Warning : call createidentity")
-	exporting_threads[thread_id].start()
-	session.clear()
-	return render_template("create3.html", message_class='text-info', message='Registation in progress. You will receive an email with your credentials soon.')
+
+# route register/post_code/
+def register_post_code(mode) :
+	return redirect (mode.server + 'login/?username=' + session['username'])

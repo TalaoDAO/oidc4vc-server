@@ -6,25 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-
-   
     <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-               
-   
-                {% include 'guest_nav_bar.html' %}    
-
+                {% include 'guest_nav_bar.html' %}
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-9 col-lg-12 col-xl-10">
@@ -33,7 +25,7 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;">Your Professional Identity is currently deploying on the Ethereum Blockchain.<br><br>Check your email to get all the details about this Identity and have a look at the Guide (How-To)for more explanations.<br><br><br></p>
+                                    <p class="text-center" style="margin: 75px 50px 0px;">Your Professional Identity has been deployed on the Blockchain.<br><br>You will receive by email a copy of your username to log in.<br><br><br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -41,18 +33,12 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Your professional Identity</h4>
                                     </div>
-                                    <form class="user" action="/login/" method="get">
+                                    <form class="user" action="/register/post_code/" method="GET">
                                         <div class="form-group">
-                                            <h6 class="text-center text-dark mb-4" style="font-family: Nunito, sans-serif;">{{username}}</h6>
-                                        </div>
-                                        <div class="form-group">
-                                            <p></p>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small"><h6 class={{message_class}} >{{message}}</small></div>
-                                        </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Back to Login</button>
+                                            <div class="custom-control custom-checkbox small"><h6 class="text-info" >
+                                                Your Professional Identity has been installed on the Blockchain.<br><br>Your username is <b>{{username}}.</b></h6></div>
+                                        </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Login</button>
                                     </form>
-                       <!--             <div class="text-center"><a class="small" href="/login/">Back to Login !</a></div>   -->
                                 </div>
                             </div>
                         </div>
@@ -60,15 +46,12 @@
                 </div>
             </div>
         </div>
-                            {% include 'user_footer.html' %}    
-
+                            {% include 'user_footer.html' %}
     </div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-         <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
-
 </html>

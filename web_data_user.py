@@ -123,7 +123,6 @@ def login(mode) :
 	print('request args = ', request.args.get('username', ""))
 	if request.method == 'GET' :
 		session.clear()
-		print('request args = ', request.args.get('username', ""))
 		return render_template('login.html', username=request.args.get('username', ""))
 	if request.method == 'POST' :
 		if session.get('try_number') is None :

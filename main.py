@@ -92,7 +92,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.10"
+VERSION = "0.15.11"
 API_SERVER = True
 
 # Flask and Session setup
@@ -124,10 +124,10 @@ fa = FontAwesome(app)
 print('Info : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 # Centralized @route for create identity
-app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/password',  view_func=web_create_identity.authentification_password, methods = [ 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'], defaults={'mode': mode})
-app.add_url_rule('/register/update_password/',  view_func=web_create_identity.register_update_password, methods = ['POST'], defaults={'mode': mode})
+app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 
 # Centralized @route for create company CCI
 app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
