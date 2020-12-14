@@ -268,7 +268,7 @@ def request_partnership(subject, to, name, mode) :
 	s.quit()
 	return True
 
-def request_partnership_rejected(subject, to, name, mode) :
+def request_partnership_rejected(subject, to, name, text, mode) :
 
 	password = mode.smtp_password
 
@@ -388,7 +388,7 @@ def request_POI_sent(subject, to, mode) :
 	s.quit()
 	return True
 
-def POI_isssued(subject, to, mode) :
+def POI_issued(subject, to, mode) :
 
 	password = mode.smtp_password
 
