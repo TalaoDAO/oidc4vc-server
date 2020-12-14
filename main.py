@@ -792,33 +792,7 @@ def store_file() :
             flash('File ' + filename + ' has been uploaded.', "success")
         return redirect(mode.server + 'user/')
 
-# create company (Talao only and newco for test)
-@app.route('/user/create_company/', methods=['GET', 'POST'])
-def create_company() :
-    check_login()
-    if request.method == 'GET' and request.args.get('two_factor') == "True" :
-        workspace_contract = createcompany.create_company(session['company_email'], session['company_username'], mode, siren=session['company_siren'])[2]
-        if workspace_contract :
 
-            claim=Claim()
-            claim.relay_add(workspace_contract, 'name', request.form['name'], 'public', mode)
-            siren = request.form['siren'] if siren in session else None
-            directory.add_user(mode, request.form['name'], company_username, siren)
-            flash(company_username + ' has been created as company', 'success')
-        else :
-            flash('Company Creation failed', 'danger')
-        return redirect(mode.server + 'user/')
-    elif request.method == 'GET' and request.args.get('two_factor') == "False" :
-        return render_template('create_company.html', **session['menu'])
-    elif request.method == 'POST' :
-        session['company_email'] = request.form['email']
-        session['company_name'] = request.form['name']
-        session['company_username'] = session['company_name'].lower()
-        session['company_siren'] = request.form['siren']
-        if ns.username_exist(session['company_username'], mode)   :
-            session['company_username'] = session['company_username'] + str(random.randint(1, 100))
-        # two factor check :
-        return redirect(mode.server + 'user/two_factor/?callback=user/create_company/')
 
 # create a user/identity
 @app.route('/user/create_person/', methods=['GET', 'POST'])
@@ -1085,6 +1059,37 @@ def remove_experience() :
             flash('The experience has been removed', 'success')
         return redirect (mode.server +'user/')
 
+# create company with two factor checking function
+@app.route('/user/create_company/', methods=['GET', 'POST'])
+def create_company() :
+    check_login()
+    if request.method == 'GET' :
+        # code is correct
+        if request.args.get('two_factor') == "True" :
+            workspace_contract =  createcompany.create_company(session['company_email'], session['company_username'], mode, siren=session['company_siren'])[2]
+            if workspcae_contract :
+                Claim().relay_add(workspace_contract, 'name', session['company_name'], 'public', mode)
+                directory.add_user(mode, session['company_name'], session['company_username'], session['company_siren'])
+                flash(session['company_username'] + ' has been created as company', 'success')
+            else :
+                flash('Company Creation failed', 'danger')
+            return redirect(mode.server + 'user/')
+        # code is incorrect
+        elif request.args.get('two_factor') == "False" :
+            flash('Incorrect code', 'danger')
+            return redirect(mode.server + 'user/')
+        # first call
+        else :
+            return render_template('create_company.html', **session['menu'])
+    if request.method == 'POST' :
+        session['company_email'] = request.form['email']
+        session['company_name'] = request.form['name']
+        session['company_username'] = session['company_name'].lower()
+        session['company_siren'] = request.form['siren']
+        if ns.username_exist(session['company_username'], mode)   :
+            session['company_username'] = session['company_username'] + str(random.randint(1, 100))
+        # call the two factor checking function :
+        return redirect(mode.server + 'user/two_factor/?callback=user/create_company/') 
 
 # delete a certificate with two factor checking
 @app.route('/user/remove_certificate/', methods=['GET', 'POST'])
@@ -1335,7 +1340,6 @@ def reject_partner() :
             flash('The Partnership with '+session['partner_username_to_reject']+ '  has been rejected', 'success')
             # email to partner
             subject = "Your Request for Partnership has been rejected by " + session['name']
-            text = ""
             partner_email = ns.get_data_from_username(session['partner_username_to_reject'], mode)['email']
             Talao_message.messageHTML(subject, partner_email, 'request_partnership_rejected', {'name' : session['name'], 'text' : text}, mode)
         del session['partner_username_to_reject']

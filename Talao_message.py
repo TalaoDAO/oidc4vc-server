@@ -151,6 +151,7 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	except Exception as e:
 		print('Error : ' + type(e) + ' ' + str(e))
 		return False
+
 	msg.attach(MIMEText(html, 'html', 'utf-8'))
 	#p = MIMEBase('application', 'octet-stream')
 
@@ -201,6 +202,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	return True
 
 def message(subject, to, messagetext, mode) :
+
 
 	password = mode.smtp_password
 

@@ -19,22 +19,6 @@ from protocol import Claim
 import ns
 import directory
 
-# createidentity without thread (synchronous)
-def synchrounous_create_company(username, name, email, password, siren, mode) :
-	workspace_contract = createcompany.create_company(email, username, mode, password=password)[2]
-	if workspace_contract is None :
-		print('Warning : CCI create new company Identity failed')
-		return False
-	try :
-		Claim().relay_add(workspace_contract,'name', name, 'public', mode)
-		Claim().relay_add(workspace_contract,'siren', siren, 'public', mode)
-	except :
-		print('Warning : update name or siren failed')
-		return False
-	directory.add_user(mode, username, name, siren)
-	print('Success : synchronous create_identity is over')
-	return True
-
 # route /create_company_cci/
 def cci(mode) :
 	session.clear()
@@ -84,9 +68,12 @@ def cci_code(mode) :
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
 		print("Info : call of createidentity")
-		if not synchrounous_create_company(session['username'], session['name'], session['email'], session['password'],session['siren'], mode) :
+		workspace_contract = createcompany.create_company(session['email'], session['username'], mode, password=session['password'], name=session['name'], siren=session['siren'])[2]
+		if workspace_contract :
+			directory.add_user(mode, session['name'], session['username'], session['siren'])
+			return render_template("CCI/create3_cci.html", username=session['username'])
+		else :
 			return render_template("CCI/create4_cci.html", message_class ="text-danger", message="Echec du déploiement de l'Identité.")
-		return render_template("CCI/create3_cci.html", username=session['username'])
 	elif session['try_number'] == 3 :
 		return render_template("CCI/create4_cci.html", message="Nombre d'essais maximum atteint (3 max)")
 	elif datetime.now() > session['code_delay'] :
@@ -100,5 +87,7 @@ def cci_code(mode) :
 
 # route /create_company_cci/post_code/
 def cci_post_code(mode) :
+	if not 'username' in session :
+		return redirect(mode.server + 'create_company_cci/')
 	if request.method == 'POST' :
 		return redirect (mode.server + 'login/?username=' + session['username'])

@@ -78,7 +78,7 @@ def starter(mode) :
 # two factor checking function
 #@app.route('/user/two_factor/', methods=['GET', 'POST'])
 """ this route has to be used as a function to check code before signing a certificate
-CF create_company in main.py to see how to use it with redirect and callback """
+CF issue certificate in main.py to see how to use it with redirect and callback """
 def two_factor(mode) :
 	check_login()
 	if request.method == 'GET' :
@@ -121,7 +121,6 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
-	print('request args = ', request.args.get('username', ""))
 	if request.method == 'GET' :
 		session.clear()
 		return render_template('login.html', username=request.args.get('username', ""))
@@ -132,19 +131,19 @@ def login(mode) :
 		if not ns.username_exist(session['username_to_log'], mode)  :
 			flash('Username not found', "warning")
 			session['try_number'] = 1
-			return render_template('login.html', name="")
+			return render_template('login.html', username="")
 		if not ns.check_password(session['username_to_log'], request.form['password'], mode)  :
 			session['try_number'] +=1
 			if session['try_number'] == 2 :
 				flash('This password is incorrect, 2 trials left', 'warning')
-				return render_template('login.html', name=session['username_to_log'])
+				return render_template('login.html', username=session['username_to_log'])
 			elif session['try_number'] == 3 :
 				flash('This password is incorrect, 1 trial left', 'warning')
-				return render_template('login.html', name=session['username_to_log'])
+				return render_template('login.html', username=session['username_to_log'])
 			else :
 				flash("Too many trials (3 max)", "warning")
 				session['try_number'] = 1
-				return render_template('login.html', name="")
+				return render_template('login.html', username="")
 		else :
 			# secret code to send by email or sms
 			session['code'] = str(random.randint(10000, 99999))
