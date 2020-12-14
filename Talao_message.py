@@ -126,7 +126,7 @@ HTML_templates = {'register' : 'templates/emails/register.html', # username
 				  'invite_to_join': 'templates/emails/invite_to_join.html', # name
 				  'job_offer': 'templates/emails/job_offer.html', # name, link, job
 				  'memo' : 'templates/emails/memo.html', # name , memo
-				  'code_auth' : 'templates/emails/code_atuh.html', # code
+				  'code_auth' : 'templates/emails/code_auth.html', # code
 				  'request_certificate' : 'templates/emails/request_certificate.html'} #name link
 
 def messageHTML(subject, to, HTML_key, format_dict, mode)  :

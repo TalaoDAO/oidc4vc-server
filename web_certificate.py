@@ -324,6 +324,7 @@ def show_certificate(mode):
 							title = session['displayed_certificate']['title'],
 							signature=signature,
 							viewer=viewer,
+							standard=session['displayed_certificate']['standard'],
 							registration_number = session['displayed_certificate']['registration_number'],
 							service_product_group = service_product_group,
 							certificate_id=certificate_id,
