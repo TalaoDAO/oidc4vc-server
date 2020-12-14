@@ -92,7 +92,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.11"
+VERSION = "0.15.12"
 API_SERVER = True
 
 # Flask and Session setup

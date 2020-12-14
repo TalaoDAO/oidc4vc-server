@@ -8,7 +8,6 @@ app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentif
 """
 
 from flask import request, redirect, render_template, session, flash
-#import threading
 import random
 import unidecode
 import time
@@ -21,47 +20,6 @@ import sms
 from protocol import Claim
 import ns
 import directory
-
-
-#exporting_threads = {}
-
-"""
-# Multithreading creatidentity setup
-class ExportingThread(threading.Thread):
-	def __init__(self, username, firstname, lastname, email, phone, password, search, mode):
-		super().__init__()
-		self.username = username
-		self.firstname = firstname
-		self.lastname = lastname
-		self.email = email
-		self.phone = phone
-		self.password = password
-		self.search = search
-		self.mode = mode
-		self.password = password
-	def run(self):
-		workspace_contract = createidentity.create_user(self.username, self.email, self.mode, password=self.password)[2]
-		if not workspace_contract :
-			print('Error : thread to create new Identity failed')
-			return
-		Claim().relay_add(workspace_contract, 'firstname', self.firstname, 'public', self.mode)
-		Claim().relay_add(workspace_contract, 'lastname', self.lastname, 'public', self.mode)
-		ns.update_phone(self.username, self.phone, self.mode)
-		ns.update_password(self.username, self.password, self.mode)
-		if self.search:
-			directory.add_user(self.mode, self.username, self.firstname+ ' ' + self.lastname, None)
-		return
-"""
-
-def synchronous_create_identity(username, firstname, lastname, email, phone, password, search, mode) :
-	workspace_contract = createidentity.create_user(username, email, mode, password=password, firstname=firstname, lastname=lastname)[2]
-	if not workspace_contract :
-		print('Error : thread to create new Identity failed')
-		return
-	ns.update_phone(username, phone, mode)
-	if search:
-		directory.add_user(mode, username, firstname+ ' ' + lastname, None)
-	return
 
 # route /register/
 def register(mode) :
@@ -115,15 +73,19 @@ def register_code(mode) :
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
 		print("Warning : call createidentity")
-		synchronous_create_identity(session['username'], session['firstname'], session['lastname'], session['email'], session['phone'], session['password'], session['search'], mode)
-		"""
-		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(session['username'], session['firstname'],
-		 											   session['lastname'], session['email'],
-													   session['phone'], session['password'],
-													   session['search'], mode)
-		exporting_threads[thread_id].start()
-		"""
+		workspace_contract = createidentity.create_user(session['username'],
+											session['email'],
+											mode,
+											firstname=session['firstname'],
+											lastname=session['lastname'],
+											phone=session['phone'],
+											password=session['password'])[2]
+		if not workspace_contract :
+			print('Error : createidentity failed')
+			return render_template("register.html",message='Connexion problem.', )
+		if session['search'] :
+			directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
+			print('Warning : directory updated with firstname and lastname')
 		session['is_active'] = False
 		return render_template("create3.html", username=session['username'])
 	elif session['try_number'] == 3 :

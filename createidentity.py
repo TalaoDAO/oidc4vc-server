@@ -23,18 +23,57 @@ from base64 import b64encode
 from eth_account.messages import encode_defunct
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
+import threading
 
 # import des fonctions custom
 import Talao_message
 from Talao_ipfs import ipfs_add, ipfs_get
 import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key, partnershiprequest, authorize_partnership
-from protocol import Claim
+from protocol import Claim, update_self_claims
 import ns
 import privatekey
-#import ethereum_bridge see later
 
-def create_user(username, email,mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None):
+exporting_threads = {}
+
+# Multithreading creatidentity setup
+class ExportingThread(threading.Thread):
+	def __init__(self, address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,) :
+		super().__init__()
+		self.username = username
+		self.email = email
+		self.send_email = send_email
+		self.mode = mode
+		self.creator = creator
+		self.partner = partner
+		self.address = address
+		self.workspace_contract = workspace_contract
+		self.private_key = private_key
+
+	def run(self):
+		_create_user_step_2(self.address, self.workspace_contract, self.private_key, self.username, self.email, self.mode, self.creator, self.partner, self.send_email)
+		return
+
+
+# main function called by external modules
+def create_user(username, email, mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None):
+
+	# this is the minimum process to create an Identity, step 1
+	address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone)
+	if not address :
+		return None, None, None
+
+	print('Success : end of minimum Identity setup, step 1')
+
+	# follow up with asynchronous process, step 2
+	thread_id = str(random.randint(0,10000 ))
+	exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)
+	exporting_threads[thread_id].start()
+
+	return address, private_key, workspace_contract
+
+
+def _create_user_step_1(username, email,mode, creator, partner, send_email, password, firstname,  lastname, phone) :
 	email = email.lower()
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -114,6 +153,11 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 		ns.update_password(username, password, mode)
 		print('Success : password has been updated')
 
+	# setup phone
+	if phone :
+		ns.update_phone(username, phone, mode)
+		print('Success : phone has been updated')
+
 	# store Ethereum private key in keystore
 	if not privatekey.add_private_key(private_key, mode) :
 		print('Error : add private key in keystore failed')
@@ -121,69 +165,61 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 	else :
 		print('Success : private key in keystore')
 
-	print('Success : end of minimum Identity setup')
-	################################################
+	# claims for firstname and lastname
+	if firstname and lastname :
+		if not update_self_claims(address, private_key, {'firstname': firstname, 'lastname' : lastname}, mode) :
+			print('Error : firstname and lastname not updated')
+		print('Success : firstname and lastname updated')
+	return address, private_key, workspace_contract
 
+
+def _create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,) :
 	# key 1 issued to Web Relay to act as agent.
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=False)
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
 
 	# key 5 to Talao be in  White List
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode, synchronous=False)
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode)
 
 	# key 20002 to Talao to Issue Proof of Identity
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=False)
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode)
 
 	# Creator management
 	if creator and creator != mode.owner_talao :
-		creator_address = creator
+		creator_address =creator
 		creator_workspace_contract = ownersToContracts(creator_address, mode)
-		creator_rsa_key = privatekey.get_key(creator, 'rsa_key', mode)
-		creator_private_key = privatekey.get_key(creator,'private_key', mode)
+		creator_rsa_key = privatekey.get_key(creator_address, 'rsa_key', mode)
+		creator_private_key = privatekey.get_key(creator_address,'private_key', mode)
+		RSA_private = privatekey.get_key(address, 'rsa_key', mode)
 		# setup partnership
 		if partner  :
 			# creator requests partnership
-			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode, synchronous= True) :
-				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_private, mode, synchronous = True) :
+			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode) :
+				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_private, mode) :
 					print('Success : partnership request from creator has been accepted by Identity')
 				else :
 					print('Error : authorize partnership with creator failed')
 			else :
 				print('Error : creator partnership request failed')
 		#add creator as referent
-		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=False) :
+		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode) :
 			print('Warning : key 20002 issued for creator')
 		else :
 			print('Warning : key 20002 for creator failed')
 	else :
 		print('Warning : no company creator')
 
-	# rewrite privious email with scheme 2 in order to get an encrypted email on Blockchain
-	claim_id = Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode, synchronous=False)[0]
-	if claim_id :
-		print('Success : email updated')
+	# rewrite previous email to get an encrypted email 
+	if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode)[0] :
+		print('Success : email encryted updated')
 	else :
-		print('Error : email update')
-	# claims for firstname and lastname
-	claim_id = Claim().relay_add(workspace_contract, 'firstname', firstname, 'public', mode, synchronous=False)
-	if claim_id :
-		print('Success : firstname updated')
-	else :
-		print('Error : firstname update')
-	claim_id = Claim().relay_add(workspace_contract, 'lastname', lastname, 'public', mode, synchronous=False)
-	if claim_id :
-		print('Success : lastname updated')
-	else :
-		print('Error : lastname update')
+		print('Error : email encrypted not updated')
 
 	# emails send to user and admin
-	if mode.myenv == 'aws' or True:
-		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, SECRET_key.hex(), AES_key.hex(), mode)
+	if mode.myenv == 'aws' :
+		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
 		# By default an email is sent to user
 		if send_email :
 			Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
 
-	# synchro with ICO token
-	#ethereum_bridge.lock_ico_token(address, private_key)
-
-	print("Success : create identity process is OK and over")
-	return address, private_key, workspace_contract
+	print("Success : create identity process step 2 is over")
+	return

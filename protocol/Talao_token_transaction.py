@@ -548,8 +548,10 @@ def update_self_claims(address, private_key, dict, mode) :
 	offset = list()
 	topic = list()
 	for key in dict :
-		chaine = chaine + '_' + dict[key]
-		offset.append(len('_' +  dict[key]))
+		#chaine = chaine + '_' + dict[key]
+		#offset.append(len('_' +  dict[key]))
+		chaine = chaine + dict[key]
+		offset.append(len(dict[key]))
 		topic.append(topicname2topicvalue(key))
 	bchaine=bytes(chaine, 'utf-8')
 	workspace_contract=ownersToContracts(address,mode)

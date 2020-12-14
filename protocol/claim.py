@@ -52,7 +52,7 @@ def topicname2topicvalue(topicname) :
 
 
 
-""" si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstane' ; 'pierre'} """
+""" si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstname' ; 'pierre'} """
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous) :
 	# @data = str
 	# scheme 2
