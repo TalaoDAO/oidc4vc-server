@@ -93,7 +93,7 @@ ____________
 	"issued_by" : {
 		"name" : "",
 		"postal_address" : "",
-		"siret" : "",
+		"siren" : "",
 		"logo" : "xxx",
 		"signature" : "xxx",
 		"manager" : ""
@@ -101,11 +101,21 @@ ____________
 	"issued_to" : {
 		"name" : "",
 		"postal_address" : "",
-		"siret" : "",
+		"siren" : "",
 		"logo" : "",
 		"signature" : "",
 		}
 	}
+
+Score is an integer value [0,1,2,3,4,5] for 5 evaluations :
+
+	* How satisfied are you with the overall delivery ?
+	* How would you rate his/her ability to deliver to schedule ?
+	* How would you rate its communication ?
+	* How would you rate its ability to stay within the set budget?
+	* How likely are you to recommand this company ?
+
+
 
 .. code-block:: JSON
 
@@ -123,7 +133,7 @@ ____________
 	"issued_by" : {
 		"name" : "",
 		"postal_address" : "",
-		"siret" : "",
+		"siren" : "",
 		"logo" : "xxx",
 		"signature" : "xxx",
 		"manager" : "",
@@ -131,7 +141,7 @@ ____________
 	"issued_to" : {
 		"name" : "",
 		"postal_address" : "",
-		"siret" : "",
+		"siren" : "",
 		"logo" : "",
 		"signature" : "",
 		}
@@ -183,11 +193,6 @@ __________
 	"certificate_link" : ""
 	}
 
-
-Skills
-_______
-
-to be defined
 
 
 Education

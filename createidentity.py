@@ -34,7 +34,7 @@ import ns
 import privatekey
 #import ethereum_bridge see later
 
-def create_user(username, email,mode, creator=None, partner=False, send_email=True, password=None):
+def create_user(username, email,mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None):
 	email = email.lower()
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -104,24 +104,36 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 	workspace_contract = ownersToContracts(address,mode)
 	print('Success : workspace_contract has been setup = ',workspace_contract)
 
-	# add username to register in local nameservice Database with last check
+	# add username to register in local nameservice Database with last check.....
 	if ns.username_exist(username, mode) :
 		username = username + str(random.randint(1, 100))
 	ns.add_identity(username, workspace_contract, email, mode)
+
+	# setup password
 	if password :
 		ns.update_password(username, password, mode)
 		print('Success : password has been updated')
 
+	# store Ethereum private key in keystore
+	if not privatekey.add_private_key(private_key, mode) :
+		print('Error : add private key in keystore failed')
+		return None, None, None
+	else :
+		print('Success : private key in keystore')
+
+	print('Success : end of minimum Identity setup')
+	################################################
+
 	# key 1 issued to Web Relay to act as agent.
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=True)
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode, synchronous=False)
 
 	# key 5 to Talao be in  White List
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode, synchronous=True)
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode, synchronous=False)
 
 	# key 20002 to Talao to Issue Proof of Identity
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=True)
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode, synchronous=False)
 
-	# Creator
+	# Creator management
 	if creator and creator != mode.owner_talao :
 		creator_address = creator
 		creator_workspace_contract = ownersToContracts(creator_address, mode)
@@ -138,7 +150,7 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 			else :
 				print('Error : creator partnership request failed')
 		#add creator as referent
-		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=True) :
+		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode, synchronous=False) :
 			print('Warning : key 20002 issued for creator')
 		else :
 			print('Warning : key 20002 for creator failed')
@@ -146,11 +158,22 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 		print('Warning : no company creator')
 
 	# rewrite privious email with scheme 2 in order to get an encrypted email on Blockchain
-	claim_id = Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode)[0]
+	claim_id = Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode, synchronous=False)[0]
 	if claim_id :
 		print('Success : email updated')
 	else :
 		print('Error : email update')
+	# claims for firstname and lastname
+	claim_id = Claim().relay_add(workspace_contract, 'firstname', firstname, 'public', mode, synchronous=False)
+	if claim_id :
+		print('Success : firstname updated')
+	else :
+		print('Error : firstname update')
+	claim_id = Claim().relay_add(workspace_contract, 'lastname', lastname, 'public', mode, synchronous=False)
+	if claim_id :
+		print('Success : lastname updated')
+	else :
+		print('Error : lastname update')
 
 	# emails send to user and admin
 	if mode.myenv == 'aws' or True:
@@ -158,13 +181,6 @@ def create_user(username, email,mode, creator=None, partner=False, send_email=Tr
 		# By default an email is sent to user
 		if send_email :
 			Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
-
-	# store Ethereum private key in keystore
-	if not privatekey.add_private_key(private_key, mode) :
-		print('Error : add private key in keystore failed')
-		return None, None, None
-	else :
-		print('Success : private key in keystore')
 
 	# synchro with ICO token
 	#ethereum_bridge.lock_ico_token(address, private_key)

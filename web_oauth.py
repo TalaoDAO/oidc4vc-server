@@ -249,7 +249,6 @@ def issue_token():
 # AUTHORIZATION CODE
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
-   
     user = current_user()
     client_id = request.args['client_id']
     client = OAuth2Client.query.filter_by(client_id=client_id).first()
@@ -536,7 +535,7 @@ def user_issues_certificate(mode):
         certificate["issued_by"]  = {
 		    "name" : issued_by_profil['name'],
 		    "postal_address" : issued_by_profil['postal_address'],
-		    "siret" : issued_by_profil['siret'],
+		    "siren" : issued_by_profil['siren'],
 		    "logo" :get_image(issued_by_workspace_contract, 'logo', mode),
 		    "signature" : get_image(issued_by_workspace_contract, 'signature', mode),
             "manager" : "Director",
@@ -545,7 +544,7 @@ def user_issues_certificate(mode):
         certificate["issued_to"]  = {
 		    "name" : issued_to_profil['name'],
 		    "postal_address" : issued_to_profil['postal_address'],
-		    "siret" : issued_to_profil['siret'],
+		    "siren" : issued_to_profil['siren'],
 		    "logo" : get_image(issued_to_workspace_contract, 'logo', mode),
 		    "signature" : get_image(issued_to_workspace_contract, 'signature', mode),
 		    }
@@ -746,7 +745,7 @@ def oauth_issue_agreement(mode):
     certificate["issued_by"]  = {
 		"name" : client_profil['name'],
 		"postal_address" : client_profil['postal_address'],
-		"siret" : client_profil['siret'],
+		"siren" : client_profil['siren'],
 		"logo" :get_image(client_workspace_contract, 'logo', mode),
 		"signature" : get_image(client_workspace_contract, 'signature', mode),
         "manager" : "Director",
@@ -754,7 +753,7 @@ def oauth_issue_agreement(mode):
     certificate["issued_to"]  = {
 		"name" : user_profil['name'],
 		"postal_address" : user_profil['postal_address'],
-		"siret" : user_profil['siret'],
+		"siren" : user_profil['siren'],
 		"logo" : get_image(user_workspace_contract, 'logo', mode),
 		"signature" : get_image(user_workspace_contract, 'signature', mode),
 		}
@@ -809,7 +808,7 @@ def oauth_issue_reference(mode):
     certificate["issued_by"]  = {
 		"name" : client_profil['name'],
 		"postal_address" : client_profil['postal_address'],
-		"siret" : client_profil['siret'],
+		"siren" : client_profil['siren'],
 		"logo" :get_image(client_workspace_contract, 'logo', mode),
 		"signature" : get_image(client_workspace_contract, 'signature', mode),
         "manager" : "Director",
@@ -817,7 +816,7 @@ def oauth_issue_reference(mode):
     certificate["issued_to"]  = {
 		"name" : user_profil['name'],
 		"postal_address" : user_profil['postal_address'],
-		"siret" : user_profil['siret'],
+		"siren" : user_profil['siren'],
 		"logo" : get_image(user_workspace_contract, 'logo', mode),
 		"signature" : get_image(user_workspace_contract, 'signature', mode),
 		}

@@ -54,14 +54,11 @@ class ExportingThread(threading.Thread):
 """
 
 def synchronous_create_identity(username, firstname, lastname, email, phone, password, search, mode) :
-	workspace_contract = createidentity.create_user(username, email, mode, password=password)[2]
+	workspace_contract = createidentity.create_user(username, email, mode, password=password, firstname=firstname, lastname=lastname)[2]
 	if not workspace_contract :
 		print('Error : thread to create new Identity failed')
 		return
-	Claim().relay_add(workspace_contract, 'firstname', firstname, 'public', mode)
-	Claim().relay_add(workspace_contract, 'lastname', lastname, 'public', mode)
 	ns.update_phone(username, phone, mode)
-	ns.update_password(username, password, mode)
 	if search:
 		directory.add_user(mode, username, firstname+ ' ' + lastname, None)
 	return
