@@ -263,7 +263,7 @@ def forgot_password(mode) :
 		token = jwe.serialize_compact(header, payload, public_rsa_key)
 		link = mode.server + 'forgot_password_2/?'+ urlencode({'token'  : token.decode('utf-8')}, doseq=True)
 		messagetext = 'Hello\r\n\r\nFollow this link to renew your password : ' +  link
-		if Talao_message.forgot_password('Renew your password', email, link, mode) :
+		if Talao_message.messageHTML(subject, email, 'forgot_password', {'link': link}, mode):
 			flash("You are going to receive an email to renew your password.", "success")
 		return render_template('login.html')
 
