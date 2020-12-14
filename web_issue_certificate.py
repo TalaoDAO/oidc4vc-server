@@ -48,7 +48,8 @@ def send_secret_code (username, code, mode) :
 	if data == dict() :
 		return None
 	if data['phone'] is None :
-		Talao_message.messageAuth(data['email'], code, mode)
+        subject = 'Talao : Email authentification  '
+		Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 		print('Warning : secret code sent by email')
 		return 'email'
 	else :
@@ -185,7 +186,8 @@ def issue_certificate_for_guest(mode) :
 			session['try_number'] = 1
 
 		if session['issuer_username'] == 'new' :
-			Talao_message.messageAuth(session['issuer_email'], str(session['code']), mode)
+			subject = 'Talao : Email authentification  '
+			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 			return render_template('confirm_issue_certificate_for_guest.html')
 		else :
 			support = send_secret_code(session['issuer_username'], session['code'], mode)

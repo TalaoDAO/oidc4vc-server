@@ -49,7 +49,8 @@ def send_secret_code (username, code, mode) :
 	if data == dict() :
 		return None
 	if not data['phone'] :
-		Talao_message.messageAuth(data['email'], code, mode)
+		subject = 'Talao : Email authentification  '
+		Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 		print('Warning : code sent by email')
 		return 'email'
 	else :

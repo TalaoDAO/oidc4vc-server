@@ -69,7 +69,8 @@ def cci_password(mode):
 	session['code'] = str(random.randint(10000, 99999))
 	session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 	session['try_number'] = 0
-	Talao_message.messageAuth(session['email'], session['code'], mode)
+	subject = 'Talao : Email authentification  '
+	Talao_message.messageHTML(subject, session['email'], 'code_auth', {'code' : session['code']}, mode)
 	print("Warning : code sent =" + session['code'])
 	return render_template("CCI/create_company_cci_code.html", message_class='text-info', message = '')
 

@@ -70,7 +70,8 @@ def send_secret_code (username, code, mode) :
 	if data == dict() :
 		return None
 	if not data['phone'] :
-		Talao_message.messageAuth(data['email'], code, mode)
+        subject = 'Talao : Email authentification  '
+        Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 		print('Warning : code sent by email')
 		return 'email'
 	else :
@@ -79,7 +80,7 @@ def send_secret_code (username, code, mode) :
 	return 'sms'
 
 def check_login() :
-    #check if the user is correctly logged. This function is called everytime a user function is called 
+    #check if the user is correctly logged. This function is called everytime a user function is called
     if not session.get('username') :
         print('Warning : call abort 403')
         abort(403)
@@ -393,7 +394,7 @@ def user_accepts_company_partnership(mode):
         client_address = contractsToOwners(client_workspace_contract, mode)
         relay_private_key = privatekey.get_key(mode.relay_address,'private_key', mode)
         client_rsa_key = privatekey.get_key(client_address,'rsa_key', mode)
-        partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode, synchronous=False) 
+        partnershiprequest(mode.relay_address, mode.relay_workspace_contract, client_address, client_workspace_contract, relay_private_key, user_workspace_contract, client_rsa_key, mode, synchronous=False)
 
     # user accepts client request for partnership if not already partner
     if not is_partner(client_address, user_workspace_contract,mode) :
