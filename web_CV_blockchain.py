@@ -425,8 +425,16 @@ def resume(mode) :
 							carousel_rows_recommendation=carousel_rows_recommendation,
 							carousel_rows_education=carousel_rows_education,
 							carousel_rows_skill=carousel_rows_skill)
-
-	elif issuer_explore.type == 'company' :
+	else:
+		abor(403)
+# /board
+def board(mode):
+	""" This is always an external entry point"""
+	issuer_workspace_contract = request.args. get('workspace_contract')
+	if issuer_workspace_contract is None :
+		abort(403)
+	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
+	if issuer_explore.type == 'company' :
 		session['resume']= issuer_explore.__dict__
 		""" clean up """
 		del session['resume']['file_list']
@@ -610,6 +618,5 @@ def resume(mode) :
 							carousel_rows_reference=carousel_rows_reference,
                             competencies = my_competencies,
 							)
-	# issuer is a company
-	else :
-		abort(403)
+	else:
+		abor(403)
