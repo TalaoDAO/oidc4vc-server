@@ -146,6 +146,7 @@ app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certi
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/board/', view_func=web_CV_blockchain.board, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route fo Issuer explore
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -1829,7 +1830,10 @@ def download_pkcs12():
 
 @app.route('/user/download_QRCode/', methods=['GET', 'POST'])
 def download_QRCode():
-    QRCode.get_QRCode(mode,  mode.server + "resume/?workspace_contract=" + session['workspace_contract'])
+    if session['type'] == 'company':
+        QRCode.get_QRCode(mode,  mode.server + "board/?workspace_contract=" + session['workspace_contract'])
+    elif session['type'] == 'person':
+        QRCode.get_QRCode(mode,  mode.server + "resume/?workspace_contract=" + session['workspace_contract'])
     filename = 'External_CV_QRCode.png'
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)

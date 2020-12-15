@@ -465,21 +465,27 @@ def user(mode) :
 		session['phone'] = phone if phone else ""
 
 		if user.type == 'person' :
-			session['experience'] = user.experience
-			session['education'] = user.education
-			session['kyc'] = user.kyc
-			session['profil_title'] = user.profil_title
-		if user.type == 'company' :
-			session['kbis'] = user.kbis
-			session['profil_title'] = ""
-
-		session['menu'] = {'picturefile' : user.picture,
-							'username' : session['username'],
-							'name' : user.name,
-							'private_key_value' : user.private_key_value,
-							'rsa_filename': session['rsa_filename'],
-							'profil_title' : session['profil_title'],
-							'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
+            session['experience'] = user.experience
+            session['education'] = user.education
+            session['kyc'] = user.kyc
+            session['profil_title'] = user.profil_title
+            session['menu'] = {'picturefile' : user.picture,
+                                'username' : session['username'],
+                                'name' : user.name,
+                                'private_key_value' : user.private_key_value,
+                                'rsa_filename': session['rsa_filename'],
+                                'profil_title' : session['profil_title'],
+                                'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
+        if user.type == 'company' :
+            session['kbis'] = user.kbis
+            session['profil_title'] = ""
+            session['menu'] = {'picturefile' : user.picture,
+                                'username' : session['username'],
+                                'name' : user.name,
+                                'private_key_value' : user.private_key_value,
+                                'rsa_filename': session['rsa_filename'],
+                                'profil_title' : session['profil_title'],
+                                'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
 
 
 		# welcome message
