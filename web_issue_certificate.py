@@ -48,7 +48,8 @@ def send_secret_code (username, code, mode) :
 	if data == dict() :
 		return None
 	if data['phone'] is None :
-		Talao_message.messageAuth(data['email'], code, mode)
+        subject = 'Talao : Email authentification  '
+		Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 		print('Warning : secret code sent by email')
 		return 'email'
 	else :
@@ -185,7 +186,8 @@ def issue_certificate_for_guest(mode) :
 			session['try_number'] = 1
 
 		if session['issuer_username'] == 'new' :
-			Talao_message.messageAuth(session['issuer_email'], str(session['code']), mode)
+			subject = 'Talao : Email authentification  '
+			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 			return render_template('confirm_issue_certificate_for_guest.html')
 		else :
 			support = send_secret_code(session['issuer_username'], session['code'], mode)
@@ -308,14 +310,13 @@ def create_authorize_issue(mode) :
 		# Email to issuer
 		subject = 'Certificate has been issued to ' + session['talent_name']
 		link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
-		text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
-		Talao_message.certificate_issued_issuer(subject, session['issuer_email'], session['talent_name'], link, mode)
+		Talao_message.messageHTML(subject, session['issuer_email'], 'certificate_issued_issuer', {'name' : session['talent_name'], 'link':link}, mode)
 		if mode.test :
 			print('Success : msg to issuer sent')
 		# Email to talent
 		subject = 'A new Certificate has been issued to you'
 		talent_email = ns.get_data_from_username(session['talent_username'], mode)['email']
-		Talao_message.certificate_issued(subject, talent_email, session['talent_username'], link, mode)
+		Talao_message.messageHTML(subject, talent_email, 'certificate_issued', {'username' : session['talent_username'], 'link': link}, mode)
 		if mode.test :
 			print('Success : msg to user sent')
 		return render_template('login.html')
@@ -354,14 +355,13 @@ def create_authorize_issue_thread(username,
 	# send message to issuer
 	subject = 'A new certificate has been issued to ' + talent_name
 	link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
-	text = 'Hello,\r\nFollow the link to see the Certificate : ' + link
-	Talao_message.certificate_issued_issuer(subject, issuer_email, session['talent_name'], link, mode)
+	Talao_message.messageHTML(subject, issuer_email, 'certificate_issued_issuer', {'name' : session['talent_name'], 'link': link}, mode)
 	if mode.test :
 		print('Success : msg to issuer sent')
 	# send message to talent
 	subject = 'A new Certificate has been issued to you'
 	talent_email = ns.get_data_from_username(talent_username, mode)['email']
-	Talao_message.certificate_issued(subject, talent_email, talent_username, link, mode)
+	Talao_message.messageHTML(subject, talent_email, 'certificate_issued', {'username' : talent_username, 'link': link}, mode)
 	if mode.test :
 		print('Success : msg to user sent')
 	return

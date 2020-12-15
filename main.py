@@ -389,9 +389,12 @@ def view_job_offer() :
         elif offer_num == "4":
             job = '"Web Developer at LearnCube"'
         link = session['menu']['clipboard']
-        Talao_message.joboffer(subject, email, session['name'], job, link, mode)
-        flash('You have succesfulllly applied to this job offer', "success")
-        return redirect(mode.server + 'homepage/')
+        if Talao_message.messageHTML(subject, email, 'job_offer', {'job' : job, 'link': link, 'name' : session['name']}, mode):
+            flash('You have succesfulllly applied to this job offer', "success")
+            return redirect(mode.server + 'homepage/')
+        else:
+            flash('Something went wrong please try again or report the bug with the question mark on the bottom right of your screen', 'error')
+            return redirect(mode.server + 'homepage/')
 
 # Dashboard, Analysis, history
 @app.route('/user/data_analysis/', methods=['GET'])
@@ -907,10 +910,9 @@ def create_kyc() :
             flash('Transaction failed', 'danger')
         else :
             flash('New kyc added for '+ kyc_username, 'success')
-            text =     "\r\nYour Proof of Identity has been issued by Talao.\r\nCheck your Identity on " + mode.server + 'login/'
             subject = 'Your proof of Identity'
             kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-            Talao_message.POI_issued(subject, kyc_email, mode)
+            Talao_message.messageHTML(subject, kyc_email,'POI_issued', {None}, mode)
         return redirect(mode.server + 'user/')
 
 
@@ -954,7 +956,7 @@ def create_skill_certificate() :
             link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract_to[2:] + ':document:' + str(doc_id)
             subject = 'Your skill certificate'
             identity_email = ns.get_data_from_username(identity_username, mode)['email']
-            Talao_message.certificate_issued(subject, identity_email, identity_username, link, mode)
+            Talao_message.messageHTML(subject, identity_email, 'certificate_issued', {'username': identity_username, 'link': link}, mode)
         return redirect(mode.server + 'user/')
 
 # remove kyc
@@ -1213,7 +1215,7 @@ def invit() :
             return redirect(mode.server + 'user/')
         subject = 'You have been invited to join Talao'
         name = session['personal']['firstname']['claim_value'] + session['personal']['lastname']['claim_value']
-        execution = Talao_message.invite(subject, talent_email, name, mode)
+        execution = Talao_message.messageHTML(subject, talent_email, 'invite_to_join', {'name':name}, mode)
         if execution :
             flash('Your invit has been sent', 'success')
         else :
@@ -1232,7 +1234,7 @@ def send_memo() :
         subject = "You have received a memo from " + session['name'] +"."
         memo = request.form['memo']
         memo_email = ns.get_data_from_username(session['memo_username'], mode)['email']
-        Talao_message.memo(subject, memo_email, session['name'], memo, mode)
+        Talao_message.messageHTML(subject, memo_email, 'memo', {'name': session['name'], 'memo':memo}, mode)
         # message to user
         flash("Your memo has been sent to " + session['memo_username'], 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['memo_username'])
@@ -1294,7 +1296,7 @@ def resquest_partnership() :
                     '',
                     'Des informations complémentaires sur ' + session['name'] + ' sont disponibles ici ' + session['menu']['clipboard']])
             partner_email = ns.get_data_from_username(session['partner_username'], mode)['email']
-            Talao_message.request_partnership(subject, partner_email, session['name'], mode)
+            Talao_message.messageHTML(subject, partner_email, 'request_partnership', {'name' : session['name']}, mode)
         else :
             flash('Request to ' + session['partner_username'] + ' failed', 'danger')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['issuer_username'])
@@ -1339,7 +1341,7 @@ def reject_partner() :
             # email to partner
             subject = "Your Request for Partnership has been rejected by " + session['name']
             partner_email = ns.get_data_from_username(session['partner_username_to_reject'], mode)['email']
-            Talao_message.request_partnership_rejected(subject, partner_email, session['name'], "", mode)
+            Talao_message.messageHTML(subject, partner_email, 'request_partnership_rejected', {'name' : session['name'], 'text' : text}, mode)
         del session['partner_username_to_reject']
         del session['partner_workspace_contract_to_reject']
         return redirect (mode.server +'user/')
@@ -1448,7 +1450,7 @@ def request_recommendation_certificate() :
                     " through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ",
                     url])
     subject = 'You have received a request for recommendation from '+ session['name']
-    Talao_message.request_certificate(subject, session['issuer_email'], session['name'], url, mode)
+    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
     # message to user vue
     flash('Your request for Recommendation has been sent.', 'success')
     del session['issuer_email']
@@ -1490,7 +1492,7 @@ def request_experience_certificate() :
                      session['name'],
                      " through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ", url])
     subject = 'You have received a request for certification from '+ session['name']
-    Talao_message.request_certificate(subject, session['issuer_email'], text, mode)
+    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['issuer_email'], 'link' : url}, mode)
     # message to user/Talent
     flash('Your request for an Experience Certificate has been sent.', 'success')
     del session['issuer_email']
@@ -1629,9 +1631,8 @@ def request_proof_of_identity() :
 
         # email to user/Talent
         subject = "Your request for a proof of Identity has been sent."
-        text = " You will receive an email soon."
         user_email = ns.get_data_from_username(session['username'], mode)['email']
-        Talao_message.request_POI_sent(subject, user_email, mode)
+        Talao_message.messageHTML(subject, user_email, 'request_POI_sent', {None}, mode)
         # email with files to Admin
         message = 'Request for proof of identity for ' + session['username'] + '\r\nEmail = ' + request.form.get('email', 'off') + '\r\nPhone = ' + request.form.get('phone', 'off')
         filename_list = [session['username'] + "_ID." + id_file_name, session['username'] + "_selfie." + selfie_file_name]
@@ -1663,9 +1664,8 @@ def add_issuer() :
                 subject = "Your company has been chosen by " + session['name'] + " as a Referent."
             else :
                 subject = "You have been chosen by " + session['name'] + " as a Referent."
-            text = " You can now issue Certficates to " + session['name'] + ". Go to " + mode.server +"login/ to proceed."
             issuer_email = ns.get_data_from_username(session['referent_username'], mode)['email']
-            Talao_message.added_referent(subject, issuer_email, session['name'], mode)
+            Talao_message.messageHTML(subject, issuer_email, 'added_referent', {'name' : session['name']}, mode)
             # message to user
             flash(session['referent_username'] + ' has been added as a Referent. An email has been sent too.', 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
