@@ -307,7 +307,7 @@ def use_my_own_address(mode) :
 	return redirect(mode.server + 'user/')
 
 ############################################################################################
-#         DATA
+#		 DATA
 ############################################################################################
 """ on ne gere aucune information des data en session """
 #@app.route('/data/', methods=['GET'])
@@ -406,7 +406,7 @@ def data(mode) :
 
 
 #######################################################################################
-#                        USER
+#						USER
 #######################################################################################
 
 """ fonction principale d'affichage de l identité """
@@ -465,27 +465,27 @@ def user(mode) :
 		session['phone'] = phone if phone else ""
 
 		if user.type == 'person' :
-            session['experience'] = user.experience
-            session['education'] = user.education
-            session['kyc'] = user.kyc
-            session['profil_title'] = user.profil_title
-            session['menu'] = {'picturefile' : user.picture,
-                                'username' : session['username'],
-                                'name' : user.name,
-                                'private_key_value' : user.private_key_value,
-                                'rsa_filename': session['rsa_filename'],
-                                'profil_title' : session['profil_title'],
-                                'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
-        if user.type == 'company' :
-            session['kbis'] = user.kbis
-            session['profil_title'] = ""
-            session['menu'] = {'picturefile' : user.picture,
-                                'username' : session['username'],
-                                'name' : user.name,
-                                'private_key_value' : user.private_key_value,
-                                'rsa_filename': session['rsa_filename'],
-                                'profil_title' : session['profil_title'],
-                                'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
+			session['experience'] = user.experience
+			session['education'] = user.education
+			session['kyc'] = user.kyc
+			session['profil_title'] = user.profil_title
+			session['menu'] = {'picturefile' : user.picture,
+								'username' : session['username'],
+								'name' : user.name,
+								'private_key_value' : user.private_key_value,
+								'rsa_filename': session['rsa_filename'],
+								'profil_title' : session['profil_title'],
+								'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
+		if user.type == 'company' :
+			session['kbis'] = user.kbis
+			session['profil_title'] = ""
+			session['menu'] = {'picturefile' : user.picture,
+								'username' : session['username'],
+								'name' : user.name,
+								'private_key_value' : user.private_key_value,
+								'rsa_filename': session['rsa_filename'],
+								'profil_title' : session['profil_title'],
+								'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
 
 
 		# welcome message
@@ -778,7 +778,7 @@ def user(mode) :
 					access_html = """
 					<span>""" + access['username'] + """ : """ +  access['email'] +"""
 						<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
-							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
+							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 						</a>
 					</span>"""
 				my_access = my_access + access_html + """<br>"""
@@ -858,7 +858,7 @@ def user(mode) :
 					access_html = """
 					<span>""" + access['username'] + """ : """ +  access['email'] +"""
 					<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
+						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 					</a>
 					</span>"""
 				my_access = my_access + access_html + """<br>"""
@@ -1032,7 +1032,7 @@ def user_advanced(mode) :
 				access_html = """
 				<span>""" + access['username'] + """ : """ +  access['email'] +"""
 						<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
-							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">    </i>
+							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 						</a>
 					</span>"""
 			my_access = my_access + access_html + """<br>"""
