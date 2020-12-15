@@ -368,6 +368,8 @@ def _get_data_for_login(username, mode) :
 		return host, email, phone, password
 
 def username_exist(username, mode) :
+	if not username :
+		return False
 	return  False if _get_data(username,mode) is None else True
 
 def get_data_from_username(username, mode) :

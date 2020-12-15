@@ -1067,7 +1067,7 @@ def create_company() :
         # code is correct
         if request.args.get('two_factor') == "True" :
             workspace_contract =  createcompany.create_company(session['company_email'], session['company_username'], mode, siren=session['company_siren'])[2]
-            if workspcae_contract :
+            if workspace_contract :
                 Claim().relay_add(workspace_contract, 'name', session['company_name'], 'public', mode)
                 directory.add_user(mode, session['company_name'], session['company_username'], session['company_siren'])
                 flash(session['company_username'] + ' has been created as company', 'success')
@@ -1289,12 +1289,6 @@ def resquest_partnership() :
             flash('You have send a Request for Partnership to ' + session['partner_username'], 'success')
             # partner email
             subject = session['name'] + " souhaite accéder aux données privées de votre Identité Talao"
-            text = "\r\n".join(['',
-                    'Vous pouvez accepter ou refuser sa demande en allant sur ' + mode.server,
-                    """Dans votre menu, choisissez l'option 'Advanced', puis l'option 'Partner List'.""",
-                    'Acceptez ou refusez sa demande en cliquant sur un des icons.',
-                    '',
-                    'Des informations complémentaires sur ' + session['name'] + ' sont disponibles ici ' + session['menu']['clipboard']])
             partner_email = ns.get_data_from_username(session['partner_username'], mode)['email']
             Talao_message.messageHTML(subject, partner_email, 'request_partnership', {'name' : session['name']}, mode)
         else :
@@ -1341,6 +1335,7 @@ def reject_partner() :
             # email to partner
             subject = "Your Request for Partnership has been rejected by " + session['name']
             partner_email = ns.get_data_from_username(session['partner_username_to_reject'], mode)['email']
+            text = ""
             Talao_message.messageHTML(subject, partner_email, 'request_partnership_rejected', {'name' : session['name'], 'text' : text}, mode)
         del session['partner_username_to_reject']
         del session['partner_workspace_contract_to_reject']
@@ -1360,8 +1355,7 @@ def authorize_partner() :
             del session['partner_username_to_authorize']
             del session['partner_workspace_contract_to_authorize']
             return redirect (mode.server +'user/')
-        res= authorize_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_authorize'], session['rsa_key_value'], mode)
-        if not res :
+        if not authorize_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_authorize'], session['rsa_key_value'], mode) :
             flash ('Partnership authorize has failed', 'danger')
         else :
             flash('The partnership with '+session['partner_username_to_authorize']+ '  has been authorized', 'success')
@@ -1423,11 +1417,9 @@ def request_certificate() :
 def request_recommendation_certificate() :
     """ With this view one sends an email with link to the Referent"""
     check_login()
-    memo = request.form.get('memo')
     issuer_username = 'new' if session.get('certificate_issuer_username') is None else session['certificate_issuer_username']
     issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
     issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
-
     # email to Referent/issuer
     payload = {'issuer_email' : session['issuer_email'],
                     'issuer_username' : issuer_username,
@@ -1438,17 +1430,12 @@ def request_recommendation_certificate() :
                     'talent_username' : session['username'],
                     'talent_workspace_contract' : session['workspace_contract']
                     }
+    # build JWT
     header = {'alg': 'RS256'}
     key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
     token = jwt.encode(header, payload, key).decode('utf-8')
+    # build email
     url = mode.server + 'issue/?token=' + token
-    if memo == "" or memo is None :
-        memo = "Hello,"
-    text = "".join([memo,
-                    "\r\n\r\nYou can follow this link to issue a certificate to ",
-                    session['name'],
-                    " through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ",
-                    url])
     subject = 'You have received a request for recommendation from '+ session['name']
     Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
     # message to user vue
@@ -1464,7 +1451,6 @@ def request_experience_certificate() :
     """ This is to send the email with link """
     check_login()
     # email to Referent/issuer
-    memo = request.form.get('memo')
     issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
     issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
     issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
@@ -1481,16 +1467,12 @@ def request_experience_certificate() :
              'issuer_username' : issuer_username,
              'issuer_workspace_contract' : issuer_workspace_contract,
              'issuer_name' : issuer_name}
+    # build JWT for link
     header = {'alg': 'RS256'}
     key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
     token = jwt.encode(header, payload, key).decode('utf-8')
+    # build email
     url = mode.server + 'issue/?token=' + token
-    if memo == "" or memo is None :
-        memo = "Hello,"
-    text = "".join([memo,
-                    "\r\n\r\nYou can follow this link to issue a certificate to ",
-                     session['name'],
-                     " through the Talao platform.\r\n\r\nThis certificate will be stored on a Blockchain decentralized network. Data will be tamper proof and owned by Talent.\r\n\r\nFollow this link to proceed : ", url])
     subject = 'You have received a request for certification from '+ session['name']
     Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['issuer_email'], 'link' : url}, mode)
     # message to user/Talent
@@ -1502,7 +1484,7 @@ def request_experience_certificate() :
     else :
         return redirect(mode.server + 'user/')
 
-# add alias (Username)
+# add alias (alternative Username for user as a person )
 @app.route('/user/add_alias/', methods=['GET', 'POST'])
 def add_alias() :
     check_login()
@@ -1540,14 +1522,6 @@ def import_private_key() :
     if request.method == 'GET' :
         return render_template('import_private_key.html', **session['menu'])
     if request.method == 'POST' :
-        data = {'username' : session['username'],
-                'address' : session['address'],
-                'created' : str(datetime.today()),
-                'private_key' : request.form['private_key'],
-                'workspace_contract' : session['workspace_contract'],
-                'email' : ns.get_data_from_username(session['username'], mode)['email'],
-                'secret' : None,
-                'aes' : None}
         priv_key_bytes = decode_hex(request.form['private_key'])
         priv_key = keys.PrivateKey(priv_key_bytes)
         pub_key = priv_key.public_key

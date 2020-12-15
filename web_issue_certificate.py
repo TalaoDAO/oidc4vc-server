@@ -19,6 +19,7 @@ from authlib.jose import jwt
 from Crypto.PublicKey import RSA
 
 import createidentity
+import createcompany
 import Talao_message
 import ns
 import privatekey
@@ -29,7 +30,7 @@ exporting_threads = {}
 
 # Multithreading
 class ExportingThread(threading.Thread):
-	def __init__(self, username, issuer_email, issuer_firstname, issuer_lastname, workspace_contract, talent_name, talent_username, certificate, mode) :
+	def __init__(self, username, issuer_email, issuer_firstname, issuer_lastname, workspace_contract, talent_name, talent_username, certificate, company_name, mode) :
 		super().__init__()
 		self.username = username
 		self.issuer_email = issuer_email
@@ -39,16 +40,26 @@ class ExportingThread(threading.Thread):
 		self.talent_name = talent_name
 		self.talent_username = talent_username
 		self.certificate = certificate
+		self.company_name = company_name
 		self.mode = mode
 	def run(self):
-		create_authorize_issue_thread(self.username, self.issuer_email, self.issuer_firstname, self.issuer_lastname, self.workspace_contract, self.talent_name, self.talent_username, self.certificate, self.mode)
+		create_authorize_issue_thread(self.username,
+										self.issuer_email,
+										self.issuer_firstname,
+										self.issuer_lastname,
+										self.workspace_contract,
+										self.talent_name,
+										self.talent_username,
+										self.certificate,
+										self.company_name,
+										self.mode)
 
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if data == dict() :
 		return None
-	if data['phone'] is None :
-        subject = 'Talao : Email authentification  '
+	if not data['phone'] :
+		subject = 'Talao : Email authentification  '
 		Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
 		print('Warning : secret code sent by email')
 		return 'email'
@@ -71,7 +82,7 @@ def issue_certificate_for_guest(mode) :
 
 	if request.method == 'GET' :
 		session.clear()
-		# test if url is fine and setup datan decode JWT with Talao public RSA key
+		# test if url is fine and decode JWT with Talao public RSA key
 		try :
 			btoken = bytes(request.args.get('token'), 'utf-8')
 			private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
@@ -80,8 +91,10 @@ def issue_certificate_for_guest(mode) :
 			token = jwt.decode(btoken, public_rsa_key)
 		except :
 			flash("Link error, Check the url", 'warning')
-			print('Error : decode token in /issue/')
+			print('Error : decode JWT in /issue/')
 			return redirect(mode.server + 'login/')
+
+		# issuer call is clean (token ok)
 		session['certificate_type'] = token['certificate_type']
 		session['issuer_email'] = token['issuer_email']
 		session['url'] = request.url
@@ -91,24 +104,20 @@ def issue_certificate_for_guest(mode) :
 		session['talent_username'] = token['talent_username']
 		session['talent_name'] = token['talent_name']
 		session['talent_workspace_contract'] = token['talent_workspace_contract']
+		issuer_firstname = Claim().get_by_topic_name(None, None, session['issuer_workspace_contract'],'firstname', mode).claim_value if session['issuer_username'] != "new"  else ""
+		issuer_lastname = Claim().get_by_topic_name(None, None, session['issuer_workspace_contract'], 'lastname', mode).claim_value if session['issuer_username'] != "new"  else ""
+		session['personal'] = {'issuer_firstname' : issuer_firstname, 'issuer_lastname' : issuer_lastname}
 
-		# Check if certificate has already been issued (we only test if the issuer exists.....to be changed later)
+		# Check if certificate has already been issued (we only test if the issuer exists.....)
 		issuer_list = ns.get_username_list_from_email(session['issuer_email'], mode)
 		if session['issuer_username'] == "new" and issuer_list != [] :
-			flash("Certificate already issued.", 'warning')
+			flash("Certificate already issued or issuer exists.", 'warning')
 			return redirect(mode.server + 'login/')
 
 		# Dispatch starts here
 		if session['certificate_type'] == 'experience' :
-			if session['issuer_username'] != 'new' :
-				print('Warning : workspace_contract = ', session['issuer_workspace_contract'])
-				session['issuer_logo'] = get_image(session['issuer_workspace_contract'], 'logo', mode)
-				session['issuer_signature'] = get_image(session['issuer_workspace_contract'], 'signature', mode)
-				print ('Warning : logo = ', session['issuer_logo'], 'signature = ', session['issuer_signature'])
-			else :
-				session['issuer_logo'] = None
-				session['issuer_signature'] = None
-			personal = get_issuer_personal(mode)
+			session['issuer_logo'] = get_image(session['issuer_workspace_contract'], 'logo', mode) if session['issuer_username'] != 'new' else None
+			session['issuer_signature'] = get_image(session['issuer_workspace_contract'], 'signature', mode) if session['issuer_username'] != 'new' else None
 			return render_template('issue_experience_certificate_for_guest.html',
 						start_date = token['start_date'],
 						end_date = token['end_date'],
@@ -117,21 +126,14 @@ def issue_certificate_for_guest(mode) :
 						skills=token['skills'],
 						talent_name=session['talent_name'],
 						issuer_name=session['issuer_name'],
-						**personal)
+						**session['personal'])
 
 		elif session['certificate_type'] == 'recommendation' :
-			if session['issuer_username'] != 'new' :
-				session['issuer_picture'] = get_image(session['issuer_workspace_contract'], 'picture', mode)
-				title_claim = Claim()
-				title_claim.get_by_topic_name(None, None,session['issuer_workspace_contract'],'profil_title', mode)
-				session['issuer_title'] = title_claim.claim_value
-			else :
-				session['issuer_title'] = None
-				session['issuer_picture'] = None
-			personal = get_issuer_personal(mode)
+			session['issuer_picture'] = get_image(session['issuer_workspace_contract'], 'picture', mode)if session['issuer_username'] != 'new' else None
+			session['issuer_title'] = Claim().get_by_topic_name(None, None,session['issuer_workspace_contract'],'profil_title', mode).claim_value if session['issuer_username'] != 'new' else None
 			return render_template('issue_recommendation_for_guest.html',
 									talent_name = session['talent_name'],
-									**personal)
+									**session['personal'])
 
 		else :
 			flash("Certififcate type not available yet", 'warning')
@@ -157,9 +159,8 @@ def issue_certificate_for_guest(mode) :
 			session['description'] = request.form['description']
 			session['issuer_firstname'] =request.form['issuer_firstname']
 			session['issuer_lastname'] = request.form['issuer_lastname']
-			firstname_claim = Claim()
-			firstname_claim.get_by_topic_name(None, None,session['talent_workspace_contract'],'firstname', mode)
-			talent_firstname = firstname_claim.claim_value
+			session['company_name'] = None
+			talent_firstname = Claim().get_by_topic_name(None, None,session['talent_workspace_contract'],'firstname', mode).claim_value
 			relationship = request.form['relationship']
 			if relationship == "1" :
 				session['relationship'] = session['issuer_firstname'] +   ' managed ' + talent_firstname + ' directly.'
@@ -180,18 +181,18 @@ def issue_certificate_for_guest(mode) :
 			flash("Session aborted", 'warning')
 			return redirect(mode.server + 'login/')
 
-		if session.get('code') is None :
+		if not session.get('code') :
 			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			session['try_number'] = 1
 
 		if session['issuer_username'] == 'new' :
 			subject = 'Talao : Email authentification  '
-			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
+			Talao_message.messageHTML(subject, session['issuer_email'], 'code_auth', {'code' : session['code']}, mode)
 			return render_template('confirm_issue_certificate_for_guest.html')
 		else :
 			support = send_secret_code(session['issuer_username'], session['code'], mode)
-			if support is None :
+			if not support :
 				flash("Session aborted", 'warning')
 				print('Warning : support is None dans web_issue_certificate')
 				return render_template('login.html')
@@ -200,27 +201,11 @@ def issue_certificate_for_guest(mode) :
 				flash("Secret Code already sent by " + support, 'success')
 			return render_template('confirm_issue_certificate_for_user_as_guest.html', support=support)
 
-def get_issuer_personal(mode) :
-		 # it is not an issuer creation
-		if session['issuer_username'] != "new" :
-			firstname_claim = Claim()
-			lastname_claim = Claim()
-			firstname_claim.get_by_topic_name(None, None, session['issuer_workspace_contract'],'firstname', mode)
-			lastname_claim.get_by_topic_name(None, None, session['issuer_workspace_contract'], 'lastname', mode)
-			issuer_firstname = firstname_claim.claim_value
-			issuer_lastname = lastname_claim.claim_value
-		 # it is an issuer creation
-		else :
-			issuer_firstname = ""
-			issuer_lastname = ""
-		return {'issuer_firstname' : issuer_firstname,
-				'issuer_lastname' : issuer_lastname}
-
 #@app.route('/issue/create_authorize_issue/', methods=['GET', 'POST'])
 def create_authorize_issue(mode) :
 	""" Its a GUEST screen ,
 	After confirmation view
-	We create the Identity, then the Talent issues the key 20002 to the issuer then the issuer issues the certificate"""
+	We create the Identity for issuer (and eventually for company), then the Talent issues the key 20002 to the issuer then the issuer issues the certificate"""
 
 	# verif secret code sent by email
 	if session.get('code') is None :
@@ -275,7 +260,7 @@ def create_authorize_issue(mode) :
 			"title" : session['issuer_title'],
 			}
 
-	# New user, call to thread to authorize, issue and create
+	# New user and company, call to thread to authorize, issue and create
 	if session['issuer_username'] == "new" :
 		issuer_username = ns.build_username(session['issuer_firstname'], session['issuer_lastname'], mode)
 		thread_id = str(random.randint(0,10000 ))
@@ -286,6 +271,7 @@ def create_authorize_issue(mode) :
 														session['talent_workspace_contract'],
 														session['talent_name'],
 														session['talent_username'],
+														session['company_name'],
 														certificate,
 														mode)
 		exporting_threads[thread_id].start()
@@ -296,29 +282,32 @@ def create_authorize_issue(mode) :
 		my_certificate = Document('certificate')
 		issuer_workspace_contract = session['issuer_workspace_contract']
 		issuer_address = contractsToOwners(issuer_workspace_contract, mode)
+
 		# get private key for issuer
 		issuer_private_key = privatekey.get_key(issuer_address,'private_key', mode)
-		if issuer_private_key is None :
+		if not issuer_private_key  :
 			print('Error : private kay not found for ', session['issuer_username'])
 			flash('Sorry, the Certificate cant be issued, no Private Key found', 'warning')
 			return render_template('login.html')
 		workspace_contract = session['talent_workspace_contract']
 		address = contractsToOwners(session['talent_workspace_contract'],mode)
 		doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True)[0]
+
 		# message to issuer
 		flash('Thank you, the Certificate has been issued', 'success')
+
 		# Email to issuer
 		subject = 'Certificate has been issued to ' + session['talent_name']
 		link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
 		Talao_message.messageHTML(subject, session['issuer_email'], 'certificate_issued_issuer', {'name' : session['talent_name'], 'link':link}, mode)
-		if mode.test :
-			print('Success : msg to issuer sent')
+		print('Success : msg to issuer sent')
+
 		# Email to talent
 		subject = 'A new Certificate has been issued to you'
 		talent_email = ns.get_data_from_username(session['talent_username'], mode)['email']
 		Talao_message.messageHTML(subject, talent_email, 'certificate_issued', {'username' : session['talent_username'], 'link': link}, mode)
-		if mode.test :
-			print('Success : msg to user sent')
+		print('Success : msg to user sent')
+
 		return render_template('login.html')
 
 # this is a Thread function to create Identity and issue certificates
@@ -330,38 +319,67 @@ def create_authorize_issue_thread(username,
 									talent_name,
 									talent_username,
 									certificate,
+									company_name,
 									mode) :
-	if mode.test :
-		print('Warning : thread init')
-	issuer_address,issuer_private_key, issuer_workspace_contract = createidentity.create_user(username, issuer_email, mode)
-	if issuer_workspace_contract is None :
-		print('Error : thread to create new identity failed')
+	# create user identity
+	print('Warning : call create identity for user')
+	issuer_address,issuer_private_key, issuer_workspace_contract = createidentity.create_user(username, issuer_email, mode, firstname=issuer_firstname, lastname=issuer_lastname)
+	if not issuer_workspace_contract  :
+		print('Error : create new identity failed')
 		return
-	#  update firtname and lastname
-	Claim().relay_add( issuer_workspace_contract,'firstname', issuer_firstname, 'public', mode)
-	Claim().relay_add( issuer_workspace_contract,'lastname', issuer_lastname, 'public', mode)
-	if mode.test :
-		print('Success : firstname andlastname updated')
-	#authorize the new issuer to issue documents (ERC725 key 20002)
-	address = contractsToOwners(workspace_contract, mode)
-	add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, issuer_address, 20002, mode, synchronous=True)
-	if mode.test :
+
+	# create company identity if company is the issuer and company does not exist
+	if company_name :
+		if not ns.username_exist(company_name.lower(), mode) :
+
+			print('Warning : call create identity for company')
+			company_address, company_private_key, company_workspace_contract = createcompany.create_company(issuer_email, username, mode, name=company_name)
+			if not issuer_workspace_contract  :
+				print('Error : create new identity failed')
+				return
+
+			#authorize the new company to issue documents (ERC725 key 20002)
+			address = contractsToOwners(workspace_contract, mode)
+			add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, company_address, 20002, mode)
+			print('Success : key 20002 issued to for company')
+
+			# build certificate and company issues certificate
+			my_certificate = Document('certificate')
+			doc_id = my_certificate.add(company_address, company_workspace_contract, address, workspace_contract, company_private_key, certificate, mode, mydays=0, privacy='public')[0]
+			print('Success : certificate issued by company')
+
+			# send message to company 
+			subject = 'A new certificate has been issued to ' + talent_name
+			link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
+			Talao_message.messageHTML(subject, issuer_email, 'certificate_issued_issuer', {'name' : session['talent_name'], 'link': link}, mode)
+			print('Success : msg to issuer sent')
+
+		else :
+			print('Warning : company already exist, cannot issue certificate')
+			return
+
+	else : # issuer is a person
+
+		#authorize the new issuer to issue documents (ERC725 key 20002)
+		address = contractsToOwners(workspace_contract, mode)
+		add_key(mode.relay_address, mode.relay_workspace_contract, address, workspace_contract, mode.relay_private_key, issuer_address, 20002, mode)
 		print('Success : key 20002 issued')
-	# build certificate and issue
-	my_certificate = Document('certificate')
-	doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public', synchronous=True)[0]
-	if mode.test :
+
+		# build certificate and issue
+		my_certificate = Document('certificate')
+		doc_id = my_certificate.add(issuer_address, issuer_workspace_contract, address, workspace_contract, issuer_private_key, certificate, mode, mydays=0, privacy='public')[0]
 		print('Success : certificate issued')
-	# send message to issuer
-	subject = 'A new certificate has been issued to ' + talent_name
-	link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
-	Talao_message.messageHTML(subject, issuer_email, 'certificate_issued_issuer', {'name' : session['talent_name'], 'link': link}, mode)
-	if mode.test :
+
+		# send message to issuer
+		subject = 'A new certificate has been issued to ' + talent_name
+		link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:] + ':document:' + str(doc_id)
+		Talao_message.messageHTML(subject, issuer_email, 'certificate_issued_issuer', {'name' : session['talent_name'], 'link': link}, mode)
 		print('Success : msg to issuer sent')
-	# send message to talent
+
+	# send message to user/company
 	subject = 'A new Certificate has been issued to you'
 	talent_email = ns.get_data_from_username(talent_username, mode)['email']
 	Talao_message.messageHTML(subject, talent_email, 'certificate_issued', {'username' : talent_username, 'link': link}, mode)
-	if mode.test :
-		print('Success : msg to user sent')
+	print('Success : msg to user sent')
+
 	return

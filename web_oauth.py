@@ -66,18 +66,18 @@ def resolver(mode):
         return response
 
 def send_secret_code (username, code, mode) :
-	data = ns.get_data_from_username(username, mode)
-	if data == dict() :
-		return None
-	if not data['phone'] :
+    data = ns.get_data_from_username(username, mode)
+    if data == dict() :
+        return None
+    if not data['phone'] :
         subject = 'Talao : Email authentification  '
         Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
-		print('Warning : code sent by email')
-		return 'email'
-	else :
-		print('Warning : code sent by sms')
-		sms.send_code(data['phone'], code, mode)
-	return 'sms'
+        print('Warning : code sent by email')
+        return 'email'
+    else :
+        print('Warning : code sent by sms')
+        sms.send_code(data['phone'], code, mode)
+    return 'sms'
 
 def check_login() :
     #check if the user is correctly logged. This function is called everytime a user function is called
@@ -802,8 +802,8 @@ def oauth_issue_reference(mode):
         response_dict = {'detail' : 'Your company is not in the user referent list'}
         response = Response(json.dumps(response_dict), status=400, mimetype='application/json')
         return response
-    user_profil, c = read_profil(user_workspace_contract, mode, 'full')
-    client_profil, c = read_profil(client_workspace_contract, mode, 'full')
+    user_profil = read_profil(user_workspace_contract, mode, 'full')[0]
+    client_profil = read_profil(client_workspace_contract, mode, 'full')[0]
     certificate['type'] = 'reference'
     certificate['version'] = 1
     certificate["issued_by"]  = {
