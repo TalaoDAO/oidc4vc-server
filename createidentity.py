@@ -170,12 +170,14 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 		if not update_self_claims(address, private_key, {'firstname': firstname, 'lastname' : lastname}, mode) :
 			print('Error : firstname and lastname not updated')
 		print('Success : firstname and lastname updated')
+
+	# key 1 issued to Web Relay to act as agent.
+	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
+
 	return address, private_key, workspace_contract
 
 
 def _create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,) :
-	# key 1 issued to Web Relay to act as agent.
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
 
 	# key 5 to Talao be in  White List
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode)

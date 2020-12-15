@@ -166,7 +166,7 @@ def login_authentification(mode) :
 		return render_template('login.html')
 	code = request.form['code']
 	session['try_number'] +=1
-	print('Warning : code retourné = ', code)
+	print('Warning : code received = ', code)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if code in authorized_codes and datetime.now() < session['code_delay'] :
 		session['username'] = session['username_to_log']

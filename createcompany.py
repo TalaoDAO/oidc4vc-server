@@ -150,16 +150,17 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 	if siren and not name :
 		Claim().relay_add(workspace_contract, 'siren', siren, 'public', mode)
 
+	# For setup of new chain one need to first create workspaces for Relay and Talao
+	if username != 'relay' and username != 'talao' :
+		# management key (1) issued to Relay
+		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
+
 	print("Warning : end of step 1")
 	return address, private_key, workspace_contract
 
 
 def _create_company_step_2(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email) :
 
-	# For setup of new chain one need to first create workspaces for Relay and Talao
-	if username != 'relay' and username != 'talao' :
-		# management key (1) issued to Relay
-		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
 	if username == 'relay' :
 		# one stores relay address for Talao workspace setup
 		relay_address = address
