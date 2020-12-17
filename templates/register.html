@@ -62,7 +62,11 @@
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
-                                                <div class="form-group">
+                                                <div class="form-group"><input class="form-control" title="International phone numbers start with +, then country code and national phone number" 
+                                                    pattern="\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$"
+                                                     placeholder="International phone number" value="{{phone}}" name="phone" required ></div>
+
+                                             <!--   <div class="form-group">  
                                                     <div class="form-row">
                                                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                                                             <select name="code" class="form-control">
@@ -73,7 +77,8 @@
                                                         </div>
                                                         <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8"><input title="Leave this field blank and update if you want to delete your phone number." placeholder="Phone number" class="form-control" type="text" name="phone" required></div>
                                                     </div>
-                                                </div>
+                                                </div>-->
+
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
                                                     <label style="color: rgb(133,135,150);" title="The name directory is used to provide suggestion in the search bar. It links your username with your firstname and lastname. " >I accept to have my name in the Name Directory</label>

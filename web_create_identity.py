@@ -35,7 +35,8 @@ def register(mode) :
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
-		session['phone'] = request.form['code'] + request.form['phone']
+		#session['phone'] = request.form['code'] + request.form['phone']
+		session['phone'] = request.form['phone']
 		session['search'] = request.form.get('CheckBox')
 		try :
 			if not sms.check_phone(session['phone'], mode) :

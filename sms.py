@@ -15,13 +15,12 @@ def send_code(phone, code, mode) :
 	for result in send_results:
 		print(result.id, result.points, result.error)
 	return True
-   
 
 def check_phone(phone, mode) :
 	token = mode.sms_token
 	client = SmsApiComClient(access_token=token)
 	try:
-		client.sms.send(to=phone, message="Your phone number has been checked.")
+		client.sms.send(to=phone, message="Your phone number has been verified.")
 		return True
 	except SmsApiException as e:
 		print(e.message, e.code)

@@ -80,6 +80,9 @@ if not mychain or not myenv :
     print('Error : environment variables missing')
     print('Error : export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
     exit()
+if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
+    print('Error : wrong chain')
+    exit()
 
 # Environment setup
 print('Success : start to init environment')
@@ -92,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.15.12"
+VERSION = "0.15.13"
 API_SERVER = True
 
 # Flask and Session setup
