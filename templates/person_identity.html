@@ -188,7 +188,8 @@
 
                     <div class="card-body">
                       <!-- <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><i title="New certificate." style="font-size: 20px;"  class="fas fa-plus fa-lg"></i></a></h4>	-->
-                      <h4 class="text-center">{{nb_certificates}} Certificates <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-light btn-sm" type="button">Request New Certificate</button></a></h4>
+                      <h4 class="text-center">{{nb_certificates}} Certificates 
+                         <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-primary btn-sm" type="button">Request New Certificate</button></a></h4>
                       {% if session['certificate'] == [] %}
                       <div style="height:50px;overflow:auto;overflow-x: hidden;">
                         <p class="card-text">{{certificates|safe}}</p>

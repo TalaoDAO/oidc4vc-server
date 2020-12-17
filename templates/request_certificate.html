@@ -22,7 +22,11 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                                                                          {% include 'user_nav_bar.html' %}
+              {% if session['type'] == "company" %}
+              {% include 'company_nav_bar.html' %}
+              {% else %}
+              {% include 'user_nav_bar.html' %}
+              {% endif %}
 
         <div class="container-fluid  mt-3">
             <div class="row mb-3">
@@ -45,10 +49,15 @@
                                         {% endif %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Certificate Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
-												<option value="experience" >Experience Certificate</option>
+                        {% if session['type'] == "company" %}
+                        <option value="agreement">Agreement Certificate</option>
+                        <option value="reference">Reference Certificate</option>
+                        {% else %}
+                        <option value="experience" >Experience Certificate</option>
 												{% if reco %}
 												<option value="recommendation">Recommendation Certificate</option>
 												{% endif %}
+                        {% endif %}                        
 											</select></div>
                                     </div>
                                 </div>

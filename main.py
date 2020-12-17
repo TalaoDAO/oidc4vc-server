@@ -1093,7 +1093,7 @@ def create_company() :
         if ns.username_exist(session['company_username'], mode)   :
             session['company_username'] = session['company_username'] + str(random.randint(1, 100))
         # call the two factor checking function :
-        return redirect(mode.server + 'user/two_factor/?callback=user/create_company/') 
+        return redirect(mode.server + 'user/two_factor/?callback=user/create_company/')
 
 # delete a certificate with two factor checking
 @app.route('/user/remove_certificate/', methods=['GET', 'POST'])
@@ -1416,6 +1416,10 @@ def request_certificate() :
             return render_template('request_experience_certificate.html', **session['menu'])
         elif request.form['certificate_type'] == 'recommendation' :
             return render_template('request_recommendation_certificate.html', **session['menu'])
+        elif request.form['certificate_type'] == 'agreement' :
+            return render_template('request_agreement_certificate.html', **session['menu'])
+        elif request.form['certificate_type'] == 'reference' :
+            return render_template('request_reference_certificate.html', **session['menu'])
 
 @app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate() :
@@ -1478,9 +1482,91 @@ def request_experience_certificate() :
     # build email
     url = mode.server + 'issue/?token=' + token
     subject = 'You have received a request for certification from '+ session['name']
-    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['issuer_email'], 'link' : url}, mode)
+    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
     # message to user/Talent
     flash('Your request for an Experience Certificate has been sent.', 'success')
+    del session['issuer_email']
+    if session.get('certificate_issuer_username') :
+        del session['certificate_issuer_username']
+        return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+    else :
+        return redirect(mode.server + 'user/')
+
+@app.route('/user/request_agreement_certificate/', methods=['POST'])
+def request_agreement_certificate() :
+    """ This is to send the email with link """
+    check_login()
+    # email to Referent/issuer
+    issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+    issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
+    issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
+    payload = {'issuer_email' : session['issuer_email'],
+             'certificate_type' : 'agreement',
+             'title' : request.form['title'],
+             'description' : request.form['description'],
+             'service_product_group' :request.form['service_product_group'],
+             'valid_until' :  request.form['valid_until'],
+             'date_of_issue' : request.form['date_of_issue'],
+             'location' : request.form['location'],
+             'standard' : request.form['standard'],
+             'registration_number' : request.form['registration_number'],
+             'talent_name' : session['name'],
+             'talent_username' : session['username'],
+             'talent_workspace_contract' : session['workspace_contract'],
+             'issuer_username' : issuer_username,
+             'issuer_workspace_contract' : issuer_workspace_contract,
+             'issuer_name' : issuer_name}
+    # build JWT for link
+    header = {'alg': 'RS256'}
+    key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    token = jwt.encode(header, payload, key).decode('utf-8')
+    # build email
+    url = mode.server + 'issue/?token=' + token
+    subject = 'You have received a request for certification from '+ session['name']
+    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
+    # message to user/Talent
+    flash('Your request for an Agreement Certificate has been sent.', 'success')
+    del session['issuer_email']
+    if session.get('certificate_issuer_username') :
+        del session['certificate_issuer_username']
+        return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+    else :
+        return redirect(mode.server + 'user/')
+
+@app.route('/user/request_reference_certificate/', methods=['POST'])
+def request_reference_certificate() :
+    """ This is to send the email with link """
+    check_login()
+    # email to Referent/issuer
+    issuer_username = 'new' if session.get('certificate_issuer_username') is None else session.get('certificate_issuer_username')
+    issuer_workspace_contract = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['workspace_contract']
+    issuer_name = 'new' if session.get('certificate_issuer_username') is None else session['issuer_explore']['name']
+    payload = {'issuer_email' : session['issuer_email'],
+             'certificate_type' : 'reference',
+             'title' : request.form['title'],
+             'description' : request.form['description'],
+             'competencies' :request.form['competencies'],
+             'end_date' :  request.form['end_date'],
+             'start_date' : request.form['start_date'],
+             'project_location' : request.form['project_location'],
+             'project_staff' : request.form['project_staff'],
+             'project_budget' : request.form['project_budget'],
+             'talent_name' : session['name'],
+             'talent_username' : session['username'],
+             'talent_workspace_contract' : session['workspace_contract'],
+             'issuer_username' : issuer_username,
+             'issuer_workspace_contract' : issuer_workspace_contract,
+             'issuer_name' : issuer_name}
+    # build JWT for link
+    header = {'alg': 'RS256'}
+    key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    token = jwt.encode(header, payload, key).decode('utf-8')
+    # build email
+    url = mode.server + 'issue/?token=' + token
+    subject = 'You have received a request for certification from '+ session['name']
+    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
+    # message to user/Talent
+    flash('Your request for an Agreement Certificate has been sent.', 'success')
     del session['issuer_email']
     if session.get('certificate_issuer_username') :
         del session['certificate_issuer_username']
