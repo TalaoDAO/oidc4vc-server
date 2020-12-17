@@ -123,7 +123,11 @@
 
                             <div class="card shadow mb-5">
                                 <div class="card-body">
-                                    <h4></h4>
+                                    <div class="d-flex justify-content-center">
+                                      <a href="/user/request_certificate/">
+                                      <div class="form-group"><button class="btn btn-primary btn-md" type="button">Request a certificate</button></div>
+                                      </a>
+                                    </div>
                                     <div role="tablist" id="accordion-2">
 
                        {% if display_manager == True %}
@@ -192,7 +196,7 @@
                                             <div class="collapse  item-10" role="tabpanel" data-parent="#accordion-2">
                                               {% if session['rsa_key'] %}
                                               <div class="card-body" >
-                                               <!-- RSA key 
+                                               <!-- RSA key
                                                 <a  title="Download RSA key. Keep this file private." role="presentation" href="/user/download_rsa_key/?filename={{rsa_filename}}"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.key</a>
                                                 <br><br> -->
                                                 X509 Certificate
@@ -202,8 +206,8 @@
                                                 <a title="Download this certificate to sign documents and emails. Keep this certificate private." role="presentation" href="/user/download_pkcs12/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.p12</a>
                                                 <br><br>
                                                 Talao Conformity Authority Certificate
-                                                <a title="Download this certificate. It could be requested to verify your own certificate." role="presentation" href="/talao_ca/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : talao.pem</a>                      
-                                            </div>  
+                                                <a title="Download this certificate. It could be requested to verify your own certificate." role="presentation" href="/talao_ca/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : talao.pem</a>
+                                            </div>
                                               {% else %}
                                               <div class="card m-2">
                                                 <div class="card-header py-3">

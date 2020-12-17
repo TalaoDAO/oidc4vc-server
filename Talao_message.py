@@ -130,7 +130,15 @@ HTML_templates = {'register' : 'templates/emails/register.html', # username
 				  'request_certificate' : 'templates/emails/request_certificate.html'} #name link
 
 def messageHTML(subject, to, HTML_key, format_dict, mode)  :
-
+	''' format_dict is a dictionnary with the necessary formating information
+		ex: {'username' : 'Jack', 'text' : 'hello world'}
+		The HTML file must be formated like a python str (ex for a name: {name})
+		and the CSS part must use double {} ex: body {{
+														margin: 0;
+														padding: 0;
+													 }}
+		all images must be links to the Talao website
+		ex: src="https://talao.co/static/img/logo.png	"'''
 	password = mode.smtp_password
 	fromaddr = "relay@talao.io"
 	toaddr = [to]
@@ -138,12 +146,13 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	msg = MIMEMultipart()
 	msg['From'] = formataddr((str(Header('Talao', 'utf-8')), fromaddr))
 	msg['To'] = ", ".join(toaddr)
-	msg['Subject'] = 'Your professional Identity by Talao'
+	msg['Subject'] = subject
 	# string to store the body of the mail
 
 	if HTML_key not in HTML_templates:
 		print('Error : wrong HTML_key')
 		return False
+
 
 	template = HTML_templates[HTML_key]
 	try :
