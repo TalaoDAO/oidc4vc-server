@@ -6,14 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -50,7 +44,7 @@
                             <form action="/issue/create_authorize_issue/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>The certificate is now ready to be issued. To get a proof of the reliability of the issuer, one needs to create your own Identity on the network. More information&nbsp;<a href="talao.rtfd.io">http://talao.rtfd.io</a>.<br><br>Your
+                                        <p>The certificate is now ready to be issued. To get a proof of the reliability of the issuer, one needs to create your own Identity on the network. <br><br>Your
                                             email will be encrypted, your firstname and lastname will be publicly available. You will be able to complete your Identity to use it while keeping the ownership of your data.&nbsp;<br><br>If you
                                             accept to proceed&nbsp;fill the field below with the secret code you have just received by email.&nbsp;</p>
                                     </div>
@@ -59,7 +53,7 @@
 
                                 <div class="form-row">
                                     <div class="col-5 col-sm-3 col-lg-4 col-xl-4 offset-3 offset-sm-4 offset-lg-4 offset-xl-4">
-                                        <div class="form-group"><label class="text-center">Secret Code</label><input class="form-control" type="text" name="code"></div>
+                                        <div class="form-group"><label class="text-center">Secret Code</label><input class="form-control" type="password" name="code"></div>
                                     </div>
                                 </div>
 

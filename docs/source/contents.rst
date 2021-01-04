@@ -82,7 +82,7 @@ Talao is available on the public Ethereum Mainet and Rinkeby. See https://github
 Talao is also available on a private Ethereum network named TalaoNet.
 TalaoNet runs a Proof Of Authority consensus (Clique) managed by the Talao team and partners.
 
-To connect to this blockchain use RPC URL https://18.190.21.227:8502
+To connect to this blockchain use RPC URL https://talao.co/rpc
 
 Main contract addresses are :
 

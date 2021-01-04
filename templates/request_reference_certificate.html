@@ -6,14 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
   <title>Talao Professional Identity</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -69,12 +64,12 @@
                     </div>
                     <div class="form-row">
                       <div class="col text-dark">
-                        <div class="form-group"><label>Competency1, competency2, competency3....(Optional)</label><input title="List of competencies with comma separator : competency1, competency2, ..." class="form-control" type="text" name="competencies"></div>
+                        <div class="form-group"><label>Core competencies (Optional)</label><input title="List of competencies with comma separator : competency1, competency2, ..." class="form-control" type="text" name="competencies"></div>
                       </div>
                     </div>
                     <div class="form-row">
                       <div class="col-6 col-xl-3">
-                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." id="sending_button" type="submit" name="choice" value="send">Send</button></div>
+                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." type="submit" name="choice" value="send">Send</button></div>
                       </div>
                       <div class="col-6 col-xl-3">
                         <div class="form-group"><button onclick="goBack()" title="Cancel the request." class="btn btn-primary btn-sm" type="button" value="Back">Back</button></div>
@@ -90,15 +85,8 @@
     </div>
   </div>
   {% include 'user_footer.html' %}
-
-  </div>
-  <script>
-    function goBack() {
-      window.history.back();
-    }
-  </script>
+  <script>function goBack() {window.history.back();}</script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='theme.js') }}"></script>

@@ -39,6 +39,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		data['request_remote_user'] = request.remote_user
 		data['request_user_agent'] = request.user_agent.__dict__
 
+	print("certificate avant issue = ", data)
 	#encrypt data with AES key (public, private or secret)
 	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode)
 
@@ -245,7 +246,8 @@ class Document() :
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : issuer_category,
 						'id' : issuer_id}
-			self.issuer.update(issuer_profil)
+			if issuer_profil :
+				self.issuer.update(issuer_profil)
 			self.transaction_hash = transaction_hash
 			self.transaction_fee = transaction_fee
 			self.doctypeversion = doctypeversion

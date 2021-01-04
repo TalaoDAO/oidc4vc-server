@@ -6,15 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
   <title>Talao Professional Certificate</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
 </head>
 
 <body id="page-top">
@@ -46,33 +43,40 @@
                       </div>
                     </div>
                     <div class="card-body">
-                      <h1 class="mb-4" style="font-size: 16px;color: rgb(0,0,0);text-align: center;"><strong>{{title}}</strong></h1>
+                      <h5 class="text-dark text-center mb-4" ><strong>{{title}}</strong></h5>
+
                       <div class="row">
-                        <div class="col-md-8">
-                          <div class="row">
+                        <div class="col-md-7" >
+                            <p class="text-dark" >This claim was issued to : <strong>{{issued_to_name}}</strong><br></p>
+                        </div>
+                    </div>
+
+                    <div class="row">
                             <div class="col-md-7">
                               <p class="text-dark">From <strong>{{start_date}}</strong> to <strong>{{end_date}}</strong><br></p>
                             </div>
                             <div class="col">
                               <p class="text-dark">Location :<strong> {{location}}</strong></p>
                             </div>
-                          </div>
-                          <div class="row">
+                      </div>
+                      <div class="row">
                             <div class="col-md-7">
-                              <p class="text-dark">Budget :<strong> {{budget}} $</strong></p>
+                              <p class="text-dark">Budget :<strong> {{budget}} Euros</strong></p>
                             </div>
                             <div class="col">
                               <p class="text-dark">Staff :<strong> {{staff}}</strong></p>
                             </div>
-                          </div>
+                      </div>
                           <p class="text-dark m-0">Description :</p>
                           <p class="text-dark p-2 text-justify overflow-auto" style="height: 150px;font-weight: 400;font-size: 16px;border: 1px solid #ced4da;border-radius: .25rem;">{{description}}</p>
                           <hr>
-                          <div class="text-center">
+                      {% if badge != '' %}
+                      <div class="text-center">
                             {{badge|safe}}
-                          </div>
-                          <hr>
-                          <div class="form-row">
+                      </div>
+                      <hr>
+                      {% endif %}
+                      <div class="form-row">
                             <div class="col">
                               <div class="form-group">
                                 <p style="font-size: 16px;">How satisfied are you with the overall delivery ?</p>
@@ -80,8 +84,8 @@
                             </div>
                             <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star"
                                 style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
-                          </div>
-                          <div class="form-row">
+                      </div>
+                      <div class="form-row">
                             <div class="col">
                               <div class="form-group">
                                 <p style="font-size: 16px;">How would you rate his/her ability to deliver to schedule ?</p>
@@ -89,8 +93,8 @@
                             </div>
                             <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star"
                                 style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
-                          </div>
-                          <div class="form-row">
+                      </div>
+                      <div class="form-row">
                             <div class="col">
                               <div class="form-group">
                                 <p style="font-size: 16px;">How would you rate its communication ?</p>
@@ -98,8 +102,8 @@
                             </div>
                             <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star"
                                 style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
-                          </div>
-                          <div class="form-row">
+                      </div>
+                      <div class="form-row">
                             <div class="col">
                               <div class="form-group">
                                 <p style="font-size: 16px;">How would you rate its ability to stay within the set budget?</p>
@@ -107,28 +111,41 @@
                             </div>
                             <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star"
                                 style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
-                          </div>
-                          <div class="form-row">
+                      </div>
+
+                      <div class="form-row">
                             <div class="col">
                               <div class="form-group">
                                 <p style="font-size: 16px;">How likely are you to recommand this company ?</p>
                               </div>
                             </div>
                             <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star40}}"></i><i class="fa fa-star" style="{{star41}}"></i><i class="fa fa-star" style="{{star42}}"></i><i class="fa fa-star"
-                                style="{{star43}}"></i><i class="fa fa-star" style="{{star44}}"></i></div>
-                          </div>
-                          <hr><img src="/static/img/logo_noir.png" style="width: 100px;">
-                        </div>
-                        <div class="col">
-                          <p class="text-dark m-0"><strong>Issued to: {{issued_to_name}} &nbsp;</strong></p>
-                          <hr>
-                          <p class="text-dark m-0"><strong>Issued by: {{issuer_name}} &nbsp;</strong></p><img src="{{ url_for('send_file', filename=logo) }}" style="width:  250px;">
-                          <hr>
-                          <p class="mt-4 text-dark m-0"><strong>Signature :&nbsp;</strong></p><div class="mt-3 text-center" ><img src="{{ url_for('send_file', filename=signature) }}" style="width: 150px;"> </div>
-                          <hr class="mt-4">
-                          <p class="mt-3 text-dark"><strong>Manager :</strong> {{manager}}</p>
-                        </div>
+                                style="{{star43}}"></i><i class="fa fa-star" style="{{star44}}"></i>
+                            </div>
                       </div>
+
+                          <hr>
+
+                          {% if signature != None and logo != None %}
+                          <div class="row mt-3" >
+                              <div class="col">
+                                  <p class="text-dark" >Issued by : <strong>{{issuer_name}}</strong> </p>
+                                  <div class="text-center"><img src="{{ url_for('send_file', filename=logo) }}" style="width: 200px;"></div>
+                              </div>
+                              <div class="col">
+                                  <p class="text-dark " >Signature :</p>
+                                  <div class="text-center"><img src="{{ url_for('send_file', filename=signature) }}" style="width: 200px;"></div>
+                              </div>
+                          </div>
+                          {% else %}
+                          <div class="row mt-3" >
+                            <div class="col">
+                                <p class="text-dark " >Issued by : <strong>{{issuer_name}}</strong></p>
+                            </div>
+                          </div>
+                          {% endif %}
+                      <br>
+                      <p class="text-dark text-center  m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This certificate was issued through the Talao plateform.&nbsp; </p>
                     </div>
                   </div>
                 </div>
@@ -137,17 +154,19 @@
           </div>
         </div>
       </div>
-      {% include 'user_footer.html' %}
-      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    </div>
+  </div>
+  {% include 'user_footer.html' %}
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
       <script>
         function goBack() {
           window.history.back();
         }
-      </script>
-      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-      <script src="{{ url_for('static', filename='theme.js') }}"></script>
-      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  </script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
 
 </html>

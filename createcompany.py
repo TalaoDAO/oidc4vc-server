@@ -51,15 +51,20 @@ class ExportingThread(threading.Thread):
 		return
 
 # Main function
-def create_company(email, username, mode, creator=None, partner=False, send_email=True, siren=None, password=None, name=None) :
+def create_company(email, username, mode, creator=None, partner=False, send_email=True, siren=None, password=None, name=None, is_thread=True) :
 
+	# step 1
 	address, private_key, workspace_contract = _create_company_step_1(email, username, mode, password, siren, name)
 	if not address :
 		return None, None, None
-	# follow up with asynchronous process, step 2
-	thread_id = str(random.randint(0,10000 ))
-	exporting_threads[thread_id] = ExportingThread(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email)
-	exporting_threads[thread_id].start()
+
+	# step 2 maybe asynchronous
+	if is_thread :
+		thread_id = str(random.randint(0,10000 ))
+		exporting_threads[thread_id] = ExportingThread(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email)
+		exporting_threads[thread_id].start()
+	else :
+		_create_company_step_2(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email)
 	return address, private_key, workspace_contract
 
 def _create_company_step_1(email, username, mode, password, siren, name) :
@@ -135,27 +140,27 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 	# create database for manager within the company
 	ns.init_host(username, mode)
 
-	# add password
+	# add password, name and siren
 	if password :
-		ns.update_password(username, password, mode)
-		print('Success : password has been updated')
-
-	# claims for siren and name
-	if siren and name :
-		if not update_self_claims(address, private_key, {'siren': siren, 'name' : name}, mode) :
-			print('Error : siren and name not updated')
-		print('Success : siren and name updated')
-	if name and not siren :
-		Claim().relay_add(workspace_contract, 'name', name, 'public', mode)
-	if siren and not name :
-		Claim().relay_add(workspace_contract, 'siren', siren, 'public', mode)
+		if ns.update_password(username, password, mode) :
+			print('Success : password has been updated')
+	if name :
+		if Claim().add(address, workspace_contract, address, workspace_contract, private_key, 'name', name, 'public', mode)[0] :
+			print('Success : name has been updated')
+		else :
+			print('Error : name has not been updated')
+	else :
+		print('Warning : name has not been given')
+	if siren :
+		if Claim().add(address, workspace_contract, address, workspace_contract, private_key,'siren', siren, 'public', mode)[0] :
+			print('Success : siren has been updated')
 
 	# For setup of new chain one need to first create workspaces for Relay and Talao
 	if username != 'relay' and username != 'talao' :
 		# management key (1) issued to Relay
 		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
 
-	print("Warning : end of step 1")
+	print("Success : end of step 1 of createcompany")
 	return address, private_key, workspace_contract
 
 
@@ -168,7 +173,7 @@ def _create_company_step_2(address, private_key, workspace_contract,email, usern
 		add_key(address, workspace_contract, address, workspace_contract, private_key, relay_address, 1, mode)
 
 	# rewrite encrypted email with scheme 2 to differenciate from freedapp email that are not encrypted
-	if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode)[0] :
+	if Claim().add(address,workspace_contract, address, workspace_contract, private_key, 'email', email, 'private', mode)[0] :
 		print('Success : email updated')
 	else :
 		print('Error : email not updated')
@@ -205,13 +210,12 @@ def _create_company_step_2(address, private_key, workspace_contract,email, usern
 			print('Success : key 20002 for creator failed')
 
 	# send messages
-	if mode.myenv == 'aws' :
-		Talao_message.messageLog("no lastname","no firstname", username, email, 'Company created by Talao', address, private_key, workspace_contract, "", email, "", "", mode)
-		# one sends an email by default
-		if send_email :
-			Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
+	Talao_message.messageLog("no lastname","no firstname", username, email, 'Company created by Talao', address, private_key, workspace_contract, "", email, "", "", mode)
+	# one sends an email by default
+	if send_email :
+		Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
 
-	print('Warning : end of step 2')
+	print('Successg : end of step 2 of create company')
 	return
 
 # MAIN, for new Blockchain setup. Talao and Relay setup

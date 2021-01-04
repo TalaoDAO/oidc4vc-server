@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='web3.min.js') }}"></script>
+</head>
+<body>
+    Web 3 Demo
+    <br >
+    Chain Id : <span id="demo"></span><br>
+    Block Number : <span id="block"></span><br>
+
+    Error : <span id="error"></span>
+
+
+<script>
+
+
+var web3 = new Web3(new Web3.providers.HttpProvider('http://18.190.21.227:8502'));
+
+web3.eth.getChainId().then(value => {
+    document.getElementById("demo").innerHTML= value;
+    }, reason => {
+    document.getElementById("error").innerHTML= reason;
+    });
+
+web3.eth.getBlockNumber().then(value => {
+    document.getElementById("block").innerHTML= value;
+    }, reason => {
+    document.getElementById("error").innerHTML= reason;
+    });
+
+
+
+</script> 
+</body>
+</html>

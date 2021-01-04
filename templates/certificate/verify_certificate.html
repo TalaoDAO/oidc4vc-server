@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Certificate</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
   <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -21,6 +17,20 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
 			{% if viewer == 'guest' %}
                  {% include 'guest_nav_bar.html' %}
              {% else %}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% include 'guest_nav_bar.html' %}
+        <div class="container-fluid mt-3">
+          <div class="col-xl-4 offset-xl-4">
+
+            <div class="col">
+              <div class="card shadow mb-3">
+                <div class="card-header py-3">
+                  <p class="text-primary m-0 font-weight-bold">&nbsp;Issue a Reference Certificate to {{session['user_name']}}</p>
+                </div>
+                <div class="card-body">
+                  <form action="/issue/" method="post">
+                    <div class="form-row">
+                      <div class="col text-dark">
+                        <p>Complete or correct this Certificate form as precisely as possible. Data below has been proposed by {{session['user_name']}}.</p>
+                      </div>
+                    </div>
+                    {% if not session['issuer_name'] %}
+                    <div class="form-row">
+                      <div class="col-xl-6">
+                        <div class="form-group"><label>Your firstname</label><input class="form-control" type="text" value="{{issuer_firstname}}" name="issuer_firstname" required=""></div>
+                      </div>
+                      <div class="col-xl-6">
+                        <div class="form-group"><label>Your lastname</label><input class="form-control" type="text" value="{{issuer_lastname}}" name="issuer_lastname" required=""></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-xl-6">
+                          <div class="form-group"><label>Manager name (Optional)</label><input class="form-control" type="text" value="{{manager}}" name="manager"> </div>
+                      </div>
+                      <div class="col-xl-6">
+                          <div class="form-group"><label>Company name</label><input class="form-control" type="text" value="{{company_name}}" name="company_name" required=""></div>
+                      </div>
+                    </div>
+                    {% endif %}
+                    <div class="form-row">
+                      <div class="col-xl-6 text-dark">
+                        <div class="form-group"><label>Project Title</label><input title="Title for the certificate" required="" class="form-control" type="text" value="{{title}}"" name="title"></div>
+                      </div>
+                      <div class="col-xl-6 text-dark">
+                        <div class="form-group"><label>Project Location</label><input class="form-control" required="" type="text" value="{{project_location}}" name="project_location"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col text-dark">
+                        <div class="form-group"><label>Project description</label><textarea rows="4" title="A description of the project, objectives, technologies, team, delay..." required="" class="form-control"  name="description">{{description}}</textarea></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-xl-6 text-dark">
+                        <div class="form-group"><label>Start date</label><input class="form-control" required="" type="date" value="{{start_date}}" name="start_date"></div>
+                      </div>
+                      <div class="col-xl-6 text-dark">
+                        <div class="form-group"><label>End date</label><input class="form-control" required="" type="date" value="{{end_date}}" name="end_date"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-xl-6 text-dark">
+                        <div class="form-group"><label>Project Budget</label><input class="form-control" required="" type="number" value="{{project_budget}}" name="project_budget"></div>
+                      </div>
+                      <div class="col-xl-6 text-dark">
+                        <div class="form-group"><label>Project Staff</label><input title="ex: ISO 9001"  class="form-control" required="" type="number" value="{{project_staff}}" name="project_staff"></div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col text-dark">
+                        <div class="form-group"><label>Core competencies (Optional)</label><input title="List of competencies with comma separator : competency1, competency2, ..." class="form-control" type="text" value="{{competencies}}" name="competencies"></div>
+                      </div>
+                    </div>
+
+
+                    <div class="form-row">
+                      <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                          <div class="form-group">
+                              <p style="font-size: 12px;">How satisfied are you with the overall delivery ?</p>
+                          </div>
+                      </div>
+                      <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+                        <div class="form-group">    
+                          <input  class="form-control-range" type="range" name="score_delivery" id="score_delivery" value="3" min="0" max="5" step="1" oninput="score_delivery_disp.value = score_delivery.value">
+                          <output  id="score_delivery_disp"></output>	
+                          <output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+                        </div>
+                      </div>
+                    </div>
+
+                  <div class="form-row">
+                      <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                          <div class="form-group">
+                              <p style="font-size: 12px;">How likely are you to recommend this talent to others ?</p>
+                          </div>
+                      </div>
+                      <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+      <div class="form-group">    
+        <input  class="form-control-range" type="range" name="score_recommendation" id="score_recommendation" value="3" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
+        <output  id="score_recommendation_disp"></output>	
+        <output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+      </div>
+                      </div>
+                  </div>
+
+                  <div class="form-row">
+                      <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                          <div class="form-group">
+                              <p style="font-size: 12px;">How would you rate his/her ability to deliver to schedule ?</p>
+                          </div>
+                      </div>
+                      <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+      <div class="form-group">    
+        <input  class="form-control-range" type="range" name="score_schedule" id="score_schedule" value="3" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
+        <output  id="score_schedule_disp"></output>	
+        <output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+      </div>
+                      </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
+                        <div class="form-group">
+                            <p style="font-size: 12px;">How would you rate its ability to stay within the set budget ?</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+                      <div class="form-group">    
+                        <input  class="form-control-range" type="range" name="score_budget" id="score_budget" value="3" min="0" max="5" step="1" oninput="score_budget_disp.value = score_budget.value">
+                        <output  id="score_budget_disp"></output>	
+                        <output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+                      </div>
+                    </div>
+                  </div>
+
+                    <div class="form-row">
+                      <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
+                          <div class="form-group">
+                              <p style="font-size: 12px;">How would you rate his/her overall communication skills ?</p>
+                          </div>
+                      </div>
+                      <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+                        <div class="form-group">    
+                          <input  class="form-control-range" type="range" name="score_communication" id="score_communication" value="3" min="0" max="5" step="1" oninput="score_communication_disp.value = score_communication.value">
+                          <output  id="score_communication_disp"></output>	
+                          <output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+                    <div class="form-row">
+                      <div class="col-6 col-xl-3">
+                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." type="submit" name="choice" value="send">Send</button></div>
+                      </div>
+                      <div class="col-6 col-xl-3">
+                        <a href="/issue/logout/">
+                          <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+                        </a> 
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'user_footer.html' %}
+  <script> function goBack() { window.history.back();    }</script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+</html>

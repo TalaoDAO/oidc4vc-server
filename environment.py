@@ -16,7 +16,7 @@ class currentMode() :
 
 	def __init__(self, mychain, myenv):
 		# mychain, myenv --> environment variables set in gunicornconf.py or manually if main.py is launched without Gunicorn
-
+		print(mychain, myenv)
 		self.admin = 'thierry.thevenet@talao.io'
 		self.test = True
 		self.myenv = myenv
@@ -171,7 +171,6 @@ class currentMode() :
 
 		else :
 			print('Error : chain variable problem')
-
 
 		if self.w3.isConnected()== False :
 			print('Error : not Connected, network problem')

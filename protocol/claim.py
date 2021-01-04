@@ -120,7 +120,6 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	scheme = claim[1]
 	topic_value = claim[0]
 	topicname = topicvalue2topicname(topic_value)
-	print('data = ', data)
 	if data != 'private' and data != 'secret' :
 		to_be_decrypted = False
 		privacy = 'public'
@@ -302,7 +301,8 @@ class Claim() :
 						'workspace_contract' : issuer_workspace_contract,
 						'category' : issuer_category,
 						'id' : issuer_id}
-		self.issuer.update(issuer_profil)
+		if issuer_profil :
+			self.issuer.update(issuer_profil)
 		self.transaction_hash = transaction_hash
 		self.transaction_fee = transaction_fee
 		self.ipfs_hash = ipfs_hash

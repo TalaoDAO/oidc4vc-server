@@ -58,10 +58,9 @@ def issuer_explore(mode) :
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode, workspace_contract_from = session['workspace_contract'], private_key_from=session['private_key_value']).__dict__.copy()
-		#del session['issuer_explore']['mode']
 		session['issuer_username'] = issuer_username
 
-	issuer_picture = session['issuer_explore']['picture']
+	#issuer_picture = session['issuer_explore']['picture']
 	if session['issuer_explore']['type'] == 'person' :
 		# file
 		if session['issuer_explore']['identity_file'] == []:
@@ -154,13 +153,13 @@ def issuer_explore(mode) :
 				carousel_rows_experience += """<b>Start Date</b> : """ + experience['start_date'] + """<br> """
 				carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
 				if experience['topic']!='experience':
-					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:100:]
+					carousel_rows_experience += """<b>Description</b> : """ + experience['description'][:100:]
 					if len(experience['description'])>100:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"
 				else:
-					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:150:]
+					carousel_rows_experience += """<b>Description</b> : """ + experience['description'][:150:]
 					if len(experience['description'])>150:
 						carousel_rows_experience += "...<br>"
 					else:
@@ -183,6 +182,7 @@ def issuer_explore(mode) :
 				if i == len(experiences)-1:
 					carousel_rows_experience += '</div></div>'
 
+		# recommendation
 		recommendations = []
 		for certificate in session['issuer_explore']['certificate']:
 			if certificate['type'] == "recommendation":
@@ -197,6 +197,12 @@ def issuer_explore(mode) :
 			for i in range(nbr_rows):
 				carousel_indicators_recommendation += '<li data-target="#recommendation-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, recommendation in enumerate(recommendations):
+
+				if recommendation['issuer']['category'] == 1001 :
+					issuer_name = recommendation['issuer']['firstname'] + ' ' +recommendation['issuer']['lastname']
+				else :
+					issuer_name = recommendation['issuer']['name']
+
 				try:
 					logo = recommendation['logo']
 				except:
@@ -205,7 +211,7 @@ def issuer_explore(mode) :
 					except:
 						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -224,9 +230,9 @@ def issuer_explore(mode) :
 				#verified
 				carousel_rows_recommendation +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
-				carousel_rows_recommendation += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + recommendation['title'] + "</h4></div></div>"
+				carousel_rows_recommendation += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + recommendation.get('title', "") + "</h4></div></div>"
 				#body
-				carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + "<br>"
+				carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + issuer_name + "<br>"
 				carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation['relationship'] + "<br>"
 				carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:100]
 				if len(recommendation['description'])>100:
@@ -236,7 +242,7 @@ def issuer_explore(mode) :
 
 				carousel_rows_recommendation += "</p>"
 				#Footer
-				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em; color:white;">Certified by """ + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + """</footer>"""
+				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em; color:white;">Certified by """ + issuer_name + """</footer>"""
 				#Lien certificates
 				carousel_rows_recommendation += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(recommendation['doc_id']) + """></a>"""
 
@@ -245,7 +251,8 @@ def issuer_explore(mode) :
 					carousel_rows_recommendation += '</div></div>'
 				if i == len(recommendations)-1:
 					carousel_rows_recommendation += '</div></div>'
-
+		
+		# Education
 		carousel_indicators_education = """<li data-target="#education-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_education = ""
 		if session['issuer_explore']['education'] == []:

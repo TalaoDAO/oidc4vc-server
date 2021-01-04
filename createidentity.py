@@ -56,19 +56,20 @@ class ExportingThread(threading.Thread):
 
 
 # main function called by external modules
-def create_user(username, email, mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None):
+def create_user(username, email, mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
 
-	# this is the minimum process to create an Identity, step 1
+	# step 1
 	address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone)
 	if not address :
 		return None, None, None
 
-	print('Success : end of minimum Identity setup, step 1')
-
-	# follow up with asynchronous process, step 2
-	thread_id = str(random.randint(0,10000 ))
-	exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)
-	exporting_threads[thread_id].start()
+	# Step 2 : maybe asynchronous
+	if is_thread :
+		thread_id = str(random.randint(0,10000 ))
+		exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)
+		exporting_threads[thread_id].start()
+	else :
+		_create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,)
 
 	return address, private_key, workspace_contract
 
@@ -174,6 +175,7 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	# key 1 issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
 
+	print('Success : end of step 1 create identity')
 	return address, private_key, workspace_contract
 
 
@@ -217,11 +219,10 @@ def _create_user_step_2(address, workspace_contract, private_key, username, emai
 		print('Error : email encrypted not updated')
 
 	# emails send to user and admin
-	if mode.myenv == 'aws' :
-		Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
-		# By default an email is sent to user
-		if send_email :
-			Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
+	Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
+	# By default an email is sent to user
+	if send_email :
+		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
 
 	print("Success : create identity process step 2 is over")
 	return

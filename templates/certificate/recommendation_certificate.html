@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Talao Professional Identity</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                 {% if viewer == 'guest' %}
+                 {% include 'guest_nav_bar.html' %}
+             {% else %}
+                   {% if session['type'] == "company" %}
+						{% include 'company_nav_bar.html' %}
+					{% else %}
+						{% include 'user_nav_bar.html' %}
+					{% endif %}
+
+             {% endif %}
+
+                <div class="container-fluid mt-3">
+                    <div class="row mb-3">
+                        <div class="col-md-10 col-lg-8 col-xl-6 offset-md-1 offset-lg-2 offset-xl-3">
+                            <div class="card shadow mb-3">
+                                <div class="card-header py-3">
+                                    <div class="row">
+
+                                        <div class="col-xl-6">
+                                            <p class="text-secondary m-0 font-weight-bold"><strong>{{identity_firstname}} {{identity_lastname}} Recommendation</strong>
+                                           <a  class="text-secondary"  href="/certificate/verify/?certificate_id={{certificate_id}}"><i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a></p>
+											</p>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <form action="/user/user_settings/" method="POST">
+                                        <div class="form-row">
+										  {% if issuer_picture != None %}
+                                            <div class="col-md-3 col-lg-3 col-xl-3 offset-xl-0 text-center"><img class="rounded-circle" src="{{ url_for('send_file', filename=issuer_picture) }}" width="150" height="150"></div>
+                                         {% endif %}
+
+
+                                            <div class="col-md-3 col-lg-3 col-xl-3">
+                                                <h6><strong>{{issuer_firstname}} {{issuer_lastname}}</strong></h6>
+                                                <h6>{{issuer_title}}</h6>
+                                                <p class="text-secondary">{{relationship}}</p>
+                                            </div>
+                                            <div class="col">
+                                                <p class="font-italic">{{description}}</p>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    {% if viewer == 'user' %}
+                                    <div class="row">
+										<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                    </div>
+                                    {% endif %}
+                                    <br>
+                                    <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This certificate was issued through the Talao plateform.&nbsp; </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                                   {% include 'user_footer.html' %}
+
+    	<script>function goBack() {  window.history.back();}</script>
+
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

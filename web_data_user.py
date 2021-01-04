@@ -59,6 +59,28 @@ def send_secret_code (username, code, mode) :
 	return 'sms'
 
 
+
+
+# walletconnect
+#@app.route('/wc/', methods = ['GET', 'POST'])
+def wc(mode) :
+	if request.method == 'GET' :
+		return render_template('wc.html')
+	if request.method == 'POST' :
+		myaddress = request.form.get('address')
+		if not myaddress :
+			flash('Scan QR code', 'warning')
+			return render_template('wc.html')
+		try :
+			workspace_contract = ownersToContracts(myaddress, mode)
+		except :
+			flash('address unknown', 'warning')
+			return render_template('wc.html')
+		username = ns.get_username_from_resolver(workspace_contract, mode)
+		print('username de wallet = ', username)
+		session['username'] = username
+		return redirect(mode.server + 'user/')
+
 # Starter with 3 options, login and logout
 #@app.route('/starter/', methods = ['GET', 'POST'])
 def starter(mode) :
@@ -262,7 +284,7 @@ def forgot_password(mode) :
 		payload = bytes(json_string, 'utf-8')
 		token = jwe.serialize_compact(header, payload, public_rsa_key)
 		link = mode.server + 'forgot_password_2/?'+ urlencode({'token'  : token.decode('utf-8')}, doseq=True)
-		messagetext = 'Hello\r\n\r\nFollow this link to renew your password : ' +  link
+		subject = "Renew your password"
 		if Talao_message.messageHTML(subject, email, 'forgot_password', {'link': link}, mode):
 			flash("You are going to receive an email to renew your password.", "success")
 		return render_template('login.html')
@@ -334,7 +356,7 @@ def data(mode) :
 	myvisibility = my_data.privacy
 
 	# issuer
-	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
+	issuer_name = my_data.issuer.get('name', 'Unknown') if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
 	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
 	issuer_username = 'Unknown' if not issuer_username  else issuer_username
 	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
@@ -930,11 +952,13 @@ def user(mode) :
 				else :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 				if certificate['type'] == 'agreement' :
+					if not issuer_name :
+						issuer_name = 'unknown'
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-								<b>Title</b> : """ + certificate.get('title').capitalize()+"""<br>
-								<b>Registration number</b> : """ + certificate.get('registration_number').capitalize()+"""<br>
+								<b>Certificate Type</b> : """ + certificate.get('type','').capitalize()+"""<br>
+								<b>Title</b> : """ + certificate.get('title',"").capitalize()+"""<br>
+								<b>Registration number</b> : """ + certificate.get('registration_number',"").capitalize()+"""<br>
 								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
 
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
@@ -946,7 +970,6 @@ def user(mode) :
 								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 								</a>
-
 								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
@@ -956,13 +979,13 @@ def user(mode) :
 				elif certificate['type'] ==  "reference" :
 					cert_html = """<hr>
 								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
-								<b>Title</b> : """ + certificate.get('project_title').capitalize()+"""<br>
-								<b>Description</b> : " """ + certificate['project_description'][:100]+"""..."<br>
-								<b>Budget</b> : """ + certificate['project_budget'] + """<br>
+								<b>Certificate Type</b> : """ + certificate.get('type', 'Unknown').capitalize()+"""<br>
+								<b>Title</b> : """ + certificate.get('title', 'Unknown').capitalize()+"""<br>
+								<b>Description</b> : " """ + certificate.get('description', 'Unknown')[:100]+"""..."<br>
+								<b>Budget</b> : """ + certificate.get('budget', 'Unknown') + """<br>
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 								<p>
-								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """">
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate.get('type', 'Unknown').capitalize()+ """">
 								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 								</a>
 
@@ -1016,7 +1039,7 @@ def user_advanced(mode) :
 
 	# Alias
 	if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
-		display_alias = False
+		#display_alias = False
 		my_access = ""
 	else :
 		display_alias = True

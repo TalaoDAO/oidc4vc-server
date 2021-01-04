@@ -43,21 +43,29 @@
                                         <br><br>
                                         If your Referent has already his own Identity, use the Search Bar to access his profil immediatly.
                                         In the other case fill the form below.<br><br>
-                                       </p>
-                                        {% if display_email == True %}
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" ><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
+                                        </p>
+                                        {% if not session['certificate_issuer_username'] %}
+                                            <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" ><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
                                         {% endif %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Certificate Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
-                        {% if session['type'] == "company" %}
-                        <option value="agreement">Agreement Certificate</option>
-                        <option value="reference">Reference Certificate</option>
-                        {% else %}
-                        <option value="experience" >Experience Certificate</option>
-												{% if reco %}
-												<option value="recommendation">Recommendation Certificate</option>
-												{% endif %}
-                        {% endif %}                        
+                                                {% if session['type'] == "company" %}
+                                                    <option value="agreement">Agreement Certificate</option>
+                                                    <option value="reference">Reference Certificate</option>
+                                                {% else %}
+                                                    {% if not session['certificate_issuer_username'] %}
+                                                        <option value="experience" >Experience Certificate (Issued by a company only)</option>
+                                                        <option value="personal_recommendation">Personal recommendation Certificate (Issued by a person)</option>
+                                                        <option value="company_recommendation">Company recommendation Certificate (Issued by a company)</option>
+                                                    {% else %}
+                                                        {% if session['issuer_explore']['type'] == 'company' %}
+                                                            <option value="company_recommendation">Company recommendation Certificate</option>
+                                                            <option value="experience" >Experience Certificate</option>
+                                                        {% else %}
+                                                            <option value="personal_recommendation">Personal recommendation Certificate</option>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %}
 											</select></div>
                                     </div>
                                 </div>
@@ -66,7 +74,6 @@
                                         <div class="form-group"><button class="btn btn-primary btn-sm" title="Go to the Certificate form." type="submit" name="choice" value="send">Next</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-
                                         <div class="form-group"><button onclick="goBack()" title="Back to previous view" class="btn btn-primary btn-sm" type="button">Back</button></div>
                                     </div>
                                 </div>
@@ -80,7 +87,6 @@
     </div>
     </div>
                                                              {% include 'user_footer.html' %}
-
     </div>
     <script>function goBack() {  window.history.back();}</script>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>

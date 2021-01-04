@@ -19,6 +19,8 @@ import ns
 import privatekey
 
 def read_profil (workspace_contract, mode, loading) :
+	""" Read profil data as ERC725 claims witgout any decryption..."""
+
 	# setup constante person
 	person_topicnames = {'firstname' : 102105114115116110097109101,
 						'lastname' : 108097115116110097109101,
@@ -48,18 +50,22 @@ def read_profil (workspace_contract, mode, loading) :
 	if loading != 'full' :
 		person_topicnames = {'firstname' : 102105114115116110097109101,
 							'lastname' : 108097115116110097109101,
-							}
+							'profil_title' : 112114111102105108095116105116108101,}
 
 		# setup constant company
 		company_topicnames = {'name' : 110097109101,
-								'siren' : 115105114101110,
-							}
+							'siren' : 115105114101110,
+							'postal_address' : 112111115116097108095097100100114101115115,}
 
 	profil = dict()
-	# category
+	
+	# test if identity exist and get category
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	category = contract.functions.identityInformation().call()[1]
-
+	try :
+		category = contract.functions.identityInformation().call()[1]
+	except :
+		return None, None
+		
 	topic_dict = person_topicnames if category == 1001 else company_topicnames
 
 	for topicname, topic in topic_dict.items() :

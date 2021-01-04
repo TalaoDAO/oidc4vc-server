@@ -6,15 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -22,15 +15,16 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                                                                                           {% include 'guest_nav_bar.html' %}
-
+            {% include 'guest_nav_bar.html' %}
         <div class="container-fluid">
             <div class="row">
                 <div class="col-xl-4 offset-xl-4">
-                    <div class="card shadow">
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Issue a Professional Certificate to {{session['user_name']}}</p>
+                        </div>
                         <div class="card-body">
-                            <h4 class="card-title">Professional Certificate for {{talent_name}}.</h4>
-                            <p class="card-text">This certificate will be signed by you. Data below has been proposed by {{talent_name}}, you can update them as you want.</p>
+                            <p class="card-text">Complete or correct this Certificate form as precisely as possible. Data below has been proposed by {{session['user_name']}}.</p>
                         </div>
                         <form method="post" action="/issue/">
                             <div class="container shadow-sm" style="background-color: #ffffff;">
@@ -38,10 +32,12 @@
                                     <div class="col-lg-6">
                                         <div class="form-group"><label>Title</label><input class="form-control" placeholder="Talent title in the project team" type="text" name="title" required="" value="{{title}}"></div>
                                     </div>
-                                    <div class="col">
-                                        <div class="form-group"><label>Company Name</label><input class="form-control" type="text" value="{{issuer_name}}" name="company_name" required=""></div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group"><label>Reviewer name (Optional)</label><input class="form-control" type="text" value="{{reviewer}}" name="reviewer" ></div>
                                     </div>
                                 </div>
+
+                                {% if not session['issuer_name'] %}
                                 <div class="form-row">
                                     <div class="col-lg-6">
                                         <div class="form-group"><label>Your firstname</label><input class="form-control" type="text" value="{{issuer_firstname}}" name="issuer_firstname" required=""></div>
@@ -50,14 +46,25 @@
                                         <div class="form-group"><label>Your lastname</label><input class="form-control" type="text" value="{{issuer_lastname}}" name="issuer_lastname" required=""></div>
                                     </div>
                                 </div>
+                                {% endif %}
+                                <div class="form-row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group"><label>Manager name (Optional)</label><input class="form-control" type="text" value="{{manager}}" name="manager" ></div>
+                                    </div>
+                                    {% if not session['issuer_name'] %}
+                                    <div class="col-lg-6">
+                                        <div class="form-group"><label>Company name</label><input class="form-control" type="text" value="{{company_name}}" name="company_name" required=""></div>
+                                    </div>
+                                    {% endif %}
+                                </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Project Description</label><textarea class="form-control" name="description" >{{description}}</textarea></div>
+                                        <div class="form-group"><label>Project Description</label><textarea class="form-control"title="A description of the project, objectives, technologies, team, delay..." name="description" >{{description}}</textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-12">
-                                        <div class="form-group"><label>Skills (skill1, skill2, ...)</label><input value="{{skills}}"  class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="skill1, skill2, skill3,..." name="skills"></div>
+                                        <div class="form-group"><label>Skills (Optional)</label><input value="{{skills}}"  class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" title="List of skills with comma as separator."  placeholder="List of skills with comma as separator." name="skills"></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -79,11 +86,6 @@
                                         <hr>
                                     </div>
                                 </div>
-                                
-                                
-                                
-                               
-                                
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
@@ -98,10 +100,7 @@
 										</div>
                                     </div>
                                 </div>
-                                
-                                
-                                
-                                
+ 
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
@@ -116,9 +115,7 @@
 										</div>
                                     </div>
                                 </div>
-                                
-                                
-                                
+  
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
                                         <div class="form-group">
@@ -133,9 +130,7 @@
 										</div>
                                     </div>
                                 </div>
-                                
-                                
-                                
+ 
                                 <div class="form-row">
                                     <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
                                         <div class="form-group">
@@ -148,14 +143,9 @@
 											<output  id="score_communication_disp"></output>	
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
-                                   
                                     </div>
                                 </div>
-                                
-                                
-                       
-                                
-                                 <div class="form-row">
+                                <div class="form-row">
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Next</button></div>
                                     </div>
@@ -165,8 +155,6 @@
                                         </a> 
                                     </div>
                                 </div>
-                             
-                            
                             </div>
                         </form>
                     </div>
