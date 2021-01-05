@@ -61,21 +61,28 @@ def send_secret_code (username, code, mode) :
 
 
 
-# walletconnect
-#@app.route('/wc/', methods = ['GET', 'POST'])
-def wc(mode) :
+# walletconnect login
+#@app.route('/wc_login/', methods = ['GET', 'POST'])
+def wc_login(mode) :
 	if request.method == 'GET' :
-		return render_template('wc.html')
+		session['wc_address'] = True
+		return render_template('wc_confirm.html')
+
 	if request.method == 'POST' :
-		myaddress = request.form.get('address')
+		if not session['wc_address'] :
+			return render_template('login.html')
+		myaddress = request.form['address']
+		print('request form = ', myaddress)
+		#if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
+		#	session['username'] = 'masociete'
+		#	return redirect(mode.server + 'user/')
 		if not myaddress :
-			flash('Scan QR code', 'warning')
-			return render_template('wc.html')
-		try :
-			workspace_contract = ownersToContracts(myaddress, mode)
-		except :
-			flash('address unknown', 'warning')
-			return render_template('wc.html')
+			flash('Scan QR code or log with password', 'warning')
+			return render_template('login.html')
+		workspace_contract = ownersToContracts(myaddress, mode)
+		if not workspace_contract :
+			session['wc_address'] = False
+			return render_template('wc_reject.html')
 		username = ns.get_username_from_resolver(workspace_contract, mode)
 		print('username de wallet = ', username)
 		session['username'] = username

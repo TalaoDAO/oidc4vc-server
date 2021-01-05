@@ -36,10 +36,13 @@
                   <div class="col">
                     <div  class="p-5">
                       <div id="display">
-                        <div class="text-center"><h4 class="text-dark mb-4">Connect with your WalletConnect</h4></div>
-                        <button  class="btn btn-primary btn-block text-white btn-user" onclick="Init()">Scan QR code</button>
+                        <div class="text-center"><h4 class="text-dark mb-4">Connect with your mobile wallet</h4>
+                        <button  class="btn btn-primary center-block text-white " onclick="Init()">Scan WalletConnect QR code</button>
+                        </div>
                       </div>
                       <br>
+                      <div id="reset"></div>
+
                       <div class="text-center"><a class="small" href="/login/" >Login with passsword</a></div>
                     </div>
                   </div>
@@ -60,8 +63,11 @@
 
   <script>
     function mydisplay(){
-    var htmli = "<div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4></div><br><div class='form-group'>Your address : <input name='address' id='test_address' readonly size = '40' style='border :0'></input><br></div><form class='user' action='/wc/' method='POST'><button class='btn btn-primary btn-block text-white btn-user' type='submit'>Confirm and connect</button></form>";
+    var htmli =  "<div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4><form class='user' action='/wc/' method='POST'>Your address : <input class='text-secondary' name='address' type='text' id='test_address' readonly size = '40' style='border :0'></input><br><br><button class='btn btn-primary text-white btn-user' type='submit'>Confirm and connect</button></form></form></div>";
+    var htmli2 =  '<div class="text-center"><a class="small" onclick="End()" href="#" >Change address</a></div>'
+
     $("#display").html(htmli);
+    $("#reset").html(htmli2);
     }
   </script>
 
@@ -73,7 +79,7 @@
 
   <script> function End() {
     window.onEnd();
-    document.getElementById("test_address").value = "";
+    window.location.href = "/wc/";
   }
   </script>
 

@@ -44,6 +44,9 @@
 
   <ul class="navbar-nav mr-2 " style="flex-direction: row;">
     <div class="d-inline-flex justify-content-center">
+
+
+
     <li class="nav-item mx-1"><a class="nav-link active py-auto" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>Identity</strong></h4></a></li>
     <li class="nav-item mx-1"><a class="nav-link active py-auto" href="/user/issuer_explore/?issuer_username={{username}}" style="color: rgba(255,255,255,0.9);"><h4><strong>Board</strong></h4></a></li>
 
@@ -71,12 +74,17 @@
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" role="presentation" href="http://talao.rtfd.io/"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" role="presentation" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+          <a class="dropdown-item" role="presentation" onclick="End()" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+          <a class="dropdown-item" role="presentation" onclick="getAccounts()" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;WalletConnect accounts</a>
+
+
         </div>
       </div>
     </li>
   </ul>
 </nav>
+
+
 <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='typeahead.bundle.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='Typeahead.js') }}"></script>

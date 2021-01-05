@@ -20,7 +20,7 @@
 
 </head>
 
-<body id="page-top">
+<body id="page-top" onload="page_onload()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -271,6 +271,18 @@
         document.execCommand("copy");
         $temp.remove();
       }</script>
+
+
+  
+<script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+  
+<script> function End() {
+    window.onEnd();
+    window.location.href = "/login/";
+  }
+  </script>
+
+
 
 </body>
 

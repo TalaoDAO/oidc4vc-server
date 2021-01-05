@@ -64,6 +64,8 @@
       </ul>
       <ul class="navbar-nav mr-2" style="flex-direction: row;">
       <div class="d-inline-flex justify-content-center">
+        <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" id="id_wc" class="nav-link active"></a></li> 
+
       <li class="nav-item mx-1"><a class="nav-link active" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>Identity</strong></h4></a></li>
       <li class="nav-item mx-1"><a class="nav-link active" href="/user/issuer_explore/?issuer_username={{username}}" style="color: rgba(255,255,255,0.9);"><h4><strong>Resume</strong></h4></a></li>
       <li class="nav-item mx-1"><a class="nav-link " href="/user/data_analysis/" style="color: rgba(255,255,255,0.5);"><h4><strong>Dashboard</strong></h4></a></li>
@@ -94,12 +96,22 @@
 
             {% endif %}
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+            <a class="dropdown-item" role="presentation" title="Exit" onclick="logout()" href="#"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
           </div>
 
         </div>
         </ul>
 </nav>
+
+<script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
+<script>function logout() {
+console.log('call de logout');
+window.onEnd();
+window.location.href = "/logout/";
+}
+</script>
+
 <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
 <script>
   function copyToClipboard(element) {

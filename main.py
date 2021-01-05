@@ -155,7 +155,7 @@ app.add_url_rule('/board/', view_func=web_CV_blockchain.board, methods = ['GET',
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for user, data, login
-app.add_url_rule('/wc/',  view_func=web_data_user.wc, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/wc_login/',  view_func=web_data_user.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'], defaults={'mode': mode})

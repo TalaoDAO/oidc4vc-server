@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body id="page-top" onload="page_onload()" >
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% include 'guest_nav_bar.html' %}
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-10 col-xl-8">
+              <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
+                <div class="card-body p-0">
+                  <div class="col">
+                    <div  class="p-5">
+                        <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
+                       <div>
+                            Your wallet address in unknown.
+                            <br><br>
+                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change address or log with password</button>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include 'user_footer.html' %}
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
+
+  <script> function End() {
+    window.onEnd();
+    window.location.href = "/login/";
+  }
+  </script>
+
+  <script> function call_sendToken() {
+      let one_address = document.getElementById("id_address").value ;
+      window.sendToken(one_address);
+    };
+  </script>
+
+
+<script>
+function page_onload(){
+  window.getAddressConnected();
+}
+</script>
+
+</body>
+</html>
