@@ -376,7 +376,10 @@ def show_certificate(mode):
 				del response
 
 		if session['displayed_certificate']['competencies'] :
-			competencies = session['displayed_certificate']['competencies'].replace(' ', '').split(",")
+			print (' compencies = ', session['displayed_certificate']['competencies'])
+			# cf probleme avec autre modifs / CCI
+			#competencies = session['displayed_certificate']['competencies'].replace(' ', '').split(",")
+			competencies = session['displayed_certificate']['competencies']
 			my_badge = ""
 			for competencie in competencies :
 				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ competencie.capitalize() + """</span>"""
