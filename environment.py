@@ -80,17 +80,7 @@ class currentMode() :
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 
-		# sur PC portable alex
-		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'freebox' :
-			self.keystore_path = "" # to be defined
-			self.db_path = '/home/jarvis/Bureau/Eth/db/'
-			self.IPCProvider = '/home/jarvis/talaonet/geth.ipc"'
-			self.w3 = Web3(Web3.IPCProvider('/home/jarvis/talaonet/geth.ipc', timeout=20))
-			self.uploads_path = '/home/jarvis/Bureau/Eth/Talao/uploads/'
-			self.server = 'http://192.168.1.8:3000/'
-			self.flaskserver = "192.168.1.8"
-			self.port = 3000
-
+	
 		# En Prod sur Rinkeby
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':
 			self.keystore_path = "/home/admin/Talao/keystore/"

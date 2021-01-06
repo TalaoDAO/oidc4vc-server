@@ -34,9 +34,12 @@
                   <div class="col">
                     <div  class="p-5">
                         <div class='text-center'><h4 class='text-dark mb-4'>Scan with your Mobile Wallet</h4>
-                            On most crypto mobile wallet (Trust, Metamask, Argent,...), go to Settings, on the settings screen, select <b>WalletConnect</b>. 
-                            This opens the camera to scan the QR code. After scanning, it should prompt you to approve the connection to <b>Talao Professional Identity</b>.
-                            <br><br>
+                            To access your Identity we support several crypto mobile wallets (Trust, Metamask, Argent, Rainbow, Pillar, ImToken, TokenPocket, Mykey, Nash...).<br>
+                            To connect, go to Settings, on the settings screen, select <a href="https://walletconnect.org/" >WalletConnect</a>.<br>
+                            This opens the camera to scan the QR code. After scanning, it should prompt you to approve the connection to <b>Talao Professional Identity.</b><br>
+                            If you use your mobile to access the Talao website, your crypto mobile app will open automatically.
+                            Your mobile will allow you to list the supported mobile linking wallets and provide you with logo, name, color and targetted deep links.
+                            <br>
                         <br>
                         <div class="form-group"><button  onclick="goBack()" class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Back</button></div>
 
@@ -55,27 +58,7 @@
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
-
-  <script> function End() {
-    window.onEnd();
-    window.location.href = "/login/";
-  }
-  </script>
-
-  <script> function call_sendToken() {
-      let one_address = document.getElementById("id_address").value ;
-      window.sendToken(one_address);
-    };
-  </script>
-
-
-<script>
-function page_onload(){
-  window.getAddressConnected();
-}
-</script>
 
 </body>
 </html>

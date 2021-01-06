@@ -34,29 +34,41 @@ provider.on("disconnect", (code, reason) => {
 }
 
 
-
-async function oninit() {
+async function oninit(mobile) {
   // Create a provider
-  provider = new WalletConnectProvider({
-    rpc: {
+  console.log ('argument = ', mobile);
+  if (mobile == 'mobile') {
+    console.log('Mobile');
+    provider = new WalletConnectProvider({
+      rpc: {
       1 : "https://talao.co/rpc",
-    },
-    qrcode: false,
-  });
+      },
+      });
+  }
+  else {
+    console.log('PC');
+    provider = new WalletConnectProvider({
+      rpc: {
+        1 : "https://talao.co/rpc",
+        },
+        qrcode: false,
+        });
 
-  // display custom QRcode
-  provider.connector.on("display_uri", (err, payload) => {
+    // display custom QRcode
+    provider.connector.on("display_uri", (err, payload) => {
     var uri = payload.params[0];
     console.log('uri = ',uri);
     QRCode.toCanvas(canvas, uri, function (error) {
       if (error) console.error(error)
-    console.log('success!');
-    })
-  });
-
+        console.log('success!');
+        })
+    });
+  }
+  // if provider rejected go back to login
   await provider.enable()
   .catch(e => {console.log(e);
     console.log('rejet provider enable');
+   window.location.href = "/login/";
   });
 
   // create web3 object
@@ -65,12 +77,12 @@ async function oninit() {
 
   subscribe();
 
-   // get block number and display
+   // get block number and display on console
   web3.eth.getBlockNumber().then(value => {
     console.log('block Number = ', value);
     });
 
-  // at Login if connected go to confirm address and connect view
+  // at login if connected go to confirm mobile account
     web3.eth.getAccounts().then(account => {console.log(account);
       if (provider){
         window.location.href = "/wc_login/";
@@ -83,7 +95,8 @@ async function oninit() {
 }
 
 
-async function get_address_connected(){
+async function getaccountaddress(){
+  let myaccount = '';
   provider = new WalletConnectProvider({
     rpc: {
       1 : "https://talao.co/rpc",
@@ -96,10 +109,10 @@ async function get_address_connected(){
 
   web3 = new Web3(provider);
 
-  web3.eth.getAccounts().then(account => {
-    document.getElementById("id_address").value = account[0];
-    document.getElementById("id_wc").innerHTML ='Wallet connected';
+  await web3.eth.getAccounts().then(account => {
+    myaccount = account[0];
     });
+  return myaccount;
   }
 
 async function sendtoken(receiver) {
@@ -152,7 +165,6 @@ web3.eth.sendTransaction({
 */
 
 
-
 async function onend() {
 
   if (!provider) {
@@ -187,29 +199,11 @@ function mypersonalmessage(msg) {
     });
 }
 
-async function getaccounts(){
-
-  provider = new WalletConnectProvider({
-    rpc: {
-      1 : "https://talao.co/rpc",
-    },
-    qrcode: false,
-  });
-
-  await provider.enable();
-  web3 = new Web3(provider);
-  const accounts = await web3.eth.getAccounts();
-  console.log('account = ', accounts)
-}
-
-
-window.getAccounts = getaccounts
 window.sendToken = sendtoken;
 window.createVaultAccess = createvaultaccess;
 //window.signTransaction = signtransaction;
 window.onEnd = onend;
 window.onInit = oninit;
 window.signPersonalMessage = mypersonalmessage;
-window.getAddressConnected = get_address_connected;
-window.Subscribe = subscribe;
+window.getAccountAddress = getaccountaddress;
 

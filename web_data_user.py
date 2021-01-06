@@ -152,9 +152,12 @@ def two_factor(mode) :
 def login(mode) :
 	if request.method == 'GET' :
 		session.clear()
-		if request.args.get('mobile') :
-			return render_template('login_mobile.html', username=request.args.get('username', ""))
+		if request.args.get('mobile') == 'on':
+			print('mobile')
+			return render_template('login_mobile.html')
+		print('PC')
 		return render_template('login.html', username=request.args.get('username', ""))
+	
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1

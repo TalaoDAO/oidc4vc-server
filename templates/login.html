@@ -7,8 +7,11 @@
     <title>Talao Professional Identity</title>
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- 
+
  <style type="text/css">
      #test {
     width: auto;
@@ -17,7 +20,7 @@
 </style>
 
 </head>
-<body id="page-top" onload="page_onload()"> 
+<body id="page-top" onload="window.onInit('mobile off')">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -43,7 +46,7 @@
 
                                         <div class="col-lg-6 d-none d-lg-flex">
                                             <div class="p-5">
-                                            <div class="text-center"><h4 class="text-dark mb-4">Connect with scan</h4></div>
+                                            <div class="text-center"><h4 class="text-dark mb-4">Connect with QR Code</h4></div>
                                                 <div id="test">
                                                     <canvas id="canvas" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
                                                 </div>
@@ -83,12 +86,6 @@
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
-    <script>
-        function page_onload(){
-        window.onInit();
-        document.getElementById("id_wc").innerHTML ='Wallet disconnected';
-        }
-    </script>
 
 </body>
 </html>
