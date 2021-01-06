@@ -52,6 +52,7 @@ class currentMode() :
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.uploads_path = '/home/admin/Talao/uploads/'
+			self.help_path = '/home/admin/Talao/templates/'
 			self.IP = '18.190.21.227' # talao.co
 			self.server = 'https://talao.co/'
 
@@ -62,6 +63,7 @@ class currentMode() :
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
 			self.uploads_path = '/home/thierry/Talao/uploads/'
+			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://127.0.0.1:3000/'
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
@@ -73,6 +75,7 @@ class currentMode() :
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
 			self.uploads_path = '/home/thierry/Talao/uploads/'
+			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://192.168.0.6:3000/'
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
@@ -95,6 +98,8 @@ class currentMode() :
 			self.w3 = Web3(Web3.IPCProvider('/home/admin/rinkeby/geth.ipc', timeout=20))
 			self.IPCProvider = '/home/admin/rinkeby/geth.ipc'
 			self.uploads_path = '/home/admin/Talao/uploads/'
+			self.help_path = '/home/admin/Talao/templates/'
+
 			self.IP = '18.190.21.227'
 			self.server = 'https://talao.co/'
 
@@ -105,6 +110,7 @@ class currentMode() :
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))
 			self.uploads_path = '/home/thierry/Talao/uploads/'
+			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://192.168.0.6:3000/'
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
@@ -116,6 +122,7 @@ class currentMode() :
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))
 			self.uploads_path = '/home/thierry/Talao/uploads/'
+			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://127.0.0.1:3000/'
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000

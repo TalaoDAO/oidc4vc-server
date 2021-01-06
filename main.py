@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.17.0"
+VERSION = "0.2.0"
 API_SERVER = True
 
 # Flask and Session setup
@@ -1832,6 +1832,12 @@ def send_file(filename):
 @app.route('/fonts/<filename>')
 def send_fonts(filename):
     return send_from_directory(FONTS_FOLDER, filename)
+
+# help upload
+@app.route('/help/')
+def send_help():
+    filename = request.args['file']
+    return render_template(filename)
 
 @app.route('/user/download/', methods=['GET', 'POST'])
 def download_file():
