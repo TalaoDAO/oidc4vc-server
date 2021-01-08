@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="description" content="Professional Decentralized Identity Solution">
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
+
   <title>Talao Professional Identity</title>
   <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
   <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
@@ -35,9 +38,9 @@
                     <div  class="p-5">
                         <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
                        <div>
-                            Your wallet address in unknown.
+                            Your wallet account in unknown, no Identiy found.
                             <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change address or log with password</button>
+                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change mobile account or log with password</button>
                        </div>
                     </div>
                   </div>
@@ -70,6 +73,10 @@
 
 <script>
 function page_onload(){
+  const value = "";
+  window.getAccountAddress().then(value => {
+    console.log('value = ', value);
+    });
 }
 </script>
 

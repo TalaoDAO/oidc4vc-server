@@ -73,6 +73,8 @@ def wc_login(mode) :
 			return render_template('login.html')
 		myaddress = request.form['address']
 		print('request form = ', myaddress)
+		#0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
+
 		#if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
 		#	session['username'] = 'masociete'
 		#	return redirect(mode.server + 'user/')

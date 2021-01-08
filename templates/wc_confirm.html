@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="description" content="Professional Decentralized Identity Solution">
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
+
   <title>Talao Professional Identity</title>
   <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
   <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
@@ -35,7 +38,9 @@
                     <div  class="p-5">
                         <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
                         <form class='user' action='/wc_login/' method='POST' >
-                            <p>Your address :</p>
+                          <p>Your mobile wallet :</p>
+                          <p id='id_wallet_html'></p>  
+                          <p>Your mobile wallet account :</p>
                             <p id='id_address_html'></p>
                             <input hidden name='address' type='text' id='id_address'></input>
                             <br>
@@ -76,10 +81,11 @@
 function page_onload(){
   const value = "";
   window.getAccountAddress().then(value => {
-  console.log('value = ', value);
-  document.getElementById("id_address").value = value;
-  document.getElementById("id_address_html").innerHTML = value;
-  });
+    console.log('value = ', value);
+    document.getElementById("id_address").value = value[0];
+    document.getElementById("id_address_html").innerHTML = value[0];
+    document.getElementById("id_wallet_html").innerHTML = value[1];
+    });
 }
 </script>
 
