@@ -82,6 +82,18 @@ class currentMode() :
 			self.port = 3000
 
 	
+		# sur PC portable Houdan thierry avec acces internet par reseau (pour les test depuis un smartphone)
+		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'liveboxh' :
+			self.keystore_path = "/home/thierry/Talao/keystore/"
+			self.db_path = '/home/thierry/db/talaonet/'
+			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
+			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			self.uploads_path = '/home/thierry/Talao/uploads/'
+			self.help_path = '/home/thierry/Talao/templates/'
+			self.server = 'http://192.168.0.34:3000/'
+			self.flaskserver = "192.168.0.34"
+			self.port = 3000
+
 		# En Prod sur Rinkeby
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':
 			self.keystore_path = "/home/admin/Talao/keystore/"

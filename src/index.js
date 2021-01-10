@@ -40,7 +40,7 @@ async function oninit(mobile) {
     console.log('Call from mobile device');
     provider = new WalletConnectProvider({
       rpc: {
-      1 : "https://talao.co/rpc",
+      50000 : "https://talao.co/rpc",
       },
       });
   }
@@ -48,7 +48,7 @@ async function oninit(mobile) {
     console.log('Call from Desktop');
     provider = new WalletConnectProvider({
       rpc: {
-        1 : "https://talao.co/rpc",
+        50000 : "https://talao.co/rpc",
         },
         qrcode: false,
         });
@@ -107,6 +107,8 @@ async function oninit(mobile) {
 async function getaccountaddress(){
   let mobile_account = '';
   let mobile_wallet ='';
+  let mobile_icon = '';
+
   provider = new WalletConnectProvider({
     rpc: {
       1 : "https://talao.co/rpc",
@@ -120,7 +122,8 @@ async function getaccountaddress(){
 
   mobile_account = provider.accounts[0];
   mobile_wallet = provider.wc._peerMeta['name'];
-  return [mobile_account, mobile_wallet ];
+  mobile_icon = provider.wc._peerMeta['icons'][0];
+  return [mobile_account, mobile_wallet, mobile_icon ];
   }
 
 

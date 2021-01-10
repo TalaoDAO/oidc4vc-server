@@ -38,9 +38,12 @@
                     <div  class="p-5">
                         <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
                         <form class='user' action='/wc_login/' method='POST' >
-                          <p>Your mobile wallet :</p>
-                          <p id='id_wallet_html'></p>  
-                          <p>Your mobile wallet account :</p>
+                      <!--    <p>Your mobile wallet :</p>
+                          <p id='id_wallet_html'></p>  -->
+                          <div class="">
+                            <a href="/"><img id="walletlogo" src="" style="width: 120px;border-radius:0px;"></a>
+                          </div>
+                            <p>Your mobile wallet account :</p>
                             <p id='id_address_html'></p>
                             <input hidden name='address' type='text' id='id_address'></input>
                             <br>
@@ -87,7 +90,13 @@ function page_onload(){
     console.log('value = ', value);
     document.getElementById("id_address").value = value[0];
     document.getElementById("id_address_html").innerHTML = value[0];
-    document.getElementById("id_wallet_html").innerHTML = value[1];
+    //document.getElementById("id_wallet_html").innerHTML = value[1];
+    console.log('value 2 = ', value[2]);
+    if (value[2] == null)
+    {var filename= value[1].replace(' ', '').toLowerCase();
+    document.getElementById("walletlogo").src="/static/img/wallet/" + filename + ".png";}
+    else 
+    document.getElementById("walletlogo").src=value[2];
     });
 }
 </script>
