@@ -94,6 +94,30 @@ def show_certificate(mode):
 							title = session['displayed_certificate']['title'],
 							)
 
+	if self_claim == "skills" :
+		print('self claim de skill = ', session['displayed_certificate'])
+		description = session['displayed_certificate']['description']
+
+		my_badge = ''
+		#for skill in session['displayed_certificate']['skills'] :
+		#	skill_to_display = skill.replace(" ", "").capitalize().strip(',')
+		#	my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
+		return render_template('./certificate/self_claim.html',
+							**menu,
+							type = 'Experience',
+							certificate_id= certificate_id,
+							#company = session['displayed_certificate']['company']['name'],
+							#email = session['displayed_certificate']['company']['contact_email'],
+							#tel = session['displayed_certificate']['company']['contact_phone'],
+							#contact_name = session['displayed_certificate']['company']['contact_name'],
+							#start_date = session['displayed_certificate']['start_date'],
+							#end_date = session['displayed_certificate']['end_date'],
+							description = description,
+							#badge = my_badge,
+							viewer=viewer,
+							#title = session['displayed_certificate']['title'],
+							)
+
 	if self_claim == "education" :
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
@@ -138,7 +162,7 @@ def show_certificate(mode):
 				context ["star"+str(q)+str(i)] = black_star
 
 		if session['displayed_certificate']['skills'] :
-			skills = session['displayed_certificate']['skills'].replace(' ', '').split(",")
+			skills = session['displayed_certificate']['skills']
 			my_badge = ""
 			for skill in skills :
 				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill.capitalize() + """</span>"""
@@ -376,7 +400,6 @@ def show_certificate(mode):
 				del response
 
 		if session['displayed_certificate']['competencies'] :
-			print (' compencies = ', session['displayed_certificate']['competencies'])
 			# cf probleme avec autre modifs / CCI
 			#competencies = session['displayed_certificate']['competencies'].replace(' ', '').split(",")
 			competencies = session['displayed_certificate']['competencies']

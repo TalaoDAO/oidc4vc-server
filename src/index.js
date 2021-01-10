@@ -11,26 +11,30 @@ const token_address = '0x6F4148395c94a455dc224A56A6623dEC2395b99B';
 let provider = null;
 //let contract = null;
 
-function subscribe () {
-// Subscribe to accounts change
-provider.on("accountsChanged", (account) => {
-  console.log('accountschanged  ', account[0]);
+
+
+function onSubscribe() {
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
+
+  provider.on("accountsChanged", accounts => {
+    console.log(accounts);
   });
 
-// Subscribe to chainId change
-provider.on("chainChanged", (chainId) => {
-  console.log('chainid changed  ', chainId);
+  provider.on("chainChanged", chainId => {
+    console.log(chainId);
   });
 
-// Subscribe to mobile disconnect
-provider.on("disconnect", (code, reason) => {
-  console.log('disconnected');
-  console.log(code, reason);
+  provider.on("close", () => {
+    provider = null;
+    console.log('wallet closed ');
   });
 }
 
-async function oninit(mobile) {
 
+async function oninit(mobile) {
+  console.log('provider debut oninit = ', provider)
   // init walletconnect with or whithout builtin QR code
   if (mobile == 'mobile') {
     console.log('Call from mobile device');
@@ -53,30 +57,31 @@ async function oninit(mobile) {
     var uri = payload.params[0];
     console.log('uri = ',uri);
     QRCode.toCanvas(canvas, uri, function (error) {
-      if (error) console.error(error)
+      if (error) {console.error(error);
+      }
+      else 
         {console.log('connexion success !');
-        console.log('provider = ',provider)}
-
+        console.log('provider = ',provider);}
         })
     });
   }
 
-  // if provider rejected go back to login
-  await provider.enable()
-  .catch(e => {console.log(e);
-    console.log('rejet provider enable');
-    window.location.href = "/login/";
+  onSubscribe();
+
+  provider.enable()
+  .catch(e => {
+    console.log(e);
     })
-  .then(value => {console.log('provider = ',value)
-    window.location.href = "/wc_login/";});
+  .then(value => {
+    console.log('provider = ',value);
+    window.location = "/wc_login/?value=" + value;
+    });
 
 
   // create web3 object
   //web3 = new Web3(provider);
   //contract = new web3.eth.Contract(Talao_Token_ABI, token_address);
 
-  // subscribe on event 
-  subscribe();
 
   /*
   // get block number and display on console

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include 'head.html' %}
+
+ <style type="text/css">
+     #qrcode {
+    width: 244px;
+    margin-right: auto;
+    margin-left: auto;
+   }
+</style>
+
+</head>
+<body id="page-top" onload="page_onload()">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+			    {% if messages %}
+				{% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+				{% endfor %}
+			    {% endif %}
+		        {% endwith %}
+                {% include 'guest_nav_bar.html' %}
+                <div class="container">
+                    <div class="row justify-content-center">
+         <!--             <div class="col-md-4 col-lg-4 col-xl-4">  -->
+                        <div class="col-4 ">
+                            
+				            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
+                                <div class="card-body">
+                                    <div class="text-center"><h4 class="text-dark mb-4">Connect with your Mobile Wallet</h4></div>
+                                        <div id="qrcode">
+                                            <canvas id="canvas" width="244" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
+                                        </div>
+                                        <div class="text-center"><a class="small" href="/help/?file=wc_help.html" >Help</a></div>  
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'user_footer.html' %}
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
+    <script>function page_onload() {
+        console.log('page onload de login.html');
+        window.onInit('mobile_off');
+        }
+        </script>
+
+</body>
+</html>
+

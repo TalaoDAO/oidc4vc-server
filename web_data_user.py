@@ -65,19 +65,26 @@ def send_secret_code (username, code, mode) :
 #@app.route('/wc_login/', methods = ['GET', 'POST'])
 def wc_login(mode) :
 	if request.method == 'GET' :
+
+		# call from JS, QRmodal rejected by user
+		if request.args.get('value') == 'undefined' :
+			return redirect (mode.server + 'login/')
+		# init first call
 		session['wc_address'] = True
 		return render_template('wc_confirm.html')
 
 	if request.method == 'POST' :
 		if not session['wc_address'] :
 			return render_template('login.html')
-		myaddress = request.form['address']
-		print('request form = ', myaddress)
-		#0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
 
-		#if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
-		#	session['username'] = 'masociete'
-		#	return redirect(mode.server + 'user/')
+		# web3.py needs checksum addresses
+		myaddress = mode.w3.toChecksumAddress(request.form['address'])
+
+		# back door for demo with Trust wallet
+		if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
+			session['username'] = 'thierrythevenet'
+			return redirect(mode.server + 'user/')
+
 		if not myaddress :
 			flash('Scan QR code or log with password', 'warning')
 			return render_template('login.html')
@@ -152,15 +159,19 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
+	print('request = ', request.args)
 	if request.method == 'GET' :
 		session.clear()
 		if request.args.get('mobile') == 'on':
 			print('mobile')
 			return render_template('login_mobile.html')
-		print('PC')
+		if request.args.get('mobile') == 'off_qrcode_on' :
+			print('PC, login by qrcode')
+			return render_template('login_qrcode.html', username=request.args.get('username', ""))
 		return render_template('login.html', username=request.args.get('username', ""))
-	
+
 	if request.method == 'POST' :
+		print('passage par post')
 		if session.get('try_number') is None :
 			session['try_number'] = 1
 		session['username_to_log'] = request.form['username']
@@ -229,6 +240,10 @@ def login_authentification(mode) :
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout(mode) :
+	if not session.get('logout') :
+		print('appel de logout')
+		session['logout'] = 'on'
+		return render_template('logout.html')
 	# delete picture, signateure and files before logout, clear session.
 	check_login()
 	try :
@@ -236,7 +251,6 @@ def logout(mode) :
 		os.remove(mode.uploads_path + session['signature'])
 	except :
 		print('Error : effacement picture/signature erreur')
-
 	for one_file in session['identity_file'] :
 		try :
 			os.remove(mode.uploads_path + one_file['filename'])
@@ -244,7 +258,7 @@ def logout(mode) :
 			print('Error : effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
-	return render_template('login.html', name="")
+	return redirect (mode.server + 'login/')
 
 
 # mentions legales
@@ -778,6 +792,8 @@ def user(mode) :
 		else :
 			for kyc in session['kyc'] :
 				kyc_html = """
+				<b>Identity checking method</b> : Electronic <br>
+				<hr>
 				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
 				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
 				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>

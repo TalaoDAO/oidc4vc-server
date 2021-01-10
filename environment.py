@@ -33,6 +33,7 @@ class currentMode() :
 		self.relay_private_key = keys[mychain]['relay_private_key']
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']
+		self.foundation_private_key = keys[mychain].get('foundation_private_key')
 		f.close()
 
 		# upload of main private passwords. This file (passwords.json) is not in the  github repo.

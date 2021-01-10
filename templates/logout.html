@@ -36,19 +36,14 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
-                        <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
-                        <form class='user' action='/wc_login/' method='POST' >
-                          <p>Your mobile wallet :</p>
-                          <p id='id_wallet_html'></p>  
-                          <p>Your mobile wallet account :</p>
-                            <p id='id_address_html'></p>
-                            <input hidden name='address' type='text' id='id_address'></input>
-                            <br>
-                            <button class='btn btn-primary text-white btn-user'id="in_progress_button" type='submit'>Confirm and connect</button>
-                        </form>
-                        <br>
-                        <div class="text-center"><a class="small" onclick="End()" href="#" >Change account</a></div>
-                    </div>
+                        <div class='text-center'><h4 class='text-dark mb-4'>Logout</h4>
+                       <div>
+                            Your wallet account will be closed.
+                            <br><br>
+                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='submit'>Confirm your logout ?</button>
+
+                       </div>
+                </div>
                   </div>
                 </div>
               </div>
@@ -62,32 +57,20 @@
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-
 
 
   <script> function End() {
     window.onEnd();
-    window.location.href = "/login/";
+    window.location.href = "/logout/";
   }
   </script>
 
-  <script> function call_sendToken() {
-      let one_address = document.getElementById("id_address").value ;
-      window.sendToken(one_address);
-    };
-  </script>
-
-
 <script>
 function page_onload(){
-  console.log('page onload de wc_confirm.html');
   const value = "";
+  console.log('call load page');
   window.getAccountAddress().then(value => {
     console.log('value = ', value);
-    document.getElementById("id_address").value = value[0];
-    document.getElementById("id_address_html").innerHTML = value[0];
-    document.getElementById("id_wallet_html").innerHTML = value[1];
     });
 }
 </script>

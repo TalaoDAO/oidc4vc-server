@@ -1,7 +1,7 @@
 
 from .identity import Identity
 
-from .Talao_token_transaction import destroy_workspace, createVaultAccess
+from .Talao_token_transaction import destroy_workspace, createVaultAccess,  transfer_workspace
 from .Talao_token_transaction import get_data_from_token, read_profil, get_category
 from .Talao_token_transaction import contractsToOwners, token_balance, is_partner, get_partner_status
 from .Talao_token_transaction import partnershiprequest, authorize_partnership, remove_partnership, reject_partnership

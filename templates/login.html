@@ -2,18 +2,7 @@
 <html>
 
 <head>
-     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <meta name="description" content="Professional Decentralized Identity Solution">
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 
  <style type="text/css">
      #test {
@@ -23,7 +12,7 @@
 </style>
 
 </head>
-<body id="page-top" onload="window.onInit('mobile_off')">
+<body id="page-top" onload="page_onload()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -49,7 +38,7 @@
 
                                         <div class="col-lg-6 d-none d-lg-flex">
                                             <div class="p-5">
-                                            <div class="text-center"><h4 class="text-dark mb-4">Connect with QR Code</h4></div>
+                                            <div class="text-center"><h4 class="text-dark mb-4">Connect with Wallet</h4></div>
                                                 <div id="test">
                                                     <canvas id="canvas" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
                                                 </div>
@@ -89,6 +78,12 @@
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
+    <script>function page_onload() {
+        console.log('page onload de login.html');
+        window.onInit('mobile_off');
+        }
+        </script>
 
 </body>
 </html>

@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 API_SERVER = True
 
 # Flask and Session setup
@@ -158,7 +158,7 @@ app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_ex
 app.add_url_rule('/wc_login/',  view_func=web_data_user.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET'], defaults={'mode': mode})
+app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password_2/',  view_func=web_data_user.forgot_password_2, methods = ['GET', 'POST'], defaults={'mode': mode})

@@ -57,13 +57,17 @@ class ExportingThread(threading.Thread):
 
 # main function called by external modules
 def create_user(username, email, mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
+	"""
+	is_thread :bool, by default partly an async task.
 
-	# step 1
+	"""
+
+	# step 1, thus step is synchronous
 	address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone)
 	if not address :
 		return None, None, None
 
-	# Step 2 : maybe asynchronous
+	# Step 2 : this step maybe asynchronous
 	if is_thread :
 		thread_id = str(random.randint(0,10000 ))
 		exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)

@@ -71,6 +71,7 @@ def resume(mode) :
 			if is_encrypted:
 				my_file = my_file + """<a href="/register/">Register to access encrypted Data.</a><br>"""
 
+		# experience
 		experiences = []
 		for experience in issuer_explore.certificate:
 			if experience['type']=='experience':
@@ -172,7 +173,8 @@ def resume(mode) :
 					carousel_rows_experience += '</div></div>'
 				if i == len(experiences)-1:
 					carousel_rows_experience += '</div></div>'
-
+		
+		# recommendation
 		recommendations = []
 		for certificate in issuer_explore.certificate:
 			if certificate['type'] == "recommendation":
@@ -187,6 +189,12 @@ def resume(mode) :
 			for i in range(nbr_rows):
 				carousel_indicators_recommendation += '<li data-target="#recommendation-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, recommendation in enumerate(recommendations):
+
+				if recommendation['issuer']['category'] == 2001:
+					name = recommendation['issuer']['name']
+				else :
+					name = recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname']
+
 				try:
 					logo = recommendation['logo']
 				except:
@@ -214,10 +222,11 @@ def resume(mode) :
 				#verified
 				carousel_rows_recommendation +="""<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
-				carousel_rows_recommendation += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + recommendation['title'] + "</h4></div></div>"
+				carousel_rows_recommendation += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + recommendation.get('title', "") + "</h4></div></div>"
 				#body
-				carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + "<br>"
-				carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation['relationship'] + "<br>"
+
+				carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + name + "<br>"
+				carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation.get('relationship', '') + "<br>"
 				carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:150]
 				if len(recommendation['description'])>150:
 					carousel_rows_recommendation += "...<br>"
@@ -226,7 +235,7 @@ def resume(mode) :
 
 				carousel_rows_recommendation += "</p>"
 				#Footer
-				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em; color:white;">Certified by """ + recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname'] + """</footer>"""
+				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em; color:white;">Certified by """ + name + """</footer>"""
 				#Lien certificates
 				carousel_rows_recommendation += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(recommendation['doc_id']) + """></a>"""
 
@@ -236,6 +245,7 @@ def resume(mode) :
 				if i == len(recommendations)-1:
 					carousel_rows_recommendation += '</div></div>'
 
+		# education
 		carousel_indicators_education = """<li data-target="#education-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_education = ""
 		if issuer_explore.education == []:
@@ -292,6 +302,7 @@ def resume(mode) :
 				if i == len(educations)-1:
 					carousel_rows_education += '</div></div>'
 
+		# skills
 		skills = []
 		for certificate in issuer_explore.certificate:
 			if certificate['type'] == "skill":
@@ -320,7 +331,7 @@ def resume(mode) :
 					elif i==4:
 						carousel_rows_skill += ""
 				carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-				carousel_rows_skill += """<a href=  /data/?dataId="""+ issuer_explore.skills['id'] + """:skills></a>"""
+				carousel_rows_skill += """<a href=/certificate/?certificate_id="""+ issuer_explore.skills['id'] + """:skills></a>"""
 				carousel_rows_skill += """</figure></div>"""
 				carousel_rows_skill += '</div></div>'
 		else:
@@ -394,7 +405,7 @@ def resume(mode) :
 						elif i==4:
 							carousel_rows_skill += "..."
 					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-					carousel_rows_skill += """<a href=  /data/?dataId="""+ issuer_explore.skills['id'] + """:skills></a>"""
+					carousel_rows_skill += """<a href= /certificate/?certificate_id="""+ issuer_explore.skills['id'] + """:skills></a>"""
 					carousel_rows_skill += """</figure></div>"""
 
 					if created_row:
@@ -426,7 +437,7 @@ def resume(mode) :
 							carousel_rows_education=carousel_rows_education,
 							carousel_rows_skill=carousel_rows_skill)
 	else:
-		abor(403)
+		abort(403)
 # /board
 def board(mode):
 	""" This is always an external entry point"""
@@ -619,4 +630,4 @@ def board(mode):
                             competencies = my_competencies,
 							)
 	else:
-		abor(403)
+		abort(403)

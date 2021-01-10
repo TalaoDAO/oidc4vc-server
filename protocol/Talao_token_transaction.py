@@ -113,6 +113,25 @@ def destroy_workspace(workspace_contract, private_key, mode) :
 		return None
 	return hash1
 
+def transfer_workspace(address_to, workspace_contract, mode) :
+
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	address = mode.foundation_address
+	private_key = mode.foundation_private_key
+
+	# Build, sign transaction
+	nonce = mode.w3.eth.getTransactionCount(address)
+	txn = contract.functions.transferOwnershipInFoundation(workspace_contract, address_to).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key)
+
+	# send transaction
+	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
+	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
+	if receipt['status'] == 0 :
+		return None
+	return hash1
+
 def contractsToOwners(workspace_contract, mode) :
 	w3 = mode.w3
 	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
