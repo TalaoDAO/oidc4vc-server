@@ -80,9 +80,13 @@ def wc_login(mode) :
 		# web3.py needs checksum addresses
 		myaddress = mode.w3.toChecksumAddress(request.form['address'])
 
-		# back door for demo with Trust wallet
+		# back door for demo with crypto wallet
 		if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
 			session['username'] = 'thierrythevenet'
+			return redirect(mode.server + 'user/')
+
+		if myaddress == "0x87E127664Bbdb45483517814051229a4484a66B1" :
+            session['username'] = 'nicolasmuller'
 			return redirect(mode.server + 'user/')
 
 		if not myaddress :

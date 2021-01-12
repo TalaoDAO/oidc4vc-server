@@ -170,9 +170,12 @@ def oauth_wc_login(mode) :
           	return render_template('/oauth/oauth_login_qrcode.html')
         # web3.py needs checksum addresses
         myaddress = mode.w3.toChecksumAddress(request.form['address'])
-        # back door for demo with Trust wallet
+
+        # reverse for demo with crypto wallet
         if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
             session['username'] = 'thierrythevenet'
+        if myaddress == "0x87E127664Bbdb45483517814051229a4484a66B1" :
+            session['username'] = 'nicolasmuller'
         else :
             workspace_contract = ownersToContracts(myaddress, mode)
             if not workspace_contract :
