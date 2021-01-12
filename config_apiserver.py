@@ -29,6 +29,7 @@ def config_api_server(app, mode) :
 
     # Identity Provider
     app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+    app.add_url_rule('/api/v1/oauth_login_larger', view_func=web_oauth.oauth_login_larger, methods = ['GET', 'POST'], defaults ={'mode' : mode})   
     app.add_url_rule('/api/v1/oauth_wc_login/', view_func=web_oauth.oauth_wc_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
 
     app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])

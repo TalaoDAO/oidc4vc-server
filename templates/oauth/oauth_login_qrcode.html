@@ -18,9 +18,21 @@
        margin-left: auto;
       }
    </style>
+
 </head>
 
 <body onload="page_onload()">
+
+<div class="d-block d-lg-none">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+          <div id="content"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-none d-sm-block" >
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-4 ">
@@ -31,21 +43,28 @@
                                 <canvas id="canvas" width="244" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
                             </div>
                             <div class="text-center"><a class="small" href="/help/?file=/oauth/oauth_wc_help.html" >Help</a></div>  
-                            <div class="text-center"><a class="small" href="/api/v1/oauth_login?mobile=on" >Try larger !</a></div>  
+                            <div class="text-center"><a class="small" href="/api/v1/oauth_login_larger" >Try larger QR code !</a></div>  
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+    <script>function goBack() {  window.history.go(-2);}</script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='oauth-wc-talao.min.js') }}"></script>
-    <script>function page_onload() {
-        console.log('page onload de login.html');
-        window.onInit('mobile_off');
-        }
-        </script>
+
+    <script>function page_onload(){
+    if (window.screen.width <= 560)
+        {window.onInit('mobile');}
+   else
+        {window.onInit('mobile_off');}}
+    </script>
+
 </body>
 
 </html>

@@ -65,20 +65,6 @@ def resolver(mode):
         response = Response(json.dumps(payload), status=200, mimetype='application/json')
         return response
 
-def send_secret_code (username, code, mode) :
-    data = ns.get_data_from_username(username, mode)
-    if data == dict() :
-        return None
-    if not data['phone'] :
-        subject = 'Talao : Email authentification  '
-        Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
-        print('Warning : code sent by email')
-        return 'email'
-    else :
-        print('Warning : code sent by sms')
-        sms.send_code(data['phone'], code, mode)
-    return 'sms'
-
 def check_login() :
     #check if the user is correctly logged. This function is called everytime a user function is called
     if not session.get('username') :
@@ -108,9 +94,10 @@ def get_user_workspace(user_id, mode):
 
 #@route('/api/v1', methods=('GET', 'POST'))
 """
-This function is called from the Talao identity to create the API credentials of a client
+This function is called from the Talao identity to create  client API credentials for authorization server
 """
 def home():
+    check_login()
     if request.method == 'POST':
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
@@ -138,66 +125,67 @@ def oauth_logout():
     print('Warning : logout ID provider')
     return redirect(post_logout)
 
+
+# Identity Provider login
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
     """ login of the Identity provider """
-    # Inital call from /authorization
-    if request.method == 'GET' :
-        if request.args.get('mobile') == 'on' :
-             return render_template('/oauth/oauth_login_mobile.html')
-        #session['remember_me'] = 'on'
-        session['url'] = request.args.get('next')
-        return render_template('/oauth/oauth_login_qrcode.html')
+    # Inital call from authorization server redirect
+    session['url'] = request.args.get('next')
+    # session['remember_me'] = 'on'
+    return render_template('/oauth/oauth_login_qrcode.html')
+
+#@route('/api/v1/oauth_login_larger')
+def oauth_login_larger(mode):
+    """ login of the Identity provider """
+    return render_template('/oauth/oauth_login_mobile.html')
 
 
-# walletconnect login
+# Identity provider login follow up
 #@app.route('/oauth_wc_login/', methods = ['GET', 'POST'])
 def oauth_wc_login(mode) :
     if request.method == 'GET' :
-        # call from JS, QRmodal rejected by user
+        if 'reject' in  request.args :
+            print('reject in args')
+            return redirect(session['url']+'&reject=on')
+        # call from JS waletconnect, QR Code rejected by user
         if request.args.get('value') == 'undefined' :
-            return redirect (mode.server + 'api/v1/oauth_login')
-        # init first call
+            print('value is undefined in oauth wc login')
+        # success call, one displays confirm view
         session['wc_address'] = True
         return render_template('/oauth/oauth_wc_confirm.html')
     if request.method == 'POST' :
-        print('request = ', request.__dict__)
-        print('address = ', request.form['address'])
-        if not session['wc_address'] :
+        if not session.get('wc_address') :
             return render_template('/oauth/oauth_login_qrcode.html')
-        myaddress = request.form['address']
+        myaddress = request.form.get('address')
         if not myaddress :
           	return render_template('/oauth/oauth_login_qrcode.html')
         # web3.py needs checksum addresses
         myaddress = mode.w3.toChecksumAddress(request.form['address'])
 
-        # reverse for demo with crypto wallet
+        # Demo with crypto wallet address setup externally
         if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
-            session['username'] = 'thierrythevenet'
+            username = 'thierrythevenet'
         elif myaddress == "0x87E127664Bbdb45483517814051229a4484a66B1" :
-            session['username'] = 'nicolasmuller'
+            username = 'nicolasmuller'
         else :
             workspace_contract = ownersToContracts(myaddress, mode)
             if not workspace_contract :
                 session['wc_address'] = False
                 return render_template('/oauth/oauth_wc_reject.html')
-            session['username'] = ns.get_username_from_resolver(workspace_contract, mode)
-        user = User.query.filter_by(username=session['username']).first()
+            username = ns.get_username_from_resolver(workspace_contract, mode)
+
+        user = User.query.filter_by(username=username).first()
         if not user:
-            user = User(username=session['username'])
+            user = User(username=username)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        del session['username']
-        print('Warning : user is logged in Talao')
-        print(' session de url = ', session['url'])
         return redirect(session['url'])
 
 
 #@route('/api/v1/create_client', methods=('GET', 'POST'))
-""" gestion minimaliste des grants client qui sont dans la base db.sqlite
-cette fonction est appellée par Talao identity 
-"""
+"""This function is called from the Talao identity to create  client API credentials for authorization server"""
 def create_client():
     check_login()
     user = current_user()
@@ -243,6 +231,9 @@ def issue_token():
 # AUTHORIZATION CODE
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
+    # to manage wrong login
+    if 'reject' in request.args :
+        return authorization.create_authorization_response(grant_user=None)
     user = current_user()
     client_id = request.args['client_id']
     client = OAuth2Client.query.filter_by(client_id=client_id).first()
@@ -269,7 +260,6 @@ def authorize(mode):
         # Display view to ask for user consent if scope is more than just openid
         return render_template('/oauth/oauth_authorize.html', user=user, grant=grant,client_name=client_name, **checkbox)
     # POST, call from consent screen
-    print('request form = ', request.form)
     if not user and 'username' in request.form:
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
@@ -284,9 +274,6 @@ def authorize(mode):
     query_dict["scope"] = [my_scope[:-1]]
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
-    #if not session['remember_me'] :
-    #    pass
-    #    #session.clear()
     return authorization.create_authorization_response(grant_user=user, request=req)
 
 
