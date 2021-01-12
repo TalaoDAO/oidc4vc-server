@@ -148,6 +148,17 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 	conn.close()
 	return True
 
+def add_publickey(address, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	key = mode.w3.solidityKeccak(['address'], [address]).hex()
+	data = {'address' : address, 'key' : key}
+	c.execute("INSERT INTO publickey VALUES (:address, :key)", data)
+	conn.commit()
+	conn.close()
+	return True
+
 def delete_identity(identity_name, mode, category=1001) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')

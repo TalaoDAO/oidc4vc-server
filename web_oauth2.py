@@ -16,8 +16,8 @@ from datetime import datetime, timedelta
 
 import ns
 import constante
-from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category, ownersToContracts
-from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim, Identity
+from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category
+from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
 import createidentity
 import createcompany
 import privatekey
@@ -107,9 +107,6 @@ def get_user_workspace(user_id, mode):
     return  ns.get_data_from_username(user_username, mode).get('workspace_contract')
 
 #@route('/api/v1', methods=('GET', 'POST'))
-"""
-This function is called from the Talao identity to create the API credentials of a client
-"""
 def home():
     if request.method == 'POST':
         username = request.form.get('username')
@@ -138,47 +135,42 @@ def oauth_logout():
     print('Warning : logout ID provider')
     return redirect(post_logout)
 
+#@app.route('/api/v1/oauth_two_factor', methods=['GET', 'POST'])
+def oauth_two_factor(mode) :
+    check_login()
+    if request.method == 'GET' :
+        session['two_factor'] = {'callback' : request.args.get('callback'),'code' : str(random.randint(10000, 99999)),'code_delay' : datetime.now() + timedelta(seconds= 180),'try_number' : 1}
+        # send code by sms if phone exist else email
+        support = send_secret_code(session['username'], session['two_factor']['code'],mode)
+        print('Warning : secret code sent = ', session['two_factor']['code'], 'by ', support)
+        consign = "Check your phone for SMS" if support == 'sms' else "Check your email"
+        return render_template("/oauth/oauth_two_factor.html", consign = consign)
+    if request.method == 'POST' :
+        code = request.form['code']
+        session['two_factor']['try_number'] += 1
+        print('Warning : code received = ', code)
+        authorized_codes = [session['two_factor']['code'], '123456'] if mode.test else [session['two_factor']['code']]
+        callback= session['two_factor']['callback']
+        if code in authorized_codes and datetime.now() < session['two_factor']['code_delay'] :   # Correct code return
+            del session['two_factor']
+            return redirect (mode.server + callback + '?' + urlencode({'two_factor' : 'on'}))
+        elif session['two_factor']['code_delay'] < datetime.now() :
+            del session['two_factor']
+            return redirect (mode.server + callback + '?' + urlencode({'two_factor' : 'Code expired. Renew your login.'}))
+        elif session['two_factor']['try_number'] > 3 :
+            del session['two_factor']
+            return redirect (mode.server + callback + '?' + urlencode({'two_factor' : 'Too many trials. Renew your login.'}))
+        # loop on code
+        elif session['two_factor']['try_number'] == 2 :
+            consign = 'Wrong code, 2 trials left'
+        elif session['two_factor']['try_number'] == 3 :
+            consign = 'Wrong code, only 1 trial left'
+        return render_template("/oauth/oauth_two_factor.html", consign=consign)
+
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
-    """ login of the Identity provider """
-    # Inital call from /authorization
-    if request.method == 'GET' :
-        if request.args.get('mobile') == 'on' :
-             return render_template('/oauth/oauth_login_mobile.html')
-        #session['remember_me'] = 'on'
-        session['url'] = request.args.get('next')
-        return render_template('/oauth/oauth_login_qrcode.html')
-
-
-# walletconnect login
-#@app.route('/oauth_wc_login/', methods = ['GET', 'POST'])
-def oauth_wc_login(mode) :
-    if request.method == 'GET' :
-        # call from JS, QRmodal rejected by user
-        if request.args.get('value') == 'undefined' :
-            return redirect (mode.server + 'api/v1/oauth_login')
-        # init first call
-        session['wc_address'] = True
-        return render_template('/oauth/oauth_wc_confirm.html')
-    if request.method == 'POST' :
-        print('request = ', request.__dict__)
-        print('address = ', request.form['address'])
-        if not session['wc_address'] :
-            return render_template('/oauth/oauth_login_qrcode.html')
-        myaddress = request.form['address']
-        if not myaddress :
-          	return render_template('/oauth/oauth_login_qrcode.html')
-        # web3.py needs checksum addresses
-        myaddress = mode.w3.toChecksumAddress(request.form['address'])
-        # back door for demo with Trust wallet
-        if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
-            session['username'] = 'thierrythevenet'
-        else :
-            workspace_contract = ownersToContracts(myaddress, mode)
-            if not workspace_contract :
-                session['wc_address'] = False
-                return render_template('/oauth/oauth_wc_reject.html')
-            session['username'] = ns.get_username_from_resolver(workspace_contract, mode)
+    # Call from two_factor, correct code, return to /authorization
+    if request.method == 'GET' and request.args.get('two_factor') == "on" :
         user = User.query.filter_by(username=session['username']).first()
         if not user:
             user = User(username=session['username'])
@@ -187,13 +179,33 @@ def oauth_wc_login(mode) :
         session['id'] = user.id
         del session['username']
         print('Warning : user is logged in Talao')
-        print(' session de url = ', session['url'])
         return redirect(session['url'])
+    # Call from two_factor, failed with code
+    if request.method == 'GET' and request.args.get('two_factor') :
+        return render_template('/oauth/oauth_login.html', username=session['username'], consign=request.args.get('two_factor'))
+    # Inital call from /authorization
+    if request.method == 'GET' :
+        session['url'] = request.args.get('next')
+        consign = 'Log in to use your Digital Identity with : ' + request.args.get('client_name')
+        print('passage par la')
+        return render_template('/oauth/oauth_login.html', consign=consign)
+    # Call from the login page
+    if request.method  == 'POST' :
+        # if username does not exist redirect to login page
+        session['username'] = request.form.get('username')
+        if not ns.username_exist(session['username'], mode)  :
+            return render_template('/oauth/oauth_login.html', consign='Username does not exist.')
+        # if  wrong password redirect to login page
+        if not ns.check_password(session['username'], request.form['password'], mode)  :
+            return render_template('/oauth/oauth_login.html', username=session['username'], consign='Wrong password.')
+        session['remember_me'] = request.form.get('checkbox')
+        # call the two factor checking function :
+        return redirect(mode.server + 'api/v1/oauth_two_factor?callback=api/v1/oauth_login')
+
 
 
 #@route('/api/v1/create_client', methods=('GET', 'POST'))
 """ gestion minimaliste des grants client qui sont dans la base db.sqlite
-cette fonction est appellée par Talao identity 
 """
 def create_client():
     check_login()
@@ -249,6 +261,7 @@ def authorize(mode):
     client_name = profil['name']
     # if user log status is not true (Auth server), then to log it in
     if not user :
+        print('ici')
         return redirect(url_for('oauth_login', next=request.url, client_name=client_name))
     # if user is already logged we prepare the consent screen
     if request.method == 'GET':
@@ -281,9 +294,8 @@ def authorize(mode):
     query_dict["scope"] = [my_scope[:-1]]
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
-    #if not session['remember_me'] :
-    #    pass
-    #    #session.clear()
+    if not session['remember_me'] :
+        session.clear()
     return authorization.create_authorization_response(grant_user=user, request=req)
 
 
@@ -291,7 +303,7 @@ def authorize(mode):
 
 # endpoint standard OIDC
 #route('/api/v1/user_info')
-@require_oauth('address openid profile resume email birthdate proof_of_identity about resume gender name contact_phone website', 'OR')
+@require_oauth('address openid profile email birthdate proof_of_identity about resume gender name contact_phone website', 'OR')
 def user_info(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -311,15 +323,7 @@ def user_info(mode):
             if scope in current_token.scope :
                 user_info[scope] = profile.get(scope) if profile.get(scope) != 'private' else None
         if 'resume' in current_token.scope :
-            user = Identity(user_workspace_contract, mode, authenticated=False)
-            # clean up for resume
-            user_dict = user.__dict__.copy()
-            #del user_dict['aes']
-            #del user_dict['rsa_key_value']
-            #del user_dict['private_key_value']
-            #del user_dict['secret']
-            #del user_dict['partners']
-            user_info['resume'] = user_dict
+            user_info['resume'] = 'Not implemented yet'
         if 'address' in current_token.scope :
             user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
     if category == 2001 : # company

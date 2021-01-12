@@ -29,8 +29,10 @@ def config_api_server(app, mode) :
 
     # Identity Provider
     app.add_url_rule('/api/v1/oauth_login', view_func=web_oauth.oauth_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+    app.add_url_rule('/api/v1/oauth_wc_login/', view_func=web_oauth.oauth_wc_login, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+
     app.add_url_rule('/api/v1/oauth_logout', view_func=web_oauth.oauth_logout, methods = ['GET', 'POST'])
-    app.add_url_rule('/api/v1/oauth_two_factor', view_func=web_oauth.oauth_two_factor, methods = ['GET', 'POST'], defaults ={'mode' : mode})
+    #app.add_url_rule('/api/v1/oauth_two_factor', view_func=web_oauth.oauth_two_factor, methods = ['GET', 'POST'], defaults ={'mode' : mode})
 
     # Authorization Server
     app.add_url_rule('/api/v1/authorize', view_func=web_oauth.authorize, methods = ['GET', 'POST'], defaults={'mode' : mode})
