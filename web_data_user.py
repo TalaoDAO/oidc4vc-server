@@ -84,9 +84,8 @@ def wc_login(mode) :
 		if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
 			session['username'] = 'thierrythevenet'
 			return redirect(mode.server + 'user/')
-
 		if myaddress == "0x87E127664Bbdb45483517814051229a4484a66B1" :
-            session['username'] = 'nicolasmuller'
+			session['username'] = 'nicolasmuller'
 			return redirect(mode.server + 'user/')
 
 		if not myaddress :
