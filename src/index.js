@@ -171,12 +171,9 @@ async function signtransaction()  {
   if (!provider) {
     throw new Error(`provider hasn't been created yet`);
   }}
+*/
 
 
-  // sign message
-//       web3.eth.sign('test', myaccount, (err, sig) => {
- //      console.log(err, sig)
- //       })
 
 /* ok
 const tx =  web3.eth.sendTransaction({to:'0x3535353535353535353535353535353535353535', from:myaccount, value:'1000'});
@@ -195,29 +192,35 @@ web3.eth.sendTransaction({
 */
 
 
-/*
-function mypersonalmessage(msg) {
+
+async function mypersonalmessage(msg) {
+  let authenticate = null;
   if (!provider) {
     throw new Error(`provider hasn't been created yet`);
   }
   // send personal_sign request
-  provider
+  await provider
     .send({ method: "personal_sign", params: [msg, provider.accounts[0]] })
     .then(result => {
       // Returns message signature
       console.log(result); // eslint-disable-line
+      // check signature here
+      authenticate = true;
     })
     .catch(error => {
       // Error returned when rejected
       console.error(error); // eslint-disable-line
+      authenticate = false;
     });
-} */
+    console.log('return = ', authenticate)
+    return authenticate;
+}
 
 //window.sendToken = sendtoken;
 //window.createVaultAccess = createvaultaccess;
 //window.signTransaction = signtransaction;
 window.onEnd = onend;
 window.onInit = oninit;
-//window.signPersonalMessage = mypersonalmessage;
+window.sign = mypersonalmessage;
 window.getAccountAddress = getaccountaddress;
 

@@ -59,7 +59,10 @@ def send_secret_code (username, code, mode) :
 	return 'sms'
 
 
-
+# walletconnect signature
+#@app.route('/wc_login_sign/', methods = ['GET', 'POST'])
+def wc_login_sign(mode) :
+	return render_template('wc_confirm_sign.html')
 
 # walletconnect login
 #@app.route('/wc_login/', methods = ['GET', 'POST'])

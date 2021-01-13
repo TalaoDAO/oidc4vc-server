@@ -12,22 +12,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-<body id="page-top" onload="page_onload()" >
+<body id="page-top"  >
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-          <span>{{ message }}</span>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
         {% include 'guest_nav_bar.html' %}
         <div class="container">
           <div class="row justify-content-center">
@@ -36,12 +24,18 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
-                        <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
-                       <div>
-                            This wallet account is not a Digital Identity.
-                            <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change wallet account or log with password</button>
-                       </div>
+                        <div class='text-center'><h4 class='text-dark mb-4'>Authenticate your wallet account</h4>
+                        <form class='user' action='/wc_login/' method='POST' >
+                          <div class="">
+                            <a href="/"><img id="walletlogo" src="" style="width: 120px;border-radius:0px;"></a>
+                          </div>
+                            <p>Confirm with your wallet the code below : </p>
+                            <b><p id="id_code_html"></p></b>
+                            <input hidden name='address' type='text' id='id_address'></input>
+                            <button class="btn btn-primary text-white btn-user" id="in_progress_button" type="submit">Go to your Identity</button>
+                        </form>
+                        <br>
+                        <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account</a></div>
                     </div>
                   </div>
                 </div>
@@ -56,6 +50,8 @@
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
 
 
   <script> function End() {
@@ -64,14 +60,39 @@
   }
   </script>
 
+
+<script> async function sign_message() {
+    $('button').prop('disabled', true);
+    let number = Math.floor(Math.random() * 100000);
+    document.getElementById("id_code_html").innerHTML=number.toString() ;
+    signature = await window.sign(number.toString());
+    if (signature){
+    $('button').prop('disabled', false);
+    }
+  };
+
+</script>
 <script>
 function page_onload(){
+  console.log('page onload de wc_confirm.html');
   const value = "";
   window.getAccountAddress().then(value => {
     console.log('value = ', value);
+    document.getElementById("id_address").value = value[0];
+    console.log('value 2 = ', value[2]);
+    if (value[2] == null)
+    {var filename= value[1].replace(' ', '').toLowerCase();
+    document.getElementById("walletlogo").src="/static/img/wallet/" + filename + ".png";}
+    else 
+    document.getElementById("walletlogo").src=value[2];
     });
+    sign_message();
+
 }
 </script>
+
+<script> window.onload = page_onload()</script>
+
 
 </body>
 </html>
