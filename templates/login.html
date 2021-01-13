@@ -5,9 +5,10 @@
     {% include 'head.html' %}
 
  <style type="text/css">
-     #test {
-    width: auto;
-     margin: auto;
+      #qrcode {
+    width: 244px;
+    margin-right: auto;
+    margin-left: auto;
    }
 </style>
 
@@ -20,34 +21,41 @@
 			    {% if messages %}
 				{% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-                <span>{{ message }}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
 				{% endfor %}
 			    {% endif %}
 		        {% endwith %}
                 {% include 'guest_nav_bar.html' %}
-                <div class="container">
+                
+                <div class="container d-none d-lg-block">
+                    <div class="row justify-content-center">
+                        <div class="col-4 ">
+				            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
+                                <div class="card-body">
+                                    <div class="text-center"><h4 class="text-dark mb-4">Connect with your Mobile Wallet</h4></div>
+                                    <div id="qrcode">
+                                        <canvas id="canvas" width="244" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
+                                    </div>
+                                    <div class="text-center"><a class="small" href="/help/?file=wc_help.html" >Help</a></div>  
+                                    <div class="text-center"><a class="small" href="/login/?mode=mobile_on" >Try larger !</a></div>  
+                                    <div class="text-center"><a class="small" href="/login/?mode=password" >Connect with password</a></div>  
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="container d-block d-lg-none">
                     <div class="row justify-content-center">
                         <div class="col-md-9 col-lg-10 col-xl-8">
 				            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                                 <div class="card-body p-0">
                                     <div class="row">
-
-                                        <div class="col-lg-6 d-none d-lg-flex">
-                                            <div class="p-5">
-                                            <div class="text-center"><h4 class="text-dark mb-4">Connect with Wallet</h4></div>
-                                                <div id="test">
-                                                    <canvas id="canvas" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
-                                                </div>
-                                                <div class="text-center"><a class="small" href="/help/?file=wc_help.html" >Help</a></div>  
-                                                <div class="text-center"><a class="small" href="/login/?mobile=on" >Try larger !</a></div>  
-
-                                            </div>
-                                        </div>
-
                                         <div class="col-lg-6">
                                             <div class="p-5">
                                             <div class="text-center"><h4 class="text-dark mb-4">Connect with password</h4></div>
@@ -64,6 +72,8 @@
                                                 </form>
                                                 <div class="text-center"><a class="small" href="/forgot_password/">Forgot Password</a></div>  
                                                 <div class="text-center"><a class="small" href="/forgot_username/">Forgot Username</a></div>
+                                                <div class="text-center"><a class="small" href="/login/?mode=mobile_on">Connect with wallet</a></div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -72,6 +82,8 @@
                         </div>
                     </div>
                 </div>
+
+
             </div>
         </div>
     </div>

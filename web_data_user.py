@@ -162,16 +162,26 @@ def two_factor(mode) :
 
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
-	print('request = ', request.args)
+	"""
+	mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps
+	mode = mobile_off_qrcode_on : qrcode only for desktop
+	mode = password  : display password form
+	mode = None : provide a dispaye with qrcode for deskytop and password form for smartphone
+	"""
 	if request.method == 'GET' :
 		session.clear()
-		if request.args.get('mobile') == 'on':
-			print('mobile')
+		if request.args.get('mode') == 'mobile_on':
+			print('login_mobile.html')
 			return render_template('login_mobile.html')
-		if request.args.get('mobile') == 'off_qrcode_on' :
-			print('PC, login by qrcode')
+		elif request.args.get('mode') == 'password':
+			print('login_password.html')
+			return render_template('login_password.html')
+		elif request.args.get('mode') == 'mobile_off_qrcode_on' :
+			print('login_qrcode.html')
 			return render_template('login_qrcode.html', username=request.args.get('username', ""))
-		return render_template('login.html', username=request.args.get('username', ""))
+		else :
+			print('login.html')
+			return render_template('login.html', username=request.args.get('username', ""))
 
 	if request.method == 'POST' :
 		print('passage par post')
