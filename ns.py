@@ -5,7 +5,6 @@ import random
 import json
 import constante
 import os
-import constante
 
 """ SQLite init functions , not used in normal operation
 
@@ -28,6 +27,17 @@ def alter_add_phone_field(database, mode) :
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
 	cur.execute('alter table alias add column phone text')
+	conn.commit()
+	cur.close()
+	return True
+
+
+# update pour la mise en place du champ wallet dans resolver
+def alter_add_wallet_field(mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	cur = conn.cursor()
+	cur.execute('alter table resolver add column wallet text')
 	conn.commit()
 	cur.close()
 	return True
@@ -339,6 +349,20 @@ def get_username_from_resolver(workspace_contract, mode) :
 		return None
 	return select[0]
 
+
+def get_username_from_wallet(wallet, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = {'wallet' : wallet}
+	c.execute("SELECT identity_name FROM resolver WHERE wallet = :wallet " , data)
+	select=c.fetchone()
+	conn.commit()
+	conn.close()
+	if not select :
+		return None
+	return select[0]
+
 def get_address_from_publickey(publickey, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -490,6 +514,22 @@ def update_password(username, new_password, mode) :
 	else :
 		return False
 	return True
+
+
+def update_wallet(workspace_contract, wallet, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	cur = conn.cursor()
+	data = { 'wallet' : wallet, 'workspace_contract' : workspace_contract}
+	print('data = ', data)
+	try :
+		cur.execute("update resolver set wallet = :wallet where identity_workspace_contract = :workspace_contract", data )
+	except :
+		return False
+	conn.commit()
+	cur.close()
+	return True
+
 
 def must_renew_password(username, mode) :
 	data = get_data_from_username(username, mode)

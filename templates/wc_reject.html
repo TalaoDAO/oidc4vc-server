@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-<body id="page-top" onload="page_onload()" >
+<body id="page-top"  >
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
@@ -39,6 +39,9 @@
                         <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
                        <div>
                             This wallet account is not a Digital Identity.
+                            <br>You can change your wallet account, log with passord or register a new Digital Identity with this account : {{wallet_address}}.
+                            <br><br>
+                            <button class='btn btn-primary text-white btn-user' onclick="register()" type='button'>Register a new Digital Identity</button>
                             <br><br>
                             <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change wallet account or log with password</button>
                        </div>
@@ -64,12 +67,10 @@
   }
   </script>
 
-<script>
-function page_onload(){
-  const value = "";
-  window.getAccountAddress().then(value => {
-    console.log('value = ', value);
-    });
+<script> function register() {
+      window.location.href = "/register/";
+
+  //window.location.href = "/wc_register/?wallet_address=" + "{{wallet_address}}";
 }
 </script>
 

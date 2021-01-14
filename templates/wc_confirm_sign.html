@@ -24,15 +24,14 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
-                        <div class='text-center'><h4 class='text-dark mb-4'>Authenticate your wallet account</h4>
+                        <div class='text-center'><h4 id="id_page" class='text-dark mb-4'>Authenticate your wallet account</h4>
                         <form class='user' action='/wc_login/' method='POST' >
                           <div class="">
-                            <a href="/"><img id="walletlogo" src="" style="width: 120px;border-radius:0px;"></a>
+                            <a href="/"><img  src="{{wallet_logo}}" style="width: 120px;border-radius:0px;"></a>
                           </div>
-                            <p>Confirm with your wallet the code below : </p>
-                            <b><p id="id_code_html"></p></b>
-                            <input hidden name='address' type='text' id='id_address'></input>
-                            <button class="btn btn-primary text-white btn-user" id="in_progress_button" type="submit">Go to your Identity</button>
+                            <p id="id_text" >Confirm with your wallet the code below : {{wallet_code}}</p>
+                            <input hidden name='wallet_signature' type='text' id='id_wallet_signature'></input>
+                            <div id="id_button"></div>
                         </form>
                         <br>
                         <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account</a></div>
@@ -62,12 +61,13 @@
 
 
 <script> async function sign_message() {
-    $('button').prop('disabled', true);
-    let number = Math.floor(Math.random() * 100000);
-    document.getElementById("id_code_html").innerHTML=number.toString() ;
-    signature = await window.sign(number.toString());
+    signature = await window.sign("{{wallet_code}}");
     if (signature){
-    $('button').prop('disabled', false);
+    document.getElementById("id_wallet_signature").value = signature;
+    document.getElementById("id_page").innerHTML = "Your wallet account is authenticated";
+    document.getElementById("id_text").innerHTML = "";
+    document.getElementById("id_button").innerHTML ='<button class="btn btn-primary text-white btn-user" id="in_progress_button" type="submit">Go to your Identity</button>';
+
     }
   };
 
@@ -75,19 +75,11 @@
 <script>
 function page_onload(){
   console.log('page onload de wc_confirm.html');
-  const value = "";
+  let signature = "";
   window.getAccountAddress().then(value => {
     console.log('value = ', value);
-    document.getElementById("id_address").value = value[0];
-    console.log('value 2 = ', value[2]);
-    if (value[2] == null)
-    {var filename= value[1].replace(' ', '').toLowerCase();
-    document.getElementById("walletlogo").src="/static/img/wallet/" + filename + ".png";}
-    else 
-    document.getElementById("walletlogo").src=value[2];
-    });
     sign_message();
-
+    });
 }
 </script>
 
