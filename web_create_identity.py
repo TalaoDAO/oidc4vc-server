@@ -29,8 +29,6 @@ def register(mode) :
 		message = request.args.get('message', "")
 		return render_template("register.html",message=message, )
 	if request.method == 'POST' :
-		print('is active dans post ? ',session.get('is_active'))
-
 		session['email'] = request.form['email']
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
@@ -48,6 +46,38 @@ def register(mode) :
 				return redirect (mode.server + 'register/password/')
 		except :
 			return render_template("register.html",message='SMS connexion problem.', )
+
+
+# register ID with your wallet in Talao Identity
+#@app.route('/wc_register/', methods = ['GET', 'POST'])
+def wc_register(mode) :
+	if request.method == 'GET' :
+		session.clear()
+		session['is_active'] = True
+		message = request.args.get('message', "")
+		session['wallet_address']= request.args.get('wallet_address')
+		return render_template('wc_register.html', message=message)
+	if request.method == 'POST' :
+		session['email'] = request.form['email']
+		session['firstname'] = request.form['firstname']
+		session['lastname'] = request.form['lastname']
+		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
+		session['search'] = request.form.get('CheckBox')
+		workspace_contract = createidentity.create_user(session['username'],
+											session['email'],
+											mode,
+											firstname=session['firstname'],
+											lastname=session['lastname'],
+											wallet=session['wallet_address']
+											)[2]
+		if not workspace_contract :
+			print('Error : createidentity failed')
+			return render_template("wc_register.html",message='Connexion problem.', )
+		if session['search'] :
+			directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
+			print('Warning : directory updated with firstname and lastname')
+		session['is_active'] = False
+		return render_template("create3.html", username=session['username'])
 
 # route /register/password/
 def register_password(mode):

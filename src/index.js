@@ -105,7 +105,7 @@ async function onend() {
   // init
   await provider.enable();
   }
-  provider.disconnect();
+  await provider.disconnect();
 }
 
 async function mypersonalmessage(msg) {

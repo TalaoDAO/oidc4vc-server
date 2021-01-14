@@ -136,15 +136,15 @@ def init_host(host_name, mode) :
 	cur.close()
 	return True
 
-def add_identity(identity_name, identity_workspace_contract, email, mode, phone=None, password='identity') :
+def add_identity(identity_name, identity_workspace_contract, email, mode, phone=None, password='identity', wallet='') :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
 
-	data = {'identity_name' : identity_name, 'identity_workspace_contract' : identity_workspace_contract, 'date' : datetime.timestamp(now)} 
-	c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date)", data)
+	data = {'identity_name' : identity_name, 'identity_workspace_contract' : identity_workspace_contract, 'date' : datetime.timestamp(now), 'wallet' : wallet} 
+	c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet)", data)
 
 	data = {'alias_name' : identity_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password} 
 	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date, :phone, :password )", data)

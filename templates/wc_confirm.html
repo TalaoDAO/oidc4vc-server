@@ -1,16 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <meta name="description" content="Professional Decentralized Identity Solution">
-  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-  <title>Talao Professional Identity</title>
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+  {% include 'head.html' %}
 </head>
 <body id="page-top"  >
   <div id="wrapper">
@@ -38,15 +29,13 @@
                     <div  class="p-5">
                         <div class='text-center'><h4 class='text-dark mb-4'>Your wallet is connected</h4>
                         <form class='user' action='/wc_login_sign/' method='POST' >
-                      <!--    <p>Your mobile wallet :</p>
-                          <p id='id_wallet_html'></p>  -->
                           <div class="">
                             <a href="/"><img id="id_wallet_logo" src="" style="width: 120px;border-radius:0px;"></a>
                           </div>
                             <p>Your wallet account :</p>
-                            <p id='id_address_html'></p>
-                            <input hidden name='wallet_address' type='text' id='id_wallet_address'></input>
-                            <input hidden name='wallet_name' type='text' id='id_wallet_name'></input>
+                            <p id='id_address_html'>{{wallet_address}}</p>
+                            <input hidden name='wallet_address' value="{{wallet_address}}" type='text' id='id_wallet_address'></input>
+                            <input hidden name='wallet_name'  type='text' id='id_wallet_name'></input>
                             <input hidden name='wallet_logo' type='text' id='id_wallet_logovalue'></input>
                             <br>
                             <button class='btn btn-primary text-white btn-user' type='submit'>Authenticate your account</button>
@@ -86,8 +75,8 @@ function page_onload(){
   let src = "";
   window.getAccountAddress().then(value => {
     console.log('value = ', value);
-    document.getElementById("id_wallet_address").value = value[0];
-    document.getElementById("id_address_html").innerHTML = value[0];
+    //document.getElementById("id_wallet_address").value = value[0];
+    //document.getElementById("id_address_html").innerHTML = value[0];
     document.getElementById("id_wallet_name").value = value[1];
     if (value[2] == null)
       {var filename= value[1].replace(' ', '').toLowerCase();

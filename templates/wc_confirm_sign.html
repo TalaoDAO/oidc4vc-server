@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <meta name="description" content="Professional Decentralized Identity Solution">
-  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-  <title>Talao Professional Identity</title>
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  {% include 'head.html' %}
+  
 
 </head>
 <body id="page-top"  >
@@ -29,9 +22,10 @@
                           <div class="">
                             <a href="/"><img  src="{{wallet_logo}}" style="width: 120px;border-radius:0px;"></a>
                           </div>
-                            <p id="id_text" >Confirm with your wallet the code below : {{wallet_code}}</p>
+                            <p id="id_text" >Confirm with your wallet the code : {{wallet_code}}</p>
                             <input hidden name='wallet_signature' type='text' id='id_wallet_signature'></input>
                             <div id="id_button"></div>
+                            <button class="btn btn-primary text-white btn-user" id="in_progress_button" type="submit">Check signature and go to your Identity</button>'
                         </form>
                         <br>
                         <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account</a></div>
@@ -59,29 +53,32 @@
   }
   </script>
 
-
 <script> async function sign_message() {
     signature = await window.sign("{{wallet_code}}");
     if (signature){
     document.getElementById("id_wallet_signature").value = signature;
-    document.getElementById("id_page").innerHTML = "Your wallet account is authenticated";
+    document.getElementById("id_page").innerHTML = "Your signature has been received";
     document.getElementById("id_text").innerHTML = "";
-    document.getElementById("id_button").innerHTML ='<button class="btn btn-primary text-white btn-user" id="in_progress_button" type="submit">Go to your Identity</button>';
-
+    document.getElementById('in_progress_button').style.visibility = 'visible';
+    await window.onEnd();
     }
   };
 
+
 </script>
+
+
 <script>
 function page_onload(){
+  document.getElementById('in_progress_button').style.visibility = 'hidden'
   console.log('page onload de wc_confirm.html');
-  let signature = "";
   window.getAccountAddress().then(value => {
     console.log('value = ', value);
     sign_message();
-    });
+    }); 
 }
 </script>
+
 
 <script> window.onload = page_onload()</script>
 

@@ -59,6 +59,7 @@ def send_secret_code (username, code, mode) :
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
+
 # update wallet in Talao Identity
 #@app.route('/user/update_wallet/', methods = ['GET', 'POST'])
 def update_wallet(mode) :
@@ -86,9 +87,6 @@ def wc_login_sign(mode) :
 	session['wallet_name'] = request.form.get('wallet_name')
 	session['wallet_logo'] = request.form.get('wallet_logo')
 	session['wallet_code'] = str(random.randint(10000, 99999))
-	print(' address =', session['wallet_address'])
-	print(' name = ', session['wallet_name'])
-	print(' logo = ', session['wallet_logo'])
 	return render_template('wc_confirm_sign.html',
 							wallet_address=session['wallet_address'],
 							wallet_name=session['wallet_name'],
@@ -105,27 +103,24 @@ def wc_login(mode) :
 			return redirect (mode.server + 'login/')
 		session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
 		session['wallet_username'] = ns.get_username_from_wallet(session['wallet_address'], mode)
-		# back door for demo with crypto wallet
-		#if session['wallet_address'] == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
-		#	session['wallet_username'] = 'thierrythevenet'
-		#elif session['wallet_address'] == "0x87E127664Bbdb45483517814051229a4484a66B1" :
-		#	session['wallet_username'] = 'nicolasmuller'
-		if not session['wallet_username'] :
+		if not session['wallet_username'] or session['wallet_username'] == '0':
 			return render_template('wc_reject.html', wallet_address=session['wallet_address'])
 		else :
-			print('username de wallet = ', session['wallet_username'])
-			return render_template('wc_confirm.html')
+			return render_template('wc_confirm.html', wallet_address=session['wallet_address'])
 
 	if request.method == 'POST' :
 		signature = request.form.get('wallet_signature')
-		print('code = ', session['wallet_code'])
-		print('address du wallet = ', session['wallet_address'])
-		print('signature renvoyée = ', signature)
 		message_hash = defunct_hash_message(text=session['wallet_code'])
-		signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
+		try :
+			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
+		except :
+			print('Warning : incorrect signature')
+			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
+			return render_template('login.html')
 		print('signer calculé =', signer)
 		if signer != session['wallet_address'] :
-			flash('Incorrect wallet signature', 'danger')
+			print('Warning : incorrect signature')
+			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
 			return render_template('login.html')
 		session['username'] = session['wallet_username']
 		return redirect(mode.server + 'user/')

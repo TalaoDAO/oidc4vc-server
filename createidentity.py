@@ -56,14 +56,14 @@ class ExportingThread(threading.Thread):
 
 
 # main function called by external modules
-def create_user(username, email, mode, creator=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
+def create_user(username, email, mode, creator=None, wallet=False, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
 	"""
 	is_thread :bool, by default partly an async task.
 
 	"""
 
 	# step 1, thus step is synchronous
-	address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone)
+	address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone, wallet)
 	if not address :
 		return None, None, None
 
@@ -78,7 +78,7 @@ def create_user(username, email, mode, creator=None, partner=False, send_email=T
 	return address, private_key, workspace_contract
 
 
-def _create_user_step_1(username, email,mode, creator, partner, send_email, password, firstname,  lastname, phone) :
+def _create_user_step_1(username, email,mode, creator, partner, send_email, password, firstname,  lastname, phone, wallet) :
 	email = email.lower()
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
@@ -175,6 +175,14 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 		if not update_self_claims(address, private_key, {'firstname': firstname, 'lastname' : lastname}, mode) :
 			print('Error : firstname and lastname not updated')
 		print('Success : firstname and lastname updated')
+
+	# add wallet address in resolver
+	if wallet :
+		if ns.update_wallet(workspace_contract, wallet, mode) :
+			print('Success : wallet updated')
+		else :
+			print('Error : wallet update failed')
+
 
 	# key 1 issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)

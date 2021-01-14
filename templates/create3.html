@@ -2,15 +2,7 @@
 <html>
 
 <head>
-      <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 </head>
     <body id="page-top">
     <div id="wrapper">
@@ -25,7 +17,7 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;">Your Professional Identity has been deployed on the Blockchain.<br><br>You will receive by email a copy of your username to log in.<br><br><br></p>
+                                    <p class="text-center" style="margin: 75px 50px 0px;">Your Professional Digital Identity has been deployed on the blockchain.<br><br>You can now log with your mobile wallet.<br><br><br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -50,7 +42,6 @@
     </div>
     <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>
