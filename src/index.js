@@ -47,7 +47,7 @@ async function oninit(mobile) {
     provider.connector.on("display_uri", (err, payload) => {
     var uri = payload.params[0];
     console.log('uri = ',uri);
-    QRCode.toCanvas(canvas, uri, function (error) {
+    QRCode.toCanvas(canvas, uri,{text : "Talao Digital Identity"}, function (error) {
       if (error) {console.error(error);
       }
       else 
@@ -128,6 +128,8 @@ async function mypersonalmessage(msg) {
     });
   return signature;
 }
+
+
 
 window.onEnd = onend;
 window.onInit = oninit;

@@ -21,7 +21,11 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
+        {% if session['type'] == "company" %}
+        {% include 'company_nav_bar.html' %}
+    {% else %}
         {% include 'user_nav_bar.html' %}
+    {% endif %}
         <div class="container-fluid">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}

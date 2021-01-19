@@ -16,8 +16,11 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
+
+                      <button class='btn btn-primary text-white btn-user' onclick="window.onEnd()" type='button'>End</button>
+
                         <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="call_checkmessage()" type='button'>appel fonction</button>
+                            <button class='btn btn-primary text-white btn-user' onclick="call()" type='button'>appel fonction</button>
                         <br>
                     </div>
                   </div>
@@ -30,21 +33,19 @@
     </div>
   <script src="/home/thierry/Talao/static/wc-talao.min.js"></script>
 
-<script>function call_checkmessage(){
-    window.checkmessage();
-}
-
-
-</script>
-
-  
 
 <script>
 function page_onload(){
- window.onInit();
+
 }
 </script>
 
+<script>function call(){
+  
+//  window.window.getAccountAddress();
+  console.log(window.signtransaction());
+  
+  }</script>
 
 
 </body>

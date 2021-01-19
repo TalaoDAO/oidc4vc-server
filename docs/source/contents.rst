@@ -96,9 +96,9 @@ Credits
 
 Thanks to the Ethereum community which provide us with great tools, Solidity code and inspiration.
 
-Special thanks to `the WalletConnect team https://walletconnect.org/>`_ for their implementation of an awesome protocol to connect crypto wallets with Dapps.
+Special thanks to `the WalletConnect team <https://walletconnect.org/>`_ for their implementation of an awesome protocol to connect crypto wallets with Dapps.
 
-Special thanks to `OriginProtocol https://originprotocol.com/`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications.
+Special thanks to `OriginProtocol <https://originprotocol.com/>`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications.
 
 Thanks to the NLTK team and community for their Natural Language Programming work we used in the Dashboard panel is based on the python librairy `NLTK <https://www.nltk.org/>`_.
 For more information Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.
