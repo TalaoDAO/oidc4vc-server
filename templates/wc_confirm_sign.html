@@ -54,7 +54,10 @@
   </script>
 
 <script> async function sign_message() {
-    signature = await window.sign("{{wallet_code}}");
+    let code = "{{wallet_code}}";
+    console.log('code = ', code);
+    let signature = await window.sign(code);
+    console.log('signature dans wc_confirm_sign.html = ', signature);
     if (signature){
     document.getElementById("id_wallet_signature").value = signature;
     document.getElementById("id_page").innerHTML = "Your signature has been received";
@@ -78,7 +81,6 @@ function page_onload(){
     }); 
 }
 </script>
-
 
 <script> window.onload = page_onload()</script>
 

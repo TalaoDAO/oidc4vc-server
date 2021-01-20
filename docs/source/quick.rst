@@ -6,7 +6,7 @@ You can access your Digital Identity through your desktop or smartphone. Your sm
 Register
 --------
 
-- if you do not have a crypto wallet on your smarthone, download one and setup your account. A list of the wallets available are `here <https://walletconnect.org/wallets>`_ (more than 50).
+- if you do not have a crypto wallet on your smartphone, download one and setup your account. A list of the wallets available are `here <https://walletconnect.org/wallets>`_ (more than 50).
 - Go to https://talao.co with your smartphone or desktop viewer.
 - if you use your smarphone viewer, clic on "Connect with wallet" and choose your wallet.
 - if you use your desktop viewer, scan with your smartphone wallet the QR Code displayed on your desktop screen.

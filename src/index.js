@@ -131,7 +131,39 @@ async function mypersonalmessage(msg) {
 
 
 
+async function signtypeddata(typedData){
+ 
+  let signature = null;
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
+
+  let account = provider.accounts[0];
+
+  const msgParams = [
+    account, // Required
+    typedData, // Required
+  ];
+  
+  // Sign Typed Data
+  await provider.connector
+    .signTypedData(msgParams)
+    .then(result => {
+      // Returns signature.
+      console.log('signature dans index.js = ',result);
+      signature = result;
+    })
+    .catch(error => {
+      // Error returned when rejected
+      console.error(error);
+    });
+
+return signature;
+
+}
+
 window.onEnd = onend;
 window.onInit = oninit;
 window.sign = mypersonalmessage;
+//window.sign= signtypeddata;
 window.getAccountAddress = getaccountaddress;

@@ -87,6 +87,7 @@ def wc_login_sign(mode) :
 	session['wallet_name'] = request.form.get('wallet_name')
 	session['wallet_logo'] = request.form.get('wallet_logo')
 	session['wallet_code'] = str(random.randint(10000, 99999))
+	
 	return render_template('wc_confirm_sign.html',
 							wallet_address=session['wallet_address'],
 							wallet_name=session['wallet_name'],
