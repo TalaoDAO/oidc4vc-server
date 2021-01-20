@@ -60,7 +60,7 @@
     console.log('signature dans wc_confirm_sign.html = ', signature);
     if (signature){
     document.getElementById("id_wallet_signature").value = signature;
-    document.getElementById("id_page").innerHTML = "Your signature has been received";
+    document.getElementById("id_page").innerHTML = "Your wallet signature has been received";
     document.getElementById("id_text").innerHTML = "";
     document.getElementById('in_progress_button').style.visibility = 'visible';
     await window.onEnd();

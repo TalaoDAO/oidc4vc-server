@@ -29,7 +29,6 @@ $('#typeaheadElement').typeahead({
   }
 });
 
-//style="color: rgba(255,255,255,0.5);"
 // Initializing the typeahead
 $('#typeaheadElementSM').typeahead({
   hint: true,
