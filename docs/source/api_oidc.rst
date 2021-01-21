@@ -77,7 +77,7 @@ Return is JSON (example) :
 Decode JWT
 **********
 
-JWT can be decoded with Talao RSA public key . Audience is your client_id, algorithm is RS256
+JWT can be decoded with Talao RSA public key . Audience is 'did:talao:talaonet:EE09654eEdaA79429F8D216fa51a129db0f72250', algorithm is RS256
 
 Talao RSA key :
 
@@ -90,10 +90,8 @@ JWT  payload example :
 .. code-block:: JSON
 
   {
-  "iss": "https://talao.co",
-  "aud": [
-    "iPSoIWDI4shQ0dEG86ZpSFdj"
-  ],
+  "iss": "did:talao:talaonet:EE09654eEdaA79429F8D216fa51a129db0f72250",
+  "aud": ["did:talao:talaonet:EE09654eEdaA79429F8D216fa51a129db0f72250"],
   "iat": 1603895896,
   "exp": 1603899496,
   "auth_time": 1603895896,
@@ -103,6 +101,6 @@ JWT  payload example :
   "given_name": "Thierry",
   "family_name": "Thevenet",
   "gender": null,
-  "email": "thierry.thevenet@talao.io"
+  "email": "thierry.thevenet@talao.io",
   }
 

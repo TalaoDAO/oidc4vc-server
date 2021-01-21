@@ -20,7 +20,6 @@ import json
 import random
 from Crypto.Cipher import AES
 from base64 import b64encode
-from eth_account.messages import encode_defunct
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 import threading
@@ -83,7 +82,7 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	# Setup owner Wallet
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
-	private_key = account.privateKey.hex()
+	private_key = account.key.hex()
 	print('Success : user address = ', address)
 	print('Success : user private key = ', private_key)
 

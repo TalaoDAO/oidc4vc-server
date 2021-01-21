@@ -158,7 +158,7 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	try :
 		html = str(codecs.open(template, 'r', 'utf-8').read()).format(**format_dict)
 	except Exception as e:
-		print('Error : ' + type(e) + ' ' + str(e))
+		print('Error : '  + str(e))
 		return False
 
 	msg.attach(MIMEText(html, 'html', 'utf-8'))

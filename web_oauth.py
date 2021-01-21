@@ -22,6 +22,7 @@ import createidentity
 import createcompany
 import privatekey
 import Talao_message
+import resume
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')
@@ -126,13 +127,15 @@ def oauth_logout():
     return redirect(post_logout)
 
 
-# Identity Provider login
+# Identity Provider login FIRST CALL
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
+    print('entree dans oauth_login')
     """ login of the Identity provider """
     # Inital call from authorization server redirect
-    session['url'] = request.args.get('next')
-    # session['remember_me'] = 'on'
+    if not session.get('wallet_address') :
+        session['url'] = request.args.get('next')
+    print('oauth_login : session url = ', session['url'])
     return render_template('/oauth/oauth_login_qrcode.html')
 
 #@route('/api/v1/oauth_login_larger')
@@ -141,46 +144,54 @@ def oauth_login_larger(mode):
     return render_template('/oauth/oauth_login_mobile.html')
 
 
-# Identity provider login follow up
+# Identity provider login follow up SECOND
+# call from oauth_wc_confirm.html
 #@app.route('/oauth_wc_login/', methods = ['GET', 'POST'])
 def oauth_wc_login(mode) :
+    print('entree dans oauth_wc_login')
     if request.method == 'GET' :
         if 'reject' in  request.args :
             print('reject in args')
+            session['wallet_address'] = None
             return redirect(session['url']+'&reject=on')
         # call from JS waletconnect, QR Code rejected by user
         if request.args.get('value') == 'undefined' :
+            session['wallet_address'] = None
             print('value is undefined in oauth wc login')
+            return redirect(session['url']+'&reject=on')
         # success call, one displays confirm view
-        session['wc_address'] = True
+        session['wallet_address'] = request.args.get('value')
         return render_template('/oauth/oauth_wc_confirm.html')
     if request.method == 'POST' :
-        if not session.get('wc_address') :
+        if not session.get('wallet_address') :
             return render_template('/oauth/oauth_login_qrcode.html')
         myaddress = request.form.get('address')
         if not myaddress :
-          	return render_template('/oauth/oauth_login_qrcode.html')
-        # web3.py needs checksum addresses
+            session['wallet_address'] = None
+            return render_template('/oauth/oauth_login_qrcode.html')
+            # checksum addresses
         myaddress = mode.w3.toChecksumAddress(request.form['address'])
-
-        # Demo with crypto wallet address setup externally
-        if myaddress == "0x9B05084b8D19404f1689e69F40114990b562fa87" :
-            username = 'thierrythevenet'
-        elif myaddress == "0x87E127664Bbdb45483517814051229a4484a66B1" :
-            username = 'nicolasmuller'
-        else :
-            workspace_contract = ownersToContracts(myaddress, mode)
-            if not workspace_contract :
-                session['wc_address'] = False
+        # look  for real address/wallet
+        workspace_contract = ownersToContracts(myaddress, mode)
+        if not workspace_contract :
+            # try wallet bd option
+            username = ns.get_username_from_wallet(myaddress, mode)
+            print('username dans alias option= ', username)
+            if not username :
+                session['wallet_address'] = None
                 return render_template('/oauth/oauth_wc_reject.html')
+            else :
+                pass
+        else :
             username = ns.get_username_from_resolver(workspace_contract, mode)
-
         user = User.query.filter_by(username=username).first()
+        print('user = ', user)
         if not user:
             user = User(username=username)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
+        print('redirect = ', session['url'])
         return redirect(session['url'])
 
 
@@ -233,6 +244,7 @@ def issue_token():
 def authorize(mode):
     # to manage wrong login
     if 'reject' in request.args :
+        session.clear()
         return authorization.create_authorization_response(grant_user=None)
     user = current_user()
     client_id = request.args['client_id']
@@ -264,6 +276,7 @@ def authorize(mode):
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
     if 'reject' in request.form :
+        session.clear()
         return authorization.create_authorization_response(grant_user=None)
     # update scopes after user consent
     query_dict = parse_qs(request.query_string.decode("utf-8"))
@@ -300,18 +313,10 @@ def user_info(mode):
         for scope in ['email', 'phone', 'birthdate', 'about'] :
             if scope in current_token.scope :
                 user_info[scope] = profile.get(scope) if profile.get(scope) != 'private' else None
-        if 'resume' in current_token.scope :
-            user = Identity(user_workspace_contract, mode, authenticated=False)
-            # clean up for resume
-            user_dict = user.__dict__.copy()
-            #del user_dict['aes']
-            #del user_dict['rsa_key_value']
-            #del user_dict['private_key_value']
-            #del user_dict['secret']
-            #del user_dict['partners']
-            user_info['resume'] = user_dict
         if 'address' in current_token.scope :
             user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
+        if 'resume' in current_token.scope :
+            user_info['resume'] = resume.get(user_workspace_contract, mode)
     if category == 2001 : # company
         print('Error : OIDC request for company')
     # setup response

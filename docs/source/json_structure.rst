@@ -23,25 +23,21 @@ ____
 
 
 
-Kyc
-___
+Kyc (OpenId Connect scope)
+__________________________
 
 
 .. code-block:: JSON
 
 	{
-	"country" : "FRA3",
-	"id" : "15CA98225",
-	"lastname" : "Houlle",
-	"firstname" : "Pierre david",
-	"sex" : "M",
-	"nationality" : "Francaise",
-	"date_of_birth" : "1980-1212",
-	"date_of_issue" : "2012-02-13",
-	"date_of-expiration" : "2022-02-12",
-	"authority" : "Prefecture de Police de Paris",
-	"country" : "France",
-	"card_id" : "xxxxxxxx"
+	"identification" : "Face to Face check",
+	"email" : "",
+	"phone" : "",
+	"family_name" : "Houlle",
+	"given_name" : "Pierre david",
+	"gender" : "M",
+	"birthdate" : "1980-1212",
+	"address" : ""
 	}
 
 

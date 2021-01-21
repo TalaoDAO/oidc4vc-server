@@ -823,24 +823,22 @@ def user(mode) :
 
 		# kyc
 		my_kyc = """
-			<b>ECDSA Key</b> : """+ session['address'] +"""<br><hr>"""
+			<b>Authentification Key (ECDSA/ES256K)</b> : """+ session['address'] +"""<br><hr>"""
 
-		if len (session['kyc']) == 0:
+		if not session['kyc'] :
 			my_kyc = my_kyc + """<a class="text-warning">No other proof of identity available.</a>"""
 
 		else :
-			for kyc in session['kyc'] :
-				kyc_html = """
-				<b>Identity checking method</b> : Electronic <br>
-				<hr>
-				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
-				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
-				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-				<b>Gender</b> : """+ kyc['sex'].capitalize() +"""<br>
-				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
-				<b>Card Id</b> : """+ kyc.get('card_id', 'Unknown')+"""<br>
-				<b>Phone</b> : """ + kyc.get('phone', 'Unknown') + """<br>
-				<b>Email</b>  : """ + kyc.get('email', 'Unknown') + """<br>
+			kyc = session['kyc'][-1]
+			kyc_html = """
+				<b>Identity checking method</b> : """+ kyc.get('identification', 'Electronic Check') + """<br>
+				<b>Firstname</b> : """+ kyc.get('given_name', '') +"""<br>
+				<b>Lastname</b> : """+ kyc.get('family_name', '') +"""<br>
+				<b>Birth Date</b> : """+ kyc.get('birthdate', '') +"""<br>
+				<b>Gender</b> : """+ kyc.get('gender', ' ').capitalize() +"""<br>
+				<b>Phone</b> : """ + kyc.get('phone', '') + """<br>
+				<b>Email</b>  : """ + kyc.get('email', '') + """<br>
+				<b>Address</b>  : """ + kyc.get('address', '') + """<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc['id'] + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -849,7 +847,7 @@ def user(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
-				my_kyc = my_kyc + kyc_html
+			my_kyc = my_kyc + kyc_html
 
 		# Alias
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :

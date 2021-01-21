@@ -9,8 +9,8 @@
     <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
   
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Google-Style-Login.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
     <style type="text/css">
         #qrcode {
        width: 244px;
@@ -44,7 +44,6 @@
                             </div>
                             <div class="text-center"><a class="small" href="/help/?file=/oauth/oauth_wc_help.html" >Help</a></div>  
                             <div class="text-center"><a class="small" href="/api/v1/oauth_login_larger" >Try larger QR code !</a></div>  
-
                         </div>
                     </div>
                 </div>
@@ -53,7 +52,6 @@
     </div>
 </div>
 
-    <script>function goBack() {  window.history.go(-2);}</script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='oauth-wc-talao.min.js') }}"></script>

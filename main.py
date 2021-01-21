@@ -902,19 +902,17 @@ def create_kyc() :
         if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
-        my_kyc['firstname'] = request.form['firstname']
-        my_kyc['lastname'] = request.form['lastname']
+        my_kyc['given_name'] = request.form['given_name']
+        my_kyc['family_name'] = request.form['family_name']
         my_kyc['birthdate'] = request.form['birthdate']
-        my_kyc['authority'] = request.form['authority']
-        my_kyc['card_id'] = request.form['card_id']
-        my_kyc['nationality'] = request.form['nationality']
-        my_kyc['date_of_issue'] = request.form['date_of_issue']
-        my_kyc['date_of_expiration'] = request.form['date_of_expiration']
-        my_kyc['sex'] = request.form['sex']
-        my_kyc['country'] = request.form['country']
+        my_kyc['address'] = request.form['address']
+        my_kyc['phone'] = request.form['phone']
+        my_kyc['email'] = request.form['email']
+        my_kyc['gender'] = request.form['gender']
+        my_kyc['identification'] = request.form['identification']
         kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
         kyc = Document('kyc')
-        data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode)[0]
+        data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode, request=request)[0]
         if not data :
             flash('Transaction failed', 'danger')
         else :

@@ -22,11 +22,15 @@ from models import db, User
 from models import OAuth2Client, OAuth2AuthorizationCode, OAuth2Token
 from authlib.jose import jwk
 from Crypto.PublicKey import RSA
-from protocol import read_profil
+import time
+import datetime
+
+from protocol import Document, get_category
 import ns
 import environment
-
+import privatekey
 import os
+import constante
 
 # Environment setup
 mychain = os.getenv('MYCHAIN')
@@ -37,7 +41,7 @@ mode = environment.currentMode(mychain,myenv)
 # API Server has its own identity
 api_server_address = '0xEE09654eEdaA79429F8D216fa51a129db0f72250' # = owner_talao
 
-# JWT configuration with JWK, JWT is signed with Talao RSA key, the public rsa key is sent with the JWT
+# JWT configuration with JWK, JWT is signed with Talao RSA key, 
 filename = './RSA_key/talaonet/' + api_server_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 try :
 	fp = open(filename,"r")
@@ -49,12 +53,14 @@ except :
 
 # Generate JWK from rsa key
 JWK = jwk.dumps(private_rsa_key)
+
+
 # set up 'kid' in the JWK header 
 JWK['kid'] = 'Talao public RSA key'
 JWT_CONFIG = {
     'key':  JWK,
     'alg': 'RS256',
-    'iss': 'https://talao.co',
+    'iss': 'did:talao:' + mode.BLOCKCHAIN + ':' + api_server_address[2:],
     'exp': 3600,
 }
 
@@ -64,33 +70,39 @@ def exists_nonce(nonce, req):
     ).first()
     return bool(exists)
 
-# for JWT generation only
+# for JWT generation only, we use the kyc data 
 def generate_user_info(user, scope):
     user_workspace_contract = ns.get_data_from_username(user.username, mode).get('workspace_contract')
     user_info = UserInfo(sub='did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:])
-    profile, category  = read_profil(user_workspace_contract, mode, 'full')
+    category  = get_category(user_workspace_contract, mode,)
     if category == 2001 : #  company
         return user_info
-    if 'profile' in scope :
-        user_info['given_name'] = profile.get('firstname')
-        user_info['family_name'] = profile.get('lastname')
-        user_info['gender'] = profile.get('gender')
-    if 'email' in scope :
-        user_info['email']= profile.get('contact_email') if profile.get('contact_email') != 'private' else None
-    if 'phone' in scope :
-        user_info['phone']= profile.get('contact_phone') if profile.get('contact_phone') != 'private' else None
-    if 'birthdate' in scope :
-        user_info['birthdate'] = profile.get('birthdate') if profile.get('birthdate') != 'private' else None
-    if 'address' in scope :
-        user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
-    if 'about' in scope :
-        user_info['about'] = profile.get('about') if profile.get('about') != 'private' else None
-    if 'website' in scope :
-        user_info['website'] = profile.get('website') if profile.get('website') != 'private' else None
-    if 'proof_of_identity' in scope :
-        user_info['proof_of_identity'] = 'Not implemented yet'
-    if 'resume' in scope :
-        user_info['resume'] = 'Not implemented yet'
+    # get KYC
+    contract = mode.w3.eth.contract(user_workspace_contract,abi = constante.workspace_ABI)
+    kyc_list = list()
+    for doc_id in contract.functions.getDocuments().call() :
+        if contract.functions.getDocument(doc_id).call()[0] == 15000 :
+            kyc_list.append(doc_id)
+    if kyc_list :
+        kyc = Document('kyc')
+        kyc.relay_get(user_workspace_contract, kyc_list[-1], mode, loading='light')
+        kyc_dict = kyc.__dict__
+        if 'profile' in scope :
+            user_info['given_name'] = kyc_dict.get('given_name', '')
+            user_info['family_name'] = kyc_dict.get('family_name', '')
+            user_info['gender'] = kyc_dict.get('gender', '')
+        if 'email' in scope :
+            user_info['email']= kyc_dict.get('email', '')
+            user_info['email_verified'] = True if user_info['email'] else False
+        if 'phone' in scope or 'phone_number' in scope :
+            user_info['phone_number']= kyc_dict.get('phone', '')
+            user_info['phone_number_verified'] = True if user_info['phone_number'] else False
+        if 'birthdate' in scope :
+            user_info['birthdate'] = kyc_dict.get('birthdate', '')
+        if 'address' in scope :
+            user_info['address'] = kyc_dict.get('address', '')
+        updated_at = time.mktime(datetime.datetime.strptime(kyc_dict.get('created', 0), "%Y-%m-%d %H:%M:%S").timetuple())
+        user_info['updated_at'] = updated_at
     return user_info
 
 
@@ -131,7 +143,13 @@ class AuthorizationCodeGrant(_AuthorizationCodeGrant):
 class OpenIDCode(_OpenIDCode):
     def exists_nonce(self, nonce, request):
         return exists_nonce(nonce, request)
-
+    
+    def get_audiences(self, request):
+        """Parse `aud` value for id_token, default value is client id. Developers
+        MAY rewrite this method to provide a customized audience value.
+        """
+        return ['did:talao:' + mode.BLOCKCHAIN + ':' + api_server_address[2:]]
+    
     def get_jwt_config(self, grant):
         return JWT_CONFIG
 
