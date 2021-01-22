@@ -60,72 +60,6 @@ def send_secret_code (username, code, mode) :
 	return 'sms'
 
 
-# update wallet in Talao Identity
-#@app.route('/user/update_wallet/', methods = ['GET', 'POST'])
-def update_wallet(mode) :
-	check_login()
-	if request.method == 'GET' :
-		return render_template('update_wallet.html', **session['menu'])
-	if request.method == 'POST' :
-		username = request.form['username']
-		wallet = mode.w3.toChecksumAddress(request.form['wallet'])
-		workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
-		if not workspace_contract :
-			flash('No identity found', 'danger')
-			return redirect (mode.server +'user/')
-		if ns.update_wallet(workspace_contract, wallet, mode) :
-			flash('Wallet updated ', 'success')
-		else :
-			flash('Update failed', 'danger')
-		return redirect (mode.server +'user/')
-
-
-# walletconnect signature
-#@app.route('/wc_login_sign/', methods = ['GET', 'POST'])
-def wc_login_sign(mode) :
-	session['wallet_address'] =  mode.w3.toChecksumAddress(request.form.get('wallet_address'))
-	session['wallet_name'] = request.form.get('wallet_name')
-	session['wallet_logo'] = request.form.get('wallet_logo')
-	session['wallet_code'] = str(random.randint(10000, 99999))
-	
-	return render_template('wc_confirm_sign.html',
-							wallet_address=session['wallet_address'],
-							wallet_name=session['wallet_name'],
-							wallet_logo=session['wallet_logo'],
-							wallet_code=session['wallet_code'])
-
-# walletconnect login
-#@app.route('/wc_login/', methods = ['GET', 'POST'])
-def wc_login(mode) :
-	if request.method == 'GET' :
-		# call from JS, QRmodal rejected by user
-		if not request.args.get('wallet_address') or request.args.get('wallet_address') == 'undefined' :
-			flash('Scan QR code or log with password', 'warning')
-			return redirect (mode.server + 'login/')
-		session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
-		session['wallet_username'] = ns.get_username_from_wallet(session['wallet_address'], mode)
-		if not session['wallet_username'] or session['wallet_username'] == '0':
-			return render_template('wc_reject.html', wallet_address=session['wallet_address'])
-		else :
-			return render_template('wc_confirm.html', wallet_address=session['wallet_address'])
-
-	if request.method == 'POST' :
-		signature = request.form.get('wallet_signature')
-		message_hash = defunct_hash_message(text=session['wallet_code'])
-		try :
-			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
-		except :
-			print('Warning : incorrect signature')
-			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
-			return render_template('login.html')
-		print('signer calculé =', signer)
-		if signer != session['wallet_address'] :
-			print('Warning : incorrect signature')
-			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
-			return render_template('login.html')
-		session['username'] = session['wallet_username']
-		return redirect(mode.server + 'user/')
-
 # Starter with 3 options, login and logout
 #@app.route('/starter/', methods = ['GET', 'POST'])
 def starter(mode) :
@@ -137,10 +71,86 @@ def starter(mode) :
 				return redirect(mode.server + 'login/')
 			elif start == 'quick' :
 				return redirect(mode.server + 'register/')
-			elif start == 'advanced' :
-				return redirect(mode.server + 'starter/') # tobe done
 			else :
-				pass
+				return redirect(mode.server + 'starter/') # tobe done
+
+# update wallet in Talao Identity
+#@app.route('/user/update_wallet/', methods = ['GET', 'POST'])
+def update_wallet(mode) :
+	check_login()
+	if request.method == 'GET' :
+		return render_template('update_wallet.html', **session['menu'])
+	if request.method == 'POST' :
+		username = request.form['username']
+		try :
+			wallet = mode.w3.toChecksumAddress(request.form['wallet'])
+		except :
+			wallet = None
+		workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
+		if not workspace_contract :
+			flash('No identity found', 'danger')
+			return redirect (mode.server +'user/')
+		if ns.update_wallet(workspace_contract, wallet, mode) :
+			if wallet :
+				flash('Wallet updated ', 'success')
+			else :
+				flash('Wallet deleted', 'warning')
+		else :
+			flash('Update failed', 'danger')
+		return redirect (mode.server +'user/')
+
+
+
+# walletconnect login
+#@app.route('/wc_login/', methods = ['GET', 'POST'])
+def wc_login(mode) :
+	if request.method == 'GET' :
+		# call from JS, QRmodal rejected by user
+		if not request.args.get('wallet_address') or request.args.get('wallet_address') == 'undefined' :
+			flash('Scan QR code or log with password', 'warning')
+			return redirect (mode.server + 'login/')
+		session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
+		workspace_contract = ownersToContracts(session['wallet_address'], mode)
+		if not workspace_contract :
+			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identiti
+			session['wallet_username'] = ns.get_username_from_wallet(session['wallet_address'], mode)
+			if not session['wallet_username'] :
+				# This wallet addresss is not an alias
+				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
+		else :
+			# this wallet addrress is an identity owner
+			session['wallet_username'] = ns.get_username_from_resolver(workspace_contract, mode)
+			if not session['wallet_username'] :
+				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
+		code = random.randint(10000, 99999)
+		session['wallet_code'] = str(code)
+		src = request.args.get('wallet_logo')
+		if request.args.get('wallet_logo') == 'undefined' :
+			filename= request.args.get('wallet_name').replace(' ', '').lower()
+			src = "/static/img/wallet/" + filename + ".png"
+		return render_template('wc_confirm.html', 
+								wallet_address=session['wallet_address'],
+								wallet_code=session['wallet_code'],
+								wallet_code_hex= '0x' + bytes(str(code), 'utf-8').hex(),
+								wallet_name = request.args.get('wallet_name'),
+								wallet_logo= src)
+
+	if request.method == 'POST' :
+		signature = request.form.get('wallet_signature')
+		message_hash = defunct_hash_message(text=session['wallet_code'])
+		try :
+			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
+		except :
+			print('Warning : incorrect signature')
+			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
+			return render_template('login.html')
+		if signer != session['wallet_address'] :
+			print('Warning : incorrect signature')
+			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
+			return render_template('login.html')
+		session['username'] = session['wallet_username']
+		return redirect(mode.server + 'user/')
+
 
 # two factor checking function
 #@app.route('/user/two_factor/', methods=['GET', 'POST'])
@@ -189,7 +199,7 @@ def two_factor(mode) :
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
 	"""
-	mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps
+	mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps for mobile devices
 	mode = mobile_off_qrcode_on : qrcode only for desktop
 	mode = password  : display password form
 	mode = None : provide a dispaye with qrcode for deskytop and password form for smartphone

@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.4.4"
+VERSION = "0.4.5"
 API_SERVER = True
 
 # Flask and Session setup
@@ -157,7 +157,6 @@ app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_ex
 
 # Centralized route for user, data, login
 app.add_url_rule('/wc_login/',  view_func=web_data_user.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/wc_login_sign/',  view_func=web_data_user.wc_login_sign, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/update_wallet/',  view_func=web_data_user.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})

@@ -82,8 +82,6 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>
@@ -93,10 +91,10 @@
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
    <<script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
-    <script>function page_onload() {
-        console.log('page onload de login.html');
+    <script>async function page_onload() {
         window.onEnd();
-        window.onInit('mobile_off');
+        let value = await window.onInit('mobile_off');
+        window.location = "/wc_login/?wallet_address=" + value[0] + '&wallet_name=' + value[1] + '&wallet_logo=' + value[2];
         }
         </script>
 

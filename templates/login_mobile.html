@@ -3,21 +3,22 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <meta name="description" content="Professional Decentralized Identity Solution">
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-
-    <title>Talao Professional Identity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="description" content="Professional Decentralized Identity Solution">
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
+  <title>Talao Professional Identity</title>
 
 </head>
-<body onload="window.onInit('mobile')">
-    <div id="wrapper">
-        <div class="d-flex flex-column" id="content-wrapper">
-          <div id="content"></div>
-        </div>
-    </div>
+<body onload="page_onload()">
+   
 <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script> 
+
+<script>async function page_onload() {
+    window.onEnd();
+    let value = await window.onInit('mobile');
+    window.location = "/wc_login/?wallet_address=" + value[0] + '&wallet_name=' + value[1] + '&wallet_logo=' + value[2];
+    }
+    </script>
 
 </body>
 </html>

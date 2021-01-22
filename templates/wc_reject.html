@@ -36,15 +36,12 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
-                        <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
-                       <div>
-                            This wallet account is not a Digital Identity.
-                            <br>You can change your wallet account, log with passord or register a new Digital Identity with this account : {{wallet_address}}.
+                        <div class='text-center'><h4 class='text-dark mb-4'>This wallet account is not a Digital Identity</h4>
+                          {{wallet_address}}
+                            <br>You can change your wallet account, log with password or register a new Digital Identity with this account.
                             <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="register()" type='button'>Register a new Digital Identity</button>
-                            <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change wallet account or log with password</button>
-                       </div>
+                            <div class="text-center"><a class="small" onclick="Register()" href="#" >Register a new Digital Identity</a></div>
+                            <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account / password log</a></div>
                     </div>
                   </div>
                 </div>
@@ -67,7 +64,8 @@
   }
   </script>
 
-<script> function register() {
+<script> function Register() {
+  window.onEnd();
   window.location.href = "/wc_register/?wallet_address=" + "{{wallet_address}}";
 }
 </script>

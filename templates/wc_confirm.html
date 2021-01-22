@@ -27,20 +27,19 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
-                        <div class='text-center'><h4 class='text-dark mb-4'>Your wallet is connected</h4>
-                        <form class='user' action='/wc_login_sign/' method='POST' >
+                        <div class='text-center'><h4  id="id_page"  class='text-dark mb-4'>Your wallet is connected</h4>
+                          <form id="dynForm" action="/wc_login/" method="post"><input id="id_wallet_signature" type="hidden" name="wallet_signature" value=""></form>
                           <div class="">
-                            <a href="/"><img id="id_wallet_logo" src="" style="width: 120px;border-radius:0px;"></a>
+                            <img id="id_wallet_logo" src="{{wallet_logo}}" style="width: 120px;border-radius:0px;">
+                            <div id="id_wallet_name">{{wallet_name}}</div>
                           </div>
-                            <p>Your wallet account :</p>
-                            <p id='id_address_html'>{{wallet_address}}</p>
-                            <input hidden name='wallet_address' value="{{wallet_address}}" type='text' id='id_wallet_address'></input>
-                            <input hidden name='wallet_name'  type='text' id='id_wallet_name'></input>
-                            <input hidden name='wallet_logo' type='text' id='id_wallet_logovalue'></input>
                             <br>
-                            <button class='btn btn-primary text-white btn-user' type='submit'>Authenticate your account</button>
-                        </form>
-                        <br>
+                            <span>Your wallet account :</span>
+                            <p id='id_address_html'>{{wallet_address}}</p>
+                            <br>
+                            <button class='btn btn-primary text-white btn-user' onclick="sign_message()" id="in_progress_button" type='button'>Authenticate your account</button>
+                            <br><br>
+                            <p id="id_code" >Code to confirm :  {{wallet_code}} / {{wallet_code_hex}}</p>
                         <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account</a></div>
                     </div>
                   </div>
@@ -66,27 +65,27 @@
   }
   </script>
 
-  
+<script> async function sign_message() {
+  let code = "{{wallet_code}}";
+  console.log('code = ', code);
+  document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
+  let signature = await window.sign(code);
+  console.log('signature dans wc_confirm.html = ', signature);
+  if (signature){
+  //await window.onEnd();
+  document.getElementById("id_page").innerHTML = "Authentication in progress...";
+  document.getElementById("id_wallet_signature").value = signature;
+  document.getElementById("dynForm").submit();
+  document.getElementById("id_code").innerHTML = "";
+
+  }
+};
+</script>
 
 <script>
 function page_onload(){
-  console.log('page onload de wc_confirm.html');
-  let value = "";
-  let src = "";
   window.getAccountAddress().then(value => {
-    console.log('value = ', value);
-    //document.getElementById("id_wallet_address").value = value[0];
-    //document.getElementById("id_address_html").innerHTML = value[0];
-    document.getElementById("id_wallet_name").value = value[1];
-    if (value[2] == null)
-      {var filename= value[1].replace(' ', '').toLowerCase();
-      src = "/static/img/wallet/" + filename + ".png";}
-    else
-      {src=value[2];}
-    console.log('src = ', src);
-    document.getElementById("id_wallet_logo").src = src;
-    document.getElementById("id_wallet_logovalue").value = src;
-    document.getElementById("id_wallet_name").value = value[1];
+    console.log('value dans page_onload = ', value);
   });
 }
 </script>

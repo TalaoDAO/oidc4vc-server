@@ -24,8 +24,11 @@ function onSubscribe() {
 }
 
 
-async function oninit(mobile) {
+async function onlogin(mobile) {
   console.log('provider debut oninit = ', provider)
+  let mobile_account = "undefined";
+  let mobile_wallet = "undefined";
+  let mobile_logo = "undefined";
   // init walletconnect with or whithout builtin QR code
   if (mobile == 'mobile') {
     console.log('Call from mobile device');
@@ -59,42 +62,42 @@ async function oninit(mobile) {
 
   onSubscribe();
 
-  provider.enable()
+  await provider.enable()
+  .then(value => {
+    console.log('value = ',value, 'provider = ', provider);
+    mobile_account = provider.accounts[0];
+    mobile_wallet = provider.wc._peerMeta['name'];
+    mobile_logo = provider.wc._peerMeta['icons'][0];
+    })
   .catch(e => {
     console.log(e);
-    })
-  .then(value => {
-    console.log('provider = ',value);
-    window.location = "/wc_login/?wallet_address=" + value;
     });
+
+  return [mobile_account, mobile_wallet, mobile_logo];
 
 }
 
 async function getaccountaddress(){
-  let mobile_account = '';
-  let mobile_wallet ='';
-  let mobile_icon = '';
-
   provider = new WalletConnectProvider({
     rpc: {
       1 : "https://talao.co/rpc",
     },
     qrcode: false,
   });
-
   // init
   await provider.enable();
-  console.log('call de getaccount, provider = ', provider);
 
-  mobile_account = provider.accounts[0];
-  mobile_wallet = provider.wc._peerMeta['name'];
-  mobile_icon = provider.wc._peerMeta['icons'][0];
-  return [mobile_account, mobile_wallet, mobile_icon ];
+  provider.on("close", () => {
+  provider = null;
+  console.log('wallet closed ');
+  });
+
+  console.log('call de getaccount, provider = ', provider);
+  return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
 
 
 async function onend() {
-  console.log('call de onend ', provider);
   if (!provider) {
     provider = new WalletConnectProvider({
       rpc: {
@@ -118,7 +121,7 @@ async function mypersonalmessage(msg) {
     .send({ method: "personal_sign", params: [msg, provider.accounts[0]] })
     .then(result => {
       // Returns message signature
-      console.log('signature = ',result); // eslint-disable-line
+      console.log('signature reçue dans index.js = ',result); // eslint-disable-line
       // check signature here
       signature = result;
     })
@@ -163,7 +166,7 @@ return signature;
 }
 
 window.onEnd = onend;
-window.onInit = oninit;
+window.onInit = onlogin;
 window.sign = mypersonalmessage;
 //window.sign= signtypeddata;
 window.getAccountAddress = getaccountaddress;
