@@ -1,53 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <meta name="description" content="Professional Decentralized Identity Solution">
-  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-  <title>Talao Sign-In</title>
-
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+  {% include 'head.html' %}
 </head>
-<body id="page-top" onload="page_onload()" >
+<body id="page-top"  onload="page_onload()">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-md-9 col-lg-10 col-xl-8">
               <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                 <div class="card-body p-0">
-                <!--  <div class="col">  -->
-                    <div  class="p-5"> 
-                        <div class='text-center'><h4 class='text-dark mb-4'>Connect with your Wallet</h4>
-                        <form class='user' action='/api/v1/oauth_wc_login/' method='POST' >
-                      <!--    <p>Your mobile wallet :</p>
-                          <p id='id_wallet_html'></p>  -->
+                  <div class="col">
+                    <div  class="p-5">
+                        <div class='text-center'><h4  id="id_page"  class='text-dark mb-4'>Your wallet is connected</h4>
+                          <form id="dynForm" action="/api/v1/oauth_wc_login/" method="post"><input id="id_wallet_signature" type="hidden" name="wallet_signature" value=""></form>
                           <div class="">
-                            <a href="/"><img id="walletlogo" src="" style="width: 120px;border-radius:0px;"></a>
+                            <img id="id_wallet_logo" src="{{wallet_logo}}" style="width: 120px;border-radius:0px;">
+                            <div id="id_wallet_name">{{wallet_name}}</div>
                           </div>
-                            <p>Your mobile wallet account :</p>
-                            <p id='id_address_html'></p>
-                            <input hidden name='address' type='text' id='id_address'></input>
                             <br>
-                            <button class='btn btn-primary text-white btn-user'id="in_progress_button" type='submit'>Confirm and connect</button>
-                        </form>
-                        <br>
-                        <div class="text-center"><a class="small" onclick="End()" href="#" >Change account</a></div>
+                            <span>Your wallet account :</span>
+                            <p id='id_address_html'>{{wallet_address}}</p>
+                            <br>
+                            <button class='btn btn-primary text-white btn-user' onclick="sign_message()" id="in_progress_button" type='button'>Authenticate your account</button>
+                            <br><br>
+                            <p id="id_code" >Code to confirm :  {{wallet_code}} / {{wallet_code_hex}}</p>
+                        <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account</a></div>
                     </div>
                   </div>
                 </div>
-          <!--    </div>  -->
-            </div>  
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
@@ -61,31 +63,30 @@
   }
   </script>
 
-  <script> function call_sendToken() {
-      let one_address = document.getElementById("id_address").value ;
-      window.sendToken(one_address);
-    };
-  </script>
+<script> async function sign_message() {
+  let code = "{{wallet_code}}";
+  document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
+  let signature = await window.sign(code);
+  if (signature){
+  document.getElementById("id_page").innerHTML = "Authentication in progress...";
+  document.getElementById("id_wallet_signature").value = signature;
+  document.getElementById("dynForm").submit();
+  document.getElementById("id_code").innerHTML = "";
+  console.log("call sign message, dans signature");
+  window.onEnd();
 
+  }
+};
+</script>
 
 <script>
 function page_onload(){
-  console.log('page onload de wc_confirm.html');
-  const value = "";
   window.getAccountAddress().then(value => {
-    console.log('value = ', value);
-    document.getElementById("id_address").value = value[0];
-    document.getElementById("id_address_html").innerHTML = value[0];
-    //document.getElementById("id_wallet_html").innerHTML = value[1];
-    console.log('value 2 = ', value[2]);
-    if (value[2] == null)
-    {var filename= value[1].replace(' ', '').toLowerCase();
-    document.getElementById("walletlogo").src="/static/img/wallet/" + filename + ".png";}
-    else 
-    document.getElementById("walletlogo").src=value[2];
-    });
+    console.log('value dans page_onload = ', value);
+  });
 }
 </script>
+
 
 </body>
 </html>

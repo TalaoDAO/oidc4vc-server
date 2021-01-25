@@ -28,7 +28,10 @@
                        <div>
                             Your wallet account in unknown, no Identiy found.
                             <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='button'>Change mobile account or log with password</button>
+                            <div class="text-center"><a class="small" onclick="Register()" href="#" >Register a new Digital Identity</a></div>
+                            <div class="text-center"><a class="small" onclick="End_1()" href="#" >Change wallet account</a></div>
+                            <div class="text-center"><a class="small" onclick="End_2()" href="#" >Log with password</a></div>
+
                        </div>
                     </div>
                   </div>
@@ -39,31 +42,37 @@
         </div>
       </div>
     </div>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='oauth-wc-talao.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
 
-  <script> function End() {
+
+  <script> function End_1() {
+    window.onEnd();
+    window.location.href = "/api/v1/oauth_login";
+  }
+  </script>
+  <script> function End_2() {
     window.onEnd();
     window.location.href = "/api/v1/oauth_wc_login/?reject=on";
   }
   </script>
 
-  <script> function call_sendToken() {
-      let one_address = document.getElementById("id_address").value ;
-      window.sendToken(one_address);
-    };
-  </script>
-
 
 <script>
 function page_onload(){
-  const value = "";
   window.getAccountAddress().then(value => {
     console.log('value = ', value);
     });
+}
+</script>
+
+
+<script> function Register() {
+  window.onEnd();
+  window.location.href = "/wc_register/?wallet_address=" + "{{wallet_address}}";
 }
 </script>
 

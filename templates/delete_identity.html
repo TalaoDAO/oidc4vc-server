@@ -39,7 +39,7 @@
                             <p class="text-primary m-0 font-weight-bold">&nbsp;Delete your Identity</p>
                         </div>
                         <div class="card-body">
-                            <form  action="/user/delete_identity/" method="post">
+                            <form  id="form" action="/user/delete_identity/" method="post">
                                 <div class="form-row">
                                     <div class="col">
                                         <p class="text-left">Your Identity will be definitly deleted from Blockchain with all your certificates. Confirm with your password to proceed.</p>
@@ -51,7 +51,7 @@
 
                                         <div class="form-row">
                                         <div class="col-6 col-xl-4">
-                                            <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Delete Identity</button></div>
+                                            <div id="in_progress_button" class="form-group"><button class="btn btn-primary btn-sm" type="submit">Delete</button></div>
                                         </div>
                                         <div class="col-6 col-xl-3">
                                             <a href="/user/"><button class="btn btn-primary btn-sm" type="button">Back</button></a>
@@ -83,9 +83,10 @@
       }</script>
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
 
 
 

@@ -51,16 +51,21 @@
         </div>
     </div>
 </div>
-
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='oauth-wc-talao.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
-    <script>function page_onload(){
+    <script>async function page_onload(){
+    let device = ""
     if (window.screen.width <= 560)
-        {window.onInit('mobile');}
-   else
-        {window.onInit('mobile_off');}}
+        {device = 'mobile';
+        let value = await window.onInit(device);
+        window.location = "/api/v1/oauth_wc_login/?wallet_address=" + value[0] + '&wallet_name=' + value[1] + '&wallet_logo=' + value[2];}
+    else
+        {device = 'mobile_off';
+        let value = await window.onInit(device);
+        window.location = "/api/v1/oauth_wc_login/?wallet_address=" + value[0] + '&wallet_name=' + value[1] + '&wallet_logo=' + value[2];}
+    }
     </script>
 
 </body>

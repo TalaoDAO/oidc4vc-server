@@ -44,12 +44,13 @@
                                         <div class="col-lg-6">
                                             <div class="p-5">
                                                 <div class="text-center">
-                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Professional Digital Identity</h4>
+                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Digital Identity with your wallet account</h4>
+                                                    {{wallet_address}}
                                                 </div>
                                             <div class="col" style="color: rgb(255,2,2);">
 									            <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
 								            </div>
-                                            <form class="user" action="/wc_register/" method="POST">
+                                            <form id="form" class="user" action="/wc_register/" method="POST">
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
@@ -70,7 +71,7 @@
                 </div>
             </div>
                 {% include 'user_footer.html' %}
-                <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+                <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
                 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>

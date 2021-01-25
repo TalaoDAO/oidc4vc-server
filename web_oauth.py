@@ -9,10 +9,14 @@ from authlib.oauth2 import OAuth2Error, OAuth2Request
 from models import db, User, OAuth2Client
 from oauth2 import authorization, require_oauth
 import json
-from urllib.parse import urlencode, parse_qs, urlparse
+from urllib.parse import urlencode, parse_qs, urlparse, parse_qsl
 import random
 import sms
 from datetime import datetime, timedelta
+from eth_account.messages import defunct_hash_message
+from eth_account.messages import encode_defunct
+from eth_account import Account
+
 
 import ns
 import constante
@@ -38,7 +42,7 @@ def resolver(mode):
     try :
         if input[:3] == 'did' :
             did = input
-            workspace_contract = '0x' + input.split(':')[3]
+            workspace_contract = '0x' + did.split(':')[3]
             username = ns.get_username_from_resolver(workspace_contract, mode)
         else :
             username = input.lower()
@@ -130,68 +134,58 @@ def oauth_logout():
 # Identity Provider login FIRST CALL
 #@route('/api/v1/oauth_login')
 def oauth_login(mode):
-    print('entree dans oauth_login')
-    """ login of the Identity provider """
     # Inital call from authorization server redirect
-    if not session.get('wallet_address') :
+    if not session.get('url') :
         session['url'] = request.args.get('next')
-    print('oauth_login : session url = ', session['url'])
+        session['wallet_code'] = request.args.get('code')
+        print('code = ', session['wallet_code'])
     return render_template('/oauth/oauth_login_qrcode.html')
 
 #@route('/api/v1/oauth_login_larger')
 def oauth_login_larger(mode):
-    """ login of the Identity provider """
     return render_template('/oauth/oauth_login_mobile.html')
 
-
-# Identity provider login follow up SECOND
-# call from oauth_wc_confirm.html
+# Identity provider login follow up, call from oauth_wc_confirm.html
 #@app.route('/oauth_wc_login/', methods = ['GET', 'POST'])
 def oauth_wc_login(mode) :
-    print('entree dans oauth_wc_login')
     if request.method == 'GET' :
-        if 'reject' in  request.args :
-            print('reject in args')
-            session['wallet_address'] = None
-            return redirect(session['url']+'&reject=on')
-        # call from JS waletconnect, QR Code rejected by user
-        if request.args.get('value') == 'undefined' :
-            session['wallet_address'] = None
-            print('value is undefined in oauth wc login')
-            return redirect(session['url']+'&reject=on')
+        if 'reject' in  request.args or request.args.get('wallet_address') == 'undefined' :
+            return redirect(session.get('url', '')+'&reject=on')
         # success call, one displays confirm view
-        session['wallet_address'] = request.args.get('value')
-        return render_template('/oauth/oauth_wc_confirm.html')
+        src = request.args.get('wallet_logo')
+        if src in ['undefined', None] :
+            filename= request.args.get('wallet_name').replace(' ', '').lower()
+            src = "/static/img/wallet/" + filename + ".png"
+        session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
+        # check if wallet address is an owner or an alias
+        if not ownersToContracts(session['wallet_address'], mode) and not ns.get_username_from_wallet(session['wallet_address'], mode) :
+            wallet_address = session['wallet_address']
+            del session['wallet_address']
+            return render_template('/oauth/oauth_wc_reject.html', wallet_address=wallet_address)
+        return render_template('/oauth/oauth_wc_confirm.html',
+								wallet_address=session.get('wallet_address'),
+								wallet_code=session['wallet_code'],
+								wallet_code_hex= '0x' + bytes(session['wallet_code'], 'utf-8').hex(),
+								wallet_name = request.args.get('wallet_name'),
+								wallet_logo= src)
+
     if request.method == 'POST' :
-        if not session.get('wallet_address') :
+        if not request.form.get('wallet_signature') or not session.get('wallet_address') :
             return render_template('/oauth/oauth_login_qrcode.html')
-        myaddress = request.form.get('address')
-        if not myaddress :
-            session['wallet_address'] = None
-            return render_template('/oauth/oauth_login_qrcode.html')
-            # checksum addresses
-        myaddress = mode.w3.toChecksumAddress(request.form['address'])
-        # look  for real address/wallet
-        workspace_contract = ownersToContracts(myaddress, mode)
+        session['wallet_signature'] = request.form.get('wallet_signature')
+        print('signature recue de la wallet = ', session['wallet_signature'])
+        # look  for username
+        workspace_contract = ownersToContracts(session['wallet_address'], mode)
         if not workspace_contract :
-            # try wallet bd option
-            username = ns.get_username_from_wallet(myaddress, mode)
-            print('username dans alias option= ', username)
-            if not username :
-                session['wallet_address'] = None
-                return render_template('/oauth/oauth_wc_reject.html')
-            else :
-                pass
+            username = ns.get_username_from_wallet(session['wallet_address'], mode)
         else :
             username = ns.get_username_from_resolver(workspace_contract, mode)
         user = User.query.filter_by(username=username).first()
-        print('user = ', user)
         if not user:
             user = User(username=username)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        print('redirect = ', session['url'])
         return redirect(session['url'])
 
 
@@ -242,7 +236,7 @@ def issue_token():
 # AUTHORIZATION CODE
 #@route('/api/v1/authorize', methods=['GET', 'POST'])
 def authorize(mode):
-    # to manage wrong login
+    # to manage wrong login ot user rejection, qr code exit
     if 'reject' in request.args :
         session.clear()
         return authorization.create_authorization_response(grant_user=None)
@@ -253,11 +247,11 @@ def authorize(mode):
     client_workspace_contract = ns.get_data_from_username(client_username, mode).get('workspace_contract')
     profil,category = read_profil(client_workspace_contract, mode, 'light)')
     client_name = profil['name']
-    # if user log status is not true (Auth server), then to log it in
+    # if user not logged (Auth server), then to log it in
     if not user :
-        return redirect(url_for('oauth_login', next=request.url, client_name=client_name))
+        return redirect(url_for('oauth_login', next=request.url, client_name=client_name, code=request.args.get('nonce')))
     # if user is already logged we prepare the consent screen
-    if request.method == 'GET':
+    if request.method == 'GET' :
         try:
             grant = authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:

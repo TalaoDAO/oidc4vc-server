@@ -16,7 +16,7 @@ Register
 .. note :: Your crypto wallet will be used only for authentification purpose. This process is safe for your wallet and free (no transaction).
    Your wallet account wont be displayed to public. Your private key remains on your smartphone.
 
-The process to create an Identity will take a couple of minutes depending of the load of the Network. Authentification is made by message signing.
+The process to create an Identity will take a couple of minutes depending of the load of the Network. Authentification is made by message signing (no costs).
 
 
 Login

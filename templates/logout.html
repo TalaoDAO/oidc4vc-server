@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <meta name="description" content="Professional Decentralized Identity Solution">
-  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-  <title>Talao Professional Identity</title>
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  {% include 'head.html' %}
 
 </head>
 <body id="page-top" onload="page_onload()" >
@@ -67,7 +59,6 @@
 
 <script>
 function page_onload(){
-  const value = "";
   console.log('call load page');
   window.getAccountAddress().then(value => {
     console.log('value = ', value);

@@ -12,13 +12,19 @@
     <title>Talao Professional Identity</title>
 
 </head>
-<body onload="window.onInit('mobile')">
+<body onload="page_onload()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
           <div id="content"></div>
         </div>
     </div>
-<script src="{{ url_for('static', filename='oauth-wc-talao.min.js') }}"></script> 
+<script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script> 
+
+<script>async function page_onload() {
+    let value = await window.onInit('mobile');
+    window.location = "/api/v1/oauth_wc_login/?wallet_address=" + value[0] + '&wallet_name=' + value[1] + '&wallet_logo=' + value[2];
+    }
+</script>
 
 </body>
 </html>

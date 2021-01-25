@@ -118,7 +118,7 @@ def wc_login(mode) :
 				# This wallet addresss is not an alias
 				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
 		else :
-			# this wallet addrress is an identity owner
+			# this wallet address is an identity owner
 			session['wallet_username'] = ns.get_username_from_resolver(workspace_contract, mode)
 			if not session['wallet_username'] :
 				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
@@ -142,11 +142,11 @@ def wc_login(mode) :
 			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
 		except :
 			print('Warning : incorrect signature')
-			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
+			flash('This account is an Identity but signature is incorrect.', 'danger')
 			return render_template('login.html')
 		if signer != session['wallet_address'] :
 			print('Warning : incorrect signature')
-			flash('Incorrect wallet signature. This wallet does not sign correctly personal messages.', 'danger')
+			flash('This account is an Identity but signature is incorrect.', 'danger')
 			return render_template('login.html')
 		session['username'] = session['wallet_username']
 		return redirect(mode.server + 'user/')

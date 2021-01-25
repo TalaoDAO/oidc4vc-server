@@ -19,7 +19,8 @@ function onSubscribe() {
 
   provider.on("close", () => {
     provider = null;
-    console.log('wallet closed ');
+    window.alert("Wallet disconnected !");
+
   });
 }
 
@@ -88,8 +89,7 @@ async function getaccountaddress(){
   await provider.enable();
 
   provider.on("close", () => {
-  provider = null;
-  console.log('wallet closed ');
+  console.log('appel de on close, provider is disconected')
   });
 
   console.log('call de getaccount, provider = ', provider);
@@ -98,17 +98,10 @@ async function getaccountaddress(){
 
 
 async function onend() {
-  if (!provider) {
-    provider = new WalletConnectProvider({
-      rpc: {
-        1 : "https://talao.co/rpc",
-      },
-      qrcode : false,
-    });
-  // init
-  await provider.enable();
-  }
-  await provider.disconnect();
+ if (provider)
+ { await provider.disconnect();
+  console.log('passage dans onend, provider is disconnected');}
+  
 }
 
 async function mypersonalmessage(msg) {

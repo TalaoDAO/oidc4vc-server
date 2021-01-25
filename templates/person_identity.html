@@ -267,12 +267,9 @@
       $temp.remove();
     }
   </script>
-  <script type="text/javascript">
-    window.setTimeout("document.getElementById('successMessage').style.display='none';", 10000);
-  </script>
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+ 
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
