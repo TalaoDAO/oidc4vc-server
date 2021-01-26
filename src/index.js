@@ -1,8 +1,11 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import Web3 from "web3";
+import  workspace_contract_abi from "./abi.js"
 
 var QRCode = require('qrcode')
 var canvas = document.getElementById('canvas')
 
+let web3 = null;
 let provider = null;
 
 function onSubscribe() {
@@ -23,7 +26,6 @@ function onSubscribe() {
 
   });
 }
-
 
 async function onlogin(mobile) {
   console.log('provider debut oninit = ', provider)
@@ -51,7 +53,7 @@ async function onlogin(mobile) {
     provider.connector.on("display_uri", (err, payload) => {
     var uri = payload.params[0];
     console.log('uri = ',uri);
-    QRCode.toCanvas(canvas, uri,{text : "Talao Digital Identity"}, function (error) {
+    QRCode.toCanvas(canvas, uri,{width : 244}, function (error) {
       if (error) {console.error(error);
       }
       else 
@@ -79,29 +81,32 @@ async function onlogin(mobile) {
 }
 
 async function getaccountaddress(){
+  /*
+  This is the standard init call of a page
+  */
   provider = new WalletConnectProvider({
     rpc: {
       1 : "https://talao.co/rpc",
     },
     qrcode: false,
   });
-  // init
+  // init provider
   await provider.enable();
+
+  // create web3 object for future use
+  web3 = new Web3(provider);
 
   provider.on("close", () => {
   console.log('appel de on close, provider is disconected')
   });
-
-  console.log('call de getaccount, provider = ', provider);
+  console.log('provider = ', provider);
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
-
 
 async function onend() {
  if (provider)
  { await provider.disconnect();
   console.log('passage dans onend, provider is disconnected');}
-  
 }
 
 async function mypersonalmessage(msg) {
@@ -125,41 +130,23 @@ async function mypersonalmessage(msg) {
   return signature;
 }
 
-
-
-async function signtypeddata(typedData){
- 
-  let signature = null;
-  if (!provider) {
-    throw new Error(`provider hasn't been created yet`);
+async function checksignature(did, signature, msg){
+  if (!web3) {
+    throw new Error(`web3 hasn't been created yet`);
   }
+    // get the list of agent (key = 1) of this did
+  const  workspace_contract_address = '0x' + did.split(":")[3];
+  const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract_address);
+  const keylist = await contract.methods.getKeysByPurpose(1).call();
 
-  let account = provider.accounts[0];
-
-  const msgParams = [
-    account, // Required
-    typedData, // Required
-  ];
-  
-  // Sign Typed Data
-  await provider.connector
-    .signTypedData(msgParams)
-    .then(result => {
-      // Returns signature.
-      console.log('signature dans index.js = ',result);
-      signature = result;
-    })
-    .catch(error => {
-      // Error returned when rejected
-      console.error(error);
-    });
-
-return signature;
-
+  // calculate the keccak256 of the signer
+  const signer = web3.eth.accounts.recover(msg, signature);
+  const signerpublickey = web3.utils.soliditySha3(signer);
+  return keylist.includes(signerpublickey);
 }
 
 window.onEnd = onend;
 window.onInit = onlogin;
 window.sign = mypersonalmessage;
-//window.sign= signtypeddata;
 window.getAccountAddress = getaccountaddress;
+window.checkSignature= checksignature;

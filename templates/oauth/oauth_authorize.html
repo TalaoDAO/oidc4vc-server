@@ -23,6 +23,8 @@
                                     <br>
                                     <p>Allow to access your Digital Identity.</p>
                                     <form action="" method="POST">
+                                        <input value={{wallet_signature}} name="wallet_signature" hidden type="text" >
+                                        <input value={{wallet_address}} name="wallet_address" hidden type="text" >
                                         <div class="form-group">
                                             {% if openid == 'checked' %}
                                             <div class="form-inline custom-control-inline">

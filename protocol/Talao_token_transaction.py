@@ -78,6 +78,11 @@ def read_profil (workspace_contract, mode, loading) :
 			profil[topicname]=data[4].decode('utf-8')
 	return profil,category
 
+def get_keylist(key, workspace_contract, mode) :
+	contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+	return contract.functions.getKeysByPurpose(key).call()
+
+
 def get_category (workspace_contract, mode) :
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	try :

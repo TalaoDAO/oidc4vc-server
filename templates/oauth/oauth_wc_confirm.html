@@ -27,7 +27,10 @@
                   <div class="col">
                     <div  class="p-5">
                         <div class='text-center'><h4  id="id_page"  class='text-dark mb-4'>Your wallet is connected</h4>
-                          <form id="dynForm" action="/api/v1/oauth_wc_login/" method="post"><input id="id_wallet_signature" type="hidden" name="wallet_signature" value=""></form>
+                          <form id="dynForm" action="/api/v1/oauth_wc_login/" method="post">
+                              <input id="id_wallet_signature" type="hidden" name="wallet_signature" value="">
+                              <input type="hidden" name="wallet_address" value="{{wallet_address}}">
+                          </form>
                           <div class="">
                             <img id="id_wallet_logo" src="{{wallet_logo}}" style="width: 120px;border-radius:0px;">
                             <div id="id_wallet_name">{{wallet_name}}</div>
@@ -36,9 +39,11 @@
                             <span>Your wallet account :</span>
                             <p id='id_address_html'>{{wallet_address}}</p>
                             <br>
-                            <button class='btn btn-primary text-white btn-user' onclick="sign_message()" id="in_progress_button" type='button'>Authenticate your account</button>
-                            <br><br>
-                            <p id="id_code" >Code to confirm :  {{wallet_code}} / {{wallet_code_hex}}</p>
+                            <p id="id_client"></p>
+                              <br>
+                              <div id="id_button"></div>
+                            
+                            <p id="id_code" ></p>
                         <div class="text-center"><a class="small" onclick="End()" href="#" >Change wallet account</a></div>
                     </div>
                   </div>
@@ -56,6 +61,11 @@
   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 
 
+  <script> function Reject() {
+    window.onEnd();
+    window.location.href = "/api/v1/oauth_wc_login?reject=on";
+  }
+  </script>
 
   <script> function End() {
     window.onEnd();
@@ -64,26 +74,38 @@
   </script>
 
 <script> async function sign_message() {
-  let code = "{{wallet_code}}";
   document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
-  let signature = await window.sign(code);
+  let signature = await window.sign('{{nonce}}');
   if (signature){
   document.getElementById("id_page").innerHTML = "Authentication in progress...";
   document.getElementById("id_wallet_signature").value = signature;
   document.getElementById("dynForm").submit();
   document.getElementById("id_code").innerHTML = "";
-  console.log("call sign message, dans signature");
   window.onEnd();
-
   }
 };
 </script>
 
 <script>
-function page_onload(){
-  window.getAccountAddress().then(value => {
+async function page_onload(){
+  await window.getAccountAddress().then(value => {
     console.log('value dans page_onload = ', value);
   });
+  const client_did  = '{{client_did}}';
+  const href = "https://talao.co/board/?workspace_contract=" + '0x' + client_did.split(":")[3];
+  // check client signature here
+  // if client signature is not ok , reject the call
+  check = await window.checkSignature(client_did, '{{client_signature}}', '{{nonce}}');
+  console.log('signature check = ', check);
+  if (check){
+    document.getElementById("id_client").innerHTML = '<a href=' + href + ' >Client has been verified</a>';
+    document.getElementById("id_code").innerHTML = "Code to confirm  : {{nonce}} : {{nonce_hex}}";
+    document.getElementById("id_button").innerHTML = '<button class="btn btn-primary text-white btn-user" onclick="sign_message()" id="in_progress_button" type="button">Authenticate your account</button>'
+    }
+  else
+  {document.getElementById("id_client").innerHTML = "Client has not been verified";
+  document.getElementById("id_button").innerHTML = '<button class="btn btn-primary text-white btn-user" onclick="Reject()" name ="reject" type="button">Reject</button>';
+  }
 }
 </script>
 

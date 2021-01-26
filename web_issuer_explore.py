@@ -26,8 +26,11 @@ import sms
 
 
 def check_login() :
+	print('check login is called')
+	print('session = ', session.get('username'))
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if session.get('username') is None :
+		print('abort')
 		abort(403)
 	else :
 		return session['username']

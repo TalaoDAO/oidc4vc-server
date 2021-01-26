@@ -193,3 +193,4 @@ class currentMode() :
 		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
 		#self.w3.geth.personal.unlockAccount(self.foundation_address,self.password,0)
 		self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0)
+

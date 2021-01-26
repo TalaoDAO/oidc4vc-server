@@ -32,6 +32,7 @@ import privatekey
 import os
 import constante
 
+
 # Environment setup
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
@@ -56,7 +57,7 @@ JWK = jwk.dumps(private_rsa_key)
 
 
 # set up 'kid' in the JWK header 
-JWK['kid'] = 'Talao public RSA key'
+JWK['kid'] = "server"
 
 JWT_CONFIG = {
     'key':  JWK,
