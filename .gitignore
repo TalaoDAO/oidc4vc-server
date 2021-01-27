@@ -10,3 +10,4 @@ protocol/__pycache__/*
 keys.json
 passwords.json
 uploads/*
+node_modules

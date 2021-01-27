@@ -10,6 +10,7 @@ from models import db, User, OAuth2Client
 from oauth2 import authorization, require_oauth
 import json
 from urllib.parse import urlencode, parse_qs, urlparse, parse_qsl
+from urllib import parse
 import random
 import sms
 from datetime import datetime, timedelta
@@ -21,7 +22,7 @@ from eth_account import Account
 import ns
 import constante
 from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category, ownersToContracts
-from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim, Identity
+from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim, Identity, get_keylist
 import createidentity
 import createcompany
 import privatekey
@@ -31,14 +32,16 @@ import resume
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')
 def resolver(mode):
-    if 'method' not in session :
-        session['method'] = request.method
-    if request.method == 'GET' and not request.args.get('username') :
-        return render_template('resolver.html', output="")
-    elif request.method == 'GET' :
-        input = request.args.get('username')
-    else :
-        input = json.loads(request.data.decode("utf-8"))['input']
+    if request.method == 'GET' :
+        if not request.args.get('username') and not request.args.get('did') :
+            session['response'] = 'html'
+            return render_template('resolver.html', output="")
+        else :
+            input = request.args.get('username')
+            if not input :
+                input = request.args.get('did')
+    if request.method == 'POST' :
+        input = request.form['input']
     try :
         if input[:3] == 'did' :
             did = input
@@ -54,6 +57,7 @@ def resolver(mode):
         return render_template('resolver.html', output=output)
 
     address = contractsToOwners(workspace_contract, mode)
+    address = mode.w3.toChecksumAddress(address)
     contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
     rsa_public_key = contract.functions.identityInformation().call()[4]
     payload = {'blockchain' : mode.BLOCKCHAIN,
@@ -61,16 +65,13 @@ def resolver(mode):
                      'did' : did,
                      'address' : address,
                      'workspace contract' : workspace_contract,
-                     'RSA public key' : rsa_public_key.decode('utf-8')}
-    if session['method'] == 'GET' :
-        del session['method']
+                     'RSA public key' : rsa_public_key.decode('utf-8'),
+                     'agent_key': get_keylist(1, workspace_contract, mode) }
+    if session.get('response') == 'html' :
         return render_template('resolver.html', output=json.dumps(payload, indent=4))
     else :
-        del session['method']
         response = Response(json.dumps(payload), status=200, mimetype='application/json')
         return response
-
-
 
 def check_login() :
     #check if the user is correctly logged. This function is called everytime a user function is called
@@ -139,9 +140,6 @@ def oauth_login(mode):
     # Inital call from authorization server redirect
     if not session.get('url') :
         session['url'] = request.args.get('next')
-        session['nonce'] = request.args.get('nonce')
-        session['client_signature'] = request.args.get('client_signature','')
-        session['client_did'] = request.args.get('client_did','')
     return render_template('/oauth/oauth_login_qrcode.html')
 
 #@route('/api/v1/oauth_login_larger')
@@ -152,39 +150,36 @@ def oauth_login_larger(mode):
 #@app.route('/oauth_wc_login/', methods = ['GET', 'POST'])
 def oauth_wc_login(mode) :
     if request.method == 'GET' :
+        wallet_address = request.args.get('wallet_address')
         # if the QR code scan has been refused or wallet address cannot read
-        if 'reject' in  request.args or request.args.get('wallet_address') == 'undefined' :
+        if 'reject' in  request.args or wallet_address == 'undefined' :
             return redirect(session.get('url', '')+'&reject=on')
         # success call, one  displays the confirm view with walet logo and wallet name
         src = request.args.get('wallet_logo')
         if src in ['undefined', None] :
             filename= request.args.get('wallet_name').replace(' ', '').lower()
             src = "/static/img/wallet/" + filename + ".png"
-        session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
-        # check  if wallet address is known
-        # wallet address must be either an owner or an alias
-        if not ownersToContracts(session['wallet_address'], mode) and not ns.get_username_from_wallet(session['wallet_address'], mode) :
-            wallet_address = session['wallet_address']
-            del session['wallet_address']
+        wallet_address = mode.w3.toChecksumAddress(wallet_address)
+        # check  if wallet address is known. wallet address must be either an owner or an alias
+        if not ownersToContracts(wallet_address, mode) and not ns.get_username_from_wallet(wallet_address, mode) :
             return render_template('/oauth/oauth_wc_reject.html', wallet_address=wallet_address)
+        data = dict(parse.parse_qsl(parse.urlsplit(session['url']).query))
         return render_template('/oauth/oauth_wc_confirm.html',
-								wallet_address=session.get('wallet_address'),
-								client_did=session['client_did'],
-                                client_signature=session['client_signature'],
-                                nonce = session['nonce'],
-								nonce_hex= '0x' + bytes(session['nonce'], 'utf-8').hex(),
+								wallet_address=wallet_address,
+                                **data,
+								#nonce_hex= '0x' + bytes(data['nonce'], 'utf-8').hex(),
 								wallet_name = request.args.get('wallet_name'),
 								wallet_logo= src)
 
     if request.method == 'POST' :
-        if not request.form.get('wallet_signature') or not session.get('wallet_address') :
-            return render_template('/oauth/oauth_login_qrcode.html')
         wallet_signature = request.form.get('wallet_signature')
         wallet_address = request.form.get('wallet_address')
-        # look  for username
-        workspace_contract = ownersToContracts(session['wallet_address'], mode)
+        if not wallet_signature or not wallet_address :
+            return render_template('/oauth/oauth_login_qrcode.html')
+        # look  for username depending on wallet address
+        workspace_contract = ownersToContracts(wallet_address, mode)
         if not workspace_contract :
-            username = ns.get_username_from_wallet(session['wallet_address'], mode)
+            username = ns.get_username_from_wallet(wallet_address, mode)
         else :
             username = ns.get_username_from_resolver(workspace_contract, mode)
         user = User.query.filter_by(username=username).first()
@@ -193,9 +188,7 @@ def oauth_wc_login(mode) :
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        did_ext = {'wallet_signature' : wallet_signature, 'wallet_address': wallet_address }
-        url = session['url'] +  '&' + urlencode(did_ext)
-        print('url dans oauth wc login = ', url)
+        url = session['url'] +  '&' + urlencode( {'wallet_signature' : wallet_signature})
         return redirect(url)
 
 
@@ -258,11 +251,7 @@ def authorize(mode):
     category = get_category(client_workspace_contract, mode)
     # if user not logged (Auth server), then to log it in
     if not user :
-        return redirect(url_for('oauth_login',
-                            next=request.url,
-                            client_did=request.args.get('client_did'),
-                            client_signature=request.args.get('client_signature'),
-                            nonce=request.args.get('nonce')))
+        return redirect(url_for('oauth_login', next=request.url))
 
     # if user is already logged we prepare the consent screen
     if request.method == 'GET' :
@@ -277,16 +266,14 @@ def authorize(mode):
         if category == 1001 : # person
             consent_screen_scopes.extend(['address', 'profile', 'about', 'birthdate', 'resume', 'proof_of_identity', 'email', 'phone'])
         checkbox = {key.replace(':', '_') : 'checked' if key in grant.request.scope and key in client.scope.split() else ""  for key in consent_screen_scopes}
-        # Display view to ask for user consent if scope is more than just openid
+        # Display consent view to ask for user consent if scope is more than just openid
         return render_template('/oauth/oauth_authorize.html',
                                 user=user,
                                 grant=grant,
                                 **checkbox,
-                                wallet_signature=request.args.get('wallet_signature'),
-                                wallet_address=request.args.get('wallet_address'))
-    # POST, call from consent screen
-    wallet_signature = request.form.get('wallet_signature', "")
-    wallet_address = request.form.get('wallet_address', "")
+                                wallet_signature=request.args.get('wallet_signature'))
+    # POST, call from consent view
+    wallet_signature = request.form.get('wallet_signature')
     if not user and 'username' in request.form:
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
@@ -302,8 +289,7 @@ def authorize(mode):
     query_dict["scope"] = [my_scope[:-1]]
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
-    print('appel create authorization")')
-    return authorization.create_authorization_response(wallet_signature=wallet_signature, wallet_address=wallet_address, grant_user=user, request=req,)
+    return authorization.create_authorization_response(signature=wallet_signature, grant_user=user, request=req,)
 
 
 #########################################  AUTHORIZATION CODE ENDPOINT   ################################
