@@ -26,24 +26,26 @@ import sms
 
 
 def check_login() :
-	print('check login is called')
-	print('session = ', session.get('username'))
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if session.get('username') is None :
+	if not session.get('username') and not session.get('workspace_contract') :
 		print('abort')
 		abort(403)
 	else :
-		return session['username']
+		return True
 
 
 # helper
 def is_username_in_list(my_list, username) :
+	if not username :
+		return False
 	for user in my_list :
 		if user['username'] == username :
 			return True
 	return False
 # helper
 def is_username_in_list_for_partnership(partner_list, username) :
+	if not username :
+		return False
 	for partner in partner_list :
 		if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
 			return True

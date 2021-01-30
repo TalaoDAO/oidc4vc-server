@@ -25,7 +25,7 @@ from Crypto.PublicKey import RSA
 import time
 import datetime
 
-from protocol import Document, get_category
+from protocol import Document, get_category, ownersToContracts
 import ns
 import environment
 import privatekey
@@ -74,7 +74,7 @@ def exists_nonce(nonce, req):
 
 # for JWT generation only, we use the kyc data 
 def generate_user_info(user, scope):
-    user_workspace_contract = ns.get_data_from_username(user.username, mode).get('workspace_contract')
+    user_workspace_contract = user.username
     user_info = UserInfo(sub='did:talao:' + mode.BLOCKCHAIN +':' + user_workspace_contract[2:])
     category  = get_category(user_workspace_contract, mode,)
     if category == 2001 : #  company

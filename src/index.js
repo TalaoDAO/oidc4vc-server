@@ -97,8 +97,9 @@ async function getaccountaddress(){
   web3 = new Web3(provider);
 
   provider.on("close", () => {
-  console.log('appel de on close, provider is disconected')
+  console.log('appel de on close, provider is disconected');
   });
+
   console.log('provider = ', provider);
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
@@ -107,6 +108,44 @@ async function onend() {
  if (provider)
  { await provider.disconnect();
   console.log('passage dans onend, provider is disconnected');}
+}
+
+
+
+async function getid(textmsg){
+  let signature = null;
+
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
+  else
+  {console.log('provider is ok');}
+
+  const typedData = {
+    signer : provider.accounts[0],
+    sub : "",
+    email : textmsg,
+    address : "",
+    given_name : "",
+    family_name : ""
+  };
+
+ const data = JSON.stringify(typedData);
+
+await  provider
+.send({ method: "personal_sign", params: [data, provider.accounts[0]] })
+    .then(result => {
+      console.log('signature dans index.js = ',result);
+      signature = result;
+    })
+    .catch(error => {
+      console.log('error dans inex = ');
+      console.error(error);
+    });
+
+console.log('sortie signtyped data');
+return [signature, typedData];
+
 }
 
 async function mypersonalmessage(msg) {
@@ -148,5 +187,6 @@ async function checksignature(did, signature, msg){
 window.onEnd = onend;
 window.onInit = onlogin;
 window.sign = mypersonalmessage;
+window.getID = getid;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;

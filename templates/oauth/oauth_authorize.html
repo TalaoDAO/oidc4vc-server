@@ -20,10 +20,14 @@
                             <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);"> 
                                 <div  class="p-5"> 
                                     <img style="width: 96px;  display: block;  margin-left: auto; margin-right: auto;"  src="{{ url_for('static', filename='img/logo_noir.png')}}">
-                                    <br>
-                                    <p>Allow to access your Digital Identity.</p>
-                                    <form action="" method="POST">
+                                    <br><br>
+                                    <div id="id_text" class="text-center" >Allow this company to access your Digital Identity ?.</div>
+                                    <form id="myform" action="" method="POST">
                                         <input value={{wallet_signature}} name="wallet_signature" hidden type="text" >
+                                        <input id="id_message" value="" name="message" hidden type="text" >
+                                        <input id="id_message_signature" value="" name="signature" hidden type="text" >
+
+
                                         <div class="form-group">
                                             {% if openid == 'checked' %}
                                             <div class="form-inline custom-control-inline">
@@ -122,12 +126,14 @@
                                             {% endif %}
                                         </div>
                                         <br>
+                                        <div id="id_spinner" class="text-center"></div>
+
                                         <div class="form-row">
                                             <div class="col-4 col-xl-3">
-                                                <div class="form-group"><button id="loading_button" title="" class="btn btn-primary text-white btn-user" type="submit">Allow</button></div>
+                                                <div  id="id_button"  class="form-group"><buttontitle="" onclick="signuserinfo()" class="btn btn-primary text-white btn-user" type="button">Allow</button></div>
                                             </div>
                                             <div class="col-4 col-xl-3">
-                                                <div class="form-group"><button class="btn btn-primary text-white btn-user" onclick="window.onEnd()" name ="reject" type="submit">Reject</button></div>
+                                                <div id="id_button_reject"  class="form-group"><button class="btn btn-primary text-white btn-user" onclick="window.onEnd()" name ="reject" type="submit">Reject</button></div>
                                             </div>
                                         </div>
                                     </form>
@@ -151,7 +157,24 @@
 
 
 
-  <script> function End() {
+
+<script> async function signuserinfo(){
+    document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
+    document.getElementById("id_button").innerHTML = '';
+    document.getElementById("id_button_reject").innerHTML = ''
+    document.getElementById("id_text").innerHTML = 'Waiting for wallet signature confirmation...';
+
+    const msg = await window.getID('user info');
+    console.log('msg = ', msg);
+    document.getElementById("id_message").value = JSON.stringify(msg[1]);
+    document.getElementById("id_message_signature").value = msg[0];
+    console.log('avant appel de submit ', msg);
+    window.onEnd();
+    document.getElementById("myform").submit();
+}
+</script>
+
+<script> function End() {
     window.onEnd();
     window.location.href = "/api/v1/oauth_login";
   }

@@ -267,6 +267,8 @@ def remove_manager(manager_name, host_name, mode) :
 
 
 def _get_data(username, mode) :
+	if not username :
+		return None
 	""" return data from SQL database depending of type of user (manager or not) """
 	path = mode.db_path
 	manager_name,s,host_name = username.rpartition('.')
@@ -363,6 +365,20 @@ def get_username_from_wallet(wallet, mode) :
 		return None
 	return select[0]
 
+
+def get_workspace_contract_from_wallet(wallet, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = {'wallet' : wallet}
+	c.execute("SELECT identity_workspace_contract FROM resolver WHERE wallet = :wallet " , data)
+	select=c.fetchone()
+	conn.commit()
+	conn.close()
+	if not select :
+		return None
+	return select[0]
+
 def get_address_from_publickey(publickey, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -392,6 +408,8 @@ def get_data_from_publickey(publickey, mode) :
 
 
 def _get_data_for_login(username, mode) :
+	if not username :
+		return None
 	""" ne pas utiliser en externe """
 	call = _get_data(username, mode)
 	if call is None :
@@ -409,6 +427,8 @@ def username_exist(username, mode) :
 
 def get_data_from_username(username, mode) :
 	""" It is almost the same as get_data_for_login but with dict as return """
+	if not username :
+		return dict()
 	call = _get_data_for_login(username, mode)
 	if call is None :
 		return dict()
@@ -473,6 +493,8 @@ def get_manager_list(workspace_contract, mode) :
 	return alias
 
 def update_phone(username, phone, mode) :
+	if not username :
+		return False
 	path = mode.db_path
 	username_split = username.split('.')
 	if len(username_split) == 1 :
@@ -494,6 +516,8 @@ def update_phone(username, phone, mode) :
 	return True
 
 def update_password(username, new_password, mode) :
+	if not username :
+		return False
 	password = mode.w3.keccak(text=new_password).hex()
 	path = mode.db_path
 	username_split = username.split('.')
@@ -532,12 +556,16 @@ def update_wallet(workspace_contract, wallet, mode) :
 
 
 def must_renew_password(username, mode) :
+	if not username :
+		return False
 	data = get_data_from_username(username, mode)
 	if data is None :
 		return False
 	return 'identity' == data.get('hash_password')
 
 def check_password(username, password, mode) :
+	if not username :
+		return False
 	data = get_data_from_username(username, mode)
 	if data is None :
 		return False
@@ -549,6 +577,8 @@ def check_password(username, password, mode) :
 	return mode.w3.keccak(text=password).hex() == data.get('hash_password')
 
 def has_phone(username, mode) :
+	if not username :
+		return False
 	data = get_data_from_username(username, mode)
 	if data is None or data['phone'] is None or data['phone'] == "" :
 		return False
@@ -556,6 +586,8 @@ def has_phone(username, mode) :
 		return True
 
 def get_credentials(username, mode) :
+	if not username :
+		return None
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'db.sqlite')
 	c = conn.cursor()

@@ -11,6 +11,7 @@ from eth_account.messages import encode_defunct
 import random
 from eth_account import Account
 
+
 # dependances
 import Talao_ipfs
 import Talao_message
@@ -118,14 +119,20 @@ def destroy_workspace(workspace_contract, private_key, mode) :
 		return None
 	return hash1
 
-def transfer_workspace(address_to, workspace_contract, mode) :
+def transfer_workspace(address_from, private_key, address_to, mode) :
+
+	workspace_contract = ownersToContracts(address_from, mode)
 
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	address = mode.foundation_address
-	private_key = mode.foundation_private_key
+	#address = mode.foundation_address
+	#private_key = mode.foundation_private_key
+
+	#setup default account for previous address
+	acct = Account.from_key(private_key)
+	mode.w3.eth.defaultAccount = acct.address
 
 	# Build, sign transaction
-	nonce = mode.w3.eth.getTransactionCount(address)
+	nonce = mode.w3.eth.getTransactionCount(address_from)
 	txn = contract.functions.transferOwnershipInFoundation(workspace_contract, address_to).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key)
 
@@ -134,6 +141,7 @@ def transfer_workspace(address_to, workspace_contract, mode) :
 	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 	if receipt['status'] == 0 :
+		print('Error : status transfer failed')
 		return None
 	return hash1
 

@@ -17,7 +17,8 @@ from datetime import datetime, timedelta
 from eth_account.messages import defunct_hash_message
 from eth_account.messages import encode_defunct
 from eth_account import Account
-
+from eth_keys import keys
+from eth_utils import decode_hex
 
 import ns
 import constante
@@ -55,18 +56,28 @@ def resolver(mode):
         print('Error : wrong input')
         output =  "Username, workspace_contract or did not found"
         return render_template('resolver.html', output=output)
-
     address = contractsToOwners(workspace_contract, mode)
     address = mode.w3.toChecksumAddress(address)
     contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
     rsa_public_key = contract.functions.identityInformation().call()[4]
+    priv_key = privatekey.get_key(address, 'private_key', mode)
+    print('priv key = ', priv_key)
+    if priv_key :
+        priv_key_bytes = decode_hex(priv_key)
+        priv_key = keys.PrivateKey(priv_key_bytes)
+        public_key = str(priv_key.public_key)
+    else :
+        public_key = ""
     payload = {'blockchain' : mode.BLOCKCHAIN,
-                     'username' : username,
-                     'did' : did,
-                     'address' : address,
-                     'workspace contract' : workspace_contract,
-                     'RSA public key' : rsa_public_key.decode('utf-8'),
-                     'agent_key': get_keylist(1, workspace_contract, mode) }
+                    'username' : username,
+                    'did' : did,
+                    'address' : address,
+                    'ECDSA_public_key' : public_key,
+                    'RSA public key' : rsa_public_key.decode('utf-8'),
+                    'ACTION_key_keccak': get_keylist(1, workspace_contract, mode),
+                    'KEY_key_keccak': get_keylist(2, workspace_contract, mode),
+                    'CLAIM_key_keccak' : get_keylist(3, workspace_contract, mode),
+                    'DOCUMENT_key_keccak' : get_keylist(20002, workspace_contract, mode)}
     if session.get('response') == 'html' :
         return render_template('resolver.html', output=json.dumps(payload, indent=4))
     else :
@@ -75,7 +86,7 @@ def resolver(mode):
 
 def check_login() :
     #check if the user is correctly logged. This function is called everytime a user function is called
-    if not session.get('username') :
+    if not session.get('username') and not session.get('workspace_contract') :
         print('Warning : call abort 403')
         abort(403)
     else :
@@ -97,20 +108,20 @@ def get_client_workspace(client_id, mode) :
 
 def get_user_workspace(user_id, mode):
     user = User.query.get(user_id)
-    user_username = user.username
-    return  ns.get_data_from_username(user_username, mode).get('workspace_contract')
+    return user.username
 
 #@route('/api/v1', methods=('GET', 'POST'))
 """
 This function is called from the Talao identity to create  client API credentials for authorization server
 """
-def home():
+def home(mode):
     check_login()
     if request.method == 'POST':
         username = request.form.get('username')
-        user = User.query.filter_by(username=username).first()
+        workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
+        user = User.query.filter_by(username=workspace_contract).first()
         if not user:
-            user = User(username=username)
+            user = User(username=workspace_contract)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
@@ -132,7 +143,6 @@ def oauth_logout():
     session.clear()
     print('Warning : logout ID provider')
     return redirect(post_logout)
-
 
 # Identity Provider login FIRST CALL
 #@route('/api/v1/oauth_login')
@@ -160,9 +170,11 @@ def oauth_wc_login(mode) :
             filename= request.args.get('wallet_name').replace(' ', '').lower()
             src = "/static/img/wallet/" + filename + ".png"
         wallet_address = mode.w3.toChecksumAddress(wallet_address)
+
         # check  if wallet address is known. wallet address must be either an owner or an alias
         if not ownersToContracts(wallet_address, mode) and not ns.get_username_from_wallet(wallet_address, mode) :
             return render_template('/oauth/oauth_wc_reject.html', wallet_address=wallet_address)
+
         data = dict(parse.parse_qsl(parse.urlsplit(session['url']).query))
         return render_template('/oauth/oauth_wc_confirm.html',
 								wallet_address=wallet_address,
@@ -172,24 +184,21 @@ def oauth_wc_login(mode) :
 								wallet_logo= src)
 
     if request.method == 'POST' :
-        wallet_signature = request.form.get('wallet_signature')
         wallet_address = request.form.get('wallet_address')
-        if not wallet_signature or not wallet_address :
+        if not wallet_address :
             return render_template('/oauth/oauth_login_qrcode.html')
         # look  for username depending on wallet address
         workspace_contract = ownersToContracts(wallet_address, mode)
         if not workspace_contract :
-            username = ns.get_username_from_wallet(wallet_address, mode)
-        else :
-            username = ns.get_username_from_resolver(workspace_contract, mode)
-        user = User.query.filter_by(username=username).first()
+            workspace_contract = ns.get_workspace_contract_from_wallet(wallet_address, mode)
+        user = User.query.filter_by(username=workspace_contract).first()
         if not user:
-            user = User(username=username)
+            user = User(username=workspace_contract)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
-        url = session['url'] +  '&' + urlencode( {'wallet_signature' : wallet_signature})
-        return redirect(url)
+        url = session['url']
+        return redirect(url + '&wallet_address=' + wallet_address)
 
 
 #@route('/api/v1/create_client', methods=('GET', 'POST'))
@@ -261,7 +270,7 @@ def authorize(mode):
             return error.error
         # configure consent screen : oauth_authorize.html
         consent_screen_scopes = ['openid', 'user:manage:referent', 'user:manage:partner', 'user:manage:certificate', 'user:manage:data']
-        user_workspace_contract = ns.get_data_from_username(user.username, mode)['workspace_contract']
+        user_workspace_contract = user.username
         category = get_category(user_workspace_contract, mode)
         if category == 1001 : # person
             consent_screen_scopes.extend(['address', 'profile', 'about', 'birthdate', 'resume', 'proof_of_identity', 'email', 'phone'])
@@ -273,10 +282,12 @@ def authorize(mode):
                                 **checkbox,
                                 wallet_signature=request.args.get('wallet_signature'))
     # POST, call from consent view
-    wallet_signature = request.form.get('wallet_signature')
+    signature = request.form.get('signature')
+    message = request.form.get('message')
     if not user and 'username' in request.form:
         username = request.form.get('username')
-        user = User.query.filter_by(username=username).first()
+        user_workspace_contract = ns.get_data_from_username(username, mode)['workspace_contact']
+        user = User.query.filter_by(username=user_workspace_contract).first()
     if 'reject' in request.form :
         session.clear()
         return authorization.create_authorization_response(grant_user=None,)
@@ -289,7 +300,7 @@ def authorize(mode):
     query_dict["scope"] = [my_scope[:-1]]
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
-    return authorization.create_authorization_response(signature=wallet_signature, grant_user=user, request=req,)
+    return authorization.create_authorization_response(message=message, signature=signature, grant_user=user, request=req,)
 
 
 #########################################  AUTHORIZATION CODE ENDPOINT   ################################

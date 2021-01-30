@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from datetime import datetime
 import sqlite3
 from Crypto.Cipher import PKCS1_OAEP
@@ -8,6 +9,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
 from eth_account import Account
+
 import constante
 
 # Gloval variables for RSA algo
@@ -114,31 +116,28 @@ def get_key(address, key_type, mode) :
 		fp.close()
 		return Account.decrypt(encrypted, mode.password).hex()
 
-	# first we try to find a rsa file
-	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+	# first we try to find a the new rsa file with .pem
+	workspace_contract = ownersToContracts(address, mode)
+	previous_filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
+	new_filename = "./RSA_key/" + mode.BLOCKCHAIN + '/did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:] + ".pem"
 	try :
-		fp = open(filename,"r")
+		fp = open(new_filename,"r")
 		rsa_key = fp.read()
 		fp.close()
 	except IOError :
-	#rsa file does not exist on disk then we determine RSA Key
-		print('Warning : RSA file not found on disk, lets calculate RSA key by algo from private key')
-		global salt
-		global master_key
-		salt = get_key(address, 'private_key', mode)
-		if salt is None :
-			print('Error : cannot get  RSA withour private key')
-			return None
-
-		master_key = PBKDF2(mode.password, salt, count=10000)  # bigger count = better
-		my_rand.counter = 0
-		RSA_key = RSA.generate(2048, randfunc=my_rand)
-		rsa_key = RSA_key.exportKey('PEM')
-
+		#  try to find the previous rsa file
+		try :
+			fp = open(previous_filename,"r")
+			rsa_key = fp.read()
+			fp.close()
+			os.system("mv " + previous_filename + " " + new_filename)
+			print('Success : RSA file renamed')
+		except IOError :
+			#rsa file does not exist on disk then we determine RSA Key
+			print('Warning : RSA file not found on disk ', IOError)
+			rsa_key  = None
 	if key_type == 'rsa_key' :
 		return rsa_key
-
-	workspace_contract = ownersToContracts(address, mode)
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	aes_encrypted = data[5]

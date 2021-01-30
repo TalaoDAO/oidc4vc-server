@@ -15,6 +15,7 @@ from datetime import timedelta, datetime
 
 # dependances
 import Talao_message
+import ssi_createidentity
 import createidentity
 import sms
 from protocol import Claim
@@ -69,12 +70,11 @@ def wc_register(mode) :
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['search'] = request.form.get('CheckBox')
-		workspace_contract = createidentity.create_user(session['username'],
+		workspace_contract = ssi_createidentity.create_user(session['wallet_address'],session['username'],
 											session['email'],
 											mode,
 											firstname=session['firstname'],
 											lastname=session['lastname'],
-											wallet=session['wallet_address']
 											)[2]
 		if not workspace_contract :
 			print('Error : createidentity failed')

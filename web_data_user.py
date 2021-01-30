@@ -39,10 +39,10 @@ import privatekey
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if session.get('username') is None :
+	if not session.get('workspace_contract') and not session.get('username') :
 		abort(403)
 	else :
-		return session['username']
+		return True
 
 
 def send_secret_code (username, code, mode) :
@@ -112,16 +112,17 @@ def wc_login(mode) :
 		session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
 		workspace_contract = ownersToContracts(session['wallet_address'], mode)
 		if not workspace_contract :
-			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identiti
+			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identity
 			session['wallet_username'] = ns.get_username_from_wallet(session['wallet_address'], mode)
 			if not session['wallet_username'] :
 				# This wallet addresss is not an alias
 				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
 		else :
+			session['workspace_contract'] = workspace_contract
 			# this wallet address is an identity owner
-			session['wallet_username'] = ns.get_username_from_resolver(workspace_contract, mode)
-			if not session['wallet_username'] :
-				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
+		#	session['wallet_username'] = ns.get_username_from_resolver(workspace_contract, mode)
+		#	if not session['wallet_username'] :
+		#		return render_template('wc_reject.html', wallet_address=session['wallet_address'])
 		code = random.randint(10000, 99999)
 		session['wallet_code'] = str(code)
 		src = request.args.get('wallet_logo')
@@ -148,7 +149,7 @@ def wc_login(mode) :
 			print('Warning : incorrect signature')
 			flash('This account is an Identity but signature is incorrect.', 'danger')
 			return render_template('login.html')
-		session['username'] = session['wallet_username']
+		session['username'] = session.get('wallet_username')
 		return redirect(mode.server + 'user/')
 
 
@@ -511,13 +512,17 @@ def data(mode) :
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
 	check_login()
+	if not session.get('workspace_contract') :
+		session['workspace_contract'] = ns.get_data_from_username(session.get('username'),mode)['workspace_contract']
+	else :
+		session['username'] = None
 	if not session.get('uploaded', False) :
 		print('Warning : start first instanciation user')
 		if mode.test :
-			user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
+			user = Identity(session['workspace_contract'], mode, authenticated=True)
 		else :
 			try :
-				user = Identity(ns.get_data_from_username(session['username'],mode)['workspace_contract'], mode, authenticated=True)
+				user = Identity(session['workspace_contract'], mode, authenticated=True)
 			except :
 				flash('session aborted', 'warning')
 				return render_template('login.html')
@@ -545,7 +550,7 @@ def user(mode) :
 		session['token'] = user.token
 		session['rsa_key'] = user.rsa_key
 		session['rsa_key_value'] = user.rsa_key_value
-		session['rsa_filename'] =  session['address'] + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
+		session['rsa_filename'] =  session['did'] + ".pem"
 		session['private_key'] = user.private_key
 		session['private_key_value'] = user.private_key_value
 		session['relay_activated'] = user.relay_activated
@@ -555,11 +560,10 @@ def user(mode) :
 		session['secret'] = user.secret
 		session['picture'] = user.picture
 		session['signature'] = user.signature
-		session['test'] = mode.test
 		session['skills'] = user.skills
 		session['certificate'] = user.certificate
 
-		phone =  ns.get_data_from_username(session['username'], mode).get('phone')
+		phone =  ns.get_data_from_username(session.get('username'), mode).get('phone')
 		session['phone'] = phone if phone else ""
 
 		if user.type == 'person' :
@@ -569,7 +573,7 @@ def user(mode) :
 			session['profil_title'] = user.profil_title
 			session['menu'] = {'picturefile' : user.picture,
 								'username' : session['username'],
-								'name' : user.name,
+								'name' : session['name'],
 								'private_key_value' : user.private_key_value,
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
@@ -594,10 +598,6 @@ def user(mode) :
 			message = message + 'Rsa key not found. You cannot encrypt data.'
 		if message != "" :
 			flash(message, 'warning')
-
-		# ask update password messsage
-		#if ns.must_renew_password(session['username'], mode) :
-		#	return render_template('ask_update_password.html', **session['menu'])
 
 		#Homepage
 		if user.type == 'person' :
@@ -832,12 +832,12 @@ def user(mode) :
 				</span><br>"""
 
 		# kyc
-		my_kyc = """
-			<b>Authentification Key (ECDSA/ES256K)</b> : """+ session['address'] +"""<br><hr>"""
+		#my_kyc = """
+		#	<b>Authentification Key (ECDSA/ES256K)</b> : """+ session['address'] +"""<br><hr>"""
+		my_kyc = ""
 
 		if not session['kyc'] :
 			my_kyc = my_kyc + """<a class="text-warning">No other proof of identity available.</a>"""
-
 		else :
 			kyc = session['kyc'][-1]
 			kyc_html = """
@@ -1119,7 +1119,6 @@ def user_advanced(mode) :
 		#display_alias = False
 		my_access = ""
 	else :
-		display_alias = True
 		my_access = ""
 		access_list = ns.get_alias_list(session['workspace_contract'], mode)
 		for access in access_list :
@@ -1138,29 +1137,37 @@ def user_advanced(mode) :
 
 	# Advanced
 
-	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
+	if session['relay_activated'] :
+		relay = 'Activated'
+		relay_text = ""
+	else :
+		relay = 'Not Activated'
+		relay_text = """<a class ="text-warning" > You cannot store data from here.</a>"""
+
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
-	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""
+	did = "did:talao:" + mode.BLOCKCHAIN + ":" + session['workspace_contract'][2:]
+	if mode.BLOCKCHAIN == 'talaonet' :
+		path = ""
+	elif mode.BLOCKCHAIN == 'rinkeby' :
+		path = """https://rinkeby.etherscan.io/address/"""
+	else :
+		path = """https://etherscan.io/address/"""
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
-					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>
-					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""
+					<b>DID</b> : <a class = "card-link" href = "https://talao.co/resolver?did=""" + did + """"">""" + did + """</a><br>
+					<b>Owner Wallet Address</b> : <a class = "card-link" href = "" >"""+ session['address'] + """</a><br>"""
 	if session['username'] != 'talao' :
-		if relay == 'Activated' :
-			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
-		else :
-			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<a class ="text-warning" >You cannot store data.</a><br>"""
-
+		my_advanced = my_advanced + """ <hr><b>Relay : </b>""" + relay + relay_text + """<br>"""
 		if relay_rsa_key == 'Yes' :
 			my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
 		else :
-			my_advanced = my_advanced +"""<b>RSA Key</b> : """ + relay_rsa_key + """<br><a class ="text-warning" >You cannot store and access private and secret data.</a><br>"""
+			my_advanced = my_advanced +"""<b>RSA Key</b> : """ + relay_rsa_key + """<br><a class ="text-warning" > You cannot store and access private and secret data from here.</a><br>"""
 
 		if relay_private_key == 'Yes' :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
 		else :
-			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
+			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" > You cannot issue certificates for others.</a><br>"""
 	my_advanced = my_advanced + "<hr>" + my_account
 
 	# Partners

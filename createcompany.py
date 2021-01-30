@@ -81,14 +81,6 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 
 	# calculate RSA key
 	RSA_key, RSA_private, RSA_public = create_rsa_key(private_key, mode)
-	# we store the private RSA key PEM in ./RSA_key/chain directyory
-	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/'+ str(address) + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	try :
-		file=open(filename,"wb")
-		file.write(RSA_private)
-		file.close()
-	except :
-		print('Error : RSA key not stored')
 
 	# création de la cle AES
 	AES_key = get_random_bytes(16)
@@ -125,6 +117,16 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract = ownersToContracts(address, mode)
 	print( 'Success : workspace contract = ', workspace_contract)
+
+	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
+	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:] + ".pem"
+	try :
+		file = open(filename,"wb")
+		file.write(RSA_private)
+		file.close()
+		print('Success : RSA key stored on disk')
+	except :
+		print('Error : RSA key not stored on disk')
 
 	# add private key in keystore
 	if add_private_key(private_key, mode) :

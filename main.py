@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.4.6"
+VERSION = "0.5.0"
 API_SERVER = True
 
 # Flask and Session setup
@@ -192,20 +192,23 @@ def page_abort(e):
 
 # Check if session is active and access is fine. To be used for all routes, excetp external call
 def check_login() :
-    """ check if the user is correctly logged. This function is called everytime a user function is called """
-    if not session.get('username') :
+    if not session.get('workspace_contract') and not session.get('username') :
         abort(403)
     else :
-        return session['username']
+        return True
 
 # helper
 def is_username_in_list(my_list, username) :
+    if not username :
+        return False
     for user in my_list :
         if user['username'] == username :
             return True
     return False
 # helper
 def is_username_in_list_for_partnership(partner_list, username) :
+    if not username :
+        return False
     for partner in partner_list :
         if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
             return True

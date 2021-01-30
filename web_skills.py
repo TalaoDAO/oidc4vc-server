@@ -11,11 +11,10 @@ from protocol import Document
 
 
 def check_login() :
-	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if session.get('username') is None :
+	if not session.get('username') and not session.get('workspace_contract') :
 		abort(403)
 	else :
-		return session['username']
+		return True
 
 # route user/update_skills/
 def update_skills(mode) :

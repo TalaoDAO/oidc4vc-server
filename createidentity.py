@@ -55,7 +55,7 @@ class ExportingThread(threading.Thread):
 
 
 # main function called by external modules
-def create_user(username, email, mode, creator=None, wallet=False, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
+def create_user(username, email, mode, creator=None, wallet=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
 	"""
 	is_thread :bool, by default partly an async task.
 
@@ -88,16 +88,6 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 
 	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
-
-	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
-	filename = "./RSA_key/"+mode.BLOCKCHAIN+'/'+str(address)+"_TalaoAsymetricEncryptionPrivateKeyAlgorithm1"+".txt"
-	try :
-		file = open(filename,"wb")
-		file.write(RSA_private)
-		file.close()
-		print('Success : RSA key stored on disk')
-	except :
-		print('Error : RSA key not stored on disk')
 
 	# Setup a key (symetric) named 'AES' to encrypt private data and to be shared with partnership
 	AES_key = get_random_bytes(16)
@@ -146,6 +136,16 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	# workspace_contract address to be read in fondation smart contract
 	workspace_contract = ownersToContracts(address,mode)
 	print('Success : workspace_contract has been setup = ',workspace_contract)
+
+	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
+	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:] + ".pem"
+	try :
+		file = open(filename,"wb")
+		file.write(RSA_private)
+		file.close()
+		print('Success : RSA key stored on disk')
+	except :
+		print('Error : RSA key not stored on disk')
 
 	# add username to register in local nameservice Database with last check.....
 	if ns.username_exist(username, mode) :
