@@ -27,6 +27,12 @@ function onSubscribe() {
   });
 }
 
+async function onend() {
+  if (provider)
+  { await provider.disconnect();
+   console.log('passage dans onend, provider is disconnected');}
+ }
+
 async function onlogin(mobile) {
   console.log('provider debut oninit = ', provider)
   let mobile_account = "undefined";
@@ -63,11 +69,11 @@ async function onlogin(mobile) {
     });
   }
 
-  onSubscribe();
+  //onSubscribe();
 
   await provider.enable()
   .then(value => {
-    console.log('value = ',value, 'provider = ', provider);
+    console.log('value = ',value, 'provider = ', provider, 'accounts =', provider.accounts);
     mobile_account = provider.accounts[0];
     mobile_wallet = provider.wc._peerMeta['name'];
     mobile_logo = provider.wc._peerMeta['icons'][0];
@@ -75,6 +81,14 @@ async function onlogin(mobile) {
   .catch(e => {
     console.log(e);
     });
+
+  // create web3 object for future use
+  web3 = new Web3(provider);
+
+  if (!web3.utils.isAddress(mobile_account)) {
+      console.log(`it s not an ethereum address`);
+      await onend();
+    }
 
   return [mobile_account, mobile_wallet, mobile_logo];
 
@@ -104,11 +118,6 @@ async function getaccountaddress(){
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
 
-async function onend() {
- if (provider)
- { await provider.disconnect();
-  console.log('passage dans onend, provider is disconnected');}
-}
 
 
 

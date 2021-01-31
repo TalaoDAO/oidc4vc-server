@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.5.0"
+VERSION = "0.5.1"
 API_SERVER = True
 
 # Flask and Session setup
@@ -1811,7 +1811,7 @@ def delete_identity() :
     check_login()
     if request.method == 'GET' :
         if not session['private_key'] :
-            flash('Identity deletion is not possible as there is no private key', 'danger')
+            flash('No private key, cannot delete Identity.', 'danger')
             return redirect (mode.server +'user/')
         else :
             return render_template('delete_identity.html', **session['menu'])
@@ -1823,7 +1823,7 @@ def delete_identity() :
             destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
             category = 1001 if session['type'] == 'person' else 2001
             ns.delete_identity(session['username'], mode, category = category)
-            flash('Your Identity has been deleted from Blockchain', 'success')
+            flash('Your Identity has been deleted.', 'success')
             return redirect (mode.server +'login/')
 
 

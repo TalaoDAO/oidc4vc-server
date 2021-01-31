@@ -43,21 +43,18 @@ mode = environment.currentMode(mychain,myenv)
 api_server_address = '0xEE09654eEdaA79429F8D216fa51a129db0f72250' # = owner_talao
 
 # JWT configuration with JWK, JWT is signed with Talao RSA key, 
-filename = './RSA_key/talaonet/' + api_server_address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 try :
-	fp = open(filename,"r")
+	fp = open('./RSA_key/talaonet/talao.pem',"r")
 	private_rsa_key = fp.read()
 	fp.close()
 except :
     print('RSA private key of API Server not found')
 
-
 # Generate JWK from rsa key
 JWK = jwk.dumps(private_rsa_key)
 
-
 # set up 'kid' in the JWK header 
-JWK['kid'] = "server"
+JWK['kid'] = "Talao RSA Key"
 
 JWT_CONFIG = {
     'key':  JWK,

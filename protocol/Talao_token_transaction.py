@@ -122,10 +122,7 @@ def destroy_workspace(workspace_contract, private_key, mode) :
 def transfer_workspace(address_from, private_key, address_to, mode) :
 
 	workspace_contract = ownersToContracts(address_from, mode)
-
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	#address = mode.foundation_address
-	#private_key = mode.foundation_private_key
 
 	#setup default account for previous address
 	acct = Account.from_key(private_key)
@@ -143,6 +140,8 @@ def transfer_workspace(address_from, private_key, address_to, mode) :
 	if receipt['status'] == 0 :
 		print('Error : status transfer failed')
 		return None
+	else:
+		print('Success : workspace ownership tranfered to ' + address_to)
 	return hash1
 
 def contractsToOwners(workspace_contract, mode) :

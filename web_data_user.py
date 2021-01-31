@@ -109,35 +109,41 @@ def wc_login(mode) :
 		if not request.args.get('wallet_address') or request.args.get('wallet_address') == 'undefined' :
 			flash('Scan QR code or log with password', 'warning')
 			return redirect (mode.server + 'login/')
-		session['wallet_address'] = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
-		workspace_contract = ownersToContracts(session['wallet_address'], mode)
-		if not workspace_contract :
+		if not mode.w3.isAddress(request.args.get('wallet_address')) :
+			flash('This account is not an Ethereum account.', 'warning')
+			return render_template('login.html')
+		wallet_address = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
+		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
+		if not session['workspace_contract'] :
 			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identity
-			session['wallet_username'] = ns.get_username_from_wallet(session['wallet_address'], mode)
-			if not session['wallet_username'] :
+			session['username'] = ns.get_username_from_wallet(wallet_address, mode)
+			if not session['username'] :
 				# This wallet addresss is not an alias
-				return render_template('wc_reject.html', wallet_address=session['wallet_address'])
+				return render_template('wc_reject.html', wallet_address=wallet_address)
 		else :
-			session['workspace_contract'] = workspace_contract
-			# this wallet address is an identity owner
-		#	session['wallet_username'] = ns.get_username_from_resolver(workspace_contract, mode)
-		#	if not session['wallet_username'] :
-		#		return render_template('wc_reject.html', wallet_address=session['wallet_address'])
+			session['username'] = None
 		code = random.randint(10000, 99999)
 		session['wallet_code'] = str(code)
 		src = request.args.get('wallet_logo')
+		wallet_name = request.args.get('wallet_name')
 		if request.args.get('wallet_logo') == 'undefined' :
-			filename= request.args.get('wallet_name').replace(' ', '').lower()
-			src = "/static/img/wallet/" + filename + ".png"
+			print('wallet name = ', wallet_name)
+			if wallet_name != 'undefined' :
+				filename= wallet_name.replace(' ', '').lower()
+				src = "/static/img/wallet/" + filename + ".png"
+			else :
+				src = ""
+				wallet_name = ''
 		return render_template('wc_confirm.html', 
-								wallet_address=session['wallet_address'],
+								wallet_address=wallet_address,
 								wallet_code=session['wallet_code'],
 								wallet_code_hex= '0x' + bytes(str(code), 'utf-8').hex(),
-								wallet_name = request.args.get('wallet_name'),
+								wallet_name = wallet_name,
 								wallet_logo= src)
 
 	if request.method == 'POST' :
 		signature = request.form.get('wallet_signature')
+		wallet_address = request.form.get('wallet_address')
 		message_hash = defunct_hash_message(text=session['wallet_code'])
 		try :
 			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
@@ -145,11 +151,11 @@ def wc_login(mode) :
 			print('Warning : incorrect signature')
 			flash('This account is an Identity but signature is incorrect.', 'danger')
 			return render_template('login.html')
-		if signer != session['wallet_address'] :
-			print('Warning : incorrect signature')
-			flash('This account is an Identity but signature is incorrect.', 'danger')
+		if signer != wallet_address :
+			print('Warning : incorrect signer')
+			flash('This account is an Identity but signer is incorrect.', 'danger')
 			return render_template('login.html')
-		session['username'] = session.get('wallet_username')
+		del session['wallet_code']
 		return redirect(mode.server + 'user/')
 
 
@@ -221,7 +227,6 @@ def login(mode) :
 			return render_template('login.html', username=request.args.get('username', ""))
 
 	if request.method == 'POST' :
-		print('passage par post')
 		if session.get('try_number') is None :
 			session['try_number'] = 1
 		session['username_to_log'] = request.form['username']
@@ -512,12 +517,10 @@ def data(mode) :
 #@app.route('/user/', methods = ['GET'])
 def user(mode) :
 	check_login()
-	if not session.get('workspace_contract') :
-		session['workspace_contract'] = ns.get_data_from_username(session.get('username'),mode)['workspace_contract']
-	else :
-		session['username'] = None
 	if not session.get('uploaded', False) :
-		print('Warning : start first instanciation user')
+		print('Warning : start first instanciation user', session.get('workspace_contract'), session.get('username'))
+		if not session.get('workspace_contract') :
+			session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
 		if mode.test :
 			user = Identity(session['workspace_contract'], mode, authenticated=True)
 		else :
@@ -572,7 +575,7 @@ def user(mode) :
 			session['kyc'] = user.kyc
 			session['profil_title'] = user.profil_title
 			session['menu'] = {'picturefile' : user.picture,
-								'username' : session['username'],
+								'username' : session.get('username', ""),
 								'name' : session['name'],
 								'private_key_value' : user.private_key_value,
 								'rsa_filename': session['rsa_filename'],

@@ -62,6 +62,7 @@ def issuer_explore(mode) :
 			flash('Issuer data not available', 'danger')
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
+		print('dans web issuer explore , issuer = ', issuer_workspace_contract)
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode, workspace_contract_from = session['workspace_contract'], private_key_from=session['private_key_value']).__dict__.copy()
 		session['issuer_username'] = issuer_username
 

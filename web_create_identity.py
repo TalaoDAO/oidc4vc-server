@@ -18,7 +18,7 @@ import Talao_message
 import ssi_createidentity
 import createidentity
 import sms
-from protocol import Claim
+from protocol import Claim, contractsToOwners
 import ns
 import directory
 
@@ -34,7 +34,6 @@ def register(mode) :
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
-		#session['phone'] = request.form['code'] + request.form['phone']
 		session['phone'] = request.form['phone']
 		session['search'] = request.form.get('CheckBox')
 		try :
@@ -49,7 +48,7 @@ def register(mode) :
 			return render_template("register.html",message='SMS connexion problem.', )
 
 
-# register ID with your wallet in Talao Identity
+# register ID with your wallet as owner in Talao Identity
 #@app.route('/wc_register/', methods = ['GET', 'POST'])
 def wc_register(mode) :
 	if request.method == 'GET' :
@@ -57,12 +56,11 @@ def wc_register(mode) :
 		session['is_active'] = True
 		message = request.args.get('message', "")
 		session['wallet_address']= request.args.get('wallet_address')
-		# lets t see if this wallet address is an alias of an Identity
-		if ns.get_username_from_wallet(session['wallet_address'], mode) :
+		# lets check if this wallet account is already an alias of an Identity
+		if ns.get_username_from_wallet(session['wallet_address'], mode) or contractsToOwners(session['wallet_address'], mode) :
 			del session['wallet_address']
-			flash('This wallet account is already used for an Idcentity.', 'warning')
+			flash('This wallet account is already used for an Identity.', 'warning')
 			return render_template ('login.html')
-		print('wallet address = ', session['wallet_address'])
 		return render_template('wc_register.html', message=message, wallet_address=session['wallet_address'])
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
@@ -83,6 +81,7 @@ def wc_register(mode) :
 			directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
 			print('Warning : directory updated with firstname and lastname')
 		session['is_active'] = False
+		time.sleep(60)
 		return render_template("create3.html", username=session['username'])
 
 # route /register/password/

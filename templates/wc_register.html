@@ -5,7 +5,7 @@
     {% include 'head.html' %}
 
 </head>
-<body id="page-top">
+<body id="page-top" onload="page_onload()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -44,7 +44,7 @@
                                         <div class="col-lg-6">
                                             <div class="p-5">
                                                 <div class="text-center">
-                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Digital Identity with your wallet account</h4>
+                                                    <h4 id="id_page" class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Digital Identity with your wallet account</h4>
                                                     {{wallet_address}}
                                                 </div>
                                             <div class="col" style="color: rgb(255,2,2);">
@@ -58,7 +58,7 @@
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
                                                     <label style="color: rgb(133,135,150);" title="The name directory is used to provide suggestion in the search bar. It links your username with your firstname and lastname. " >I accept to have my name in the Name Directory</label>
                                                 </div>
-                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" id="in_progress_button" type="submit">Next</button>
+                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="on_click()" id="in_progress_button" type="submit">Next</button>
                                             </form>
                                         <div class="text-center"><a class="small" href="/starter/">Back to Starter</a></div>
                                         <div class="text-center"><a class="small" href="/login/">Login</a></div>
@@ -75,8 +75,25 @@
                 <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
                 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+                <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
         </div>
     </div>
+<script>function on_click() {
+      document.getElementById("id_page").innerHTML = "Identity is being deployed (3 minutes)...";
+      window.onEnd();
+}
+
+</script>
+
+
+<script>
+    function page_onload(){
+      window.getAccountAddress().then(value => {
+        console.log('value dans page_onload = ', value);
+      });
+    }
+    </script>
+
 </body>
 </html>

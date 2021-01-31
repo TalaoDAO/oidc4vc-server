@@ -28,7 +28,10 @@
                   <div class="col">
                     <div  class="p-5">
                         <div class='text-center'><h4  id="id_page"  class='text-dark mb-4'>Your wallet is connected</h4>
-                          <form id="dynForm" action="/wc_login/" method="post"><input id="id_wallet_signature" type="hidden" name="wallet_signature" value=""></form>
+                          <form id="dynForm" action="/wc_login/" method="post">
+                            <input id="id_wallet_signature" type="hidden" name="wallet_signature" value="">
+                            <input value={{wallet_address}} type="hidden" name="wallet_address" value="">
+                          </form>
                           <div class="">
                             <img id="id_wallet_logo" src="{{wallet_logo}}" style="width: 120px;border-radius:0px;">
                             <div id="id_wallet_name">{{wallet_name}}</div>

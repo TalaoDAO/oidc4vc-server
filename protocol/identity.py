@@ -187,7 +187,7 @@ class Identity() :
 			partner_username = ns.get_username_from_resolver(partner_workspace_contract, mode)
 
 			#if partner_username is not None :
-			partner_username = "Unknown" if partner_username is None else partner_username
+			partner_username = "Unknown" if not partner_username  else partner_username
 			partner_address = contractsToOwners(partner_workspace_contract, mode)
 			partner_publickey = mode.w3.soliditySha3(['address'], [partner_address])
 			self.partners.append({'address': partner_address,

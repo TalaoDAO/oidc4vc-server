@@ -202,9 +202,7 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 # this function transfers workspace to new wallet and setup identity in nameservice
 def _create_user_step_3(address, private_key, wallet_address, workspace_contract, username, email, password, phone, mode) :
 	# transfer workspace
-	try :
-		transfer_workspace(address, private_key, wallet_address, mode)
-	except :
+	if not transfer_workspace(address, private_key, wallet_address, mode) :
 		print('Error : transfer failed')
 		return False
 
@@ -212,7 +210,7 @@ def _create_user_step_3(address, private_key, wallet_address, workspace_contract
 	if ns.username_exist(username, mode) :
 		username = username + str(random.randint(1, 100))
 	ns.add_identity(username, workspace_contract, email, mode)
-	
+
 		# setup password
 	if password :
 		ns.update_password(username, password, mode)
@@ -222,6 +220,6 @@ def _create_user_step_3(address, private_key, wallet_address, workspace_contract
 	if phone :
 		ns.update_phone(username, phone, mode)
 		print('Success : phone has been updated')
-	
+
 	print("Success : create identity process step 3 is over")
 	return True
