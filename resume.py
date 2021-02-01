@@ -1,6 +1,3 @@
-""" Get public resume from identity
-"""
-
 from protocol import Identity
 
 def get(workspace_contract, mode) :

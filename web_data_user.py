@@ -490,7 +490,7 @@ def data(mode) :
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
-				<li><b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br></li>"""
+				<li><b>Cryptography</b> : AES-128 AEX Mode, (""" + myvisibility + """ key) <br></li>"""
 	# if support is an ERC725 Claim
 	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)

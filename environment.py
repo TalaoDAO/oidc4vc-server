@@ -30,11 +30,11 @@ class currentMode() :
 		# upload of main private keys. This file (keys.json) is not in the  github repo. Ask admin to get it !!!!!
 		with open('./keys.json') as f:
   			keys = json.load(f)
+		self.aes_public_key = keys[mychain]['aes_public_key']
 		self.relay_private_key = keys[mychain]['relay_private_key']
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']
 		self.foundation_private_key = keys[mychain].get('foundation_private_key')
-		f.close()
 
 		# upload of main private passwords. This file (passwords.json) is not in the  github repo.
 		with open('./passwords.json') as p:
@@ -44,7 +44,6 @@ class currentMode() :
 		self.pinata_api_key = passwords['pinata_api_key'] # used in Talao_ipfs.py
 		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py
 		self.sms_token = passwords['sms_token'] # used in sms.py
-		p.close()
 
 		# En Prod chez AWS avec Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':

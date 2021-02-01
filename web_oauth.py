@@ -61,7 +61,6 @@ def resolver(mode):
     contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
     rsa_public_key = contract.functions.identityInformation().call()[4]
     priv_key = privatekey.get_key(address, 'private_key', mode)
-    print('priv key = ', priv_key)
     if priv_key :
         priv_key_bytes = decode_hex(priv_key)
         priv_key = keys.PrivateKey(priv_key_bytes)
@@ -69,15 +68,15 @@ def resolver(mode):
     else :
         public_key = ""
     payload = {'blockchain' : mode.BLOCKCHAIN,
-                    'username' : username,
-                    'did' : did,
-                    'address' : address,
-                    'ECDSA_public_key' : public_key,
-                    'RSA public key' : rsa_public_key.decode('utf-8'),
-                    'ACTION_key_keccak': get_keylist(1, workspace_contract, mode),
-                    'KEY_key_keccak': get_keylist(2, workspace_contract, mode),
-                    'CLAIM_key_keccak' : get_keylist(3, workspace_contract, mode),
-                    'DOCUMENT_key_keccak' : get_keylist(20002, workspace_contract, mode)}
+                'username' : username,
+                'did' : did,
+                'address' : address,
+                'ECDSA_public_key' : public_key,
+                'RSA public key' : rsa_public_key.decode('utf-8'),
+                'ACTION_key_keccak': get_keylist(1, workspace_contract, mode),
+                'KEY_key_keccak': get_keylist(2, workspace_contract, mode),
+                'CLAIM_key_keccak' : get_keylist(3, workspace_contract, mode),
+                'DOCUMENT_key_keccak' : get_keylist(20002, workspace_contract, mode)}
     if session.get('response') == 'html' :
         return render_template('resolver.html', output=json.dumps(payload, indent=4))
     else :

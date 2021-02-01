@@ -136,8 +136,8 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			privacy = 'secret'
 			aes_encrypted = mydata[6]
 
-	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from is not None and workspace_contract_from is not None :
-		#recuperer les cle AES cryptée du user sur son partnership de l identité
+	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from and workspace_contract_from  :
+		#recuperer les cle AES cryptée du user sur son partnership de l identité (from)
 		contract = w3.eth.contract(workspace_contract_from, abi = constante.workspace_ABI)
 		acct = Account.from_key(private_key_from)
 		mode.w3.eth.defaultAccount = acct.address
@@ -157,7 +157,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	# data decryption
 	if to_be_decrypted :
 
-		# read la cle RSA privee
+		# read la cle RSA privee du from
 		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
@@ -208,11 +208,11 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 				#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 				created = str(date)
 			except :
-				print( 'Error : probleme avec dans get claim')
+				print( 'Error : problem transaction data in get claim')
 				return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 			break
 	if not found :
-		print( 'Error : problem , not found in claim')
+		print( 'Error : claim not found in claim.py')
 		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 
@@ -293,7 +293,7 @@ class Claim() :
 			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :
-			return
+			return False
 		self.created = created
 		self.topicname = topicvalue2topicname(self.topicvalue)
 		self.claim_value = data
@@ -316,4 +316,4 @@ class Claim() :
 						'workspace_contract' : identity_workspace_contract,
 						'category' : category,
 						'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]}
-		return
+		return True

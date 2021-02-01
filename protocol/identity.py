@@ -243,7 +243,7 @@ class Identity() :
 				self.education_list.append(doc_id)
 			elif doctype == 10000 :
 				self.kbis_list.append(doc_id)
-			elif doctype == 15000 :
+			elif doctype == 15001 :# KYC are now private
 				self.kyc_list.append(doc_id)
 			elif doctype == 20000 :
 				self.certificate_list.append(doc_id)

@@ -76,15 +76,15 @@ def generate_user_info(user, scope):
     category  = get_category(user_workspace_contract, mode,)
     if category == 2001 : #  company
         return user_info
-    # get KYC
+    # get private KYC
     contract = mode.w3.eth.contract(user_workspace_contract,abi = constante.workspace_ABI)
     kyc_list = list()
     for doc_id in contract.functions.getDocuments().call() :
-        if contract.functions.getDocument(doc_id).call()[0] == 15000 :
+        if contract.functions.getDocument(doc_id).call()[0] == 15001 : # KYC private
             kyc_list.append(doc_id)
     if kyc_list :
-        kyc = Document('kyc')
-        kyc.relay_get(user_workspace_contract, kyc_list[-1], mode, loading='light')
+        kyc = Document('kyc_p')
+        kyc.relay_get(user_workspace_contract, kyc_list[-1], mode)
         kyc_dict = kyc.__dict__
         if 'profile' in scope :
             user_info['given_name'] = kyc_dict.get('given_name', '')

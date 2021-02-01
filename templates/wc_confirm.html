@@ -73,7 +73,7 @@
   document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
   let signature = await window.sign(code);
   if (signature){
-  document.getElementById("id_page").innerHTML = "Authentication in progress...";
+  document.getElementById("id_page").innerHTML = "Identity loading...";
   document.getElementById("id_wallet_signature").value = signature;
   document.getElementById("dynForm").submit();
   document.getElementById("id_code").innerHTML = "";

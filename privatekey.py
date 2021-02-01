@@ -58,6 +58,33 @@ def setup_keystore(mode) :
 		f.close()
 	return
 
+def decrypt_data(workspace_contract_user, data, privacy, mode) :
+	#recuperer la cle AES cryptée
+	address_user = contractsToOwners(workspace_contract_user, mode)
+	if privacy == 'public' :
+		his_aes = bytes(mode.aes_public_key, 'utf-8')
+	elif privacy == 'private' :
+		his_aes = get_key(address_user, 'aes_key', mode)
+	elif privacy == 'secret' :
+		his_aes == get_key(address_user, 'secret_key', mode)
+	else :
+		print ("Error : key not found")
+		return None
+	if not his_aes :
+		return None
+	# decrypt data
+	try:
+		b64 = data #json.loads(json_input)
+		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
+		jv = {k:b64decode(b64[k]) for k in json_k}
+		cipher = AES.new(his_aes, AES.MODE_EAX, nonce=jv['nonce'])
+		cipher.update(jv['header'])
+		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
+		msg = json.loads(plaintext.decode('utf-8'))
+	except :
+		print('Error : decrypt failed')
+		msg = None
+	return msg
 
 def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 	# parameter data is dict
@@ -66,18 +93,26 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 
 	identity_address = contractsToOwners(identity_workspace_contract, mode)
 	if privacy == 'public' :
-		aes = b'public_ipfs_key_' #16 bytes long
-	if privacy == 'private' :
+		aes = bytes(mode.aes_public_key, 'utf-8') 
+	elif privacy == 'private' :
 		aes = get_key(identity_address, 'aes_key', mode)
-	if privacy == 'secret' :
+	elif privacy == 'secret' :
 		aes = get_key(identity_address, 'secret_key', mode)
-
+	else :
+		return None
+	if not aes :
+		print('Error : pb aes or RSA key not found')
+		return None
 	# AES EAX encryption
-	bytesdatajson = bytes(json.dumps(data), 'utf-8') # data(dict) -> json(str) -> bytes
-	header = b"header"
-	cipher = AES.new(aes, AES.MODE_EAX)
-	cipher.update(header)
-	ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
+	try : 
+		bytesdatajson = bytes(json.dumps(data), 'utf-8') # data(dict) -> json(str) -> bytes
+		header = b"header"
+		cipher = AES.new(aes, AES.MODE_EAX)
+		cipher.update(header)
+		ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
+	except :
+		print('Error : decrypt problem dans private key . decrypt')
+		return None
 	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
@@ -106,6 +141,8 @@ def create_rsa_key(private_key, mode) :
 
 
 def get_key(address, key_type, mode) :
+	if not mode.w3.isAddress(address) or address == '0x0000000000000000000000000000000000000000' :
+		return None
 	if key_type == 'private_key' :
 		try :
 			fp = open(mode.keystore_path + address[2:] + '.json', "r")
@@ -120,22 +157,26 @@ def get_key(address, key_type, mode) :
 	workspace_contract = ownersToContracts(address, mode)
 	previous_filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 	new_filename = "./RSA_key/" + mode.BLOCKCHAIN + '/did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:] + ".pem"
+
 	try :
-		fp = open(new_filename,"r")
-		rsa_key = fp.read()
-		fp.close()
+		fp_new = open(new_filename,"r")
 	except IOError :
-		#  try to find the previous rsa file
+		print('Warning : new RSA file (.pem) not found on disk')
 		try :
-			fp = open(previous_filename,"r")
-			rsa_key = fp.read()
-			fp.close()
-			os.system("mv " + previous_filename + " " + new_filename)
-			print('Success : RSA file renamed')
+			fp_prev = open(previous_filename,"r")
 		except IOError :
-			#rsa file does not exist on disk then we determine RSA Key
-			print('Warning : RSA file not found on disk ', IOError)
+			print('Warning : old RSA file not found on disk ', IOError)
 			rsa_key  = None
+		else :
+			rsa_key = fp_prev.read()
+			fp_prev.close()
+			os.system("mv " + previous_filename + " " + new_filename)
+			print('Success : old RSA file renamed')
+	else :
+		rsa_key = fp_new.read()
+		fp_new.close()
+		print('Success : new RSA file found')
+
 	if key_type == 'rsa_key' :
 		return rsa_key
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
@@ -152,4 +193,7 @@ def get_key(address, key_type, mode) :
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)
 		return cipher.decrypt(secret_encrypted)
+	else :
+		print('Error : wrog key type ', key_type)
+		return None
 

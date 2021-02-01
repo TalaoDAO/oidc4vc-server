@@ -39,7 +39,18 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		data['request_remote_user'] = request.remote_user
 		data['request_user_agent'] = request.user_agent.__dict__
 
-	print("certificate avant issue = ", data)
+	# check privacy vs doctype
+	if doctype in [50000, 40000, 10000, 15000, 20000, 11000] :
+		standard_privacy = 'public'
+	elif doctype == 50001 or doctype == 40001 or doctype == 15001 :
+		standard_privacy = 'private'
+	elif doctype == 50002 or doctype == 40002 :
+		standard_privacy = 'secret'
+	else :
+		standard_privacy = None
+	if standard_privacy != privacy :
+		print('Error : privacy does not match with doctype')
+
 	#encrypt data with AES key (public, private or secret)
 	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode)
 
@@ -60,7 +71,6 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	# checksum (bytes)
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
-	# la conversion inverse de bytes(data, 'utf-8') est XXX.decode('utf-8')
 
 	# Transaction with doctypevesrion = 3 for RGPD constraint
 	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
@@ -100,7 +110,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 
 	if doctype in [50000,40000,10000,15000,20000, 11000] :
 		privacy = 'public'
-	if doctype == 50001 or doctype == 40001 :
+	if doctype == 50001 or doctype == 40001 or doctype == 15001 :
 		privacy = 'private'
 	if doctype == 50002 or doctype == 40002 :
 		privacy = 'secret'
@@ -121,7 +131,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 				print('Error : get transacion document.py', documentId, doctype, privacy, transaction_hash)
 				return None, None, None, None, None, None, None, None, None, None, None , None, None
 			gas_price = transaction['gasPrice']
-			identity_workspace_contract = transaction['to']
+			workspace_contract_identity = transaction['to']
 			block_number = transaction['blockNumber']
 			block = mode.w3.eth.getBlock(block_number)
 			date = datetime.fromtimestamp(block['timestamp'])
@@ -131,7 +141,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 			break
 	if not found :
 		print('Error : document not found in event list')
-		return None
+		return None, None, None, None, None, None, None, None, None, None, None , None, None
 	# recuperation du msg
 	data = ipfs_get(ipfshash.decode('utf-8'))
 	# calcul de la date
@@ -143,31 +153,16 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 
 	#compatiblité avec les documents non cryptés
 	if privacy  == 'public' and doctypeversion == 2 :
-		return issuer, identity_workspace_contract, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
+		return issuer, workspace_contract_identity, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 
-	#recuperer la cle AES cryptée
-	address_user = owners_to_contracts(workspace_contract_user, mode)
-	if privacy == 'public' and doctypeversion == 3 :
-		his_aes = b'public_ipfs_key_'
-	elif privacy == 'private' :
-		his_aes = privatekey.get_key(address_user, 'aes_key', mode)
-	elif privacy == 'secret' :
-		his_aes == privatekey.get_key(address_user, 'secret_key', mode)
+	#decrypt data
+	msg = privatekey.decrypt_data(workspace_contract_user, data, privacy, mode)
+
+	if msg :
+		return issuer, workspace_contract_user, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
 	else :
-		print ("Error : key not found")
-		return None, None, None, None, None, None, None, None, None, None, None , None, None
-	# decrypt data
-	try:
-		b64 = data #json.loads(json_input)
-		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-		jv = {k:b64decode(b64[k]) for k in json_k}
-		cipher = AES.new(his_aes, AES.MODE_EAX, nonce=jv['nonce'])
-		cipher.update(jv['header'])
-		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
-		msg = json.loads(plaintext.decode('utf-8'))
-		return issuer, identity_workspace_contract, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
-	except ValueError :
-		print("Error : data Decryption error")
+		print("Error : data decryption problem")
+		print('doctype = ', doctype, ' doc id = ', documentId)
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
 
 def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
@@ -204,16 +199,20 @@ class Document() :
 	def get_doctype(self, my_topic) :
 		if my_topic == 'skills' :
 			return 11000
-		if my_topic == 'education' :
+		elif my_topic == 'education' :
 			return 40000
-		if my_topic == 'experience' :
+		elif my_topic == 'experience' :
 			return 50000
-		if my_topic == 'kbis' :
+		elif my_topic == 'kbis' :
 			return 10000
-		if my_topic == 'kyc' :
+		elif my_topic == 'kyc' :
 			return 15000
-		if my_topic == 'certificate' :
+		elif my_topic == 'kyc_p' :
+			return 15001
+		elif my_topic == 'certificate' :
 			return 20000
+		else :
+			return None
 
 	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		return create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous, request)

@@ -26,7 +26,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	try :
 		this_file = open(file_path, mode='rb')  # b is important -> binary
 	except IOError :
-		print('IOEroor open file in File.py')
+		print('Error : IOEroor open file in File.py')
 		return None, None, None
 	this_data = this_file.read()
 	data = {'filename' : file_name , 'content' : b64encode(this_data).decode('utf_8')}
@@ -43,20 +43,6 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 			my_aes = privatekey(address_to, 'secret_key', mode)
 		if my_aes is None :
 			return None, None, None
-		"""# read la cle privee RSA sur le fichier
-		RSA_filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + address_to + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1" + ".txt"
-		try :
-			fp = open(RSA_filename,"r")
-			rsa_key=fp.read()
-			fp.close()
-		except :
-			print('cannot open rsa file in add_file.file.py')
-			return None, None, None
-		# decoder la cle AES128 cryptée avec la cle RSA privée
-		key = RSA.importKey(rsa_key)
-		cipher = PKCS1_OAEP.new(key)
-		my_aes = cipher.decrypt(aes_encrypted)
-		"""
 
 		# coder les datas
 		bytesdatajson = bytes(json.dumps(data), 'utf-8') # dict -> json(str) -> bytes
@@ -68,7 +54,6 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 		json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 		data = dict(zip(json_k, json_v))
 		data['filename'] = file_name
-		print('data dans add file', data)
 
 	# calcul de la date
 	if mydays == 0 :
@@ -120,7 +105,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	elif doctype == 30002 :
 		privacy = 'secret'
 	else :
-		print('erreur de doctype dans get_file')
+		print('Error : wrong doctype in get file')
 		return None
 
 	# get transaction info
@@ -144,7 +129,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			created = str(date)
 			break
 	if not found :
-		print('erreur event list dans get_file')
+		print('Error : event list in get_file')
 		return None
 
 	# recuperation du msg
@@ -182,13 +167,14 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			his_aes_encrypted = mydata[5]
 		if privacy == 'secret' :
 			his_aes_encrypted = mydata[6]
+
 		to_be_decrypted = True
 		to_be_stored = True
 
 	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
 		to_be_decrypted = False
 		to_be_stored = False
-		print('workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None')
+		print('Warning : workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None')
 		data =  {'filename': filename, 'content': "Encrypted"}
 
 	if to_be_decrypted :
@@ -197,7 +183,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
 		if rsa_key is None :
-			print('rsa key not found in file.py')
+			print('Warning : RSA key not found in file.py')
 			return None
 
 		# decoder la cle AES cryptée avec la cle RSA privée
@@ -217,7 +203,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			msg = json.loads(plaintext.decode('utf-8'))
 			data = msg
 		except ValueError :
-			print("data Decryption error")
+			print("Error : data Decryption error")
 			return None
 
 	new_filename = filename if new_filename == "" else new_filename

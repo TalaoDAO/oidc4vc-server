@@ -891,7 +891,7 @@ def add_experience() :
 			flash('New experience added', 'success')
 		return redirect(mode.server + 'user/')
 
-# issue kyc (Talao only)
+# issue kyc (Talao only). THis is the function to issue the ID used by the OpenId Connect server
 @app.route('/user/issue_kyc/', methods=['GET', 'POST'])
 def create_kyc() :
     check_login()
@@ -913,15 +913,16 @@ def create_kyc() :
         my_kyc['gender'] = request.form['gender']
         my_kyc['identification'] = request.form['identification']
         kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
-        kyc = Document('kyc')
-        data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode, request=request)[0]
+        # private kyc 
+        kyc = Document('kyc_p')
+        data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode, privacy='private', request=request)[0]
         if not data :
             flash('Transaction failed', 'danger')
         else :
             flash('New kyc added for '+ kyc_username, 'success')
             subject = 'Your proof of Identity'
             kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-            Talao_message.messageHTML(subject, kyc_email,'POI_issued', {None}, mode)
+            Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
         return redirect(mode.server + 'user/')
 
 
