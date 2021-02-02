@@ -1,6 +1,8 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
-import  workspace_contract_abi from "./abi.js"
+//import {ownerstocontracts} from "./talao_transaction.js";
+import {workspace_contract_abi} from "./abi.js";
+
 
 var QRCode = require('qrcode')
 var canvas = document.getElementById('canvas')
@@ -115,6 +117,11 @@ async function getaccountaddress(){
   });
 
   console.log('provider = ', provider);
+  console.log('address = ', provider.accounts[0]);
+
+  //await ownerstocontracts(provider.accounts[0],web3);
+  //generateRSA();
+
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
 

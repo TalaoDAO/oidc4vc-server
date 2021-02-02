@@ -42,7 +42,6 @@ class Identity() :
 		self.get_identity_skills(mode)
 		self.get_identity_certificate(mode)
 
-
 		if self.authenticated :
 			self.has_relay_private_key(mode)
 			if self.private_key :
@@ -56,7 +55,6 @@ class Identity() :
 			else :
 				self.secret = 'Encrypted'
 				self.aes = 'Encrypted'
-
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated(mode)
@@ -204,7 +202,7 @@ class Identity() :
 				contract = mode.w3.eth.contract(self.partners[index]['workspace_contract'],abi=constante.workspace_ABI)
 				self.partners[index]['status'] = liste[contract.functions.getMyPartnershipStatus().call()]
 		else :
-			print('status des partnerships impossible a obtenir, private key  not found')
+			print('Warning : status des partnerships impossible a obtenir, private key  not found')
 		return True
 
 		# always available

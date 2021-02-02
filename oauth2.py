@@ -16,6 +16,12 @@ from authlib.oidc.core.grants import (
     OpenIDImplicitGrant as _OpenIDImplicitGrant,
     OpenIDHybridGrant as _OpenIDHybridGrant,
 )
+from authlib.oauth2.rfc6749.errors import (
+    OAuth2Error,
+    InvalidGrantError,
+    InvalidScopeError,
+    UnsupportedGrantTypeError,
+)
 from authlib.oidc.core import UserInfo
 from werkzeug.security import gen_salt
 from models import db, User
@@ -38,17 +44,7 @@ mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 mode = environment.currentMode(mychain,myenv)
 
-
-# API Server has its own identity
-api_server_address = '0xEE09654eEdaA79429F8D216fa51a129db0f72250' # = owner_talao
-
-# JWT configuration with JWK, JWT is signed with Talao RSA key, 
-try :
-	fp = open('./RSA_key/talaonet/talao.pem',"r")
-	private_rsa_key = fp.read()
-	fp.close()
-except :
-    print('RSA private key of API Server not found')
+private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 
 # Generate JWK from rsa key
 JWK = jwk.dumps(private_rsa_key)
@@ -59,7 +55,7 @@ JWK['kid'] = "Talao RSA Key"
 JWT_CONFIG = {
     'key':  JWK,
     'alg': 'RS256',
-    'iss': 'did:talao:' + mode.BLOCKCHAIN + ':' + api_server_address[2:],
+    'iss': 'did:talao:' + mode.BLOCKCHAIN + ':' + mode.workspace_contract_talao[2:],
     'exp': 3600,
 }
 
@@ -80,10 +76,10 @@ def generate_user_info(user, scope):
     contract = mode.w3.eth.contract(user_workspace_contract,abi = constante.workspace_ABI)
     kyc_list = list()
     for doc_id in contract.functions.getDocuments().call() :
-        if contract.functions.getDocument(doc_id).call()[0] == 15001 : # KYC private
+        if contract.functions.getDocument(doc_id).call()[0] == 15000 : # KYC private
             kyc_list.append(doc_id)
     if kyc_list :
-        kyc = Document('kyc_p')
+        kyc = Document('kyc')
         kyc.relay_get(user_workspace_contract, kyc_list[-1], mode)
         kyc_dict = kyc.__dict__
         if 'profile' in scope :
@@ -147,7 +143,7 @@ class OpenIDCode(_OpenIDCode):
         """Parse `aud` value for id_token, default value is client id. Developers
         MAY rewrite this method to provide a customized audience value.
         """
-        return ['did:talao:' + mode.BLOCKCHAIN + ':' + api_server_address[2:]]
+        return ['did:talao:' + mode.BLOCKCHAIN + ':' + mode.workspace_contract_talao[2:]]
     
     def get_jwt_config(self, grant):
         return JWT_CONFIG
@@ -199,7 +195,31 @@ class HybridGrant(_OpenIDHybridGrant):
 
 """
 
-authorization = AuthorizationServer()
+
+
+class talao_authorization(AuthorizationServer):
+
+ def create_authorization_response(self,message=None, signature=None, request=None, grant_user=None, ): # ajout de wallet signature     
+    print('appel de create authorization response dans oauth2')
+    request = self.create_oauth2_request(request)
+    try:
+        grant = self.get_authorization_grant(request)
+    except InvalidGrantError as error:
+        return self.handle_error_response(request, error)
+    try:
+        redirect_uri = grant.validate_authorization_request()
+        status,body,header = grant.create_authorization_response(redirect_uri, grant_user)
+        if signature and message:
+            header = [(header[0][0], header[0][1] + '&signature=' + signature + '&message=' + message)] # ajout
+        return self.handle_response(status,body,header)
+    except OAuth2Error as error:
+        return self.handle_error_response(request, error)
+
+#authorization = AuthorizationServer()
+authorization = talao_authorization()
+
+
+
 require_oauth = ResourceProtector()
 
 

@@ -174,7 +174,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
 		to_be_decrypted = False
 		to_be_stored = False
-		print('Warning : workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None')
+		print('Warning : workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None (file.py)')
 		data =  {'filename': filename, 'content': "Encrypted"}
 
 	if to_be_decrypted :
