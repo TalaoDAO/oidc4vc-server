@@ -1,8 +1,7 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
-//import {ownerstocontracts} from "./talao_transaction.js";
+import {generateRsa} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./abi.js";
-
 
 var QRCode = require('qrcode')
 var canvas = document.getElementById('canvas')
@@ -21,13 +20,13 @@ function onSubscribe() {
   provider.on("chainChanged", chainId => {
     console.log(chainId);
   });
-
   provider.on("close", () => {
     provider = null;
     window.alert("Wallet disconnected !");
 
   });
 }
+
 
 async function onend() {
   if (provider)
@@ -118,15 +117,9 @@ async function getaccountaddress(){
 
   console.log('provider = ', provider);
   console.log('address = ', provider.accounts[0]);
-
-  //await ownerstocontracts(provider.accounts[0],web3);
-  //generateRSA();
-
+  console.log('crypto = ', crypto);
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
-
-
-
 
 async function getid(textmsg){
   let signature = null;
@@ -206,3 +199,4 @@ window.sign = mypersonalmessage;
 window.getID = getid;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;
+window.generateRSA=generateRsa;

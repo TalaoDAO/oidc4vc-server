@@ -1,6 +1,6 @@
 import  {foundation_abi} from "./abi.js";
 
-var cryptico = require("cryptico");
+
 
 export async function ownerstocontracts(address,web3) {
     const foundation_contract = "0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6";
@@ -19,13 +19,3 @@ export async function contractstoowners(workspace_contract,web3) {
     return address;
     }
 
-/*
-export async function generateRSA(){
-    // The passphrase used to repeatably generate this RSA key.
-    const PassPhrase = "The Moon is a Harsh Mistress."; 
-    const Bits = 2048; 
-    const RSAkey = cryptico.generateRSAKey(PassPhrase, Bits);
-    console.log('rsa key = ',cryptico.publicKeyString(RSAkey));
-    console.log('rsa key ID = ',cryptico.publicKeyID(cryptico.publicKeyString(RSAkey)));
-
-    return ; } */

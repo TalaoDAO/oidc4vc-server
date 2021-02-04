@@ -9,6 +9,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
 from eth_account import Account
+from Crypto.Util.Padding import pad
 
 import constante
 
@@ -60,40 +61,48 @@ def setup_keystore(mode) :
 
 def decrypt_data(workspace_contract_user, data, privacy, mode) :
 	#recuperer la cle AES cryptée
+	# on encrypt en mode CBC pour compatiblité avec librairie JS
 	address_user = contractsToOwners(workspace_contract_user, mode)
 	if privacy == 'public' :
-		his_aes = bytes(mode.aes_public_key, 'utf-8')
+		aes = mode.aes_public_key.encode('utf-8')
 	elif privacy == 'private' :
-		his_aes = get_key(address_user, 'aes_key', mode)
+		aes = get_key(address_user, 'aes_key', mode)
 	elif privacy == 'secret' :
-		his_aes == get_key(address_user, 'secret_key', mode)
+		aes == get_key(address_user, 'secret_key', mode)
 	else :
 		print ("Error : key not found")
 		return None
-	if not his_aes :
+	if not aes :
 		return None
 	# decrypt data
 	try:
 		b64 = data #json.loads(json_input)
 		json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 		jv = {k:b64decode(b64[k]) for k in json_k}
-		cipher = AES.new(his_aes, AES.MODE_EAX, nonce=jv['nonce'])
+		cipher = AES.new(aes, AES.MODE_EAX, nonce=jv['nonce'])
 		cipher.update(jv['header'])
 		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 		msg = json.loads(plaintext.decode('utf-8'))
 	except :
-		print('Error : decrypt failed')
-		msg = None
+		data = b64decode(data['ciphertext'])
+		bytes = PBKDF2(aes, "salt".encode("utf-8"), 128, 128)
+		iv = bytes[0:16]
+		key = bytes[16:48]
+		cipher = AES.new(key, AES.MODE_CBC, iv)
+		plaintext = cipher.decrypt(data)
+		plaintext = plaintext[:-plaintext[-1]].decode("utf-8")
+		msg = json.loads(plaintext)
 	return msg
 
 def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 	# parameter data is dict
 	# return dict is dict
 	#https://pycryptodome.readthedocs.io/en/latest/src/cipher/modern.html
+	# on enc rypte ne ode CBC a/c de 01/02/2021
 
 	identity_address = contractsToOwners(identity_workspace_contract, mode)
 	if privacy == 'public' :
-		aes = bytes(mode.aes_public_key, 'utf-8') 
+		aes = mode.aes_public_key.encode('utf-8')
 	elif privacy == 'private' :
 		aes = get_key(identity_address, 'aes_key', mode)
 	elif privacy == 'secret' :
@@ -103,6 +112,7 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 	if not aes :
 		print('Error : pb aes or RSA key not found')
 		return None
+	"""
 	# AES EAX encryption
 	try : 
 		bytesdatajson = bytes(json.dumps(data), 'utf-8') # data(dict) -> json(str) -> bytes
@@ -116,6 +126,17 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode) :
 	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
 	dict_data = dict(zip(json_k, json_v))
+	"""
+	# AES CBC encryption
+	message = json.dumps(data).encode('utf-8')
+	# message = message.encode('utf-8')
+	bytes = PBKDF2(aes, "salt".encode("utf-8"), 128, 128)
+	iv = bytes[0:16]
+	key = bytes[16:48]
+	cipher = AES.new(key, AES.MODE_CBC, iv)
+	encrypted = cipher.encrypt(pad(message, AES.block_size))
+	ct = b64encode(encrypted).decode('utf-8')
+	dict_data = {"ciphertext" : ct}
 	return dict_data
 
 def add_private_key(private_key, mode) :
@@ -170,7 +191,7 @@ def get_key(address, key_type, mode) :
 		else :
 			rsa_key = fp_prev.read()
 			fp_prev.close()
-			os.system("mv " + previous_filename + " " + new_filename)
+			os.rename(previous_filename, new_filename)
 			print('Success : old RSA file renamed')
 	else :
 		rsa_key = fp_new.read()
