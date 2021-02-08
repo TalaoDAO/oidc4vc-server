@@ -1,7 +1,7 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
-import {generateRsa} from "./talao_encryption.js";
-import {workspace_contract_abi} from "./abi.js";
+import {createworkspacekeys} from "./talao_encryption.js";
+import {workspace_contract_abi} from "./constant.js";
 
 var QRCode = require('qrcode')
 var canvas = document.getElementById('canvas')
@@ -199,4 +199,4 @@ window.sign = mypersonalmessage;
 window.getID = getid;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;
-window.generateRSA=generateRsa;
+window.createWorkspaceKeys=createworkspacekeys;

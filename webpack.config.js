@@ -8,7 +8,10 @@ let config = {
       path: path.resolve(__dirname, "/home/thierry/Talao/static"),
       filename: "./wc-talao.min.js"
     },
-    
+node: {
+   fs: "empty"
+}
+  
   }
 
   module.exports = config;

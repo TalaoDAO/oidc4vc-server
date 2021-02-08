@@ -116,10 +116,11 @@ def wc_login(mode) :
 		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
 		if not session['workspace_contract'] :
 			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identity
-			session['username'] = ns.get_username_from_wallet(wallet_address, mode)
-			if not session['username'] :
+			#session['username'] = ns.get_username_from_wallet(wallet_address, mode)
+			#if not session['username'] :
 				# This wallet addresss is not an alias
-				return render_template('wc_reject.html', wallet_address=wallet_address)
+			#	return render_template('wc_reject.html', wallet_address=wallet_address)
+			return render_template('wc_reject.html', wallet_address=wallet_address)
 		else :
 			session['username'] = None
 		code = random.randint(10000, 99999)

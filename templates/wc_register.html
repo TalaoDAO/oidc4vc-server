@@ -54,11 +54,16 @@
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
+                                                <input id="id_public_rsa" value="" type="hidden" name="public_rsa" >
+                                                <input id="id_aes_private" value="" type="hidden" name="aes_private" >
+                                                <input id="id_aes_secret" value="" type="hidden" name="aes_secret" >
+
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
                                                     <label style="color: rgb(133,135,150);" title="The name directory is used to provide suggestion in the search bar. It links your username with your firstname and lastname. " >I accept to have my name in the Name Directory</label>
                                                 </div>
-                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="on_click()" id="in_progress_button" type="submit">Next</button>
+                                                <div id="a"></div>
+                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="on_click()" id="in_progress_button" type="button">Next</button>
                                             </form>
                                         <div class="text-center"><a class="small" href="/starter/">Back to Starter</a></div>
                                         <div class="text-center"><a class="small" href="/login/">Login</a></div>
@@ -79,13 +84,32 @@
 
         </div>
     </div>
-<script>function on_click() {
+
+
+
+<script>
+    function download(text, name) {
+        const a = document.getElementById("a");
+        const file = new Blob([text], {type: 'plain/text'});
+        a.href = URL.createObjectURL(file);
+        a.download = name;
+          }
+</script>
+
+<script>async function on_click() {
+    console.log('appel de on click');
       document.getElementById("id_page").innerHTML = "Identity is being deployed (3 minutes)...";
+      const signature = await window.sign('Create Identity');
+      console.log('signature');
+      const data = window.createWorkspaceKeys('{{wallet_address}}', signature);
+      document.getElementById("id_public_rsa").value = data[0];
+      document.getElementById("id_aes_private").value = data[1];
+      document.getElementById("id_aes_secret").value = data[2];
+      document.getElementById("form").submit();
       window.onEnd();
 }
 
 </script>
-
 
 <script>
     function page_onload(){

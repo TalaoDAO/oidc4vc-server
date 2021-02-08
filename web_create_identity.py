@@ -57,7 +57,8 @@ def wc_register(mode) :
 		message = request.args.get('message', "")
 		session['wallet_address']= request.args.get('wallet_address')
 		# lets check if this wallet account is already an alias of an Identity
-		if ns.get_username_from_wallet(session['wallet_address'], mode) or contractsToOwners(session['wallet_address'], mode) :
+		#if ns.get_username_from_wallet(session['wallet_address'], mode) or contractsToOwners(session['wallet_address'], mode) :
+		if  contractsToOwners(session['wallet_address'], mode) :
 			del session['wallet_address']
 			flash('This wallet account is already used for an Identity.', 'warning')
 			return render_template ('login.html')
@@ -73,6 +74,9 @@ def wc_register(mode) :
 											mode,
 											firstname=session['firstname'],
 											lastname=session['lastname'],
+											rsa=request.form.get('public_rsa'),
+											private=request.form.get('aes_private'),
+											secret=request.form.get('aes_secret'),
 											)[2]
 		if not workspace_contract :
 			print('Error : createidentity failed')

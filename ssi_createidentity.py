@@ -40,13 +40,13 @@ import privatekey
 
 
 # main function called by external modules
-def create_user(wallet_address, username, email, mode, creator=None, partner=False,  password=None, firstname=None,  lastname=None, phone=None):
+def create_user(wallet_address, username, email, mode, rsa=None, secret=None, private=None, creator=None, partner=False,  password=None, firstname=None,  lastname=None, phone=None):
 	"""
 	wallet_address : crypto account from mobile wallet
 	creator : creator address
 	"""
 	# create a worskpace contract with a random ethereum address
-	address, private_key, workspace_contract = _create_user_step_1(wallet_address, email, mode, firstname,  lastname)
+	address, private_key, workspace_contract = _create_user_step_1(wallet_address, email, mode, firstname,  lastname, rsa, private, secret)
 	if not address :
 		return None, None, None
 
@@ -59,10 +59,10 @@ def create_user(wallet_address, username, email, mode, creator=None, partner=Fal
 
 	return wallet_address, None, workspace_contract
 
-def _create_user_step_1(wallet_address, email,mode, firstname, lastname) :
+def _create_user_step_1(wallet_address, email,mode, firstname, lastname, rsa, private, secret) :
 
 	email = email.lower()
-
+	
 	# Setup an initial random private key, public key and address
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
@@ -70,27 +70,38 @@ def _create_user_step_1(wallet_address, email,mode, firstname, lastname) :
 	print('Success : random  address = ', address)
 	print('Success :  private key = ', private_key)
 
-	# create RSA key
-	RSA_key = RSA.generate(2048)
-	RSA_private = 	RSA_key.exportKey('PEM')
-	RSA_public = RSA_key.publickey().exportKey('PEM')
+	if not rsa and not private and  not secret :
+		print('rsa key vient du python')
+		# create RSA key
+		RSA_key = RSA.generate(2048)
+		RSA_private = 	RSA_key.exportKey('PEM')
+		RSA_public = RSA_key.publickey().exportKey('PEM')
 
-	# Setup a symetric key named 'AES' to encrypt data be shared with partnership. Those data will be said 'private'
-	AES_key = get_random_bytes(16)
+		# Setup a symetric key named 'AES' to encrypt data be shared with partnership. Those data will be said 'private'
+		AES_key = get_random_bytes(16)
 
-	# Setup another symetric key named 'SECRET' . those data will be said 'secret'
-	SECRET_key = get_random_bytes(16)
+		# Setup another symetric key named 'SECRET' . those data will be said 'secret'
+		SECRET_key = get_random_bytes(16)
 
-	# AES key encrypted with RSA key
-	cipher_rsa = PKCS1_OAEP.new(RSA_key)
-	AES_encrypted = cipher_rsa.encrypt(AES_key)
+		# AES key encrypted with RSA key
+		cipher_rsa = PKCS1_OAEP.new(RSA_key)
+		AES_encrypted = cipher_rsa.encrypt(AES_key)
 
-	# SECRET encrypted with RSA key
-	cipher_rsa = PKCS1_OAEP.new(RSA_key)
-	SECRET_encrypted = cipher_rsa.encrypt(SECRET_key)
+		# SECRET encrypted with RSA key
+		cipher_rsa = PKCS1_OAEP.new(RSA_key)
+		SECRET_encrypted = cipher_rsa.encrypt(SECRET_key)
+	else :
+		print('rsa key vient de JS')
+		RSA_public = rsa
+		AES_encrypted = bytes.fromhex(private)
+		SECRET_encrypted = bytes.fromhex(secret)
 
 	# Email encrypted with RSA Key
 	bemail = bytes(email , 'utf-8')
+
+	print('aes encrypted = ', AES_encrypted)
+	print('rsa public =  ', RSA_public)
+	return None, None, None
 
 	# activation de l address random
 	# Ether transfer from TalaoGen wallet to address
@@ -110,6 +121,7 @@ def _create_user_step_1(wallet_address, email,mode, firstname, lastname) :
 	# Identity setup, creation du workspace contract
 	contract = mode.w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address)
+	
 	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 7500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key)
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
@@ -123,16 +135,17 @@ def _create_user_step_1(wallet_address, email,mode, firstname, lastname) :
 	workspace_contract = ownersToContracts(address,mode)
 	did = 'did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:]
 	print('Success : workspace_contract has been setup = ',workspace_contract)
-
-	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum. Format PEM finame = "did.pem"
-	filename = "./RSA_key/" + mode.BLOCKCHAIN + "/" + did + ".pem"
-	try :
-		file = open(filename,"wb")
-		file.write(RSA_private)
-		file.close()
-		print('Success : RSA key stored on disk as ' + did + '.pem')
-	except :
-		print('Error : RSA key not stored on disk')
+	
+	if not rsa :
+		# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum. Format PEM finame = "did.pem"
+		filename = "./RSA_key/" + mode.BLOCKCHAIN + "/" + did + ".pem"
+		try :
+			file = open(filename,"wb")
+			file.write(RSA_private)
+			file.close()
+			print('Success : RSA key stored on disk as ' + did + '.pem')
+		except :
+			print('Error : RSA key not stored on disk')
 
 	# add plublic key for wallet address
 	ns.add_publickey(wallet_address, mode)
