@@ -58,10 +58,10 @@ def wc_register(mode) :
 		session['wallet_address']= request.args.get('wallet_address')
 		# lets check if this wallet account is already an alias of an Identity
 		#if ns.get_username_from_wallet(session['wallet_address'], mode) or contractsToOwners(session['wallet_address'], mode) :
-		if  contractsToOwners(session['wallet_address'], mode) :
-			del session['wallet_address']
-			flash('This wallet account is already used for an Identity.', 'warning')
-			return render_template ('login.html')
+		#if  contractsToOwners(session['wallet_address'], mode) :
+		#	del session['wallet_address']
+		#	flash('This wallet account is already used for an Identity.', 'warning')
+		#	return render_template ('login.html')
 		return render_template('wc_register.html', message=message, wallet_address=session['wallet_address'])
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
@@ -72,6 +72,7 @@ def wc_register(mode) :
 		workspace_contract = ssi_createidentity.create_user(session['wallet_address'],session['username'],
 											session['email'],
 											mode,
+											user_aes_encrypted_with_talao_key=request.form.get("user_aes_encrypted_with_talao_key"),
 											firstname=session['firstname'],
 											lastname=session['lastname'],
 											rsa=request.form.get('public_rsa'),
@@ -85,7 +86,6 @@ def wc_register(mode) :
 			directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
 			print('Warning : directory updated with firstname and lastname')
 		session['is_active'] = False
-		time.sleep(60)
 		return render_template("create3.html", username=session['username'])
 
 # route /register/password/

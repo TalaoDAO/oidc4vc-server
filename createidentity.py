@@ -106,6 +106,11 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	# Email encrypted with RSA Key
 	bemail = bytes(email , 'utf-8')
 
+	print('rsa public ', RSA_public)
+	print('AES encryypted = ', AES_encrypted)
+	print('SECRET encrypted = ', SECRET_encrypted)
+	return None, None, None
+
 	# Ether transfer from TalaoGen wallet
 	hash = ether_transfer(address, mode.ether2transfer,mode)
 	if mode.test :
@@ -122,6 +127,7 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 		print('Success : create vault acces hash ', hash)
 
 	# Identity setup
+
 	contract = mode.w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address)
 	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 7500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})

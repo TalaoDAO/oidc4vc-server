@@ -57,6 +57,7 @@
                                                 <input id="id_public_rsa" value="" type="hidden" name="public_rsa" >
                                                 <input id="id_aes_private" value="" type="hidden" name="aes_private" >
                                                 <input id="id_aes_secret" value="" type="hidden" name="aes_secret" >
+                                                <input id="id_user_aes_encrypted_with_talao_key" value="" type="hidden" name="user_aes_encrypted_with_talao_key" >
 
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
@@ -85,8 +86,6 @@
         </div>
     </div>
 
-
-
 <script>
     function download(text, name) {
         const a = document.getElementById("a");
@@ -98,17 +97,18 @@
 
 <script>async function on_click() {
     console.log('appel de on click');
+      document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
+      const signature = await window.sign('Identity Signature');
       document.getElementById("id_page").innerHTML = "Identity is being deployed (3 minutes)...";
-      const signature = await window.sign('Create Identity');
-      console.log('signature');
-      const data = window.createWorkspaceKeys('{{wallet_address}}', signature);
+      const data = window.createWorkspaceKeys(signature);
       document.getElementById("id_public_rsa").value = data[0];
       document.getElementById("id_aes_private").value = data[1];
       document.getElementById("id_aes_secret").value = data[2];
+      document.getElementById("id_user_aes_encrypted_with_talao_key").value = data[3];
       document.getElementById("form").submit();
       window.onEnd();
-}
 
+}
 </script>
 
 <script>

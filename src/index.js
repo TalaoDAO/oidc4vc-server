@@ -3,8 +3,8 @@ import Web3 from "web3";
 import {createworkspacekeys} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./constant.js";
 
-var QRCode = require('qrcode')
-var canvas = document.getElementById('canvas')
+const QRCode = require('qrcode')
+const canvas = document.getElementById('canvas')
 
 let web3 = null;
 let provider = null;
@@ -31,11 +31,11 @@ function onSubscribe() {
 async function onend() {
   if (provider)
   { await provider.disconnect();
-   console.log('passage dans onend, provider is disconnected');}
+   console.log('Provider is disconnected');}
  }
 
 async function onlogin(mobile) {
-  console.log('provider debut oninit = ', provider)
+  console.log('provider = ', provider)
   let mobile_account = "undefined";
   let mobile_wallet = "undefined";
   let mobile_logo = "undefined";
@@ -151,13 +151,11 @@ await  provider
       console.log('error dans inex = ');
       console.error(error);
     });
-
 console.log('sortie signtyped data');
 return [signature, typedData];
-
 }
 
-async function mypersonalmessage(msg) {
+async function signmessage(msg) {
   let signature = null;
   if (!provider) {
     throw new Error(`provider hasn't been created yet`);
@@ -195,7 +193,7 @@ async function checksignature(did, signature, msg){
 
 window.onEnd = onend;
 window.onInit = onlogin;
-window.sign = mypersonalmessage;
+window.sign = signmessage;
 window.getID = getid;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;

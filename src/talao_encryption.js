@@ -3,15 +3,15 @@ const NodeRSA = require('node-rsa')
 const cryptico = require('cryptico-js');
 const CryptoJS = require('crypto-js');
 
-
+import {talao_rsa_public_key} from "./constant.js";
 
 function rsaEncrypt (aes_key, public_rsa_key) {
     const key = new NodeRSA();
     const rsa_key = key.importKey(public_rsa_key);
     return rsa_key.encrypt(aes_key);
   }
-  
-  function rsaDecrypt (aes_encrypted, private_rsa_key){
+
+ function rsaDecrypt (aes_encrypted, private_rsa_key){
     const rsa_key = new NodeRSA(private_rsa_key);
     const key_encrypted = aes_encrypted.substr(2)
     const key_buffer = Buffer.from(key_encrypted, 'hex')
@@ -19,11 +19,13 @@ function rsaEncrypt (aes_key, public_rsa_key) {
   }
 
 function generateAes(){
-    return CryptoJS.lib.WordArray.random(16);
+  // private and secret key are string in JS but bytes in python (str.encode() or bytes(str, 'utf-8')
+  const aes = CryptoJS.lib.WordArray.random(16);
+  return aes.toString();
 }
 
-export function generateRsa(seed) {
-    // we only use cryptico to generate deterministic RSA 
+function generateRsa(seed) {
+    // we only use cryptico to generate deterministic RSA
     const RSAkey = cryptico.generateRSAKey(seed, 2048);
     const _priv = JSON.stringify(RSAkey.toJSON());
     const priv = JSON.parse(_priv);
@@ -38,18 +40,12 @@ export function generateRsa(seed) {
         dmq1: Buffer.from(priv.dmq1, 'hex'),
         coeff: Buffer.from(priv.coeff, 'hex')
         }, 'components');
-
     return [key.exportKey('private'), key.exportKey('public')];
     }
 
-function getKeys(seed) {
-    rsa =  generateRsa(seed);
-    return [rsa[0], rsa[1], generateAes("private_key_____"), generateAes("secret_key______")];
-    }
-
 export  function aesEncrypt(message, password){
-    // password (public, private or secret keys) is 16 octets
-    // mesage is str
+    // password is str (16 hex) (public, private or secret keys) 
+    // message is str
     // return is str
     let bytes = CryptoJS.PBKDF2(password, 'salt', { keySize: 128, iterations: 128 });
     let iv = CryptoJS.enc.Hex.parse(bytes.toString().slice(0, 32));
@@ -77,13 +73,16 @@ export  function aesDecrypt(encrypted, password){
     return [result[1], rsaDecrypt(result[5], buffer.toString()), rsaDecrypt(result[6], buffer.toString())];
   }
 
-export function createworkspacekeys(seed, address) {
+export function createworkspacekeys(seed) {
+  // seed is a signature
     const new_key = generateRsa(seed);
-    const private_rsa_key = new_key[0]
     const public_rsa_key = new_key[1]
     const _secret = generateAes();
     const _private = generateAes();
+    console.log('secret = ', _secret)
+    console.log('private = ', _private)
     const secret_encrypted = rsaEncrypt (_secret, public_rsa_key).toString('hex');
     const private_encrypted = rsaEncrypt (_private, public_rsa_key).toString('hex');
-    return [public_rsa_key, private_encrypted, secret_encrypted, private_rsa_key];
+    const private_encrypted_with_talao_rsa = rsaEncrypt (_private, talao_rsa_public_key).toString('hex');
+    return [public_rsa_key, private_encrypted, secret_encrypted, private_encrypted_with_talao_rsa];
   }

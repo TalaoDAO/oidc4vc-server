@@ -71,7 +71,6 @@
 <script> async function sign_message() {
   let code = "{{wallet_code}}";
   document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
-  await generateRSA();
   let signature = await window.sign(code);
   if (signature){
   document.getElementById("id_page").innerHTML = "Identity loading...";
@@ -89,9 +88,8 @@
 function page_onload(){
   window.getAccountAddress().then(value => {
     console.log('value dans page_onload = ', value);
-  
   });
-  //console.log('cle RSA = ', window.generateRSA());
+
 }
 </script>
 

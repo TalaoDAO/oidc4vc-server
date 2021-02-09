@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.5.2"
+VERSION = "0.6.0"
 API_SERVER = True
 
 # Flask and Session setup
@@ -607,7 +607,7 @@ def update_personal_settings() :
                 (p1,p2,p3) = ("", "selected", "")
             if session['personal'][topicname]['privacy']=='public' :
                 (p1,p2,p3) = ("selected", "", "")
-            if session['personal'][topicname]['privacy'] is None :
+            if not session['personal'][topicname]['privacy'] :
                 (p1,p2,p3) = ("", "", "")
             privacy[topicname] = """
                     <optgroup>
@@ -646,10 +646,10 @@ def update_personal_settings() :
         for topicname in session['personal'].keys() :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
             if     form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
-                if form_value[topicname] is not None :
+                if form_value[topicname] :
                     claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)[0]
-                    if claim_id is None :
-                        flash('Update impossible (RSA not found ?)', 'danger')
+                    if not claim_id :
+                        flash('Update impossible (RSA not found)', 'danger')
                         return redirect(mode.server + 'user/')
                     change = True
                     session['personal'][topicname]['claim_value'] = form_value[topicname]
@@ -697,7 +697,7 @@ def update_company_settings() :
 
         if 'siren' in request.args:
             settings = siren.company(session['personal']['siren']['claim_value'])
-            if settings ==  None:
+            if not settings:
                 flash('Company not found in SIREN database', 'warning')
             else:
                 return render_template('update_company_settings.html',
@@ -709,9 +709,7 @@ def update_company_settings() :
                                         contact_phone=personal['contact_phone']['claim_value'],
                                         contact_phone_privacy=privacy['contact_phone'],
                                         website=personal['website']['claim_value'],
-                                        about=settings['activity'] + """
-
-""" + personal['about']['claim_value'],
+                                        about=settings['activity'] + " " + personal['about']['claim_value'],
                                         staff=settings['staff'],
                                         mother_company=personal['mother_company']['claim_value'],
                                         sales=personal['sales']['claim_value'],

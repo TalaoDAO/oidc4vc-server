@@ -231,6 +231,7 @@ class Identity() :
 		self.certificate_list=[]
 		self.skills_list = []
 		contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		print('liste of doc = ',contract.functions.getDocuments().call() )
 		for doc_id in contract.functions.getDocuments().call() :
 			doctype = contract.functions.getDocument(doc_id).call()[0]
 			if doctype in [30000, 30001, 30002] :
@@ -255,7 +256,7 @@ class Identity() :
 		self.kyc = []
 		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		for doc_id in self.kyc_list  :
-			kyc = Document('kyc')
+			kyc = Document('kyc_p')
 			kyc.relay_get(self.workspace_contract, doc_id, mode, loading='light')
 			new_kyc = kyc.__dict__
 			self.kyc.append(new_kyc)

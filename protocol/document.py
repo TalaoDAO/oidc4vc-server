@@ -31,7 +31,7 @@ def owners_to_contracts(address, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
 
-def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request) :
+def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
 	# @data = dict
 	# insert data about user request for audit
 	if request :
@@ -52,7 +52,9 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 		print('Error : privacy does not match with doctype')
 
 	#encrypt data with AES key (public, private or secret)
-	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode)
+	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode, address_caller=address_caller)
+	if not data :
+		return None, None, None
 
 	# Date
 	if not mydays :
@@ -72,7 +74,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
 
-	# Transaction with doctypevesrion = 3 for RGPD constraint
+	# Transaction with doctype version = 3 for RGPD constraint
 	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
 	try :
@@ -155,15 +157,15 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	if privacy  == 'public' and doctypeversion == 2 :
 		return issuer, workspace_contract_identity, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 
-	#decrypt data
+	#decrypt data pour autres documents
 	msg = privatekey.decrypt_data(workspace_contract_user, data, privacy, mode)
 
 	if msg :
 		return issuer, workspace_contract_user, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
 	else :
-		print("Error : data decryption problem")
+		print("Warning : Cannot decrypt data in document.py")
 		print('doctype = ', doctype, ' doc id = ', documentId)
-		return None, None, None, None, None, None, None, None, None, None, None , None, None
+		return issuer, workspace_contract_user, {"data" : 'Encrypted'} ,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 
 def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
 	w3 = mode.w3
@@ -223,7 +225,7 @@ class Document() :
 
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request)
+		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request, address_caller=mode.owner_talao)
 
 	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :
 		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
@@ -235,11 +237,9 @@ class Document() :
 			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
 			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
-
 			self.request_remote_addr = data.get('request_remote_addr','None')
 			self.request_remote_user = data.get('request_remote_user', 'None')
 			self.request_remote_user_agent = data.get('request_user_agent', dict())
-
 			self.created = created
 			self.issuer = {'address' : issuer_address,
 						'workspace_contract' : issuer_workspace_contract,

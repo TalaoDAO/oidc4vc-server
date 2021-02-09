@@ -53,6 +53,7 @@ def dashboard(workspace_contract,resume, mode) :
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
+				print('resume doctype i = ', i, resume[doctype])
 				if doctype == 'skills' :
 					created = datetime.fromisoformat(resume[doctype]['created'])
 					issuer_workspace_contract = resume[doctype]['issuer']['workspace_contract']

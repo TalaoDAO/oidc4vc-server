@@ -114,6 +114,8 @@ def wc_login(mode) :
 			return render_template('login.html')
 		wallet_address = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
 		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
+		return render_template('wc_reject.html', wallet_address=wallet_address)  # a retirer
+
 		if not session['workspace_contract'] :
 			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identity
 			#session['username'] = ns.get_username_from_wallet(wallet_address, mode)
