@@ -174,7 +174,10 @@ class Identity() :
 		acct = Account.from_key(mode.relay_private_key)
 		mode.w3.eth.defaultAccount = acct.address
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		partners_list = contract.functions.getKnownPartnershipsContracts().call()
+		try :
+			partners_list = contract.functions.getKnownPartnershipsContracts().call()
+		except :
+			return False
 		liste = ["Unknown","Authorized", "Pending","Rejected","Removed",]
 		for partner_workspace_contract in partners_list :
 			try :
@@ -208,7 +211,7 @@ class Identity() :
 		# always available
 	def get_identity_personal(self,workspace_contract_from, private_key_from, mode) :
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
-		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education']
+		person = ['firstname', 'lastname','contact_email','contact_phone','birthdate','postal_address', 'about', 'profil_title', 'education',]
 		company = ['name','contact_name','contact_email','contact_phone','website', 'about', 'staff', 'mother_company', 'sales', 'siren', 'postal_address']
 
 		contract = mode.w3.eth.contract(self.workspace_contract,abi=constante.workspace_ABI)
@@ -221,17 +224,17 @@ class Identity() :
 			self.personal[topicname] = claim.__dict__
 		return True
 
+
+
 	def get_all_documents(self, mode) :
 		self.file_list = []
 		self.experience_list = []
 		self.education_list = []
 		self.other_list = []
 		self.kbis_list = []
-		self.kyc_list = []
 		self.certificate_list=[]
 		self.skills_list = []
 		contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
-		print('liste of doc = ',contract.functions.getDocuments().call() )
 		for doc_id in contract.functions.getDocuments().call() :
 			doctype = contract.functions.getDocument(doc_id).call()[0]
 			if doctype in [30000, 30001, 30002] :
@@ -242,8 +245,6 @@ class Identity() :
 				self.education_list.append(doc_id)
 			elif doctype == 10000 :
 				self.kbis_list.append(doc_id)
-			elif doctype == 15001 :# KYC are now private
-				self.kyc_list.append(doc_id)
 			elif doctype == 20000 :
 				self.certificate_list.append(doc_id)
 			elif doctype == 11000 :
@@ -251,16 +252,6 @@ class Identity() :
 			else :
 				self.other_list.append(doc_id)
 		return
-
-	def get_identity_kyc(self, mode) :
-		self.kyc = []
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
-		for doc_id in self.kyc_list  :
-			kyc = Document('kyc_p')
-			kyc.relay_get(self.workspace_contract, doc_id, mode, loading='light')
-			new_kyc = kyc.__dict__
-			self.kyc.append(new_kyc)
-		return True
 
 	def get_identity_certificate(self,mode) :
 		self.certificate = []
@@ -277,8 +268,14 @@ class Identity() :
 		for doc_id in self.kbis_list  :
 			kbis = Document('kbis')
 			kbis.relay_get(self.workspace_contract, doc_id, mode, loading='light')
-			new_kbis = kbis.__dict__
-			self.kbis.append(new_kbis)
+			self.kbis.append(kbis.__dict__)
+		return True
+
+	def get_identity_kyc(self, mode) :
+		self.kyc = []
+		claim = Claim()
+		claim.get_by_topic_name(self.workspace_contract, self.private_key, self.workspace_contract, 'did_authn', mode)
+		self.kyc.append(claim.__dict__)
 		return True
 
 	def get_identity_education(self,mode) :

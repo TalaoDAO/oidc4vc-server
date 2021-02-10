@@ -13,24 +13,19 @@ import constante
 def add_key(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, address_partner,purpose,mode, synchronous=True) :
 
 	w3 = mode.w3
-
 	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)
 
 	# keccak (publickey)
 	key = w3.soliditySha3(['address'], [address_partner])
-	print("Success : key = ", key.hex())
 
 	# one checks if key with purpose exists
 	key_description = contract.functions.getKey(key).call()
 	purpose_list = key_description[0]
 
-	# key already exists
-	if len(purpose_list) != 0 :
+	if purpose_list :
 		if purpose not in purpose_list :
-			# key exists without this purpose, one adds this purpose
-			print("Warning : key exists, purpose does not exist")
-			# Build, sign and send transaction
+			# key exists without this purpose, one adds this purpose to the existing key
 			txn = contract.functions.addPurpose(key, purpose).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 			signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 			w3.eth.sendRawTransaction(signed_txn.rawTransaction)
@@ -44,8 +39,6 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 		return True
 
 	else :
-		print("Warning : key does not exist")
-		# Build, sign and send transaction
 		txn = contract.functions.addKey(key, purpose, 1).buildTransaction({'chainId': mode.CHAIN_ID,'gas':500000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 		signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)

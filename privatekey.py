@@ -59,14 +59,14 @@ def setup_keystore(mode) :
 		f.close()
 	return
 
-def decrypt_data(workspace_contract_user, data, privacy, mode) :
+def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=None) :
 	#recuperer la cle AES cryptée
 	# on encrypt en mode CBC pour compatiblité avec librairie JS
 	address_user = contractsToOwners(workspace_contract_user, mode)
 	if privacy == 'public' :
 		aes = mode.aes_public_key.encode('utf-8')
 	elif privacy == 'private' :
-		aes = get_key(address_user, 'aes_key', mode)
+		aes = get_key(address_user, 'aes_key', mode, address_caller)
 	elif privacy == 'secret' :
 		aes == get_key(address_user, 'secret_key', mode)
 	else :
@@ -84,6 +84,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode) :
 		cipher.update(jv['header'])
 		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 		msg = json.loads(plaintext.decode('utf-8'))
+		print('Success : EAX decryptage')
 	except :
 		data = b64decode(data['ciphertext'])
 		bytes = PBKDF2(aes, "salt".encode("utf-8"), 128, 128)
@@ -93,6 +94,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode) :
 		plaintext = cipher.decrypt(data)
 		plaintext = plaintext[:-plaintext[-1]].decode("utf-8")
 		msg = json.loads(plaintext)
+		print('Success : CBC decryptage')
 	return msg
 
 def encrypt_data(identity_workspace_contract, data, privacy, mode, address_caller=None) :
@@ -163,6 +165,7 @@ def create_rsa_key(private_key, mode) :
 
 
 def get_key(address, key_type, mode, address_caller=None) :
+	print('caller = ', address_caller)
 	if not mode.w3.isAddress(address) or address == '0x0000000000000000000000000000000000000000' :
 		return None
 
@@ -188,7 +191,6 @@ def get_key(address, key_type, mode, address_caller=None) :
 			fp_prev = open(previous_filename,"r")
 		except IOError :
 			print('Warning : old RSA file not found on disk ')
-			print('Warning : no RSA key available on server')
 			rsa_key  = None
 		else :
 			rsa_key = fp_prev.read()
@@ -202,7 +204,7 @@ def get_key(address, key_type, mode, address_caller=None) :
 
 	if key_type == 'rsa_key' :
 		return rsa_key
-	
+
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
 	aes_encrypted = data[5]
@@ -214,22 +216,27 @@ def get_key(address, key_type, mode, address_caller=None) :
 		return cipher.decrypt(aes_encrypted)
 
 	elif key_type == 'aes_key' and address_caller : # look for partnership data
-		print('address caller = ', address_caller)
 		#recuperer les cle AES cryptée du user sur son partnership de l identité (caller)
 		workspace_contract_caller = ownersToContracts(address_caller, mode)
 		contract = mode.w3.eth.contract(workspace_contract_caller, abi = constante.workspace_ABI)
 		private_key_caller = get_key(address_caller, 'private_key', mode)
-		acct = Account.from_key(private_key_caller)
+		try :
+			acct = Account.from_key(private_key_caller)
+		except :
+			return None
 		mode.w3.eth.defaultAccount = acct.address
 		partnership_data = contract.functions.getPartnership(workspace_contract).call()
-		print('partnership data = ', partnership_data)
-		# one tests if the user in partnershipg with identity (pending or authorized) and his aes_key exist (status rejected ?)
+		# one tests if the user is in partnershipg with identity (pending or authorized) and if his aes_key exist (status rejected ?)
 		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
 			aes_encrypted = partnership_data[4]
+		else :
+			# no partnership
+			print('Warning : no partnership with Identity')
+			return None
 		rsa_key_caller = get_key(address_caller, 'rsa_key', mode)
 		key = RSA.importKey(rsa_key_caller)
 		cipher = PKCS1_OAEP.new(key)
-		print('cle private decrypté =', cipher.decrypt(aes_encrypted))
+		print('Warning : private key decrypted with partnership data = ', cipher.decrypt(aes_encrypted))
 		return cipher.decrypt(aes_encrypted)
 
 	elif key_type == 'secret_key' and rsa_key :
@@ -238,6 +245,6 @@ def get_key(address, key_type, mode, address_caller=None) :
 		return cipher.decrypt(secret_encrypted)
 
 	else :
-		print('Warning : No key decrypted ', key_type)
+		print('Warning : no key decrypted ', key_type)
 		return None
 

@@ -1,8 +1,8 @@
 """
 
 doctypeversion = 1 freedapp
-doctypeversion = 2 public data el clair sur ipfs
-doctype version = 3 : RGPD --> public data encodé avec une clea aes publique
+doctypeversion = 2 public data en clair sur ipfs
+doctype version = 3 : RGPD --> public data encodé avec une cle aes publique
 
 """
 
@@ -32,6 +32,10 @@ def owners_to_contracts(address, mode) :
 	return contract.functions.ownersToContracts(address).call()
 
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
+	print('workspace contract to = ', workspace_contract_to)
+	print('address to = ', address_to)
+	print('address from = ', address_from)
+
 	# @data = dict
 	# insert data about user request for audit
 	if request :
@@ -77,21 +81,12 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	# Transaction with doctype version = 3 for RGPD constraint
 	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
-	try :
-		mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	except ValueError :
-		print('Error : valueError dans create document, on reessaie avec un gasprice plus élevé')
-		nonce = mode.w3.eth.getTransactionCount(address_from)
-		gasprice = mode.w3.toWei('4', 'gwei')
-		txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': gasprice,'nonce': nonce,})
-		signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
-		mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
-	if synchronous :
-		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-		if not receipt['status'] :
-			print('Error : transaction to create document failed. See receipt : ', receipt)
-			return None, None, None
+	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	if not receipt['status'] :
+		print('Error : transaction to create document failed. See receipt : ', receipt)
+		return None, None, None
 
 	# Get document  id on last event
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
@@ -101,7 +96,6 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
 
-
 def get_document(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
@@ -110,7 +104,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	except :
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
 
-	if doctype in [50000,40000,10000,15000,20000, 11000] :
+	if doctype in [50000,40000,10000,15000,20000,11000] :
 		privacy = 'public'
 	if doctype == 50001 or doctype == 40001 or doctype == 15001 :
 		privacy = 'private'
@@ -138,14 +132,15 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 			block = mode.w3.eth.getBlock(block_number)
 			date = datetime.fromtimestamp(block['timestamp'])
 			gas_used = 1000
-			#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 			created = str(date)
 			break
 	if not found :
 		print('Error : document not found in event list')
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
+
 	# recuperation du msg
 	data = ipfs_get(ipfshash.decode('utf-8'))
+
 	# calcul de la date
 	if not expires :
 		expires = 'Unlimited'
@@ -153,18 +148,18 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		myexpires = datetime.fromtimestamp(expires)
 		expires = str(myexpires)
 
-	#compatiblité avec les documents non cryptés
+	# compatiblité avec les documents non cryptés des version precedentes 
 	if privacy  == 'public' and doctypeversion == 2 :
 		return issuer, workspace_contract_identity, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 
-	#decrypt data pour autres documents
+	# decrypt data pour autres documents
 	msg = privatekey.decrypt_data(workspace_contract_user, data, privacy, mode)
-
 	if msg :
-		return issuer, workspace_contract_user, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related	
+		# decrypt avec algo AES-EAX ou AES-CBC
+		return issuer, workspace_contract_user, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 	else :
-		print("Warning : Cannot decrypt data in document.py")
-		print('doctype = ', doctype, ' doc id = ', documentId)
+		# la clé RSA n'est pas disponible sur le serveur
+		print("Warning : Cannot decrypt data in document.py for doc = ", documentId, ' doctype = ', doctype, ' privacy = ', privacy)
 		return issuer, workspace_contract_user, {"data" : 'Encrypted'} ,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
 
 def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
@@ -180,12 +175,6 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 	if receipt['status'] == 0 :
 		return None
-	#transaction = w3.eth.getTransaction(transaction_hash)
-	#gas_price = transaction['gasPrice']
-	#block_number = transaction['blockNumber']
-	#block = mode.w3.eth.getBlock(block_number)
-	#date = datetime.fromtimestamp(block['timestamp'])
-	#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
 	gas_used = 10000
 	gas_price = 1
 	date= datetime.now()
@@ -229,7 +218,6 @@ class Document() :
 
 	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :
 		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
-
 		if not issuer_address :
 			return False
 		else :
@@ -265,7 +253,6 @@ class Document() :
 						'category' : identity_category,
 						'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] }
 			self.transaction_fee = transaction_fee
-
 		return True
 
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :

@@ -9,9 +9,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-
 from flask import Flask, session, send_from_directory, flash, send_file
-
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 from flask_fontawesome import FontAwesome
@@ -47,7 +45,7 @@ def check_login() :
 
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
-	if data == dict() :
+	if not data :
 		return None
 	if not data['phone'] :
 		subject = 'Talao : Email authentification  '
@@ -114,17 +112,14 @@ def wc_login(mode) :
 			return render_template('login.html')
 		wallet_address = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
 		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
-		return render_template('wc_reject.html', wallet_address=wallet_address)  # a retirer
-
-		if not session['workspace_contract'] :
-			# This wallet address is not an Identity owner, lets t see if this wallet address is an alias of an Identity
-			#session['username'] = ns.get_username_from_wallet(wallet_address, mode)
-			#if not session['username'] :
+		if not session['workspace_contract'] or session['workspace_contract'] == '0x0000000000000000000000000000000000000000':
+			# This wallet address is not an Identity owner
+			session['username'] = ns.get_username_from_wallet(wallet_address, mode)
+			if not session['username'] :
 				# This wallet addresss is not an alias
-			#	return render_template('wc_reject.html', wallet_address=wallet_address)
-			return render_template('wc_reject.html', wallet_address=wallet_address)
+				return render_template('wc_reject.html', wallet_address=wallet_address)
 		else :
-			session['username'] = None
+			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		code = random.randint(10000, 99999)
 		session['wallet_code'] = str(code)
 		src = request.args.get('wallet_logo')
@@ -254,15 +249,15 @@ def login(mode) :
 			session['code'] = str(random.randint(10000, 99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			# send code by sms if phone exist else email
-			session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
-			if session['support'] is None :
+			try :
+				session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
+			except :
 				flash("Problem to send secret code", 'warning')
 				return redirect(mode.server + 'login/')
-			else :
-				print('Warning : secret code sent = ', session['code'])
-				flash("Secret code sent by " + session['support'], 'success')
-				session['try_number'] = 1
-				return render_template("authentification.html", support=session['support'])
+			print('Warning : secret code sent = ', session['code'])
+			flash("Secret code sent by " + session['support'], 'success')
+			session['try_number'] = 1
+			return render_template("authentification.html", support=session['support'])
 
 # recuperation du code saisi
 #@app.route('/login/authentification/', methods = ['POST'])
@@ -440,9 +435,9 @@ def data(mode) :
 		expires = 'Unlimited'
 		my_topic = 'Personal'
 	myvisibility = my_data.privacy
-
+	print('my datat dans user = ', my_data.__dict__)
 	# issuer
-	issuer_name = my_data.issuer.get('name', 'Unknown') if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
+	issuer_name = my_data.issuer.get('name', 'Unknown') if my_data.issuer.get('category') == 2001 else my_data.issuer.get('firstname', 'Unknown') + ' ' +my_data.issuer.get('lastname', 'Unknown')
 	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
 	issuer_username = 'Unknown' if not issuer_username  else issuer_username
 	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
@@ -467,9 +462,8 @@ def data(mode) :
 		myissuer = myissuer + """
 				 <a class="text-warning">Self Declaration</a>
 				</span>"""
-	else :
-		myissuer = myissuer + "<br>Issuer fiability : " + str(vpi.check_proof_of_identity(session.get('workspace_contract'), my_data.issuer['workspace_contract'], mode)*100)+'%'
-
+	#else :
+	#	myissuer = myissuer + "<br>Issuer fiability : " + str(vpi.check_proof_of_identity(session.get('workspace_contract'), my_data.issuer['workspace_contract'], mode)*100)+'%'
 
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
@@ -493,7 +487,7 @@ def data(mode) :
 				<li><b>Expires</b> : """ + expires + """<br></li>
 				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
-				<li><b>Cryptography</b> : AES-128 AEX Mode, (""" + myvisibility + """ key) <br></li>"""
+				<li><b>Cryptography</b> : AES-128 CBC Mode, (""" + myvisibility + """ key) <br></li>"""
 	# if support is an ERC725 Claim
 	else :
 		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
@@ -596,21 +590,18 @@ def user(mode) :
 								'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
 
 
-		# welcome message
+		# Warning message for first connexion
 		message = ""
 		if not session['private_key'] :
-			message = message + 'Private key not found. You cannot issue claims.'
+			message = message + 'Private key not found, you cannot issue claims. '
 		if not session['rsa_key'] :
-			message = message + 'Rsa key not found. You cannot encrypt data.'
-		if message != "" :
+			message = message + 'Rsa key not found, you cannot encrypt data. '
+		if message :
 			flash(message, 'warning')
 
 		#Homepage
 		if user.type == 'person' :
 			return render_template('homepage.html', **session['menu'])
-
-
-##### debut page resume a mettre dans une @route '/resume'
 
 	# account
 	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
@@ -654,12 +645,10 @@ def user(mode) :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
 		else :
 			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
-
-
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
 
 	# Partners
-	if session['partner'] == [] :
+	if not session['partner'] :
 		my_partner = """<a class="text-info">No Partners available</a>"""
 	else :
 		my_partner = ""
@@ -690,7 +679,7 @@ def user(mode) :
 
 
 	# Issuer for document, they have an ERC725 key 20002
-	if session['issuer'] == [] :
+	if not session['issuer']  :
 		my_issuer = """  <a class="text-info">No Referents available</a>"""
 	else :
 		my_issuer = ""
@@ -710,7 +699,7 @@ def user(mode) :
 
 
 	# whitelist
-	if session['whitelist'] == [] :
+	if not session['whitelist'] :
 		my_white_issuer = """  <a class="text-info">No Whitelist available</a>"""
 	else :
 		my_white_issuer = ""
@@ -730,7 +719,7 @@ def user(mode) :
 
 
 	# files
-	if session['identity_file'] == [] :
+	if not session['identity_file'] :
 		my_file = """<a class="text-info">No Files available</a>"""
 	else :
 		my_file = ""
@@ -750,7 +739,7 @@ def user(mode) :
 			my_file = my_file + file_html
 
 	# skills
-	if session['skills'] is None or session['skills'].get('id') is None :
+	if not session['skills'] or not session['skills'].get('id') :
 		my_skills =  """<a class="text-info">No data available</a>"""
 	else :
 		my_skills = ""
@@ -795,7 +784,7 @@ def user(mode) :
 
 		# education
 		my_education = ""
-		if len (session['education']) == 0:
+		if not session['education'] :
 			my_education = my_education + """<a class="text-info">No Education available</a>"""
 		else :
 			for education in session['education'] :
@@ -838,28 +827,27 @@ def user(mode) :
 				</span><br>"""
 
 		# kyc
-		#my_kyc = """
-		#	<b>Authentification Key (ECDSA/ES256K)</b> : """+ session['address'] +"""<br><hr>"""
 		my_kyc = ""
-
 		if not session['kyc'] :
 			my_kyc = my_kyc + """<a class="text-warning">No other proof of identity available.</a>"""
 		else :
-			kyc = session['kyc'][-1]
+			kyc = session['kyc'][0]
+			print('kyc = ', kyc)
+			kyc_data = 'Encrypted' if not kyc['claim_value'] else 'Unknown'
 			kyc_html = """
 				<b>Identity checking method</b> : """+ kyc.get('identification', 'Electronic Check') + """<br>
-				<b>Firstname</b> : """+ kyc.get('given_name', '') +"""<br>
-				<b>Lastname</b> : """+ kyc.get('family_name', '') +"""<br>
-				<b>Birth Date</b> : """+ kyc.get('birthdate', '') +"""<br>
-				<b>Gender</b> : """+ kyc.get('gender', ' ').capitalize() +"""<br>
-				<b>Phone</b> : """ + kyc.get('phone', '') + """<br>
-				<b>Email</b>  : """ + kyc.get('email', '') + """<br>
-				<b>Address</b>  : """ + kyc.get('address', '') + """<br>
+				<b>Firstname</b> : """+ kyc.get('given_name', kyc_data) +"""<br>
+				<b>Lastname</b> : """+ kyc.get('family_name', kyc_data) +"""<br>
+				<b>Birth Date</b> : """+ kyc.get('birthdate', kyc_data) +"""<br>
+				<b>Gender</b> : """+ kyc.get('gender', kyc_data).capitalize() +"""<br>
+				<b>Phone</b> : """ + kyc.get('phone', kyc_data) + """<br>
+				<b>Email</b>  : """ + kyc.get('email', kyc_data) + """<br>
+				<b>Address</b>  : """ + kyc.get('address', kyc_data) + """<br>
 				<p>
-					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc['id'] + """">
+					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc.get('id',"") + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
-					<a class="text-secondary" href=/data/?dataId="""+ kyc['id'] + """:kyc>
+					<a class="text-secondary" href="/data/?dataId=""" + kyc.get('id',"") + """">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>"""
@@ -889,7 +877,7 @@ def user(mode) :
 
 		# certificates
 		my_certificates = ""
-		if len(session['certificate']) == 0:
+		if not session['certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
 		else :
 			for counter, certificate in enumerate(session['certificate'],1) :
@@ -970,7 +958,7 @@ def user(mode) :
 
 		# API
 		credentials = ns.get_credentials(session['username'], mode)
-		if not len (credentials) :
+		if not credentials :
 			my_api = """<a class="text-info">Contact relay@talao.io to get your API credentials.</a>"""
 		else :
 			my_api = """ <div style="height:200px;overflow:auto;overflow-x: hidden;">"""
@@ -984,7 +972,7 @@ def user(mode) :
 				<b>grant_types</b> : """+ " ".join(cred['grant_types']) + """<br><hr> """
 			my_api = my_api + """</div>"""
 		# kbis
-		if len (session['kbis']) == 0:
+		if not session['kbis'] :
 			my_kbis = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
 					<a class="text-danger">No Proof of Identity available</a>"""
 		else :
@@ -1023,13 +1011,13 @@ def user(mode) :
 		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
 		# certificates
-		if  not len (session['certificate']) :
+		if  not session['certificate'] :
 			my_certificates =  """<a class="text-info">No Certificates available</a>"""
 		else :
 			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
-				issuer_username = 'Unknown' if issuer_username is None else issuer_username
+				issuer_username = 'Unknown' if not issuer_username else issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					issuer_name = certificate['issuer']['name']
 				else :
@@ -1215,7 +1203,7 @@ def user_advanced(mode) :
 		my_issuer = ""
 		for one_issuer in session['issuer'] :
 			issuer_username = ns.get_username_from_resolver(one_issuer['workspace_contract'], mode)
-			issuer_username = 'Unknown' if issuer_username is None else issuer_username
+			issuer_username = 'Unknown' if not issuer_username else issuer_username
 			issuer_html = """
 				<span>""" + issuer_username + """
 					<a class="text-secondary" href="/user/remove_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+one_issuer['address']+"""">
@@ -1235,7 +1223,7 @@ def user_advanced(mode) :
 		my_white_issuer = ""
 		for issuer in session['whitelist'] :
 			issuer_username = ns.get_username_from_resolver(issuer['workspace_contract'], mode)
-			issuer_username = 'Unknown' if issuer_username is None else issuer_username
+			issuer_username = 'Unknown' if not issuer_username else issuer_username
 			issuer_html = """
 				<span>""" + issuer_username + """
 					<a class="text-secondary" href="/user/remove_white_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+issuer['address']+"""">

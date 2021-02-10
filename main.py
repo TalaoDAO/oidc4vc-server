@@ -613,7 +613,6 @@ def update_personal_settings() :
                     <optgroup>
                     <option """+ p1 + """ value="public">Public</option>
                     <option """ + p2 +""" value="private">Private</option>
-                    <option """ + p3 + """ value="secret">Secret</option>
                     </opgroup>"""
         return render_template('update_personal_settings.html',
                                 **session['menu'],
@@ -911,10 +910,12 @@ def create_kyc() :
         my_kyc['gender'] = request.form['gender']
         my_kyc['identification'] = request.form['identification']
         kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
-        # private kyc 
-        kyc = Document('kyc_p')
-        data = kyc.talao_add(kyc_workspace_contract, my_kyc, mode, privacy='private', request=request)[0]
-        if not data :
+        kyc_address = contractsToOwners(kyc_workspace_contract, mode)
+        talao_private_key = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+        # private kyc as did_authn ERC735 Claim
+        claim=Claim()
+        data = claim.add(mode.owner_talao, mode.workspace_contract_talao, kyc_address, kyc_workspace_contract, talao_private_key, 'did_authn', my_kyc, 'private', mode, synchronous = True)
+        if not data[0] :
             flash('Transaction failed', 'danger')
         else :
             flash('New kyc added for '+ kyc_username, 'success')

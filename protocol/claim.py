@@ -51,56 +51,48 @@ def topicname2topicvalue(topicname) :
 	return int(topicvaluestr)
 
 
-
-""" si public data = 'pierre' si crypté alors data = 'private' ou 'secret' et on encrypte un dict { 'firstname' ; 'pierre'} """
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous) :
 	# @data = str
 	# scheme 2
-	w3 = mode.w3
-
 	topic_value = topicname2topicvalue(topicname)
 
-	if privacy == 'public' :
-		ipfs_hash = ""
-	else :
-		data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode)
-		if not data_encrypted :
-			return None, None, None
-		ipfs_hash = ipfs_add(data_encrypted, mode)
-		if not ipfs_hash :
-			print('Error : ipfs hash error create_claim')
-			return None, None, None
-		data = privacy
+	data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode,  address_caller=address_from)
+	if not data_encrypted :
+		return None, None, None
+	ipfs_hash = ipfs_add(data_encrypted, mode)
+	if not ipfs_hash :
+		print('Error : ipfs hash error create_claim')
+		return None, None, None
+	data = privacy
 
-	nonce = w3.eth.getTransactionCount(address_from)
+	nonce = mode.w3.eth.getTransactionCount(address_from)
 	issuer = address_from
 
 	# calcul de la signature
-	msg = w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
+	msg = mode.w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
 	message = encode_defunct(text=msg.hex())
-	signed_message = w3.eth.account.sign_message(message, private_key=private_key_from)
+	signed_message = mode.w3.eth.account.sign_message(message, private_key=private_key_from)
 	signature = signed_message['signature']
-	claim_id = w3.solidityKeccak(['address', 'uint256'], [address_from, topic_value]).hex()
+	claim_id = mode.w3.solidityKeccak(['address', 'uint256'], [address_from, topic_value]).hex()
 
 	#transaction
-	contract = w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	txn = contract.functions.addClaim(topic_value,2,issuer, signature, bytes(data, 'utf-8'),ipfs_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
-	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
+	txn = contract.functions.addClaim(topic_value,2,issuer, signature, bytes(data, 'utf-8'),ipfs_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
+	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	if synchronous :
-		receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
 			return None, None, None
 	return claim_id, ipfs_hash, transaction_hash
 
-
+# attention on ne retourne que le derniere !!!!!
 def get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode) :
-	w3 = mode.w3
 	topic_value =  topicname2topicvalue(topicname)
-	contract = w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
+	contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
 	a = contract.functions.getClaimIdsByTopic(topic_value).call()
-	if not len(a) :
+	if not a :
 		return None, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	claim_id = a[-1].hex()
 	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
@@ -108,86 +100,40 @@ def get_claim(workspace_contract_from, private_key_from, identity_workspace_cont
 def get_claim_by_id(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) :
 	return _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode)
 
-
 def _get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, claim_id, mode) :
 	""" Internal function to access claim data """
 	w3 = mode.w3
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	claim = contract.functions.getClaim(claim_id).call()
-	data = claim[4].decode('utf-8') 	# data public
+	data = claim[4].decode('utf-8') 	# privacy
 	ipfs_hash = claim[5]
 	issuer = claim[2]
 	scheme = claim[1]
 	topic_value = claim[0]
 	topicname = topicvalue2topicname(topic_value)
-	if data != 'private' and data != 'secret' :
+	if data != 'private' and data != 'secret' and data != 'public' :
+		# compatiblité avec version precedente. data public non cryptee
 		to_be_decrypted = False
 		privacy = 'public'
-
-	elif workspace_contract_from == identity_workspace_contract :
-		#recuperer les cle AES cryptée dans l identité
-		contract = w3.eth.contract(workspace_contract_from,abi = constante.workspace_ABI)
-		mydata = contract.functions.identityInformation().call()
+		print('pas de decryptage' , topicname)
+	else :
+		# toutes les datas sont encryptees
 		to_be_decrypted = True
-		if data == 'private' :
-			privacy = 'private'
-			aes_encrypted = mydata[5]
-		if data == 'secret' :
-			privacy = 'secret'
-			aes_encrypted = mydata[6]
-
-	elif workspace_contract_from != identity_workspace_contract and data == 'private' and private_key_from and workspace_contract_from  :
-		#recuperer les cle AES cryptée du user sur son partnership de l identité (from)
-		contract = w3.eth.contract(workspace_contract_from, abi = constante.workspace_ABI)
-		acct = Account.from_key(private_key_from)
-		mode.w3.eth.defaultAccount = acct.address
-		partnership_data = contract.functions.getPartnership(identity_workspace_contract).call()
-		privacy = 'private'
-		# one tests if the user in partnershipg with identity (pending or authorized) and his aes_key exist (status rejected ?)
-		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
-			aes_encrypted = partnership_data[4]
-			to_be_decrypted = True
-		else :
-			to_be_decrypted = False
-
-	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
-		to_be_decrypted = False
-		privacy = 'secret'
-
-	# data decryption
+		privacy = data
+		print('decryptage' , topicname)
 	if to_be_decrypted :
-
-		# read la cle RSA privee du from
-		contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
-		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
-		if not rsa_key :
-			print("Error : no RSA key")
-			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
-
 		# upload data encrypted from ipfs
 		data_encrypted = ipfs_get(ipfs_hash)
+		print('data encrypted = ', data_encrypted)
+		address_from = contracts_to_owners(workspace_contract_from, mode)
+		msg = privatekey.decrypt_data(identity_workspace_contract, data_encrypted, privacy, mode, address_caller=address_from)
+		if msg :
+			data= msg[topicname]
+		else :
+			print('decryptage failed')
+			data = None
 
-		# decoder la cle AEScryptée du partner avec la cle RSA privée
-		key = RSA.importKey(rsa_key)
-		cipher = PKCS1_OAEP.new(key)
-		aes = cipher.decrypt(aes_encrypted)
-
-		# decoder les datas
-		try:
-			b64 = data_encrypted
-			json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-			jv = {k:b64decode(b64[k]) for k in json_k}
-			cipher = AES.new(aes, AES.MODE_EAX, nonce=jv['nonce'])
-			cipher.update(jv['header'])
-			plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
-			msg = json.loads(plaintext.decode('utf-8'))
-			data =  msg[topicname] 
-		except ValueError :
-			print("Error : data decryption")
-			return issuer, identity_workspace_contract, None, "", 0, None, None, None, privacy,topic_value, None
-
-	# transaction 
+	# transaction info
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
 	event_list = claim_filter.get_all_entries()
@@ -204,8 +150,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 				block_number = transaction['blockNumber']
 				block = mode.w3.eth.getBlock(block_number)
 				date = datetime.fromtimestamp(block['timestamp'])
-				gas_used = 1000
-				#gas_used = w3.eth.getTransactionReceipt(transaction_hash).gasUsed
+				gas_used = 1
 				created = str(date)
 			except :
 				print( 'Error : problem transaction data in get claim')

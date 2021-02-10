@@ -117,7 +117,7 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 	# get bytes from str received from JS
 	user_private_encrypted_with_talao_key = bytes.fromhex(user_aes_encrypted_with_talao_key)
 
-	# For ID issuance Talao requests partnership to Identity
+	# For ID issuance Talao requests partnership to Identity, key 3 will be issued too
 	talao_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 	talao_private_key = privatekey.get_key(mode.owner_talao,'private_key', mode)
 	if partnershiprequest(mode.owner_talao, mode.workspace_contract_talao, mode.owner_talao, mode.workspace_contract_talao, talao_private_key, workspace_contract, talao_rsa_key, mode, user_aes_encrypted_with_talao_key) :
@@ -131,7 +131,7 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 		h = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 		receipt = mode.w3.eth.waitForTransactionReceipt(h, timeout=2000, poll_latency=1)
 		if receipt['status']  :
-			print('Success : partnership request has been accepted by Identity')
+			print('Success : Talao partnership request has been accepted by Identity')
 		else :
 			print('Error : authorize partnership with Talao failed')
 	else :
@@ -147,18 +147,16 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 		print('Warning : key 5 to Talao failed')
 
 	# key 20002 issued Talao to issue documents
-	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
-		print('Warning : key 20002 issued to Talao')
-	else :
-		print('Warning : key 20002 to Talao failed')
+	#if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
+	#	print('Warning : key 20002 issued to Talao')
+	#else :
+	#	print('Warning : key 20002 to Talao failed')
 
 	# rewrite previous email to get an encrypted email with public key
 	if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'public', mode)[0] :
 		print('Success : email encryted updated')
 	else :
 		print('Error : email encrypted not updated')
-
-	
 
 	print("Success : create identity process step 2 is over")
 	return True
@@ -167,9 +165,9 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 def _create_user_step_3(address, private_key, wallet_address, workspace_contract, username, email, password, phone, mode) :
 
 	# transfer workspace
-	#if not transfer_workspace(address, private_key, wallet_address, mode) :
-	#	print('Error : transfer failed')
-	#	return False
+	if not transfer_workspace(address, private_key, wallet_address, mode) :
+		print('Error : transfer failed')
+		return False
 
 	# add username to register in local nameservice Database with last check
 	if ns.username_exist(username, mode) :

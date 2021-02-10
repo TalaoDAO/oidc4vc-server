@@ -32,7 +32,8 @@ def read_profil (workspace_contract, mode, loading) :
 						'about' : 97098111117116,
 						'gender' : 103101110100101114,
 						'education' : 101100117099097116105111110,
-						'profil_title' : 112114111102105108095116105116108101}
+						'profil_title' : 112114111102105108095116105116108101,
+						}
 
 	# setup constant company
 	company_topicnames = {'name' : 110097109101,
@@ -51,7 +52,8 @@ def read_profil (workspace_contract, mode, loading) :
 	if loading != 'full' :
 		person_topicnames = {'firstname' : 102105114115116110097109101,
 							'lastname' : 108097115116110097109101,
-							'profil_title' : 112114111102105108095116105116108101,}
+							'profil_title' : 112114111102105108095116105116108101,
+							}
 
 		# setup constant company
 		company_topicnames = {'name' : 110097109101,
@@ -604,7 +606,6 @@ def update_self_claims(address, private_key, dict, mode) :
 	if receipt['status'] == 0 :
 		return None
 	return hash1
-
  
 ############################################################
 #  Read workspace Info

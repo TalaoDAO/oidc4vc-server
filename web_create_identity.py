@@ -56,13 +56,13 @@ def wc_register(mode) :
 		session['is_active'] = True
 		message = request.args.get('message', "")
 		session['wallet_address']= request.args.get('wallet_address')
-		# lets check if this wallet account is already an alias of an Identity
-		#if ns.get_username_from_wallet(session['wallet_address'], mode) or contractsToOwners(session['wallet_address'], mode) :
-		#if  contractsToOwners(session['wallet_address'], mode) :
-		#	del session['wallet_address']
-		#	flash('This wallet account is already used for an Identity.', 'warning')
-		#	return render_template ('login.html')
-		return render_template('wc_register.html', message=message, wallet_address=session['wallet_address'])
+		# lets check if this wallet account is an alias of an Identity or an owner of an identity
+		if not ns.get_username_from_wallet(session['wallet_address'], mode) and not contractsToOwners(session['wallet_address'], mode) :
+			return render_template('wc_register.html', message=message, wallet_address=session['wallet_address'])
+		else :
+			del session['wallet_address']
+			flash('This wallet account is already used for an Identity.', 'warning')
+			return render_template ('login.html')
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
 		session['firstname'] = request.form['firstname']
