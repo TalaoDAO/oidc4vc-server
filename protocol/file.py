@@ -19,7 +19,6 @@ def contracts_to_owners(workspace_contract, mode) :
 	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.contractsToOwners(workspace_contract).call()
 
-
 def add_file(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, file_name, mydays, privacy, mode, synchronous) :
 	w3 = mode.w3
 	file_path = mode.uploads_path + file_name

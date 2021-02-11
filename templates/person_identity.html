@@ -43,23 +43,15 @@
                     <div class="card-body">
                       <!--                    <h4><a href="/user/picture/"><img class="mx-auto d-block card-img" title="Clic to change picture."  src="{{ url_for('send_file', filename=picturefile) }}"></a></h4> -->
                       <h4 class="text-center" title="Complete your Resume.">My Resume</h4>
-
                       <div role="tablist" id="accordion-1">
-
-
-
-
                         <div class="card">
                           <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your proof of Identity issued by Talao.">
-                            <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Proof of Identity</a></h5>
+                            <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Digital Identity</a></h5>
                           </div>
                           <div class="collapse item-12" role="tabpanel" data-parent="#accordion-1">
                             <div class="card-body">
                               <div style="overflow:auto;overflow-x: hidden;">
                               <p class="card-text">{{kyc|safe}}</p>
-                              <a href="/user/request_proof_of_identity/">
-                              <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Request Proof of Identity</button></div>
-                              </a>
                             </div>
                             </div>
                           </div>

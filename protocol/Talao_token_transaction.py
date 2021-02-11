@@ -61,14 +61,12 @@ def read_profil (workspace_contract, mode, loading) :
 							'postal_address' : 112111115116097108095097100100114101115115,}
 
 	profil = dict()
-	
 	# test if identity exist and get category
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	try :
 		category = contract.functions.identityInformation().call()[1]
 	except :
 		return None, None
-		
 	topic_dict = person_topicnames if category == 1001 else company_topicnames
 
 	for topicname, topic in topic_dict.items() :
@@ -95,12 +93,29 @@ def get_category (workspace_contract, mode) :
 		return None
 	return category
 
+def contractsToOwners(workspace_contract, mode) :
+	if not workspace_contract :
+		return None
+	if workspace_contract == '0x0000000000000000000000000000000000000000' :
+		print('contracts to owners return 0x')
+		return workspace_contract
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	address = contract.functions.contractsToOwners(workspace_contract).call()
+	if address == '0x0000000000000000000000000000000000000000' :
+		return None
+	return address
+
 def ownersToContracts(address, mode) :
-	w3 = mode.w3
-	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
+	if not address :
+		print('owners to contracts : its not an address')
+		return None
+	if address == '0x0000000000000000000000000000000000000000' :
+		print('owners to contract : return 0x')
+		return address
+	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	if workspace_address == '0x0000000000000000000000000000000000000000' :
-		return None
+		print('owners to contract : return 0x')
 	return workspace_address
 
 def destroy_workspace(workspace_contract, private_key, mode) :
@@ -146,13 +161,6 @@ def transfer_workspace(address_from, private_key, address_to, mode) :
 		print('Success : workspace ownership tranfered to ' + address_to)
 	return hash1
 
-def contractsToOwners(workspace_contract, mode) :
-	w3 = mode.w3
-	contract=w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	address = contract.functions.contractsToOwners(workspace_contract).call()
-	if address == '0x0000000000000000000000000000000000000000' :
-		return None
-	return address
 
 def get_data_from_token(mode) :
 	w3 = mode.w3

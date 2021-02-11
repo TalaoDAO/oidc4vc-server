@@ -98,16 +98,14 @@
 <script>async function on_click() {
     console.log('appel de on click');
       document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
-      const signature = await window.sign('Identity Signature');
+      const data = window.createWorkspaceKeys();
       document.getElementById("id_page").innerHTML = "Identity is being deployed (3 minutes)...";
-      const data = window.createWorkspaceKeys(signature);
       document.getElementById("id_public_rsa").value = data[0];
       document.getElementById("id_aes_private").value = data[1];
       document.getElementById("id_aes_secret").value = data[2];
       document.getElementById("id_user_aes_encrypted_with_talao_key").value = data[3];
       document.getElementById("form").submit();
       window.onEnd();
-
 }
 </script>
 

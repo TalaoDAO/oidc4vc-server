@@ -589,15 +589,19 @@ def user(mode) :
 								'profil_title' : session['profil_title'],
 								'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
 
-
 		# Warning message for first connexion
-		message = ""
+		message1 = message2 = ""
 		if not session['private_key'] :
-			message = message + 'Private key not found, you cannot issue claims. '
+			message1 = "Private key not found on server. "
 		if not session['rsa_key'] :
-			message = message + 'Rsa key not found, you cannot encrypt data. '
-		if message :
-			flash(message, 'warning')
+			message2 = "Rsa key not found. "
+		if message1 and message2 :
+			message = "You control your data with your smartphone wallet."
+		elif message1 or message2 :
+			message = message1 + message2
+		else :
+			message = "Your have allowed this third party wallet to manage your data."
+		flash(message, 'warning')
 
 		#Homepage
 		if user.type == 'person' :
@@ -826,23 +830,22 @@ def user(mode) :
 					</a>
 				</span><br>"""
 
-		# kyc
+		# kyc Digital Identity
 		my_kyc = ""
-		if not session['kyc'] :
-			my_kyc = my_kyc + """<a class="text-warning">No other proof of identity available.</a>"""
+		if not session['kyc'] or not session['kyc'][0]['claim_id']:
+			my_kyc = my_kyc + """<a class="text-warning">No Digital Identity available.</a>
+			 				<br>
+							 <a href="/user/request_proof_of_identity/">
+                            	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Request Proof of Identity</button></div>
+                             </a>
+							"""
 		else :
 			kyc = session['kyc'][0]
-			print('kyc = ', kyc)
-			kyc_data = 'Encrypted' if not kyc['claim_value'] else 'Unknown'
 			kyc_html = """
+				<b>Issuer</b> : """ + kyc['issuer'].get('name', 'Unknown') + """<br>
+				<b>Date of issue</b> : """ + kyc['created'] + """<br>
+				<b>Id</b> : """ + kyc['id'] + """<br>
 				<b>Identity checking method</b> : """+ kyc.get('identification', 'Electronic Check') + """<br>
-				<b>Firstname</b> : """+ kyc.get('given_name', kyc_data) +"""<br>
-				<b>Lastname</b> : """+ kyc.get('family_name', kyc_data) +"""<br>
-				<b>Birth Date</b> : """+ kyc.get('birthdate', kyc_data) +"""<br>
-				<b>Gender</b> : """+ kyc.get('gender', kyc_data).capitalize() +"""<br>
-				<b>Phone</b> : """ + kyc.get('phone', kyc_data) + """<br>
-				<b>Email</b>  : """ + kyc.get('email', kyc_data) + """<br>
-				<b>Address</b>  : """ + kyc.get('address', kyc_data) + """<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc.get('id',"") + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -850,7 +853,11 @@ def user(mode) :
 					<a class="text-secondary" href="/data/?dataId=""" + kyc.get('id',"") + """">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
-				</p>"""
+				</p>
+				 <a href="">
+                    <div class="form-group"><button class="btn btn-primary btn-sm " type="button">Check your Digital Identity</button></div>
+                </a>
+				"""
 			my_kyc = my_kyc + kyc_html
 
 		# Alias

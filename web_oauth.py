@@ -28,7 +28,6 @@ import createidentity
 import createcompany
 import privatekey
 import Talao_message
-import resume
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')
@@ -90,6 +89,18 @@ def check_login() :
         abort(403)
     else :
         return session['username']
+
+def get_resume(workspace_contract, mode) :
+    user = Identity(workspace_contract, mode, authenticated=False)
+    # clean up Identity to get a resume
+    resume = user.__dict__.copy()
+    attr_list  = ['synchronous', 'authenticated', 'address', 'workspace_contract','did',
+        'other_list', 'education_list', 'experience_list', 'kbis_list', 'certificate_list','skills_list',
+        'file_list', 'issuer_keys', 'partners', 'category', 'personal', 'private_key', 'rsa_key', 'picture',
+        'signature', 'kyc', 'relay_activated', 'identity_file', 'profil_title', 'type', 'name']
+    for attr in attr_list :
+        del resume[attr]
+    return resume
 
 def current_user():
     if 'id' in session:
@@ -316,7 +327,6 @@ def user_info(mode):
     print('Warning : token scope received = ', current_token.scope)
     if 'proof_of_identity' in current_token.scope :
         user_info['proof_of_identity'] = 'Not implemented yet'
-
     if category == 1001 : # person
         if 'profile' in current_token.scope :
             user_info['given_name'] = profile.get('firstname')
@@ -328,7 +338,8 @@ def user_info(mode):
         if 'address' in current_token.scope :
             user_info['address'] = profile.get('postal_address') if profile.get('postal_address') != 'private' else None
         if 'resume' in current_token.scope :
-            user_info['resume'] = resume.get(user_workspace_contract, mode)
+            print('user wokspace contract dans appel de resume = ', user_workspace_contract)
+            user_info['resume'] = get_resume(user_workspace_contract, mode)
     if category == 2001 : # company
         print('Error : OIDC request for company')
     # setup response

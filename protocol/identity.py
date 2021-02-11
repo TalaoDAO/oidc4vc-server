@@ -66,6 +66,8 @@ class Identity() :
 			self.private_key = False
 			self.rsa_key = False
 			self.relay_activated = False
+			address_from = contractsToOwners(workspace_contract_from, mode)
+			private_key_from = privatekey.get_key(address_from, 'private_key', mode)
 			self.get_identity_file(workspace_contract_from,private_key_from,mode)
 			self.get_identity_personal(workspace_contract_from, private_key_from,mode)
 
@@ -264,6 +266,8 @@ class Identity() :
 		return True
 
 	def get_identity_kbis(self, mode) :
+		""" 	Kbis basé sur un document
+		"""
 		self.kbis = []
 		for doc_id in self.kbis_list  :
 			kbis = Document('kbis')
@@ -271,12 +275,17 @@ class Identity() :
 			self.kbis.append(kbis.__dict__)
 		return True
 
+
 	def get_identity_kyc(self, mode) :
+		"""
+		KYC basé sur un claim ERC725, topicname = did_authn. le dernier claim uniquement
+		"""
 		self.kyc = []
 		claim = Claim()
 		claim.get_by_topic_name(self.workspace_contract, self.private_key, self.workspace_contract, 'did_authn', mode)
 		self.kyc.append(claim.__dict__)
 		return True
+
 
 	def get_identity_education(self,mode) :
 		self.education = []

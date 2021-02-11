@@ -23,8 +23,8 @@ ____
 
 
 
-Kyc (OpenId Connect scope)
-__________________________
+Kyc (OpenId Connect scope) ERC725
+__________________________________
 
 
 .. code-block:: JSON

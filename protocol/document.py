@@ -1,8 +1,25 @@
 """
 
-doctypeversion = 1 freedapp
+doctypeversion = 1 freedapp. 
 doctypeversion = 2 public data en clair sur ipfs
-doctype version = 3 : RGPD --> public data encodé avec une cle aes publique
+doctypeversion = 3 : RGPD --> public data encodé avec une cle aes publique
+
+
++--------------------+-----------+-----------+-----------+
+|       doctype      |  Public   |  Private  |   Secret  |
++====================+===========+===========+===========+
+| kbis               |   10000   |    N/A    |    N/A    |
++--------------------+-----------+-----------+-----------+
+| kyc/kyc_p          |   15000   |  15001    |    N/A    | unused see ERC725 did_authn
++--------------------+-----------+-----------+-----------+
+| certificate        |   20000   |    N/A    |    N/A    |
++--------------------+-----------+-----------+-----------+
+| education          |   40000   |   40001   |   40002   |
++--------------------+-----------+-----------+-----------+
+| experience         |   50000   |   50001   |   50002   |
++--------------------+-----------+-----------+-----------+
+| file               |   30000   |   30001   |   30002   | managed by file.py
++--------------------+-----------+-----------+-----------+
 
 """
 

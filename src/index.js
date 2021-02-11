@@ -121,9 +121,8 @@ async function getaccountaddress(){
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
 
-async function getid(textmsg){
+async function signdidauthn(textmsg){
   let signature = null;
-
   if (!provider) {
     throw new Error(`provider hasn't been created yet`);
   }
@@ -191,10 +190,17 @@ async function checksignature(did, signature, msg){
   return keylist.includes(signerpublickey);
 }
 
+async function create_workspace_keys (){
+  const signature = await signmessage('Identity Signature');
+  return window.createWorkspaceKeys(signature);
+  }
+
+
+
 window.onEnd = onend;
 window.onInit = onlogin;
 window.sign = signmessage;
-window.getID = getid;
+window.signDidAuthn = signdidauthn;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;
-window.createWorkspaceKeys=createworkspacekeys;
+window.createWorkspaceKeys=create_workspace_keys;

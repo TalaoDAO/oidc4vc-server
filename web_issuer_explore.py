@@ -257,7 +257,7 @@ def issuer_explore(mode) :
 					carousel_rows_recommendation += '</div></div>'
 				if i == len(recommendations)-1:
 					carousel_rows_recommendation += '</div></div>'
-		
+
 		# Education
 		carousel_indicators_education = """<li data-target="#education-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_education = ""
@@ -315,6 +315,7 @@ def issuer_explore(mode) :
 				if i == len(educations)-1:
 					carousel_rows_education += '</div></div>'
 
+		# Skills
 		skills = []
 		for certificate in session['issuer_explore']['certificate']:
 			if certificate['type'] == "skill":
@@ -445,8 +446,10 @@ def issuer_explore(mode) :
 			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
 			partner_list = not is_username_in_list_for_partnership(session['partner'], issuer_username)
 
-		#kyc
-		kyc = (len(session['issuer_explore']['kyc']) != 0)
+		#kyc Digital Identity
+		kyc = session['issuer_explore']['kyc'] and session['issuer_explore']['kyc'][0]['claim_id']
+
+		# personal details
 		adress = session['issuer_explore']['personal']['postal_address']['claim_value']
 		phone = session['issuer_explore']['personal']['contact_phone']['claim_value']
 		email = session['issuer_explore']['personal']['contact_email']['claim_value']

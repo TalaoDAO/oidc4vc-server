@@ -14,18 +14,13 @@ from base64 import b64encode, b64decode
 import constante
 from Talao_ipfs import ipfs_add, ipfs_get
 import privatekey
-from .Talao_token_transaction import read_profil
+from .Talao_token_transaction import read_profil, contractsToOwners, ownersToContracts
 
 def contracts_to_owners(workspace_contract, mode) :
-	w3 = mode.w3
-	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	return contract.functions.contractsToOwners(workspace_contract).call()
+	return contractsToOwners(workspace_contract, mode)
 
 def owners_to_contracts(address, mode) :
-	w3 = mode.w3
-	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
-	return contract.functions.ownersToContracts(address).call()
-
+	return ownersToContracts(address, mode)
 
 def topicvalue2topicname(topic_value) :
 	word=''
@@ -233,8 +228,8 @@ class Claim() :
 	def _get_by(self, issuer_address, identity_workspace_contract, data, ipfs_hash, transaction_fee, transaction_hash, scheme, claim_id, privacy, topicvalue, created, mode, loading) :
 		""" Internal function """
 		self.topicvalue = topicvalue
-		if issuer_address is not None :
-			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
+		if issuer_address  :
+			issuer_workspace_contract = ownersToContracts(issuer_address, mode)
 			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :

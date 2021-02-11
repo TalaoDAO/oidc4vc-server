@@ -137,7 +137,7 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 	else :
 		print('Error : partnership request from Talao failed')
 
-	# key 3 issued to Web Relay to issue claims
+	# key 3 issued to Web Relay to issue self claims
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode)
 
 	# key 5 to Talao be in  White List
