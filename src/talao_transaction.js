@@ -41,21 +41,10 @@ let HttpClient = function() {
             anHttpRequest.send( null );
         }
     }
-
+    
 export async function get_aes_private_key(address, provider, web3){
        const workspace_contract = await ownerstocontracts(address, web3)
        const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract);
-       // look for the list of ERC725 Claims with topic = did auth
-       const claim_list = await contract.methods.getClaimIdsByTopic('100105100095097117116104110').call()
-       // look for the last ERC725 claim of the list
-       const claim = await contract.methods.getClaim(claim_list.slice(-1)[0]).call();
-       // download cipher text from IPFS data of the claim
-       const client = new HttpClient();
-       let ciphertext = null;
-       let uri = 'https://gateway.pinata.cloud/ipfs/' + claim.uri;
-       client.get(uri, function(response) {
-           ciphertext = JSON.parse(response).ciphertext;
-       });
        // derive private RSA key from wallet signature of 'Identity Signature'
        const signature = await sign_message('Identity Signature', provider);
        const keys = await generateRsa(signature);
@@ -70,11 +59,32 @@ export async function get_aes_private_key(address, provider, web3){
 
 }
 export  async function did_authn(address,provider,web3){
-        const aes_private_key = await get_aes_private_key(address, provider, web3);
-        // decrypt claim cipher text with AES key
+    const workspace_contract = await ownerstocontracts(address, web3)
+    const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract);
+    // look for the list of ERC725 Claims with topic = did auth
+    const claim_list = await contract.methods.getClaimIdsByTopic('100105100095097117116104110').call()
+    // look for the last ERC725 claim of the list
+    const claim = await contract.methods.getClaim(claim_list.slice(-1)[0]).call();
+    // download cipher text from IPFS data of the claim
+    const client = new HttpClient();
+    let ciphertext = null;
+    let uri = 'https://gateway.pinata.cloud/ipfs/' + claim.uri;
+      client.get(uri, function(response) {
+      ciphertext = JSON.parse(response).ciphertext;
+    });
+    // derive private RSA key from wallet signature of 'Identity Signature'
+    const signature = await sign_message('Identity Signature', provider);
+    const keys = await generateRsa(signature);
+    const private_rsa_key = keys[0]
+    // get private AES key encrypted on workspace
+    let aes_private_key_encrypted = null;
+    await contract.methods.identityInformation().call()
+      .then(data=>{aes_private_key_encrypted =  data[5];});
+    // decrypt private AES key with RSA private key
+    const aes_private_key = rsaDecrypt(aes_private_key_encrypted, private_rsa_key);
+    // decrypt claim cipher text with AES key
         return aesDecrypt(ciphertext, aes_private_key.toString());
         }
-
 
 export async function sign_message(msg, provider){
     let signature = null;
