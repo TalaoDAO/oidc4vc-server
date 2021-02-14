@@ -29,16 +29,6 @@ export async function read_public_rsa(address,web3){
   return result;
   }
 
-export async function read_workspace_info(address,web3){
-  const workspace_contract = await ownerstocontracts(address, web3);
-  const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract);
-  let result = null;
-  await contract.methods.identityInformation().call()
-  .then(data=>{
-    result =  data;
-  });
-  return result;
-  }
 
 let HttpClient = function() {
         this.get = function(aUrl, aCallback) {
