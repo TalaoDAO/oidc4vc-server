@@ -68,6 +68,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 	elif privacy == 'private' :
 		aes = get_key(address_user, 'aes_key', mode, address_caller)
 	elif privacy == 'secret' :
+		print('Warning : secret key has been called in privateky.py')
 		aes == get_key(address_user, 'secret_key', mode)
 	else :
 		print ("Error : privacy error")
@@ -165,7 +166,7 @@ def create_rsa_key(private_key, mode) :
 
 
 def get_key(address, key_type, mode, address_caller=None) :
-	print('caller = ', address_caller)
+	print('Waring : get_key address_caller = ', address_caller)
 	if not mode.w3.isAddress(address) or address == '0x0000000000000000000000000000000000000000' :
 		return None
 
@@ -225,7 +226,11 @@ def get_key(address, key_type, mode, address_caller=None) :
 		except :
 			return None
 		mode.w3.eth.defaultAccount = acct.address
-		partnership_data = contract.functions.getPartnership(workspace_contract).call()
+		try :
+			partnership_data = contract.functions.getPartnership(workspace_contract).call()
+		except :
+			print('Error : problem with getPartnership ligne 232 privatekey.py')
+			return None
 		# one tests if the user is in partnershipg with identity (pending or authorized) and if his aes_key exist (status rejected ?)
 		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
 			aes_encrypted = partnership_data[4]

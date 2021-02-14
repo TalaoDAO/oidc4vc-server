@@ -41,7 +41,7 @@ import privatekey
 
 
 # main function called by external modules
-def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_talao_key = None, rsa=None, secret=None, private=None, password=None, firstname=None,  lastname=None, phone=None):
+def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_talao_key = None, rsa=None, secret=None, private=None, password=None, firstname=None,  lastname=None, phone=None, transfer=True):
 
 	# STEP 1 : create a worskpace contract with a random ethereum address
 	address, private_key, workspace_contract = _create_user_step_1(wallet_address, email, mode, firstname,  lastname, rsa, private, secret)
@@ -49,10 +49,10 @@ def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_t
 		return None, None, None
 
 	# STEP 2 : finish the work to be done
-	_create_user_step_2(wallet_address, address, workspace_contract, private_key, username, email, mode, user_aes_encrypted_with_talao_key)
+	_create_user_step_2(wallet_address, address, workspace_contract, private_key, username, email, mode, user_aes_encrypted_with_talao_key, transfer)
 
-	# STEP 3 : transfer ownership of workspace contract to wallet address
-	if not _create_user_step_3(address, private_key, wallet_address, workspace_contract, username, email, password, phone, mode) :
+	# STEP 3 : transfer ownership of workspace contract to wallet address or setup an alias
+	if not _create_user_step_3(address, private_key, wallet_address, workspace_contract, username, email, password, phone, mode, transfer) :
 		return None, None, None
 
 	return wallet_address, None, workspace_contract
@@ -63,17 +63,26 @@ def _create_user_step_1(wallet_address, email,mode, firstname, lastname, rsa, pr
 	RSA_public = rsa.encode('utf-8')
 	RSA_public = RSA_public.replace(b'\r\n', b'\n')
 
+	print('private reçu = ', private, type(private))
 	# get bytes from keys generated and encrypted client side. Keys have been passed (JS=>Python) un hex trsing
-	AES_encrypted = bytes.fromhex(private)
-	SECRET_encrypted = bytes.fromhex(secret)
+	AES_encrypted = bytes.fromhex(private[2:])
+	SECRET_encrypted = bytes.fromhex(secret[2:])
 
 	# Setup an initial random private key and derive address
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
 	private_key = account.privateKey.hex()
 
+	# store Ethereum private key in keystore
+	if not privatekey.add_private_key(private_key, mode) :
+		print('Error : add private key in keystore failed')
+		return None, None, None
+	else :
+		print('Success : private key in keystore')
+
 	# Email requested by solidity function. it will be encrypted later on
-	bemail = bytes(email.lower() , 'utf-8')
+	#bemail = bytes(email.lower() , 'utf-8')
+	bemail = bytes(" ".lower() , 'utf-8')
 
 	# Ether transfer from TalaoGen wallet to address
 	ether_transfer(address, mode.ether2transfer,mode)
@@ -112,10 +121,10 @@ def _create_user_step_1(wallet_address, email,mode, firstname, lastname, rsa, pr
 	print("Success : create identity process step 1 is over")
 	return address, private_key, workspace_contract
 
-def _create_user_step_2(wallet_address, address, workspace_contract, private_key, username, email, mode, user_aes_encrypted_with_talao_key) :
+def _create_user_step_2(wallet_address, address, workspace_contract, private_key, username, email, mode, user_aes_encrypted_with_talao_key, transfer) :
 
 	# get bytes from str received from JS
-	user_private_encrypted_with_talao_key = bytes.fromhex(user_aes_encrypted_with_talao_key)
+	user_private_encrypted_with_talao_key = bytes.fromhex(user_aes_encrypted_with_talao_key[2:])
 
 	# For ID issuance Talao requests partnership to Identity, key 3 will be issued too
 	talao_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
@@ -141,38 +150,47 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode)
 
 	# key 5 to Talao be in  White List
-	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode) :
-		print('Warning : key 5 issued to Talao')
-	else :
-		print('Warning : key 5 to Talao failed')
+	#if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode) :
+	#	print('Warning : key 5 issued to Talao')
+	#else :
+	#	print('Warning : key 5 to Talao failed')
 
 	# key 20002 issued Talao to issue documents
-	#if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
-	#	print('Warning : key 20002 issued to Talao')
-	#else :
-	#	print('Warning : key 20002 to Talao failed')
+	if not transfer :
+		if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
+			print('Warning : key 20002 issued to Talao')
+		else :
+			print('Warning : key 20002 to Talao failed')
 
 	# rewrite previous email to get an encrypted email with public key
-	if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'public', mode)[0] :
-		print('Success : email encryted updated')
-	else :
-		print('Error : email encrypted not updated')
+	#if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'public', mode)[0] :
+	#	print('Success : email encryted updated')
+	#else :
+	#	print('Error : email encrypted not updated')
 
 	print("Success : create identity process step 2 is over")
 	return True
 
-# this function transfers workspace to new wallet and setup identity in nameservice
-def _create_user_step_3(address, private_key, wallet_address, workspace_contract, username, email, password, phone, mode) :
-
-	# transfer workspace
-	if not transfer_workspace(address, private_key, wallet_address, mode) :
-		print('Error : transfer failed')
-		return False
+# this function transfers workspace to new wallet OR add wallet as an alias and setup identity in nameservice
+def _create_user_step_3(address, private_key, wallet_address, workspace_contract, username, email, password, phone, mode, transfer) :
 
 	# add username to register in local nameservice Database with last check
 	if ns.username_exist(username, mode) :
 		username = username + str(random.randint(1, 100))
 	ns.add_identity(username, workspace_contract, email, mode)
+
+	# transfer workspace / alias
+	if transfer :
+		email_address = wallet_address
+		if not transfer_workspace(address, private_key, wallet_address, mode) :
+			print('Error : status transfer failed')
+			return False
+		print('Success : workspace ownership tranfered to ' + wallet_address)
+	else :
+		email_address = address
+		ns.update_wallet(workspace_contract, wallet_address, mode)
+		print('Warning : wallet address added as an alias')
+
 
 	# setup password
 	if password :
@@ -188,12 +206,12 @@ def _create_user_step_3(address, private_key, wallet_address, workspace_contract
 	#ether_transfer(wallet_address, mode.ether2transfer,mode)
 	#token_transfer(wallet_address,mode.talao_to_transfer,mode)
 
-	time.sleep(60)
+	#time.sleep(10)
 
 	# emails send to user and admin
-	Talao_message.messageLog("", "", username, email, "createidentity.py", wallet_address, "", workspace_contract, "", email, "", "", mode)
+	Talao_message.messageLog("", "", username, email, "createidentity.py", email_address, "", workspace_contract, "", email, "", "", mode)
 	# an email is sent to user
-	Talao_message.messageUser("", "", username, email, wallet_address, "", workspace_contract, mode)
+	Talao_message.messageUser("", "", username, email, email_address, "", workspace_contract, mode)
 
 	print("Success : create identity process step 3 is over")
 	return True

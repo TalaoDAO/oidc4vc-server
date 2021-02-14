@@ -78,7 +78,7 @@
   document.getElementById("dynForm").submit();
   document.getElementById("id_code").innerHTML = "";
   console.log("call sign message, dans signature");
-  window.onEnd();
+  //window.onEnd();
 
   }
 };
@@ -89,7 +89,6 @@ function page_onload(){
   window.getAccountAddress().then(value => {
     console.log('value dans page_onload = ', value);
   });
-
 }
 </script>
 

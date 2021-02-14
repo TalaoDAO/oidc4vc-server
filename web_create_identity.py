@@ -1,8 +1,6 @@
 """
 Just a threading process to create user.
-
 centralized url
-
 app.add_url_rule('/register/',  view_func=web_create_identity.authentification, methods = ['GET', 'POST'])
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'])
 """
@@ -47,7 +45,6 @@ def register(mode) :
 		except :
 			return render_template("register.html",message='SMS connexion problem.', )
 
-
 # register ID with your wallet as owner in Talao Identity
 #@app.route('/wc_register/', methods = ['GET', 'POST'])
 def wc_register(mode) :
@@ -68,9 +65,10 @@ def wc_register(mode) :
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
-		session['search'] = request.form.get('CheckBox')
+		transfer = True if request.form.get('CheckBox2') == 'digital_identity' else False
+		print('transfer = ', transfer)
 		workspace_contract = ssi_createidentity.create_user(session['wallet_address'],session['username'],
-											session['email'],
+											request.form['email'],
 											mode,
 											user_aes_encrypted_with_talao_key=request.form.get("user_aes_encrypted_with_talao_key"),
 											firstname=session['firstname'],
@@ -78,11 +76,12 @@ def wc_register(mode) :
 											rsa=request.form.get('public_rsa'),
 											private=request.form.get('aes_private'),
 											secret=request.form.get('aes_secret'),
+											transfer = transfer,
 											)[2]
 		if not workspace_contract :
 			print('Error : createidentity failed')
 			return render_template("wc_register.html",message='Connexion problem.', )
-		if session['search'] :
+		if request.form.get('CheckBox') :
 			directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
 			print('Warning : directory updated with firstname and lastname')
 		session['is_active'] = False
@@ -140,7 +139,6 @@ def register_code(mode) :
 		if session['try_number'] == 2 :
 			message = 'Code is incorrect, last trial.'
 		return render_template("register_code.html", message=message)
-
 
 # route register/post_code/
 def register_post_code(mode) :

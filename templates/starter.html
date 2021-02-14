@@ -24,8 +24,8 @@
                                <!--     <div>
                                         <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">&nbsp;</h4>
                                     </div> -->
-                                    <p class="text-center" style="margin: 75px 50px 0px;">Request tamper proof professional certificates from companies or indivIduals in 5 minUtes.<br>
-												<br>Become the sole owner of your professional data for your entire life.<br>
+                                    <p class="text-center" style="margin: 75px 50px 0px;"><br>
+												<br>Become the only owner of your professional data for your entire life.<br>
 												<br>If you are new with Blockchain technology chose the Quick Start option.  <br> <br></p>
                                 </div>
                             </div>
@@ -37,24 +37,24 @@
                                     <form class="user" action="/starter/" method="post">
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
-                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="quick" required><label class="form-check-label"  for="formCheck-2">Quick Start</label></div>
+                                                <div class="form-check"><input class="form-check-input" type="radio" checked id="formCheck-1" name="start" value="quick" required><label class="form-check-label"  for="formCheck-2">Quick Start</label></div>
                                             </div>
                                         </div>
-                                        
-                                   {% if not True %}
-									   
+                                        <!--
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
-                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="advanced" required><label class="form-check-label" for="formCheck-2">Advanced or Curious</label></div>
+                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="wallet_login" required><label class="form-check-label" for="formCheck-2">Advanced : crypto wallet login</label></div>
                                             </div>
                                         </div>
-                                     {% endif %}
-                                        
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
-                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="start" value="user" required><label class="form-check-label"  for="formCheck-2">I already have an Identity</label></div>
+                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" name="start" value="full_did" required><label class="form-check-label" for="formCheck-2">Advanced : Full Decentralized IDentity</label></div>
                                             </div>
-                                            
+                                        </div>  -->
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox small">
+                                                <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4" name="start" value="user" required><label class="form-check-label"  for="formCheck-2">I already have an Identity</label></div>
+                                            </div>
                                             <br><br>
                                         </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Let's start</button>
                                       </form>

@@ -8,5 +8,6 @@ const talao_token_abi=[{"constant":true,"inputs":[{"name":"freelance","type":"ad
 
 
 module.exports = {
-    workspace_contract_abi: workspace_contract_abi
+    workspace_contract_abi: workspace_contract_abi,
+    foundation_abi : foundation_abi
 };

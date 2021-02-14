@@ -237,7 +237,12 @@ class Identity() :
 		self.certificate_list=[]
 		self.skills_list = []
 		contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
-		for doc_id in contract.functions.getDocuments().call() :
+		try :
+			doc_list =  contract.functions.getDocuments().call()
+		except :
+			print('Warning : getDocuments.call is not available yet in identity 243')
+			return False
+		for doc_id in doc_list :
 			doctype = contract.functions.getDocument(doc_id).call()[0]
 			if doctype in [30000, 30001, 30002] :
 				self.file_list.append(doc_id)
@@ -253,7 +258,7 @@ class Identity() :
 				self.skills_list.append(doc_id)
 			else :
 				self.other_list.append(doc_id)
-		return
+		return True
 
 	def get_identity_certificate(self,mode) :
 		self.certificate = []

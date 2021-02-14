@@ -1,10 +1,7 @@
 """
 pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
-
 pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
-
 interace wsgi https://www.bortzmeyer.org/wsgi.html
-
 request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
@@ -42,7 +39,6 @@ def check_login() :
 	else :
 		return True
 
-
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if not data :
@@ -57,7 +53,6 @@ def send_secret_code (username, code, mode) :
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
-
 # Starter with 3 options, login and logout
 #@app.route('/starter/', methods = ['GET', 'POST'])
 def starter(mode) :
@@ -69,6 +64,10 @@ def starter(mode) :
 				return redirect(mode.server + 'login/')
 			elif start == 'quick' :
 				return redirect(mode.server + 'register/')
+			elif start == 'full_did' :
+				return redirect(mode.server + 'wc_register/')
+			elif start == 'wallet_login' :
+				return redirect(mode.server + 'wc_register/')
 			else :
 				return redirect(mode.server + 'starter/') # tobe done
 
@@ -97,8 +96,6 @@ def update_wallet(mode) :
 			flash('Update failed', 'danger')
 		return redirect (mode.server +'user/')
 
-
-
 # walletconnect login
 #@app.route('/wc_login/', methods = ['GET', 'POST'])
 def wc_login(mode) :
@@ -118,12 +115,16 @@ def wc_login(mode) :
 			if not session['username'] :
 				# This wallet addresss is not an alias
 				return render_template('wc_reject.html', wallet_address=wallet_address)
+			else :
+				session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
 		else :
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		code = random.randint(10000, 99999)
 		session['wallet_code'] = str(code)
+		print('code = ', str(code))
 		src = request.args.get('wallet_logo')
 		wallet_name = request.args.get('wallet_name')
+		print('wallet name = ', wallet_name)
 		if request.args.get('wallet_logo') == 'undefined' :
 			print('wallet name = ', wallet_name)
 			if wallet_name != 'undefined' :
@@ -132,7 +133,8 @@ def wc_login(mode) :
 			else :
 				src = ""
 				wallet_name = ''
-		return render_template('wc_confirm.html', 
+		print('call de wc_cofirm.html')
+		return render_template('wc_confirm.html',
 								wallet_address=wallet_address,
 								wallet_code=session['wallet_code'],
 								wallet_code_hex= '0x' + bytes(str(code), 'utf-8').hex(),
@@ -147,15 +149,14 @@ def wc_login(mode) :
 			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
 		except :
 			print('Warning : incorrect signature')
-			flash('This account is an Identity but signature is incorrect.', 'danger')
+			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
 			return render_template('login.html')
 		if signer != wallet_address :
 			print('Warning : incorrect signer')
-			flash('This account is an Identity but signer is incorrect.', 'danger')
+			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
 			return render_template('login.html')
 		del session['wallet_code']
 		return redirect(mode.server + 'user/')
-
 
 # two factor checking function
 #@app.route('/user/two_factor/', methods=['GET', 'POST'])
@@ -200,7 +201,6 @@ def two_factor(mode) :
 		del session['two_factor']
 		return redirect (mode.server + callback + "?two_factor=" + two_factor)
 
-
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
 	"""
@@ -223,7 +223,6 @@ def login(mode) :
 		else :
 			print('login.html')
 			return render_template('login.html', username=request.args.get('username', ""))
-
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1
@@ -289,7 +288,6 @@ def login_authentification(mode) :
 			flash('This code is incorrect, 1 trial left', 'warning')
 		return render_template("authentification.html", support=session['support'])
 
-
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout(mode) :
@@ -313,12 +311,10 @@ def logout(mode) :
 	flash('Thank you for your visit', 'success')
 	return redirect (mode.server + 'login/')
 
-
 # mentions legales
 #@app.route('/company')
 def company() :
 	return render_template('company.html')
-
 
 # protetion des données personelles
 #@app.route('/privacy')
@@ -400,8 +396,6 @@ def forgot_password_2(mode) :
 		del session['email_password']
 		del session['username_password']
 		return render_template('login.html')
-
-
 
 #@app.route('/use_my_own_address/', methods = ['GET', 'POST'])
 def use_my_own_address(mode) :
@@ -830,7 +824,7 @@ def user(mode) :
 					</a>
 				</span><br>"""
 
-		# kyc Digital Identity
+		# kyc Digital Identity this is ann ERC725 claim
 		my_kyc = ""
 		if not session['kyc'] or not session['kyc'][0]['claim_id']:
 			my_kyc = my_kyc + """<a class="text-warning">No Digital Identity available.</a>
@@ -844,8 +838,8 @@ def user(mode) :
 			kyc_html = """
 				<b>Issuer</b> : """ + kyc['issuer'].get('name', 'Unknown') + """<br>
 				<b>Date of issue</b> : """ + kyc['created'] + """<br>
-				<b>Id</b> : """ + kyc['id'] + """<br>
-				<b>Identity checking method</b> : """+ kyc.get('identification', 'Electronic Check') + """<br>
+
+				<div id="id_kyc"></div>
 				<p>
 					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc.get('id',"") + """">
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -854,9 +848,7 @@ def user(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</p>
-				 <a href="">
-                    <div class="form-group"><button class="btn btn-primary btn-sm " type="button">Check your Digital Identity</button></div>
-                </a>
+                    <div id="button" class="form-group"> <button id="in_progress_button" onclick="getKyc()" class="btn btn-primary btn-sm " type="button">Check your Digital Identity</button></div>
 				"""
 			my_kyc = my_kyc + kyc_html
 

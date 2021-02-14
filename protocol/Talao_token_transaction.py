@@ -122,13 +122,9 @@ def destroy_workspace(workspace_contract, private_key, mode) :
 	# remove workspace data from blockchain
 	address = contractsToOwners(workspace_contract, mode)
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-
-	# Build, sign transaction
 	nonce = mode.w3.eth.getTransactionCount(address)
 	txn = contract.functions.destroyWorkspace().buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key)
-
-	# send transaction
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
@@ -145,20 +141,15 @@ def transfer_workspace(address_from, private_key, address_to, mode) :
 	acct = Account.from_key(private_key)
 	mode.w3.eth.defaultAccount = acct.address
 
-	# Build, sign transaction
 	nonce = mode.w3.eth.getTransactionCount(address_from)
 	txn = contract.functions.transferOwnershipInFoundation(workspace_contract, address_to).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 800000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key)
 
-	# send transaction
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 	if receipt['status'] == 0 :
-		print('Error : status transfer failed')
 		return None
-	else:
-		print('Success : workspace ownership tranfered to ' + address_to)
 	return hash1
 
 

@@ -66,9 +66,11 @@ def resolver(mode):
         public_key = str(priv_key.public_key)
     else :
         public_key = ""
+    did_authn = contract.functions.getClaimIdsByTopic('100105100095097117116104110').call()[-1].hex()
     payload = {'blockchain' : mode.BLOCKCHAIN,
                 'username' : username,
                 'did' : did,
+                'did_authn' : did_authn,
                 'address' : address,
                 'ECDSA_public_key' : public_key,
                 'RSA public key' : rsa_public_key.decode('utf-8'),

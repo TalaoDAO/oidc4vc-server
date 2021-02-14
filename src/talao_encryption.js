@@ -5,18 +5,21 @@ const CryptoJS = require('crypto-js');
 
 import {talao_rsa_public_key} from "./constant.js";
 
-function rsaEncrypt (aes_key, public_rsa_key) {
-    const key = new NodeRSA();
-    const rsa_key = key.importKey(public_rsa_key);
-    return rsa_key.encrypt(aes_key);
-  }
 
- function rsaDecrypt (aes_encrypted, private_rsa_key){
-    const rsa_key = new NodeRSA(private_rsa_key);
-    const key_encrypted = aes_encrypted.substr(2)
-    const key_buffer = Buffer.from(key_encrypted, 'hex')
-    return rsa_key.decrypt(key_buffer).toString('hex');
-  }
+export function rsaEncrypt(_clear, public_rsa_key) {
+  const key = new NodeRSA();
+  const rsa_key = key.importKey(public_rsa_key);
+  const encrypted = rsa_key.encrypt(_clear);
+  const encryptedHex = encrypted.toString('hex');
+  return '0x' + encryptedHex;
+}
+
+export function rsaDecrypt(ethereum, private_rsa_key) {
+  const rsa_key = new NodeRSA(private_rsa_key);
+  const encrypted = ethereum.substr(2);
+  const buffer = Buffer.from(encrypted, 'hex');
+  return rsa_key.decrypt(buffer);
+}
 
 function generateAes(){
   // private and secret key are string in JS but bytes in python (str.encode() or bytes(str, 'utf-8')
@@ -24,7 +27,7 @@ function generateAes(){
   return aes.toString();
 }
 
-function generateRsa(seed) {
+export function generateRsa(seed) {
     // we only use cryptico to generate deterministic RSA
     const RSAkey = cryptico.generateRSAKey(seed, 2048);
     const _priv = JSON.stringify(RSAkey.toJSON());
@@ -32,7 +35,7 @@ function generateRsa(seed) {
     const key = new NodeRSA();
     key.importKey({
         n: Buffer.from(priv.n, 'hex'),
-        e: 65537,
+        e: 3,
         d: Buffer.from(priv.d, 'hex'),
         p: Buffer.from(priv.p, 'hex'),
         q: Buffer.from(priv.q, 'hex'),
@@ -73,7 +76,7 @@ export  function aesDecrypt(encrypted, password){
     return [result[1], rsaDecrypt(result[5], buffer.toString()), rsaDecrypt(result[6], buffer.toString())];
   }
 
-export function createworkspacekeys(seed) {
+export async function createworkspacekeys(seed) {
   // seed is a signature
     const new_key = generateRsa(seed);
     const public_rsa_key = new_key[1]

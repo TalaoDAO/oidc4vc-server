@@ -48,16 +48,15 @@
                                 <div class="form-row">
                                     <div class="col-md-8 offset-md-2">
                                        <div class="form-group"><input placeholder="Enter your password" class="form-control"  type="password" name="password" required="" title="Default password is identity"></div>
-
                                         <div class="form-row">
-                                        <div class="col-6 col-xl-4">
-                                            <div id="in_progress_button" class="form-group"><button class="btn btn-primary btn-sm" type="submit">Delete</button></div>
-                                        </div>
-                                        <div class="col-6 col-xl-3">
-                                            <a href="/user/"><button class="btn btn-primary btn-sm" type="button">Back</button></a>
+                                            <div class="col-6 col-xl-4">
+                                                <div class="form-group"><button  id="in_progress_button"  class="btn btn-primary btn-sm" type="submit">Delete</button></div>
+                                            </div>
+                                            <div class="col-6 col-xl-3">
+                                                <a href="/user/"><button class="btn btn-primary btn-sm" type="button">Back</button></a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 </div>
                             </form>
                     </div>
@@ -74,13 +73,13 @@
 
     </div>
 
-       <script>function copyToClipboard(element) {
+ <!--      <script>function copyToClipboard(element) {
         var $temp = $("<input>");
         $("body").append($temp);
         $temp.val($(element).text()).select();
         document.execCommand("copy");
         $temp.remove();
-      }</script>
+      }</script>  -->
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

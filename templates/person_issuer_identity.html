@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='material-icons.min.css') }}">
 </head>
 
-<body id="page-top">
+<body id="page-top" onload="window.getAccountAddress()">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
@@ -455,11 +455,12 @@
   <script type="text/javascript">
     window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000);
   </script>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='theme.js') }}"></script>
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
   <script>
     function goBack() {
       window.history.back();

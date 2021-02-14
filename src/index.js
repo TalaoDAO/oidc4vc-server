@@ -2,9 +2,13 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
 import {createworkspacekeys} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./constant.js";
+import {did_authn, sign_message} from "./talao_transaction.js";
 
-const QRCode = require('qrcode')
-const canvas = document.getElementById('canvas')
+const QRCode = require('qrcode');
+const canvas = document.getElementById('canvas');
+const wc_on = '<i title ="Crypto Wallect connected" style="color: chartreuse;" class="fa fa-mobile-phone fa-3x"></i>';
+const wc_off = '<i title="Crypto wallet disconnected" style="color: crimson;" class="fa fa-mobile-phone fa-3x"></i>';
+
 
 let web3 = null;
 let provider = null;
@@ -22,7 +26,7 @@ function onSubscribe() {
   });
   provider.on("close", () => {
     provider = null;
-    window.alert("Wallet disconnected !");
+    document.getElementById("connected").innerHTML = wc_off;
 
   });
 }
@@ -31,6 +35,7 @@ function onSubscribe() {
 async function onend() {
   if (provider)
   { await provider.disconnect();
+    document.getElementById("connected").innerHTML = wc_off;
    console.log('Provider is disconnected');}
  }
 
@@ -65,12 +70,13 @@ async function onlogin(mobile) {
       }
       else 
         {console.log('connexion success !');
-        console.log('provider = ',provider);}
+        console.log('provider = ',provider);
+      }
         })
     });
   }
 
-  //onSubscribe();
+  onSubscribe();
 
   await provider.enable()
   .then(value => {
@@ -78,6 +84,7 @@ async function onlogin(mobile) {
     mobile_account = provider.accounts[0];
     mobile_wallet = provider.wc._peerMeta['name'];
     mobile_logo = provider.wc._peerMeta['icons'][0];
+    document.getElementById("connected").innerHTML = wc_on;
     })
   .catch(e => {
     console.log(e);
@@ -95,10 +102,33 @@ async function onlogin(mobile) {
 
 }
 
+async function getdidauthn(){
+  if (!provider) {
+  //  throw new Error(`provider hasn't been created yet`);
+  }
+  return await did_authn(provider.accounts[0], provider, web3);
+  }
+
+async function isconnected() {
+  console.log('provider = ', provider);
+  if (provider.connected)
+  { return true}
+  else {return false;}
+}
+
+
 async function getaccountaddress(){
   /*
   This is the standard init call of a page
   */
+ if (!provider) {
+  //  throw new Error(`provider hasn't been created yet`);
+  document.getElementById("connected").innerHTML = wc_off;
+    }
+  else {
+    document.getElementById("connected").innerHTML = wc_on;
+  }
+
   provider = new WalletConnectProvider({
     rpc: {
       1 : "https://talao.co/rpc",
@@ -107,73 +137,18 @@ async function getaccountaddress(){
   });
   // init provider
   await provider.enable();
-
   // create web3 object for future use
+  onSubscribe();
   web3 = new Web3(provider);
 
-  provider.on("close", () => {
-  console.log('appel de on close, provider is disconected');
-  });
-
+  onSubscribe();
+  
   console.log('provider = ', provider);
   console.log('address = ', provider.accounts[0]);
   console.log('crypto = ', crypto);
+  document.getElementById("connected").innerHTML = wc_on;
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
-
-async function signdidauthn(textmsg){
-  let signature = null;
-  if (!provider) {
-    throw new Error(`provider hasn't been created yet`);
-  }
-  else
-  {console.log('provider is ok');}
-
-  const typedData = {
-    signer : provider.accounts[0],
-    sub : "",
-    email : textmsg,
-    address : "",
-    given_name : "",
-    family_name : ""
-  };
-
- const data = JSON.stringify(typedData);
-
-await  provider
-.send({ method: "personal_sign", params: [data, provider.accounts[0]] })
-    .then(result => {
-      console.log('signature dans index.js = ',result);
-      signature = result;
-    })
-    .catch(error => {
-      console.log('error dans inex = ');
-      console.error(error);
-    });
-console.log('sortie signtyped data');
-return [signature, typedData];
-}
-
-async function signmessage(msg) {
-  let signature = null;
-  if (!provider) {
-    throw new Error(`provider hasn't been created yet`);
-  }
-  // send personal_sign request
-  await provider
-    .send({ method: "personal_sign", params: [msg, provider.accounts[0]] })
-    .then(result => {
-      // Returns message signature
-      console.log('signature reçue dans index.js = ',result); // eslint-disable-line
-      // check signature here
-      signature = result;
-    })
-    .catch(error => {
-      // Error returned when rejected
-      console.error(error); // eslint-disable-line
-    });
-  return signature;
-}
 
 async function checksignature(did, signature, msg){
   if (!web3) {
@@ -191,16 +166,19 @@ async function checksignature(did, signature, msg){
 }
 
 async function create_workspace_keys (){
-  const signature = await signmessage('Identity Signature');
-  return window.createWorkspaceKeys(signature);
+  const signature = await sign_message('Identity Signature', provider);
+  return createworkspacekeys(signature);
   }
 
-
+function signmessage(msg){
+  return sign_message(msg, provider);
+}
 
 window.onEnd = onend;
 window.onInit = onlogin;
 window.sign = signmessage;
-window.signDidAuthn = signdidauthn;
+window.getDidAuthn = getdidauthn;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;
 window.createWorkspaceKeys=create_workspace_keys;
+window.isConnected=isconnected;

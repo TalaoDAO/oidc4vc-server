@@ -1806,20 +1806,24 @@ def remove_white_issuer() :
 
 
 # delete user identity
-@app.route('/user/delete_identity/', methods=['GET', 'POST'])
+@app.route('/user/delete_identity/', methods=['GET','POST'])
 def delete_identity() :
     check_login()
+    print('appel de delete identity')
     if request.method == 'GET' :
         if not session['private_key'] :
             flash('No private key, cannot delete Identity.', 'danger')
             return redirect (mode.server +'user/')
         else :
             return render_template('delete_identity.html', **session['menu'])
-    elif request.method == 'POST' :
+    if request.method == 'POST' :
+        print('entre dans post')
         if not ns.check_password(session['username'], request.form['password'], mode) :
             flash('Wrong password', 'danger')
             return redirect (mode.server +'user/')
         else :
+            print('workspace_contract = ', session['workspace_contract'])
+            print('private key = ', session['private_key_value'])
             destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
             category = 1001 if session['type'] == 'person' else 2001
             ns.delete_identity(session['username'], mode, category = category)

@@ -5,12 +5,10 @@
   {% include 'head.html' %}
 </head>
 
-<body id="page-top" onload='window.getAccountAddress()'>
+<body id="page-top" onload='pageOnload()'>
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
-
-
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
@@ -34,16 +32,13 @@
             <h6 class="text-dark mb-4">{{profil_title}}</h6>
           </div>
             <div class="row">
-
               <div class="col-xl-8 offset-xl-2">
-
                 <div class="card-deck">
-                  <!--          <div class="card shadow mb-5 d-none d-md-inline-block"> -->
                   <div class="card shadow mb-5">
                     <div class="card-body">
-                      <!--                    <h4><a href="/user/picture/"><img class="mx-auto d-block card-img" title="Clic to change picture."  src="{{ url_for('send_file', filename=picturefile) }}"></a></h4> -->
                       <h4 class="text-center" title="Complete your Resume.">My Resume</h4>
                       <div role="tablist" id="accordion-1">
+
                         <div class="card">
                           <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your proof of Identity issued by Talao.">
                             <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Digital Identity</a></h5>
@@ -51,8 +46,8 @@
                           <div class="collapse item-12" role="tabpanel" data-parent="#accordion-1">
                             <div class="card-body">
                               <div style="overflow:auto;overflow-x: hidden;">
-                              <p class="card-text">{{kyc|safe}}</p>
-                            </div>
+                                <p class="card-text">{{kyc|safe}}</p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -141,115 +136,42 @@
                             </div>
                           </div>
                         </div>
+
                       </div>
                     </div>
                   </div>
-                  <div class="card shadow mb-5">
 
+                  <div class="card shadow mb-5">
                     <div class="card-body">
-                      <!-- <h4 class="text-center">Certificates <a class="text-secondary" href="/user/request_certificate/" ><i title="New certificate." style="font-size: 20px;"  class="fas fa-plus fa-lg"></i></a></h4>	-->
                       <h4 class="text-center">{{nb_certificates}} Certificates 
-                         <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-primary btn-sm" type="button">Request New Certificate</button></a></h4>
+                         <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-primary btn-sm" type="button">Request New Certificate</button></a>
+                      </h4>
                       {% if session['certificate'] == [] %}
                       <div style="height:50px;overflow:auto;overflow-x: hidden;">
                         <p class="card-text">{{certificates|safe}}</p>
                       </div>
                       {% else %}
-
                       <div style="height:400px;overflow:auto;overflow-x: hidden;">
                         <p class="card-text">{{certificates|safe}}</p>
                       </div>
                       {% endif %}
                     </div>
-                    <!--               <div class="card-body text-center"><a href="/user/picture/"><img class="mx-auto d-block card-img"  title="Clic to change picture." src="{{ url_for('send_file', filename=picturefile) }}"></a></div>-->
                   </div>
-                  <!--
-                            <div class="card shadow mb-5">
-                                <div class="card-body">
-                                        <h4 title="Services available." class="text-center">Services</h4>
 
-                                    <div role="tablist" id="accordion-2">
-
-                             {% if display_alias == True %}
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="An Alias allows you to manage your Identity through different username and email."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Alias</a></h5>
-                                            </div>
-                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
-													<div class="card-body"><p class="card-text">{{access|safe}}</p></div>
-                                            </div>
-                                        </div>
-
-                             {% endif %}
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Referent is an individual or a company you have authorized to issue certificates confirming your skills, experience or abilities."><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; Referent List</a></h5>
-                                            </div>
-                                            <div class="collapse  item-3" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{issuer|safe}}</p></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Partner is a Referent with which you aggree to exchange private data. It is the highest ranking."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner List</a></h5>
-                                            </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="This is the list of Individuals and Companies you consider as reliable to issue Certificates."><i class="fa fa-user-o"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; White List</a></h5>
-                                            </div>
-                                            <div class="collapse  item-4" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{whitelist|safe}}</p></div>
-                                            </div>
-                                        </div>
-
-
-                                          <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced information about your Profesionnal Identity ">
-                                                <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; Advanced</a></h5>
-                                            </div>
-                                            <div class="collapse item-7" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-													<div  style="height:400px;overflow:auto;overflow-x: hidden;">
-														<p class="card-text">{{advanced|safe}}</p>
-													</div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    -->
                 </div>
               </div>
             </div>
             <div class="row justify-content-md-center">
               <div class="col-3 text-center">
-            <a class="dropdown-item" title="Download your personal QRCode" role="presentation" href="/user/download_QRCode/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;QRCode to your external view&nbsp;</a>
-          </div>
+                <a class="dropdown-item" title="Download your personal QRCode" role="presentation" href="/user/download_QRCode/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;QRCode to your external view&nbsp;</a>
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
-
-
     </div>
   </div>
-  </div>
-  </div>
-  </div>
-
-
-
-
   {% include 'user_footer.html' %}
-
-
-  </div>
   <script>
     function copyToClipboard(element) {
       var $temp = $("<input>");
@@ -259,12 +181,39 @@
       $temp.remove();
     }
   </script>
- 
+
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 
+
+  <script>
+  async function getKyc(){
+  console.log('is connected = ',window.isConnected());
+  const kyc = JSON.parse(await window.getDidAuthn());
+  const txt = "<b>Lastname</b> : " + kyc.did_authn.family_name +
+              "<br><b>Firstname</b> : "+ kyc.did_authn.given_name +
+              "<br><b>Birthdate</b> : "+ kyc.did_authn.birthdate +
+              "<br><b>Email</b> : " + kyc.did_authn.email +
+              "<br><b>Phone</b> : " + kyc.did_authn.phone +
+              "<br><b>Address</b> : " + kyc.did_authn.address +
+              "<br><b>Identification</b> : " + kyc.did_authn.identification;
+  document.getElementById("id_kyc").innerHTML = txt;
+  document.getElementById('button').innerHTML = "";
+}
+
+  </script>
+
+  <script>
+async function pageOnload(){
+window.getAccountAddress();
+const wc = await window.isConnected();
+if (! wc)
+{document.getElementById('button').innerHTML = "";}
+}
+
+  </script>
 </body>
-
 </html>
