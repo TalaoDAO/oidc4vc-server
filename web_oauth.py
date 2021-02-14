@@ -66,7 +66,11 @@ def resolver(mode):
         public_key = str(priv_key.public_key)
     else :
         public_key = ""
-    did_authn = contract.functions.getClaimIdsByTopic('100105100095097117116104110').call()[-1].hex()
+    authn_list = contract.functions.getClaimIdsByTopic(100105100095097117116104110).call()
+    if authn_list :
+        did_authn = authn_list[-1].hex()
+    else :
+        did_authn = None
     payload = {'blockchain' : mode.BLOCKCHAIN,
                 'username' : username,
                 'did' : did,

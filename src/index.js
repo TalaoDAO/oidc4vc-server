@@ -116,7 +116,6 @@ async function isconnected() {
   else {return false;}
 }
 
-
 async function getaccountaddress(){
   /*
   This is the standard init call of a page
