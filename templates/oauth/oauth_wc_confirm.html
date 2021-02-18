@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  {% include 'head.html' %}
+  {% include 'oauth/oauth_head.html' %}
 </head>
 <body id="page-top"  onload="page_onload()">
   <div id="wrapper">
@@ -33,6 +33,7 @@
                           <div class="">
                             <img id="id_wallet_logo" src="{{wallet_logo}}" style="width: 120px;border-radius:0px;">
                             <div id="id_wallet_name">{{wallet_name}}</div>
+                            <div id="connected" hidden></div>
                           </div>
                             <br>
                             <span>Your wallet account :</span>
@@ -75,9 +76,7 @@
 
 <script>
 async function page_onload(){
-  await window.getAccountAddress().then(value => {
-    console.log('value dans page_onload = ', value);
-  });
+  await window.getAccountAddress();
   const href = "https://talao.co/board/?workspace_contract=" + '0x' + '{{client_did}}'.split(":")[3];
   document.getElementById("id_button").innerHTML = '<div class="spinner-border"></div>'
   // check client signature here

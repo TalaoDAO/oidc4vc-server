@@ -1,15 +1,14 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
+
 import {createworkspacekeys} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./constant.js";
-import {did_authn, sign_message} from "./talao_transaction.js";
+import {did_authn, sign_message, get_aes_private_key_encrypted} from "./talao_transaction.js";
 
 const QRCode = require('qrcode');
 const canvas = document.getElementById('canvas');
 const wc_on = '<i title ="Crypto Wallect connected" style="color: chartreuse;" class="fa fa-mobile-phone fa-3x"></i>';
 const wc_off = '<i title="Crypto wallet disconnected" style="color: crimson;" class="fa fa-mobile-phone fa-3x"></i>';
-
-
 let web3 = null;
 let provider = null;
 
@@ -18,16 +17,17 @@ function onSubscribe() {
     throw new Error(`provider hasn't been created yet`);
   }
   provider.on("accountsChanged", accounts => {
-    console.log(accounts);
+    console.log('account has been changed = ', accounts);
+    document.getElementById("connected").innerHTML = wc_off;
   });
 
   provider.on("chainChanged", chainId => {
-    console.log(chainId);
+    console.log('chain has been changed ', chainId);
+    document.getElementById("connected").innerHTML = wc_off;
   });
   provider.on("close", () => {
     provider = null;
     document.getElementById("connected").innerHTML = wc_off;
-
   });
 }
 
@@ -40,7 +40,7 @@ async function onend() {
  }
 
 async function onlogin(mobile) {
-  console.log('provider = ', provider)
+  console.log('Call de window.onInit, provider = ', provider)
   let mobile_account = "undefined";
   let mobile_wallet = "undefined";
   let mobile_logo = "undefined";
@@ -97,16 +97,14 @@ async function onlogin(mobile) {
       console.log(`it s not an ethereum address`);
       await onend();
     }
-
   return [mobile_account, mobile_wallet, mobile_logo];
-
 }
 
 async function getdidauthn(){
   if (!provider) {
   //  throw new Error(`provider hasn't been created yet`);
   }
-  return await did_authn(provider.accounts[0], provider, web3);
+  return await did_authn(provider, web3);
   }
 
 async function isconnected() {
@@ -139,9 +137,6 @@ async function getaccountaddress(){
   // create web3 object for future use
   onSubscribe();
   web3 = new Web3(provider);
-
-  onSubscribe();
-  
   console.log('provider = ', provider);
   console.log('address = ', provider.accounts[0]);
   console.log('crypto = ', crypto);
@@ -173,6 +168,10 @@ function signmessage(msg){
   return sign_message(msg, provider);
 }
 
+async function getaesencrypted(workspace_contract_to){
+  return await get_aes_private_key_encrypted(provider, web3, workspace_contract_to);
+}
+
 window.onEnd = onend;
 window.onInit = onlogin;
 window.sign = signmessage;
@@ -181,3 +180,4 @@ window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;
 window.createWorkspaceKeys=create_workspace_keys;
 window.isConnected=isconnected;
+window.getAesEncrypted= getaesencrypted;

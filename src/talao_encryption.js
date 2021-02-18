@@ -66,15 +66,6 @@ export  function aesDecrypt(encrypted, password){
     return decrypted;
   }
 
- export  async function read_workspace_info(did) {
-    const buffer = fs.readFileSync("./RSA_key/talaonet/" + did + ".pem");
-    let result = null;
-    await contract.methods.identityInformation().call()
-    .then(data=>{
-      result =  data;
-    });
-    return [result[1], rsaDecrypt(result[5], buffer.toString()), rsaDecrypt(result[6], buffer.toString())];
-  }
 
 export async function createworkspacekeys(seed) {
   // seed is a signature

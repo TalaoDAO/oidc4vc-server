@@ -2,12 +2,7 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+    {% include 'oauth/oauth_head.html' %}
 </head>
 
 <body id="page-top" onload='window.getAccountAddress()'>
@@ -26,8 +21,7 @@
                                         <input value={{wallet_signature}} name="wallet_signature" hidden type="text" >
                                         <input id="id_message" value="" name="message" hidden type="text" >
                                         <input id="id_message_signature" value="" name="signature" hidden type="text" >
-
-
+                                        <div id='connected' hidden></div>
                                         <div class="form-group">
                                             {% if openid == 'checked' %}
                                             <div class="form-inline custom-control-inline">
@@ -157,13 +151,16 @@
     document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
     document.getElementById("id_button").innerHTML = '';
     document.getElementById("id_button_reject").innerHTML = ''
+
     document.getElementById("id_text").innerHTML = 'Waiting for wallet signature to access Digital Identity on blockchain...';
-    const msg = await window.getDidAuthn();
+    const result = await window.getAesEncrypted('{{workspace_contract_to}}');
+    console.log('result = ', result);
+    const message = JSON.stringify({'aesEncrypted' : result[0], 'workspace_contract' : result[1]})
     document.getElementById("id_text").innerHTML = 'Waiting for wallet signature to send data...';
-    const signature = await window.sign(msg);
-    document.getElementById("id_message").value = msg;
+    const signature = await window.sign(message);
+
+    document.getElementById("id_message").value = message;
     document.getElementById("id_message_signature").value = signature;
-    console.log('avant appel de submit ', msg);
     window.onEnd();
     document.getElementById("myform").submit();
 }

@@ -38,7 +38,7 @@ from protocol import  ownersToContracts, token_transfer, createVaultAccess, ethe
 from protocol import Claim, update_self_claims
 import ns
 import privatekey
-
+#import ethereum_bridge
 
 # main function called by external modules
 def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_talao_key = None, rsa=None, secret=None, private=None, password=None, firstname=None,  lastname=None, phone=None, transfer=True):
@@ -59,7 +59,7 @@ def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_t
 
 def _create_user_step_1(wallet_address, email,mode, firstname, lastname, rsa, private, secret) :
 
-	# clean RSA pem key (str)
+	# clean RSA pem key received (str)
 	RSA_public = rsa.encode('utf-8')
 	RSA_public = RSA_public.replace(b'\r\n', b'\n')
 
@@ -126,7 +126,7 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 	# get bytes from str received from JS
 	user_private_encrypted_with_talao_key = bytes.fromhex(user_aes_encrypted_with_talao_key[2:])
 
-	# For ID issuance Talao requests partnership to Identity, key 3 will be issued too
+	# For ID issuance Talao requests partnership to Identity, (key 3 will be issued too)
 	talao_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 	talao_private_key = privatekey.get_key(mode.owner_talao,'private_key', mode)
 	if partnershiprequest(mode.owner_talao, mode.workspace_contract_talao, mode.owner_talao, mode.workspace_contract_talao, talao_private_key, workspace_contract, talao_rsa_key, mode, user_aes_encrypted_with_talao_key) :
@@ -147,7 +147,16 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 		print('Error : partnership request from Talao failed')
 
 	# key 3 issued to Web Relay to issue self claims
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode)
+	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode) :
+		print('Warning : key 3 issued to Relay')
+	else :
+		print('Warning : key 3 to Relay failed')
+
+	# key 20002 issued to Web Relay to issue documents for self resume
+	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode) :
+		print('Warning : key 20002 issued to Relay')
+	else :
+		print('Warning : key 20002 to Relay failed')
 
 	# key 5 to Talao be in  White List
 	#if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode) :
@@ -156,11 +165,11 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 	#	print('Warning : key 5 to Talao failed')
 
 	# key 20002 issued Talao to issue documents
-	if not transfer :
-		if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
-			print('Warning : key 20002 issued to Talao')
-		else :
-			print('Warning : key 20002 to Talao failed')
+	#if not transfer :
+	#	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
+	#		print('Warning : key 20002 issued to Talao')
+	#	else :
+	#		print('Warning : key 20002 to Talao failed')
 
 	# rewrite previous email to get an encrypted email with public key
 	#if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'public', mode)[0] :
@@ -212,6 +221,10 @@ def _create_user_step_3(address, private_key, wallet_address, workspace_contract
 	Talao_message.messageLog("", "", username, email, "createidentity.py", email_address, "", workspace_contract, "", email, "", "", mode)
 	# an email is sent to user
 	Talao_message.messageUser("", "", username, email, email_address, "", workspace_contract, mode)
+
+	#if mode.myenv == 'aws' :
+	#	ethereum_bridge.lock_ico_token(None, None)
+	#	print('transfer Ethereum token done')
 
 	print("Success : create identity process step 3 is over")
 	return True

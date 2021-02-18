@@ -2,13 +2,8 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Sign-In</title>
-    <meta name="description" content="Professional Decentralized Identity Solution">
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-  
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    {% include 'oauth/oauth_head.html' %}
+
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
     <style type="text/css">
@@ -40,6 +35,7 @@
                     <div class="card-body">
                         <div class="text-center"><h4 class="text-dark mb-4">Connect with your Mobile Wallet</h4></div>
                             <div id="qrcode">
+                            <div id="connected" hidden></div>
                                 <canvas id="canvas" width="244" title="Scan with your mobile wallet." style="border:1px solid #000000;" ></canvas>
                             </div>
                             <div class="text-center"><a class="small" href="/help/?file=/oauth/oauth_wc_help.html" >Help</a></div>  

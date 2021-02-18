@@ -28,6 +28,8 @@ import createidentity
 import createcompany
 import privatekey
 import Talao_message
+from Talao_ipfs import ipfs_get
+
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')
@@ -68,12 +70,17 @@ def resolver(mode):
         public_key = ""
     authn_list = contract.functions.getClaimIdsByTopic(100105100095097117116104110).call()
     if authn_list :
-        did_authn = authn_list[-1].hex()
+        did_authn_id = authn_list[-1].hex()
+        claim = contract.functions.getClaim(did_authn_id).call()
+        ipfs_hash = claim[5]
+        did_authn = ipfs_get(ipfs_hash)
     else :
+        did_authn_id = None
         did_authn = None
     payload = {'blockchain' : mode.BLOCKCHAIN,
                 'username' : username,
                 'did' : did,
+                'ERC725_did_authn_claim_id' : did_authn_id,
                 'did_authn' : did_authn,
                 'address' : address,
                 'ECDSA_public_key' : public_key,
@@ -296,7 +303,8 @@ def authorize(mode):
                                 user=user,
                                 grant=grant,
                                 **checkbox,
-                                wallet_signature=request.args.get('wallet_signature'))
+                                wallet_signature=request.args.get('wallet_signature'),
+                                workspace_contract_to= client_workspace_contract)
     # POST, call from consent view
     signature = request.form.get('signature')
     message = request.form.get('message')

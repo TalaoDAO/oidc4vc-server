@@ -827,16 +827,16 @@ def user(mode) :
 		# kyc Digital Identity this is ann ERC725 claim
 		my_kyc = ""
 		if not session['kyc'] or not session['kyc'][0]['claim_id']:
-			my_kyc = my_kyc + """<a class="text-warning">No Digital Identity available.</a>
+			my_kyc = my_kyc + """<a class="text-warning">Your Professionnal Digital Identity has not been activate yet.
+			 If you comply with the requirements to get a Digital Professionnal Identiy defined in the CGU, you have now to request an activation of your Digtal Identity.</a>
 			 				<br>
 							 <a href="/user/request_proof_of_identity/">
-                            	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Request Proof of Identity</button></div>
+                            	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Request activation</button></div>
                              </a>
 							"""
 		else :
 			kyc = session['kyc'][0]
-			kyc_html = """
-				<b>Issuer</b> : """ + kyc['issuer'].get('name', 'Unknown') + """<br>
+			kyc_html = """ Your Professionnal Digital Identity has been activated by """ +  kyc['issuer'].get('name', 'Unknown') + """<br>
 				<b>Date of issue</b> : """ + kyc['created'] + """<br>
 
 				<div id="id_kyc"></div>
