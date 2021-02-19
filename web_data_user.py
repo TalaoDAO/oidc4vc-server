@@ -53,23 +53,6 @@ def send_secret_code (username, code, mode) :
 		sms.send_code(data['phone'], code, mode)
 	return 'sms'
 
-# Starter with 3 options, login and logout
-#@app.route('/starter/', methods = ['GET', 'POST'])
-def starter(mode) :
-		if request.method == 'GET' :
-			return render_template('starter.html')
-		else :
-			start = request.form['start']
-			if start == 'user' :
-				return redirect(mode.server + 'login/')
-			elif start == 'quick' :
-				return redirect(mode.server + 'register/')
-			elif start == 'full_did' :
-				return redirect(mode.server + 'wc_register/')
-			elif start == 'wallet_login' :
-				return redirect(mode.server + 'wc_register/')
-			else :
-				return redirect(mode.server + 'starter/') # tobe done
 
 # update wallet in Talao Identity
 #@app.route('/user/update_wallet/', methods = ['GET', 'POST'])
@@ -827,11 +810,11 @@ def user(mode) :
 		# kyc Digital Identity this is ann ERC725 claim
 		my_kyc = ""
 		if not session['kyc'] or not session['kyc'][0]['claim_id']:
-			my_kyc = my_kyc + """<a class="text-warning">Your Professionnal Digital Identity has not been activate yet.
-			 If you comply with the requirements to get a Digital Professionnal Identiy defined in the CGU, you have now to request an activation of your Digtal Identity.</a>
+			my_kyc = my_kyc + """<p>Your Professionnal Digital Identity has not been activated yet.
+			 If you are a French citizen over 18 and if you accept the CGU, you can now start the Identity verification process.</p>
 			 				<br>
 							 <a href="/user/request_proof_of_identity/">
-                            	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Request activation</button></div>
+                            	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Identity verification</button></div>
                              </a>
 							"""
 		else :

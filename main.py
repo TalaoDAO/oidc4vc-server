@@ -95,7 +95,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.6.2"
+VERSION = "0.6.3"
 API_SERVER = True
 
 # Flask and Session setup
@@ -168,7 +168,6 @@ app.add_url_rule('/forgot_password_2/',  view_func=web_data_user.forgot_password
 app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'], defaults={'mode': mode})
 app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
-app.add_url_rule('/starter/',  view_func=web_data_user.starter, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -1668,13 +1667,19 @@ def request_proof_of_identity() :
     if request.method == 'GET' :
         return render_template('request_proof_of_identity.html', **session['menu'])
     elif request.method == 'POST' :
+        flash('Identity Verification process not available yet', 'warning')
+        return redirect (mode.server +'user/')
+
         id_file = request.files['id_file']
         selfie_file = request.files['selfie_file']
+        address_file = request.files['address_file']
 
         id_file_name = secure_filename(id_file.filename)
+        address_file_name = secure_filename(address_file.filename)
         selfie_file_name = secure_filename(selfie_file.filename)
 
         id_file.save(os.path.join('./uploads/proof_of_identity', session['username'] + "_ID." + id_file_name))
+        address_file.save(os.path.join('./uploads/proof_of_identity', session['username'] + "_Address." + address_file_name))
         selfie_file.save(os.path.join('./uploads/proof_of_identity', session['username'] + "_selfie." + selfie_file_name))
 
         # email to user/Talent

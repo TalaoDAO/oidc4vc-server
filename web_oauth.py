@@ -195,7 +195,10 @@ def oauth_wc_login(mode) :
         wallet_address = mode.w3.toChecksumAddress(wallet_address)
 
         # check  if wallet address is known. wallet address must be either an owner or an alias
-        if not ownersToContracts(wallet_address, mode) and not ns.get_username_from_wallet(wallet_address, mode) :
+        print("owners = ", ownersToContracts(wallet_address, mode))
+        print('alias = ', ns.get_username_from_wallet(wallet_address, mode))
+        owner = ownersToContracts(wallet_address, mode)
+        if (not owner or owner == '0x0000000000000000000000000000000000000000') and not ns.get_username_from_wallet(wallet_address, mode) :
             return render_template('/oauth/oauth_wc_reject.html', wallet_address=wallet_address)
 
         data = dict(parse.parse_qsl(parse.urlsplit(session['url']).query))

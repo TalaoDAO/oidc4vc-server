@@ -29,8 +29,6 @@ Consequently for Individuals there are several ways of using the web platform de
 .. note::  For users who mainly want to request certificates, the easiest solution is to get an Identity **managed on behalf of the owner** by Talao.
 
 
-.. warning:: When the website is used as a **third party wallet**, never use your identity address to manage crypto currencies. Best is to use a cold wallet.
-
 
 List of website services : 
 
@@ -49,7 +47,9 @@ List of website services :
 
 Two-factors authentification
 ----------------------------
-For security this web application uses a two-factors authentification protocol.
+
+If they do not have their smartphone one hand, user can acces their Identity with their username and paswword. In this case they have a limited access to their Identity but they can build 
+their resume. For security we uses a two-factors authentification protocol for this type of authentication.
 
 `Wikipedia <https://en.wikipedia.org/wiki/Multi-factor_authentication>`_ : "Multi-factor authentication is an authentication method in which a computer user is granted access only after successfully presenting two or more pieces of evidence (or factors) to an authentication mechanism: knowledge (something the user and only the user knows), possession (something the user and only the user has), and inherence (something the user and only the user is).
 Two-factor authentication (also known as 2FA) is a type, or subset, of multi-factor authentication. It is a method of confirming users' claimed identities by using a combination of two different factors: 1) something they know, 2) something they have, or 3) something they are."

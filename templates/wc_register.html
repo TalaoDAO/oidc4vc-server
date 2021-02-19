@@ -31,12 +31,11 @@
                                         <div class="col-lg-6 d-none d-lg-flex">
                                             <div class="flex-grow-1 bg-login-image">
                                                 <p class="text-center" style="margin: 75px 50px 0px;">
-                                                    <br><br><br>
-                                                    <br>Talao is a Blockchain protocol to manage a professional Self Sovereign Identity (Digital Identity).<br><br>
+                                                    <br><br>
+                                                    <br>Talao is a Blockchain protocol to manage a professional Self Sovereign Identity (Digital Identity).<br>
                                                     <br>Enter your firstname, lastname and email. Your smartphone crypto wallet will be used for authentification.<br>
-                                                    <br>Your email, phone number and crypto wallet signature with be checkes through the process. <br>
-                                                    
-                                                    <br>Your Digital Identity will be secured by your cryptographic keys. Make sure you have secured a copy of the passphrase of your cryptowallet.<br>
+                                                    <br>Your email, phone number and crypto wallet signature with be checked through the process. <br>
+                                                    <br>Your Digital Identity will be secured by your cryptographic keys. Make sure you have secured a copy of the passphrase of your crypto wallet.<br>
                                                 </p>
                                             </div>
                                         </div>
@@ -44,7 +43,7 @@
                                             <div class="p-5">
                                                 <div class="text-center">
                                                     <h4 id="id_page" class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Digital Identity with your wallet account</h4>
-                                                    {{wallet_address}}
+                                                  <!--  {{wallet_address}}  -->
                                                 </div>
                                             <div class="col" style="color: rgb(255,2,2);">
 									            <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
@@ -64,21 +63,20 @@
                                                 </div>
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CheckBox1" >
-                                                    <label  style="color: rgb(133,135,150);" title="The name directory is used to provide suggestion in the search bar. It links your username with your firstname and lastname. " >I agree to Talao's Privacy Policy and Terms and Conditions(French)</label>
+                                                    <label  style="color: rgb(133,135,150);" title="" >I agree to Talao's Privacy Policy and Terms and Conditions(French)</label>
                                                 </div>
                                                 <div class="form-check form-check-inline">
                                                     <input checked class="form-check-input" type="radio" name="CheckBox2" id="inlineRadio1" value="wallet_login">
-                                                    <label style="color: rgb(133,135,150);"  class="form-check-label" title="Wallet will be used for login only (Recommended)." for="inlineRadio1">Workspace</label>
+                                                    <label style="color: rgb(133,135,150);"  class="form-check-label" title="Wallet will be used for login (Recommended)." for="inlineRadio1">Workspace</label>
                                                 </div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio" name="CheckBox2" id="inlineRadio2" value="digital_identity">
-                                                    <label  style="color: rgb(133,135,150);" class="form-check-label"title="Wallet will be used to access a Digital Identity." for="inlineRadio2">Digital Identity</label>
+                                                    <label  style="color: rgb(133,135,150);" class="form-check-label"title="Wallet will be used to access a Digital Identity. French citizen over 18 only. Have a look at the CGU for requirements." for="inlineRadio2">Digital Identity (Test)</label>
                                                 </div>
                                                 <br><br>
                                                 <div id="a"></div>
                                                 <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="on_click()" id="in_progress_button" type="button">Next</button>
                                             </form>
-                                        <div class="text-center"><a class="small" href="/starter/">Back to Starter</a></div>
                                         <div class="text-center"><a class="small" href="/login/">Login</a></div>
                                         </div>
                                     </div>

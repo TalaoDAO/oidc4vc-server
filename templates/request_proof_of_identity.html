@@ -2,20 +2,8 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
+   
 </head>
 
 <body id="page-top">
@@ -41,50 +29,60 @@
 					<div class="col-md-10 col-lg-6 col-xl-4 offset-md-1 offset-lg-3 offset-xl-4">
                         <div class="card mb-3">
                             <div class="card-header py-3">
-                                <p class="text-primary m-0 font-weight-bold">Request a Proof of Identity</p>
+                                <p class="text-primary m-0 font-weight-bold">Request an Identity verification (French citizen only)</p>
                             </div>
                             <div class="card-body text-center shadow">
                                 <form name="form" action="/user/request_proof_of_identity/" method="POST" enctype="multipart/form-data">
                                     <div class="form-row">
                                         <div class="col">
-                                            <p class="text-left">In order to allow you to provide reliable data, you need to give a Proof of Identity. This data issued by Talao after a checking process will be shown to public. Upload one picture of your ID Card/ Passport
-                                                and&nbsp;one selfie with your ID/Passport in hand.&nbsp;&nbsp;<br><br>You will receive your Proof of Identity within 48 hours.</p>
+                                            <p class="text-left">L’utilisateur est invité à scanner une pièce d’identité, un justificatif de domicile de moins de 3 mois et une photo récente de son visage. Une fois téléchargée, les pièces seront
+                                                 vérifiées visuellement et un rdv sera proposé à l’utilisateur si les informations reçues permettent une identification correcte.
+                                                  Si les documents envoyés sont illisibles ou si par exemple la photo du visage est trop différente de la photo de la carte nationale d’identité,
+                                                  l'utilisateur sera invité à envoyer de nouvelles pièces.  Le service de Identité Digitale Professionnelle ne conserve pas les fichiers téléchargés.
+                                                .</p>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="col">
-                                            <div class="form-group"><label>Upload your ID or Passport.</label>
+                                            <div class="form-group"><label>Télécharger un scan de votre CNI ou de votre passeport en cours de validité.</label>
                                                 <div class="input-group mb-3">
                                                     <div class="input-group-prepend"></div>
-                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile01"></label><input title="Data must be readable. " type="file" id="inputGroupFile01" class="custom-file-input" name="id_file"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile01"></label><input title="Le docuemnt doit etre lisible" type="file" id="inputGroupFile01" class="custom-file-input" name="id_file"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="form-row">
                                         <div class="col">
-                                            <div class="form-group"><label>Upload your selfie.</label>
+                                            <div class="form-group"><label>Télécharger un scan d'un justificatif de domicile de moins de 3 mois (factures EDF, ...).</label>
                                                 <div class="input-group mb-3">
                                                     <div class="input-group-prepend"></div>
-                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile02"></label><input title="Data must be readable and we must see your face." type="file" id="inputGroupFile02" class="custom-file-input" name="selfie_file"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile03"></label><input title="Le document doit etre lisible." type="file" id="inputGroupFile01" class="custom-file-input" name="address_file"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <div class="form-group"><label>Télécharger un photo récente de votre visage.</label>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend"></div>
+                                                    <div class="custom-file"><label class="custom-file-label" onchange="loadFile(event)" for="inputGroupFile02"></label><input title="Votre visage doit etre facilement reconnaissable." type="file" id="inputGroupFile02" class="custom-file-input" name="selfie_file"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <p class="text-left">Do you want to include your Phone number and your Email as a proof of Identity ?
-                                             It will be much more efficient to provide at least one of them.</p>
+                                       
                                         <div class="form-inline custom-control-inline">
                                             <div class="form-check">
 												<input class="form-check-input" type="checkbox"  value = "on" name="phone">
-												<label class="form-check-label" >Phone</label></div>
+												<label class="form-check-label" >J’ai lu et j’accepte les Conditions Générales d’Utilisation (CGU) de l’Identité Digitale Professionelle de Talao.</label></div>
                                         </div>
-                                        <div class="form-inline custom-control-inline">
-                                            <div class="form-check">
-												<input class="form-check-input" type="checkbox"  checked value = "on" name="email">
-												<label class="form-check-label" >Email</label></div>
-                                        </div>
+                                       
                                     </div>
                                     <br>
                                     <div class="form-row">
