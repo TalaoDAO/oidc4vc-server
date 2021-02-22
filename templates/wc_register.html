@@ -52,12 +52,8 @@
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
-                                                <div class="form-group"><input class="form-control" type="tel" title="Phone number with country code ex : +33 6007080900)" placeholder="Phone Number (International)" value="{{phone}}" name="phone" required="" ></div>
+                                                <div class="form-group"><input class="form-control" type="tel" title="Phone number with country code ex : +33 607080900)" placeholder="Phone Number (International)" value="{{phone}}" name="phone" required="" ></div>
 
-                                                <input id="id_public_rsa" value="" type="hidden" name="public_rsa" >
-                                                <input id="id_aes_private" value="" type="hidden" name="aes_private" >
-                                                <input id="id_aes_secret" value="" type="hidden" name="aes_secret" >
-                                                <input id="id_user_aes_encrypted_with_talao_key" value="" type="hidden" name="user_aes_encrypted_with_talao_key" >
 
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
@@ -77,7 +73,7 @@
                                                 </div>
                                                 <br><br>
                                                 <div id="a"></div>
-                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="on_click()" id="in_progress_button" type="button">Next</button>
+                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" id="in_progress_button" type="submit">Next</button>
                                             </form>
                                         <div class="text-center"><a class="small" onclick="End()" href="#">Login</a></div>
                                         </div>
@@ -98,32 +94,6 @@
         </div>
     </div>
 
-
-<script>async function on_click() {
-    /* 
-    One checks if this is an Digital Identity or a standard workspace creation.
-    In case of a Digital Identity we verify email and phone number. In that case
-    the Identity will be created by the register_phone.html dapp...
-    */
-    console.log('appel de on click');
-    console.log('checkbox2 = ', document.getElementById("inlineRadio1").checked);
-    if (document.getElementById("inlineRadio1").checked ){
-        document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
-        const data = await window.createWorkspaceKeys();
-        document.getElementById("id_page").innerHTML = "Identity is being deployed (3 minutes)...";
-        document.getElementById("id_public_rsa").value = data[0];
-        document.getElementById("id_aes_private").value = data[1];
-        document.getElementById("id_aes_secret").value = data[2];
-        document.getElementById("id_user_aes_encrypted_with_talao_key").value = data[3];
-        document.getElementById("form").submit();
-        window.onEnd();
-    }
-    else {
-        document.getElementById("form").submit();
-    }
-
-}
-</script>
 
 <script>
     function page_onload(){

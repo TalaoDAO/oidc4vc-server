@@ -30,10 +30,12 @@
                                                     <h4 id="id_page" class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Check your phone for SMS</h4>
                                                 </div>
                                                 <form id="form" class="user" action="/wc_register/" method="POST">
+
                                                     <input id="id_public_rsa" value="" type="hidden" name="public_rsa" >
                                                     <input id="id_aes_private" value="" type="hidden" name="aes_private" >
                                                     <input id="id_aes_secret" value="" type="hidden" name="aes_secret" >
                                                     <input id="id_user_aes_encrypted_with_talao_key" value="" type="hidden" name="user_aes_encrypted_with_talao_key" >
+                                                    
                                                     <div class="form-group">
                                                         <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
                                                     </div>
