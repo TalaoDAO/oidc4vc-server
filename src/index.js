@@ -5,13 +5,17 @@ import {createworkspacekeys} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./constant.js";
 import {did_authn, sign_message, get_aes_private_key_encrypted} from "./talao_transaction.js";
 
+// to manage a small walletconnect QRcode
 const QRCode = require('qrcode');
 const canvas = document.getElementById('canvas');
+
+// phone icon 
 const wc_on = '<i title ="Crypto Wallect connected" style="color: chartreuse;" class="fa fa-mobile-phone fa-3x"></i>';
 const wc_off = '<i title="Crypto wallet disconnected" style="color: crimson;" class="fa fa-mobile-phone fa-3x"></i>';
 let web3 = null;
 let provider = null;
 
+// walletconnect events manager
 function onSubscribe() {
   if (!provider) {
     throw new Error(`provider hasn't been created yet`);
@@ -31,7 +35,7 @@ function onSubscribe() {
   });
 }
 
-
+// close connexion
 async function onend() {
   if (provider)
   { await provider.disconnect();
@@ -39,6 +43,10 @@ async function onend() {
    console.log('Provider is disconnected');}
  }
 
+/* function called to log the wallet
+if the login is called from a smatphone viewer, we will display the basic QRcode with the wallet list managed by WalletConnect
+if the login is called from desktop we will display a small QRcode
+*/
 async function onlogin(mobile) {
   console.log('Call de window.onInit, provider = ', provider)
   let mobile_account = "undefined";
@@ -63,7 +71,7 @@ async function onlogin(mobile) {
         });
     // display custom QRcode
     provider.connector.on("display_uri", (err, payload) => {
-    var uri = payload.params[0];
+    const uri = payload.params[0];
     console.log('uri = ',uri);
     QRCode.toCanvas(canvas, uri,{width : 244}, function (error) {
       if (error) {console.error(error);
@@ -100,12 +108,6 @@ async function onlogin(mobile) {
   return [mobile_account, mobile_wallet, mobile_logo];
 }
 
-async function getdidauthn(){
-  if (!provider) {
-  //  throw new Error(`provider hasn't been created yet`);
-  }
-  return await did_authn(provider, web3);
-  }
 
 async function isconnected() {
   console.log('provider = ', provider);
@@ -116,7 +118,7 @@ async function isconnected() {
 
 async function getaccountaddress(){
   /*
-  This is the standard init call of a page
+  This is the standard init call of a page after login.
   */
  if (!provider) {
   //  throw new Error(`provider hasn't been created yet`);
@@ -125,52 +127,78 @@ async function getaccountaddress(){
   else {
     document.getElementById("connected").innerHTML = wc_on;
   }
-
+  // setup provider with no new QR code
   provider = new WalletConnectProvider({
     rpc: {
       1 : "https://talao.co/rpc",
     },
     qrcode: false,
   });
-  // init provider
+  // init provider synchronisation
   await provider.enable();
-  // create web3 object for future use
+  
+  // subscribe on envents
   onSubscribe();
+
+  // create web3 object for future use
   web3 = new Web3(provider);
+
+  // get wallet account data
   console.log('provider = ', provider);
   console.log('address = ', provider.accounts[0]);
   console.log('crypto = ', crypto);
+  
+  // swith on the icon phone
   document.getElementById("connected").innerHTML = wc_on;
+  
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
 
+/*
+Check if the signer has an ERC725 key 1 to manage the Identity
+The owner has a Key 1
+*/
 async function checksignature(did, signature, msg){
   if (!web3) {
     throw new Error(`web3 hasn't been created yet`);
   }
-    // get the list of agent (key = 1) of this did
+    // get the list of key = 1 of this did
   const  workspace_contract_address = '0x' + did.split(":")[3];
   const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract_address);
   const keylist = await contract.methods.getKeysByPurpose(1).call();
-
   // calculate the keccak256 of the signer
   const signer = web3.eth.accounts.recover(msg, signature);
   const signerpublickey = web3.utils.soliditySha3(signer);
+  // return True if signer has a key 1
   return keylist.includes(signerpublickey);
 }
 
+/* Main function to create the 3 keys of the Identity
+The signature of the message "Identity Signature" is the master key to derive the deeterministic RSA key
+The AES keys are generated randomly
+*/
 async function create_workspace_keys (){
   const signature = await sign_message('Identity Signature', provider);
   return createworkspacekeys(signature);
   }
 
+// interface
 function signmessage(msg){
   return sign_message(msg, provider);
 }
 
+// interface
 async function getaesencrypted(workspace_contract_to){
   return await get_aes_private_key_encrypted(provider, web3, workspace_contract_to);
 }
+
+// interface
+async function getdidauthn(){
+  if (!provider) {
+  //  throw new Error(`provider hasn't been created yet`);
+  }
+  return await did_authn(provider, web3);
+  }
 
 window.onEnd = onend;
 window.onInit = onlogin;

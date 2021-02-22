@@ -83,28 +83,34 @@ def update_wallet(mode) :
 #@app.route('/wc_login/', methods = ['GET', 'POST'])
 def wc_login(mode) :
 	if request.method == 'GET' :
-		# call from JS, QRmodal rejected by user
+		# call from JS, the wallet is in a wallectconnect session with the dapp
+		
+		# QRmodal rejected by user
 		if not request.args.get('wallet_address') or request.args.get('wallet_address') == 'undefined' :
 			flash('Scan QR code or log with password', 'warning')
 			return redirect (mode.server + 'login/')
+		# call from JS, wrong wallet data
 		if not mode.w3.isAddress(request.args.get('wallet_address')) :
 			flash('This account is not an Ethereum account.', 'warning')
 			return render_template('login.html')
 		wallet_address = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
 		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
 		if not session['workspace_contract'] or session['workspace_contract'] == '0x0000000000000000000000000000000000000000':
-			# This wallet address is not an Identity owner
+			# This wallet address is not an Identity owner, lets check if it is an alias (mode workspace = wallet used only for login)
 			session['username'] = ns.get_username_from_wallet(wallet_address, mode)
 			if not session['username'] :
-				# This wallet addresss is not an alias
+				# This wallet addresss is not an alias, lest rejest and propose a new registration
 				return render_template('wc_reject.html', wallet_address=wallet_address)
 			else :
+				print('Warning : This wallet is an Alias')
+				# thiss wallet is an alias, we look for the workspace_contract attached
 				session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
 		else :
+			print('Warning : This wallet is an Owner')
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
+		# random code to check the wallet signature
 		code = random.randint(10000, 99999)
 		session['wallet_code'] = str(code)
-		print('code = ', str(code))
 		src = request.args.get('wallet_logo')
 		wallet_name = request.args.get('wallet_name')
 		print('wallet name = ', wallet_name)
@@ -299,14 +305,14 @@ def logout(mode) :
 def company() :
 	return render_template('company.html')
 
-# protetion des données personelles
+# protection des données personelles
 #@app.route('/privacy')
 def privacy() :
 	return render_template('privacy.html')
 
 # forgot username
 """ @app.route('/forgot_username/', methods = ['GET', 'POST'])
-This function is called from the starter and login view.
+This function is called from the login view.
 """
 def forgot_username(mode) :
 	if request.method == 'GET' :
@@ -321,7 +327,7 @@ def forgot_username(mode) :
 
 # forgot password
 """ @app.route('/forgot_password/', methods = ['GET', 'POST'])
-This function is called from the starter and login view.
+This function is called from the login view.
 build JWE to store timestamp, username and email, we use Talao RSA key
 """
 def forgot_password(mode) :

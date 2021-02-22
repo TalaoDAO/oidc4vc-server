@@ -191,6 +191,12 @@
 
   <script>
   async function getKyc(){
+    /*
+     Allow to get Identity data from blockchain.
+    this function regenerates keys with signature from wallet and
+    loads did_authn ERC725 from blckchain
+    Data are displayed only if user has his smartphone and wallet ready
+    */
   console.log('is connected = ',window.isConnected());
   const kyc = JSON.parse(await window.getDidAuthn());
   const txt = "<b>Lastname</b> : " + kyc.did_authn.family_name +
@@ -208,9 +214,12 @@
 
   <script>
 async function pageOnload(){
+/*
+  Manage download button depending on wallet connexion
+*/
 window.getAccountAddress();
 const wc = await window.isConnected();
-if (! wc)
+if (!wc)
 {document.getElementById('button').innerHTML = "";}
 }
 

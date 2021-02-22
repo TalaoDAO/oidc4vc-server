@@ -38,40 +38,6 @@ import requests
 from Crypto.PublicKey import RSA
 from authlib.jose import jwt
 
-# dependances
-import Talao_message
-import Talao_ipfs
-import createcompany
-import createidentity
-import constante
-from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
-from protocol import delete_key, has_key_purpose, add_key
-from protocol import Claim, File, Identity, Document, read_profil
-import environment
-import hcode
-import ns
-import analysis
-import history
-import privatekey
-import sms
-import QRCode
-import directory
-import siren
-import talao_x509
-
-# Centralized  routes
-import web_create_identity
-import web_create_company_cci
-import web_certificate
-import web_data_user
-import web_issue_certificate
-import web_skills
-import web_CV_blockchain
-import web_issuer_explore
-
-# API server
-from config_apiserver import config_api_server
-
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
@@ -84,10 +50,41 @@ if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
     print('Error : wrong chain')
     exit()
 
+
 # Environment setup
+import environment
 print('Success : start to init environment')
 mode = environment.currentMode(mychain,myenv)
 print('Success : end of init')
+
+sys.path.append(mode.sys_path + '/Talao/factory')
+
+
+
+# factory for identity
+from factory import createcompany, createidentity
+import Talao_message
+import Talao_ipfs
+import constante
+from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
+from protocol import delete_key, has_key_purpose, add_key
+from protocol import Claim, File, Identity, Document, read_profil
+import hcode
+import ns
+import analysis
+import history
+import privatekey
+import sms
+import QRCode
+import directory
+import siren
+import talao_x509
+
+# Centralized  routes
+from routes import web_create_identity, web_create_company_cci, web_certificate, web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
+
+# API server
+from config_apiserver import config_api_server
 
 # Global variable
 exporting_threads = {}
@@ -95,7 +92,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.6.3"
+VERSION = "0.6.4"
 API_SERVER = True
 
 # Flask and Session setup
@@ -127,10 +124,10 @@ fa = FontAwesome(app)
 print('Info : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
 
 # Centralized @route for create identity
-app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
+#app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
+#app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+#app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
+#app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 app.add_url_rule('/wc_register/',  view_func=web_create_identity.wc_register, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized @route for create company CCI

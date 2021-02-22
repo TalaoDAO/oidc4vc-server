@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<!-- create2.html -->
 <html>
 
 <head>
     {% include 'head.html' %}
 </head>
- <body id="page-top">
+ <body id="page-top" onload="page_onload()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -19,24 +18,24 @@
                                         <div class="col-lg-6 d-none d-lg-flex">
                                             <div class="flex-grow-1 bg-login-image">
                                                 <p class="text-center" style="margin: 75px 50px 0px;">
-                                                    <br><br>You are going to receive an SMS with a secret code. Copy this secret code for authentification.<br>
-                                                    <br>Your Professional Identity will be installed. This process can take up to 2 minutes.<br><br><br><br><br>
+                                                    <br><br><br>You are going to receive an email with a verification code. 
+                                                    <br>Copy this code for email verification.<br>
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="p-5">
                                                 <div class="text-center">
-                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Check your phone</h4>
+                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Check your email</h4>
                                                 </div>
-                                                <form class="user" action="/register/code/" method="POST">
+                                                <form class="user" action="/wc_register/" method="POST">
                                                     <div class="form-group">
                                                         <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
                                                     </div>
-                                                    <div class="form-group"><input class="form-control" type="password" placeholder="Enter your secret code" name="mycode" style="color: rgb(133,135,150);"></div>
-                                                    <div class="form-group"><button class="btn btn-primary text-white btn-block border rounded btn-user" id="in_progress_button" type="submit">Create my Professional Identity</button></div> 
+                                                    <div class="form-group"><input class="form-control" type="password" placeholder="Enter your verification code" name="mycode" style="color: rgb(133,135,150);"></div>
+                                                    <div class="form-group"><button class="btn btn-primary text-white btn-block border rounded btn-user" id="" type="submit">Next</button></div> 
                                                 </form>
-                                                <div class="text-center"><a class="small" href="/starter/">Back to Starter</a></div>
+                                                <div class="text-center"><a class="small" conclick="End()" href="#">Login</a></div>
                                             </div>
                                         </div>
                                     </div>
@@ -49,12 +48,26 @@
         </div>
     </div>
     {% include 'user_footer.html' %}
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
-   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
+  <script>
+    function page_onload(){
+      window.getAccountAddress().then(value => {
+        console.log('value dans page_onload = ', value);
+      });
+    }
+    </script>
+
+
+
+<script> function End() {
+    window.onEnd();
+    window.location.href = "/login/";
+  }
+  </script>
+
 </body>
 </html>

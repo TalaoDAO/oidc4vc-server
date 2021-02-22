@@ -45,86 +45,65 @@ class currentMode() :
 		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py
 		self.sms_token = passwords['sms_token'] # used in sms.py
 
+		if self.myenv == 'aws':
+			self.sys_path = '/home/admin'
+			self.server = 'https://talao.co/'
+		else :
+			self.sys_path = '/home/thierry'
+
+		self.keystore_path = self.sys_path + '/Talao/keystore/'
+		self.db_path = self.sys_path + '/db/talaonet/'
+		self.help_path = self.sys_path + '/Talao/templates/'
+		self.uploads_path = self.sys_path + '/Talao/uploads/'
+
 		# En Prod chez AWS avec Talaonet
 		if self.BLOCKCHAIN == 'talaonet' and self.myenv == 'aws':
-			self.keystore_path = "/home/admin/Talao/keystore/"
-			self.db_path = '/home/admin/db/talaonet/'
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
-			self.uploads_path = '/home/admin/Talao/uploads/'
-			self.help_path = '/home/admin/Talao/templates/'
 			self.IP = '18.190.21.227' # talao.co
-			self.server = 'https://talao.co/'
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'airbox' :
-			self.keystore_path = "/home/thierry/Talao/keystore/"
-			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.uploads_path = '/home/thierry/Talao/uploads/'
-			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://127.0.0.1:3000/'
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'livebox' :
-			self.keystore_path = "/home/thierry/Talao/keystore/"
-			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.uploads_path = '/home/thierry/Talao/uploads/'
-			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://192.168.0.6:3000/'
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 
-	
 		# sur PC portable Houdan thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.BLOCKCHAIN == 'talaonet' and self.myenv == 'liveboxh' :
-			self.keystore_path = "/home/thierry/Talao/keystore/"
-			self.db_path = '/home/thierry/db/talaonet/'
 			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.uploads_path = '/home/thierry/Talao/uploads/'
-			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://192.168.0.34:3000/'
 			self.flaskserver = "192.168.0.34"
 			self.port = 3000
 
 		# En Prod sur Rinkeby
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'aws':
-			self.keystore_path = "/home/admin/Talao/keystore/"
-			self.db_path = '/home/admin/db/rinkeby/'
 			self.w3 = Web3(Web3.IPCProvider('/home/admin/rinkeby/geth.ipc', timeout=20))
 			self.IPCProvider = '/home/admin/rinkeby/geth.ipc'
-			self.uploads_path = '/home/admin/Talao/uploads/'
-			self.help_path = '/home/admin/Talao/templates/'
-
 			self.IP = '18.190.21.227'
-			self.server = 'https://talao.co/'
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'livebox' :
-			self.keystore_path = "/home/thierry/Talao/keystore/"
-			self.db_path = '/home/thierry/db/rinkeby/'
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))
-			self.uploads_path = '/home/thierry/Talao/uploads/'
-			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://192.168.0.6:3000/'
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.BLOCKCHAIN == 'rinkeby' and self.myenv == 'airbox' :
-			self.keystore_path = "/home/thierry/Talao/keystore/"
-			self.db_path = '/home/thierry/db/rinkeby/'
 			self.IPCProvider = "/mnt/ssd/rinkeby/geth.ipc"
 			self.w3 = Web3(Web3.IPCProvider("/mnt/ssd/rinkeby/geth.ipc", timeout=20))
-			self.uploads_path = '/home/thierry/Talao/uploads/'
-			self.help_path = '/home/thierry/Talao/templates/'
 			self.server = 'http://127.0.0.1:3000/'
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000

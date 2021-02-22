@@ -12,9 +12,7 @@ from datetime import timedelta, datetime
 
 # dependances
 import Talao_message
-
-from factory import ssi_createidentity
-
+import ssi_createidentity
 import sms
 import directory
 import ns
@@ -69,7 +67,13 @@ def wc_register(mode) :
 		session['transfer'] = True if request.form.get('CheckBox2') == 'digital_identity' else False
 		# if CGU not accepted
 		if not request.form.get('CheckBox1') :
-			return render_template('wc_register.html', message="CGU has not been accepted", wallet_address=session['wallet_address'])
+			return render_template('wc_register.html', message="CGU has not been accepted", 
+									email=session['email'],
+									firstname=session['firstname'],
+									lastname=session['lastname'],
+									phone=session['phone'],
+									wallet_address=session['wallet_address'])
+
 		session['status'] = 'email_checking'
 		session['code'] = str(random.randint(10000, 99999))
 		session['code_delay'] = datetime.now() + timedelta(seconds= 300)
@@ -87,20 +91,24 @@ def wc_register(mode) :
 				sms.send_code(session['phone'], session['code'], mode)
 			except :
 				del session['status']
-				return render_template("wc_register.html",message='Wrong phone number,country code needed' )
+				return render_template("wc_register.html",message='Wrong phone number, country code needed' )
 			return render_template("wc_register_phone.html",message='' )
 		else :
 			del session['status']
-			return render_template("wc_register.html",message='This code is incorrect.' )
+			return render_template("wc_register.html",
+									email=session['email'],
+									firstname=session['firstname'],
+									lastname=session['lastname'],
+									phone=session['phone'],
+									message='This code is incorrect.',
+									wallet_address=session['wallet_address'])
 
 	elif session['status'] == 'phone_checking':
 		mycode = request.form.get('mycode')
 		if mycode == session['code'] and datetime.now() < session['code_delay']  :
-			del session['status'] # test
-			return redirect(mode.server + '/login') # test
-
-			if not ssi_createidentity.create_user(session['wallet_address'],session['username'],
-											request.form['email'],
+			if not ssi_createidentity.create_user(session['wallet_address'],
+											session['username'],
+											session['email'],
 											mode,
 											user_aes_encrypted_with_talao_key=request.form.get("user_aes_encrypted_with_talao_key"),
 											firstname=session['firstname'],
@@ -111,7 +119,7 @@ def wc_register(mode) :
 											transfer = session['transfer'],
 											)[2] :
 				print('Error : createidentity failed')
-				return render_template("wc_register.html",message='Connexion problem.', )
+				return render_template("wc_register.html",message='Identity creation failed due to transaction problems.', )
 			else :
 				if request.form.get('CheckBox') :
 					directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
@@ -119,7 +127,13 @@ def wc_register(mode) :
 			return render_template("create3.html", username=session['username'])
 		else :
 			del session['status']
-			return render_template("wc_register.html",message='Wrong code.', )
+			return render_template("wc_register.html",
+									email=session['email'],
+									firstname=session['firstname'],
+									lastname=session['lastname'],
+									phone=session['phone'],
+									message='This code is incorrect.',
+									wallet_address=session['wallet_address'])
 
 """
 # route /register/password/

@@ -42,7 +42,9 @@ import privatekey
 
 # main function called by external modules
 def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_talao_key = None, rsa=None, secret=None, private=None, password=None, firstname=None,  lastname=None, phone=None, transfer=True):
-
+	print('ras = ', rsa, 'secret = ', secret, 'private = ', private)
+	return None, None, None
+	
 	# STEP 1 : create a worskpace contract with a random ethereum address
 	address, private_key, workspace_contract = _create_user_step_1(wallet_address, email, mode, firstname,  lastname, rsa, private, secret)
 	if not address :

@@ -1,7 +1,8 @@
-import web_oauth
+#import web_oauth
 from models import db
 from oauth2 import config_oauth
 
+from routes import web_oauth
 
 def config_api_server(app, mode) :
 
