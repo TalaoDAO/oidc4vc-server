@@ -35,7 +35,6 @@
                                                     <input id="id_aes_private" value="" type="hidden" name="aes_private" >
                                                     <input id="id_aes_secret" value="" type="hidden" name="aes_secret" >
                                                     <input id="id_user_aes_encrypted_with_talao_key" value="" type="hidden" name="user_aes_encrypted_with_talao_key" >
-                                                    
                                                     <div class="form-group">
                                                         <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
                                                     </div>
@@ -71,9 +70,10 @@
         At the end of the process the workspace will be transfered to the wallet account.
         The walet will be used only to sign data. No blockchain transaction are done at that point.
         */
-          document.getElementById("id_page").innerHTML = "Waiting for wallet signature...";
-          const data = await window.createWorkspaceKeys();
-          document.getElementById("id_page").innerHTML = "Identity is being deployed (3 minutes)...";
+          document.getElementById("id_page").innerHTML = "Step 1 : Waiting for wallet signature...";
+          const signature = await window.sign('Identity Signature');
+          const data = await window.createWorkspaceKeys(signature);
+          document.getElementById("id_page").innerHTML = "Step 2 : Identity is being deployed, 5 min...";
           document.getElementById("id_public_rsa").value = data[0];
           document.getElementById("id_aes_private").value = data[1];
           document.getElementById("id_aes_secret").value = data[2];
@@ -82,17 +82,17 @@
           window.onEnd();
     }
     </script>
-    
+
     <script>
         function page_onload(){
           window.getAccountAddress().then(value => {
             console.log('value dans page_onload = ', value);
           });
         }
-        </script>
+    </script>
 
 
-<script> function End() {
+    <script> function End() {
     window.onEnd();
     window.location.href = "/login/";
   }

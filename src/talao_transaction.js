@@ -1,16 +1,16 @@
-import  {foundation_abi, workspace_contract_abi} from "./constant.js";
+import  {foundation_abi, workspace_contract_abi, talao_token_abi} from "./constant.js";
 import {generateRsa, aesDecrypt, rsaDecrypt, rsaEncrypt} from "./talao_encryption.js";
 
+const foundation_contract = "0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6";
+const talao_token_contract = "0x6F4148395c94a455dc224A56A6623dEC2395b99B";
 
 export async function ownerstocontracts(address,web3) {
-    const foundation_contract = "0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6";
     const contract = new web3.eth.Contract(foundation_abi, foundation_contract);
     const workspace_contract = await contract.methods.ownersToContracts(address).call();
     return workspace_contract;
     }
 
 export async function contractstoowners(workspace_contract,web3) {
-    const foundation_contract = "0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6";
     const contract = new web3.eth.Contract(foundation_abi, foundation_contract);
     const address = await contract.methods.ownersToContracts(workspace_contract).call();
     return address;
@@ -27,6 +27,43 @@ export async function contractstoowners(workspace_contract,web3) {
   return [result[1], rsaDecrypt(result[5], buffer.toString()), rsaDecrypt(result[6], buffer.toString())];
   }
 */
+
+
+
+
+/*
+This is the CreateVaultAccess of the token 
+*/
+export async function create_vault_access(account, web3) {
+  const contract = new web3.eth.Contract(talao_token_abi, talao_token_contract);
+  const access = await contract.methods.hasVaultAccess(account, account).call();
+  if (!access){
+    await contract.methods.createVaultAccess("0").send({from: account, gas : "200000"})
+    .once('transactionHash', hash => { console.log(hash);
+    })
+    .once('receipt', receipt => {console.log(receipt);
+    })
+    .catch(e => {console.log(e);
+    });
+  }
+}
+
+export async function transfer_to(account_from, account_to, value, web3) {
+  const contract = new web3.eth.Contract(talao_token_abi, talao_token_contract);
+  await contract.methods.transfer(account_to, value).send({from: account_from, gas : "50000"})
+  .once('sent', payload => { console.log(payload);
+  })
+  .once('transactionHash', hash => { console.log('hash = ', hash);
+  })
+  .once('receipt', receipt => {console.log('receipt = ',receipt);
+  })
+  .catch(e => {console.log(e);
+});
+}
+
+
+
+
 
 export async function read_public_rsa(workspace_contract,web3){
   //const workspace_contract = await ownerstocontracts(address, web3);

@@ -19,7 +19,7 @@ import requests
 import shutil
 
 import constante
-from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, get_image,  read_workspace_info
+from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, get_image,  read_workspace_info, has_vault_access
 from .claim import Claim
 from .Talao_token_transaction import read_profil
 from .document import Document
@@ -41,6 +41,7 @@ class Identity() :
 		self.get_issuer_keys(mode)
 		self.get_identity_skills(mode)
 		self.get_identity_certificate(mode)
+		self.has_vault_access = has_vault_access(self.address, mode)
 
 		if self.authenticated :
 			self.has_relay_private_key(mode)

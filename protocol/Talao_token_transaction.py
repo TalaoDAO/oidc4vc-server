@@ -206,6 +206,11 @@ def token_balance(address,mode) :
 	balance=raw_balance//10**18
 	return balance
 
+def has_vault_access(address, mode) :
+	w3 = mode.w3
+	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
+	return contract.functions.hasVaultAccess(address, address).call()
+
 def createVaultAccess(address,private_key,mode) :
 	w3 = mode.w3
 	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
@@ -408,7 +413,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('Eroor : remove key of address, purpose = ', purpose, 'hash = ', hash)
+			print('Error : remove key of address failed, purpose = ', purpose, 'hash = ', hash)
 			return False
 		else :
 			print('Success : remove key of address, purpose = ', purpose, 'hash = ', hash)
@@ -424,7 +429,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 		hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
-			print('Error : remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
+			print('Error : remove key of workspace _contract failed, purpose =', purpose, 'hash = ',hash)
 			return False
 		else :
 			print('Success : remove key of workspace _contract, purpose =', purpose, 'hash = ',hash)
@@ -456,7 +461,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 	signed_txn = w3.eth.account.signTransaction(txn, private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	print('Success : talao_token_transaction.py, hash transaction parnership request = ', hash_transaction)
+	print('Success : talao_token_transaction.py, hash transaction partnership request = ', hash_transaction)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash_transaction, timeout=2000, poll_latency=1)
 		if not receipt['status'] :

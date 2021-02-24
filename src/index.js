@@ -3,7 +3,7 @@ import Web3 from "web3";
 
 import {createworkspacekeys} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./constant.js";
-import {did_authn, sign_message, get_aes_private_key_encrypted} from "./talao_transaction.js";
+import {did_authn, sign_message, get_aes_private_key_encrypted, create_vault_access, transfer_to} from "./talao_transaction.js";
 
 // to manage a small walletconnect QRcode
 const QRCode = require('qrcode');
@@ -57,6 +57,7 @@ async function onlogin(mobile) {
     console.log('Call from mobile device');
     provider = new WalletConnectProvider({
       rpc: {
+        //1 : "https://talao.co/rpc",
       50000 : "https://talao.co/rpc",
       },
       });
@@ -65,6 +66,7 @@ async function onlogin(mobile) {
     console.log('Call from Desktop');
     provider = new WalletConnectProvider({
       rpc: {
+        //1 : "https://talao.co/rpc",
         50000 : "https://talao.co/rpc",
         },
         qrcode: false,
@@ -130,13 +132,14 @@ async function getaccountaddress(){
   // setup provider with no new QR code
   provider = new WalletConnectProvider({
     rpc: {
-      1 : "https://talao.co/rpc",
+      //1 : "https://talao.co/rpc",
+      50000 : "https://talao.co/rpc",
     },
     qrcode: false,
   });
   // init provider synchronisation
   await provider.enable();
-  
+
   // subscribe on envents
   onSubscribe();
 
@@ -146,17 +149,17 @@ async function getaccountaddress(){
   // get wallet account data
   console.log('provider = ', provider);
   console.log('address = ', provider.accounts[0]);
-  console.log('crypto = ', crypto);
-  
-  // swith on the icon phone
+
+  // switch on the phone icon
   document.getElementById("connected").innerHTML = wc_on;
-  
+
   return [ provider.accounts[0], provider.wc._peerMeta['name'], provider.wc._peerMeta['icons'][0]];
   }
 
+
 /*
 Check if the signer has an ERC725 key 1 to manage the Identity
-The owner has a Key 1
+The owner has always a Key 1
 */
 async function checksignature(did, signature, msg){
   if (!web3) {
@@ -173,29 +176,48 @@ async function checksignature(did, signature, msg){
   return keylist.includes(signerpublickey);
 }
 
-/* Main function to create the 3 keys of the Identity
-The signature of the message "Identity Signature" is the master key to derive the deeterministic RSA key
-The AES keys are generated randomly
-*/
-async function create_workspace_keys (){
-  const signature = await sign_message('Identity Signature', provider);
-  return createworkspacekeys(signature);
-  }
 
 // interface
 function signmessage(msg){
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
   return sign_message(msg, provider);
 }
 
 // interface
 async function getaesencrypted(workspace_contract_to){
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
   return await get_aes_private_key_encrypted(provider, web3, workspace_contract_to);
+}
+
+
+// interface
+async function createvaultaccess(){
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
+  console.log('avant appel de create vault access, web3 = ', web3);
+  return await create_vault_access(provider.accounts[0], web3);
+}
+
+
+// interface
+async function transferto(){
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
+  console.log('avant appel de create vault access, web3 = ', web3);
+  return await transfer_to(provider.accounts[0], web3);
+  
 }
 
 // interface
 async function getdidauthn(){
   if (!provider) {
-  //  throw new Error(`provider hasn't been created yet`);
+    throw new Error(`provider hasn't been created yet`);
   }
   return await did_authn(provider, web3);
   }
@@ -206,6 +228,8 @@ window.sign = signmessage;
 window.getDidAuthn = getdidauthn;
 window.getAccountAddress = getaccountaddress;
 window.checkSignature= checksignature;
-window.createWorkspaceKeys=create_workspace_keys;
+window.createWorkspaceKeys=createworkspacekeys;
 window.isConnected=isconnected;
 window.getAesEncrypted= getaesencrypted;
+window.createVaultAccess=createvaultaccess;
+window.transfer=transferto;

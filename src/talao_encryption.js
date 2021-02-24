@@ -68,7 +68,7 @@ export  function aesDecrypt(encrypted, password){
 
 
 export async function createworkspacekeys(seed) {
-  // seed is a signature
+  // seed is created with a signature
     const new_key = generateRsa(seed);
     const public_rsa_key = new_key[1]
     const _secret = generateAes();

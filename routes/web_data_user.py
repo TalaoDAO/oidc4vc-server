@@ -545,6 +545,7 @@ def user(mode) :
 		session['signature'] = user.signature
 		session['skills'] = user.skills
 		session['certificate'] = user.certificate
+		session['has_vault_access'] = user.has_vault_access
 
 		phone =  ns.get_data_from_username(session.get('username'), mode).get('phone')
 		session['phone'] = phone if phone else ""
@@ -573,17 +574,21 @@ def user(mode) :
 								'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
 
 		# Warning message for first connexion
-		message1 = message2 = ""
+		message1 = message2 = message3 = ""
 		if not session['private_key'] :
 			message1 = "Private key not found on server. "
 		if not session['rsa_key'] :
 			message2 = "Rsa key not found. "
-		if message1 and message2 :
-			message = "You control your data with your smartphone wallet."
+		if not session['has_vault_access'] :
+			message3 = "Your wallet is not activated. "
+		if message1 and message2 and not message3 :
+			message = "You control your Identity with your smartphone wallet."
+		elif message1 and message2 and message3 :
+			message = "You must activate your wallet to control your Identity."
 		elif message1 or message2 :
 			message = message1 + message2
 		else :
-			message = "Your have allowed this third party wallet to manage your data."
+			message = "Your have allowed this third party wallet to manage your Identity."
 		flash(message, 'warning')
 
 		#Homepage
@@ -1118,38 +1123,23 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# Advanced
-
-	if session['relay_activated'] :
-		relay = 'Activated'
-		relay_text = ""
-	else :
-		relay = 'Not Activated'
-		relay_text = """<a class ="text-warning" > You cannot store data from here.</a>"""
-
+	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
 	did = "did:talao:" + mode.BLOCKCHAIN + ":" + session['workspace_contract'][2:]
-	if mode.BLOCKCHAIN == 'talaonet' :
-		path = ""
-	elif mode.BLOCKCHAIN == 'rinkeby' :
-		path = """https://rinkeby.etherscan.io/address/"""
+	if ns.get_wallet_from_workspace_contract(session['workspace_contract'], mode) :
+		wallet = 'Alias'
 	else :
-		path = """https://etherscan.io/address/"""
+		wallet = 'Owner'
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
 					<b>DID</b> : <a class = "card-link" href = "https://talao.co/resolver?did=""" + did + """"">""" + did + """</a><br>
-					<b>Owner Wallet Address</b> : <a class = "card-link" href = "" >"""+ session['address'] + """</a><br>"""
+					<b>Owner Address</b> : """+ session['address'] + """</a><br>
+					<b>Wallet</b> : """ + wallet  + """<br>"""
 	if session['username'] != 'talao' :
-		my_advanced = my_advanced + """ <hr><b>Relay : </b>""" + relay + relay_text + """<br>"""
-		if relay_rsa_key == 'Yes' :
-			my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
-		else :
-			my_advanced = my_advanced +"""<b>RSA Key</b> : """ + relay_rsa_key + """<br><a class ="text-warning" > You cannot store and access private and secret data from here.</a><br>"""
-
-		if relay_private_key == 'Yes' :
-			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
-		else :
-			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" > You cannot issue certificates for others.</a><br>"""
+		my_advanced = my_advanced + """ <hr><b>Token Access : </b>""" + vault + """<br>"""
+		my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
+		my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
 	my_advanced = my_advanced + "<hr>" + my_account
 
 	# Partners

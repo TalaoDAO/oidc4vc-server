@@ -4,7 +4,7 @@ Just a process to create user.
 
 """
 
-from flask import request, redirect, render_template, session, flash
+from flask import request, redirect, render_template, session, flash, abort
 import random
 import unidecode
 import time
@@ -12,11 +12,18 @@ from datetime import timedelta, datetime
 
 # dependances
 import Talao_message
-import ssi_createidentity
+from factory import ssi_createidentity
 import sms
 import directory
 import ns
+from protocol import has_vault_access
 
+def check_login() :
+	""" check if the user is correctly logged. This function is called everytime a user function is called """
+	if not session.get('workspace_contract') and not session.get('username') :
+		abort(403)
+	else :
+		return True
 
 """
 # route /register/
@@ -135,6 +142,20 @@ def wc_register(mode) :
 									message='This code is incorrect.',
 									wallet_address=session['wallet_address'])
 
+
+# route /register/activate/
+def wc_register_activate(mode):
+	check_login()
+	if request.method == 'GET' :
+		return render_template("wc_activate.html",  **session['menu'],)
+	session['has_vault_access'] = has_vault_access(session['address'], mode)
+	return redirect(mode.server + 'user')
+
+# route register/post_code/
+def register_post_code(mode) :
+	return redirect (mode.server + 'login/?username=' + session['username'])
+
+
 """
 # route /register/password/
 def register_password(mode):
@@ -189,7 +210,5 @@ def register_code(mode) :
 			message = 'Code is incorrect, last trial.'
 		return render_template("register_code.html", message=message)
 
-# route register/post_code/
-def register_post_code(mode) :
-	return redirect (mode.server + 'login/?username=' + session['username'])
+
 """

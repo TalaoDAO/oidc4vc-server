@@ -35,15 +35,14 @@ import Talao_message
 from Talao_ipfs import ipfs_add, ipfs_get
 import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key, partnershiprequest, authorize_partnership, transfer_workspace
-from protocol import Claim, update_self_claims
+from protocol import Claim, update_self_claims, has_vault_access
 import ns
 import privatekey
 #import ethereum_bridge
 
 # main function called by external modules
 def create_user(wallet_address, username, email, mode, user_aes_encrypted_with_talao_key = None, rsa=None, secret=None, private=None, password=None, firstname=None,  lastname=None, phone=None, transfer=True):
-	print('ras = ', rsa, 'secret = ', secret, 'private = ', private)
-	
+
 	# STEP 1 : create a worskpace contract with a random ethereum address
 	address, private_key, workspace_contract = _create_user_step_1(wallet_address, email, mode, firstname,  lastname, rsa, private, secret)
 	if not address :
@@ -64,7 +63,6 @@ def _create_user_step_1(wallet_address, email,mode, firstname, lastname, rsa, pr
 	RSA_public = rsa.encode('utf-8')
 	RSA_public = RSA_public.replace(b'\r\n', b'\n')
 
-	print('private reçu = ', private, type(private))
 	# get bytes from keys generated and encrypted client side. Keys have been passed (JS=>Python) un hex trsing
 	AES_encrypted = bytes.fromhex(private[2:])
 	SECRET_encrypted = bytes.fromhex(secret[2:])
@@ -149,15 +147,15 @@ def _create_user_step_2(wallet_address, address, workspace_contract, private_key
 
 	# key 3 issued to Web Relay to issue self claims
 	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode) :
-		print('Warning : key 3 issued to Relay')
+		print('Success : key 3 issued to Relay')
 	else :
-		print('Warning : key 3 to Relay failed')
+		print('Error : key 3 to Relay failed')
 
 	# key 20002 issued to Web Relay to issue documents for self resume
-	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 3, mode) :
-		print('Warning : key 20002 issued to Relay')
+	if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 20002, mode) :
+		print('Success : key 20002 issued to Relay')
 	else :
-		print('Warning : key 20002 to Relay failed')
+		print('Error : key 20002 to Relay failed')
 
 	# key 5 to Talao be in  White List
 	#if add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode) :
@@ -199,7 +197,7 @@ def _create_user_step_3(address, private_key, wallet_address, workspace_contract
 	else :
 		email_address = address
 		ns.update_wallet(workspace_contract, wallet_address, mode)
-		print('Warning : wallet address added as an alias')
+		print('Success : wallet address added as an alias')
 
 
 	# setup password
@@ -213,16 +211,17 @@ def _create_user_step_3(address, private_key, wallet_address, workspace_contract
 		print('Success : phone has been updated')
 
 	#pre-activation de l'address de la wallet, il faudra faire un createVaultAccess par la suite
-	#ether_transfer(wallet_address, mode.ether2transfer,mode)
-	#token_transfer(wallet_address,mode.talao_to_transfer,mode)
+	if not has_vault_access(wallet_address, mode) :
+		ether_transfer(wallet_address, mode.ether2transfer,mode)
+		token_transfer(wallet_address,mode.talao_to_transfer,mode)
 
-	#time.sleep(10)
 
-	# emails send to user and admin
+	# emails sent to admin
 	Talao_message.messageLog("", "", username, email, "createidentity.py", email_address, "", workspace_contract, "", email, "", "", mode)
-	# an email is sent to user
+	# an email sent to user
 	Talao_message.messageUser("", "", username, email, email_address, "", workspace_contract, mode)
 
+	# Oracle....to lock Talao token  on Ethereum agains private bc
 	#if mode.myenv == 'aws' :
 	#	ethereum_bridge.lock_ico_token(None, None)
 	#	print('transfer Ethereum token done')

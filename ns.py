@@ -379,6 +379,19 @@ def get_workspace_contract_from_wallet(wallet, mode) :
 		return None
 	return select[0]
 
+def get_wallet_from_workspace_contract(workspace_contract, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = {'workspace_contract' : workspace_contract}
+	c.execute("SELECT wallet FROM resolver WHERE identity_workspace_contract = :workspace_contract " , data)
+	select=c.fetchone()
+	conn.commit()
+	conn.close()
+	if not select or not select[0]:
+		return None
+	return select[0]
+
 def get_address_from_publickey(publickey, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')

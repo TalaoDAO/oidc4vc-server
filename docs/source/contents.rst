@@ -15,7 +15,7 @@ Talao approaches this issue starting from a user perspective through a Blockchai
   - You own your data for your lifetime.
   - No one can access your encrypted data without your permission.
   - No storage costs.
-  - Claims are tamper proof and trackable.
+  - Claims are verifiables, tamper proof and trackable.
   - Claims issuers are identified.
 
 Talao allows Professional Identities for Talents, Companies and claims issuers such as Schools or Training Centers.
@@ -31,7 +31,7 @@ How does Talao work ?
 
 Talao is based on Ethereum smart contracts Identities.
 
-Smart contract Identities are like digital vault where you can store your data as diplomas, professional certificates, business contracts, pay slips,...
+Smart contract Identities are like digital vault where you can store your data as Digital ID, diplomas, professional certificates, business contracts, pay slips,...
 Each individual or company is given its own private key to access and update its Identity.
 
 Thanks to cryptographic algorithms those private keys are only used to sign messages sent by the Identity owner to the Blockchain servers.

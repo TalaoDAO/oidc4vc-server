@@ -127,8 +127,10 @@ print('Info : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)
 #app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
 #app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 #app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
-#app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
+app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 app.add_url_rule('/wc_register/',  view_func=web_create_identity.wc_register, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/wc_register_activate/',  view_func=web_create_identity.wc_register_activate, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized @route for create company CCI
 app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
