@@ -11,11 +11,8 @@ import time
 from datetime import timedelta, datetime
 
 # dependances
-import Talao_message
 from factory import ssi_createidentity
-import sms
-import directory
-import ns
+from core import sms,directory,ns, Talao_message
 from protocol import has_vault_access
 
 def check_login() :
@@ -71,8 +68,8 @@ def wc_register(mode) :
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
-		session['transfer'] = True if request.form.get('CheckBox2') == 'digital_identity' else False
-		# if CGU not accepted
+		session['decentralized'] = True if request.form.get('CheckBox2') == 'decentralized' else False
+		# if CGU not accepted, loop
 		if not request.form.get('CheckBox1') :
 			return render_template('wc_register.html', message="CGU has not been accepted", 
 									email=session['email'],
@@ -80,7 +77,30 @@ def wc_register(mode) :
 									lastname=session['lastname'],
 									phone=session['phone'],
 									wallet_address=session['wallet_address'])
+		"""
+		Centralized mode here
+		email and phone are not checked
+		wallet signature is not verified
+		"""
+		if not session['decentralized'] :
+			ssi_createidentity.create_user(session['wallet_address'],
+											session['username'],
+											session['email'],
+											mode,
+											firstname=session['firstname'],
+											lastname=session['lastname'],
+											decentralized = False,
+											phone=session['phone']
+											)
+			if request.form.get('CheckBox') :
+				directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
+				print('Warning : directory updated with firstname and lastname')
+			return render_template("create3.html", username=session['username'])
 
+		"""
+		Decentralized mode here
+		Phone and email are verified
+		"""
 		session['status'] = 'email_checking'
 		session['code'] = str(random.randint(10000, 99999))
 		session['code_delay'] = datetime.now() + timedelta(seconds= 300)
@@ -123,8 +143,9 @@ def wc_register(mode) :
 											rsa=request.form.get('public_rsa'),
 											private=request.form.get('aes_private'),
 											secret=request.form.get('aes_secret'),
-											transfer = session['transfer'],
-											)[2] :
+											decentralized = True,
+											phone=session['phone']
+											) :
 				print('Error : createidentity failed')
 				return render_template("wc_register.html",message='Identity creation failed due to transaction problems.', )
 			else :

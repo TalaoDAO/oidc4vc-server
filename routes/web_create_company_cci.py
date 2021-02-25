@@ -13,11 +13,9 @@ import unidecode
 from datetime import timedelta, datetime
 
 # dependances
-import Talao_message
-import createcompany
+from core import Talao_message, ns, directory
+from factory import createcompany
 from protocol import Claim
-import ns
-import directory
 
 # route /create_company_cci/
 def cci(mode) :

@@ -14,14 +14,11 @@ import random
 import sms
 from datetime import datetime, timedelta
 
-import ns
 import constante
 from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category
 from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim
-import createidentity
-import createcompany
-import privatekey
-import Talao_message
+from factory import createidentity, createcompany
+from core import privatekey, Talao_message, ns
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
 #@route('/resolver')

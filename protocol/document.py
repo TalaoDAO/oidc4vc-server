@@ -35,9 +35,8 @@ from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 
 #dependances
-from Talao_ipfs import ipfs_add, ipfs_get
+from core import Talao_ipfs, privatekey
 import constante
-import privatekey
 from .Talao_token_transaction import read_profil
 
 def contracts_to_owners(workspace_contract, mode) :
@@ -88,7 +87,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address_from)
 	# store bytes on ipfs
-	ipfs_hash = ipfs_add(data, mode)
+	ipfs_hash = Talao_ipfs.ipfs_add(data, mode)
 	if not ipfs_hash :
 		return None, None, None
 	# checksum (bytes)
@@ -156,7 +155,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
 
 	# recuperation du msg
-	data = ipfs_get(ipfshash.decode('utf-8'))
+	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
 
 	# calcul de la date
 	if not expires :

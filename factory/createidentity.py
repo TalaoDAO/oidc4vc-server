@@ -25,13 +25,10 @@ from base64 import b64encode, b64decode
 import threading
 
 # import des fonctions custom
-import Talao_message
-from Talao_ipfs import ipfs_add, ipfs_get
 import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key, partnershiprequest, authorize_partnership
 from protocol import Claim, update_self_claims
-import ns
-import privatekey
+from core import privatekey, ns, Talao_message
 
 exporting_threads = {}
 

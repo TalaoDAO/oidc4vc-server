@@ -7,12 +7,10 @@ from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token, client_authenticated
 from authlib.oauth2 import OAuth2Error, OAuth2Request
 from models import db, User, OAuth2Client
-from oauth2 import authorization, require_oauth
 import json
 from urllib.parse import urlencode, parse_qs, urlparse, parse_qsl
 from urllib import parse
 import random
-import sms
 from datetime import datetime, timedelta
 from eth_account.messages import defunct_hash_message
 from eth_account.messages import encode_defunct
@@ -20,15 +18,12 @@ from eth_account import Account
 from eth_keys import keys
 from eth_utils import decode_hex
 
-import ns
 import constante
 from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category, ownersToContracts
 from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim, Identity, get_keylist
-import createidentity
-import createcompany
-import privatekey
-import Talao_message
-from Talao_ipfs import ipfs_get
+from factory import createidentity, createcompany
+from core import privatekey, Talao_message, Talao_ipfs, ns, oauth2
+#from oauth2 import authorization, require_oauth
 
 
 # Resolver pour l acces a un did. Cela retourne un debut de DID Document....
@@ -73,7 +68,7 @@ def resolver(mode):
         did_authn_id = authn_list[-1].hex()
         claim = contract.functions.getClaim(did_authn_id).call()
         ipfs_hash = claim[5]
-        did_authn = ipfs_get(ipfs_hash)
+        did_authn = Talao_ipfs.ipfs_get(ipfs_hash)
     else :
         did_authn_id = None
         did_authn = None
@@ -264,11 +259,11 @@ def create_client():
 
 #@route('/oauth/revoke', methods=['POST'])
 def revoke_token():
-    return authorization.create_endpoint_response('revocation')
+    return oauth2.authorization.create_endpoint_response('revocation')
 
 #@route('/api/v1/oauth/token', methods=['POST'])
 def issue_token():
-    response = authorization.create_token_response()
+    response = oauth2.authorization.create_token_response()
     return response
 
 # AUTHORIZATION CODE
@@ -277,7 +272,7 @@ def authorize(mode):
     # to manage wrong login ot user rejection, qr code exit
     if 'reject' in request.args :
         session.clear()
-        return authorization.create_authorization_response(grant_user=None)
+        return oauth2.authorization.create_authorization_response(grant_user=None)
     user = current_user()
     client_id = request.args.get('client_id')
     client = OAuth2Client.query.filter_by(client_id=client_id).first()
@@ -291,7 +286,7 @@ def authorize(mode):
     # if user is already logged we prepare the consent screen
     if request.method == 'GET' :
         try:
-            grant = authorization.validate_consent_request(end_user=user)
+            grant = oauth2.authorization.validate_consent_request(end_user=user)
         except OAuth2Error as error:
             return error.error
         # configure consent screen : oauth_authorize.html
@@ -317,7 +312,7 @@ def authorize(mode):
         user = User.query.filter_by(username=user_workspace_contract).first()
     if 'reject' in request.form :
         session.clear()
-        return authorization.create_authorization_response(grant_user=None,)
+        return oauth2.authorization.create_authorization_response(grant_user=None,)
     # update scopes after user consent
     query_dict = parse_qs(request.query_string.decode("utf-8"))
     my_scope = ""
@@ -327,14 +322,14 @@ def authorize(mode):
     query_dict["scope"] = [my_scope[:-1]]
     # we setup a custom Oauth2Request as we have changed the scope in the query_dict
     req = OAuth2Request("POST", request.base_url + "?" + urlencode(query_dict, doseq=True))
-    return authorization.create_authorization_response(message=message, signature=signature, grant_user=user, request=req,)
+    return oauth2.authorization.create_authorization_response(message=message, signature=signature, grant_user=user, request=req,)
 
 
 #########################################  AUTHORIZATION CODE ENDPOINT   ################################
 
 # endpoint standard OIDC
 #route('/api/v1/user_info')
-@require_oauth('address openid profile resume email birthdate proof_of_identity about resume gender name contact_phone website', 'OR')
+@oauth2.require_oauth('address openid profile resume email birthdate proof_of_identity about resume gender name contact_phone website', 'OR')
 def user_info(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -365,7 +360,7 @@ def user_info(mode):
 
 
 #route('/api/v1/user_accepts_company_referent')
-@require_oauth('user:manage:referent')
+@oauth2.require_oauth('user:manage:referent')
 def user_accepts_company_referent(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -387,7 +382,7 @@ def user_accepts_company_referent(mode):
 
 
 #route('/api/v1/user_adds_referent')
-@require_oauth('user:manage:referent')
+@oauth2.require_oauth('user:manage:referent')
 def user_adds_referent(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -414,7 +409,7 @@ def user_adds_referent(mode):
 
 
 #route('/api/v1/user_accepts_company_partnership')
-@require_oauth('user:manage:partner')
+@oauth2.require_oauth('user:manage:partner')
 def user_accepts_company_partnership(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -442,7 +437,7 @@ def user_accepts_company_partnership(mode):
     return response
 
 #route('/api/v1/user_uploads_signature')
-@require_oauth('user:manage:data')
+@oauth2.require_oauth('user:manage:data')
 def user_uploads_signature(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -474,7 +469,7 @@ def user_uploads_signature(mode):
     return response
 
 #route('/api/v1/user_uploads_logo')
-@require_oauth('user:manage:data')
+@oauth2.require_oauth('user:manage:data')
 def user_uploads_picture(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -506,7 +501,7 @@ def user_uploads_picture(mode):
     return response
 
 #route('/api/v1/user_updates_company_settings')
-@require_oauth('user:manage:data')
+@oauth2.require_oauth('user:manage:data')
 def user_updates_company_settings(mode):
     user_id = current_token.user_id
     user_workspace_contract = get_user_workspace(user_id,mode)
@@ -530,7 +525,7 @@ def user_updates_company_settings(mode):
 
 # issue a certificates on behalf of user(user=issued_by)
 #@route('/api/v1/user_issues_certificate')
-@require_oauth('user:manage:certificate')
+@oauth2.require_oauth('user:manage:certificate')
 def user_issues_certificate(mode):
     user_id = current_token.user_id
     issued_by_workspace_contract = get_user_workspace(user_id,mode)
@@ -614,7 +609,7 @@ def user_issues_certificate(mode):
 
 # create a person identity with a key2002 key and partnership
 #@route('/api/v1/create_person_identity')
-@require_oauth('client:create:identity') #scope
+@oauth2.require_oauth('client:create:identity') #scope
 def oauth_create_person_identity(mode):
     # creation d'une identité"
     client_id = current_token.client_id
@@ -644,7 +639,7 @@ def oauth_create_person_identity(mode):
 
 # create a company identity with key20002 and partnership
 #@route('/api/v1/create_company_identity')
-@require_oauth('client:create:identity')
+@oauth2.require_oauth('client:create:identity')
 def oauth_create_company_identity(mode):
     # creation d'une identité"
     client_id = current_token.client_id
@@ -677,7 +672,7 @@ def oauth_create_company_identity(mode):
 
 # get status
 #@route('/api/v1/get_status')
-@require_oauth(None)
+@oauth2.require_oauth(None)
 def oauth_get_status(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -699,7 +694,7 @@ def oauth_get_status(mode):
 
 # company issues experience certificates to user
 #@route('/api/v1/issue_experience')
-@require_oauth('client:issue:experience')
+@oauth2.require_oauth('client:issue:experience')
 def oauth_issue_experience(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -750,7 +745,7 @@ def oauth_issue_experience(mode):
 
 # issue an agrement certificates
 #@route('/api/v1/issue_agreement')
-@require_oauth('client:issue:agreement')
+@oauth2.require_oauth('client:issue:agreement')
 def oauth_issue_agreement(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -813,7 +808,7 @@ def oauth_issue_agreement(mode):
 
 # issue a reference certificates
 #@route('/api/v1/issue_reference')
-@require_oauth('client:issue:reference')
+@oauth2.require_oauth('client:issue:reference')
 def oauth_issue_reference(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -877,7 +872,7 @@ def oauth_issue_reference(mode):
 
 # get a list of certificate
 #@route('/api/v1/get_certificate_list')
-@require_oauth(None)
+@oauth2.require_oauth(None)
 def oauth_get_certificate_list(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)
@@ -915,7 +910,7 @@ def oauth_get_certificate_list(mode):
 
 # get certificate data
 #@route('/api/v1/get_certificate')
-@require_oauth(None)
+@oauth2.require_oauth(None)
 def oauth_get_certificate(mode):
     client_id=current_token.client_id
     client_workspace_contract = get_client_workspace(client_id, mode)

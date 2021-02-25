@@ -58,27 +58,15 @@ mode = environment.currentMode(mychain,myenv)
 print('Success : end of init')
 
 sys.path.append(mode.sys_path + '/Talao/factory')
+sys.path.append(mode.sys_path + '/Talao/factory')
 
 
-
-# factory for identity
 from factory import createcompany, createidentity
-import Talao_message
-import Talao_ipfs
+from core import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
 from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
-import hcode
-import ns
-import analysis
-import history
-import privatekey
-import sms
-import QRCode
-import directory
-import siren
-import talao_x509
 
 # Centralized  routes
 from routes import web_create_identity, web_create_company_cci, web_certificate, web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
@@ -92,7 +80,7 @@ exporting_threads = {}
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' + mode.BLOCKCHAIN
-VERSION = "0.6.4"
+VERSION = "0.6.5"
 API_SERVER = True
 
 # Flask and Session setup

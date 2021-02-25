@@ -1,7 +1,6 @@
 #import web_oauth
 from models import db
-from oauth2 import config_oauth
-
+from core import oauth2
 from routes import web_oauth
 
 def config_api_server(app, mode) :
@@ -19,7 +18,7 @@ def config_api_server(app, mode) :
     }
     app.config.update(oauth_config)
     db.init_app(app)
-    config_oauth(app)
+    oauth2.config_oauth(app)
 
     # Resolver
     app.add_url_rule('/resolver', view_func=web_oauth.resolver, methods = ['GET', 'POST'], defaults ={'mode' : mode})

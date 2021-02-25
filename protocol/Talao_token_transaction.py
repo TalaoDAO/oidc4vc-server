@@ -3,7 +3,6 @@ from Crypto.Cipher import PKCS1_OAEP
 import csv
 import sys
 import time
-
 import hashlib
 import json
 from datetime import datetime
@@ -13,11 +12,8 @@ from eth_account import Account
 
 
 # dependances
-import Talao_ipfs
-import Talao_message
+from core import Talao_ipfs, Talao_message, ns, privatekey
 import constante
-import ns
-import privatekey
 
 def read_profil (workspace_contract, mode, loading) :
 	""" Read profil data as ERC725 claims witgout any decryption..."""
@@ -97,7 +93,7 @@ def contractsToOwners(workspace_contract, mode) :
 	if not workspace_contract :
 		return None
 	if workspace_contract == '0x0000000000000000000000000000000000000000' :
-		print('contracts to owners return 0x')
+		print('Warning : contracts to owners return 0x')
 		return workspace_contract
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
@@ -107,15 +103,15 @@ def contractsToOwners(workspace_contract, mode) :
 
 def ownersToContracts(address, mode) :
 	if not address :
-		print('owners to contracts : its not an address')
+		print('Warning : owners to contracts : its not an address')
 		return None
 	if address == '0x0000000000000000000000000000000000000000' :
-		print('owners to contract : return 0x')
+		print('Warning : owners to contract : return 0x')
 		return address
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	if workspace_address == '0x0000000000000000000000000000000000000000' :
-		print('owners to contract : return 0x')
+		print('Warning : owners to contract : return 0x')
 	return workspace_address
 
 def destroy_workspace(workspace_contract, private_key, mode) :

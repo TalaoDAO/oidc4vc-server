@@ -18,13 +18,9 @@ import unidecode
 from authlib.jose import jwt
 from Crypto.PublicKey import RSA
 
-import createidentity
-import createcompany
-import Talao_message
-import ns
-import privatekey
+from factory import createidentity, createcompany
+from core import Talao_message, ns, privatekey, sms
 from protocol import Document, add_key, Claim, contractsToOwners, get_image, read_profil, get_category
-import sms
 
 exporting_threads = {}
 

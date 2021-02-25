@@ -12,8 +12,7 @@ from base64 import b64encode, b64decode
 
 #dependances
 import constante
-from Talao_ipfs import ipfs_add, ipfs_get
-import privatekey
+from core import Talao_ipfs, privatekey
 from .Talao_token_transaction import read_profil, contractsToOwners, ownersToContracts
 
 def contracts_to_owners(workspace_contract, mode) :
@@ -54,7 +53,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode,  address_caller=address_from)
 	if not data_encrypted :
 		return None, None, None
-	ipfs_hash = ipfs_add(data_encrypted, mode)
+	ipfs_hash = Talao_ipfs.ipfs_add(data_encrypted, mode)
 	if not ipfs_hash :
 		print('Error : ipfs hash error create_claim')
 		return None, None, None
@@ -110,22 +109,19 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		# compatiblité avec version precedente. data public non cryptee
 		to_be_decrypted = False
 		privacy = 'public'
-		print('pas de decryptage' , topicname)
 	else :
 		# toutes les datas sont encryptees
 		to_be_decrypted = True
 		privacy = data
-		print('decryptage' , topicname)
 	if to_be_decrypted :
 		# upload data encrypted from ipfs
-		data_encrypted = ipfs_get(ipfs_hash)
-		print('data encrypted = ', data_encrypted)
+		data_encrypted = Talao_ipfs.ipfs_get(ipfs_hash)
 		address_from = contracts_to_owners(workspace_contract_from, mode)
 		msg = privatekey.decrypt_data(identity_workspace_contract, data_encrypted, privacy, mode, address_caller=address_from)
 		if msg :
 			data= msg[topicname]
 		else :
-			print('decryptage failed')
+			print('Error : decrypt failed')
 			data = None
 
 	# transaction info

@@ -15,8 +15,7 @@ import random
 # dependances
 from protocol import Document, read_profil, Identity, Claim
 import constante
-import ns
-import analysis
+from core import ns, analysis
 
 def convert(obj):
 	if type(obj) == list:

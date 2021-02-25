@@ -11,8 +11,7 @@ from base64 import b64encode, b64decode
 #dependances
 import constante
 import environment
-from Talao_ipfs import ipfs_add, ipfs_get
-import privatekey
+from core import Talao_ipfs, privatekey
 
 def contracts_to_owners(workspace_contract, mode) :
 	w3 = mode.w3
@@ -66,7 +65,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	nonce = w3.eth.getTransactionCount(address_from)
 
 	# stocke sur ipfs les data attention on archive des bytes
-	ipfs_hash = ipfs_add(data,mode)
+	ipfs_hash = Talao_ipfs.ipfs_add(data,mode)
 
 	# calcul du checksum en bytes des data, conversion du dictionnaire data en chaine str
 	#_data = json.dumps(data)
@@ -132,7 +131,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		return None
 
 	# recuperation du msg
-	data = ipfs_get(ipfshash.decode('utf-8'))
+	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
 	filename = data['filename']
 
 	# calcul de la date

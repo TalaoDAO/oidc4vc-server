@@ -30,12 +30,11 @@ from authlib.jose import jwk
 from Crypto.PublicKey import RSA
 import time
 import datetime
+import os
 
 from protocol import Document, get_category, ownersToContracts
-import ns
+from core import ns, privatekey
 import environment
-import privatekey
-import os
 import constante
 
 
@@ -195,8 +194,6 @@ class HybridGrant(_OpenIDHybridGrant):
 
 """
 
-
-
 class talao_authorization(AuthorizationServer):
 
  def create_authorization_response(self,message=None, signature=None, request=None, grant_user=None, ): # ajout de wallet signature     
@@ -217,9 +214,6 @@ class talao_authorization(AuthorizationServer):
 
 #authorization = AuthorizationServer()
 authorization = talao_authorization()
-
-
-
 require_oauth = ResourceProtector()
 
 

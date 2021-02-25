@@ -1,4 +1,4 @@
-import ns
+from core import ns
 import constante
 import environment
 

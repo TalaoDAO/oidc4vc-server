@@ -10,8 +10,7 @@ import os
 import environment
 from protocol import contractsToOwners, ownersToContracts, read_profil, Claim
 import constante
-import privatekey
-import ns
+from core import privatekey, ns
 
 
 def generate_CA() :

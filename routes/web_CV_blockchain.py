@@ -15,11 +15,7 @@ import time
 # dependances
 from protocol import Document, read_profil, Identity, Claim
 import constante
-import ns
-import analysis
-
-
-
+from core import ns, analysis
 
 #@app.route('/resume/', methods=['GET'])
 def resume(mode) :

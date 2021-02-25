@@ -282,7 +282,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Warning : ' + username + ' n existe pas dans la table des alias de nameservice')
+			print('Warning : ' + username + ' does not exist in nameservice db')
 			return None
 
 		(identity_name, alias_email, phone, password) = select
@@ -292,7 +292,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Warning : l alias ',username + ' n a pas d identity dans le resolver')
+			print('Warning : alias ',username + ' has no identity in resolver')
 			return None
 		identity_workspace_contract = select[0]
 		conn.commit()
@@ -306,14 +306,14 @@ def _get_data(username, mode) :
 		try :
 			c.execute("SELECT identity_name, email, phone, password FROM manager WHERE manager_name = :manager_name " , data)
 		except sqlite3.OperationalError :
-			print('Error : la database ' + host_name + ' n existe pas')
+			print('Error : database ' + host_name + ' does not exist')
 			return None
 
 		select = c.fetchone()
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Error : le manager name : '+ manager_name + ' n existe pas dans la table locale de '+ host_name)
+			print('Error : manager name : '+ manager_name + ' does not exist in '+ host_name)
 			return None
 
 		(identity_name, manager_email, phone, password) = select
@@ -566,7 +566,6 @@ def update_wallet(workspace_contract, wallet, mode) :
 	conn.commit()
 	cur.close()
 	return True
-
 
 def must_renew_password(username, mode) :
 	if not username :

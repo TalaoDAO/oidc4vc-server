@@ -20,17 +20,11 @@ from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
 
 # dependances
-import Talao_message
-import Talao_ipfs
+from core import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
-import hcode
-import ns
-import sms
-import vpi
-import directory
-import privatekey
+
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -445,8 +439,6 @@ def data(mode) :
 		myissuer = myissuer + """
 				 <a class="text-warning">Self Declaration</a>
 				</span>"""
-	#else :
-	#	myissuer = myissuer + "<br>Issuer fiability : " + str(vpi.check_proof_of_identity(session.get('workspace_contract'), my_data.issuer['workspace_contract'], mode)*100)+'%'
 
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
@@ -1128,18 +1120,18 @@ def user_advanced(mode) :
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
 	did = "did:talao:" + mode.BLOCKCHAIN + ":" + session['workspace_contract'][2:]
 	if ns.get_wallet_from_workspace_contract(session['workspace_contract'], mode) :
-		wallet = 'Alias'
+		wallet = 'Alias (Centralized mode)'
 	else :
-		wallet = 'Owner'
+		wallet = 'Owner (Decentralized mode)'
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
 					<b>DID</b> : <a class = "card-link" href = "https://talao.co/resolver?did=""" + did + """"">""" + did + """</a><br>
 					<b>Owner Address</b> : """+ session['address'] + """</a><br>
 					<b>Wallet</b> : """ + wallet  + """<br>"""
 	if session['username'] != 'talao' :
-		my_advanced = my_advanced + """ <hr><b>Token Access : </b>""" + vault + """<br>"""
-		my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
-		my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
+		my_advanced = my_advanced + """ <hr><b>Wallet has locked token : </b>""" + vault + """<br>"""
+		my_advanced = my_advanced + """<b>RSA Key on server </b> : """ + relay_rsa_key + """<br>"""
+		my_advanced = my_advanced + """<b>Private Key on server </b> : """ + relay_private_key +"""<br>"""
 	my_advanced = my_advanced + "<hr>" + my_account
 
 	# Partners

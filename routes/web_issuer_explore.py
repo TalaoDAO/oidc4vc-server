@@ -11,18 +11,14 @@ from datetime import timedelta, datetime
 import json
 import random
 from Crypto.PublicKey import RSA
-
-# dependances
-import Talao_message
-import Talao_ipfs
-import constante
 import requests
 import shutil
+
+# dependances
+from core import Talao_message, Talao_message, hcode, ns, sms
+import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil
-import hcode
-import ns
-import sms
 
 
 def check_login() :

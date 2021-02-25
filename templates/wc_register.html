@@ -53,7 +53,10 @@
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="tel" title="Phone number with country code ex : +33 607080900)" placeholder="Phone Number (International)" value="{{phone}}" name="phone" required="" ></div>
-
+                                                <input id="id_public_rsa" value="" type="hidden" name="public_rsa" >
+                                                <input id="id_aes_private" value="" type="hidden" name="aes_private" >
+                                                <input id="id_aes_secret" value="" type="hidden" name="aes_secret" >
+                                                <input id="id_user_aes_encrypted_with_talao_key" value="" type="hidden" name="user_aes_encrypted_with_talao_key" >
 
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
@@ -64,16 +67,16 @@
                                                     <label  style="color: rgb(133,135,150);" title="" >I agree to Talao's Privacy Policy and Terms and Conditions(French)</label>
                                                 </div>
                                                 <div class="form-check form-check-inline">
-                                                    <input checked class="form-check-input" type="radio" name="CheckBox2" id="inlineRadio1" value="wallet_login">
+                                                    <input checked class="form-check-input" type="radio" name="CheckBox2" id="centralized" value="centralized">
                                                     <label style="color: rgb(133,135,150);"  class="form-check-label" title="Your wallet will be used for login only, the server will act as a third party wallet. You can use any  crypto wallet compliant with walletconnect to access your Identity." for="inlineRadio1">Centralized</label>
                                                 </div>
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="CheckBox2" id="inlineRadio2" value="digital_identity">
-                                                    <label  style="color: rgb(133,135,150);" class="form-check-label"title="Your wallet will be in full control of the Identiy. You will need Metamask to access all functions." for="inlineRadio2">Decentralized</label>
+                                                    <input class="form-check-input" type="radio" name="CheckBox2" id="decentralized" value="decentralized">
+                                                    <label  style="color: rgb(133,135,150);" class="form-check-label"title="Your wallet will be in full control of the Identiy. You will need Metamask mobile wallet to access all functions." for="inlineRadio2">Decentralized</label>
                                                 </div>
                                                 <br><br>
                                                 <div id="a"></div>
-                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" id="in_progress_button" type="submit">Next</button>
+                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="next()" id="in_progress_button" type="button">Next</button>
                                             </form>
                                         <div class="text-center"><a class="small" onclick="End()" href="#">Login</a></div>
                                         </div>
@@ -109,5 +112,32 @@
   }
   </script>
 
+<script>
+    function next(){
+        if  (document.getElementById("decentralized").checked){
+            console.log('call decentralized');
+            document.getElementById("form").submit();}
+        else {
+            console.log('call centralized');
+            centralized();
+        }
+    }
+
+</script>
+
+<script>async function centralized() {
+    /* one starts the createidentity process with key creation from the server.
+    Server is a third party wallet
+    The wallet will be used only to login. No blockchain transaction are done at that point.
+    */
+      document.getElementById("id_page").innerHTML = "Identity is being deployed, 3 min...";
+      document.getElementById("id_public_rsa").value = "";
+      document.getElementById("id_aes_private").value = "";
+      document.getElementById("id_aes_secret").value = "";
+      document.getElementById("id_user_aes_encrypted_with_talao_key").value = "";
+      document.getElementById("form").submit();
+      window.onEnd();
+}
+</script>
 </body>
 </html>

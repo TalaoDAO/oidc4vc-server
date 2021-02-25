@@ -24,9 +24,7 @@ from .claim import Claim
 from .Talao_token_transaction import read_profil
 from .document import Document
 from .file import File
-import ns
-import privatekey
-import Talao_ipfs
+from core import ns, privatekey, Talao_ipfs
 
 class Identity() :
 

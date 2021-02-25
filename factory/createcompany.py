@@ -19,12 +19,8 @@ import threading
 # dependances
 from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, authorize_partnership, partnershiprequest
 from protocol import createWorkspace, Claim, update_self_claims
-
-from Talao_ipfs import ipfs_add, ipfs_get
-import Talao_message
+from core import Talao_message, ns, privatekey
 import constante
-import ns
-from privatekey import get_key, create_rsa_key, add_private_key
 #import ethereum_bridge see later
 
 relay_address = ""
@@ -80,7 +76,7 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 	print('Success : private key = ', private_key)
 
 	# calculate RSA key
-	RSA_key, RSA_private, RSA_public = create_rsa_key(private_key, mode)
+	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
 
 	# création de la cle AES
 	AES_key = get_random_bytes(16)
@@ -129,7 +125,7 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 		print('Error : RSA key not stored on disk')
 
 	# add private key in keystore
-	if add_private_key(private_key, mode) :
+	if privatekey.add_private_key(private_key, mode) :
 		print('Success : private key added in keystore ')
 	else :
 		print('Error : add private key failed')
@@ -192,9 +188,9 @@ def _create_company_step_2(address, private_key, workspace_contract,email, usern
 	if creator and creator != mode.owner_talao :
 		creator_address = creator
 		creator_workspace_contract = ownersToContracts(creator_address, mode)
-		creator_rsa_key = get_key(creator_address, 'rsa_key', mode)
-		creator_private_key = get_key(creator_address,'private_key', mode)
-		RSA_private = get_key(address, 'rsa_key', mode)
+		creator_rsa_key = privatekey.get_key(creator_address, 'rsa_key', mode)
+		creator_private_key = privatekey.get_key(creator_address,'private_key', mode)
+		RSA_private = privatekey.get_key(address, 'rsa_key', mode)
 		# setup parnership with creator
 		if partner :
 			# creator requests partnership

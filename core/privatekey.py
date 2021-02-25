@@ -166,7 +166,7 @@ def create_rsa_key(private_key, mode) :
 
 
 def get_key(address, key_type, mode, address_caller=None) :
-	print('Waring : get_key address_caller = ', address_caller)
+	print('Warning : get_key address_caller in privatekey = ', address_caller)
 	if not mode.w3.isAddress(address) or address == '0x0000000000000000000000000000000000000000' :
 		return None
 
