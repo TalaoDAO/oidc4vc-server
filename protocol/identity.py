@@ -8,14 +8,11 @@ uniquemet utilisé en lecture.
 """
 
 import os.path
-from os import path
 from datetime import datetime
 from operator import itemgetter, attrgetter
 import random
 from eth_account import Account
 import os
-import csv
-import requests
 import shutil
 
 import constante
@@ -77,10 +74,10 @@ class Identity() :
 			self.get_identity_certificate(mode)
 
 		if self.category == 1001 : # person
-			self.profil_title = "" if self.personal['profil_title']['claim_value'] is None else self.personal['profil_title']['claim_value']
+			self.profil_title = "" if not self.personal['profil_title']['claim_value'] else self.personal['profil_title']['claim_value']
 			self.type = "person"
-			firstname = "" if self.personal['firstname']['claim_value'] is None else self.personal['firstname']['claim_value']
-			lastname = "" if self.personal['lastname']['claim_value'] is None else self.personal['lastname']['claim_value']
+			firstname = "" if not self.personal['firstname']['claim_value'] else self.personal['firstname']['claim_value']
+			lastname = "" if not self.personal['lastname']['claim_value'] else self.personal['lastname']['claim_value']
 			self.name = firstname + ' ' + lastname
 			self.get_identity_experience(mode)
 			self.get_identity_education(mode)
@@ -108,12 +105,12 @@ class Identity() :
 
 	def has_relay_private_key(self,mode) :
 		self.private_key_value =  privatekey.get_key(self.address, 'private_key', mode)
-		self.private_key = False if self.private_key_value is None else True
+		self.private_key = False if not self.private_key_value else True
 		return
 
 	def has_relay_rsa_key(self, mode) :
 		self.rsa_key_value = privatekey.get_key(self.address, 'rsa_key', mode)
-		self.rsa_key = False if self.rsa_key_value is None else True
+		self.rsa_key = False if not self.rsa_key_value else True
 		return
 
 	# one checks if Relay has a key 1
@@ -225,8 +222,6 @@ class Identity() :
 			self.personal[topicname] = claim.__dict__
 		return True
 
-
-
 	def get_all_documents(self, mode) :
 		self.file_list = []
 		self.experience_list = []
@@ -279,7 +274,6 @@ class Identity() :
 			self.kbis.append(kbis.__dict__)
 		return True
 
-
 	def get_identity_kyc(self, mode) :
 		"""
 		KYC basé sur un claim ERC725, topicname = did_authn. le dernier claim uniquement
@@ -289,7 +283,6 @@ class Identity() :
 		claim.get_by_topic_name(self.workspace_contract, self.private_key, self.workspace_contract, 'did_authn', mode)
 		self.kyc.append(claim.__dict__)
 		return True
-
 
 	def get_identity_education(self,mode) :
 		self.education = []

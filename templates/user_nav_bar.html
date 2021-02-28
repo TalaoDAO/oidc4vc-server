@@ -90,7 +90,9 @@
             <div class="dropdown-divider"></div>
 
             <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fa fa-gear fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings&nbsp;</a>
+            {% if not session['has_vault_access'] %}
             <a class="dropdown-item" role="presentation" title="For Metamask wallet only" href="/wc_register_activate/"><i class="fa fa-key fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activate wallet</a>
+            {% endif %}
             <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
             <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
             <a class="dropdown-item" role="presentation" href="/user/test/"><i class="fa fa-wrench fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Test Only</a>

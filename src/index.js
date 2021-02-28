@@ -3,13 +3,13 @@ import Web3 from "web3";
 
 import {createworkspacekeys} from "./talao_encryption.js";
 import {workspace_contract_abi} from "./constant.js";
-import {did_authn, sign_message, get_aes_private_key_encrypted, create_vault_access, transfer_to} from "./talao_transaction.js";
+import {did_authn, sign_message, get_aes_private_key_encrypted, create_vault_access, transfer_to, destroy_workspace} from "./talao_transaction.js";
 
 // to manage a small walletconnect QRcode
 const QRCode = require('qrcode');
 const canvas = document.getElementById('canvas');
 
-// phone icon 
+// phone icon
 const wc_on = '<i title ="Crypto Wallect connected" style="color: chartreuse;" class="fa fa-mobile-phone fa-3x"></i>';
 const wc_off = '<i title="Crypto wallet disconnected" style="color: crimson;" class="fa fa-mobile-phone fa-3x"></i>';
 let web3 = null;
@@ -193,7 +193,6 @@ async function getaesencrypted(workspace_contract_to){
   return await get_aes_private_key_encrypted(provider, web3, workspace_contract_to);
 }
 
-
 // interface
 async function createvaultaccess(){
   if (!provider) {
@@ -203,15 +202,22 @@ async function createvaultaccess(){
   return await create_vault_access(provider.accounts[0], web3);
 }
 
+// interface
+async function destroyworkspace(){
+  if (!provider) {
+    throw new Error(`provider hasn't been created yet`);
+  }
+  console.log('avant appel de destroy workspace, web3 = ', web3);
+  return await destroy_workspace(provider.accounts[0], web3);
+}
 
 // interface
-async function transferto(){
+async function transfer(to, value){
   if (!provider) {
     throw new Error(`provider hasn't been created yet`);
   }
   console.log('avant appel de create vault access, web3 = ', web3);
-  return await transfer_to(provider.accounts[0], web3);
-  
+  return await transfer_to(provider.accounts[0], to, value, web3);
 }
 
 // interface
@@ -232,4 +238,5 @@ window.createWorkspaceKeys=createworkspacekeys;
 window.isConnected=isconnected;
 window.getAesEncrypted= getaesencrypted;
 window.createVaultAccess=createvaultaccess;
-window.transfer=transferto;
+window.transfer=transfer;
+window.destroyWorkspace=destroyworkspace;

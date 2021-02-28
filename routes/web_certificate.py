@@ -31,6 +31,8 @@ def convert(obj):
 # display experience certificate for anybody. Stand alone routine
 # #route /guest/certificate
 # @route /certificate/
+
+"""
 def on_line_checking(website) :
 	code = str(random.randint(10000, 99999))
 	url =  website + '/did/'
@@ -42,6 +44,7 @@ def on_line_checking(website) :
 			return "False"
 	except :
 		return "False"
+"""
 
 def show_certificate(mode):
 	menu = session.get('menu', dict())
@@ -313,8 +316,8 @@ def show_certificate(mode):
 	if session['displayed_certificate']['type'] == 'agreement':
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
-		signature = session['displayed_certificate']['issued_by']['signature']
-		logo = session['displayed_certificate']['issued_by']['logo']
+		signature = session['displayed_certificate']['issued_by'].get('signature')
+		logo = session['displayed_certificate']['issued_by'].get('logo')
 
 		# if there is no signature or no logo , view is reduced see html else we download file rom ipfs if needed
 		if signature and logo :
@@ -347,9 +350,9 @@ def show_certificate(mode):
 							location = session['displayed_certificate']['location'],
 							description=description,
 							logo=logo,
-							issued_to_name = session['displayed_certificate']['issued_to']['name'],
-							issuer_name = session['displayed_certificate']['issued_by']['name'],
-							issuer_siret = session['displayed_certificate']['issued_by'].get('siret', ""),
+							issued_to_name = session['displayed_certificate']['issued_to'].get('name', ''),
+							issuer_name = session['displayed_certificate']['issued_by'].get('name',''),
+							issuer_siret = session['displayed_certificate']['issued_by'].get('siret', ''),
 							title = session['displayed_certificate']['title'],
 							signature=signature,
 							viewer=viewer,
@@ -723,10 +726,10 @@ def certificate_issuer_explore(mode) :
 			my_kbis = """<p class="text-warning">No data available</p><br>"""
 
 		if issuer_explore.personal['website']['claim_value'] :
-			on_line_check = on_line_checking(issuer_explore.personal['website']['claim_value'])
-			my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] + """ <br>
-				<b>Visual check</b> : <a href=" """ + issuer_explore.personal['website']['claim_value'] + """/did/">""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
-				<b>On-Line check</b> : """ + on_line_check
+			#on_line_check = on_line_checking(issuer_explore.personal['website']['claim_value'])
+			my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] #+ """ <br>
+			#	<b>Visual check</b> : <a href=" """ + issuer_explore.personal['website']['claim_value'] + """/did/">""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
+			#	<b>On-Line check</b> : """ + on_line_check
 
 		for kbis in issuer_explore.kbis :
 			my_kbis = my_kbis + "<hr><b>Certificate issued by Talao</b><br><br>"

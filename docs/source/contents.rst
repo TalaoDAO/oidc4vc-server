@@ -29,17 +29,17 @@ Terminology : in this document we will consider "Self Sovereign Identity" as an 
 How does Talao work ?
 ---------------------
 
-Talao is based on Ethereum smart contracts Identities.
+That is quite simple, first you download the crypto wallet app of your choice on your smarphone, then you scan the QR Code displayed on your desktop and you are in !
 
-Smart contract Identities are like digital vault where you can store your data as Digital ID, diplomas, professional certificates, business contracts, pay slips,...
-Each individual or company is given its own private key to access and update its Identity.
+Under the hood, Talao is based on Ethereum smart contracts Identities. Smart contract Identities are like digital vault where you can store your data as Digital ID, diplomas, professional certificates, business contracts, pay slips,...
+Each individual or company has its own private key to access and update its Identity.
 
-Thanks to cryptographic algorithms those private keys are only used to sign messages sent by the Identity owner to the Blockchain servers.
-If someone wants to update its data, he/she will sign a message with a private key and send it to all Blockchain servers.
-Each server will check the signature, update data then compare them to other server copies. As those data are duplicated on thousands of servers, no one can alone hack the Identity.
+Thanks to cryptographic algorithms those private keys are used to sign messages sent by the Identity owner to the Blockchain nodes (Internet servers).
+If someone wants to update its data, he/she will sign a message with a private key and send it to all Blockchain nodes.
+Each server will check the signature, update data then compare them to other server copies. As those data are duplicated on multiple servers, no one can alone hack the Identity.
 
-This Talao web application https://talao.co is a trust service to access Self Sovereign Identities with a simple User Interface and automated processus.
-From a blockchain perspective, the Identity owner is the Ethereum account attached to the the smarthone crypto wallet.
+This Talao web application https://talao.co is a relay to access Self Sovereign Identities with a simple User Interface and automated processus.
+From a blockchain perspective, the Identity owner is the Ethereum account attached to the the smartphone crypto wallet.
 
 
 What are Decentralized IDentities (DID) ?
@@ -65,6 +65,9 @@ and data protection (see the SSI-eIDAS Bridge project launched by EU)..
 
 More information available :
 
+
+  * https://www.w3.org/TR/vc-data-model/
+  * https://www.w3.org/TR/did-core/
   * https://identity.foundation/
   * https://ec.europa.eu/futurium/en/system/files/ged/eidas_supported_ssi_may_2019_0.pdf
   * https://joinup.ec.europa.eu/collection/ssi-eidas-bridge/about

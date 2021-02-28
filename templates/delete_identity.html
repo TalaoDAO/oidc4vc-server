@@ -5,7 +5,7 @@
     {% include 'head.html' %}
 </head>
 
-<body id="page-top">
+<body id="page-top" onload="page_onload()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -80,14 +80,22 @@
         document.execCommand("copy");
         $temp.remove();
       }</script>  -->
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+
+      <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+    <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
 
 
 
+    <script>
+        function page_onload(){
+          window.getAccountAddress().then(value => {
+            console.log('value dans page_onload = ', value);
+          });
+        }
+        </script>
 
 </body>
 
