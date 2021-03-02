@@ -461,7 +461,6 @@ def board(mode):
 		del session['resume']['education_list']
 		del session['resume']['other_list']
 		del session['resume']['kbis_list']
-		del session['resume']['kyc_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
 		del session['resume']['synchronous']

@@ -47,7 +47,7 @@ from routes import web_resolver, web_main
 from config_apiserver import config_api_server
 
 # Release
-VERSION = "0.7.0"
+VERSION = "0.7.1"
 API_SERVER = False
 
 # Framework Flask and Session setup

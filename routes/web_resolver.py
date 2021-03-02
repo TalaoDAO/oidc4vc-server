@@ -40,7 +40,6 @@ def resolver(mode):
         if input[:3] == 'did' :
             did = input
             workspace_contract = '0x' + did.split(':')[3]
-            username = ns.get_username_from_resolver(workspace_contract, mode)
         else :
             username = input.lower()
             workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
@@ -51,18 +50,21 @@ def resolver(mode):
         return render_template('resolver.html', output=output)
 
     address = contractsToOwners(workspace_contract, mode)
-    address = mode.w3.toChecksumAddress(address)
     contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
     IdentityInformation = contract.functions.identityInformation().call()
-    print('identity information = ', IdentityInformation)
     rsa_public_key = IdentityInformation[4]
     category = IdentityInformation[1]
     if category == 1001 :
         getResume = {"@context" : "https://talao.readthedocs.io/en/latest/contents/",
                     "type" : "getResume",
                     "serviceEndpoint" : "https://talao.co/resume/?did=" + did}
+        view_resume = """View Resume :   <a href="https://talao.co/resume/?did=""" + did + """" >https://talao.co/resume/?did=""" + did + """</a>"""
+
     else :
-        getResume = dict()
+        getResume = {"@context" : "https://talao.readthedocs.io/en/latest/contents/",
+                    "type" : "getData",
+                    "serviceEndpoint" : "https://talao.co/board/?did=" + did}
+        view_resume =  """View Data :   <a href="https://talao.co/board/?did=""" + did + """" >https://talao.co/board/?did=""" + did + """</a>"""
 
     MAN_key = list()
     for count, value in enumerate(get_keylist(1, workspace_contract, mode), start=1) :
@@ -153,7 +155,7 @@ def resolver(mode):
     payload['service'].append(getResume)
 
     if session.get('response') == 'html' :
-        return render_template('resolver.html', output=json.dumps(payload, indent=4))
+        return render_template('resolver.html', output=json.dumps(payload, indent=4), view_resume=view_resume)
     else :
         response = Response(json.dumps(payload), status=200, mimetype='application/json')
         return response
