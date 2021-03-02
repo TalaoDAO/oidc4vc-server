@@ -17,35 +17,38 @@ from flask import Flask, redirect
 from flask_session import Session
 from flask_fontawesome import FontAwesome
 from datetime import timedelta
+import logging
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not mychain or not myenv :
-    print('Error : environment variables missing')
-    print('Error : export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
+    logging.error('environment variables missing')
+    logging.error('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
     exit()
 if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
-    print('Error : wrong chain')
+    logging.error('wrong chain')
     exit()
-print('Success : start to init environment')
+logging.info('start to init environment')
 mode = environment.currentMode(mychain,myenv)
-print('Success : end of init')
+logging.info('end of init')
 
 
 #sys.path.append(mode.sys_path + '/Talao/factory')
 #sys.path.append(mode.sys_path + '/Talao/core')
 
 # Centralized  routes : modules in ./routes
-from routes import web_create_identity, web_create_company_cci, web_certificate, web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore, web_main
+from routes import web_create_identity, web_create_company_cci, web_certificate
+from routes import web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
+from routes import web_resolver, web_main
 
 # API server setup
 from config_apiserver import config_api_server
 
 # Release
 VERSION = "0.7.0"
-API_SERVER = True
+API_SERVER = False
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -64,7 +67,7 @@ sess.init_app(app)
 
 # define everything about API server, constante and route for endpoints
 if API_SERVER :
-    print('Info : API server init')
+    logging.info('API server init')
     config_api_server(app, mode)
 
 # bootstrap font managment  -> recheck if needed !!!!!
@@ -73,9 +76,12 @@ fa = FontAwesome(app)
 # note that we set the 403 status explicitly
 @app.errorhandler(403)
 def page_abort(e):
-    print('Warning : appel abort 403')
+    logging.warning('appel abort 403')
     return redirect(mode.server + 'login/')
 
+
+# Centralized @route for Resolver
+app.add_url_rule('/resolver',  view_func=web_resolver.resolver, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized @route for create identity
 #app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -135,7 +141,7 @@ app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for main features
-app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'], defaults={'mode' : mode})
+app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'])
 app.add_url_rule('/user/picture/',  view_func=web_main.picture, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/success/',  view_func=web_main.success, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_search_setting/',  view_func=web_main.update_search_setting, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -205,7 +211,7 @@ app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GE
 if __name__ == '__main__':
 
     # info release
-    print('Info : ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
-    print('Warning : flask serveur init')
+    logging.info('file : %s ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
+    logging.info('flask serveur init')
 
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)

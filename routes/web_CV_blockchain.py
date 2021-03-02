@@ -11,6 +11,7 @@ from flask_fontawesome import FontAwesome
 import json
 from sys import getsizeof
 import time
+import logging
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
@@ -19,21 +20,27 @@ from core import ns, analysis
 
 #@app.route('/resume/', methods=['GET'])
 def resume(mode) :
-	""" This is always an external entry point"""
-	issuer_workspace_contract = request.args. get('workspace_contract')
-	if issuer_workspace_contract is None :
+	"""
+	Public resume available for all
+	This is always an external an external entry point
+	Flask session is clear
+	we load the Identity from blockchain
+	"""
+	try :
+		workspace_contract = '0x' + request.args.get('did').split(':')[3]
+		issuer_explore = Identity(workspace_contract, mode)
+	except :
+		logging.error('wrong did as person')
 		abort(403)
-	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
 
 	if issuer_explore.type == 'person' :
 		session['resume']= issuer_explore.__dict__
-		""" clean up """
+		""" resume clean up """
 		del session['resume']['file_list']
 		del session['resume']['experience_list']
 		del session['resume']['education_list']
 		del session['resume']['other_list']
 		del session['resume']['kbis_list']
-		del session['resume']['kyc_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
 		del session['resume']['synchronous']
@@ -88,7 +95,7 @@ def resume(mode) :
 
 		carousel_indicators_experience = """<li data-target="#experience-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_experience = ""
-		if experiences == []:
+		if not experiences :
 			pass
 		else :
 			nbr_rows = (len(experiences)-1)//3
@@ -103,7 +110,7 @@ def resume(mode) :
 					except:
 						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -127,10 +134,10 @@ def resume(mode) :
 				#header
 				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div><hr class='my-1'>"
 				#body
-				if experience['topic']!='experience':
+				if experience['topic'] != 'experience':
 					carousel_rows_experience += """<p style="font-size: 1em"><b>Referent name: </b>"""
 
-					if experience['issuer']['category']==2001:
+					if experience['issuer']['category'] == 2001:
 						carousel_rows_experience += experience['issuer']['name'] + """<br>"""
 					else:
 						carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br>"""
@@ -139,7 +146,7 @@ def resume(mode) :
 				carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
 				if experience['topic']!='experience':
 					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:100:]
-					if len(experience['description'])>100:
+					if len(experience['description']) > 100:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"
@@ -150,12 +157,13 @@ def resume(mode) :
 					else:
 						carousel_rows_experience += "<br>"
 				carousel_rows_experience += "</p>"
+
 				#Footer
 				if experience['topic']=='experience':
 					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
 					carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
 				else:
-					if experience['issuer']['category']==2001:
+					if experience['issuer']['category'] == 2001:
 						carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  experience['issuer']['name'] + """</footer>"""
 					else:
 						carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + experience['issuer']['firstname'] + " " +  experience['issuer']['lastname'] + """</footer>"""
@@ -165,11 +173,11 @@ def resume(mode) :
 				#carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
 
 				carousel_rows_experience += """</figure></div>"""
-				if (i+1)%3==0 and (len(experiences)%3!=0 or len(experiences)!=i+1):
+				if (i+1)%3 == 0 and (len(experiences)%3!=0 or len(experiences)!=i+1):
 					carousel_rows_experience += '</div></div>'
 				if i == len(experiences)-1:
 					carousel_rows_experience += '</div></div>'
-		
+
 		# recommendation
 		recommendations = []
 		for certificate in issuer_explore.certificate:
@@ -178,7 +186,7 @@ def resume(mode) :
 
 		carousel_indicators_recommendation = """<li data-target="#recommendation-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_recommendation = ""
-		if recommendations == []:
+		if not recommendations :
 			pass
 		else:
 			nbr_rows = (len(recommendations)-1)//3
@@ -199,7 +207,7 @@ def resume(mode) :
 					except:
 						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -244,7 +252,7 @@ def resume(mode) :
 		# education
 		carousel_indicators_education = """<li data-target="#education-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_education = ""
-		if issuer_explore.education == []:
+		if not issuer_explore.education :
 			pass
 		else:
 			educations = issuer_explore.education
@@ -260,7 +268,7 @@ def resume(mode) :
 					except:
 						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -306,8 +314,8 @@ def resume(mode) :
 
 		carousel_indicators_skill = """<li data-target="#skill-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_skill = ""
-		if skills == []:
-			if issuer_explore.skills != None and issuer_explore.skills['description'] != None:
+		if not skills :
+			if issuer_explore.skills  and issuer_explore.skills['description'] :
 				carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
 				carousel_rows_skill += """<div class="col-md-4 mb-2">
 						<figure class="snip1253 mw-100" style="height: 410px; ">
@@ -340,7 +348,7 @@ def resume(mode) :
 				except:
 					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -433,14 +441,18 @@ def resume(mode) :
 							carousel_rows_education=carousel_rows_education,
 							carousel_rows_skill=carousel_rows_skill)
 	else:
+		logging.error('resume entry with category company')
 		abort(403)
+
 # /board
 def board(mode):
-	""" This is always an external entry point"""
-	issuer_workspace_contract = request.args. get('workspace_contract')
-	if issuer_workspace_contract is None :
+	try :
+		workspace_contract = '0x' + request.args.get('did').split(':')[3]
+		issuer_explore = Identity(workspace_contract, mode)
+	except :
+		logging.error('wrong did as company ')
 		abort(403)
-	issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
+
 	if issuer_explore.type == 'company' :
 		session['resume']= issuer_explore.__dict__
 		""" clean up """
@@ -489,7 +501,7 @@ def board(mode):
 				except:
 					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -538,7 +550,7 @@ def board(mode):
 				references.append(certificate)
 		carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_reference = ""
-		if references == []:
+		if not references :
 			pass
 		else:
 			nbr_rows = (len(references)-1)//3
@@ -550,7 +562,7 @@ def board(mode):
 				except:
 					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -626,4 +638,5 @@ def board(mode):
                             competencies = my_competencies,
 							)
 	else:
+		logging.error('board entry with category person')
 		abort(403)

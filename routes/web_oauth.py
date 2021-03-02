@@ -20,75 +20,11 @@ from eth_utils import decode_hex
 
 import constante
 from protocol import read_profil, contractsToOwners, add_key, partnershiprequest, authorize_partnership, get_category, ownersToContracts
-from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim, Identity, get_keylist
+from protocol import save_image, has_key_purpose, Document, get_image, is_partner, get_partner_status, Claim, Identity
 from factory import createidentity, createcompany
 from core import privatekey, Talao_message, Talao_ipfs, ns, oauth2
 #from oauth2 import authorization, require_oauth
 
-
-# Resolver pour l acces a un did. Cela retourne un debut de DID Document....
-#@route('/resolver')
-def resolver(mode):
-    if request.method == 'GET' :
-        if not request.args.get('username') and not request.args.get('did') :
-            session['response'] = 'html'
-            return render_template('resolver.html', output="")
-        else :
-            input = request.args.get('username')
-            if not input :
-                input = request.args.get('did')
-    if request.method == 'POST' :
-        input = request.form['input']
-    try :
-        if input[:3] == 'did' :
-            did = input
-            workspace_contract = '0x' + did.split(':')[3]
-            username = ns.get_username_from_resolver(workspace_contract, mode)
-        else :
-            username = input.lower()
-            workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
-            did = 'did:talao:'+ mode.BLOCKCHAIN + ':' + workspace_contract[2:]
-    except :
-        print('Error : wrong input')
-        output =  "Username, workspace_contract or did not found"
-        return render_template('resolver.html', output=output)
-    address = contractsToOwners(workspace_contract, mode)
-    address = mode.w3.toChecksumAddress(address)
-    contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-    rsa_public_key = contract.functions.identityInformation().call()[4]
-    priv_key = privatekey.get_key(address, 'private_key', mode)
-    if priv_key :
-        priv_key_bytes = decode_hex(priv_key)
-        priv_key = keys.PrivateKey(priv_key_bytes)
-        public_key = str(priv_key.public_key)
-    else :
-        public_key = ""
-    authn_list = contract.functions.getClaimIdsByTopic(100105100095097117116104110).call()
-    if authn_list :
-        did_authn_id = authn_list[-1].hex()
-        claim = contract.functions.getClaim(did_authn_id).call()
-        ipfs_hash = claim[5]
-        did_authn = Talao_ipfs.ipfs_get(ipfs_hash)
-    else :
-        did_authn_id = None
-        did_authn = None
-    payload = {'blockchain' : mode.BLOCKCHAIN,
-                'username' : username,
-                'did' : did,
-                'ERC725_did_authn_claim_id' : did_authn_id,
-                'did_authn' : did_authn,
-                'address' : address,
-                'ECDSA_public_key' : public_key,
-                'RSA public key' : rsa_public_key.decode('utf-8'),
-                'ACTION_key_keccak': get_keylist(1, workspace_contract, mode),
-                'KEY_key_keccak': get_keylist(2, workspace_contract, mode),
-                'CLAIM_key_keccak' : get_keylist(3, workspace_contract, mode),
-                'DOCUMENT_key_keccak' : get_keylist(20002, workspace_contract, mode)}
-    if session.get('response') == 'html' :
-        return render_template('resolver.html', output=json.dumps(payload, indent=4))
-    else :
-        response = Response(json.dumps(payload), status=200, mimetype='application/json')
-        return response
 
 def check_login() :
     #check if the user is correctly logged. This function is called everytime a user function is called

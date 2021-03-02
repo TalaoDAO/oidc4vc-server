@@ -9,9 +9,7 @@ let config = {
       filename: "./wc-talao.min.js"
     },
 node: {
-   fs: "empty"
+  fs: "empty"
 }
-  
-  }
-
+}
   module.exports = config;

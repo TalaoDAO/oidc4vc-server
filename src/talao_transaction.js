@@ -17,7 +17,7 @@ export async function contractstoowners(workspace_contract,web3) {
     }
 
 /*
-This is the CreateVaultAccess of the token 
+This is the CreateVaultAccess of the token
 */
 export async function create_vault_access(account, web3) {
   const contract = new web3.eth.Contract(talao_token_abi, talao_token_contract);
@@ -33,7 +33,6 @@ export async function create_vault_access(account, web3) {
   }
 }
 
-
 export async function transfer_to(account_from, account_to, value, web3) {
   const contract = new web3.eth.Contract(talao_token_abi, talao_token_contract);
   await contract.methods.transfer(account_to, value).send({from: account_from, gas : "50000"})
@@ -44,7 +43,6 @@ export async function transfer_to(account_from, account_to, value, web3) {
   .then(receipt => {console.log('receipt = ',receipt);
     });
   }
-
 
 export async function destroy_workspace(address,web3){
   const workspace_contract = await ownerstocontracts(address, web3);
@@ -58,7 +56,6 @@ export async function destroy_workspace(address,web3){
     });
   }
 
-
 export async function read_public_rsa(workspace_contract,web3){
   const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract);
   let result = null;
@@ -69,13 +66,14 @@ export async function read_public_rsa(workspace_contract,web3){
   return result;
   }
 
+
 /*
  Basic GET request JS client side
 */
 let HttpClient = function() {
         this.get = function(aUrl, aCallback) {
             const anHttpRequest = new XMLHttpRequest();
-            anHttpRequest.onreadystatechange = function() { 
+            anHttpRequest.onreadystatechange = function() {
                 if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
                     aCallback(anHttpRequest.responseText);
             }
@@ -86,16 +84,16 @@ let HttpClient = function() {
 
 
 /*
-This function read the AES priate key of an Identity and decrypt it with the private key 
-of the wallet.
+This function read the AES private key of an Identity then derive the rsa private key from the signature
+and decrypt it. It returns the AES private key and the workspace contract
 */
 export async function get_aes_private_key(address, provider, web3){
-       const workspace_contract = await ownerstocontracts(address, web3)
+       const workspace_contract = await ownerstocontracts(address, web3);
        const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract);
        // derive private RSA key from wallet signature of 'Identity Signature'
        const signature = await sign_message('Identity Signature', provider);
        const keys = await generateRsa(signature);
-       const private_rsa_key = keys[0]
+       const private_rsa_key = keys[0];
        // get private AES key encrypted on workspace
        let aes_private_key_encrypted = null;
        await contract.methods.identityInformation().call()
@@ -106,13 +104,12 @@ export async function get_aes_private_key(address, provider, web3){
   }
 
   /* 
-  This function is needed for the OpenId Connect flow
-  it allows to read the AES private key of the Identity and send it encrypted to an other Identity
+  Read the AES private key of the Identity owner with walletr and encrypt it with 
+  the rsa key of another Identity
   */
 export async function get_aes_private_key_encrypted(provider, web3, workspace_contract_to){
   // read aes private key on the workspace of the identity
   const result  = await get_aes_private_key(provider.accounts[0], provider, web3);
-  console.log('result dans get_aes_private_key ', result)
   // read the publice provate key of the client Identity for OpenId Connect flow
   const rsa_public_key = await read_public_rsa(workspace_contract_to, web3);
   // encrypt the aes private key of the Identity with the public RSA key of the client
@@ -121,14 +118,25 @@ export async function get_aes_private_key_encrypted(provider, web3, workspace_co
   }
 
   /*
-  This function allows the Identity owner to access to his own did_authn Claim
+  Downloads the did auth of the Identity wallet and encrypt it with the Client rsa key
+  */
+export async function get_did_authn_encryted_for_other(provider, web3, workspace_contract_to){
+  const did_authn = await did_authn(provider,web3);
+  const rsa_public_key = await read_public_rsa(workspace_contract_to, web3);
+  return rsaEncrypt(did_authn, rsa_public_key);
+  }
+
+
+  /*
+  Download the did_authn of the Identity wallet, decrypt it and
+  returns it plain text
   */
 export  async function did_authn(provider,web3){
     const address = provider.accounts[0];
-    const workspace_contract = await ownerstocontracts(address, web3)
+    const workspace_contract = await ownerstocontracts(address, web3);
     const contract = new web3.eth.Contract(workspace_contract_abi, workspace_contract);
     // look for the list of ERC725 Claims with topic = did auth
-    const claim_list = await contract.methods.getClaimIdsByTopic('100105100095097117116104110').call()
+    const claim_list = await contract.methods.getClaimIdsByTopic('100105100095097117116104110').call();
     // look for the last ERC725 claim of the list
     const claim = await contract.methods.getClaim(claim_list.slice(-1)[0]).call();
     // download cipher text from IPFS data of the claim
@@ -137,11 +145,11 @@ export  async function did_authn(provider,web3){
     let uri = 'https://gateway.pinata.cloud/ipfs/' + claim.uri;
       client.get(uri, function(response) {
       ciphertext = JSON.parse(response).ciphertext;
-    });
+      });
     // derive private RSA key from wallet signature of 'Identity Signature'
     const signature = await sign_message('Identity Signature', provider);
     const keys = await generateRsa(signature);
-    const private_rsa_key = keys[0]
+    const private_rsa_key = keys[0];
     // get private AES key encrypted on workspace
     let aes_private_key_encrypted = null;
     await contract.methods.identityInformation().call()
@@ -149,11 +157,11 @@ export  async function did_authn(provider,web3){
     // decrypt private AES key with RSA private key
     const aes_private_key = rsaDecrypt(aes_private_key_encrypted, private_rsa_key);
     // decrypt claim cipher text with AES key
-        return aesDecrypt(ciphertext, aes_private_key.toString());
-        }
+    return aesDecrypt(ciphertext, aes_private_key.toString());
+    }
 
 /*
-This function is the basic web3 sign method
+Basic ethereum sign method
 */
 export async function sign_message(msg, provider){
     let signature = null;

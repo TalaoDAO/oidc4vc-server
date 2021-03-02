@@ -553,7 +553,7 @@ def user(mode) :
 								'private_key_value' : user.private_key_value,
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
-								'clipboard' : mode.server  + "resume/?workspace_contract=" + session['workspace_contract']}
+								'clipboard' : mode.server  + "resume/?did=" + session['did']}
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 			session['profil_title'] = ""
@@ -563,7 +563,7 @@ def user(mode) :
 								'private_key_value' : user.private_key_value,
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
-								'clipboard' : mode.server  + "board/?workspace_contract=" + session['workspace_contract']}
+								'clipboard' : mode.server  + "board/?did=" + session['did']}
 
 		# Warning message for first connexion
 		message1 = message2 = message3 = ""

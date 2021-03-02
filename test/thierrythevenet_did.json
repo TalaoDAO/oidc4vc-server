@@ -1,0 +1,109 @@
+{
+    "@context": [
+        "https://www.w3.org/ns/did/v1",
+        {
+            "ERC725ManagementKey": "https://github.com/ethereum/EIPs/issues/725#ERC725ManagementKey",
+            "ERC725ActionKey": "https://github.com/ethereum/EIPs/issues/725#ERC725ActionKey",
+            "ERC725ClaimKey": "https://github.com/ethereum/EIPs/issues/725#ERC725ClaimKey",
+            "ERC725EncryptionKey": "https://github.com/ethereum/EIPs/issues/725#ERC725EncryptionKey"
+        }
+    ],
+    "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB",
+    "publicKey": [
+        {
+            "usage": "signing",
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#primary",
+            "type": "Secp256k1VerificationKey2018",
+            "publicKeyHex": "0x81d8800eDC8f309ccb21472d429e039E0d9C79bB",
+            "controller": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB"
+        },
+        {
+            "usage": "signing",
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#secondary",
+            "type": "RSASigningKey2018",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm6gzb/pkqzChpLlT8mub\nsviM1/PeQv9I7sQi6PJH7NN61z5kysmQuQQTOYusMxKuhCqdtsflHM6E1eEGTHkC\nczAlv2WCdBzK+ZQzQx9Zd6pX3Wv23lzUfQ5XmmsShpCFx2F8osXSH4trJUEckQsh\nZHn/b7o86hovzzKg2qEm8f+JzWWkoadv5h4PxjwQHhZU5UbRhcXL1GZqNAaY1zfj\n57sw/dAXv9FconXoecYVn7pQLtnDo71+1wz6Mpn2FkYjpYh2GeyNViE1lk5gxVvo\nkd/v99memLWUnwojqZ+txHxrasjjmmw/zbYwsY2gFt+d3XBuDQQlMUQ4gU/NOb9W\nEwIDAQAB\n-----END PUBLIC KEY-----",
+            "controller": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB"
+        },
+        {
+            "usage": "signing",
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#owner",
+            "type": "Secp256k1SignatureAuthentication2018",
+            "blockchainAccountId": "0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-act-1",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725ActionKey"
+            ],
+            "publicKeyHex Keccak256": "3eeea085613c0b1181f57fac40b2db9babfe9397459073d7c2697d5f3f430175"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-act-2",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725ActionKey"
+            ],
+            "publicKeyHex Keccak256": "a27a104d667d35717bb818582ce4f83e3c619c03ae740885ea992789e00fc06b"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-cla-1",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725ClaimKey"
+            ],
+            "publicKeyHex Keccak256": "39c363b3d08c801ec1b13b51e369fd5c8d6620f1067e2928e61a1076748cea74"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-cla-2",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725ClaimKey"
+            ],
+            "publicKeyHex Keccak256": "ad2b37760f79ea74a573ee9c7bacb984996c5379ae69213aac1331945c07799e"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-doc-1",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725DocumentKey"
+            ],
+            "publicKeyHex Keccak256": "3c88c8d851d99297d0c8cf17261b323edf47a1a48af18e77315e1f42cc1e8939"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-doc-2",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725DocumentKey"
+            ],
+            "publicKeyHex Keccak256": "5f42e7d7ccfbeaa141457acd49cbd8f29d0f3f1e1337ef4f4bb7f94ecda11af1"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-doc-3",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725DocumentKey"
+            ],
+            "publicKeyHex Keccak256": "b5cf75bb1ce4ae6814d9cd4713eaa667303835cb7c9f0749c57fc2be417370ad"
+        },
+        {
+            "id": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#key-doc-4",
+            "type": [
+                "Secp256k1SignatureVerificationKey2018",
+                "ERC725DocumentKey"
+            ],
+            "publicKeyHex Keccak256": "820f8337f8be6c0d5b66b02106248af87b195a2292dad8e8849a1c8134c1843e"
+        }
+    ],
+    "authentication": {
+        "type": "Secp256k1SignatureAuthentication2018",
+        "publicKey": "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB#primary"
+    },
+    "service": [
+        {
+            "@context": "https://talao.readthedocs.io/en/latest/contents/",
+            "type": "getResume",
+            "serviceEndpoint": "https://talao.co/resume/?did=did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB"
+        }
+    ],
+}
