@@ -41,14 +41,10 @@ logging.info('end of init')
 # Centralized  routes : modules in ./routes
 from routes import web_create_identity, web_create_company_cci, web_certificate
 from routes import web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
-from routes import web_resolver, web_main
-
-# API server setup
-from config_apiserver import config_api_server
+from routes import web_resolver, web_main, web_login
 
 # Release
 VERSION = "0.7.2"
-API_SERVER = False
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -64,11 +60,6 @@ app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 sess = Session()
 sess.init_app(app)
-
-# define everything about API server, constante and route for endpoints
-if API_SERVER :
-    logging.info('API server init')
-    config_api_server(app, mode)
 
 # bootstrap font managment  -> recheck if needed !!!!!
 fa = FontAwesome(app)
@@ -113,24 +104,25 @@ app.add_url_rule('/board/', view_func=web_CV_blockchain.board, methods = ['GET',
 # Centralized route fo Issuer explore
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
 
-# Centralized route for user, data, login
-app.add_url_rule('/wc_login/',  view_func=web_data_user.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/user/update_wallet/',  view_func=web_data_user.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
+# Centralized route for login
+app.add_url_rule('/wc_login/',  view_func=web_login.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/logout/',  view_func=web_login.logout, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/forgot_username/',  view_func=web_login.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/forgot_password/',  view_func=web_login.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/forgot_password_2/',  view_func=web_login.forgot_password_2, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/login/authentification/',  view_func=web_login.login_authentification, methods = ['POST'], defaults={'mode': mode})
+app.add_url_rule('/login/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
+app.add_url_rule('/user/two_factor/',  view_func=web_login.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/user/update_wallet/',  view_func=web_login.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
+
+# Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/logout/',  view_func=web_data_user.logout, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_username/',  view_func=web_data_user.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_password/',  view_func=web_data_user.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_password_2/',  view_func=web_data_user.forgot_password_2, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/login/authentification/',  view_func=web_data_user.login_authentification, methods = ['POST'], defaults={'mode': mode})
-app.add_url_rule('/login/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/',  view_func=web_data_user.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
-app.add_url_rule('/use_my_own_address/',  view_func=web_data_user.use_my_own_address, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/company/',  view_func=web_data_user.company, methods = ['GET', 'POST'])
 app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
-app.add_url_rule('/user/two_factor/',  view_func=web_data_user.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route issuer for issue certificate for guest
 app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
