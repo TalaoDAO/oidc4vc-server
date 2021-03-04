@@ -1719,8 +1719,8 @@ def download_rsa_key(mode):
     return send_from_directory(RSA_FOLDER + mode.BLOCKCHAIN,filename, attachment_filename = attachment_filename,as_attachment=True,cache_timeout=1)
 
 #@app.route('/talao_ca/', methods=['GET', 'POST'])
-def ca():
-    talao_x509.generate_CA()
+def ca(mode):
+    talao_x509.generate_CA(mode)
     return send_from_directory('./','talao.pem', as_attachment=True, cache_timeout=1)
 
 #@app.route('/user/download_x509/', methods=['GET', 'POST'])

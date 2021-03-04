@@ -1,0 +1,15 @@
+[Unit]
+Description=Ethereum daemon
+Requires=network.target
+
+[Service]
+Type=simple
+User=thierry
+Group=thierry
+ExecStart=/usr/local/bin/geth  --port 30311 --nodiscover --networkid 50000 --datadir /mnt/ssd/talaonet 
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+Alias=geth

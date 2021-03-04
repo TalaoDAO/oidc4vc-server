@@ -13,10 +13,14 @@ import constante
 from core import privatekey, ns
 
 
-def generate_CA() :
-    filename = './RSA_key/talaonet/0xEE09654eEdaA79429F8D216fa51a129db0f72250_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt'
-    with open(filename, "rb") as key_file:
-        talao_rsa_key = serialization.load_pem_private_key(key_file.read(),password=None,)
+def generate_CA(mode) :
+    # upload RSA private pem 
+    talao_rsa_private_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    if type(talao_rsa_private_key) == bytes :
+        talao_rsa_key = serialization.load_pem_private_key(talao_rsa_private_key,password=None,)
+    else :
+        talao_rsa_key = serialization.load_pem_private_key(bytes(talao_rsa_private_key, 'utf-8'),password=None,)
+
 
     # Talao as Conformity Authority
     talao_issuer = x509.Name([
@@ -69,12 +73,14 @@ def generate_X509(workspace_contract, password, mode) :
     x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "talao.io"),
     #x509.NameAttribute(NameOID.POSTAL_ADDRESS, "16 rue de wattignies, 75012 Paris"),
     x509.NameAttribute(NameOID.COMMON_NAME, "talao"),
-    x509.NameAttribute(NameOID.USER_ID, 'did:talao:taleaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'),])
+    x509.NameAttribute(NameOID.USER_ID, 'did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'),])
 
     # upload the Talao private rsa key
-    filename = './RSA_key/talaonet/0xEE09654eEdaA79429F8D216fa51a129db0f72250_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt'
-    with open(filename, "rb") as key_file:
-        talao_rsa_key = serialization.load_pem_private_key(key_file.read(),password=None,)
+    talao_rsa_private_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    if type(talao_rsa_private_key) == bytes :
+        talao_rsa_key = serialization.load_pem_private_key(talao_rsa_private_key,password=None,)
+    else :
+        talao_rsa_key = serialization.load_pem_private_key(bytes(talao_rsa_private_key, 'utf-8'),password=None,)
 
     # get identity data
     address = contractsToOwners(workspace_contract, mode)
@@ -139,4 +145,4 @@ def generate_X509(workspace_contract, password, mode) :
 
 
 if __name__ == '__main__':
-    generate_CA()
+    generate_CA(mode)

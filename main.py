@@ -47,7 +47,7 @@ from routes import web_resolver, web_main
 from config_apiserver import config_api_server
 
 # Release
-VERSION = "0.7.1"
+VERSION = "0.7.2"
 API_SERVER = False
 
 # Framework Flask and Session setup
@@ -198,7 +198,7 @@ app.add_url_rule('/fonts/<filename>',  view_func=web_main.send_fonts)
 app.add_url_rule('/help/',  view_func=web_main.send_help, methods = ['GET','POST'])
 app.add_url_rule('/user/download/',  view_func=web_main.download_file, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/download_rsa_key/',  view_func=web_main.download_rsa_key, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/talao_ca/',  view_func=web_main.ca, methods = ['GET','POST'])
+app.add_url_rule('/talao_ca/',  view_func=web_main.ca, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/download_x509/',  view_func=web_main.download_x509, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/download_pkcs12/',  view_func=web_main.download_pkcs12, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/download_QRCode/',  view_func=web_main.download_QRCode, methods = ['GET','POST'], defaults={'mode' : mode})
