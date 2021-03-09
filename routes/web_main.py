@@ -17,12 +17,16 @@ import urllib.parse
 import unidecode
 from eth_keys import keys
 from eth_utils import decode_hex
+from eth_account.messages import encode_defunct
+from eth_account import Account
 import requests
 from Crypto.PublicKey import RSA
 from authlib.jose import jwt
+import secrets
+import logging
 
 from factory import createcompany, createidentity
-from core import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509
+from core import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509, credential
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
 from protocol import delete_key, has_key_purpose, add_key
@@ -366,7 +370,7 @@ def issue_experience_certificate(mode):
                         address_to,
                         workspace_contract_to,
                         session['private_key_value'],
-                        session['certificate_to_sign'],
+                        session['certificate_to_register'],
                         mode,
                         mydays=0,
                         privacy='public',
@@ -380,26 +384,39 @@ def issue_experience_certificate(mode):
             print('Warning : incorrect code in issue experience certificate ', request.args.get('two_factor'))
         del session['certificate_signature']
         del session['certificate_signatory']
-        del session['certificate_to_sign']
+        del session['certificate_to_register']
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
     # call from issue_experience_certificate.html
     if request.method == 'POST' :
-        session['certificate_to_sign'] = {
-                    "version" : 1,
-                    "type" : "experience",
-                    "title" : request.form['title'],
-                    "description" : request.form['description'],
-                    "start_date" : request.form['start_date'],
-                    "end_date" : request.form['end_date'],
-                    "skills" : request.form['skills'].split(','),
-                    "score_recommendation" : request.form['score_recommendation'],
-                    "score_delivery" : request.form['score_delivery'],
-                    "score_schedule" : request.form['score_schedule'],
-                    "score_communication" : request.form['score_communication'],
-                    "logo" : session['picture'],
-                    "signature" : session['certificate_signature'],
-                    "manager" : session['certificate_signatory'],
-                    "reviewer" : request.form['reviewer_name']}
+        workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
+        did_to = 'did:talao:talaonet:'+ workspace_contract_to[2:]
+        unsigned_credential = {
+            "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                  ],
+            "id": did_to + '#experience'+ str(secrets.randbits(64)),
+            "@type": ["VerifiableCredential",],
+            "type" : "experience",
+            "credentialSubject": {
+                "id": did_to,},
+            "issuer": session['did'],
+            "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+            "version" : 1,
+            "title" : request.form['title'],
+            "description" : request.form['description'],
+            "start_date" : request.form['start_date'],
+            "end_date" : request.form['end_date'],
+            "skills" : request.form['skills'].split(','),
+            "score_recommendation" : request.form['score_recommendation'],
+            "score_delivery" : request.form['score_delivery'],
+            "score_schedule" : request.form['score_schedule'],
+            "score_communication" : request.form['score_communication'],
+            "logo" : session['picture'],
+            "signature" : session['certificate_signature'],
+            "manager" : session['certificate_signatory'],
+            "reviewer" : request.form['reviewer_name']
+        }
+        session['certificate_to_register'] = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
         # call the two factor checking function :
         return redirect(mode.server + 'user/two_factor/?callback=user/issuer_experience_certificate/')
 
@@ -415,7 +432,7 @@ def issue_recommendation(mode):
                                         session['issuer_explore']['address'],
                                         session['issuer_explore']['workspace_contract'],
                                         session['private_key_value'],
-                                        session['recommendation_to_sign'],
+                                        session['recommendation_to_register'],
                                         mode,
                                         mydays=0,
                                         privacy='public',
@@ -427,15 +444,27 @@ def issue_recommendation(mode):
                 flash('Certificate has been issued', 'success')
         else : # fail to check code
             print('Warning : incorrect code in issue recommendation ', request.args.get('two_factor'))
-        del session['recommendation_to_sign']
+        del session['recommendation_to_register']
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
     if request.method == 'POST' :
-        session['recommendation_to_sign'] = {"version" : 1,
+        did_to = session['issuer_explore']['did']
+        unsigned_credential = {
+                    "@context": [
+                    "https://www.w3.org/2018/credentials/v1",
+                    ],
+                    "id": did_to + '#recommendation'+ str(secrets.randbits(64)),
+                    "@type": ["VerifiableCredential",],
+                    "issuer": session['did'],
+                    "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+                    "credentialSubject": {
+                        "id": did_to,},
+                    "version" : 1,
                     "type" : "recommendation",
                     "description" : request.form['description'],
                     "relationship" : request.form['relationship'],
 			        "picture" : session['picture'],
-			        "title" : session['title']}
+			        "title" : session.get('title', '')}
+        session['recommendation_to_register'] = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
         # call the two factor checking function :
         return redirect(mode.server + 'user/two_factor/?callback=user/issue_recommendation/')
 
@@ -735,33 +764,56 @@ def add_experience(mode) :
 			flash('New experience added', 'success')
 		return redirect(mode.server + 'user/')
 
-# issue kyc (Talao only). THis is the function to issue the ID used by the OpenId Connect server
+# issue kyc (Talao only). This is the function to issue the ID used by the OpenId Connect server
 #@app.route('/user/issue_kyc/', methods=['GET', 'POST'])
 def create_kyc(mode) :
     check_login()
+    if session['username'] != 'talao' :
+        flash('feature not available', 'danger')
+        logging.warning('non authorised')
+        return redirect(mode.server + 'user/')
+
     if request.method == 'GET' :
         return render_template('issue_kyc.html', **session['menu'])
     if request.method == 'POST' :
-        my_kyc = dict()
         kyc_username = request.form['username'].lower()
         kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
         if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
-        my_kyc['given_name'] = request.form['given_name']
-        my_kyc['family_name'] = request.form['family_name']
-        my_kyc['birthdate'] = request.form['birthdate']
-        my_kyc['address'] = request.form['address']
-        my_kyc['phone'] = request.form['phone']
-        my_kyc['email'] = request.form['email']
-        my_kyc['gender'] = request.form['gender']
-        my_kyc['identification'] = request.form['identification']
-        kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode)['workspace_contract']
         kyc_address = contractsToOwners(kyc_workspace_contract, mode)
-        talao_private_key = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-        # private kyc as did_authn ERC735 Claim
+        unsigned_kyc = {
+            "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                ],
+            "id": "did:talao:talaonet:" + kyc_workspace_contract[2:] + "#did_authn",
+            "issuer": session['did'],
+            "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+            "type": ["VerifiableCredential"],
+            "credentialSubject": {
+                "id": "did:talao:talaonet:" + kyc_workspace_contract[2:],
+                'family_name' : request.form['family_name'],
+                'given_name' : request.form['given_name'],
+                'birthdate' : request.form['birthdate'],
+                'address' : request.form['address'],
+                'telephone' : request.form['phone'],
+                'email' : request.form['email'],
+                'gender' : request.form['gender'],
+                },
+            }
+        signed_kyc = credential.sign_credential(unsigned_kyc, session['rsa_key_value'])
+        # signed kyc stored as did_authn ERC735 Claim
         claim=Claim()
-        data = claim.add(mode.owner_talao, mode.workspace_contract_talao, kyc_address, kyc_workspace_contract, talao_private_key, 'did_authn', my_kyc, 'private', mode, synchronous = True)
+        data = claim.add(session['address'],
+                         session['workspace_contract'],
+                         kyc_address,
+                         kyc_workspace_contract,
+                         session['private_key_value'],
+                         'did_authn',
+                         signed_kyc,
+                         'private',
+                         mode,
+                         synchronous = True)
         if not data[0] :
             flash('Transaction failed', 'danger')
         else :

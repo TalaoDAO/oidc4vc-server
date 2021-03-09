@@ -1,6 +1,10 @@
 """
 https://w3c.github.io/did-spec-registries/#rsaverificationkey2018
 
+signature suite
+https://w3c-ccg.github.io/lds-rsa2018/
+
+
 
 """
 import os
@@ -40,6 +44,10 @@ def resolver(mode):
         if input[:3] == 'did' :
             did = input
             workspace_contract = '0x' + did.split(':')[3]
+            if not mode.w3.isAddress(workspace_contract) :
+                logging.error('did malformed')
+                output =  "DID malformed"
+                return render_template('resolver.html', output=output)
         else :
             username = input.lower()
             workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
@@ -120,29 +128,37 @@ def resolver(mode):
 		    "ERC725EncryptionKey": "https://github.com/ethereum/EIPs/issues/725#ERC725EncryptionKey",
             "ERC725DocumentKey": "https://talao.readthedocs.io/en/latest/contents/",
 	        }],
-        'id' : did,
-        "publicKey": [
-            {"usage": "signing",
+        "id" : did,
+
+        "authentication": [{
+            "id": did + "#owner",
+            "type": "Secp256k1SignatureAuthentication2018",
+            "blockchainAccountId":address},
+             {
             "id": did + "#primary",
             "type": "Secp256k1VerificationKey2018",
-            "publicKeyHex": workspace_contract,
+            "blockchainAccountId": workspace_contract,
+            "controller": did},
+            ],
+
+        "publicKey": [
+            {
+            "id": did + "#primary",
+            "type": "Secp256k1VerificationKey2018",
+            "blockchainAccountId": workspace_contract,
             "controller": did},
 
-            {"usage": "signing",
+            {
             "id": did + "#secondary",
-            "type": "RSASigningKey2018",
-            "publicKeyPem": rsa_public_key.decode('utf-8'),
+            "type": "RsaVerificationKey2018",
+            "publicKeyPem": rsa_public_key.decode(),
             "controller": did},
 
-            {"usage" : "signing",
+            {
             "id": did + "#owner",
             "type": "Secp256k1SignatureAuthentication2018",
             "blockchainAccountId":address},
             ],
-
-        "authentication": {
-		    "type": "Secp256k1SignatureAuthentication2018",
-		    "publicKey": did + "#primary"},
 
         "service" : [],
         }

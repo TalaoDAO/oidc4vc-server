@@ -32,20 +32,6 @@ def convert(obj):
 # #route /guest/certificate
 # @route /certificate/
 
-"""
-def on_line_checking(website) :
-	code = str(random.randint(10000, 99999))
-	url =  website + '/did/'
-	try :
-		response = requests.post( url, data={ 'code' : code})
-		if response.status_code == 200 and response.json().get('code') == code :
-			return "True"
-		else :
-			return "False"
-	except :
-		return "False"
-"""
-
 def show_certificate(mode):
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
@@ -488,34 +474,21 @@ def certificate_verify(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
 				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
 
-	# advanced
-	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
-	# en attendant d'avoir une solution de chain explorer pour Talaonet....
-	if mode.BLOCKCHAIN == 'talaonet' :
-		blockchain = "TalaoNet RPC URL http://18.190.21.227:8502"
-		transaction_hash = certificate['transaction_hash']
-	else :
-		blockchain = mode.BLOCKCHAIN.capitalize()
-		transaction_hash = """ <a class = <a class= "card-link" href = """ + path + certificate['transaction_hash'] + """>"""+ certificate['transaction_hash']
-	advanced = """<hr>
-				<b>Blockchain</b> : """ + blockchain + """<br>
-				<b>Document Id</b> : """ + certificate['id'] + """<br>
-				<b>Transaction Hash</b> : """ + transaction_hash + """</a><br>
-				<b>Certificate issued on </b> : """ + certificate['created'] + """<br>
-				<b>Data storage</b> : <a class="card-link" href=""" + certificate['data_location'] + """>""" + certificate['data_location'] + """</a><br>
-				<b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br>
-				<b>IP Address</b> : """ + certificate['request_remote_addr'] + """<br>
-				<b>Issuer Agent</b> : """ + certificate['request_remote_user_agent'].get('string', 'None') + """<br>
-				<b>Issuer Browser</b> : """ + certificate['request_remote_user_agent'].get('browser', 'None') + """<br>
-				<b>Issuer Platform</b> : """ + certificate['request_remote_user_agent'].get('platform', 'None') + """<br><hr>"""
+	# Verifiable Credential
+	credential = Document('certificate')
+	doc_id = int(session['certificate_id'].split(':')[5])
+	credential.relay_get_credential(identity_workspace_contract, doc_id, mode, loading = 'full')
+	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
+	#except :
+	#	credential_text = ""
 
-
-	my_verif = "".join([ advanced, issuer, user, '<br>'])
+	my_verif = "".join([issuer, user, '<br>'])
 
 	return render_template('./certificate/verify_certificate.html',
 							**menu,
 							certificate_id=certificate_id,
 							topic = certificate['topic'].capitalize(),
+							credential = credential_text,
 							verif=my_verif,
 							viewer=viewer,
 							)

@@ -271,6 +271,15 @@ class Document() :
 			self.transaction_fee = transaction_fee
 		return True
 
+	def relay_get_credential(self, identity_workspace_contract, doc_id, mode, loading='light') :
+		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
+		if not issuer_address :
+			return False
+		else :
+			self.__dict__.update(data)
+		return True
+
+
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return delete_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)

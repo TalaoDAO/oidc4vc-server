@@ -147,7 +147,7 @@ app.add_url_rule('/user/tutotial/',  view_func=web_main.tutorial, methods = ['GE
 app.add_url_rule('/prefetch',  view_func=web_main.prefetch, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_certificate/',  view_func=web_main.issue_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/issue_experience_certificate/',  view_func=web_main.issue_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/issuer_experience_certificate/',  view_func=web_main.issue_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_recommendation/',  view_func=web_main.issue_recommendation, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_personal_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
