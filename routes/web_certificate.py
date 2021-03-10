@@ -49,7 +49,7 @@ def show_certificate(mode):
 		certificate = Document('certificate')
 		exist = certificate.relay_get(identity_workspace_contract, doc_id, mode, loading = 'full')
 		if not exist :
-			content = json.dumps({'topic' : 'error', 'msg' : 'Certificate Not Found'})
+			content = json.dumps({'topic' : 'error', 'msg' : 'Credential Not Found'})
 			response = Response(content, status=406, mimetype='application/json')
 			return response
 		session['certificate_id'] = certificate_id
@@ -228,7 +228,6 @@ def show_certificate(mode):
 			issuer_picture = session['displayed_certificate'].get('logo')
 
 		issuer_title = "" if not session['displayed_certificate'].get('title')  else session['displayed_certificate']['title']
-		print('issuer picture = ', issuer_picture)
 		if issuer_picture  :
 			if not path.exists(mode.uploads_path + issuer_picture) :
 				print('Warning : picture already on disk')
@@ -288,6 +287,8 @@ def show_certificate(mode):
 		return render_template('./certificate/skill_certificate.html',
 							**menu,
 							manager= session['displayed_certificate']['manager'],
+							identity_firstname=identity_profil['firstname'],
+							identity_lastname=identity_profil['lastname'],
 							identity_name =identity_profil['firstname'] + ' ' + identity_profil['lastname'],
 							description=description,
 							issuer_picture=issuer_picture,

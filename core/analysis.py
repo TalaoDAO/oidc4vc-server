@@ -7,6 +7,7 @@ from nltk.probability import FreqDist
 from nltk.tokenize import word_tokenize
 import random
 from datetime import datetime
+import logging
 
 
 def dashboard(workspace_contract,resume, mode) :
@@ -53,25 +54,27 @@ def dashboard(workspace_contract,resume, mode) :
 	for doctype in doc_name :
 		if resume.get(doctype) is not None :
 			for i in range(0, len(resume[doctype])) :
-				print('resume doctype i = ', i, resume[doctype])
-				if doctype == 'skills' :
-					created = datetime.fromisoformat(resume[doctype]['created'])
-					issuer_workspace_contract = resume[doctype]['issuer']['workspace_contract']
-				else :
-					created = datetime.fromisoformat(resume[doctype][i]['created'])
-					issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']
-				update.append(created)
-				nb_doc +=1
-				if issuer_workspace_contract == None :
-					nb_issuer_none +=1
-				elif issuer_workspace_contract.lower() ==  workspace_contract.lower() or issuer_workspace_contract.lower() ==  mode.relay_workspace_contract.lower() :
-					nb_issuer_self +=1
-				elif  resume[doctype][i]['issuer']['category'] == 2001 :
-					issuer_list.append(issuer_workspace_contract)
-					nb_issuer_company +=1
-				else :
-					nb_issuer_person +=1
-					issuer_list.append(issuer_workspace_contract)
+				try :
+					if doctype == 'skills' :
+						created = datetime.fromisoformat(resume[doctype]['created'])
+						issuer_workspace_contract = resume[doctype]['issuer']['workspace_contract']
+					else :
+						created = datetime.fromisoformat(resume[doctype][i]['created'])
+						issuer_workspace_contract = resume[doctype][i]['issuer']['workspace_contract']
+					update.append(created)
+					nb_doc +=1
+					if issuer_workspace_contract == None :
+						nb_issuer_none +=1
+					elif issuer_workspace_contract.lower() ==  workspace_contract.lower() or issuer_workspace_contract.lower() ==  mode.relay_workspace_contract.lower() :
+						nb_issuer_self +=1
+					elif  resume[doctype][i]['issuer']['category'] == 2001 :
+						issuer_list.append(issuer_workspace_contract)
+						nb_issuer_company +=1
+					else :
+						nb_issuer_person +=1
+						issuer_list.append(issuer_workspace_contract)
+				except :
+					logging.error('credential document malformed doctype = %s', doctype)
 
 	for doctype in claim_name :		# 0,2 pt/ topicname
 		if resume['personal'][doctype]['issuer'] is not None and resume['personal'][doctype]['privacy'] == 'public' :
@@ -395,15 +398,15 @@ def ups_and_downs(update_duration_value,
 		down.append("Most of the information are self declared.")
 
 	if person_completion_value > PERSON_COMPLETION_THRESHOLD  :
-		down.append("Most of the certificates are provided by individuals.")
+		down.append("Most of the credentials are provided by individuals.")
 
 	if company_completion_value > COMPANY_COMPLETION_THRESHOLD  :
-		up.append("Most of the certificates are provided by Companies. This provides very reliable data for third parties.")
+		up.append("Most of the credentials are provided by Companies. This provides very reliable data for third parties.")
 
 	if nb_certificate != 0 and sorted_issuers[0][1]/nb_certificate < 0.15  :
-		up.append("Certicates are issued by several different referents. This brings more reliability to data.")
+		up.append("Credentials are issued by several different referents. This brings more reliability to data.")
 	else :
-		down.append("Most Certificates are issued by the same referents.")
+		down.append("Most Credentials are issued by the same referents.")
 
 	if is_kyc == 'Yes' :
 		up.append("Proof of Identity is available. Third party can now rely on this Identity.")
@@ -418,7 +421,7 @@ def ups_and_downs(update_duration_value,
 	if nb_certificate > CERTIFICATE_THRESHOLD :
 		up.append("The profil is has numerous cerificates.")
 	else :
-		down.append("Weak number of certificates, few reliable Data.")
+		down.append("Weak number of credentials, few reliable Data.")
 
 	if nb_experience > EXPERIENCE_THRESHOLD :
 		up.append("The profil has numerous experiences.")

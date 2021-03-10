@@ -2,15 +2,7 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Talao Professional Identity</title>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  {% include 'head.html' %}
 </head>
 
 <body id="page-top">
@@ -24,13 +16,13 @@
             <div class="col">
               <div class="card shadow mb-3">
                 <div class="card-header py-3">
-                  <p class="text-primary m-0 font-weight-bold">&nbsp;Request an Experience Certificate</p>
+                  <p class="text-primary m-0 font-weight-bold">&nbsp;Request an Professional Experience Credential</p>
                 </div>
                 <div class="card-body">
                   <form action="/user/request_experience_certificate/" method="post">
                     <div class="form-row">
                       <div class="col">
-                        <p>Complete this request form as precisely as possible to help your Referent to draft the final Certificate. He will receive an email with this information.</p>
+                        <p>Complete this request form as precisely as possible to help your referent to draft the final Credential. Your referent will receive an email with this draft.</p>
                       </div>
                     </div>
                     <div class="form-row">
@@ -85,11 +77,9 @@
   </script>
   <script>datePickerId1.max = new Date().toISOString().split("T")[0];</script>
   <script>datePickerId2.max = new Date().toISOString().split("T")[0];</script>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>

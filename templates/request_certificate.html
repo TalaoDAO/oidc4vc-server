@@ -2,20 +2,7 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 </head>
 
 <body id="page-top">
@@ -33,36 +20,36 @@
                 <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a New Certificate</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request a new Credential</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/request_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>To get a New Certificate, Talao will contact your Referent through his/her email to ask him/her to issue a referral for you.
+                                        <p>To get a new credential, Talao will contact your referent through his/her email to request him/her a referral.
                                         <br><br>
-                                        If your Referent has already his own Identity, use the Search Bar to access his profil immediatly.
+                                        If your referent has already a Digital Identity, use the "Search Bar" to access the referent profil.
                                         In the other case fill the form below.<br><br>
                                         </p>
                                         {% if not session['certificate_issuer_username'] %}
                                             <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" ><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
                                         {% endif %}
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Certificate Type</strong><br></label>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Credential Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
                                                 {% if session['type'] == "company" %}
-                                                    <option value="agreement">Agreement Certificate</option>
-                                                    <option value="reference">Reference Certificate</option>
+                                                    <option value="agreement">Agreement Credential</option>
+                                                    <option value="reference">Reference Credential</option>
                                                 {% else %}
                                                     {% if not session['certificate_issuer_username'] %}
-                                                        <option value="experience" >Experience Certificate (Issued by a company only)</option>
-                                                        <option value="personal_recommendation">Personal recommendation Certificate (Issued by a person)</option>
-                                                        <option value="company_recommendation">Company recommendation Certificate (Issued by a company)</option>
+                                                        <option value="experience" >Professional Experience (Issued by a company only)</option>
+                                                        <option value="personal_recommendation">Personal recommendation (Issued by a person)</option>
+                                                        <option value="company_recommendation">Company recommendation (Issued by a company)</option>
                                                     {% else %}
                                                         {% if session['issuer_explore']['type'] == 'company' %}
-                                                            <option value="company_recommendation">Company recommendation Certificate</option>
+                                                            <option value="company_recommendation">Company recommendation </option>
                                                             <option value="experience" >Experience Certificate</option>
                                                         {% else %}
-                                                            <option value="personal_recommendation">Personal recommendation Certificate</option>
+                                                            <option value="personal_recommendation">Personal recommendation </option>
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endif %}

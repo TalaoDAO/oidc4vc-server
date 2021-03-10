@@ -2,19 +2,8 @@
 <html>
 
 <head>
-      <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
+
 </head>
 
 
@@ -46,8 +35,8 @@
                         <div class="row">
                             <div class="col-lg-6 d-none d-lg-flex">
                                 <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;"><br>Enter the secret code you have just received for authentification.<br>
-                                    <br>Each time you will connect to your identity your will receive a secret code for authentification.<br><br><br><br><br></p>
+                                    <p class="text-center" style="margin: 75px 50px 0px;"><br>Enter the secret code you have just received for authentication.<br>
+                                    <br>Each time you will connect to your identity your will receive a secret code for authentication.<br><br><br><br><br></p>
                                 </div>
                             </div>
                             <div class="col-lg-6">

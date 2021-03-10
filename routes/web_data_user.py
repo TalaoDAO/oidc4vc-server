@@ -141,12 +141,13 @@ def data(mode) :
 	my_verif =  myadvanced + "<hr>" + myissuer
 	return render_template('data_check.html', **session['menu'], verif=my_verif)
 
-#@app.route('/user/', methods = ['GET'])
-"""
-Main view for Identity
-We setup Ientity with workspace or username depending of the login method
-"""
+
 def user(mode) :
+	"""
+	#@app.route('/user/', methods = ['GET'])
+	Main view for Identity
+	We setup Ientity with workspace or username depending of the login method
+	"""
 	check_login()
 	if not session.get('uploaded', False) :
 		logging.info('start first instanciation')
@@ -524,10 +525,10 @@ def user(mode) :
 					</span>"""
 				my_access = my_access + access_html + """<br>"""
 
-		# certificates
+		# credeb$ntials
 		my_certificates = ""
 		if not session['certificate'] :
-			my_certificates = my_certificates + """<a class="text-info">No Certificates available</a>"""
+			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
 		else :
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
@@ -543,11 +544,11 @@ def user(mode) :
 				# <b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 				cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
-							<b>Certificate Type</b> : """ + certificate['type'].capitalize()+"""<br>
+							<b>Credential Type</b> : """ + certificate['type'].capitalize()+"""<br>
 							<b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 							<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 
-							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
 							<p>
 							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
 							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -556,7 +557,7 @@ def user(mode) :
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
 							</a>
 							<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-							<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+							<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link"></i>
 							</a>
 							</p>
 							<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""

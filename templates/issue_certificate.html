@@ -2,19 +2,7 @@
 <html>
 
 <head>
-   <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 </head>
 
 <body id="page-top">
@@ -27,16 +15,16 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Issue a Certificate</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Issue a Credential</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/issue_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>You have been authorized to issue certificates. Select the type of certificate :</p>
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Certificate Type</strong><br></label>
+                                        <p>You have been authorized to issue credentials. Select the type of credential :</p>
+                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="wallet texte"><strong>Credential Type</strong><br></label>
                                         <select class="form-control" name="certificate_type">
-											<option value="experience" >Experience Certificate</option>
+											<option value="experience" >Professional Experience</option>
                                             <option value="recommendation">Recommendation</option>
 										</select></div>
                                     </div>

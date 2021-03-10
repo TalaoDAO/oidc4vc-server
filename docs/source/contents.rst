@@ -15,13 +15,13 @@ Talao approaches this issue starting from a user perspective through a Blockchai
   - You own your data for your lifetime.
   - No one can access your encrypted data without your permission.
   - No storage costs.
-  - Claims are verifiables, tamper proof and trackable.
+  - Claims are verifiables credentials, they are tamper proof, trackable and signed by the issuer.
   - Claims issuers are identified.
 
 Talao allows Professional Identities for Talents, Companies and claims issuers such as Schools or Training Centers.
 It is for everyone the opportunity to use a new technology to get tamper proof professional data while keeping the ownership of those data.
 
-Identities with their verifiable claims can be displayed anywhere on digital platforms : social medias, websites, Job boards, etc. They provide to third parties reliable data about professional experiences, skills and education.
+Identities with their verifiable credentials can be displayed anywhere on digital platforms : social medias, websites, Job boards, etc. They provide to third parties reliable data about professional experiences, skills and education.
 
 Terminology : in this document we will consider "Self Sovereign Identity" as an equivalent to 'Decentralized IDentity'.
 
@@ -40,6 +40,28 @@ Each server will check the signature, update data then compare them to other ser
 
 This Talao web application https://talao.co is a relay to access Self Sovereign Identities with a simple User Interface and automated processus.
 From a blockchain perspective, the Identity owner is the Ethereum account attached to the the smartphone crypto wallet.
+
+What are Verifiable Credentials ?
+-----------------------------------
+
+As defined in the current Credentials specification of W3C1 :
+
+"In the physical world, a credential might consist of:
+
+  * Information related to identifying the subject of the credential (for example, a photo, name, or identification number)
+  * Information related to the issuing authority (for example, a city government, national agency, or certification body)
+  * Information related to the type of credential this is (for example, a Dutch passport, an American driving license, or a health insurance card)
+  * Information related to specific attributes or properties being asserted by the issuing authority about the subject (for example, nationality, the classes of vehicle entitled to drive, or date of birth)
+  * Evidence related to how the credential was derived
+  * Information related to constraints on the credential (for example, expiration date, or terms of use).
+
+A verifiable credential can represent all of the same information that a physical credential represents. The addition of technologies, such as digital signatures, makes verifiable credentials more tamper-evident and more trustworthy than their physical counterparts. "
+
+
+More information available :
+
+
+  * https://www.w3.org/TR/vc-data-model/
 
 
 What are Decentralized IDentities (DID) ?
@@ -66,7 +88,6 @@ and data protection (see the SSI-eIDAS Bridge project launched by EU)..
 More information available :
 
 
-  * https://www.w3.org/TR/vc-data-model/
   * https://www.w3.org/TR/did-core/
   * https://identity.foundation/
   * https://ec.europa.eu/futurium/en/system/files/ged/eidas_supported_ssi_may_2019_0.pdf
