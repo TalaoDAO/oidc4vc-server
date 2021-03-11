@@ -1,6 +1,6 @@
 """
-Just a process to create user.
-
+Just a process to a centralized basic create user from password and username
+keys are stored on server.
 
 """
 
@@ -9,45 +9,22 @@ import random
 import unidecode
 import time
 from datetime import timedelta, datetime
+import logging
 
 # dependances
-from factory import ssi_createidentity
+from factory import ssi_createidentity, createidentity
 from core import sms,directory,ns, Talao_message
 from protocol import has_vault_access
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if not session.get('workspace_contract') and not session.get('username') :
+		logging.info('call abord')
 		abort(403)
 	else :
 		return True
 
-"""
-# route /register/
-def register(mode) :
-	if request.method == 'GET' :
-		session.clear()
-		session['is_active'] = True
-		message = request.args.get('message', "")
-		return render_template("register.html",message=message, )
-	if request.method == 'POST' :
-		session['email'] = request.form['email']
-		session['firstname'] = request.form['firstname']
-		session['lastname'] = request.form['lastname']
-		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
-		session['phone'] = request.form['phone']
-		session['search'] = request.form.get('CheckBox')
-		try :
-			if not sms.check_phone(session['phone'], mode) :
-				return render_template("register.html", message='Incorrect phone number.',
-												firstname=session['firstname'],
-												lastname=session['lastname'],
-												email=session['email'])
-			else :
-				return redirect (mode.server + 'register/password/')
-		except :
-			return render_template("register.html",message='SMS connexion problem.', )
-"""
+
 
 
 # register ID with your wallet as owner in Talao Identity
@@ -94,7 +71,7 @@ def wc_register(mode) :
 											)
 			if request.form.get('CheckBox') :
 				directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
-				print('Warning : directory updated with firstname and lastname')
+				logging.warning('directory updated with firstname and lastname')
 			return render_template("create3.html", username=session['username'])
 
 		"""
@@ -146,12 +123,12 @@ def wc_register(mode) :
 											decentralized = True,
 											phone=session['phone']
 											) :
-				print('Error : createidentity failed')
+				logging.error('createidentity failed')
 				return render_template("wc_register.html",message='Identity creation failed due to transaction problems.', )
 			else :
 				if request.form.get('CheckBox') :
 					directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
-					print('Warning : directory updated with firstname and lastname')
+					logging.info('directory updated with firstname and lastname')
 			return render_template("create3.html", username=session['username'])
 		else :
 			del session['status']
@@ -177,7 +154,34 @@ def register_post_code(mode) :
 	return redirect (mode.server + 'login/?username=' + session['username'])
 
 
-"""
+
+# route /register/
+def register(mode) :
+	if request.method == 'GET' :
+		session.clear()
+		session['is_active'] = True
+		message = request.args.get('message', "")
+		return render_template("register.html",message=message, )
+	if request.method == 'POST' :
+		session['email'] = request.form['email']
+		session['firstname'] = request.form['firstname']
+		session['lastname'] = request.form['lastname']
+		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
+		session['phone'] = request.form['phone']
+		session['search'] = request.form.get('CheckBox')
+		try :
+			if not sms.check_phone(session['phone'], mode) :
+				return render_template("register.html", message='Incorrect phone number.',
+												firstname=session['firstname'],
+												lastname=session['lastname'],
+												email=session['email'])
+			else :
+				return redirect (mode.server + 'register/password/')
+		except :
+			return render_template("register.html",message='SMS connexion problem.', )
+
+
+
 # route /register/password/
 def register_password(mode):
 	if not session.get('is_active') :
@@ -190,7 +194,7 @@ def register_password(mode):
 		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 		session['try_number'] = 0
 		sms.send_code(session['phone'], session['code'], mode)
-		print('Info : secret code = ', session['code'])
+		logging.info('secret code = %s', session['code'])
 		return render_template("register_code.html")
 
 # route /register/code/
@@ -199,10 +203,11 @@ def register_code(mode) :
 		return redirect(mode.server + 'register/?message=session+expired.')
 	mycode = request.form['mycode']
 	session['try_number'] +=1
-	print('Warning : code received = ', mycode)
+	logging.info('code received = %s', mycode)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
-		print("Warning : call createidentity")
+		logging.info("call createidentity")
+
 		workspace_contract = createidentity.create_user(session['username'],
 											session['email'],
 											mode,
@@ -211,11 +216,11 @@ def register_code(mode) :
 											phone=session['phone'],
 											password=session['password'])[2]
 		if not workspace_contract :
-			print('Error : createidentity failed')
+			logging.error('createidentity failed')
 			return render_template("register.html",message='Connexion problem.', )
 		if session['search'] :
 			directory.add_user(mode, session['username'], session['firstname']+ ' ' + session['lastname'], None)
-			print('Warning : directory updated with firstname and lastname')
+			logging.warning('directory updated with firstname and lastname')
 		session['is_active'] = False
 		return render_template("create3.html", username=session['username'])
 	elif session['try_number'] == 3 :
@@ -232,4 +237,4 @@ def register_code(mode) :
 		return render_template("register_code.html", message=message)
 
 
-"""
+

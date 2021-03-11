@@ -18,6 +18,7 @@ from flask_session import Session
 from flask_fontawesome import FontAwesome
 from datetime import timedelta
 import logging
+logging.basicConfig(level=logging.INFO)
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
@@ -34,17 +35,13 @@ logging.info('start to init environment')
 mode = environment.currentMode(mychain,myenv)
 logging.info('end of init')
 
-
-#sys.path.append(mode.sys_path + '/Talao/factory')
-#sys.path.append(mode.sys_path + '/Talao/core')
-
 # Centralized  routes : modules in ./routes
 from routes import web_create_identity, web_create_company_cci, web_certificate
 from routes import web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
 from routes import web_resolver, web_main, web_login
 
 # Release
-VERSION = "0.7.2"
+VERSION = "0.7.3"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -75,9 +72,10 @@ def page_abort(e):
 app.add_url_rule('/resolver',  view_func=web_resolver.resolver, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized @route for create identity
-#app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
-#app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
-#app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 app.add_url_rule('/wc_register/',  view_func=web_create_identity.wc_register, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/wc_register_activate/',  view_func=web_create_identity.wc_register_activate, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -203,7 +201,6 @@ app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GE
 if __name__ == '__main__':
 
     # info release
-    logging.info('file : %s ',__file__, " created: %s" % time.ctime(os.path.getctime(__file__)))
     logging.info('flask serveur init')
 
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)

@@ -525,7 +525,7 @@ def user(mode) :
 					</span>"""
 				my_access = my_access + access_html + """<br>"""
 
-		# credeb$ntials
+		# credentials
 		my_certificates = ""
 		if not session['certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
@@ -662,7 +662,7 @@ def user(mode) :
 
 		# certificates
 		if  not session['certificate'] :
-			my_certificates =  """<a class="text-info">No Certificates available</a>"""
+			my_certificates =  """<a class="text-info">No Credentials available</a>"""
 		else :
 			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
 			for counter, certificate in enumerate(session['certificate'],1) :

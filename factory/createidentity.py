@@ -23,6 +23,10 @@ from base64 import b64encode
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 import threading
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 # import des fonctions custom
 import constante
@@ -30,9 +34,34 @@ from protocol import  ownersToContracts, token_transfer, createVaultAccess, ethe
 from protocol import Claim, update_self_claims
 from core import privatekey, ns, Talao_message
 
+exporting_threads_all = {}
 exporting_threads = {}
 
-# Multithreading creatidentity setup
+
+# Multithreading creatidentity setup for step 1 and 2 asynchronous
+class ExportingThread_all(threading.Thread):
+	def __init__(self, username, email, mode, creator=None, wallet=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None,) :
+		super().__init__()
+		self.username = username
+		self.email = email
+		self.send_email = send_email
+		self.mode = mode
+		self.firstname = firstname
+		self.lastname = lastname
+		self.creator = creator
+		self.partner = partner
+		self.phone = phone
+		self.password=password
+		self.wallet = wallet
+	def run(self):
+		address, private_key, workspace_contract = _create_user_step_1(self.username, self.email, self.mode, self.creator, self.partner, self.send_email, self.password, self.firstname,  self.lastname, self.phone, self.wallet)
+		if not address :
+			return None, None, None
+		_create_user_step_2(address, workspace_contract, private_key, self.username, self.email, self.mode, self.creator, self.partner, self.send_email)
+		return  address, private_key, workspace_contract
+
+
+# Multithreading creatidentity setup for step 2 only
 class ExportingThread(threading.Thread):
 	def __init__(self, address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,) :
 		super().__init__()
@@ -45,33 +74,37 @@ class ExportingThread(threading.Thread):
 		self.address = address
 		self.workspace_contract = workspace_contract
 		self.private_key = private_key
-
 	def run(self):
 		_create_user_step_2(self.address, self.workspace_contract, self.private_key, self.username, self.email, self.mode, self.creator, self.partner, self.send_email)
 		return
 
 
 # main function called by external modules
-def create_user(username, email, mode, creator=None, wallet=None, partner=False, send_email=True, password=None, firstname=None,  lastname=None, phone=None, is_thread=True):
+def create_user(username, email, mode, creator=None, wallet=None, partner=False, send_email=True, password=False, firstname=None,  lastname=None, phone=None, is_thread=True, is_all_thread=False):
 	"""
 	is_thread :bool, by default partly an async task.
 
 	"""
-
-	# step 1, thus step is synchronous
-	address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone, wallet)
-	if not address :
-		return None, None, None
-
-	# Step 2 : this step maybe asynchronous
-	if is_thread :
-		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)
-		exporting_threads[thread_id].start()
+	# step 1 and 2 asynchronous (create person)
+	if is_all_thread :
+		thread_id_all = str(random.randint(0,10000 ))
+		exporting_threads_all[thread_id_all] = ExportingThread_all(username, email, mode, creator, wallet, partner, send_email, password, firstname,  lastname, phone)
+		#address, private_key, workspace_contract = exporting_threads_all[thread_id_all].start()
+		exporting_threads_all[thread_id_all].start()
+		return
 	else :
-		_create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,)
-
-	return address, private_key, workspace_contract
+		# step 1, is always synchronous
+		address, private_key, workspace_contract = _create_user_step_1(username, email, mode, creator, partner, send_email, password, firstname,  lastname, phone, wallet)
+		if not address :
+			return None, None, None
+		# Step 2 : this step maybe asynchronous
+		if is_thread :
+			thread_id = str(random.randint(0,10000 ))
+			exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)
+			exporting_threads[thread_id].start()
+		else :
+			_create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,)
+		return address, private_key, workspace_contract
 
 
 def _create_user_step_1(username, email,mode, creator, partner, send_email, password, firstname,  lastname, phone, wallet) :
@@ -80,8 +113,6 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
 	private_key = account.key.hex()
-	print('Success : user address = ', address)
-	print('Success : user private key = ', private_key)
 
 	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
@@ -103,25 +134,17 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	# Email encrypted with RSA Key
 	bemail = bytes(email , 'utf-8')
 
-	print('rsa public ', RSA_public)
-	print('AES encryypted = ', AES_encrypted)
-	print('SECRET encrypted = ', SECRET_encrypted)
-	return None, None, None
-
 	# Ether transfer from TalaoGen wallet
 	hash = ether_transfer(address, mode.ether2transfer,mode)
-	if mode.test :
-		print('Success : ether transfer hash ', hash)
+	logging.info('ether transfer hash = %s', hash)
 
 	# Talao tokens transfer from TalaoGen wallet
 	hash = token_transfer(address,mode.talao_to_transfer,mode)
-	if mode.test :
-		print('Success : token transfer hash ', hash)
+	logging.info('token transfer hash = %s', hash)
 
 	# CreateVaultAccess call in the token to declare the identity within the Talao Token smart contract
 	hash = createVaultAccess(address,private_key,mode)
-	if mode.test :
-		print('Success : create vault acces hash ', hash)
+	logging.info('create vault acces hash = %s', hash)
 
 	# Identity setup
 
@@ -133,12 +156,12 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 	if not receipt['status'] :
-		print('Error : transaction createWorkspace failed')
+		logging.info('transaction createWorkspace failed')
 		return None, None, None
 
 	# workspace_contract address to be read in fondation smart contract
 	workspace_contract = ownersToContracts(address,mode)
-	print('Success : workspace_contract has been setup = ',workspace_contract)
+	logging.info('workspace_contract has been setup = %s',workspace_contract)
 
 	# store RSA key in file ./RSA_key/rinkeby, talaonet ou ethereum
 	filename = "./RSA_key/" + mode.BLOCKCHAIN + '/did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:] + ".pem"
@@ -146,9 +169,9 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 		file = open(filename,"wb")
 		file.write(RSA_private)
 		file.close()
-		print('Success : RSA key stored on disk')
+		logging.info('RSA key stored on disk')
 	except :
-		print('Error : RSA key not stored on disk')
+		logging.error('RSA key not stored on disk')
 
 	# add username to register in local nameservice Database with last check.....
 	if ns.username_exist(username, mode) :
@@ -158,38 +181,39 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	# setup password
 	if password :
 		ns.update_password(username, password, mode)
-		print('Success : password has been updated')
+		logging.info('password has been updated')
 
 	# setup phone
 	if phone :
 		ns.update_phone(username, phone, mode)
-		print('Success : phone has been updated')
+		logging.info('phone has been updated')
 
 	# store Ethereum private key in keystore
 	if not privatekey.add_private_key(private_key, mode) :
-		print('Error : add private key in keystore failed')
+		logging.error('add private key in keystore failed')
 		return None, None, None
 	else :
-		print('Success : private key in keystore')
+		logging.info('private key in keystore')
 
 	# claims for firstname and lastname
 	if firstname and lastname :
 		if not update_self_claims(address, private_key, {'firstname': firstname, 'lastname' : lastname}, mode) :
-			print('Error : firstname and lastname not updated')
-		print('Success : firstname and lastname updated')
+			logging.warning('firstname and lastname not updated')
+		else :
+			logging.info('firstname and lastname updated')
 
 	# add wallet address in resolver
 	if wallet :
 		if ns.update_wallet(workspace_contract, wallet, mode) :
-			print('Success : wallet updated')
+			logging.info('Success : wallet updated')
 		else :
-			print('Error : wallet update failed')
+			logging.warning('wallet update failed')
 
 
 	# key 1 issued to Web Relay to act as agent.
 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
 
-	print('Success : end of step 1 create identity')
+	logging.info('end of step 1 create identity')
 	return address, private_key, workspace_contract
 
 
@@ -213,24 +237,24 @@ def _create_user_step_2(address, workspace_contract, private_key, username, emai
 			# creator requests partnership
 			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode) :
 				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_private, mode) :
-					print('Success : partnership request from creator has been accepted by Identity')
+					logging.info('partnership request from creator has been accepted by Identity')
 				else :
-					print('Error : authorize partnership with creator failed')
+					logging.warning('authorize partnership with creator failed')
 			else :
-				print('Error : creator partnership request failed')
+				logging.warning('creator partnership request failed')
 		#add creator as referent
 		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode) :
-			print('Warning : key 20002 issued for creator')
+			logging.info('key 20002 issued for creator')
 		else :
-			print('Warning : key 20002 for creator failed')
+			logging.warning('key 20002 for creator failed')
 	else :
-		print('Warning : no company creator')
+		logging.info('no company creator')
 
 	# rewrite previous email to get an encrypted email 
 	if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode)[0] :
-		print('Success : email encryted updated')
+		logging.info('email encryted updated')
 	else :
-		print('Error : email encrypted not updated')
+		logging.warning('email encrypted not updated')
 
 	# emails send to user and admin
 	Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
@@ -238,5 +262,5 @@ def _create_user_step_2(address, workspace_contract, private_key, username, emai
 	if send_email :
 		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
 
-	print("Success : create identity process step 2 is over")
+	logging.info("create identity process step 2 is over")
 	return

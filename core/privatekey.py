@@ -10,6 +10,7 @@ from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
 from eth_account import Account
 from Crypto.Util.Padding import pad
+import logging
 
 import constante
 
@@ -68,13 +69,13 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 	elif privacy == 'private' :
 		aes = get_key(address_user, 'aes_key', mode, address_caller)
 	elif privacy == 'secret' :
-		print('Warning : secret key has been called in privateky.py')
-		aes == get_key(address_user, 'secret_key', mode)
+		logging.warning('secret key has been called in privateky.py')
+		aes = get_key(address_user, 'secret_key', mode)
 	else :
-		print ("Error : privacy error")
+		logging.error("privacy error")
 		return None
 	if not aes :
-		print('Warning : No RSA key on server')
+		logging.info('no RSA key on server')
 		return None
 	# decrypt data
 	try:
@@ -85,7 +86,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 		cipher.update(jv['header'])
 		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
 		msg = json.loads(plaintext.decode('utf-8'))
-		print('Success : EAX decryptage')
+		logging.warning('EAX decryptage - to be deprecated')
 	except :
 		data = b64decode(data['ciphertext'])
 		bytes = PBKDF2(aes, "salt".encode("utf-8"), 128, 128)
@@ -95,7 +96,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 		plaintext = cipher.decrypt(data)
 		plaintext = plaintext[:-plaintext[-1]].decode("utf-8")
 		msg = json.loads(plaintext)
-		print('Success : CBC decryptage')
+		logging.info('CBC decryptage')
 	return msg
 
 def encrypt_data(identity_workspace_contract, data, privacy, mode, address_caller=None) :
@@ -112,13 +113,13 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode, address_calle
 	elif privacy == 'secret' :
 		aes = get_key(identity_address, 'secret_key', mode)
 	else :
-		print('Error : incorrect privacy ')
+		logging.error('incorrect privacy ')
 		return None
 	if not aes :
-		print('Error : RSA key not found on server or cannot decrypt AES')
+		logging.error('RSA key not found on server or cannot decrypt AES')
 		return None
 	"""
-	# AES-EAX encryption
+	# AES-EAX encryption DEPRECATED
 	try : 
 		bytesdatajson = bytes(json.dumps(data), 'utf-8') # data(dict) -> json(str) -> bytes
 		header = b"header"
@@ -166,7 +167,7 @@ def create_rsa_key(private_key, mode) :
 
 
 def get_key(address, key_type, mode, address_caller=None) :
-	print('Warning : get_key address_caller in privatekey = ', address_caller)
+	logging.warning('get_key address_caller in privatekey = %s', address_caller)
 	if not mode.w3.isAddress(address) or address == '0x0000000000000000000000000000000000000000' :
 		return None
 
@@ -174,7 +175,7 @@ def get_key(address, key_type, mode, address_caller=None) :
 		try :
 			fp = open(mode.keystore_path + address[2:] + '.json', "r")
 		except :
-			print('Error : private key not found in privatekey.py')
+			logging.error('private key not found in privatekey.py')
 			return None
 		encrypted = fp.read()
 		fp.close()
@@ -187,21 +188,21 @@ def get_key(address, key_type, mode, address_caller=None) :
 	try :
 		fp_new = open(new_filename,"r")
 	except IOError :
-		print('Warning : new RSA file (.pem) not found on disk')
+		logging.warning('new RSA file (.pem) not found on disk')
 		try :
 			fp_prev = open(previous_filename,"r")
 		except IOError :
-			print('Warning : old RSA file not found on disk ')
+			logging.warning('old RSA file not found on disk ')
 			rsa_key  = None
 		else :
 			rsa_key = fp_prev.read()
 			fp_prev.close()
 			os.rename(previous_filename, new_filename)
-			print('Warning : old RSA file renamed')
+			logging.info('old RSA file renamed')
 	else :
 		rsa_key = fp_new.read()
 		fp_new.close()
-		print('Success : new RSA file found')
+		logging.info('new RSA file found')
 
 	if key_type == 'rsa_key' :
 		return rsa_key
@@ -229,19 +230,19 @@ def get_key(address, key_type, mode, address_caller=None) :
 		try :
 			partnership_data = contract.functions.getPartnership(workspace_contract).call()
 		except :
-			print('Error : problem with getPartnership ligne 232 privatekey.py')
+			logging.error('problem with getPartnership ligne 232 privatekey.py')
 			return None
 		# one tests if the user is in partnershipg with identity (pending or authorized) and if his aes_key exist (status rejected ?)
 		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
 			aes_encrypted = partnership_data[4]
 		else :
 			# no partnership
-			print('Warning : no partnership with Identity')
+			logging.info('no partnership with Identity')
 			return None
 		rsa_key_caller = get_key(address_caller, 'rsa_key', mode)
 		key = RSA.importKey(rsa_key_caller)
 		cipher = PKCS1_OAEP.new(key)
-		print('Warning : private key decrypted with partnership data = ', cipher.decrypt(aes_encrypted))
+		logging.info('private key decrypted with partnership data = ', cipher.decrypt(aes_encrypted))
 		return cipher.decrypt(aes_encrypted)
 
 	elif key_type == 'secret_key' and rsa_key :
@@ -250,6 +251,6 @@ def get_key(address, key_type, mode, address_caller=None) :
 		return cipher.decrypt(secret_encrypted)
 
 	else :
-		print('Warning : no key decrypted ', key_type)
+		logging.error('no key decrypted ', key_type)
 		return None
 

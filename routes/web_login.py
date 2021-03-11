@@ -17,6 +17,9 @@ import secrets
 from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
+import logging
+logging.basicConfig(level=logging.INFO)
+
 
 # dependances
 from core import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
@@ -24,10 +27,13 @@ import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
 
+logging.basicConfig(level=logging.INFO)
+
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if not session.get('workspace_contract') and not session.get('username') :
+		logging.error('abort')
 		abort(403)
 	else :
 		return True
@@ -35,16 +41,23 @@ def check_login() :
 def send_secret_code (username, code, mode) :
 	data = ns.get_data_from_username(username, mode)
 	if not data :
+		logging.error('no data for send secret code')
 		return None
 	if not data['phone'] :
 		subject = 'Talao : Email authentification  '
 		Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
-		print('Warning : code sent by email')
+		logging.info('code sent by email')
 		return 'email'
 	else :
-		print('Warning : code sent by sms')
-		sms.send_code(data['phone'], code, mode)
-	return 'sms'
+		try :
+			sms.send_code(data['phone'], code, mode)
+		except :
+			subject = 'Talao : Email authentification  '
+			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
+			logging.warning('sms failed, code sent by email')
+			return 'email'
+		logging.info('code sent by sms')
+		return 'sms'
 
 
 # update wallet in Talao Identity
@@ -95,27 +108,25 @@ def wc_login(mode) :
 				# This wallet addresss is not an alias, lest rejest and propose a new registration
 				return render_template('wc_reject.html', wallet_address=wallet_address)
 			else :
-				print('Warning : This wallet is an Alias')
+				logging.info('This wallet is an Alias')
 				# thiss wallet is an alias, we look for the workspace_contract attached
 				session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
 		else :
-			print('Warning : This wallet is an Owner')
+			logging.info('This wallet is an Owner')
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		# random code to check the wallet signature
 		code = secrets.randbelow(99999)
 		session['wallet_code'] = str(code)
 		src = request.args.get('wallet_logo')
 		wallet_name = request.args.get('wallet_name')
-		print('wallet name = ', wallet_name)
 		if request.args.get('wallet_logo') == 'undefined' :
-			print('wallet name = ', wallet_name)
+			logging.info('wallet name = %s', wallet_name)
 			if wallet_name != 'undefined' :
 				filename= wallet_name.replace(' ', '').lower()
 				src = "/static/img/wallet/" + filename + ".png"
 			else :
 				src = ""
 				wallet_name = ''
-		print('call de wc_cofirm.html')
 		return render_template('wc_confirm.html',
 								wallet_address=wallet_address,
 								wallet_code=session['wallet_code'],
@@ -130,11 +141,11 @@ def wc_login(mode) :
 		try :
 			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
 		except :
-			print('Warning : incorrect signature')
+			logging.warning('incorrect signature')
 			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
 			return render_template('login.html')
 		if signer != wallet_address :
-			print('Warning : incorrect signer')
+			logging.warning('incorrect signer')
 			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
 			return render_template('login.html')
 		del session['wallet_code']
@@ -155,13 +166,13 @@ def two_factor(mode) :
 		# send code by sms if phone exist else email
 		support = send_secret_code(session['username'], session['two_factor']['code'],mode)
 		session['two_factor']['consign'] = "Check your phone for SMS." if support == 'sms' else "Check your email."
-		print('Info : secret code sent = ', session['two_factor']['code'], 'by ', support)
+		logging.info('secret code sent = %s', session['two_factor']['code'])
 		flash("Secret code sent by " + support, 'success')
 		return render_template("two_factor.html", **session['menu'], consign = session['two_factor']['consign'])
 	if request.method == 'POST' :
 		code = request.form['code']
 		session['two_factor']['try_number'] += 1
-		print('Warning : code received = ', code)
+		logging.info('code received = %s', code)
 		authorized_codes = [session['two_factor']['code'], '123456'] if mode.test else [session['two_factor']['code']]
 		# loop for incorrect code
 		if code not in authorized_codes and datetime.now() < session['two_factor']['code_delay'] and session['two_factor']['try_number'] < 4 :
@@ -189,53 +200,55 @@ def login(mode) :
 	mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps for mobile devices
 	mode = mobile_off_qrcode_on : qrcode only for desktop
 	mode = password  : display password form
-	mode = None : provide a dispaye with qrcode for deskytop and password form for smartphone
+	mode = None : provide a dispaye with qrcode for desktop and password form for smartphone
 	"""
 	if request.method == 'GET' :
 		session.clear()
 		if request.args.get('mode') == 'mobile_on':
-			print('login_mobile.html')
+			logging.info('large QR code for mobile or desktop')
 			return render_template('login_mobile.html')
 		elif request.args.get('mode') == 'password':
-			print('login_password.html')
+			logging.info('password form')
 			return render_template('login_password.html')
 		elif request.args.get('mode') == 'mobile_off_qrcode_on' :
-			print('login_qrcode.html')
+			logging.info('small QR code for desktop')
 			return render_template('login_qrcode.html', username=request.args.get('username', ""))
 		else :
-			print('login.html')
+			logging.info('qrcode for desktop and password gor mobile')
 			return render_template('login.html', username=request.args.get('username', ""))
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1
+
 		session['username_to_log'] = request.form['username']
 		if not ns.username_exist(session['username_to_log'], mode)  :
+			logging.warning('username does not exist')
 			flash('Username not found', "warning")
 			session['try_number'] = 1
 			return render_template('login.html', username="")
+
 		if not ns.check_password(session['username_to_log'], request.form['password'], mode)  :
-			session['try_number'] +=1
-			if session['try_number'] == 2 :
+			logging.warning('wrong secret code')
+			if session['try_number'] == 1 :
 				flash('This password is incorrect, 2 trials left', 'warning')
-				return render_template('login.html', username=session['username_to_log'])
-			elif session['try_number'] == 3 :
-				flash('This password is incorrect, 1 trial left', 'warning')
-				return render_template('login.html', username=session['username_to_log'])
-			else :
-				flash("Too many trials (3 max)", "warning")
-				session['try_number'] = 1
-				return render_template('login.html', username="")
+				session['try_number'] += 1
+				return render_template('login_password.html', username=session['username_to_log'])
+
+			if session['try_number'] == 2 :
+				flash('This password is incorrect, 1 trials left', 'warning')
+				session['try_number'] += 1
+				return render_template('login_password.html', username=session['username_to_log'])
+
+			flash("Too many trials (3 max)", "warning")
+			session['try_number'] = 1
+			return render_template('login.html', username="")
 		else :
 			# secret code to send by email or sms
 			session['code'] = str(secrets.randbelow(99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			# send code by sms if phone exist else email
-			try :
-				session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
-			except :
-				flash("Problem to send secret code", 'warning')
-				return redirect(mode.server + 'login/')
-			print('Warning : secret code sent = ', session['code'])
+			session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
+			logging.info('secret code sent = %s', session['code'])
 			flash("Secret code sent by " + session['support'], 'success')
 			session['try_number'] = 1
 			return render_template("authentification.html", support=session['support'])
@@ -248,7 +261,7 @@ def login_authentification(mode) :
 		return render_template('login.html')
 	code = request.form['code']
 	session['try_number'] +=1
-	print('Warning : code received = ', code)
+	logging.info('code received = %s', code)
 	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
 	if code in authorized_codes and datetime.now() < session['code_delay'] :
 		session['username'] = session['username_to_log']
@@ -274,7 +287,6 @@ def login_authentification(mode) :
 #@app.route('/logout/', methods = ['GET'])
 def logout(mode) :
 	if not session.get('logout') :
-		print('appel de logout')
 		session['logout'] = 'on'
 		return render_template('logout.html')
 	# delete picture, signateure and files before logout, clear session.
@@ -283,12 +295,12 @@ def logout(mode) :
 		os.remove(mode.uploads_path + session['picture'])
 		os.remove(mode.uploads_path + session['signature'])
 	except :
-		print('Error : effacement picture/signature erreur')
+		logging.error('effacement picture/signature erreur')
 	for one_file in session['identity_file'] :
 		try :
 			os.remove(mode.uploads_path + one_file['filename'])
 		except :
-			print('Error : effacement file error')
+			logging.errror('effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return redirect (mode.server + 'login/')

@@ -11,6 +11,10 @@ from web3.middleware import geth_poa_middleware
 from web3 import Web3
 import json
 import sys
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 class currentMode() :
 
@@ -158,13 +162,13 @@ class currentMode() :
 			self.workspace_contract_talao = '0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'
 
 		else :
-			print('Error : chain variable problem')
+			logging.error('chain variable problem')
 
 		if self.w3.isConnected()== False :
-			print('Error : not Connected, network problem')
+			logging.error('not Connected, network problem')
 			sys.exit()
 		else :
-			print('Success : connected to ' + self.BLOCKCHAIN)
+			logging.info('connected to %s', self.BLOCKCHAIN)
 
 		""" unlock main account for IPC node only...
 		Faire >>>personal.importRawKey(relay, "password") avec address sans '0x' et correct password """

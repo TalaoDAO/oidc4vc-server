@@ -24,6 +24,8 @@ from Crypto.PublicKey import RSA
 from authlib.jose import jwt
 import secrets
 import logging
+logging.basicConfig(level=logging.INFO)
+
 
 from factory import createcompany, createidentity
 from core import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509, credential
@@ -407,9 +409,13 @@ def issue_experience_certificate(mode):
             "start_date" : request.form['start_date'],
             "end_date" : request.form['end_date'],
             "skills" : request.form['skills'].split(','),
+            "question_recommendation" : "How likely are you to recommend this talent to others ?",
             "score_recommendation" : request.form['score_recommendation'],
+            "question_delivery" : "How satisfied are you with the overall delivery ?",
             "score_delivery" : request.form['score_delivery'],
+            "question_schedule" : "How would you rate his/her ability to deliver to schedule ?",
             "score_schedule" : request.form['score_schedule'],
+            "question_communication" : "How would you rate his/her overall communication skills ?",
             "score_communication" : request.form['score_communication'],
             "logo" : session['picture'],
             "signature" : session['certificate_signature'],
@@ -678,26 +684,29 @@ def store_file(mode) :
 
 
 
-# create a user/identity
-#@app.route('/user/create_person/', methods=['GET', 'POST'])
 def create_person(mode) :
+    """
+    @app.route('/user/create_person/', methods=['GET', 'POST'])
+    create a profesisonalidentity
+    This funcitonality is open to companies
+    The identity is created with company as referent and partner
+    company has a key 3 and key 20002
+    Asynchronous here
+    """
     check_login()
     if request.method == 'GET' :
         return render_template('create_identity.html', **session['menu'])
     if request.method == 'POST' :
-        person_email = request.form['email']
-        person_firstname = request.form['firstname']
-        person_lastname = request.form['lastname']
-        person_username = ns.build_username(person_firstname, person_lastname, mode)
-        workspace_contract = createidentity.create_user(person_username, person_email, mode, creator=session['address'], partner=True)[2]
-        if workspace_contract :
-            claim=Claim()
-            claim.relay_add(workspace_contract, 'firstname', person_firstname, 'public', mode)
-            claim=Claim()
-            claim.relay_add(workspace_contract, 'lastname', person_lastname, 'public', mode)
-            flash('New Identity = ' + person_username + ' has been created.', 'success')
-        else :
-            flash('Identity Creation failed', 'danger')
+        talent_username = ns.build_username(request.form['firstname'], request.form['lastname'], mode)
+        createidentity.create_user(talent_username,
+                            request.form['email'],
+                            mode,
+                            creator=session['address'],
+                            firstname = request.form['firstname'],
+                            lastname = request.form['lastname'],
+                            partner=True,
+                            is_all_thread=True)
+        flash('Identity creation in progress', 'success')
         return redirect(mode.server + 'user/')
 
 # add experience

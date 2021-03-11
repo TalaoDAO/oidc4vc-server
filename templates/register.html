@@ -32,12 +32,12 @@
                                             <div class="flex-grow-1 bg-login-image">
                                                 <p class="text-center" style="margin: 75px 50px 0px;">
                                                     <br><br>
-                                                    <br>Talao is a Blockchain protocol to manage a professional Self Sovereign Identity.<br><br>
+                                                    <br>Talao is a Blockchain protocol to manage professional verifiable credentials and Self Sovereign Identity.<br><br>
                                                     * You own your data for your lifetime.</br>
                                                     * No one can access your encrypted data without your permission.</br>
                                                     * No storage costs.</br>
-                                                    * Claims are verifiable,tamper proof and tracable.</br>
-                                                    * Claims issuers are identified.<br>
+                                                    * Credentials are verifiable,tamper proof and tracable.</br>
+                                                    * Credentiel issuers are identified.<br>
                                                     <br>Enter your firstname, lastname, email and phone number for authentification.<br>
                                                 </p>
                                             </div>
@@ -50,7 +50,7 @@
                                             <div class="col" style="color: rgb(255,2,2);">
 									            <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
 								            </div>
-                                            <form class="user" action="/register/" method="POST">
+                                            <form id="form" class="user" action="/register/" method="POST">
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
@@ -61,9 +61,8 @@
                                                     <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
                                                     <label style="color: rgb(133,135,150);" title="The name directory is used to provide suggestion in the search bar. It links your username with your firstname and lastname. " >I accept to have my name in the Name Directory</label>
                                                 </div>
-                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Next</button>
+                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" id="in_progress_button" type="submit">Next</button>
                                             </form>
-                                        <div class="text-center"><a class="small" href="/starter/">Back to Starter</a></div>
                                         <div class="text-center"><a class="small" href="/login/">Login</a></div>
                                         </div>
                                     </div>
@@ -76,9 +75,10 @@
                 {% include 'user_footer.html' %}
                 <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-                <script src="{{ url_for('static', filename='theme.js') }}"></script>
                 <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+                <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
         </div>
     </div>
 </body>
