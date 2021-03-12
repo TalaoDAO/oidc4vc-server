@@ -255,8 +255,9 @@ def user(mode) :
 			return render_template('homepage.html', **session['menu'])
 
 	# account
-	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
-					<b>token TALAO</b> : """ + str(session['token'])
+	#my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
+	#				<b>token TALAO</b> : """ + str(session['token'])
+	my_account = ""
 	if session['username'] == 'talao' :
 		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
 		relay_token = float(token_balance(mode.relay_address,mode))
@@ -279,23 +280,12 @@ def user(mode) :
 	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
-					<b>Worskpace Contract</b> : <a class = "card-link" href = """ + path + session['workspace_contract'] + """>"""+ session['workspace_contract'] + """</a><br>
-					<b>Owner Wallet Address</b> : <a class = "card-link" href = """ + path + session['address'] + """>"""+ session['address'] + """</a><br>"""
+					<b>DID</b> : did:talao:talaonet:""" + session['workspace_contract'][2:] + """</a><br>
+					<b>Owner Wallet Address</b> : """ + session['address'] + """<br>"""
 	if session['username'] != 'talao' :
-		if relay == 'Activated' :
-			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
-		else :
-			my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<a class ="text-warning" >You cannot store data.</a><br>"""
-
-		if relay_rsa_key == 'Yes' :
-			my_advanced = my_advanced + """<b>RSA Key</b> : """ + relay_rsa_key + """<br>"""
-		else :
-			my_advanced = my_advanced +"""<b>RSA Key</b> : """ + relay_rsa_key + """<br><a class ="text-warning" >You cannot store and access private and secret data.</a><br>"""
-
-		if relay_private_key == 'Yes' :
-			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key +"""<br>"""
-		else :
-			my_advanced = my_advanced + """<b>Private Key</b> : """ + relay_private_key + """<br><a class="text-warning" >You cannot issue certificates for others.</a><br>"""
+		my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
+		my_advanced = my_advanced + """<b>RSA Key on server</b> : """ + relay_rsa_key + """<br>"""
+		my_advanced = my_advanced + """<b>Private Key on server </b> : """ + relay_private_key +"""<br>"""
 	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
 
 	# Partners
@@ -721,7 +711,7 @@ def user(mode) :
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				else :
 					cert_html =""
-					loggng.error('incorrect certificate type : ' + certificate.get('type', 'Unknown'))
+					logging.error('incorrect certificate type : ' + certificate.get('type', 'Unknown'))
 				my_certificates = my_certificates + cert_html
 			my_certificates = my_certificates + """</div>"""
 

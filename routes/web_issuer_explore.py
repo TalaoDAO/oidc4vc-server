@@ -595,15 +595,15 @@ def issuer_explore(mode) :
 				#verified
 				carousel_rows_reference += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
-				carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + reference['project_title'] + "</h4></div></div>"
+				carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + reference.get('project_title', "") + "</h4></div></div>"
 				#body
 				carousel_rows_reference += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + reference['issuer']['name'] + '<br>'
 
 				carousel_rows_reference += """<b>Start date</b> : """ + reference['start_date'] + """<b>	End date</b> : """ + reference['end_date'] + """<br> """
-				carousel_rows_reference += """<b>Project Budget</b> : """ + reference['project_budget'] + """<br> """
+				carousel_rows_reference += """<b>Project Budget</b> : """ + reference.get('project_budget', "") + """<br> """
 
-				carousel_rows_reference += """<b> Description: </b>""" + reference['project_description'][:150]
-				if len(reference['project_description'])>150:
+				carousel_rows_reference += """<b> Description: </b>""" + reference.get('project_description', "")[:150]
+				if len(reference.get('project_description', ""))>150:
 					carousel_rows_reference += "...<br>"
 				else:
 					carousel_rows_reference += "<br>"

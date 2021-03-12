@@ -67,7 +67,6 @@ def page_abort(e):
     logging.warning('appel abort 403')
     return redirect(mode.server + 'login/')
 
-
 # Centralized @route for Resolver
 app.add_url_rule('/resolver',  view_func=web_resolver.resolver, methods = ['GET', 'POST'], defaults={'mode': mode})
 

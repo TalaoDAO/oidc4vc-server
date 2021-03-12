@@ -41,13 +41,15 @@
                                                     <option value="reference">Reference Credential</option>
                                                 {% else %}
                                                     {% if not session['certificate_issuer_username'] %}
-                                                        <option value="experience" >Professional Experience (Issued by a company only)</option>
+                                                        <option selected value="experience" >Professional Experience (Issued by a company only)</option>
                                                         <option value="personal_recommendation">Personal recommendation (Issued by a person)</option>
                                                         <option value="company_recommendation">Company recommendation (Issued by a company)</option>
                                                     {% else %}
                                                         {% if session['issuer_explore']['type'] == 'company' %}
                                                             <option value="company_recommendation">Company recommendation </option>
-                                                            <option value="experience" >Experience Certificate</option>
+                                                            <option selected value="experience" >Experience Certificate</option>
+                                                            <option value="skill" >Skill Certificate</option>
+
                                                         {% else %}
                                                             <option value="personal_recommendation">Personal recommendation </option>
                                                         {% endif %}

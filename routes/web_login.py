@@ -13,22 +13,18 @@ from flask_session import Session
 from datetime import timedelta, datetime
 import json
 import secrets
-#from Crypto.PublicKey import RSA
+from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
 import logging
 logging.basicConfig(level=logging.INFO)
 
-
 # dependances
 from core import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
-
-logging.basicConfig(level=logging.INFO)
-
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -90,7 +86,6 @@ def update_wallet(mode) :
 def wc_login(mode) :
 	if request.method == 'GET' :
 		# call from JS, the wallet is in a wallectconnect session with the dapp
-		
 		# QRmodal rejected by user
 		if not request.args.get('wallet_address') or request.args.get('wallet_address') == 'undefined' :
 			flash('Scan QR code or log with password', 'warning')
@@ -109,7 +104,7 @@ def wc_login(mode) :
 				return render_template('wc_reject.html', wallet_address=wallet_address)
 			else :
 				logging.info('This wallet is an Alias')
-				# thiss wallet is an alias, we look for the workspace_contract attached
+				# This wallet is an alias, we look for the workspace_contract attached
 				session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
 		else :
 			logging.info('This wallet is an Owner')
@@ -300,7 +295,7 @@ def logout(mode) :
 		try :
 			os.remove(mode.uploads_path + one_file['filename'])
 		except :
-			logging.errror('effacement file error')
+			logging.error('effacement file error')
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return redirect (mode.server + 'login/')

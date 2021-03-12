@@ -383,7 +383,7 @@ def issue_experience_certificate(mode):
             else :
                 flash('Certificate has been issued', 'success')
         else :   # fail to check code
-            print('Warning : incorrect code in issue experience certificate ', request.args.get('two_factor'))
+            logging.warning('incorrect code in issue experience certificate %s', request.args.get('two_factor'))
         del session['certificate_signature']
         del session['certificate_signatory']
         del session['certificate_to_register']
@@ -449,7 +449,7 @@ def issue_recommendation(mode):
             else :
                 flash('Certificate has been issued', 'success')
         else : # fail to check code
-            print('Warning : incorrect code in issue recommendation ', request.args.get('two_factor'))
+            logging.warning('incorrect code in issue recommendation %s', request.args.get('two_factor'))
         del session['recommendation_to_register']
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
     if request.method == 'POST' :
@@ -841,7 +841,18 @@ def issue_skill_certificate(mode) :
         return render_template('issue_skill_certificate.html', **session['menu'])
     if request.method == 'POST' :
         identity_username = request.form['identity_username'].lower()
-        certificate = {
+        workspace_contract_to = ns.get_data_from_username(identity_username, mode)['workspace_contract']
+        unsigned_credential = {
+                    "@context": [
+                        "https://www.w3.org/2018/credentials/v1",
+                        ],
+                    "id": "did:talao:talaonet:" + workspace_contract_to[2:] + "#skill" + str(secrets.randbits(64)),
+                    "issuer": session['did'],
+                    "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+                    "@type": ["VerifiableCredential"],
+                    "credentialSubject": {
+                        "id": "did:talao:talaonet:" + workspace_contract_to[2:],
+                        },
                     "version" : 1,
                     "type" : "skill",
                     "title" : request.form['title'],
@@ -852,16 +863,15 @@ def issue_skill_certificate(mode) :
                     "signature" : session['signature'],
                     "manager" : "Director",
                     "reviewer" : ""}
-        workspace_contract_to = ns.get_data_from_username(identity_username, mode)['workspace_contract']
+        signed_credential = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
         address_to = contractsToOwners(workspace_contract_to, mode)
         my_certificate = Document('certificate')
-        #doc_id = my_certificate.talao_add(workspace_contract_to, certificate, mode)[0]
         doc_id = my_certificate.add(session['address'],
                         session['workspace_contract'],
                         address_to,
                         workspace_contract_to,
                         session['private_key_value'],
-                        certificate,
+                        signed_credential,
                         mode,
                         mydays=0,
                         privacy='public',
@@ -1313,7 +1323,6 @@ def request_certificate(mode) :
         else :
             session['issuer_type'] = session['issuer_explore']['type']
             session['issuer_email'] = ns.get_data_from_username(session['certificate_issuer_username'], mode)['email']
-        print('type = ', session['issuer_type'])
         if request.form['certificate_type'] == 'experience' :
             return render_template('request_experience_certificate.html', **session['menu'])
         elif request.form['certificate_type'] in ['personal_recommendation', 'company_recommendation'] :
@@ -1322,6 +1331,9 @@ def request_certificate(mode) :
             return render_template('request_agreement_certificate.html', **session['menu'])
         elif request.form['certificate_type'] == 'reference' :
             return render_template('request_reference_certificate.html', **session['menu'])
+        else :
+            flash('certificate not available' , 'warning')
+            return redirect(mode.server + 'user/')
 
 #@app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate(mode) :
@@ -1776,7 +1788,6 @@ def download_rsa_key(mode):
     check_login()
     filename = request.args['filename']
     attachment_filename = session['workspace_contract']+ '.key'
-    print(attachment_filename)
     return send_from_directory(RSA_FOLDER + mode.BLOCKCHAIN,filename, attachment_filename = attachment_filename,as_attachment=True,cache_timeout=1)
 
 #@app.route('/talao_ca/', methods=['GET', 'POST'])
@@ -1825,7 +1836,7 @@ def typehead() :
 # To manage the navbar search field. !!!! The json file is uploaded once
 #@app.route('/user/data/', methods=['GET', 'POST'])
 def talao_search(mode) :
-    print('Warning : upload prefetch file')
+    logging.info('upload prefetch file')
     filename = request.args['filename']
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)

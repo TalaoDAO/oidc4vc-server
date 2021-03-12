@@ -7,10 +7,11 @@ from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email import encoders
 import codecs
-
+import logging
+logging.basicConfig(level=logging.INFO)
 import constante
 
-signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttp://talao.io/'
+signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
 
 """ Envoi du code secret """
 def messageAuth (email_to, random, mode) :
@@ -43,7 +44,7 @@ def messageAuth (email_to, random, mode) :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
-		print ('Error : sending mail')
+		logging.error('sending mail')
 	s.quit()
 	return True
 
@@ -107,9 +108,9 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('Success : email sent')
+		logging.info('email sent')
 	except:
-		print ('Error : sending mail')
+		logging.info('sending mail')
 	s.quit()
 	return True
 
@@ -150,7 +151,7 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	# string to store the body of the mail
 
 	if HTML_key not in HTML_templates:
-		print('Error : wrong HTML_key')
+		logging.error('wrong HTML_key')
 		return False
 
 
@@ -158,7 +159,7 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	try :
 		html = str(codecs.open(template, 'r', 'utf-8').read()).format(**format_dict)
 	except Exception as e:
-		print('Error : '  + str(e))
+		logging.error('%s', str(e))
 		return False
 
 	msg.attach(MIMEText(html, 'html', 'utf-8'))
@@ -173,9 +174,9 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('Success : email sent')
+		logging.info('email sent')
 	except:
-		print ('Error : sending mail')
+		logging.error('sending mail')
 	s.quit()
 	return True
 
@@ -204,9 +205,9 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('Success : email sent')
+		logging.info('email sent')
 	except:
-		print ('Error : sending mail')
+		logging.error('sending mail')
 	s.quit()
 	return True
 
@@ -236,7 +237,7 @@ def message(subject, to, messagetext, mode) :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 	except:
-		print ('Error : sending mail')
+		logging.error('sending mail')
 		return False
 	s.quit()
 	return True
@@ -291,8 +292,8 @@ def message_file(to, text, subject, filename, path, mode)  :
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
-		print ('Success : email sent')
+		logging.info('email sent')
 	except:
-		print ('Error : sending mail')
+		logging.error('sending mail')
 	s.quit()
 	return True

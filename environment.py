@@ -113,7 +113,7 @@ class currentMode() :
 			self.port = 3000
 
 		else :
-			print('Error : environment variable problem')
+			logging.error('environment variable problem')
 
 		if self.BLOCKCHAIN == 'rinkeby' :
 			self.start_block = 6400000

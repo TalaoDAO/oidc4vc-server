@@ -276,7 +276,7 @@ def get_partner_status(address, identity_workspace_contract, mode):
 		try:
 			authorization_index = contract.functions.getPartnership(partner_workspace_contract).call()[1]
 		except Exception as ex:
-			logging.error('E =',ex)
+			logging.error('E = %s',ex)
 			return None, None
 		partner_address = contractsToOwners(partner_workspace_contract, mode)
 		if partner_address == address :
@@ -429,7 +429,7 @@ def partnershiprequest(address_from, workspace_contract_from, identity_address, 
 			logging.error('remove key of workspace _contract failed, purpose = %s', purpose)
 			return False
 		else :
-			logging.info('remove key of workspace _contract, purpose =', purpose)
+			logging.info('remove key of workspace _contract, purpose = %s', purpose)
 
 	#recuperer la cle AES cryptée de l identité
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
@@ -501,7 +501,7 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 	signed_txn = w3.eth.account.signTransaction(txn,private_key_from)
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	logging.info('hash reject parnership = ', hash1)
+	logging.info('hash reject parnership = %s', hash1)
 	if synchronous :
 		receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
@@ -521,7 +521,7 @@ def get_image(workspace_contract, image_type, mode) :
 	try :
 		a = contract.functions.getClaimIdsByTopic(topicvalue).call()
 	except Exception as res :
-		logging.error('get picture in talao_transaction ', res)
+		logging.error('get picture in talao_transaction %s', res)
 		return None
 	if len(a) :
 		claim_Id = a[-1].hex()

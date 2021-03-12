@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+
 # dependancies
 import constante
 
@@ -35,7 +38,7 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 				if not receipt['status'] :
 					return False
 		else :
-			print("Warning : purpose and key already exists")
+			logging.warning("purpose and key already exists")
 		return True
 
 	else :
@@ -46,8 +49,8 @@ def add_key(address_from, workspace_contract_from, address_to, workspace_contrac
 		if synchronous :
 			receipt = w3.eth.waitForTransactionReceipt(hash_transaction)
 			if not receipt['status'] :
-				print('Error : transaction failed . See receipt :', receipt)
-		print("Success : hash = ", hash_transaction)
+				logging.error('transaction failed . See receipt : %s', receipt)
+				return False
 		return True
 
 
@@ -63,7 +66,7 @@ def delete_key(address_from, workspace_contract_from, address_to, workspace_cont
 	key_description = contract.functions.getKey(key).call()
 	purpose_list = key_description[0]
 	if purpose not in purpose_list :
-		print('Error : this purpose does not exist, cannot delete')
+		logging.error('this purpose does not exist, cannot delete')
 		return False
 	else :
 		# build, sign and send transaction
@@ -72,8 +75,11 @@ def delete_key(address_from, workspace_contract_from, address_to, workspace_cont
 		w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 		hash_transaction = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 		if synchronous :
-			w3.eth.waitForTransactionReceipt(hash_transaction)
-		print("Success : delete key hash = ", hash_transaction)
+			receipt = w3.eth.waitForTransactionReceipt(hash_transaction)
+			if not receipt['status'] :
+				logging.error('transaction failed . See receipt : %s', receipt)
+				return False
+		logging.info("delete key done hash = %s", hash_transaction)
 		return True
 
 def has_key_purpose(identity_workspace_contract, address_partner, purpose, mode) :

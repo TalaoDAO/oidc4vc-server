@@ -436,7 +436,7 @@ def _get_data_for_login(username, mode) :
 def username_exist(username, mode) :
 	if not username :
 		return False
-	return  False if _get_data(username,mode) is None else True
+	return  False if not _get_data(username,mode) else True
 
 def get_data_from_username(username, mode) :
 	""" It is almost the same as get_data_for_login but with dict as return """

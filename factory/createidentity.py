@@ -27,6 +27,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+from core import credential
 
 # import des fonctions custom
 import constante
@@ -57,17 +58,19 @@ class ExportingThread_all(threading.Thread):
 		address, private_key, workspace_contract = _create_user_step_1(self.username, self.email, self.mode, self.creator, self.partner, self.send_email, self.password, self.firstname,  self.lastname, self.phone, self.wallet)
 		if not address :
 			return None, None, None
-		_create_user_step_2(address, workspace_contract, private_key, self.username, self.email, self.mode, self.creator, self.partner, self.send_email)
+		_create_user_step_2(address, workspace_contract, private_key, self.username, self.firstname, self.lastname, self.email, self.mode, self.creator, self.partner, self.send_email)
 		return  address, private_key, workspace_contract
 
 
 # Multithreading creatidentity setup for step 2 only
 class ExportingThread(threading.Thread):
-	def __init__(self, address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,) :
+	def __init__(self, address, workspace_contract, private_key, username, firstname, lastname, email, mode, creator, partner, send_email,) :
 		super().__init__()
 		self.username = username
 		self.email = email
 		self.send_email = send_email
+		self.firstname = firstname
+		self.lastname = lastname
 		self.mode = mode
 		self.creator = creator
 		self.partner = partner
@@ -75,7 +78,7 @@ class ExportingThread(threading.Thread):
 		self.workspace_contract = workspace_contract
 		self.private_key = private_key
 	def run(self):
-		_create_user_step_2(self.address, self.workspace_contract, self.private_key, self.username, self.email, self.mode, self.creator, self.partner, self.send_email)
+		_create_user_step_2(self.address, self.workspace_contract, self.private_key, self.username, self.firstname, self.lastname, self.email, self.mode, self.creator, self.partner, self.send_email)
 		return
 
 
@@ -100,10 +103,10 @@ def create_user(username, email, mode, creator=None, wallet=None, partner=False,
 		# Step 2 : this step maybe asynchronous
 		if is_thread :
 			thread_id = str(random.randint(0,10000 ))
-			exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email)
+			exporting_threads[thread_id] = ExportingThread(address, workspace_contract, private_key, username, firstname, lastname, email, mode, creator, partner, send_email)
 			exporting_threads[thread_id].start()
 		else :
-			_create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,)
+			_create_user_step_2(address, workspace_contract, private_key, username, firstname, lastname, email, mode, creator, partner, send_email,)
 		return address, private_key, workspace_contract
 
 
@@ -147,7 +150,6 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 	logging.info('create vault acces hash = %s', hash)
 
 	# Identity setup
-
 	contract = mode.w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address)
 	txn = contract.functions.createWorkspace(1001,1,1,RSA_public, AES_encrypted , SECRET_encrypted, bemail).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 7500000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
@@ -209,21 +211,29 @@ def _create_user_step_1(username, email,mode, creator, partner, send_email, pass
 		else :
 			logging.warning('wallet update failed')
 
-
 	# key 1 issued to Web Relay to act as agent.
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
+	if not add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode) :
+		logging.error('add key 1 to web Relay failed')
+	else :
+		logging.info('key 1 to web Relay has been added')
 
 	logging.info('end of step 1 create identity')
 	return address, private_key, workspace_contract
 
 
-def _create_user_step_2(address, workspace_contract, private_key, username, email, mode, creator, partner, send_email,) :
+def _create_user_step_2(address, workspace_contract, private_key, username, firstname, lastname, email, mode, creator, partner, send_email,) :
 
-	# key 5 to Talao be in  White List
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode)
+	# key 5 to Talao to be in White List
+	if not add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5, mode) :
+		logging.error('add key 5 to Talao White list failed')
+	else :
+		logging.info("key 5 to Talao has been added")
 
 	# key 20002 to Talao to Issue Proof of Identity
-	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode)
+	if not 	add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) :
+		logging.error('add key 20002 to Talao failed')
+	else :
+		logging.info('key 20002 to Talao has been added')
 
 	# Creator management
 	if creator and creator != mode.owner_talao :
@@ -250,17 +260,55 @@ def _create_user_step_2(address, workspace_contract, private_key, username, emai
 	else :
 		logging.info('no company creator')
 
-	# rewrite previous email to get an encrypted email 
+	# rewrite previous email to get an encrypted email
 	if Claim().add(address,workspace_contract, address, workspace_contract,private_key, 'email', email, 'private', mode)[0] :
 		logging.info('email encryted updated')
 	else :
 		logging.warning('email encrypted not updated')
 
+	#Identity Verifiable claim issued by creator
+	if creator and creator != mode.owner_talao :
+		unsigned_credential = {
+			"@context": [
+			"https://www.w3.org/2018/credentials/v1",
+			],
+			"id": "did:talao:talaonet:" + workspace_contract[2:] + "#did_authn",
+			"issuer": 'did:talao:talaonet:' + creator_workspace_contract[2:],
+			"issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+			"type": ["VerifiableCredential"],
+			"credentialSubject": {
+				"id": "did:talao:talaonet:" + workspace_contract[2:],
+				'family_name' : lastname,
+				"given_name" : firstname,
+				"birthdate" : "",
+				"address" : "",
+				"telephone" : "",
+				"email" : "",
+				"gender" : "",
+				},
+			}
+		signed_credential = credential.sign_credential(unsigned_credential, creator_rsa_key)
+		# signed kyc stored as did_authn ERC735 Claim
+		claim=Claim()
+		if not claim.add(creator_address,
+			 	creator_workspace_contract,
+				address,
+				workspace_contract,
+				creator_private_key,
+				'did_authn',
+				signed_credential,
+				'private',
+				mode,
+				synchronous = True)[0] :
+			logging.error('transaction for proof of identity failed')
+		else :
+			logging.info('proof of identity has been issued')
+
 	# emails send to user and admin
-	Talao_message.messageLog("no lastname", "no firstname", username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
+	Talao_message.messageLog(lastname, firstname, username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
 	# By default an email is sent to user
 	if send_email :
-		Talao_message.messageUser("no lastname", "no fistname", username, email, address, private_key, workspace_contract, mode)
+		Talao_message.messageUser(lastname, firstname, username, email, address, private_key, workspace_contract, mode)
 
 	logging.info("create identity process step 2 is over")
 	return

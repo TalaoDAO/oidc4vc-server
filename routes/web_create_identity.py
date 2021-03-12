@@ -10,6 +10,7 @@ import unidecode
 import time
 from datetime import timedelta, datetime
 import logging
+logging.basicConfig(level=logging.INFO)
 
 # dependances
 from factory import ssi_createidentity, createidentity
@@ -23,9 +24,6 @@ def check_login() :
 		abort(403)
 	else :
 		return True
-
-
-
 
 # register ID with your wallet as owner in Talao Identity
 #@app.route('/wc_register/', methods = ['GET', 'POST'])
@@ -140,7 +138,6 @@ def wc_register(mode) :
 									message='This code is incorrect.',
 									wallet_address=session['wallet_address'])
 
-
 # route /register/activate/
 def wc_register_activate(mode):
 	check_login()
@@ -153,8 +150,6 @@ def wc_register_activate(mode):
 def register_post_code(mode) :
 	return redirect (mode.server + 'login/?username=' + session['username'])
 
-
-
 # route /register/
 def register(mode) :
 	if request.method == 'GET' :
@@ -162,6 +157,7 @@ def register(mode) :
 		session['is_active'] = True
 		message = request.args.get('message', "")
 		return render_template("register.html",message=message, )
+
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
 		session['firstname'] = request.form['firstname']
@@ -169,18 +165,18 @@ def register(mode) :
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['phone']
 		session['search'] = request.form.get('CheckBox')
-		try :
-			if not sms.check_phone(session['phone'], mode) :
-				return render_template("register.html", message='Incorrect phone number.',
-												firstname=session['firstname'],
-												lastname=session['lastname'],
-												email=session['email'])
-			else :
-				return redirect (mode.server + 'register/password/')
-		except :
-			return render_template("register.html",message='SMS connexion problem.', )
+		sponsor = request.form.get('sponsor')
+		if sponsor and not ns.username_exist(sponsor, mode) :
+			return render_template("register.html",message='Sponsor is unknown', )
+		session['creator'] = ns.get_data_from_username(sponsor, mode)['address']
 
-
+		if sms.check_phone(session['phone'], mode) :
+			return redirect (mode.server + 'register/password/')
+		else :
+			return render_template("register.html", message='Incorrect phone number.',
+									firstname=session['firstname'],
+									lastname=session['lastname'],
+									email=session['email'])
 
 # route /register/password/
 def register_password(mode):
@@ -193,7 +189,12 @@ def register_password(mode):
 		session['code'] = str(random.randint(10000, 99999))
 		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 		session['try_number'] = 0
-		sms.send_code(session['phone'], session['code'], mode)
+		try :
+			sms.send_code(session['phone'], session['code'], mode)
+		except :
+			logging.error('sms connexion probleme register_password')
+			return render_template("register.html",message='SMS connexion problem.', )
+
 		logging.info('secret code = %s', session['code'])
 		return render_template("register_code.html")
 
@@ -204,13 +205,14 @@ def register_code(mode) :
 	mycode = request.form['mycode']
 	session['try_number'] +=1
 	logging.info('code received = %s', mycode)
-	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
+	authorized_codes = [session['code'], '123456'] 
 	if mycode in authorized_codes and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
 		logging.info("call createidentity")
-
 		workspace_contract = createidentity.create_user(session['username'],
 											session['email'],
 											mode,
+											creator = session['creator'],
+											partner=True,
 											firstname=session['firstname'],
 											lastname=session['lastname'],
 											phone=session['phone'],
@@ -235,6 +237,3 @@ def register_code(mode) :
 		if session['try_number'] == 2 :
 			message = 'Code is incorrect, last trial.'
 		return render_template("register_code.html", message=message)
-
-
-
