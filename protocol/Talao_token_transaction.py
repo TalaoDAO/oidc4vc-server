@@ -509,12 +509,13 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 			return False
 	return True
 
-##################################################################
-#    get image from identity
-##################################################################
-def get_image(workspace_contract, image_type, mode) :
-# image(profil picture) = 105109097103101  signature = 115105103110097116117114101
 
+
+def get_image(workspace_contract, image_type, mode) :
+	"""
+	image(profil picture) = 105109097103101  signature = 115105103110097116117114101
+	return ipfs id
+	"""
 	w3 = mode.w3
 	topicvalue = 105109097103101 if image_type in ['photo', 'logo', 'image', 'picture'] else 115105103110097116117114101
 	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)

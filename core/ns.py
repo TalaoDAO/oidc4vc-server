@@ -5,32 +5,41 @@ import random
 import json
 import constante
 import os
+import secrets
+import logging
+logging.basicConfig(level=logging.INFO)
 
-""" SQLite init functions , not used in normal operation
 
-def _init_nameservice(mode):
+def alter_add_table_credential(database, mode) :
 	path = mode.db_path
-	conn = sqlite3.connect(path + 'nameservice.db')
-	cur = conn.cursor()
-	cur.execute('create table alias(alias_name text, identity_name text, email text, phone text, password text, date real)')
-	cur.execute('create table resolver(identity_name text, identity_workspace_contract text, date real)')
-	cur.execute('create table publickey(address text, key text)')
-	conn.commit()
-	cur.close()
-	return True
-"""
-
-
-def alter_add_phone_field(database, mode) :
-	path = mode.db_path
-	""" This function is only used in createcompany """
+	""" This function is only used to update """
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
-	cur.execute('alter table alias add column phone text')
+	cur.execute('create table credential(created real, user_name text, reviewer_name text, manager_name text, status text, credential text, id text)')
 	conn.commit()
 	cur.close()
 	return True
 
+def alter_manager_table(database, mode) :
+	path = mode.db_path
+	""" This function is only used to update """
+	conn = sqlite3.connect(path + database)
+	cur = conn.cursor()
+	cur.execute('alter table manager add column role text')
+	cur.execute('alter table manager add column referent text')
+	conn.commit()
+	cur.close()
+	return True
+
+def alter_credential_table(database, mode) :
+	path = mode.db_path
+	""" This function is only used to update """
+	conn = sqlite3.connect(path + database)
+	cur = conn.cursor()
+	cur.execute('alter table credential add column id text')
+	conn.commit()
+	cur.close()
+	return True
 
 # update pour la mise en place du champ wallet dans resolver
 def alter_add_wallet_field(mode) :
@@ -41,67 +50,6 @@ def alter_add_wallet_field(mode) :
 	conn.commit()
 	cur.close()
 	return True
-
-""" idem au dessus
-def alter_add_phone_field_manager(database, mode) :
-	path = mode.db_path
-	conn = sqlite3.connect(path + database)
-	cur = conn.cursor()
-	cur.execute('alter table manager add column phone text')
-	conn.commit()
-	cur.close()
-	return True
-
-# update pour la mise en place du password
-def alter_add_password_field(database, mode) :
-	path = mode.db_path
-	conn = sqlite3.connect(path + database)
-	cur = conn.cursor()
-	cur.execute('alter table alias add column password text default identity')
-	conn.commit()
-	cur.close()
-	return True
-
-# update pour la mise en place du password
-def alter_add_password_field_manager(database, mode) :
-	path = mode.db_path
-	conn = sqlite3.connect(path + database)
-	cur = conn.cursor()
-	cur.execute('alter table manager add column password text default identity')
-	conn.commit()
-	cur.close()
-	return True
-
-
-def setup(mode) :
-	_init_nameservice(mode)
-	init_host('talao', mode)
-	init_host('thales', mode)
-	init_host('skillvalue', mode)
-	init_host('relay', mode)
-	init_host('bnp', mode)
-
-	add_identity('talao', '0xfafDe7ae75c25d32ec064B804F9D83F24aB14341', 'contact@talao.io',mode)
-	add_identity('bnp', '0x4A2B67f773D30210Bb7C224e00eAD52CFCDf0Bb4', 'contact@bnp.talao.io', mode)
-	add_identity('skillvalue', '0xbF14A0F4DC31c93545CBE210fb24f2a1fc6Bb208', 'contact@skillvalue.talao.io', mode)
-	add_identity('thales', '0x9A662a74F44B7fe61b69b0AFbfE73B8AbF38EE46', 'contact@thales.talao.io', mode)
-	add_identity('pascalet', '0xEc0Cf3FA4158D8dd098051cfb14af7b4812d51aF', 'pascalet@gmail.talao.io',mode)
-	add_identity('jean', '0x0271c88C648D6F44B83f8CEcFFc8A85C390e9C21', 'jean@gmail.talao.io', mode)
-	add_identity('relay', '0xD6679Be1FeDD66e9313b9358D89E521325e37683', 'contact@relay.talao.io', mode)	
-
-	add_alias('jeanpascalet', 'pascalet', 'jeanpascalet@gmail.talao.io', mode)
-	add_alias('jp2', 'pascalet', 'jp@gmail.talao.io', mode)
-	add_alias('jp1', 'pascalet', 'jp@gmail.talao.io', mode)
-
-	add_manager('jp', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
-	add_manager('jp1', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
-	add_manager('jp2', 'pascalet', 'bnp', 'jp@bnp.talao.io', mode)
-
-
-"""
-
-####################################### Standard Functions ###############################################################################################################
-
 
 
 def _contractsToOwners(workspace_contract, mode) :
@@ -114,7 +62,6 @@ def _ownersToContracts(address, mode) :
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 
-
 def build_username(firstname, lastname,mode) :
 	""" to get an unique username """
 	_firstname = firstname.lower()
@@ -125,13 +72,13 @@ def build_username(firstname, lastname,mode) :
 		username = username + str(random.randint(1, 100))
 	return username
 
-
 def init_host(host_name, mode) :
 	""" This function is only used in createcompany """
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
-	cur.execute('create table manager(manager_name text, identity_name text, email text, phone text, date real, password text)')
+	cur.execute('create table manager(manager_name text, identity_name text, email text, phone text, date real, password text, role text, referent text)')
+	cur.execute('create table credential(created real, user_name text, reviewer_name text, manager_name text, status text, credential text, id text)')
 	conn.commit()
 	cur.close()
 	return True
@@ -209,34 +156,165 @@ def remove_alias(alias_name, mode) :
 	conn.close()
 	return execution
 
-def add_manager(manager_name, identity_name, host_name, email, mode, phone=None, password='identity') :
 
+def delete_verifiable_credential(id, host, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + host + '.db')
+	c = conn.cursor()
+	data = {'id' : id}
+	try :
+		c.execute("DELETE FROM credential WHERE id = :id " , data)
+	except sqlite3.OperationalError as er :
+		logging.error('delete credential failed %s', er)
+		conn.commit()
+		conn.close()
+		return False
+	conn.commit()
+	conn.close()
+	return True
+
+def add_verifiable_credential(host_name, talent_username, reviewer_username, manager_username, status, id, credential, mode) :
+	"""
+	credential is json unsigned (str)
+	status is draft/reviewed/signed
+	"""
+	path = mode.db_path
+	conn = sqlite3.connect(path + host_name +'.db')
+	c = conn.cursor()
+	data = {
+			'created' : datetime.now(),
+			'user_name' : talent_username,
+			'reviewer_name' : reviewer_username,
+			'manager_name' : manager_username,
+			'status' : status,
+			'credential' : credential,
+			'id' : id}
+	try :
+		c.execute("INSERT INTO credential VALUES (:created, :user_name, :reviewer_name, :manager_name, :status, :credential, :id )", data)
+		conn.commit()
+		conn.close()
+	except :
+		conn.commit()
+		conn.close()
+		return False
+	return True
+
+def update_verifiable_credential(id, host_name, reviewer_username, manager_username, status, credential, mode) :
+	"""
+	credential is json unsigned (str)
+	status is draft/reviewed/signed
+	"""
+	path = mode.db_path
+	conn = sqlite3.connect(path + host_name +'.db')
+	c = conn.cursor()
+	data = {
+			'reviewer_name' : reviewer_username,
+			'manager_name' : manager_username,
+			'status' : status,
+			'credential' : credential,
+			'id' : id}
+	try :
+		c.execute("UPDATE credential SET reviewer_name = :reviewer_name, manager_name = :manager_name, status = :status, credential = :credential  WHERE id = :id", data)
+		logging.error('table credential updated')
+		conn.commit()
+		conn.close()
+	except sqlite3.Error as er :
+		logging.error('update table credential failed %s', er)
+		conn.commit()
+		conn.close()
+		return False
+	return True
+
+
+def get_verifiable_credential(host_name, manager_username, reviewer_username, status, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + host_name +'.db')
+	c = conn.cursor()
+	data = {'manager_name' : manager_username,
+			'reviewer_name' : reviewer_username,}
+	status = str(status)
+	try :
+		if manager_username == 'all' and reviewer_username == 'all':
+			c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential, id  FROM credential WHERE status IN " + status, data)
+		elif reviewer_username == 'all' :
+			c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential, id FROM credential WHERE manager_name = :manager_name AND status IN " + status , data)
+		elif manager_username == 'all' :
+			c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential, id FROM credential WHERE reviewer_name = :reviewer_name AND status IN " + status , data)
+		else :
+			c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential, id FROM credential WHERE reviewer_name = :reviewer_name AND manager_name = :manager_name AND status IN " + status , data)
+	except sqlite3.Error as er :
+		logging.error('get veriable credential failed %s', er)
+		conn.commit()
+		conn.close()
+		return None
+	select=c.fetchall()
+	conn.close()
+	if not select :
+		return None
+	return select
+
+def get_verifiable_credential_by_id(host, id, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + host +'.db')
+	c = conn.cursor()
+	data = {'id' : id,}
+	print('host = ', host)
+	print('id = ', id)
+	try :
+		c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential FROM credential WHERE id = :id", data)
+	except sqlite3.Error as er :
+		logging.error('get veriable credential by id failed  %s', er)
+		conn.close()
+		return None
+	select=c.fetchone()
+	conn.close()
+	if not select :
+		return None
+	return select
+
+
+def add_employee(manager_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
 	""" jean.bnp : jean = manager_name , bnp = host_name """
+	print('host = ', host_name)
+	print('role = ', role)
+	print('referent = ', referent)
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	now = datetime.now()
-	data = {'manager_name' : manager_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password} 
-	c.execute("INSERT INTO manager VALUES (:manager_name, :identity_name, :email, :date, :phone, :password )", data)
+	data = {'manager_name' : manager_name,
+			'identity_name' : identity_name,
+			'email' : email,
+			'date' : datetime.timestamp(now),
+			'phone' : phone,
+			'password' : password,
+			'role' : role,
+			'referent' : referent}
+	try :
+		c.execute("INSERT INTO manager VALUES (:manager_name, :identity_name, :email, :date, :phone, :password, :role, :referent )", data)
+	except sqlite3.Error as er :
+		logging.error('add employee failed  %s', er)
+		conn.close()
+		return None
 	conn.commit()
 	conn.close()
 	return True
+
 
 def does_manager_exist(manager_name, host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	#now = datetime.now()
-	data = {'manager_name' : manager_name}
-	c.execute("SELECT identity_name FROM manager WHERE manager_name = :manager_name " , data)
+	data = {'manager_name' : manager_name,
+			'role' : "manager"}
+	c.execute("SELECT identity_name FROM manager WHERE manager_name = :manager_name AND role = :role " , data)
 	select = c.fetchall()
-	conn.commit()
 	conn.close()
 	if select == [] :
 		return False
 	else :
 		return True
-
 
 def identity_list(mode) :
 	""" Return list of username """
@@ -249,7 +327,6 @@ def identity_list(mode) :
 	my_list = [item[0] for item in select if item[0] != '' and item[0] != 'relay']
 	my_list.sort()
 	return my_list
-
 
 def remove_manager(manager_name, host_name, mode) :
 	path = mode.db_path
@@ -272,8 +349,8 @@ def _get_data(username, mode) :
 	""" return data from SQL database depending of type of user (manager or not) """
 	path = mode.db_path
 	manager_name,s,host_name = username.rpartition('.')
-	# it is not a manager
-	if manager_name == '' :
+	# it is not an employee
+	if not manager_name  :
 		conn = sqlite3.connect(path + 'nameservice.db')
 		c = conn.cursor()
 		data ={'username' : username}
@@ -297,38 +374,34 @@ def _get_data(username, mode) :
 		identity_workspace_contract = select[0]
 		conn.commit()
 		conn.close()
-		return identity_workspace_contract, None, alias_email, phone, password
+		return identity_workspace_contract, None, alias_email, phone, password, "user", None
 	else :
 		conn = sqlite3.connect(path + host_name + '.db')
 		c = conn.cursor()
 		data ={'manager_name' : manager_name}
-
 		try :
-			c.execute("SELECT identity_name, email, phone, password FROM manager WHERE manager_name = :manager_name " , data)
+			c.execute("SELECT identity_name, email, phone, password, role, referent FROM manager WHERE manager_name = :manager_name " , data)
 		except sqlite3.OperationalError :
-			print('Error : database ' + host_name + ' does not exist')
+			logging.error('database ' + host_name + ' does not exist')
 			return None
-
 		select = c.fetchone()
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Error : manager name : '+ manager_name + ' does not exist in '+ host_name)
+			logging.error('manager name : '+ manager_name + ' does not exist in '+ host_name)
 			return None
-
-		(identity_name, manager_email, phone, password) = select
+		(identity_name, manager_email, phone, password, role, referent) = select
 		conn.commit()
 		conn.close()
 		conn = sqlite3.connect(path + 'nameservice.db')
 		c = conn.cursor()
-
 		data ={'host_name' : host_name}
 		c.execute("SELECT identity_workspace_contract FROM resolver WHERE identity_name = :host_name " , data)
 		select = c.fetchone()
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Error : le host n existe pas das le resolver')
+			logging.error('le host n existe pas dans le resolver')
 			return None
 		host_workspace_contract = select[0]
 		data ={'identity_name' : identity_name}
@@ -336,7 +409,7 @@ def _get_data(username, mode) :
 		identity_workspace_contract = c.fetchone()[0]
 		conn.commit()
 		conn.close()
-		return identity_workspace_contract, host_workspace_contract, manager_email, phone, password
+		return identity_workspace_contract, host_workspace_contract, manager_email, phone, password, role, referent
 
 def get_username_from_resolver(workspace_contract, mode) :
 	path = mode.db_path
@@ -351,7 +424,6 @@ def get_username_from_resolver(workspace_contract, mode) :
 		return None
 	return select[0]
 
-
 def get_username_from_wallet(wallet, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -364,7 +436,6 @@ def get_username_from_wallet(wallet, mode) :
 	if not select :
 		return None
 	return select[0]
-
 
 def get_workspace_contract_from_wallet(wallet, mode) :
 	path = mode.db_path
@@ -427,11 +498,11 @@ def _get_data_for_login(username, mode) :
 	call = _get_data(username, mode)
 	if call is None :
 		return None
-	identity, host, email, phone, password = call
+	identity, host, email, phone, password, role, referent = call
 	if host is None :
-		return identity, email, phone, password
+		return identity, email, phone, password, None, None, identity
 	else :
-		return host, email, phone, password
+		return host, email, phone, password, role, referent, identity
 
 def username_exist(username, mode) :
 	if not username :
@@ -445,15 +516,18 @@ def get_data_from_username(username, mode) :
 	call = _get_data_for_login(username, mode)
 	if call is None :
 		return dict()
-	workspace_contract, email, phone, password = call
+	workspace_contract, email, phone, password, role, referent, identity_workspace_contract = call
 	address = _contractsToOwners(workspace_contract,mode)
 	return {'email' : email,
 			'address' : address,
 			'workspace_contract' : workspace_contract,
+			'identity_workspace_contract' : identity_workspace_contract,
 			'username' : username,
 			'phone' : phone,
 			'hash_password' : password,
-			'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
+			'did' : 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:],
+			'role' : role,
+			'referent' : referent
 			}
 
 def get_alias_list(workspace_contract, mode) :
@@ -484,26 +558,28 @@ def get_username_list_from_email(email, mode) :
 		username_list.append(row[0])
 	return username_list
 
-def get_manager_list(workspace_contract, mode) :
+def get_employee_list(host, role, referent_name, mode) :
+	"""
+	role is "admin" or "manager" or "reviewer" 
+	"""
 	path = mode.db_path
-	call = get_username_from_resolver(workspace_contract, mode)
-	if call is None :
-		return []
-	host_name = call
-	conn = sqlite3.connect(path + host_name + '.db')
+	conn = sqlite3.connect(path + host + '.db')
 	c = conn.cursor()
-	identity_name = call
-	data ={'identity_name' : identity_name}
+	data ={'role' : role, 'referent' : referent_name}
 	try :
-		c.execute("SELECT manager_name, email FROM manager " , data)
+		if referent_name == 'all' :
+			c.execute("SELECT manager_name, email FROM manager where role = :role", data)
+		else :
+			c.execute("SELECT manager_name, email FROM manager where role = :role and referent = :referent", data)
 	except sqlite3.OperationalError :
-		print('Error : la database ' + host_name + ' n existe pas')
+		logging.error('database ' + host + ' not found')
 		return []
 	select = c.fetchall()
 	alias = list()
 	for row in select :
-		alias.append({'username' : row[0]+'.' + host_name, 'email' : row[1]})
+		alias.append({'username' : row[0]+'.' + host, 'email' : row[1]})
 	return alias
+
 
 def update_phone(username, phone, mode) :
 	if not username :

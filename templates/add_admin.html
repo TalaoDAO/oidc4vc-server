@@ -15,26 +15,26 @@
                 <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Manager</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Adminitrator</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/add_employee/" method="post">
-                                <p>Allows you to give an acces to a new manager who will get the right to issue credentials an sign them on behalf of the company.<br>
-                                    <br>This manager MUST have his own Identity as a person to be added here. His signature
-                                    will be used for certification.<br>
+                                <p>Allows you to give an acces to a new administrator who will get the right to issue credentials an sign them on behalf of the company.<br>
+                                    <br>This administrator MUST have his own Identity as a person to be added here. His/her signature
+                                    will be added to credential.<br>
                                     <br>
                                 </p>
                                 <div class="form-group">
-                                    <label title="The Manager username of his own Identity"><strong>Manager username within the company</strong><br></label>
+                                    <label title="The Manager username of his own Identity"><strong>Administrator username within the company</strong><br></label>
                                     <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The Manager username of his own Identity"  name="employee_username" >
                                 </div>
 
                                 <div class="form-group">
                                     <label title="The Manager username of his own Identity"><strong>Identity username</strong><br></label>
                                     {% if manager_username == "" %}
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The Manager username of his own Identity"  name="identity_username" >
+                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The admintrator username of his own Identity"  name="identity_username" >
                                     {% else %}
-                                    <input class="form-control" value="" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The Manager username of his own Identity"  name="identity_username" >
+                                    <input class="form-control" value="" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The adminisitrator username of his own Identity"  name="identity_username" >
                                     {% endif %}
                                 </div>
 

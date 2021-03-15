@@ -19,6 +19,7 @@ from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
 import logging
+logging.basicConfig(level=logging.INFO)
 
 # dependances
 from core import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
@@ -153,10 +154,16 @@ def user(mode) :
 		logging.info('start first instanciation')
 
 		if not session.get('workspace_contract') :
-			logging.info('Identity from username')
-			session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
+			logging.info('Identity set up from username')
+			data_from_username = ns.get_data_from_username(session['username'], mode)
+			session['workspace_contract'] = data_from_username['workspace_contract']
+			session['role'] =  data_from_username['role']
+			session['referent'] =  data_from_username['referent']
 		else :
-			logging.info('Identity from workspace contract')
+			logging.info('Identity set up from workspace contract')
+			session['role'] = None
+			session['referent'] = None
+			session['host'] = None
 
 		if mode.test :
 			user = Identity(session['workspace_contract'], mode, authenticated=True)
@@ -221,6 +228,7 @@ def user(mode) :
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
 								'clipboard' : mode.server  + "resume/?did=" + session['did']}
+			session['host'] = None
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 			session['profil_title'] = ""
@@ -231,7 +239,11 @@ def user(mode) :
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
 								'clipboard' : mode.server  + "board/?did=" + session['did']}
-
+			try :
+				session['host'] = session['username'].split('.')[1]
+			except :
+				session['host'] = session['username']
+		"""
 		# Warning message for first connexion
 		message1 = message2 = message3 = ""
 		if not session['private_key'] :
@@ -249,6 +261,7 @@ def user(mode) :
 		else :
 			message = "Your have allowed this third party wallet to manage your Identity."
 		flash(message, 'warning')
+		"""
 
 		#Homepage
 		if user.type == 'person' :
@@ -277,7 +290,7 @@ def user(mode) :
 	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
-	path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""
+	#path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
 					<b>DID</b> : did:talao:talaonet:""" + session['workspace_contract'][2:] + """</a><br>
@@ -509,7 +522,7 @@ def user(mode) :
 				else :
 					access_html = """
 					<span>""" + access['username'] + """ : """ +  access['email'] +"""
-						<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
+						<a class="text-secondary" href="/user/remove_access/?alias_to_remove="""+ access['username']+"""">
 							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 						</a>
 					</span>"""
@@ -572,45 +585,49 @@ def user(mode) :
 							)
 	# specific to company
 	if session['type'] == 'company' :
-		# Manager
-		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
-			display_manager = False
-			my_access = ""
-		else :
-			display_manager = True
-			my_access_start = """<a href="/user/add_manager/">Add a Manager</a><hr> """
-			my_access = ""
-			access_list = ns.get_manager_list(session['workspace_contract'], mode)
-			for access in access_list :
-				if access['username'] == session['username'] :
-					access_html = """
-					<span>""" + session['username'] + """ (logged)
-					</span>"""
-				else :
-					access_html = """
-					<span>""" + access['username'] + """ : """ +  access['email'] +"""
-					<a class="text-secondary" href="/user/remove_access/?username_to_remove="""+ access['username']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
-					</a>
-					</span>"""
-				my_access = my_access + access_html + """<br>"""
-			my_access = my_access_start + my_access
 
-		# API
-		credentials = ns.get_credentials(session['username'], mode)
-		if not credentials :
-			my_api = """<a class="text-info">Contact relay@talao.io to get your API credentials.</a>"""
-		else :
-			my_api = """ <div style="height:200px;overflow:auto;overflow-x: hidden;">"""
-			for cred in credentials :
-				my_api = my_api + """
-				<b>client_id</b> : """+ cred['client_id'] +"""<br>
-				<b>client_secret</b> : """+ cred['client_secret'] + """<br>
-				<b>client_uri</b> : """+ cred['client_uri'] + """<br>
-				<b>redirect_uri</b> : """+ cred['redirect_uris'][0] + """<br>
-				<b>scope</b> : """+ cred['scope'] + """<br>
-				<b>grant_types</b> : """+ " ".join(cred['grant_types']) + """<br><hr> """
-			my_api = my_api + """</div>"""
+		# Admin list  and add admin
+		my_admin_start = """<a href="/user/add_employee/?role=admin">Add an Admin</a><hr> """
+		my_admins = ""
+		admin_list = ns.get_employee_list(session['host'],'admin', 'all', mode)
+		for admin in admin_list :
+			admin_html = """
+				<span>""" + admin['username'] + """ : """ +  admin['email'] +"""
+				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ admin['username']+"""">
+					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
+				</a>
+				</span>"""
+			my_admins +=  admin_html + """<br>"""
+		my_admins = my_admin_start + my_admins
+
+		# Manager list and add managers
+		my_managers_start = """<a href="/user/add_employee/?role=manager">Add an Issuer</a><hr> """
+		my_managers = ""
+		manager_list = ns.get_employee_list(session['host'],'manager', 'all', mode)
+		for manager in manager_list :
+			manager_html = """
+				<span>""" + manager['username'] + """ : """ +  manager['email'] +"""
+				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ manager['username']+"""">
+					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
+				</a>
+				</span>"""
+			my_managers += manager_html + """<br>"""
+		my_managers = my_managers_start + my_managers
+
+		# Reviewer list and add reviewers
+		my_reviewers_start = """<a href="/user/add_employee/?role=reviewer">Add a Reviewer</a><hr> """
+		my_reviewers = ""
+		reviewer_list = ns.get_employee_list(session['host'], 'reviewer', 'all', mode)
+		for reviewer in reviewer_list :
+			reviewer_html = """
+				<span>""" + reviewer['username'] + """ : """ +  reviewer['email'] +"""
+				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ reviewer['username']+"""">
+					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
+				</a>
+				</span>"""
+			my_reviewers += reviewer_html + """<br>"""
+		my_reviewers = my_reviewers_start + my_reviewers
+
 		# kbis
 		if not session['kbis'] :
 			my_kbis = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
@@ -635,8 +652,12 @@ def user(mode) :
 				my_kbis = my_kbis + kbis_html
 
 		# company settings
-		my_personal = """<a href="/user/picture/">Change Logo</a><br>
+		if not session['role'] :
+			my_personal = """<a href="/user/picture/">Change Logo</a><br>
 						<a href="/user/signature/">Change Signature</a><br>"""
+		else :
+			my_personal = ""
+
 		for topicname in session['personal'].keys() :
 			if session['personal'][topicname]['claim_value'] :
 				topicname_value = session['personal'][topicname]['claim_value']
@@ -648,7 +669,8 @@ def user(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""
-		my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
+		if not session['role'] :
+			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
 		# certificates
 		if  not session['certificate'] :
@@ -717,15 +739,14 @@ def user(mode) :
 
 		return render_template('company_identity.html',
 							**session['menu'],
-							manager=my_access,
-							display_manager= display_manager,
+							admin=my_admins,
+							manager=my_managers,
+							reviewer=my_reviewers,
 							personal=my_personal,
 							skills=my_skills,
 							kbis=my_kbis,
 							issuer=my_issuer,
-							partner=my_partner,
 							certificates=my_certificates,
-							api=my_api,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
 							digitalvault=my_file)
@@ -748,6 +769,22 @@ def user_advanced(mode) :
 					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
 					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
 
+	# API
+	credentials = ns.get_credentials(session['username'], mode)
+	if not credentials :
+		my_api = """<a class="text-info">Contact relay@talao.io to get your API credentials.</a>"""
+	else :
+		my_api = """ <div style="height:200px;overflow:auto;overflow-x: hidden;">"""
+		for cred in credentials :
+			my_api = my_api + """
+			<b>client_id</b> : """+ cred['client_id'] +"""<br>
+			<b>client_secret</b> : """+ cred['client_secret'] + """<br>
+			<b>client_uri</b> : """+ cred['client_uri'] + """<br>
+			<b>redirect_uri</b> : """+ cred['redirect_uris'][0] + """<br>
+			<b>scope</b> : """+ cred['scope'] + """<br>
+			<b>grant_types</b> : """+ " ".join(cred['grant_types']) + """<br><hr> """
+		my_api = my_api + """</div>"""
+
 	# Alias
 	if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
 		#display_alias = False
@@ -769,7 +806,7 @@ def user_advanced(mode) :
 					</span>"""
 			my_access = my_access + access_html + """<br>"""
 
-	# Advanced
+	# Blockchain data
 	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
@@ -865,6 +902,7 @@ def user_advanced(mode) :
 							access=my_access,
 							partner=my_partner,
 							issuer=my_issuer,
+							api=my_api,
 							whitelist=my_white_issuer,
 							advanced=my_advanced)
 

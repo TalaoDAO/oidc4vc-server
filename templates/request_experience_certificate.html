@@ -19,7 +19,7 @@
                   <p class="text-primary m-0 font-weight-bold">&nbsp;Request an Professional Experience Credential</p>
                 </div>
                 <div class="card-body">
-                  <form action="/user/request_experience_certificate/" method="post">
+                  <form id="form" action="/user/request_experience_certificate/" method="post">
                     <div class="form-row">
                       <div class="col">
                         <p>Complete this request form as precisely as possible to help your referent to draft the final Credential. Your referent will receive an email with this draft.</p>
@@ -27,10 +27,19 @@
                     </div>
                     <div class="form-row">
                       <div class="col-xl-6">
-                        <div class="form-group"><label>Your position</label><input title=" Your position in the project team." required="" class="form-control" type="text" name="title"></div>
+                        <div class="form-group"><label>Title</label><input title="Job title." required="" class="form-control" type="text" name="title"></div>
                       </div>
-
+                      <div class="col-xl-6">
+                        <div class="form-group"><label>Your reviewer</label>
+                          <select name="reviewer_username" id="" class="form-control">
+                            <optgroup label="Select a reviewer in the list below">
+                              {{select|safe}}
+                            </optgroup>
+                          </select>
+                        </div>
+                      </div>
                     </div>
+
                     <div class="form-row">
                       <div class="col">
                         <div class="form-group"><label>Project description</label><textarea rows="4" title="A description of the project, objectives, technologies, team, delay..." required="" class="form-control" name="description"></textarea></div>
@@ -52,7 +61,7 @@
 
                     <div class="form-row">
                       <div class="col-6 col-xl-3">
-                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." id="sending_button" type="submit" name="choice" value="send">Send</button></div>
+                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Send the form to your Referent." id="in_progress_button" type="submit" name="choice" value="send">Send</button></div>
                       </div>
                       <div class="col-6 col-xl-3">
                         <div class="form-group"><button onclick="goBack()" title="Cancel the request." class="btn btn-primary btn-sm" type="button" value="Back">Back</button></div>
@@ -78,10 +87,11 @@
   <script>datePickerId1.max = new Date().toISOString().split("T")[0];</script>
   <script>datePickerId2.max = new Date().toISOString().split("T")[0];</script>
   <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
 </body>
 
 </html>

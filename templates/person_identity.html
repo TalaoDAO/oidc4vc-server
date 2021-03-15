@@ -10,18 +10,20 @@
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
         {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-          <span>{{ message }}</span>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        {% endfor %}
-        {% endif %}
+          {% if messages %}
+            {% for category, message in messages %}
+            <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+              <span>{{ message }}</span>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {% endfor %}
+          {% endif %}
         {% endwith %}
+
         {% include 'user_nav_bar.html' %}
+
         <div class="container-fluid">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}
@@ -143,9 +145,11 @@
 
                   <div class="card shadow mb-5">
                     <div class="card-body">
+                      <!--
                       <h4 class="text-center">{{nb_certificates}} Credentials 
                          <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-primary btn-sm" type="button">Request New Credential</button></a>
                       </h4>
+                      -->
                       {% if session['certificate'] == [] %}
                       <div style="height:50px;overflow:auto;overflow-x: hidden;">
                         <p class="card-text">{{certificates|safe}}</p>

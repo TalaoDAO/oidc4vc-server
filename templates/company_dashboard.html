@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include 'head.html' %}
+
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% if session['type'] == "company" %}
+                {% if not session['role'] %}
+                  {% include 'company_nav_bar.html' %}
+                {% else %}
+                  {% include 'manager_nav_bar.html' %}
+                {% endif %}
+              {% else %}
+                {% include 'user_nav_bar.html' %}
+              {% endif %}
+
+
+            role : {{session['role']}}<br>
+            referent : {{session['referent']}}<br>
+            username : {{session['username']}}
+
+
+                <div class="container-fluid">
+                    <br>
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">Credential list</p>
+                        </div>
+                        <div class="card-body">
+                        <form action="/user/company_dashboard/" method="post">
+                            <div class="row">
+                                <div class="col-md-6 text-nowrap">
+                                    <div class="text-justify dataTables_length" id="dataTable_length" aria-controls="dataTable">
+                                        <label class="checkbox-inline" style="margin-right: 5px;margin-left: 5px;">Draft&nbsp;&nbsp;<input {{draft}} name="draftbox" value="draft" type="checkbox"></label>
+                                        <label class="checkbox-inline"  style="margin: -1px;margin-left: 5px;margin-right: 5px;">Unsigned&nbsp;&nbsp;<input name="unsignedbox" value="unsigned" {{unsigned}} type="checkbox"></label>
+                                        <label class="checkbox-inline"  style="margin-right: 5px;margin-left: 5px;">Signed&nbsp;&nbsp;<input {{signed}} name="signedbox" value="signed" type="checkbox"></label></div>
+                                    </div>
+
+                                    {% if session['role'] != 'reviewer' %}
+                                    <div class="col-md-6 col-xl-2">
+                                        <select name="manager" >
+                                            <optgroup label="Choose manager">
+                                            <option value="all" selected="">All issuers</option>
+                                           {{manager_select|safe}}
+                                            </optgroup>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-xl-2">
+                                        <select name="reviewer">
+                                            <optgroup label="Choose reviewer">
+                                            <option value="all" selected="">All reviewers</option>
+                                           {{reviewer_select|safe}}
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="col-xl-2 text-right"><button class="btn btn-primary btn-sm text-right" type="submit">Refresh</button></div>
+                                </div>
+                            </div>
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                                <div style="height:400px;overflow:auto;overflow-x: hidden;"> 
+                                <table class="table my-0" id="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%" >Id</th>
+                                            <th style="width: 10%" >Talent</th>
+                                            <th style="width: 10%">Title</th>
+                                            <th style="width: 35%">Description</th>
+                                            <th style="width: 10%">Created</th>
+                                            <th style="width: 5%">Type</th>
+                                            <th style="width: 10%">Reviewer</th>
+                                            <th style="width: 10%">Issuers</th>
+                                            <th style="width: 5%">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{credential_list|safe}}
+                                    </tbody>
+                                </table>
+                               </div> 
+                            </div>
+                            <form/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    {% include 'user_footer.html' %}
+    <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+     <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+</body>
+
+</html>

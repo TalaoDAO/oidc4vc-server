@@ -9,23 +9,30 @@
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
+        
         {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-          <span>{{ message }}</span>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        {% endfor %}
-        {% endif %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          {% endif %}
         {% endwith %}
+
         {% if session['type'] == "company" %}
-        {% include 'company_nav_bar.html' %}
-    {% else %}
-        {% include 'user_nav_bar.html' %}
-    {% endif %}
+          {% if not session['role'] %}
+            {% include 'company_nav_bar.html' %}
+          {% else %}
+            {% include 'manager_nav_bar.html' %}
+          {% endif %}
+        {% else %}
+          {% include 'user_nav_bar.html' %}
+        {% endif %}
+
         <div class="container-fluid">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}
@@ -42,8 +49,9 @@
                 <div class="card-body">
                   <h4 title="Services available." class="text-center">Settings</h4>
                   <div role="tablist" id="accordion-2">
-                    
+
                     <!-- Update picture / logo-->
+                    {% if not session['role'] %}
                     <div class="card">
                       <div class="card-header" role="tab">
                         <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-user-circle"></i>
@@ -63,6 +71,8 @@
                         </h5>
                       </div>
                     </div>
+                    {% endif %}
+
                     <!-- Update password -->
                     <div class="card">
                       <div class="card-header" role="tab">
@@ -141,11 +151,10 @@
   <script type="text/javascript">
     window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000);
   </script>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+          <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+          <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+          <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+          <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 </body>
 
 </html>

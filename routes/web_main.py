@@ -357,10 +357,12 @@ def issue_certificate(mode):
             flash('This certificate is not implemented yet !', 'warning')
             return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
-# issue experience certificate for person with  with two factor check
-#@app.route('/user/issuer_experience_certificate/', methods=['GET','POST'])
 def issue_experience_certificate(mode):
-    """ The signature is the manager's signature except if the issuer is the company """
+    """
+    #@app.route('/user/issuer_experience_certificate/', methods=['GET','POST'])
+    The signature is the manager's signature except if the issuer is the company 
+    # issue experience certificate for person with  with two factor check
+    """
     check_login()
     # call from two factor checking function
     if request.method == 'GET' :
@@ -419,8 +421,8 @@ def issue_experience_certificate(mode):
             "score_communication" : request.form['score_communication'],
             "logo" : session['picture'],
             "signature" : session['certificate_signature'],
-            "manager" : session['certificate_signatory'],
-            "reviewer" : request.form['reviewer_name']
+            "manager_manager" : session['certificate_signatory'],
+            "reviewer_name" : request.form['reviewer_name'],
         }
         session['certificate_to_register'] = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
         # call the two factor checking function :
@@ -1296,45 +1298,6 @@ def authorize_partner(mode) :
         return redirect (mode.server +'user/')
 
 
-# request certificate to be completed with email
-#@app.route('/user/request_certificate/', methods=['GET', 'POST'])
-def request_certificate(mode) :
-    """ The request call comes from the Search Bar or from the Identity page"""
-    check_login()
-    if request.method == 'GET' :
-        session['certificate_issuer_username'] = request.args.get('issuer_username')
-        # Check if issuer has private key
-        if session['certificate_issuer_username'] :
-            if not privatekey.get_key(session['issuer_explore']['address'], 'private_key', mode) :
-                flash('Sorry, this referent cannot issue Certificates.', 'warning')
-                return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
-        return render_template('request_certificate.html', **session['menu'])
-    if request.method == 'POST' :
-        # From Menu, if issuer does not exist, we request to user his email and type.
-        if not session['certificate_issuer_username'] :
-            session['issuer_email'] = request.form['issuer_email']
-            session['issuer_type'] = 'person' if request.form['certificate_type']=='personal_recommendation' else 'company'
-            # we check if the issuer exists
-            username_list = ns.get_username_list_from_email(request.form['issuer_email'], mode)
-            if username_list :
-                msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar to check their identities and request a certificate.'
-                flash(msg , 'warning')
-                return redirect(mode.server + 'user/')
-        else :
-            session['issuer_type'] = session['issuer_explore']['type']
-            session['issuer_email'] = ns.get_data_from_username(session['certificate_issuer_username'], mode)['email']
-        if request.form['certificate_type'] == 'experience' :
-            return render_template('request_experience_certificate.html', **session['menu'])
-        elif request.form['certificate_type'] in ['personal_recommendation', 'company_recommendation'] :
-            return render_template('request_recommendation_certificate.html', **session['menu'])
-        elif request.form['certificate_type'] == 'agreement' :
-            return render_template('request_agreement_certificate.html', **session['menu'])
-        elif request.form['certificate_type'] == 'reference' :
-            return render_template('request_reference_certificate.html', **session['menu'])
-        else :
-            flash('certificate not available' , 'warning')
-            return redirect(mode.server + 'user/')
-
 #@app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate(mode) :
     """ With this view one sends an email with link to the Referent"""
@@ -1366,9 +1329,9 @@ def request_recommendation_certificate(mode) :
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
     return redirect(mode.server + 'user/')
 
+"""
 #@app.route('/user/request_experience_certificate/', methods=['POST'])
 def request_experience_certificate(mode) :
-    """ This is to send the email with link """
     check_login()
     # email to Referent/issuer
     issuer_workspace_contract = None if not session['certificate_issuer_username'] else session['issuer_explore']['workspace_contract']
@@ -1400,6 +1363,8 @@ def request_experience_certificate(mode) :
     if session['certificate_issuer_username'] :
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
     return redirect(mode.server + 'user/')
+"""
+
 
 #@app.route('/user/request_agreement_certificate/', methods=['POST'])
 def request_agreement_certificate(mode) :
@@ -1493,20 +1458,25 @@ def add_alias(mode) :
             flash('Alias added for '+ alias_username , 'success')
         return redirect (mode.server +'user/')
 
-# remove alias
+# remove access (alias/manager/reviewer
 #@app.route('/user/remove_access/', methods=['GET'])
 def remove_access(mode) :
     check_login()
-    username_to_remove = request.args['username_to_remove']
-    manalias_name,s,host_name = username_to_remove.partition('.')
-    if host_name != "" :
-        execution = ns.remove_manager(manalias_name, host_name, mode)
-    else :
-        execution = ns.remove_alias(manalias_name, mode)
-    if execution :
-        flash(username_to_remove + ' has been removed', 'success')
-    else :
-        flash('Operation failed', 'danger')
+    if 'alias_to_remove' in request.args :
+        alias = request.args['alias_to_remove'].partition('.')[0]
+        if ns.remove_alias(alias, mode) :
+            flash(alias + ' has been removed', 'success')
+        else :
+            logging.error('remove alias failed')
+            flash('Operation failed', 'danger')
+    else  :
+        if ns.remove_manager(request.args['employee_to_remove'].split('.')[0],
+                            request.args['employee_to_remove'].split('.')[1],
+                            mode) :
+            flash(request.args['employee_to_remove'].split('.')[0] + ' has been removed', 'success')
+        else :
+            flash('Operation failed', 'danger')
+            logging.error('remove manager or reviewer failed = %s',request.args['employee_to_remove'] )
     return redirect (mode.server +'user/')
 
 # Import private key
@@ -1561,23 +1531,34 @@ def import_rsa_key(mode) :
         return redirect (mode.server +'user/')
 
 
-# add manager
-#@app.route('/user/add_manager/', methods=['GET', 'POST'])
-def add_manager(mode) :
+# add admin or manager or reviewer in table manager of host
+#@app.route('/user/add_employee/', methods=['GET', 'POST'])
+def add_employee(mode) :
     check_login()
     if request.method == 'GET' :
-        if request.args.get('issuer_username') :
-            manager_username = request.args.get('issuer_username')
-        else:
-            manager_username = ''
-        return render_template('add_manager.html', **session['menu'], manager_username = manager_username)
+        role = request.args.get('role')
+        session['role_to_add'] = role
+        if role == 'manager' :
+            return render_template('add_manager.html', **session['menu'])
+        elif role == 'reviewer' :
+            return render_template('add_reviewer.html', **session['menu'])
+        elif role == 'admin' :
+            return render_template('add_admin.html', **session['menu'])
+
     if request.method == 'POST' :
-        if not ns.username_exist(request.form['manager_username'].lower(),mode)  :
-            flash('Username not found' , 'warning')
+        username = session['host'] if session['host'] == session['username'] else session['username'].split('.')[0]
+        if not ns.username_exist(request.form['identity_username'].lower(),mode)  :
+            flash('This username exist' , 'warning')
         else :
-            manager_username = request.form['manager_username']
-            ns.add_manager(manager_username, manager_username, session['username'], request.form['manager_email'], mode)
-            flash('Manager added for '+ manager_username.lower() , 'success')
+            employee_username = request.form['employee_username']
+            identity_username = request.form['identity_username']
+            try :
+                ns.add_employee(employee_username, identity_username, session['role_to_add'], username, session['host'], request.form['employee_email'], mode)
+                flash(employee_username.lower() + " has been added" , 'success')
+            except :
+                flash('Connexion problem, retry later.' , 'warning')
+                logging.error('Database locked')
+        del session['role_to_add']
         return redirect (mode.server +'user/')
 
 
@@ -1840,5 +1821,3 @@ def talao_search(mode) :
     filename = request.args['filename']
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
-
-

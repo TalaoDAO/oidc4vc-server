@@ -4,7 +4,7 @@
     
       <!-- No logo for small device  -->
     <div class="d-none d-sm-block">
-    <a href="/homepage/"><img class="rounded-0" src="/static/img/logo.png" style="width: 120px;"></a>
+    <img class="rounded-0" src="/static/img/logo.png" style="width: 120px;">
     </div>
 
     <!-- left menu for smartphone devices only -->
@@ -18,19 +18,6 @@
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
         <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://talao.readthedocs.io/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
-        {% if session['username'] == 'talao' %}
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
-          <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
-          <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create User&nbsp;</a>
-          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/issue_kbis/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue Kbis&nbsp;</a>
-          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/issue_kyc/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue Kyc&nbsp;</a>
-          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/issue_skill_certificate/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Skill Certificate&nbsp;</a>
-          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/add_key/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Add Key&nbsp;</a>
-          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/update_wallet/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Update Wallet&nbsp;</a>
-        {% endif %}
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
 
@@ -73,18 +60,11 @@
       <ul class="navbar-nav mr-2" style="flex-direction: row;">
       <div class="d-inline-flex justify-content-center">
         <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" id="id_wc" class="nav-link active"></a></li> 
-        {% if session['username'] == 'talao' %}
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Issue KBIS" style="color: white;" class="nav-link active" href="/user/issue_kbis/">Kbis</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Issue KYC" style="color: white;" class="nav-link active" href="/user/issue_kyc/">Kyc</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Issue Skill Certificate" style="color: white;" class="nav-link active" href="/user/issue_skill_certificate/">Skill</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Add Key" style="color: white;" class="nav-link active" href="/user/add_key/">Key</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="update Wallet address" style="color: white;" class="nav-link active" href="/user/update_wallet/">Wallet</a></li>
-        {% endif %}
-        <li class="nav-item d-none d-none d-md-block" role="presentation"><div id="connected"></div></li> 
+        <li class="nav-item d-none d-none d-md-block" hidden role="presentation"><div id="connected"></div></li> 
 
         <li class="nav-item mx-1"><a class="nav-link active" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>Identity</strong></h4></a></li>
-        <li class="nav-item mx-1"><a class="nav-link active" href="/user/issuer_explore/?issuer_username={{username}}" style="color: rgba(255,255,255,0.9);"><h4><strong>Board</strong></h4></a></li>
-        <li class="nav-item mx-1"><a class="nav-link active" href="/user/company_dashboard/" style="color: rgba(255,255,255,0.9);"><h4><strong>Dashoard</strong></h4></a></li>
+        <li class="nav-item mx-1"><a class="nav-link active" href="/user/company_dashboard/" style="color: rgba(255,255,255,0.9);"><h4><strong>Dashboard</strong></h4></a></li>
+
 
       </div>
 
@@ -102,15 +82,8 @@
             <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create User&nbsp;</a>
 
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
             <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://talao.readthedocs.io/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
-            {% if session['username'] == 'talao' %}
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
-              <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
-            {% endif %}
 
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" role="presentation" title="Exit"  href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>

@@ -11,20 +11,27 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
 
-                 {% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				{% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-                <span>{{ message }}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
-
+            {% with messages = get_flashed_messages(with_categories=true) %}
+			    {% if messages %}
+				    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+				    {% endfor %}
+			    {% endif %}
+		    {% endwith %}
+            {% if not session['role'] %}
                  {% include 'company_nav_bar.html' %}
+            {% else %}
+                {% include 'manager_nav_bar.html' %}
+            {% endif %}
+
+            role : {{session['role']}}<br>
+            referent : {{session['referent']}}<br>
+            username : {{session['username']}}
 
             <div class="container-fluid">
               <div class="text-center mt-3">
@@ -60,7 +67,7 @@
                                         </div>
 
 
-                                        {% if session['type'] == 'person' %}
+                                        {% if not session['role'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Ask for a Proof of Identity to share data with third parties.">
                                                 <h5 class="mb-0"><i class="fa fa-industry"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-2">&nbsp; Proof of Identity</a></h5>
@@ -73,6 +80,7 @@
                                         </div>
                                         {% endif %}
 
+                                        {% if not session['role'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of the core competencies or references of the company.">
                                                 <h5 class="mb-0"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6"href="#accordion-1 .item-6">&nbsp; Core Competencies</a></h5>
@@ -88,7 +96,9 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        {% endif %}
 
+                                        {% if not session['role'] %}
  			                        	<div class="card">
                                             <div class="card-header" role="tab" title="List of all certificates issued by third parties." >
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-certificate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp; Credentials</a></h5>
@@ -99,6 +109,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        {% endif %}
 
 
                                     </div>
@@ -107,20 +118,41 @@
                             <div class="card shadow mb-5">
                                 <div class="card-body">
 
-                                    {% if session['username'] != 'mycompany' %}
+                                    <!--
                                     <div class="d-flex justify-content-center">
                                       <a href="/user/request_certificate/">
                                       <div class="form-group"><button class="btn btn-primary btn-md" type="button">Request a credential</button></div>
                                       </a>
                                     </div>
-                                    {% endif %}
+                                    -->
 
                                     <div role="tablist" id="accordion-2">
-
-                                        {% if display_manager == True %}
+                                        {% if session['role'] == 'reviewer' %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fa fa-user-plus"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Managers</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fa fa-user-plus"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Credentials to review</a></h5>
+                                            </div>
+                                            <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
+													<div class="card-body"><p class="card-text">{{credentials|safe}}</p></div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if session['role'] not in ['admin', 'reviewer', 'manager'] %}
+                                        <div class="card">
+                                            <div class="card-header" role="tab">
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fa fa-user-plus"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-12" href="#accordion-2 .item-12">&nbsp; Administrators</a></h5>
+                                            </div>
+                                            <div class="collapse item-12" role="tabpanel" data-parent="#accordion-2">
+													<div class="card-body"><p class="card-text">{{admin|safe}}</p></div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if session['role'] not in ['reviewer', 'manager'] %}
+                                        <div class="card">
+                                            <div class="card-header" role="tab">
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fa fa-user-plus"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Issuers</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
 													<div class="card-body"><p class="card-text">{{manager|safe}}</p></div>
@@ -128,41 +160,18 @@
                                         </div>
                                         {% endif %}
 
+                                        {% if session['role'] not in ['reviewer'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                {% if session['username'] == 'mycompany' %}
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Partners are Identities with whom you share private data."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Talent</a></h5>
-                                                {% else %}
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Partners are Identities with whom you share private data."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">&nbsp; Partner</a></h5>
-                                                {% endif %}
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Reviewers are allowed to validate on behalf of the company."><i class="fa fa-user-plus"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-5">&nbsp; Reviewers</a></h5>
                                             </div>
-                                            <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{partner|safe}}</p></div>
-                                            </div>
-                                        </div>
-
-                                        {% if session['username'] != 'mycompany' %}
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Chain of Trust. List of the Identities you rely on to issue all types of certitificates."><i class="fa fa-group"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-3" href="#accordion-2 .item-3">&nbsp; White List</a></h5>
-                                            </div>
-                                            <div class="collapse item-3" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{whitelist|safe}}</p></div>
+                                            <div class="collapse item-5" role="tabpanel" data-parent="#accordion-2">
+													<div class="card-body"><p class="card-text">{{reviewer|safe}}</p></div>
                                             </div>
                                         </div>
                                         {% endif %}
 
-                                        {% if session['username'] != 'mycompany' %}
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="This is the list of the companies/users allowed to issue certificates to the company."><i class="fa fa-check"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Referent</a></h5>
-                                            </div>
-                                            <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body"><p class="card-text">{{issuer|safe}}</p></div>
-                                            </div>
-                                        </div>
-                                        {% endif %}
-
+                                        {% if session['role'] not in ['manager', 'reviewer'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
                                                 <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Store company data (encrypted)."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; File Store</a></h5>
@@ -171,77 +180,8 @@
                                                 <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>
                                             </div>
                                         </div>
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Get your client_id and client_secret for the API server.">
-                                                <h5 class="mb-0"><i class="fa fa-gears"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; API Credentials</a></h5>
-                                            </div>
-                                            <div class="collapse item-7" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                        <p class="card-text">{{api|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {% endif %}
 
-                                        {% if session['username'] != 'mycompany' %}
-                                        <div class="card">
-                                            <div class="card-header" role="tab">
-                                              <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Your RSA Key is needed to encrypt data"><i class="fa fa-lock"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false"
-                                                  aria-controls="accordion-2 .item-10" href="#accordion-2 .item-10">&nbsp; X.509 Certificates</a></h5>
-                                            </div>
-                                            <div class="collapse  item-10" role="tabpanel" data-parent="#accordion-2">
-                                              {% if session['rsa_key'] %}
-                                              <div class="card-body" >
-                                               <!-- RSA key
-                                                <a  title="Download RSA key. Keep this file private." role="presentation" href="/user/download_rsa_key/?filename={{rsa_filename}}"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.key</a>
-                                                <br><br> -->
-                                                X509 Certificate
-                                                <a title="Download this certificate to share your public key." role="presentation" href="/user/download_x509/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.pem</a>
-                                                <br><br>
-                                                PKCS12 Certificate
-                                                <a title="Download this certificate to sign documents and emails. Keep this certificate private." role="presentation" href="/user/download_pkcs12/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.p12</a>
-                                                <br><br>
-                                                Talao Conformity Authority Certificate
-                                                <a title="Download this certificate. It could be requested to verify your own certificate." role="presentation" href="/talao_ca/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : talao.pem</a>
-                                            </div>
-                                              {% else %}
-                                              <div class="card m-2">
-                                                <div class="card-header py-3">
-                                                  <p class="text-primary m-0 font-weight-bold">Import RSA Key</p>
-                                                </div>
-                                                <div class="card-body text-center shadow">
-                                                  <form name="form" action="/user/import_rsa_key/" method="POST" enctype="multipart/form-data">
-                                                    <p>Your RSA Key is needed to encrypt data as "Private" or "Secret".<br>
-                                                      Private files are available for your partners only.<br>
-                                                      Secret file are only for you.</p>
-                                                    <div class="form-group">
-                                                      <div class="input-group mb-3">
-                                                        <div class="input-group-prepend">
-                                                          <button id="in_progress_button" class="btn btn-primary btn-sm small" type="submit">Save</button>
-                                                        </div>
-                                                        <div class="custom-file">
-                                                          <label class="custom-file-label" for="inputGroupFile01"></label>
-                                                          <input type="file" id="inputGroupFile01" onchange="loadFile(event)" class="custom-file-input" name="file">
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </form>
-                                                </div>
-                                              </div>
-                                              {% endif %}
-                                            </div>
-                                          </div>
-                                          {% endif %}
-
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced data about the company blockchain Identity.">
-                                                <h5 class="mb-0"><i class="fa fa-chain"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-6" href="#accordion-2 .item-6">&nbsp; Advanced</a></h5>
-                                            </div>
-                                            <div class="collapse item-6" role="tabpanel" data-parent="#accordion-2">
-                                                <div class="card-body">
-                                                    <p class="card-text">{{advanced|safe}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                     </div>
                                 </div>
@@ -254,11 +194,12 @@
                                     {% include 'user_footer.html' %}
     </div>
    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+   <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
+
     <script>function copyToClipboard(element) {
         var $temp = $("<input>");
         $("body").append($temp);

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% if not session['role'] %}
+                  {% include 'company_nav_bar.html' %}
+                {% else %}
+                  {% include 'manager_nav_bar.html' %}
+                {% endif %}
+    status = {{session['call'][4]}}
+        <div class="container-fluid mt-3">
+            <div class="row">
+                <div class="col-xl-4 offset-xl-4">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h4 class="card-title">Professional Experience Credential</h4>
+                            <p class="card-text">This credential will be signed by {{managerName}} on behalf of {{companyName}}.</p>
+                        </div>
+                        <form method="post" action="/user/issue_experience_certificate_workflow/?id={{credential_id}}">
+                            <div class="container shadow-sm" style="background-color: #ffffff;">
+                                <fieldset {{field}} >
+                                <div class="form-row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group"><label>Title</label><input class="form-control" type="text" value="{{title}}" placeholder="Talent title in the project team" name="title"></div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group"><label>Talent Name</label><input class="form-control" type="text" name="talent_name" readonly="" value="{{name}}"></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group"><label>Project Description</label><textarea name ="description" class="form-control">{{description}}</textarea></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-xl-12">
+                                        <div class="form-group"><label>Skills</label><input class="form-control" value="{{skills_str}}" type="text" data-toggle="tooltip" data-bs-tooltip="" placeholder="skill1, skill2, skill3,..." name="skills_str" title="Highlighted skills"></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-6 col-xl-6 order-2 order-xl-1">
+                                        <div class="form-row">
+                                            <div class="col-xl-3"><label class="col-form-label">From :</label></div>
+                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" data-bs-tooltip="" id="datePickerId1" value="{{startDate}}" type="date" name="startDate" placeholder="From" required=""></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-6 col-xl-6 order-2 order-xl-1">
+                                        <div class="form-row">
+                                            <div class="col-xl-3"><label class="col-form-label">To :</label></div>
+                                            <div class="col-xl-9"><input class="form-control" data-toggle="tooltip" id="datePickerId2" data-bs-tooltip="" type="date" value="{{endDate}}" name="endDate" placeholder="From" required=""></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <hr>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+                                            <p style="font-size: 12px;">{{questionDelivery}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+										<div class="form-group">
+											<input  class="form-control-range" type="range" name="scoreDelivery" id="score_delivery" value="{{scoreDelivery}}" min="0" max="5" step="1" oninput="score_delivery_disp.value = score_delivery.value">
+											<output  id="score_delivery_disp"></output>
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+                                            <p style="font-size: 12px;">{{questionRecommendation}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+										<div class="form-group">
+											<input  class="form-control-range" type="range" name="scoreRecommendation" id="score_recommendation" value="{{scoreRecommendation}}" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
+											<output  id="score_recommendation_disp"></output>
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+                                            <p style="font-size: 12px;">{{questionSchedule}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+										<div class="form-group">
+											<input  class="form-control-range" type="range" name="scoreSchedule" id="score_schedule" value="{{scoreSchedule}}" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
+											<output  id="score_schedule_disp"></output>
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
+                                        <div class="form-group">
+                                            <p style="font-size: 12px;">How would you rate his/her overall communication skills ?</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+											<input  class="form-control-range" type="range" value="{{scoreCommunication}}" name="scoreCommunication" id="score_communication"  min="0" max="5" step="1" oninput="score_communication_disp.value = score_communication.value">
+											<output  id="score_communication_disp">{{scoreCommunication}}</output>
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-lg-6 col-xl-6">
+                                        <div class="form-group"><label>Reviewer Name</label><input class="form-control" type="text" value="{{reviewerName}}" placeholder="Reviewer Name" name="reviewerName"></div>
+                                    </div>
+                                    <div class="col-lg-6 col-xl-6">
+                                        <div class="form-group"><label>Manager Name</label><input class="form-control" type="text" name="managerName" placeholder="Manager Name"  value="{{managerName}}"></div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+
+                                    <div class="form-row">
+                                    {% if session['call'][4] != 'signed' %}
+                                    <div class="col-xl-3 order-xl-1">
+                                        <div class="form-group"><button title="This credential will be updated but not validated" title="This credential will be updated but not validated." onclick="return confirm('Are you sure you want to update this credential ?')"  class="btn btn-primary btn-sm" name="exit" value="update" type="submit">Update&nbsp;</button></div>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if session['call'][4] == 'draft' %}
+                                    <div class="col-xl-3 order-xl-1">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" onclick="return confirm('Are you sure you want to validate this credential ?')" title="This credential will be considered as reviewed" name="exit" value="validate" type="submit">Validate&nbsp;</button></div>
+                                    </div>
+                                    {%  endif %}
+
+                                    {% if session['call'][4] == 'unsigned' and session['role'] != 'reviewer' %}
+                                    <div class="col-xl-3 order-xl-1">
+                                        <div class="form-group">
+                                            <button class="btn btn-primary btn-sm" name="exit" title="This credential will be signed and sent to the Talent" onclick="return confirm('Are you sure you want to sign this credential ?')" value="sign" type="submit">Sign&nbsp;</button>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="col-xl-3 order-xl-1">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="This credential will be removed from the local database" name="exit" value="delete" onclick="return confirm('Are you sure you want to delete this item?')" type="submit">Delete</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+                               {% include 'user_footer.html' %}
+    </div>
+    <script>datePickerId1.max = new Date().toISOString().split("T")[0];</script>
+    <script>datePickerId2.max = new Date().toISOString().split("T")[0];</script>
+
+    <script>function goBack() {  window.history.back();}</script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
+</body>
+
+</html>
