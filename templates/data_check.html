@@ -24,12 +24,17 @@
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
+                               
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>All Data are tamper proof and traceable.&nbsp;Clic on  <i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i> to get more details.</p>
-
+                                        <p>All data are JSON-LD tamper proof, signed and traceable.&nbsp; Clic on  <i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i> to get more details.</p>
+                                           <div> <textarea id='myTextArea' class="form-control" rows="15">{{credential}}</textarea></div>
+                                           <br>
+                                           <div class="col text-center">
+                                                <button class="btn btn-primary btn-sm" type="button" value="download" onclick="doDL(document.getElementById('myTextArea').value)">Download Credential</button>
+                                            </div>
+                                          <br><br>
                                         {{verif|safe}}
-
                                     </div>
                                 </div>
                                 <br>

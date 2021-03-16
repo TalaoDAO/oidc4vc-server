@@ -174,7 +174,6 @@ app.add_url_rule('/user/add_alias/',  view_func=web_main.add_alias, methods = ['
 app.add_url_rule('/user/remove_access/',  view_func=web_main.remove_access, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/import_private_key/',  view_func=web_main.import_private_key, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/import_rsa_key/',  view_func=web_main.import_rsa_key, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/add_employee/',  view_func=web_main.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_proof_of_identity/',  view_func=web_main.request_proof_of_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_issuer/',  view_func=web_main.add_issuer, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_key/',  view_func=web_main.add_key_for_other, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -195,6 +194,7 @@ app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GE
 
 
 # Centralized route for credetial workflow
+app.add_url_rule('/user/add_employee/',  view_func=web_workflow.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_experience_certificate/',  view_func=web_workflow.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/company_dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})

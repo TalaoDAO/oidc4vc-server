@@ -28,11 +28,13 @@ def convert(obj):
 			else:
 				convert(v)
 
-# display experience certificate for anybody. Stand alone routine
-# #route /guest/certificate
-# @route /certificate/
 
 def show_certificate(mode):
+	"""
+	# display experience certificate for anybody. Stand alone routine
+	# #route /guest/certificate
+	# @route /certificate/
+	"""
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 	certificate_id = request.args['certificate_id']
@@ -83,7 +85,6 @@ def show_certificate(mode):
 							)
 
 	if self_claim == "skills" :
-		print('self claim de skill = ', session['displayed_certificate'])
 		description = session['displayed_certificate']['description']
 
 		my_badge = ''
@@ -94,16 +95,8 @@ def show_certificate(mode):
 							**menu,
 							type = 'Experience',
 							certificate_id= certificate_id,
-							#company = session['displayed_certificate']['company']['name'],
-							#email = session['displayed_certificate']['company']['contact_email'],
-							#tel = session['displayed_certificate']['company']['contact_phone'],
-							#contact_name = session['displayed_certificate']['company']['contact_name'],
-							#start_date = session['displayed_certificate']['start_date'],
-							#end_date = session['displayed_certificate']['end_date'],
 							description = description,
-							#badge = my_badge,
 							viewer=viewer,
-							#title = session['displayed_certificate']['title'],
 							)
 
 	if self_claim == "education" :
@@ -132,25 +125,25 @@ def show_certificate(mode):
 							)
 
 	# Experience Certificate Display
-	if session['displayed_certificate']['type'] == 'experience' :
+	if session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'experience' :
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 
 		# Icon "fa-star" treatment
 		score = []
 		context = dict()
-		score.append(int(session['displayed_certificate']['score_recommendation']))
-		score.append(int(session['displayed_certificate']['score_delivery']))
-		score.append(int(session['displayed_certificate']['score_schedule']))
-		score.append(int(session['displayed_certificate']['score_communication']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['scoreRecommendation']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['scoreDelivery']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['scoreSchedule']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['scoreCommunication']))
 		for q in range(0,4) :
 			for i in range(0,score[q]) :
 				context["star"+str(q)+str(i)] = yellow_star
 			for i in range(score[q],5) :
 				context ["star"+str(q)+str(i)] = black_star
 
-		if session['displayed_certificate']['skills'] :
-			skills = session['displayed_certificate']['skills']
+		if session['displayed_certificate']['credentialSubject']['skills'] :
+			skills = session['displayed_certificate']['credentialSubject']['skills']
 			my_badge = ""
 			for skill in skills :
 				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill.capitalize() + """</span>"""
@@ -158,8 +151,8 @@ def show_certificate(mode):
 			my_badge = None
 
 		if session['displayed_certificate']['issuer']['category'] == 2001 : # company
-			signature = session['displayed_certificate']['signature']
-			logo = session['displayed_certificate']['logo']
+			signature = session['displayed_certificate']['credentialSubject']['managerSignature']
+			logo = session['displayed_certificate']['credentialSubject']['companyLogo']
 
 			# if there is no signature one uses Picasso signature
 			if not signature :
@@ -184,21 +177,21 @@ def show_certificate(mode):
 
 			return render_template('./certificate/experience_certificate.html',
 							**menu,
-							manager= session['displayed_certificate']['manager'],
+							manager= session['displayed_certificate']['credentialSubject']['managerName'],
 							badge=my_badge,
-							title = session['displayed_certificate']['title'],
+							title = session['displayed_certificate']['credentialSubject']['title'],
 							identity_firstname=identity_profil['firstname'],
 							identity_lastname=identity_profil['lastname'],
-							description=session['displayed_certificate']['description'],
-							start_date=session['displayed_certificate']['start_date'],
-							end_date=session['displayed_certificate']['end_date'],
+							description=session['displayed_certificate']['credentialSubject']['description'],
+							start_date=session['displayed_certificate']['credentialSubject']['startDate'],
+							end_date=session['displayed_certificate']['credentialSubject']['endDate'],
 							signature=signature,
 							logo=logo,
 							certificate_id=certificate_id,
 							identity_username=identity_username,
 							issuer_username=issuer_username,
 							viewer=viewer,
-							verify_link = session['displayed_certificate']['issuer']['website']+ "/verify?certificate_id=" + session['certificate_id'],
+							#verify_link = session['displayed_certificate']['issuer']['website']+ "/verify?certificate_id=" + session['certificate_id'],
 							**context)
 
 
@@ -480,8 +473,6 @@ def certificate_verify(mode) :
 	doc_id = int(session['certificate_id'].split(':')[5])
 	credential.relay_get_credential(identity_workspace_contract, doc_id, mode, loading = 'full')
 	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
-	#except :
-	#	credential_text = ""
 
 	my_verif = "".join([issuer, user, '<br>'])
 

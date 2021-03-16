@@ -80,30 +80,12 @@ def data(mode) :
 	myvisibility = my_data.privacy
 
 	# issuer
-	issuer_name = my_data.issuer.get('name', 'Unknown') if my_data.issuer.get('category') == 2001 else my_data.issuer.get('firstname', 'Unknown') + ' ' +my_data.issuer.get('lastname', 'Unknown')
+	#issuer_name = my_data.issuer.get('name', 'Unknown') if my_data.issuer.get('category') == 2001 else my_data.issuer.get('firstname', 'Unknown') + ' ' +my_data.issuer.get('lastname', 'Unknown')
 	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
 	issuer_username = 'Unknown' if not issuer_username  else issuer_username
-	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
-	myissuer = """
-				<span>
-				<b>Issuer</b><a class="text-secondary" href=/user/issuer_explore/?issuer_username="""+ issuer_username + """ >
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
-				<li><b>Name</b> : """ + issuer_name + """<br></li>
-				<li><b>Username</b> : """ + issuer_username +"""<br></li>
-				<li><b>Type</b> : """ + issuer_type + """<br></li>
-				"""
-	# for audit
-	if support == 'document' :
-		myissuer= myissuer + """
-				<li><b>IP Address</b> : """ + my_data.request_remote_addr + """<br></li>
-				<li><b>Issuer Agent</b> : """ + my_data.request_remote_user_agent.get('string', 'None') + """<br></li>
-				<li><b>Issuer Browser</b> : """ + my_data.request_remote_user_agent.get('browser', 'None') + """<br></li>
-				<li><b>Issuer Platform</b> : """ + my_data.request_remote_user_agent.get('platform', 'None') + """<br></li>"""
+	#issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
 
-	if my_data.issuer['workspace_contract'] == session.get('workspace_contract') or my_data.issuer['workspace_contract'] == mode.relay_workspace_contract :
-		myissuer = myissuer + """
-				 <a class="text-warning">Self Declaration</a>
-				</span>"""
+	
 
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
@@ -118,13 +100,13 @@ def data(mode) :
 		myadvanced = """
 				<b>Advanced</b>
 				<li><b>Document Id</b> : """ + dataId + """<br></li>
-				<li><b>Doc Id</b> : """ + str(doc_id) + """<br></li>
-				<li><b>Privacy</b> : """ + myvisibility.capitalize() + """<br></li>
-				<li><b>Created</b> : """ + my_data.created + """<br></li>
-				<li><b>Expires</b> : """ + expires + """<br></li>
-				<li><b>Transaction Hash</b> : """ + transaction_hash + """<br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
-				<li><b>Cryptography</b> : AES-128 CBC Mode, (""" + myvisibility + """ key) <br></li>"""
+				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+
+		# Verifiable Credential
+		credential = Document('certificate')
+		doc_id = int(session['certificate_id'].split(':')[5])
+		credential.relay_get_credential(session['workspace_contract'], doc_id, mode, loading = 'full')
+		credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 
 	# if support is an ERC725 Claim
 	else :
@@ -139,8 +121,7 @@ def data(mode) :
 				<li><b>Transaction Hash</b> : """ +transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 
-	my_verif =  myadvanced + "<hr>" + myissuer
-	return render_template('data_check.html', **session['menu'], verif=my_verif)
+	return render_template('data_check.html', **session['menu'], verif=myadvanced, credential=credential_text)
 
 
 def user(mode) :
@@ -157,8 +138,6 @@ def user(mode) :
 			logging.info('Identity set up from username')
 			data_from_username = ns.get_data_from_username(session['username'], mode)
 			session['workspace_contract'] = data_from_username['workspace_contract']
-			session['role'] =  data_from_username['role']
-			session['referent'] =  data_from_username['referent']
 		else :
 			logging.info('Identity set up from workspace contract')
 			session['role'] = None
@@ -228,7 +207,10 @@ def user(mode) :
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
 								'clipboard' : mode.server  + "resume/?did=" + session['did']}
-			session['host'] = None
+			# no credential workflow
+			session['host'] = session['employee'] = None
+			session['role'] = session['referent'] = None
+
 		if user.type == 'company' :
 			session['kbis'] = user.kbis
 			session['profil_title'] = ""
@@ -239,10 +221,21 @@ def user(mode) :
 								'rsa_filename': session['rsa_filename'],
 								'profil_title' : session['profil_title'],
 								'clipboard' : mode.server  + "board/?did=" + session['did']}
+
+			# data for credential workflow
+			# for admin, issuer or reviewer
 			try :
 				session['host'] = session['username'].split('.')[1]
+				session['employee'] = session['username'].split('.')[0]
+				session['role'] =  ns.get_data_from_username(session['username'], mode)['role']
+				session['referent'] =  ns.get_data_from_username(session['username'], mode)['referent']
+			# for creator
 			except :
 				session['host'] = session['username']
+				session['employee'] = None
+				session['role'] = 'creator'
+				session['referent'] = None
+
 		"""
 		# Warning message for first connexion
 		message1 = message2 = message3 = ""
@@ -526,10 +519,11 @@ def user(mode) :
 							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 						</a>
 					</span>"""
-				my_access = my_access + access_html + """<br>"""
+				my_access +=  access_html + """<br>"""
 
 		# credentials
 		my_certificates = ""
+		print('certificate = ', session['certificate'])
 		if not session['certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
 		else :
@@ -544,12 +538,11 @@ def user(mode) :
 					#issuer_type = 'Person'
 				else :
 					pass
-				# <b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
 				cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
-							<b>Credential Type</b> : """ + certificate['type'].capitalize()+"""<br>
-							<b>Title</b> : """ + certificate.get('title', 'None')+"""<br>
-							<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
+							<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
+							<b>Title</b> : """ + certificate['credentialSubject']['title'] + """<br>
+							<b>Description</b> : """ + certificate['credentialSubject']['description'][:100]+"""...<br>
 
 							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
 							<p>
@@ -564,7 +557,7 @@ def user(mode) :
 							</a>
 							</p>
 							<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-				my_certificates = my_certificates + cert_html
+				my_certificates += cert_html
 
 		return render_template('person_identity.html',
 							**session['menu'],
@@ -587,7 +580,7 @@ def user(mode) :
 	if session['type'] == 'company' :
 
 		# Admin list  and add admin
-		my_admin_start = """<a href="/user/add_employee/?role=admin">Add an Admin</a><hr> """
+		my_admin_start = """<a href="/user/add_employee/?role_to_add=admin">Add an Admin</a><hr> """
 		my_admins = ""
 		admin_list = ns.get_employee_list(session['host'],'admin', 'all', mode)
 		for admin in admin_list :
@@ -600,10 +593,10 @@ def user(mode) :
 			my_admins +=  admin_html + """<br>"""
 		my_admins = my_admin_start + my_admins
 
-		# Manager list and add managers
-		my_managers_start = """<a href="/user/add_employee/?role=manager">Add an Issuer</a><hr> """
+		# Issuer list and add issuer within a company
+		my_managers_start = """<a href="/user/add_employee/?role_to_add=issuer">Add an Issuer</a><hr> """
 		my_managers = ""
-		manager_list = ns.get_employee_list(session['host'],'manager', 'all', mode)
+		manager_list = ns.get_employee_list(session['host'],'issuer', 'all', mode)
 		for manager in manager_list :
 			manager_html = """
 				<span>""" + manager['username'] + """ : """ +  manager['email'] +"""
@@ -615,7 +608,7 @@ def user(mode) :
 		my_managers = my_managers_start + my_managers
 
 		# Reviewer list and add reviewers
-		my_reviewers_start = """<a href="/user/add_employee/?role=reviewer">Add a Reviewer</a><hr> """
+		my_reviewers_start = """<a href="/user/add_employee/?role_to_add=reviewer">Add a Reviewer</a><hr> """
 		my_reviewers = ""
 		reviewer_list = ns.get_employee_list(session['host'], 'reviewer', 'all', mode)
 		for reviewer in reviewer_list :
@@ -652,7 +645,7 @@ def user(mode) :
 				my_kbis = my_kbis + kbis_html
 
 		# company settings
-		if not session['role'] :
+		if session['role'] in ['creator', 'admin'] :
 			my_personal = """<a href="/user/picture/">Change Logo</a><br>
 						<a href="/user/signature/">Change Signature</a><br>"""
 		else :
@@ -669,7 +662,7 @@ def user(mode) :
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
 					</a>
 				</span><br>"""
-		if not session['role'] :
+		if session['role'] in ['creator', 'admin'] :
 			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
 		# certificates

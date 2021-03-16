@@ -3,6 +3,9 @@ from authlib.jose import JsonWebSignature
 import requests
 import json
 from datetime import datetime
+import base64
+
+
 
 
 def verify_credential(signed_credential, did) :
@@ -27,7 +30,6 @@ def verify_credential(signed_credential, did) :
     return True
 
 
-
 def sign_credential(credential, key) :
     """
     Sign credential with RSA key of the did, add the signature as linked data JSONLD
@@ -47,7 +49,6 @@ def sign_credential(credential, key) :
              }
     return credential
 
-
 if __name__ == '__main__':
 
     test_did_1 = "did:talao:talaonet:c5C1B070b46138AC3079cD9Bce10010d6e1fCD8D" # correct did
@@ -58,8 +59,11 @@ if __name__ == '__main__':
 
 
     unsigned_credential = {"test" : 5}
-    signed_credential = sign_credential(unsigned_credential, rsa_key)
+
+    signed_credential = sign_credential_detached(unsigned_credential, rsa_key)
     print(signed_credential, type(signed_credential))
-    print(verify_credential(signed_credential, test_did_2))
+
+    print(validate_credential(signed_credential, test_did_2))
+
 
 

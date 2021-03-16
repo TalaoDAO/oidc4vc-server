@@ -1531,36 +1531,6 @@ def import_rsa_key(mode) :
         return redirect (mode.server +'user/')
 
 
-# add admin or manager or reviewer in table manager of host
-#@app.route('/user/add_employee/', methods=['GET', 'POST'])
-def add_employee(mode) :
-    check_login()
-    if request.method == 'GET' :
-        role = request.args.get('role')
-        session['role_to_add'] = role
-        if role == 'manager' :
-            return render_template('add_manager.html', **session['menu'])
-        elif role == 'reviewer' :
-            return render_template('add_reviewer.html', **session['menu'])
-        elif role == 'admin' :
-            return render_template('add_admin.html', **session['menu'])
-
-    if request.method == 'POST' :
-        username = session['host'] if session['host'] == session['username'] else session['username'].split('.')[0]
-        if not ns.username_exist(request.form['identity_username'].lower(),mode)  :
-            flash('This username exist' , 'warning')
-        else :
-            employee_username = request.form['employee_username']
-            identity_username = request.form['identity_username']
-            try :
-                ns.add_employee(employee_username, identity_username, session['role_to_add'], username, session['host'], request.form['employee_email'], mode)
-                flash(employee_username.lower() + " has been added" , 'success')
-            except :
-                flash('Connexion problem, retry later.' , 'warning')
-                logging.error('Database locked')
-        del session['role_to_add']
-        return redirect (mode.server +'user/')
-
 
 # request proof of Identity
 #@app.route('/user/request_proof_of_identity/', methods=['GET', 'POST'])

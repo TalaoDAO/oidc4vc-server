@@ -72,7 +72,7 @@
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1">
 										<div class="form-group">
 											<input  class="form-control-range" type="range" name="scoreDelivery" id="score_delivery" value="{{scoreDelivery}}" min="0" max="5" step="1" oninput="score_delivery_disp.value = score_delivery.value">
-											<output  id="score_delivery_disp"></output>
+											<output  id="score_delivery_disp">{{scoreDelivery}}</output>
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
@@ -87,7 +87,7 @@
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
 										<div class="form-group">
 											<input  class="form-control-range" type="range" name="scoreRecommendation" id="score_recommendation" value="{{scoreRecommendation}}" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
-											<output  id="score_recommendation_disp"></output>
+											<output  id="score_recommendation_disp">{{scoreRecommendation}}</output>
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
@@ -102,7 +102,7 @@
                                     <div class="col-md-12 col-lg-5 col-xl-6 order-1">
 										<div class="form-group">
 											<input  class="form-control-range" type="range" name="scoreSchedule" id="score_schedule" value="{{scoreSchedule}}" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
-											<output  id="score_schedule_disp"></output>
+											<output  id="score_schedule_disp">{{scoreSchedule}}</output>
 											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
 										</div>
                                     </div>
@@ -141,16 +141,16 @@
                                     </div>
                                     {% endif %}
 
-                                    {% if session['call'][4] == 'draft' %}
+                                    {% if session['call'][4] == 'drafted' %}
                                     <div class="col-xl-3 order-xl-1">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" onclick="return confirm('Are you sure you want to validate this credential ?')" title="This credential will be considered as reviewed" name="exit" value="validate" type="submit">Validate&nbsp;</button></div>
                                     </div>
                                     {%  endif %}
 
-                                    {% if session['call'][4] == 'unsigned' and session['role'] != 'reviewer' %}
+                                    {% if session['call'][4] == 'reviewed' and session['role'] != 'reviewer' %}
                                     <div class="col-xl-3 order-xl-1">
                                         <div class="form-group">
-                                            <button class="btn btn-primary btn-sm" name="exit" title="This credential will be signed and sent to the Talent" onclick="return confirm('Are you sure you want to sign this credential ?')" value="sign" type="submit">Sign&nbsp;</button>
+                                            <button class="btn btn-primary btn-sm" name="exit" id="in_progress_button" title="This credential will be signed and sent to the Talent" onclick="return confirm('Are you sure you want to sign this credential ?')" value="sign" type="submit">Sign&nbsp;</button>
                                         </div>
                                     </div>
                                     {% endif %}

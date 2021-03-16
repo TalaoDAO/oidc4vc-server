@@ -77,6 +77,9 @@
           </a>
           <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
             <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fa fa-gear fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings&nbsp;</a>
+            {% if session['role'] in ['admin', 'creator'] %}
+            <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
+            {% endif %}
             <div class="dropdown-divider"></div>
             <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit by email&nbsp;</a>
             <a class="dropdown-item" role="presentation" href="/user/create_person/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create User&nbsp;</a>

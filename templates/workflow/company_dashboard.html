@@ -37,15 +37,15 @@
                             <div class="row">
                                 <div class="col-md-6 text-nowrap">
                                     <div class="text-justify dataTables_length" id="dataTable_length" aria-controls="dataTable">
-                                        <label class="checkbox-inline" style="margin-right: 5px;margin-left: 5px;">Draft&nbsp;&nbsp;<input {{draft}} name="draftbox" value="draft" type="checkbox"></label>
-                                        <label class="checkbox-inline"  style="margin: -1px;margin-left: 5px;margin-right: 5px;">Unsigned&nbsp;&nbsp;<input name="unsignedbox" value="unsigned" {{unsigned}} type="checkbox"></label>
+                                        <label class="checkbox-inline" style="margin-right: 5px;margin-left: 5px;">Drafted&nbsp;&nbsp;<input {{drafted}} name="draftedbox" value="drafted" type="checkbox"></label>
+                                        <label class="checkbox-inline"  style="margin: -1px;margin-left: 5px;margin-right: 5px;">Reviewed&nbsp;&nbsp;<input name="reviewedbox" value="reviewed" {{reviewed}} type="checkbox"></label>
                                         <label class="checkbox-inline"  style="margin-right: 5px;margin-left: 5px;">Signed&nbsp;&nbsp;<input {{signed}} name="signedbox" value="signed" type="checkbox"></label></div>
                                     </div>
 
                                     {% if session['role'] != 'reviewer' %}
                                     <div class="col-md-6 col-xl-2">
-                                        <select name="manager" >
-                                            <optgroup label="Choose manager">
+                                        <select name="issuer" >
+                                            <optgroup label="Choose an issuer">
                                             <option value="all" selected="">All issuers</option>
                                            {{manager_select|safe}}
                                             </optgroup>
@@ -54,7 +54,7 @@
 
                                     <div class="col-xl-2">
                                         <select name="reviewer">
-                                            <optgroup label="Choose reviewer">
+                                            <optgroup label="Choose a reviewer">
                                             <option value="all" selected="">All reviewers</option>
                                            {{reviewer_select|safe}}
                                             </optgroup>

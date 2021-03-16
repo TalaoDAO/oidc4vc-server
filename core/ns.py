@@ -178,6 +178,8 @@ def add_verifiable_credential(host_name, talent_username, reviewer_username, man
 	credential is json unsigned (str)
 	status is draft/reviewed/signed
 	"""
+	if status not in ['drafted', 'reviewed', 'signed'] :
+		logging.error('deprecated status')
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
@@ -204,6 +206,8 @@ def update_verifiable_credential(id, host_name, reviewer_username, manager_usern
 	credential is json unsigned (str)
 	status is draft/reviewed/signed
 	"""
+	if status not in ['drafted', 'reviewed', 'signed'] :
+		logging.error('deprecated status')
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
@@ -226,13 +230,14 @@ def update_verifiable_credential(id, host_name, reviewer_username, manager_usern
 	return True
 
 
-def get_verifiable_credential(host_name, manager_username, reviewer_username, status, mode) :
+def get_verifiable_credential(host, manager_username, reviewer_username, status, mode) :
 	path = mode.db_path
-	conn = sqlite3.connect(path + host_name +'.db')
+	conn = sqlite3.connect(path + host +'.db')
 	c = conn.cursor()
 	data = {'manager_name' : manager_username,
 			'reviewer_name' : reviewer_username,}
 	status = str(status)
+	print('status = ', status)
 	try :
 		if manager_username == 'all' and reviewer_username == 'all':
 			c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential, id  FROM credential WHERE status IN " + status, data)
@@ -258,8 +263,6 @@ def get_verifiable_credential_by_id(host, id, mode) :
 	conn = sqlite3.connect(path + host +'.db')
 	c = conn.cursor()
 	data = {'id' : id,}
-	print('host = ', host)
-	print('id = ', id)
 	try :
 		c.execute("SELECT created, user_name, reviewer_name, manager_name, status, credential FROM credential WHERE id = :id", data)
 	except sqlite3.Error as er :
@@ -273,16 +276,13 @@ def get_verifiable_credential_by_id(host, id, mode) :
 	return select
 
 
-def add_employee(manager_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
+def add_employee(employee_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
 	""" jean.bnp : jean = manager_name , bnp = host_name """
-	print('host = ', host_name)
-	print('role = ', role)
-	print('referent = ', referent)
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	now = datetime.now()
-	data = {'manager_name' : manager_name,
+	data = {'manager_name' : employee_name,
 			'identity_name' : identity_name,
 			'email' : email,
 			'date' : datetime.timestamp(now),
@@ -307,7 +307,7 @@ def does_manager_exist(manager_name, host_name, mode) :
 	c = conn.cursor()
 	#now = datetime.now()
 	data = {'manager_name' : manager_name,
-			'role' : "manager"}
+			'role' : "issuer"}
 	c.execute("SELECT identity_name FROM manager WHERE manager_name = :manager_name AND role = :role " , data)
 	select = c.fetchall()
 	conn.close()
@@ -328,11 +328,11 @@ def identity_list(mode) :
 	my_list.sort()
 	return my_list
 
-def remove_manager(manager_name, host_name, mode) :
+def remove_manager(employee_name, host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
 	c = conn.cursor()
-	data = {'manager_name' : manager_name}
+	data = {'manager_name' : employee_name}
 	try :
 		c.execute("DELETE FROM manager WHERE manager_name = :manager_name " , data)
 		execution  = True
@@ -346,7 +346,9 @@ def remove_manager(manager_name, host_name, mode) :
 def _get_data(username, mode) :
 	if not username :
 		return None
-	""" return data from SQL database depending of type of user (manager or not) """
+	""" return data from SQL database depending of type of user (manager or not) 
+	for a person role = referent = None
+	"""
 	path = mode.db_path
 	manager_name,s,host_name = username.rpartition('.')
 	# it is not an employee
@@ -359,7 +361,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Warning : ' + username + ' does not exist in nameservice db')
+			logging.warning( username + ' does not exist in nameservice db')
 			return None
 
 		(identity_name, alias_email, phone, password) = select
@@ -369,12 +371,12 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			print('Warning : alias ',username + ' has no identity in resolver')
+			logging.warning('alias ' + username + ' has no identity in resolver')
 			return None
 		identity_workspace_contract = select[0]
 		conn.commit()
 		conn.close()
-		return identity_workspace_contract, None, alias_email, phone, password, "user", None
+		return identity_workspace_contract, None, alias_email, phone, password, None, None
 	else :
 		conn = sqlite3.connect(path + host_name + '.db')
 		c = conn.cursor()
@@ -560,8 +562,11 @@ def get_username_list_from_email(email, mode) :
 
 def get_employee_list(host, role, referent_name, mode) :
 	"""
-	role is "admin" or "manager" or "reviewer" 
+	role is "admin" or "issuer" or "reviewer" 
 	"""
+	if role not in ['issuer', 'admin', 'reviewer'] :
+		logging.error('deprecated or malformed request')
+		return None
 	path = mode.db_path
 	conn = sqlite3.connect(path + host + '.db')
 	c = conn.cursor()
@@ -575,10 +580,10 @@ def get_employee_list(host, role, referent_name, mode) :
 		logging.error('database ' + host + ' not found')
 		return []
 	select = c.fetchall()
-	alias = list()
+	employee_list = list()
 	for row in select :
-		alias.append({'username' : row[0]+'.' + host, 'email' : row[1]})
-	return alias
+		employee_list.append({'username' : row[0]+'.' + host, 'email' : row[1]})
+	return employee_list
 
 
 def update_phone(username, phone, mode) :
