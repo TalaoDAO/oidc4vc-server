@@ -112,6 +112,7 @@ app.add_url_rule('/login/',  view_func=web_login.login, methods = ['GET', 'POST'
 app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
 app.add_url_rule('/user/two_factor/',  view_func=web_login.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/update_wallet/',  view_func=web_login.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/login_password/',  view_func=web_login.login_password, methods = ['GET', 'POST'])
 
 # Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -139,7 +140,6 @@ app.add_url_rule('/user/update_password/',  view_func=web_main.update_password, 
 app.add_url_rule('/user/signature/',  view_func=web_main.signature, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/report',  view_func=web_main.report, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/data_analysis/',  view_func=web_main.data_analysis, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/test/',  view_func=web_main.test, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/tutotial/',  view_func=web_main.tutorial, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/prefetch',  view_func=web_main.prefetch, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -152,7 +152,7 @@ app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = 
 app.add_url_rule('/user/create_person/',  view_func=web_main.create_person, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/issue_skill_certificate/',  view_func=web_main.issue_skill_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+#app.add_url_rule('/user/issue_skill_certificate/',  view_func=web_main.issue_skill_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_kyc/',  view_func=web_main.remove_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kbis/',  view_func=web_main.issue_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_kbis/',  view_func=web_main.remove_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -193,12 +193,12 @@ app.add_url_rule('/user/typehead/',  view_func=web_main.typehead, methods = ['GE
 app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GET','POST'], defaults={'mode' : mode})
 
 
-# Centralized route for credetial workflow
-app.add_url_rule('/user/add_employee/',  view_func=web_workflow.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
+# Centralized route for credential workflow
+app.add_url_rule('/company/add_employee/',  view_func=web_workflow.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_experience_certificate/',  view_func=web_workflow.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/company_dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/issue_experience_certificate_workflow/',  view_func=web_workflow.issue_experience_certificate_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/issue_experience_certificate_workflow/',  view_func=web_workflow.issue_experience_certificate_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
 
 
 # MAIN entry point : Flask API server

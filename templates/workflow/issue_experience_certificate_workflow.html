@@ -23,7 +23,7 @@
                             <h4 class="card-title">Professional Experience Credential</h4>
                             <p class="card-text">This credential will be signed by {{managerName}} on behalf of {{companyName}}.</p>
                         </div>
-                        <form method="post" action="/user/issue_experience_certificate_workflow/?id={{credential_id}}">
+                        <form method="post" action="/company/issue_experience_certificate_workflow/?id={{credential_id}}">
                             <div class="container shadow-sm" style="background-color: #ffffff;">
                                 <fieldset {{field}} >
                                 <div class="form-row">
@@ -174,10 +174,13 @@
     <script>datePickerId2.max = new Date().toISOString().split("T")[0];</script>
 
     <script>function goBack() {  window.history.back();}</script>
+
+  
+    
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script> 
 
 </body>
 

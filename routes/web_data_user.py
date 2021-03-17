@@ -46,9 +46,11 @@ def privacy() :
 	return render_template('privacy.html')
 
 
-""" on ne gere aucune information des data en session """
-#@app.route('/data/', methods=['GET'])
 def data(mode) :
+	"""
+	 on ne gere aucune information des data en session 
+	#@app.route('/data/', methods=['GET'])
+	"""
 	check_login()
 	try :
 		dataId = request.args['dataId']
@@ -85,7 +87,6 @@ def data(mode) :
 	issuer_username = 'Unknown' if not issuer_username  else issuer_username
 	#issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
 
-	
 
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
@@ -256,7 +257,11 @@ def user(mode) :
 		flash(message, 'warning')
 		"""
 
-		#Homepage
+		# Dashboard start for employees
+		if session['role'] in ['issuer', 'reviewer'] :
+			return redirect (mode.server + 'company/dashboard/')
+
+		# Homepage start for Talent
 		if user.type == 'person' :
 			return render_template('homepage.html', **session['menu'])
 
@@ -475,7 +480,7 @@ def user(mode) :
 		my_kyc = ""
 		if not session['kyc'] or not session['kyc'][0]['claim_id']:
 			my_kyc = my_kyc + """<p>Your Professionnal Digital Identity has not been activated yet.
-			 If you are a French citizen over 18 and if you accept the CGU, you can now start the Identity verification process.</p>
+			  You can now start the Identity verification process.</p>
 			 				<br>
 							 <a href="/user/request_proof_of_identity/">
                             	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Identity verification</button></div>
@@ -523,7 +528,6 @@ def user(mode) :
 
 		# credentials
 		my_certificates = ""
-		print('certificate = ', session['certificate'])
 		if not session['certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
 		else :
@@ -580,12 +584,12 @@ def user(mode) :
 	if session['type'] == 'company' :
 
 		# Admin list  and add admin
-		my_admin_start = """<a href="/user/add_employee/?role_to_add=admin">Add an Admin</a><hr> """
+		my_admin_start = """<a href="/company/add_employee/?role_to_add=admin">Add an Admin</a><hr> """
 		my_admins = ""
 		admin_list = ns.get_employee_list(session['host'],'admin', 'all', mode)
 		for admin in admin_list :
 			admin_html = """
-				<span>""" + admin['username'] + """ : """ +  admin['email'] +"""
+				<span>""" + admin['username'] + """ => """ +  admin['identity_name'] +"""
 				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ admin['username']+"""">
 					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 				</a>
@@ -594,12 +598,12 @@ def user(mode) :
 		my_admins = my_admin_start + my_admins
 
 		# Issuer list and add issuer within a company
-		my_managers_start = """<a href="/user/add_employee/?role_to_add=issuer">Add an Issuer</a><hr> """
+		my_managers_start = """<a href="/company/add_employee/?role_to_add=issuer">Add an Issuer</a><hr> """
 		my_managers = ""
 		manager_list = ns.get_employee_list(session['host'],'issuer', 'all', mode)
 		for manager in manager_list :
 			manager_html = """
-				<span>""" + manager['username'] + """ : """ +  manager['email'] +"""
+				<span>""" + manager['username'] + """ => """ +  manager['identity_name'] +"""
 				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ manager['username']+"""">
 					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 				</a>
@@ -608,12 +612,12 @@ def user(mode) :
 		my_managers = my_managers_start + my_managers
 
 		# Reviewer list and add reviewers
-		my_reviewers_start = """<a href="/user/add_employee/?role_to_add=reviewer">Add a Reviewer</a><hr> """
+		my_reviewers_start = """<a href="/company/add_employee/?role_to_add=reviewer">Add a Reviewer</a><hr> """
 		my_reviewers = ""
 		reviewer_list = ns.get_employee_list(session['host'], 'reviewer', 'all', mode)
 		for reviewer in reviewer_list :
 			reviewer_html = """
-				<span>""" + reviewer['username'] + """ : """ +  reviewer['email'] +"""
+				<span>""" + reviewer['username'] + """ => """ +  reviewer['identity_name'] +"""
 				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ reviewer['username']+"""">
 					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
 				</a>
@@ -749,8 +753,7 @@ def user_advanced(mode) :
 	check_login()
 
 	# account
-	my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
-					<b>token TALAO</b> : """ + str(session['token'])
+	my_account = ""
 	if session['username'] == 'talao' :
 		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
 		relay_token = float(token_balance(mode.relay_address,mode))

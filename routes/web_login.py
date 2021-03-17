@@ -61,7 +61,7 @@ def send_secret_code (username, code, mode) :
 def update_wallet(mode) :
 	check_login()
 	if request.method == 'GET' :
-		return render_template('update_wallet.html', **session['menu'])
+		return render_template('./login/update_wallet.html', **session['menu'])
 	if request.method == 'POST' :
 		username = request.form['username']
 		try :
@@ -93,7 +93,7 @@ def wc_login(mode) :
 		# call from JS, wrong wallet data
 		if not mode.w3.isAddress(request.args.get('wallet_address')) :
 			flash('This account is not an Ethereum account.', 'warning')
-			return render_template('login.html')
+			return render_template('./login/login.html')
 		wallet_address = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
 		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
 		if not session['workspace_contract'] or session['workspace_contract'] == '0x0000000000000000000000000000000000000000':
@@ -101,7 +101,7 @@ def wc_login(mode) :
 			session['username'] = ns.get_username_from_wallet(wallet_address, mode)
 			if not session['username'] :
 				# This wallet addresss is not an alias, lest rejest and propose a new registration
-				return render_template('wc_reject.html', wallet_address=wallet_address)
+				return render_template('./login/wc_reject.html', wallet_address=wallet_address)
 			else :
 				logging.info('This wallet is an Alias')
 				# This wallet is an alias, we look for the workspace_contract attached
@@ -122,7 +122,7 @@ def wc_login(mode) :
 			else :
 				src = ""
 				wallet_name = ''
-		return render_template('wc_confirm.html',
+		return render_template('./login/wc_confirm.html',
 								wallet_address=wallet_address,
 								wallet_code=session['wallet_code'],
 								wallet_code_hex= '0x' + bytes(str(code), 'utf-8').hex(),
@@ -138,11 +138,11 @@ def wc_login(mode) :
 		except :
 			logging.warning('incorrect signature')
 			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
-			return render_template('login.html')
+			return render_template('./login/login.html')
 		if signer != wallet_address :
 			logging.warning('incorrect signer')
 			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
-			return render_template('login.html')
+			return render_template('./login/login.html')
 		del session['wallet_code']
 		return redirect(mode.server + 'user/')
 
@@ -163,7 +163,7 @@ def two_factor(mode) :
 		session['two_factor']['consign'] = "Check your phone for SMS." if support == 'sms' else "Check your email."
 		logging.info('secret code sent = %s', session['two_factor']['code'])
 		flash("Secret code sent by " + support, 'success')
-		return render_template("two_factor.html", **session['menu'], consign = session['two_factor']['consign'])
+		return render_template("./login/two_factor.html", **session['menu'], consign = session['two_factor']['consign'])
 	if request.method == 'POST' :
 		code = request.form['code']
 		session['two_factor']['try_number'] += 1
@@ -175,7 +175,7 @@ def two_factor(mode) :
 				flash('This code is incorrect, 2 trials left', 'warning')
 			if session['two_factor']['try_number'] == 3 :
 				flash('This code is incorrect, 1 trial left', 'warning')
-			return render_template("two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
+			return render_template("./login/two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
 		# exit to callback
 		if code in authorized_codes and datetime.now() < session['two_factor']['code_delay'] :
 			two_factor = "True"
@@ -189,6 +189,10 @@ def two_factor(mode) :
 		del session['two_factor']
 		return redirect (mode.server + callback + "?two_factor=" + two_factor)
 
+def login_password():
+	return render_template('./login/login_password.html')
+
+
 #@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
 	"""
@@ -201,16 +205,17 @@ def login(mode) :
 		session.clear()
 		if request.args.get('mode') == 'mobile_on':
 			logging.info('large QR code for mobile or desktop')
-			return render_template('login_mobile.html')
+			return render_template('./login/login_mobile.html')
 		elif request.args.get('mode') == 'password':
 			logging.info('password form')
-			return render_template('login_password.html')
+			return render_template('./login/login_password.html')
 		elif request.args.get('mode') == 'mobile_off_qrcode_on' :
 			logging.info('small QR code for desktop')
-			return render_template('login_qrcode.html', username=request.args.get('username', ""))
+			return render_template('./login/login_qrcode.html', username=request.args.get('username', ""))
 		else :
 			logging.info('qrcode for desktop and password gor mobile')
-			return render_template('login.html', username=request.args.get('username', ""))
+			return render_template('./login/login.html', username=request.args.get('username', ""))
+	
 	if request.method == 'POST' :
 		if session.get('try_number') is None :
 			session['try_number'] = 1
@@ -220,40 +225,44 @@ def login(mode) :
 			logging.warning('username does not exist')
 			flash('Username not found', "warning")
 			session['try_number'] = 1
-			return render_template('login.html', username="")
+			return render_template('./login/login.html', username="")
 
 		if not ns.check_password(session['username_to_log'], request.form['password'], mode)  :
 			logging.warning('wrong secret code')
 			if session['try_number'] == 1 :
 				flash('This password is incorrect, 2 trials left', 'warning')
 				session['try_number'] += 1
-				return render_template('login_password.html', username=session['username_to_log'])
+				return render_template('./login/login_password.html', username=session['username_to_log'])
 
 			if session['try_number'] == 2 :
 				flash('This password is incorrect, 1 trials left', 'warning')
 				session['try_number'] += 1
-				return render_template('login_password.html', username=session['username_to_log'])
+				return render_template('./login/login_password.html', username=session['username_to_log'])
 
 			flash("Too many trials (3 max)", "warning")
 			session['try_number'] = 1
-			return render_template('login.html', username="")
+			return render_template('./login/login.html', username="")
 		else :
 			# secret code to send by email or sms
 			session['code'] = str(secrets.randbelow(99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
 			# send code by sms if phone exist else email
-			session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
-			logging.info('secret code sent = %s', session['code'])
-			flash("Secret code sent by " + session['support'], 'success')
-			session['try_number'] = 1
-			return render_template("authentification.html", support=session['support'])
+			try : 
+				session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
+				logging.info('secret code sent = %s', session['code'])
+				flash("Secret code sent by " + session['support'], 'success')
+				session['try_number'] = 1
+			except :
+				flash("Connexion problem", 'danger')
+				return render_template('./login/login.html', username="")
+			return render_template("./login/authentification.html", support=session['support'])
 
 # recuperation du code saisi
 #@app.route('/login/authentification/', methods = ['POST'])
 def login_authentification(mode) :
 	if session.get('username_to_log') is None or session.get('code') is None :
 		flash("Authentification expired", "warning")
-		return render_template('login.html')
+		return render_template('./login/login.html')
 	code = request.form['code']
 	session['try_number'] +=1
 	logging.info('code received = %s', code)
@@ -270,20 +279,20 @@ def login_authentification(mode) :
 		return redirect(mode.server + 'user/')
 	elif session['try_number'] > 3 :
 		flash("Too many trials (3 max)", "warning")
-		return render_template("authentification.html")
+		return render_template("./login/authentification.html")
 	else :
 		if session['try_number'] == 2 :
 			flash('This code is incorrect, 2 trials left', 'warning')
 		if session['try_number'] == 3 :
 			flash('This code is incorrect, 1 trial left', 'warning')
-		return render_template("authentification.html", support=session['support'])
+		return render_template("./login/authentification.html", support=session['support'])
 
 # logout
 #@app.route('/logout/', methods = ['GET'])
 def logout(mode) :
 	if not session.get('logout') :
 		session['logout'] = 'on'
-		return render_template('logout.html')
+		return render_template('./login/logout.html')
 	# delete picture, signateure and files before logout, clear session.
 	check_login()
 	try :
@@ -307,14 +316,14 @@ This function is called from the login view.
 """
 def forgot_username(mode) :
 	if request.method == 'GET' :
-		return render_template('forgot_username.html')
+		return render_template('./login/forgot_username.html')
 	if request.method == 'POST' :
 		username_list = ns.get_username_list_from_email(request.form['email'], mode)
 		if username_list == [] :
 			flash('There is no Identity with this Email' , 'warning')
 		else :
 			flash('This Email is already used by Identities : ' + ", ".join(username_list) , 'success')
-		return render_template('login.html', name="")
+		return render_template('./login/login.html', name="")
 
 # forgot password
 """ @app.route('/forgot_password/', methods = ['GET', 'POST'])
@@ -323,12 +332,12 @@ build JWE to store timestamp, username and email, we use Talao RSA key
 """
 def forgot_password(mode) :
 	if request.method == 'GET' :
-		return render_template('forgot_password_init.html')
+		return render_template('./login/forgot_password_init.html')
 	if request.method == 'POST' :
 		username = request.form.get('username')
 		if not ns.username_exist(username, mode) :
 			flash("Username not found", "warning")
-			return render_template('login.html')
+			return render_template('./login/login.html')
 		email= ns.get_data_from_username(username, mode)['email']
 		private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 		RSA_KEY = RSA.import_key(private_rsa_key)
@@ -344,7 +353,7 @@ def forgot_password(mode) :
 		subject = "Renew your password"
 		if Talao_message.messageHTML(subject, email, 'forgot_password', {'link': link}, mode):
 			flash("You are going to receive an email to renew your password.", "success")
-		return render_template('login.html')
+		return render_template('./login/login.html')
 
 # forgot password 2
 """ @app.route('/forgot_password_2/', methods = ['GET', 'POST'])
@@ -359,20 +368,20 @@ def forgot_password_2(mode) :
 			data = jwe.deserialize_compact(token, key)
 		except :
 			flash ('Incorrect data', 'danger')
-			return render_template('login.html')
+			return render_template('./login/login.html')
 		payload = json.loads(data['payload'].decode('utf-8'))
 		if payload['expired'] < datetime.timestamp(datetime.now()) :
 			flash ('Delay expired (3 minutes maximum)', 'danger')
-			return render_template('login.html')
+			return render_template('./login/login.html')
 		session['email_password'] = payload['email']
 		session['username_password'] = payload['username']
-		return render_template('update_password_external.html')
+		return render_template('./login/update_password_external.html')
 	if request.method == 'POST' :
 		if session['email_password'] != request.form['email'] :
 			flash('Incorrect email', 'danger')
-			return render_template('update_password_external.html')
+			return render_template('./login/update_password_external.html')
 		ns.update_password(session['username_password'], request.form['password'], mode)
 		flash('Password updated', "success")
 		del session['email_password']
 		del session['username_password']
-		return render_template('login.html')
+		return render_template('./login/login.html')

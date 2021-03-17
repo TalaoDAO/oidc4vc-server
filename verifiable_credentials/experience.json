@@ -1,0 +1,37 @@
+{
+            "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                "https://schema.org/JobPosting"
+                  ],
+            "id": null,
+            "type": ["VerifiableCredential"],
+            "issuer": null,
+            "issuanceDate": null,
+            "expirationDate" : null,
+            "credentialStatus": null,
+            "credentialSubject":
+                {
+                "id": null,
+                "name" : null,
+                "credentialCategory" : "experience",
+                "title" : null,
+                "description" : null,
+                "employmentType" : null,
+                "startDate" : null,
+                "endDate" : null,
+                "skills" : null,
+                "questionRecommendation" : "How likely are you to recommend this talent to others ?",
+                "scoreRecommendation" : null,
+                "questionDelivery" : "How satisfied are you with the overall delivery ?",
+                "scoreDelivery" : null,
+                "questionSchedule" : "How would you rate his/her ability to deliver to schedule ?",
+                "scoreSchedule" : null,
+                "questionCommunication" : "How would you rate his/her overall communication skills ?",
+                "scoreCommunication" : null,
+                "companyLogo" : null,
+                "managerSignature" : null,
+                "companyName" : null,
+                "managerName" : null,
+                "reviewerName" : null
+                }
+            }

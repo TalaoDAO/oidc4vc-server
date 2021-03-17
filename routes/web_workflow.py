@@ -29,7 +29,7 @@ def check_login() :
 
 def add_employee(mode) :
     """
-    # add admin or manager or reviewer in table manager of host
+    # add admin or issuer or reviewer in table issuer of host
     #@app.route('/user/add_employee/', methods=['GET', 'POST'])
      add_employee(employee_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
     """
@@ -60,13 +60,13 @@ def add_employee(mode) :
 
             # let check  who is the referent 
             if session['role_to_add'] == 'reviewer' :
-                if not session['role'] or session['role'] == 'admin' :
+                if session['role'] in ['admin', 'creator'] :
                     referent = request.form['referent_username']
                 else :
                     referent = session['employee']
             else :
                 referent = None
-
+            #add_employee(employee_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
             if ns.add_employee(employee_username, identity_username, session['role_to_add'], referent, session['host'], request.form['employee_email'], mode) :
                 flash(employee_username.lower() + " has been added" , 'success')
 
@@ -133,43 +133,23 @@ def request_experience_certificate(mode) :
     check_login()
     issuer_username = ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)
     id = str(secrets.randbits(64))
-    unsigned_credential = {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                "https://schema.org/JobPosting",
-                  ],
-            "id": session['did'] + '#experience'+ id,
-            "type": ["VerifiableCredential",],
-            "issuer": session['issuer_explore']['did'],
-            "issuanceDate": "",
-            "expirationDate" : "",
-            "credentialStatus": "",
-            "credentialSubject":
-                {
-                "id": session['did'],
-                "name" : session['name'],
-                "credentialCategory" : "experience",
-                "title" : request.form['title'],
-                "description" : request.form['description'],
-                "employmentType" : "",
-                "startDate" : request.form['start_date'],
-                "endDate" : request.form['end_date'],
-                "skills" : request.form['skills'].split(','),
-                "questionRecommendation" : "How likely are you to recommend this talent to others ?",
-                "scoreRecommendation" : "",
-                "questionDelivery" : "How satisfied are you with the overall delivery ?",
-                "scoreDelivery" : "",
-                "questionSchedule" : "How would you rate his/her ability to deliver to schedule ?",
-                "scoreSchedule" : "",
-                "questionCommunication" : "How would you rate his/her overall communication skills ?",
-                "scoreCommunication" : "",
-                "companyLogo" : session['issuer_explore']['picture'],
-                "managerSignature" : "",
-                "companyName" : session['issuer_explore']['name'],
-                "managerName" : "",
-                "reviewerName" : "",
-                },
-            }
+
+    # load templates for verifibale credential and init with view form and session
+    unsigned_credential = json.load(open('./verifiable_credentials/experience.json', 'r'))
+    unsigned_credential["id"] = session['did'] + '#experience'+ id
+    unsigned_credential["issuer"] =  session['issuer_explore']['did'],
+    unsigned_credential["credentialSubject"]["id"] = session['did']
+    unsigned_credential["credentialSubject"]["name"] = session['name']
+    unsigned_credential["credentialSubject"]["title"] = request.form['title']
+    unsigned_credential["credentialSubject"]["description"] = request.form['description']
+    unsigned_credential["credentialSubject"]["startDate"] = request.form['start_date']
+    unsigned_credential["credentialSubject"]["endDate"] = request.form['end_date']
+    unsigned_credential["credentialSubject"]["skills"] = request.form['skills'].split(',')
+    unsigned_credential["credentialSubject"]["companyLogo"] = session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]["companyName"] = session['issuer_explore']['name']
+    unsigned_credential["credentialSubject"]["managerName"] = ""
+    unsigned_credential["credentialSubject"]["reviewerName"] = ""
+
     manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + issuer_username, mode)['referent']
     ns.add_verifiable_credential(issuer_username,
                         session['username'],
@@ -180,7 +160,6 @@ def request_experience_certificate(mode) :
                         json.dumps(unsigned_credential),
                         mode)
     reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + issuer_username, mode)['email']
-    print('reviewer email = ', reviewer_email)
     subject = 'You have received a professional credential from '+ session['name'] + ' to review'
     Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
     # message to user/Talent
@@ -189,9 +168,9 @@ def request_experience_certificate(mode) :
 
 def company_dashboard(mode) :
     """
-    # @route /user/company_dashboard/
+    # @route /company_dashboard/
     """
-    # created, user_name, reviewer_name, manager_name, status, credential, id
+    # created, user_name, reviewer_name, issuer_name, status, credential, id
     issuer_select = ""
     issuer_list = ns.get_employee_list(session['host'],'issuer', 'all', mode)
     for issuer in issuer_list :
@@ -206,13 +185,13 @@ def company_dashboard(mode) :
 
         # init of dashboard display
         if session['role'] == 'reviewer' :
-            manager_query = 'all'
+            issuer_query = 'all'
             reviewer_query = session['employee']
         elif session['role'] == 'issuer' :
-            manager_query = session['employee']
+            issuer_query = session['employee']
             reviewer_query = 'all'
         else :
-            manager_query = 'all'
+            issuer_query = 'all'
             reviewer_query = 'all'
 
         signed = drafted = reviewed = ""
@@ -226,7 +205,7 @@ def company_dashboard(mode) :
             drafted =  reviewed = "checked"
             status = ('drafted', 'reviewed', '')
 
-        credential_list = credential_list_html(session['host'], manager_query, reviewer_query, status, mode)
+        credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
         return render_template('./workflow/company_dashboard.html',
                                 **session['menu'],
                                 credential_list=credential_list,
@@ -243,13 +222,12 @@ def company_dashboard(mode) :
         reviewed = "checked" if request.form.get('reviewedbox') else ""
 
         if session['role'] == 'reviewer' :
-            manager_query = 'all'
+            issuer_query = 'all'
             reviewer_query = session['employee']
         else :
-            manager_query = request.form['issuer']
+            issuer_query = request.form['issuer']
             reviewer_query = request.form['reviewer']
-        print('status = ', status)
-        credential_list = credential_list_html(session['host'], manager_query, reviewer_query, status, mode)
+        credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
         return render_template('./workflow/company_dashboard.html',
                                  **session['menu'],
                                 credential_list=credential_list,
@@ -259,17 +237,17 @@ def company_dashboard(mode) :
                                 reviewer_select=reviewer_select,
                                 manager_select=issuer_select)
 
-def credential_list_html(host, manager_username, reviewer_username, status, mode) :
+def credential_list_html(host, issuer_username, reviewer_username, status, mode) :
     """
     helper
     return the table list to display in dashboard in html
     """
-    mylist = ns.get_verifiable_credential(host, manager_username, reviewer_username, status, mode)
+    mylist = ns.get_verifiable_credential(host, issuer_username, reviewer_username, status, mode)
     credential_list = ""
     if mylist :
         for mycredential in mylist :
             credential = """<tr>
-                <td><a href=/user/issue_experience_certificate_workflow/?id=""" + str(json.loads(mycredential[6])) + """> """ + mycredential[6][:4] + '...' + mycredential[6][-4:]  + """</a></td>
+                <td><a href=/company/issue_experience_certificate_workflow/?id=""" + str(json.loads(mycredential[6])) + """> """ + mycredential[6][:4] + '...' + mycredential[6][-4:]  + """</a></td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['title'] + """</td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['description'] + """</td>
@@ -284,9 +262,9 @@ def credential_list_html(host, manager_username, reviewer_username, status, mode
 
 def issue_experience_certificate_workflow(mode) :
     """
-    @route /user/issue_exerience_certificate_workflow/?id=xxxx
-    call = (created, user_name, reviewer_name, manager_name, status, credential, id)
-    update = update_verifiable_credential(id, host_name, reviewer_username, manager_username, status, credential, mode)
+    @route /company/issue_exerience_certificate_workflow/?id=xxxx
+    call = (created, user_name, reviewer_name, issuer_name, status, credential, id)
+    update = update_verifiable_credential(id, host_name, reviewer_username, issuer_username, status, credential, mode)
     """
     if request.method == 'GET' :
         session['credential_id'] = request.args['id']
@@ -312,7 +290,7 @@ def issue_experience_certificate_workflow(mode) :
             ns.delete_verifiable_credential(session['credential_id'], session['host'], mode)
             del session['credential_id']
             del session['call']
-            return redirect (mode.server +'user/company_dashboard/')
+            return redirect (mode.server +'company/dashboard/')
 
         # get form data to update credential
         username = session['host'] if session['host'] == session['username'] else session['username'].split('.')[0]
@@ -341,7 +319,7 @@ def issue_experience_certificate_workflow(mode) :
 
         # credential has been signed
         elif request.form.get('exit') == 'sign' :
-            # add manager signature ipfs file id
+            # add issuer signature ipfs file id
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
             my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
 
@@ -376,7 +354,7 @@ def issue_experience_certificate_workflow(mode) :
                 link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject_workspace_contract[2:] + ':document:' + str(doc_id)
                 subject_username = ns.get_username_from_resolver(subject_workspace_contract, mode)
                 subject_email = ns.get_data_from_username(subject_username, mode)['email']
-                Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': subject_username, 'link': link}, mode)
+                Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': session['username'], 'link': link}, mode)
 
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
@@ -387,17 +365,19 @@ def issue_experience_certificate_workflow(mode) :
                                         "reviewed",
                                         json.dumps(my_credential),
                                         mode)
-            issuer_email = ns.get_data_from_username(session['referent'] + '.' + session['host'], mode)['email']
-            talent_name = my_credential['credentialSubject']['name']
-            subject = 'You have received a professional credential from ' + talent_name + ' to issue'
-            Talao_message.messageHTML(subject, issuer_email, 'request_certificate', {'name' : talent_name, 'link' : 'https://talao.co'}, mode)
+            if session["role"] == 'reviewer' :
+                issuer_email = ns.get_data_from_username(session['referent'] + '.' + session['host'], mode)['email']
+                talent_name = my_credential['credentialSubject']['name']
+                subject = 'You have received a professional credential from ' + talent_name + ' to issue'
+                Talao_message.messageHTML(subject, issuer_email, 'request_certificate', {'name' : talent_name, 'link' : 'https://talao.co'}, mode)
             flash('Credential has been reviewed and validated', 'success')
+
 
 
         # all exit except delete
         del session['credential_id']
         del session['call']
-        return redirect (mode.server +'user/company_dashboard/')
+        return redirect (mode.server +'company/dashboard/')
 
 
 

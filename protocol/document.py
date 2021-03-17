@@ -33,6 +33,8 @@ from eth_account import Account
 from base64 import b64encode
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
+import logging
+logging.basicConfig(level=logging.INFO)
 
 #dependances
 from core import Talao_ipfs, privatekey
@@ -86,10 +88,14 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	# Build transaction
 	contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address_from)
+
 	# store bytes on ipfs
-	ipfs_hash = Talao_ipfs.ipfs_add(data, mode)
-	if not ipfs_hash :
+	try :
+		ipfs_hash = Talao_ipfs.ipfs_add(data, mode)
+	except :
+		logging.error('IPFS connexion problem')
 		return None, None, None
+
 	# checksum (bytes)
 	_data = json.dumps(data)
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()

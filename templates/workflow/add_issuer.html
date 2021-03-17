@@ -18,7 +18,7 @@
                             <p class="text-primary m-0 font-weight-bold">&nbsp;Add a new Issuer</p>
                         </div>
                         <div class="card-body">
-                            <form action="/user/add_employee/" method="post">
+                            <form action="/company/add_employee/" method="post">
                                 <p>Allows you to give an acces to a new issuer who will get the right to issue credentials an sign them on behalf of the company.<br>
                                     <br>This issuer must have his own Identity as a person to be added here. 
                                     <br>The issuer signature (picture file) will be displayed on the credential page.<br>
@@ -26,7 +26,7 @@
                                 </p>
                                 <div class="form-group">
                                     <label title=""><strong>Choose a username for this person within the company</strong><br></label>
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title=""  name="employee_username" >
+                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="lowercase only" pattern="[a-z]" name="employee_username" >
                                 </div>
 
                                 <div class="form-group">

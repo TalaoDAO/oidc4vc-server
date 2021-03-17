@@ -12,6 +12,7 @@ import json
 from sys import getsizeof
 import time
 import logging
+logging.basicConfig(level=logging.INFO)
 
 # dependances
 from protocol import Document, read_profil, Identity, Claim
@@ -77,16 +78,23 @@ def resume(mode) :
 		# experience
 		experiences = []
 		for experience in issuer_explore.certificate:
-			if experience['type']=='experience':
+			if experience['credentialSubject']['credentialCategory'] =='experience':
 				experiences.append(experience)
 		for experience in issuer_explore.experience:
 			experiences.append(experience)
 
+		# tri par date
 		for i, experience in enumerate(experiences):
 			min = i
-			DTmin = time.strptime(experience['end_date'], "%Y-%m-%d")
+			try :
+				DTmin = time.strptime(experience['end_date'], "%Y-%m-%d")
+			except :
+				DTmin = time.strptime(experience['credentialSubject']['endDate'], "%Y-%m-%d")
 			for j, certi in enumerate(experiences[i::]):
-				DTcerti = time.strptime(certi['end_date'], "%Y-%m-%d")
+				try :
+					DTcerti = time.strptime(certi['end_date'], "%Y-%m-%d")
+				except :
+					DTcerti = time.strptime(certi['credentialSubject']['endDate'], "%Y-%m-%d")
 				if DTcerti < DTmin:
 					min = j + i
 					DTmin = DTcerti
@@ -103,12 +111,19 @@ def resume(mode) :
 				carousel_indicators_experience += '<li data-target="#experience-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, experience in enumerate(experiences):
 				try:
-					logo = experience['logo']
+					logo = experience['credentialSubject']['companyLogo']
+					startDate = experience['credentialSubject']['startDate']
+					endDate = experience['credentialSubject']['endDate']
+					description = experience['credentialSubject']['description']
+					title = experience['credentialSubject']['title']
+
+				# for self claims
 				except:
-					try :
-						logo = experience['picture']
-					except:
-						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					startDate = experience['start_date']
+					endDate = experience['end_date']
+					description = experience['description']
+					title = experience['title']
 
 				if logo :
 					if not path.exists(mode.uploads_path + logo) :
@@ -132,7 +147,7 @@ def resume(mode) :
 				else:
 					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
-				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div><hr class='my-1'>"
+				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div><hr class='my-1'>"
 				#body
 				if experience['topic'] != 'experience':
 					carousel_rows_experience += """<p style="font-size: 1em"><b>Referent name: </b>"""
@@ -142,17 +157,17 @@ def resume(mode) :
 					else:
 						carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br>"""
 
-				carousel_rows_experience += """<b>Start Date</b> : """ + experience['start_date'] + """<br> """
-				carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
+				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
+				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
 				if experience['topic']!='experience':
-					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:100:]
-					if len(experience['description']) > 100:
+					carousel_rows_experience += """<b>Description</b> :""" + description[:100:]
+					if len(description) > 100:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"
 				else:
-					carousel_rows_experience += """<b>Description</b> :""" + experience['description'][:150:]
-					if len(experience['description'])>150:
+					carousel_rows_experience += """<b>Description</b> :""" + description[:150:]
+					if len(description)>150:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"

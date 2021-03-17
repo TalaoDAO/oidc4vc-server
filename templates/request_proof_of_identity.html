@@ -35,8 +35,7 @@
                                 <form name="form" action="/user/request_proof_of_identity/" method="POST" enctype="multipart/form-data">
                                     <div class="form-row">
                                         <div class="col">
-                                            <p class="text-left">L’utilisateur est invité à scanner une pièce d’identité, un justificatif de domicile de moins de 3 mois et une photo récente de son visage. Une fois téléchargée, les pièces seront
-                                                 vérifiées visuellement et un rdv sera proposé à l’utilisateur si les informations reçues permettent une identification correcte.
+                                            <p class="text-left">L’utilisateur est invité à scanner une pièce d’identité, un justificatif de domicile de moins de 3 mois et une photo récente de son visage.
                                                   Si les documents envoyés sont illisibles ou si par exemple la photo du visage est trop différente de la photo de la carte nationale d’identité,
                                                   l'utilisateur sera invité à envoyer de nouvelles pièces.  Le service de Identité Digitale Professionnelle ne conserve pas les fichiers téléchargés.
                                                 .</p>
@@ -80,7 +79,10 @@
                                         <div class="form-inline custom-control-inline">
                                             <div class="form-check">
 												<input class="form-check-input" type="checkbox"  value = "on" name="phone">
-												<label class="form-check-label" >J’ai lu et j’accepte les Conditions Générales d’Utilisation (CGU) de l’Identité Digitale Professionelle de Talao.</label></div>
+												<label class="form-check-label" >
+                                                    <div>J’ai lu et j’accepte les Conditions Générales d’Utilisation (<a href="/help/?file=cgu.html">CGU</a>) de l’Identité Digitale Professionelle de Talao.</div>
+                                                </label>
+                                            </div>
                                         </div>
                                        
                                     </div>

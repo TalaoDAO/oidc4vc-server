@@ -9,7 +9,6 @@ import unidecode
 import constante
 from protocol import Document
 
-
 def check_login() :
 	if not session.get('username') and not session.get('workspace_contract') :
 		abort(403)
@@ -20,7 +19,7 @@ def check_login() :
 def update_skills(mode) :
 	check_login()
 	if request.method == 'GET' :
-		if session['skills'] is not None :
+		if session['skills']  :
 			skills = session['skills']['description']
 			#description = [{'skill_code' : 'consulting' ,'skill_name' : 'consulting', 'skill_level' : 'intermediate', 'skill_domain' : 'industry'},]
 			skills_row = ""
@@ -68,7 +67,7 @@ def update_skills(mode) :
 									'skill_name' : request.form['skill_name'].capitalize(),
 									'skill_level' : request.form['skill_level'],
 									'skill_domain' : ""}
-			if session['skills'] is None  :
+			if not session['skills']   :
 				session['skills'] = dict()
 				session['skills']['description'] = []
 				session['skills']['version'] = 1
@@ -76,23 +75,27 @@ def update_skills(mode) :
 				if one_skill['skill_code'] == skill_code :
 					flash('Skill alreday added', 'warning')
 					return redirect(mode.server + 'user/update_skills/')
-			if skill_code == "" :
+			if not skill_code  :
 				return redirect(mode.server + 'user/update_skills/')
 			else :
 				session['skills']['description'].append(skill)
 				return redirect(mode.server + 'user/update_skills/')
+
 		# update the skill document
 		elif request.form['choice'] == 'update' :
+
 			# case update before add first time
-			if session['skills'] is None :
+			if not session['skills']  :
 				return redirect( mode.server + 'user/')
+
 			# create new document
 			my_skills = Document('skills')
 			skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
 			data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
-			if data[0] is None :
+			if not data[0]  :
 				flash('Transaction failed', 'danger')
 				return redirect( mode.server + 'user/')
+
 			doc_id = data[0]
 			session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
 			if session['type'] == 'person' :

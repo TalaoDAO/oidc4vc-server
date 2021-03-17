@@ -22,11 +22,15 @@
         {% endif %}
         {% endwith %}
 
-        {% if session['type'] == "company" %}
-        {% include 'company_nav_bar.html' %}
-    {% else %}
-        {% include 'user_nav_bar.html' %}
-    {% endif %}
+      {% if session['type'] == "company" %}
+          {% if not session['role'] %}
+            {% include 'company_nav_bar.html' %}
+          {% else %}
+            {% include 'manager_nav_bar.html' %}
+          {% endif %}
+      {% else %}
+          {% include 'user_nav_bar.html' %}
+      {% endif %}
         <div class="container-fluid">
           <div class="text-center mt-3">
           <h3 class="text-dark mb-4">{{name}}
@@ -121,8 +125,6 @@
                             PKCS12 Certificate (password = your email)
                             <a title="Download this certificate to sign documents and emails. Keep this certificate private." role="presentation" href="/user/download_pkcs12/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : {{session['workspace_contract']}}.p12</a>
                             <br><br>
-                            Talao Conformity Authority Certificate
-                            <a title="Download this certificate. It could be requested to verify your own certificate." role="presentation" href="/talao_ca/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Download : talao.pem</a>
                           </div> 
                           {% else %}
                           <div class="card m-2">

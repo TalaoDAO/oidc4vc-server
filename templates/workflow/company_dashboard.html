@@ -21,9 +21,6 @@
               {% endif %}
 
 
-            role : {{session['role']}}<br>
-            referent : {{session['referent']}}<br>
-            username : {{session['username']}}
 
 
                 <div class="container-fluid">
@@ -33,7 +30,7 @@
                             <p class="text-primary m-0 font-weight-bold">Credential list</p>
                         </div>
                         <div class="card-body">
-                        <form action="/user/company_dashboard/" method="post">
+                        <form action="/company/dashboard/" method="post">
                             <div class="row">
                                 <div class="col-md-6 text-nowrap">
                                     <div class="text-justify dataTables_length" id="dataTable_length" aria-controls="dataTable">
@@ -77,7 +74,7 @@
                                             <th style="width: 10%">Created</th>
                                             <th style="width: 5%">Type</th>
                                             <th style="width: 10%">Reviewer</th>
-                                            <th style="width: 10%">Issuers</th>
+                                            <th style="width: 10%">Issuer</th>
                                             <th style="width: 5%">Status</th>
                                         </tr>
                                     </thead>

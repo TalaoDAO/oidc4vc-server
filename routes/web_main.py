@@ -273,12 +273,6 @@ def data_analysis(mode) :
             history_string = history.history_html(session['workspace_contract'],15, mode)
         return render_template('dashboard.html', **session['menu'],    history=history_string,    **my_analysis)
 
-# Test only
-#@app.route('/user/test/', methods=['GET'])
-def test() :
-    check_login()
-    return render_template('test.html', **session['menu'],test=json.dumps(session['resume'], indent=4))
-
 # Tutorial
 #@app.route('/user/tutorial/', methods=['GET'])
 def tutorial() :
@@ -835,58 +829,6 @@ def create_kyc(mode) :
         return redirect(mode.server + 'user/')
 
 
-# Create skill certificate A reprendre !!!!
-#@app.route('/user/issue_skill_certificate/', methods=['GET', 'POST'])
-def issue_skill_certificate(mode) :
-    check_login()
-    if request.method == 'GET' :
-        return render_template('issue_skill_certificate.html', **session['menu'])
-    if request.method == 'POST' :
-        identity_username = request.form['identity_username'].lower()
-        workspace_contract_to = ns.get_data_from_username(identity_username, mode)['workspace_contract']
-        unsigned_credential = {
-                    "@context": [
-                        "https://www.w3.org/2018/credentials/v1",
-                        ],
-                    "id": "did:talao:talaonet:" + workspace_contract_to[2:] + "#skill" + str(secrets.randbits(64)),
-                    "issuer": session['did'],
-                    "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
-                    "@type": ["VerifiableCredential"],
-                    "credentialSubject": {
-                        "id": "did:talao:talaonet:" + workspace_contract_to[2:],
-                        },
-                    "version" : 1,
-                    "type" : "skill",
-                    "title" : request.form['title'],
-                    "description" : request.form['description'],
-                    "end_date" : request.form['date'],
-                    "date_of_issue" : "",
-                    "logo" : session['picture'],
-                    "signature" : session['signature'],
-                    "manager" : "Director",
-                    "reviewer" : ""}
-        signed_credential = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
-        address_to = contractsToOwners(workspace_contract_to, mode)
-        my_certificate = Document('certificate')
-        doc_id = my_certificate.add(session['address'],
-                        session['workspace_contract'],
-                        address_to,
-                        workspace_contract_to,
-                        session['private_key_value'],
-                        signed_credential,
-                        mode,
-                        mydays=0,
-                        privacy='public',
-                         synchronous=True)[0]
-        if not doc_id :
-            flash('Operation failed ', 'danger')
-        else :
-            flash('Certificate has been issued', 'success')
-            link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract_to[2:] + ':document:' + str(doc_id)
-            subject = 'Your skill certificate'
-            identity_email = ns.get_data_from_username(identity_username, mode)['email']
-            Talao_message.messageHTML(subject, identity_email, 'certificate_issued', {'username': identity_username, 'link': link}, mode)
-        return redirect(mode.server + 'user/')
 
 # remove kyc
 #@app.route('/user/remove_kyc/', methods=['GET', 'POST'])
@@ -1458,7 +1400,7 @@ def add_alias(mode) :
             flash('Alias added for '+ alias_username , 'success')
         return redirect (mode.server +'user/')
 
-# remove access (alias/manager/reviewer
+# remove access (alias/admin/issuer/reviewer
 #@app.route('/user/remove_access/', methods=['GET'])
 def remove_access(mode) :
     check_login()
@@ -1530,8 +1472,6 @@ def import_rsa_key(mode) :
             flash('RSA key is not correct', 'danger')
         return redirect (mode.server +'user/')
 
-
-
 # request proof of Identity
 #@app.route('/user/request_proof_of_identity/', methods=['GET', 'POST'])
 def request_proof_of_identity(mode) :
@@ -1539,8 +1479,6 @@ def request_proof_of_identity(mode) :
     if request.method == 'GET' :
         return render_template('request_proof_of_identity.html', **session['menu'])
     elif request.method == 'POST' :
-        flash('Identity Verification process not available yet', 'warning')
-        return redirect (mode.server +'user/') #TEST n cours
 
         id_file = request.files['id_file']
         selfie_file = request.files['selfie_file']

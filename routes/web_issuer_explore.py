@@ -13,6 +13,8 @@ import random
 from Crypto.PublicKey import RSA
 import requests
 import shutil
+import logging
+logging.basicConfig(level=logging.INFO)
 
 # dependances
 from core import Talao_message, Talao_message, hcode, ns, sms
@@ -24,7 +26,7 @@ from protocol import Claim, File, Identity, Document, read_profil
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if not session.get('username') and not session.get('workspace_contract') :
-		print('abort')
+		logging.error('abort')
 		abort(403)
 	else :
 		return True
@@ -38,6 +40,7 @@ def is_username_in_list(my_list, username) :
 		if user['username'] == username :
 			return True
 	return False
+
 # helper
 def is_username_in_list_for_partnership(partner_list, username) :
 	if not username :
@@ -58,7 +61,7 @@ def issuer_explore(mode) :
 			flash('Issuer data not available', 'danger')
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
-		print('dans web issuer explore , issuer = ', issuer_workspace_contract)
+		logging.info(' , issuer = %s', issuer_workspace_contract)
 		session['issuer_explore'] = Identity(issuer_workspace_contract, mode, workspace_contract_from = session['workspace_contract'], private_key_from=session['private_key_value']).__dict__.copy()
 		session['issuer_username'] = issuer_username
 
@@ -85,18 +88,26 @@ def issuer_explore(mode) :
 					</a>"""
 				my_file = my_file + file_html + """<br>"""
 
+		# experience
 		experiences = []
 		for experience in session['issuer_explore']['certificate']:
-			if experience['type']=='experience':
+			if experience['credentialSubject']['credentialCategory'] =='experience':
 				experiences.append(experience)
 		for experience in session['issuer_explore']['experience']:
 			experiences.append(experience)
 
+		# tri par date
 		for i, experience in enumerate(experiences):
 			min = i
-			DTmin = time.strptime(experience['end_date'], "%Y-%m-%d")
+			try :
+				DTmin = time.strptime(experience['end_date'], "%Y-%m-%d")
+			except :
+				DTmin = time.strptime(experience['credentialSubject']['endDate'], "%Y-%m-%d")
 			for j, certi in enumerate(experiences[i::]):
-				DTcerti = time.strptime(certi['end_date'], "%Y-%m-%d")
+				try :
+					DTcerti = time.strptime(certi['end_date'], "%Y-%m-%d")
+				except :
+					DTcerti = time.strptime(certi['credentialSubject']['endDate'], "%Y-%m-%d")
 				if DTcerti < DTmin:
 					min = j + i
 					DTmin = DTcerti
@@ -112,13 +123,21 @@ def issuer_explore(mode) :
 			for i in range(nbr_rows):
 				carousel_indicators_experience += '<li data-target="#experience-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, experience in enumerate(experiences):
+				# for verifiable credentials
 				try:
-					logo = experience['logo']
+					logo = experience['credentialSubject']['companyLogo']
+					startDate = experience['credentialSubject']['startDate']
+					endDate = experience['credentialSubject']['endDate']
+					description = experience['credentialSubject']['description']
+					title = experience['credentialSubject']['title']
+
+				# for self claims
 				except:
-					try :
-						logo = experience['picture']
-					except:
-						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					startDate = experience['start_date']
+					endDate = experience['end_date']
+					description = experience['description']
+					title = experience['title']
 
 				if logo != None:
 					if not path.exists(mode.uploads_path + logo) :
@@ -142,7 +161,7 @@ def issuer_explore(mode) :
 				else:
 					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
-				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + experience['title'] + "</h4></div></div><hr class='my-1'>"
+				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div><hr class='my-1'>"
 				#body
 				if experience['topic']!='experience':
 					carousel_rows_experience += """<p  style="font-size: 1em"><b>Referent name: </b>"""
@@ -152,17 +171,17 @@ def issuer_explore(mode) :
 					else:
 						carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br>"""
 
-				carousel_rows_experience += """<b>Start Date</b> : """ + experience['start_date'] + """<br> """
-				carousel_rows_experience += """<b>End Date</b> : """ + experience['end_date'] + """<br>"""
+				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
+				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
 				if experience['topic']!='experience':
-					carousel_rows_experience += """<b>Description</b> : """ + experience['description'][:100:]
-					if len(experience['description'])>100:
+					carousel_rows_experience += """<b>Description</b> : """ + description[:100:]
+					if len(description)>100:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"
 				else:
-					carousel_rows_experience += """<b>Description</b> : """ + experience['description'][:150:]
-					if len(experience['description'])>150:
+					carousel_rows_experience += """<b>Description</b> : """ + description[:150:]
+					if len(description)>150:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"

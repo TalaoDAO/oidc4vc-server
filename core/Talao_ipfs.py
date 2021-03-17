@@ -8,14 +8,14 @@ Strategy : one first tries to load from local ipfs server (timeout = 5s) then on
 import requests
 import json
 import shutil
+import logging
+logging.basicConfig(level=logging.INFO)
 
-
-def ipfs_add(json_dict, mode, name=None) :
-	name = 'Unknown' if name is None else name
+def ipfs_add(json_dict, mode, name='unknown') :
 	ipfs_hash_pinata = add_dict_to_pinata(json_dict, name, mode)
 	ipfs_hash_local = add_dict_to_local(json_dict)
 	if ipfs_hash_pinata  != ipfs_hash_local :
-		print('Warning : hash is different in ipfs add')
+		logging.warning('hash is different in ipfs add')
 	return ipfs_hash_pinata
 
 def add_dict_to_pinata (data_dict, name, mode) :
@@ -25,7 +25,11 @@ def add_dict_to_pinata (data_dict, name, mode) :
 				'pinata_api_key': api_key,
                'pinata_secret_api_key': secret}
 	data = { 'pinataMetadata' : {'name' : name}, 'pinataContent' : data_dict}
-	response = requests.post('https://api.pinata.cloud/pinning/pinJSONToIPFS', data=json.dumps(data), headers=headers)
+	try :
+		response = requests.post('https://api.pinata.cloud/pinning/pinJSONToIPFS', data=json.dumps(data), headers=headers)
+	except :
+		logging.error('connexion problem ')
+		return None
 	return response.json()['IpfsHash']
 
 def add_dict_to_local (data_dict) :
@@ -37,21 +41,26 @@ def file_add(filename, mode) :
 	ipfs_hash_pinata = add_file_to_pinata(filename, mode)
 	ipfs_hash_local = add_file_to_local(filename)
 	if ipfs_hash_pinata  != ipfs_hash_local :
-		print('Warning : hash is different')
+		logging.warning('hash is different')
 	return ipfs_hash_pinata
 
 def add_file_to_pinata (filename, mode) :
 	try :
 		this_file = open(filename, mode='rb')  # b is important -> binary
 	except IOError :
-		print('Error : IOEroor open file ')
+		logging.error('IOEroor open file ')
+		return None
 	file_data = this_file.read()
 	api_key = mode.pinata_api_key
 	secret = mode.pinata_secret_api_key
 	headers = {	'pinata_api_key': api_key,
               'pinata_secret_api_key': secret}
 	payload = { 'file' : file_data}
-	response = requests.post('https://api.pinata.cloud/pinning/pinFileToIPFS', files=payload, headers=headers)
+	try :
+		response = requests.post('https://api.pinata.cloud/pinning/pinFileToIPFS', files=payload, headers=headers)
+	except :
+		logging.error('IPFS connexion problem')
+		return None
 	this_file.close()
 	return response.json()['IpfsHash']
 
@@ -59,10 +68,15 @@ def add_file_to_local (filename) :
 	try :
 		this_file = open(filename, mode='rb')  # b is important -> binary
 	except IOError :
-		print('Error : IOEroor open file ')
+		logging.error('IOEroor open file ')
+		return None
 	file_data = this_file.read()
 	payload = { 'file' : file_data}
-	response = requests.post('http://127.0.0.1:5001/api/v0/add', files=payload)
+	try :
+		response = requests.post('http://127.0.0.1:5001/api/v0/add', files=payload)
+	except :
+		logging.error('connexion problem ')
+		return None
 	this_file.close()
 	return response.json()['Hash']
 
