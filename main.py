@@ -198,7 +198,7 @@ app.add_url_rule('/company/add_employee/',  view_func=web_workflow.add_employee,
 app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_experience_certificate/',  view_func=web_workflow.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/issue_experience_certificate_workflow/',  view_func=web_workflow.issue_experience_certificate_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
 
 
 # MAIN entry point : Flask API server

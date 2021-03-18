@@ -19,20 +19,19 @@
                         </div>
                         <div class="card-body">
                             <form action="/company/add_employee/" method="post">
-                                <p>Allows you to give an acces to a new administrator who will get the right to issue credentials an sign them on behalf of the company.<br>
-                                    <br>This administrator MUST have his own Identity as a person to be added here. His/her signature
-                                    will be added to credential.<br>
+                                <p>Allows you to give an acces to a new administrator who will get the right to set company details and manage user rights.<br>
+                                    <br>This administrator must have his own Identity as a person to be added here.<br>
                                     <br>
                                 </p>
                                 <div class="form-group">
-                                    <label title="Choose a username for this adminitrator (lowercase)"><strong>Choose username for this person within the company</strong><br></label>
-                                    <input class="form-control" type="text" data-toggle="tooltip" title="lowercase only" data-bs-tooltip="" required title="" pattern="[a-z]"  name="employee_username" >
+                                    <label ><strong>Choose username for this person within the company</strong><br></label>
+                                    <input class="form-control" type="text" title="lowercase and numbers only, min 4 chars, max 20 chars" data-bs-tooltip="" required  pattern="[a-z0-9]{4,20}"  name="employee_username" >
                                 </div>
 
                                 <div class="form-group">
-                                    <label title="The Manager username of his own Identity"><strong>Identity username</strong><br></label>
+                                    <label ><strong>Identity username</strong><br></label>
                                     {% if manager_username == "" %}
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The admintrator username of his own Identity"  name="identity_username" >
+                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The administrator username of his own Identity"  name="identity_username" >
                                     {% else %}
                                     <input class="form-control" value="" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The adminisitrator username of his own Identity"  name="identity_username" >
                                     {% endif %}

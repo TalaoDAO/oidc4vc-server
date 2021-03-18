@@ -26,20 +26,20 @@
                                 </p>
                                 <div class="form-group">
                                     <label title=""><strong>Choose a username for this person within the company</strong><br></label>
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="lowercase only" pattern="[a-z]" name="employee_username" >
+                                    <input class="form-control" type="text" data-bs-tooltip="" required title="lowercase and numbers only, min 4 chars, max 20 chars " pattern="[a-z0-9]{4,20}" name="employee_username" >
                                 </div>
 
                                 <div class="form-group">
-                                    <label title="The Issuer username of his own Identity"><strong>Identity username of this person outside the company</strong><br></label>
+                                    <label><strong>Identity username of this person outside the company</strong><br></label>
                                     {% if manager_username == "" %}
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The Issuer username of his own Identity"  name="identity_username" >
+                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The issuer username of his own Identity"  name="identity_username" >
                                     {% else %}
-                                    <input class="form-control" value="" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The Issuer username of his own Identity"  name="identity_username" >
+                                    <input class="form-control" value="" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The issuer username of his own Identity"  name="identity_username" >
                                     {% endif %}
                                 </div>
 
                                 <div class="form-group">
-                                    <label title="wallet texte"><strong>Authentication Email</strong><br></label>
+                                    <label ><strong>Authentication Email</strong><br></label>
                                     <input class="form-control" type="email" data-toggle="tooltip" data-bs-tooltip="" required name="employee_email" title="Issuer email for authentication">
                                 </div>
 
@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="col-6 col-xl-3">
 										   <a href="/user/?username={{username}}">
-												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Back</button></div>
+												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Cancel</button></div>
 											</a>
                                     </div>
                                 </div>

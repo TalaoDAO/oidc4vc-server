@@ -24,18 +24,17 @@
                         <div class="card-body">
                             <form action="/company/add_employee/" method="post">
                                 <p>Allows you to give an acces to a new reviewer .<br>
-                                    <br>This reviewer MUST have his own Identity as a person to be added here. His signature
-                                    will be used for certification.<br>
+                                    <br>This reviewer must have his own Identity as a person to be added here. <br>
                                     <br>
                                 </p>
                                 <div class="form-group">
                                     <label title=""><strong>Choose a username for this person within the company</strong><br></label>
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="lowercase only"  name="employee_username" >
+                                    <input class="form-control" type="text" pattern="[a-z0-9]{4,20}" data-toggle="tooltip" data-bs-tooltip="" required title="lowercase and numbers only, min 4 chars, max 20 chars"  name="employee_username" >
                                 </div>
 
                                 <div class="form-group">
-                                    <label title="The Signer username of his own Identity"><strong>Identity username of this person</strong><br></label>
-                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title=""  name="identity_username" >
+                                    <label><strong>Identity username of this person</strong><br></label>
+                                    <input class="form-control" type="text" data-toggle="tooltip" data-bs-tooltip="" required title="The reviewer username of his own Identity"   name="identity_username" >
                                 </div>
 
                                 {% if session['role'] in ['admin', 'creator'] %}
@@ -60,7 +59,7 @@
                                     </div>
                                     <div class="col-6 col-xl-3">
 										   <a href="/user/?username={{username}}">
-												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Back</button></div>
+												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Cancel</button></div>
 											</a>
                                     </div>
                                 </div>

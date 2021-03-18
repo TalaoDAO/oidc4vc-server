@@ -2,15 +2,8 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Talao Professional Identity</title>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  {% include 'head.html' %}
+ 
 </head>
 
 <body id="page-top">
@@ -27,7 +20,7 @@
                   <p class="text-primary m-0 font-weight-bold">&nbsp;Create a Company</p>
                 </div>
                 <div class="card-body">
-                  <form action="/user/create_company/" method="post">
+                  <form id="form" action="/user/create_company/" method="post">
                     <div class="form-row">
                       <div class="col">
                         <p class="text-left">Attention attendre la fin du process qui prend quelques minutes.</p>
@@ -36,7 +29,7 @@
                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="email texte"><strong>Email for Authentification</strong><br></label><input class="form-control" type="email" data-toggle="tooltip"
                             data-bs-tooltip="" required="" name="email"></div>
                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="siren texte"><strong>Siren</strong><br></label><input class="form-control" type="text" pattern="(?=.*\d).{9,9}" data-toggle="tooltip"
-                            data-bs-tooltip="" required="" name="siren"></div>
+                            data-bs-tooltip=""  name="siren"></div>
                       </div>
                     </div>
                     <div class="form-row">
@@ -60,12 +53,12 @@
   </div>
   {% include 'user_footer.html' %}
   </div>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+  <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
 </body>
 
 </html>

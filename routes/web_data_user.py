@@ -82,11 +82,8 @@ def data(mode) :
 	myvisibility = my_data.privacy
 
 	# issuer
-	#issuer_name = my_data.issuer.get('name', 'Unknown') if my_data.issuer.get('category') == 2001 else my_data.issuer.get('firstname', 'Unknown') + ' ' +my_data.issuer.get('lastname', 'Unknown')
 	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
 	issuer_username = 'Unknown' if not issuer_username  else issuer_username
-	#issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
-
 
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
@@ -105,7 +102,6 @@ def data(mode) :
 
 		# Verifiable Credential
 		credential = Document('certificate')
-		doc_id = int(session['certificate_id'].split(':')[5])
 		credential.relay_get_credential(session['workspace_contract'], doc_id, mode, loading = 'full')
 		credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 
@@ -141,9 +137,6 @@ def user(mode) :
 			session['workspace_contract'] = data_from_username['workspace_contract']
 		else :
 			logging.info('Identity set up from workspace contract')
-			session['role'] = None
-			session['referent'] = None
-			session['host'] = None
 
 		if mode.test :
 			user = Identity(session['workspace_contract'], mode, authenticated=True)
@@ -811,11 +804,15 @@ def user_advanced(mode) :
 		wallet = 'Alias (Centralized mode)'
 	else :
 		wallet = 'Owner (Decentralized mode)'
+	role = session['role'] if session.get("role") else 'None'
+	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
 					<b>DID</b> : <a class = "card-link" href = "https://talao.co/resolver?did=""" + did + """"">""" + did + """</a><br>
 					<b>Owner Address</b> : """+ session['address'] + """</a><br>
-					<b>Wallet</b> : """ + wallet  + """<br>"""
+					<b>Wallet</b> : """ + wallet  + """<br>
+					<b>Role</b> : """ + role + """<br>
+					<b>Referent</b> : """ + referent + """<br>"""
 	if session['username'] != 'talao' :
 		my_advanced = my_advanced + """ <hr><b>Wallet has locked token : </b>""" + vault + """<br>"""
 		my_advanced = my_advanced + """<b>RSA Key on server </b> : """ + relay_rsa_key + """<br>"""

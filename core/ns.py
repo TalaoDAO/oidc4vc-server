@@ -36,7 +36,7 @@ def alter_credential_table(database, mode) :
 	""" This function is only used to update """
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
-	cur.execute('alter table credential add column id text')
+	cur.execute('alter table credential add column reference text')
 	conn.commit()
 	cur.close()
 	return True
@@ -78,7 +78,7 @@ def init_host(host_name, mode) :
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
 	cur.execute('create table employee(employee_name text, identity_name text, email text, phone text, date real, password text, role text, referent text)')
-	cur.execute('create table credential(created real, user_name text, reviewer_name text, issuer_name text, status text, credential text, id text)')
+	cur.execute('create table credential(created real, user_name text, reviewer_name text, issuer_name text, status text, credential text, id text, reference text)')
 	conn.commit()
 	cur.close()
 	return True
@@ -173,7 +173,7 @@ def delete_verifiable_credential(id, host, mode) :
 	conn.close()
 	return True
 
-def add_verifiable_credential(host_name, talent_username, reviewer_username, issuer_username, status, id, credential, mode) :
+def add_verifiable_credential(host_name, talent_username, reviewer_username, issuer_username, status, id, credential, reference, mode) :
 	"""
 	credential is json unsigned (str)
 	status is draft/reviewed/signed
@@ -190,9 +190,10 @@ def add_verifiable_credential(host_name, talent_username, reviewer_username, iss
 			'issuer_name' : issuer_username,
 			'status' : status,
 			'credential' : credential,
-			'id' : id}
+			'id' : id,
+			'reference' : reference}
 	try :
-		c.execute("INSERT INTO credential VALUES (:created, :user_name, :reviewer_name, :issuer_name, :status, :credential, :id )", data)
+		c.execute("INSERT INTO credential VALUES (:created, :user_name, :reviewer_name, :issuer_name, :status, :credential, :id, :reference )", data)
 		conn.commit()
 		conn.close()
 	except :
@@ -239,13 +240,13 @@ def get_verifiable_credential(host, issuer_username, reviewer_username, status, 
 	status = str(status)
 	try :
 		if issuer_username == 'all' and reviewer_username == 'all':
-			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id  FROM credential WHERE status IN " + status, data)
+			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id, reference  FROM credential WHERE status IN " + status, data)
 		elif reviewer_username == 'all' :
-			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id FROM credential WHERE issuer_name = :issuer_name AND status IN " + status , data)
+			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id, reference FROM credential WHERE issuer_name = :issuer_name AND status IN " + status , data)
 		elif issuer_username == 'all' :
-			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id FROM credential WHERE reviewer_name = :reviewer_name AND status IN " + status , data)
+			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id, reference FROM credential WHERE reviewer_name = :reviewer_name AND status IN " + status , data)
 		else :
-			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id FROM credential WHERE reviewer_name = :reviewer_name AND issuer_name = :issuer_name AND status IN " + status , data)
+			c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, id, reference FROM credential WHERE reviewer_name = :reviewer_name AND issuer_name = :issuer_name AND status IN " + status , data)
 	except sqlite3.Error as er :
 		logging.error('get veriable credential failed %s', er)
 		conn.commit()
@@ -263,7 +264,7 @@ def get_verifiable_credential_by_id(host, id, mode) :
 	c = conn.cursor()
 	data = {'id' : id,}
 	try :
-		c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential FROM credential WHERE id = :id", data)
+		c.execute("SELECT created, user_name, reviewer_name, issuer_name, status, credential, reference FROM credential WHERE id = :id", data)
 	except sqlite3.Error as er :
 		logging.error('get veriable credential by id failed  %s', er)
 		conn.close()
@@ -299,14 +300,14 @@ def add_employee(employee_name, identity_name, role, referent, host_name, email,
 	return True
 
 
-def does_manager_exist(employee_name, host_name, mode) :
+def does_employee_exist(employee_name, host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
 	#now = datetime.now()
 	data = {'employee_name' : employee_name,
-			'role' : "issuer"}
-	c.execute("SELECT identity_name FROM employee WHERE employee_name = :employee_name AND role = :role " , data)
+			}
+	c.execute("SELECT identity_name FROM employee WHERE employee_name = :employee_name", data)
 	select = c.fetchall()
 	conn.close()
 	if select == [] :
@@ -632,13 +633,11 @@ def update_password(username, new_password, mode) :
 		return False
 	return True
 
-
 def update_wallet(workspace_contract, wallet, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()
 	data = { 'wallet' : wallet, 'workspace_contract' : workspace_contract}
-	print('data = ', data)
 	try :
 		cur.execute("update resolver set wallet = :wallet where identity_workspace_contract = :workspace_contract", data )
 	except :

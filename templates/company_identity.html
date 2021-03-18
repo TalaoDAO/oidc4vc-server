@@ -23,15 +23,12 @@
 				    {% endfor %}
 			    {% endif %}
 		    {% endwith %}
+            
             {% if session['role'] == 'creator' %}
                  {% include 'company_nav_bar.html' %}
             {% else %}
                 {% include 'manager_nav_bar.html' %}
             {% endif %}
-
-            role : {{session['role']}}<br>
-            referent : {{session['referent']}}<br>
-            username : {{session['username']}}
 
             <div class="container-fluid">
               <div class="text-center mt-3">

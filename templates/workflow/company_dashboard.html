@@ -10,6 +10,20 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+			    {% if messages %}
+				    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+				    {% endfor %}
+			    {% endif %}
+		        {% endwith %}
+
                 {% if session['type'] == "company" %}
                 {% if not session['role'] %}
                   {% include 'company_nav_bar.html' %}
@@ -19,9 +33,6 @@
               {% else %}
                 {% include 'user_nav_bar.html' %}
               {% endif %}
-
-
-
 
                 <div class="container-fluid">
                     <br>
@@ -40,14 +51,6 @@
                                     </div>
 
                                     {% if session['role'] != 'reviewer' %}
-                                    <div class="col-md-6 col-xl-2">
-                                        <select name="issuer" >
-                                            <optgroup label="Choose an issuer">
-                                            <option value="all" selected="">All issuers</option>
-                                           {{manager_select|safe}}
-                                            </optgroup>
-                                        </select>
-                                    </div>
 
                                     <div class="col-xl-2">
                                         <select name="reviewer">
@@ -57,6 +60,17 @@
                                             </optgroup>
                                         </select>
                                     </div>
+                                    
+                                    <div class="col-md-6 col-xl-2">
+                                        <select name="issuer" >
+                                            <optgroup label="Choose an issuer">
+                                            <option value="all" selected="">All issuers</option>
+                                           {{manager_select|safe}}
+                                            </optgroup>
+                                        </select>
+                                    </div>
+
+                                   
                                     {% endif %}
 
                                     <div class="col-xl-2 text-right"><button class="btn btn-primary btn-sm text-right" type="submit">Refresh</button></div>
@@ -70,11 +84,12 @@
                                             <th style="width: 5%" >Id</th>
                                             <th style="width: 10%" >Talent</th>
                                             <th style="width: 10%">Title</th>
-                                            <th style="width: 35%">Description</th>
+                                            <th style="width: 45%">Description</th>
+                                            <th style="width: 5%">Reference</th>                                           
                                             <th style="width: 10%">Created</th>
                                             <th style="width: 5%">Type</th>
-                                            <th style="width: 10%">Reviewer</th>
-                                            <th style="width: 10%">Issuer</th>
+                                            <th style="width: 5%">Reviewer</th>
+                                            <th style="width: 5%">Issuer</th>
                                             <th style="width: 5%">Status</th>
                                         </tr>
                                     </thead>
