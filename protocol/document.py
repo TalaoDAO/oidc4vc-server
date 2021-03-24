@@ -50,16 +50,8 @@ def owners_to_contracts(address, mode) :
 	return contract.functions.ownersToContracts(address).call()
 
 def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
-	print('workspace contract to = ', workspace_contract_to)
-	print('address to = ', address_to)
-	print('address from = ', address_from)
 
 	# @data = dict
-	# insert data about user request for audit
-	if request :
-		data['request_remote_addr'] = request.remote_addr
-		data['request_remote_user'] = request.remote_user
-		data['request_user_agent'] = request.user_agent.__dict__
 
 	# check privacy vs doctype
 	if doctype in [50000, 40000, 10000, 15000, 20000, 11000] :
@@ -71,11 +63,12 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	else :
 		standard_privacy = None
 	if standard_privacy != privacy :
-		print('Error : privacy does not match with doctype')
+		logging.error('privacy does not match with doctype')
 
 	#encrypt data with AES key (public, private or secret)
 	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode, address_caller=address_caller)
 	if not data :
+		logging.error('encryption problem')
 		return None, None, None
 
 	# Date
@@ -107,7 +100,7 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 	if not receipt['status'] :
-		print('Error : transaction to create document failed. See receipt : ', receipt)
+		logging.error('transaction to create document failed. See receipt : %s', receipt)
 		return None, None, None
 
 	# Get document  id on last event
@@ -146,7 +139,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 			try :
 				transaction = w3.eth.getTransaction(transaction_hash)
 			except :
-				print('Error : get transacion document.py', documentId, doctype, privacy, transaction_hash)
+				logging.error('get transaction document.py')
 				return None, None, None, None, None, None, None, None, None, None, None , None, None
 			gas_price = transaction['gasPrice']
 			workspace_contract_identity = transaction['to']
@@ -157,7 +150,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 			created = str(date)
 			break
 	if not found :
-		print('Error : document not found in event list')
+		logging.error('document not found in event list')
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
 
 	# recuperation du msg
@@ -283,6 +276,8 @@ class Document() :
 			return False
 		else :
 			self.__dict__.update(data)
+			del self.doctype
+			del self.topic
 		return True
 
 

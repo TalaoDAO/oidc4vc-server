@@ -24,7 +24,6 @@
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
-                               
                                 <div class="form-row">
                                     <div class="col">
                                         <p>All data are JSON-LD tamper proof, signed and traceable.&nbsp; Clic on  <i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i> to get more details.</p>
@@ -62,6 +61,15 @@
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+
+
+    <script type='text/javascript'>
+        function doDL(s){
+            function dataUrl(data) {return "data:x-application/text," + escape(data);}
+            window.open(dataUrl(s));
+        }
+        </script>    
 </body>
 
 </html>

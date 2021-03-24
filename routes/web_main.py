@@ -781,32 +781,34 @@ def create_kyc(mode) :
     if request.method == 'GET' :
         return render_template('issue_kyc.html', **session['menu'])
     if request.method == 'POST' :
-        kyc_username = request.form['username'].lower()
-        kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
+        kyc_username = request.form['username']
+        if kyc_username[:3] == 'did':
+            kyc_workspace_contract = '0x' + kyc_username.split(':')[3]
+        else :
+            kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
         if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
         kyc_address = contractsToOwners(kyc_workspace_contract, mode)
-        unsigned_kyc = {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                ],
-            "id": "did:talao:talaonet:" + kyc_workspace_contract[2:] + "#did_authn",
-            "issuer": session['did'],
-            "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
-            "type": ["VerifiableCredential"],
-            "credentialSubject": {
-                "id": "did:talao:talaonet:" + kyc_workspace_contract[2:],
-                'family_name' : request.form['family_name'],
-                'given_name' : request.form['given_name'],
-                'birthdate' : request.form['birthdate'],
-                'address' : request.form['address'],
-                'telephone' : request.form['phone'],
-                'email' : request.form['email'],
-                'gender' : request.form['gender'],
-                },
-            }
-        signed_kyc = credential.sign_credential(unsigned_kyc, session['rsa_key_value'])
+        print('kyc address = ', kyc_address)
+
+
+        # load templates for verifibale credential and init with view form and session
+        unsigned_credential = json.load(open('./verifiable_credentials/identity.json', 'r'))
+        unsigned_credential["id"] =  "did:talao:talaonet:" + kyc_workspace_contract[2:] + "#did_authn"
+        unsigned_credential["issuer"] = session['did']
+        unsigned_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        unsigned_credential["type"] = ["VerifiableCredential",]
+        unsigned_credential["credentialSubject"]["id"] = "did:talao:talaonet:" + kyc_workspace_contract[2:]
+        unsigned_credential["credentialSubject"]["familyName"] = request.form['family_name']
+        unsigned_credential["credentialSubject"]["givenName"] = request.form['given_name']
+        unsigned_credential["credentialSubject"]["birthDate"] = request.form['birthdate']
+        unsigned_credential["credentialSubject"]["address"] = request.form['address']
+        unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
+        unsigned_credential["credentialSubject"]["email"] = request.form['email']
+        unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
+        signed_credential = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
+
         # signed kyc stored as did_authn ERC735 Claim
         claim=Claim()
         data = claim.add(session['address'],
@@ -815,19 +817,21 @@ def create_kyc(mode) :
                          kyc_workspace_contract,
                          session['private_key_value'],
                          'did_authn',
-                         signed_kyc,
+                         signed_credential,
                          'private',
                          mode,
                          synchronous = True)
         if not data[0] :
             flash('Transaction failed', 'danger')
         else :
-            flash('New kyc added for '+ kyc_username, 'success')
+            flash('New kyc credential added for '+ kyc_username, 'success')
             subject = 'Your proof of Identity'
-            kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-            Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
+            try :
+                kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
+                Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
+            except :
+                logging.warning('no email available')
         return redirect(mode.server + 'user/')
-
 
 
 # remove kyc

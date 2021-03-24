@@ -535,13 +535,16 @@ def user(mode) :
 					#issuer_type = 'Person'
 				else :
 					pass
-				cert_html = """<hr>
+				try :
+					cert_html = """<hr>
 							<b>Referent Name</b> : """ + issuer_name +"""<br>
 							<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
 							<b>Title</b> : """ + certificate['credentialSubject']['title'] + """<br>
-							<b>Description</b> : """ + certificate['credentialSubject']['description'][:100]+"""...<br>
+							<b>Description</b> : """ + certificate['credentialSubject']['description'][:100]+"""...<br>"""
+				except :
+					cert_html = "credential : #" + str(counter) + """<br>"""
 
-							<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
+				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
 							<p>
 							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
 							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
