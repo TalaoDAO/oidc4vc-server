@@ -17,7 +17,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from core import Talao_message, Talao_message, hcode, ns, sms
+from components import Talao_message, Talao_message, hcode, ns, sms
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil
@@ -362,7 +362,7 @@ def issuer_explore(mode) :
 						elif i==4:
 							carousel_rows_skill += ""
 					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-					carousel_rows_skill += """<a href=  /data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
+					carousel_rows_skill += """<a href=  /certificate/?certificate_id="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
 					carousel_rows_skill += """</figure></div>"""
 					carousel_rows_skill += '</div></div>'
 		else:

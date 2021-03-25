@@ -19,7 +19,7 @@ from authlib.jose import jwt
 from Crypto.PublicKey import RSA
 
 from factory import createidentity, createcompany
-from core import Talao_message, ns, privatekey, sms
+from components import Talao_message, ns, privatekey, sms
 from protocol import Document, add_key, Claim, contractsToOwners, get_image, read_profil, get_category
 
 exporting_threads = {}

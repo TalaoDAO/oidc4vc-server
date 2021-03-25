@@ -28,7 +28,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 from factory import createcompany, createidentity
-from core import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509, credential
+from components import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509
+
+from signaturesuite import RsaSignatureSuite2017
+
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
 from protocol import delete_key, has_key_purpose, add_key
@@ -418,7 +421,7 @@ def issue_experience_certificate(mode):
             "manager_manager" : session['certificate_signatory'],
             "reviewer_name" : request.form['reviewer_name'],
         }
-        session['certificate_to_register'] = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
+        session['certificate_to_register'] = RsaSignatureSuite2017.sign(unsigned_credential, session['rsa_key_value'])
         # call the two factor checking function :
         return redirect(mode.server + 'user/two_factor/?callback=user/issuer_experience_certificate/')
 
@@ -466,7 +469,7 @@ def issue_recommendation(mode):
                     "relationship" : request.form['relationship'],
 			        "picture" : session['picture'],
 			        "title" : session.get('title', '')}
-        session['recommendation_to_register'] = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
+        session['recommendation_to_register'] = RsaSignatureSuite2017.sign(unsigned_credential, session['rsa_key_value'])
         # call the two factor checking function :
         return redirect(mode.server + 'user/two_factor/?callback=user/issue_recommendation/')
 
@@ -807,7 +810,7 @@ def create_kyc(mode) :
         unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
         unsigned_credential["credentialSubject"]["email"] = request.form['email']
         unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
-        signed_credential = credential.sign_credential(unsigned_credential, session['rsa_key_value'])
+        signed_credential = RsaSignatureSuite2017.sign(unsigned_credential, session['rsa_key_value'])
 
         # signed kyc stored as did_authn ERC735 Claim
         claim=Claim()

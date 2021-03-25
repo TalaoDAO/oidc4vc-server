@@ -12,10 +12,13 @@ import json
 from sys import getsizeof
 import random
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 # dependances
 from protocol import Document, read_profil, Identity, Claim
 import constante
-from core import ns, analysis
+from components import ns, analysis
 
 def convert(obj):
 	if type(obj) == list:
@@ -67,7 +70,7 @@ def show_certificate(mode):
 		my_badge = ''
 		for skill in session['displayed_certificate']['skills'] :
 			skill_to_display = skill.replace(" ", "").capitalize().strip(',')
-			my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
+			my_badge +=  """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
 		return render_template('./certificate/self_claim.html',
 							**menu,
 							type = 'Experience',
@@ -104,9 +107,9 @@ def show_certificate(mode):
 
 		my_badge = ''
 		for skill in session['displayed_certificate']['skills'] :
-			skill_to_display = skill.replace(" ", "").capitalize().strip(',')
+			skill_to_display = skill.replace(" ", "").strip(',')
 			if skill_to_display :
-				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
+				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display.capitalize() + """</span>"""
 		return render_template('./certificate/self_claim.html',
 							**menu,
 							type = 'Education',
@@ -146,7 +149,7 @@ def show_certificate(mode):
 			skills = session['displayed_certificate']['credentialSubject']['skills']
 			my_badge = ""
 			for skill in skills :
-				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill.capitalize() + """</span>"""
+				my_badge += """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill.strip(' ').capitalize() + """</span>"""
 		else :
 			my_badge = None
 
@@ -223,7 +226,7 @@ def show_certificate(mode):
 		issuer_title = "" if not session['displayed_certificate'].get('title')  else session['displayed_certificate']['title']
 		if issuer_picture  :
 			if not path.exists(mode.uploads_path + issuer_picture) :
-				print('Warning : picture already on disk')
+				logging.info('picture already on disk')
 				url='https://gateway.pinata.cloud/ipfs/'+ issuer_picture
 				response = requests.get(url, stream=True)
 				with open(mode.uploads_path + issuer_picture, 'wb') as out_file:
@@ -453,6 +456,7 @@ def certificate_verify(mode) :
 
 
 	# User, Receiver
+	user =""
 	if user_type == 'Company' :
 		user = """
 				<span>
@@ -460,13 +464,13 @@ def certificate_verify(mode) :
 				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
 						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
 				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
-	if user_type == 'Person' :
-		user = """
-				<span>
-				<hr>
-				<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
-				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
+	#if user_type == 'Person' :
+	#	user = """
+	#			<span>
+	#			<hr>
+	#			<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
+	#					<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
+	#			<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
 
 	# Verifiable Credential
 	credential = Document('certificate')
@@ -501,7 +505,7 @@ def certificate_issuer_explore(mode) :
 	try :
 		issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
 	except :
-		print('Warning : issuer does not exist')
+		logging.warning('issuer does not exist')
 		flash('Identity not found ', 'danger')
 		return redirect(mode.server + 'certificate/verify/?certificate_id=' + certificate_id)
 
@@ -513,7 +517,6 @@ def certificate_issuer_explore(mode) :
 		del session['resume']['education_list']
 		del session['resume']['other_list']
 		del session['resume']['kbis_list']
-		del session['resume']['kyc_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
 		del session['resume']['synchronous']
@@ -544,34 +547,34 @@ def certificate_issuer_explore(mode) :
 				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
 				issuer_personal = issuer_personal + """
 				<span><b>"""+ Topic[topic_name] +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""
-					<a class="text-secondary" href=/certificate/data/?dataId=""" + topicname_id + """:personal>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+					
 				</span><br>"""
 
 		# Proofs of Identity
-		if not len (issuer_explore.kyc):
-			my_kyc = """<a class="text-danger">No Certificate of Identity available</a>"""
-		else :
-			my_kyc = "<b>Certificate issued by Talao</b><br><br>"
-			for kyc in issuer_explore.kyc :
-				kyc_html = """
-				<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
-				<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
-				<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-				<b>Gender</b> : """+ kyc['sex'] +"""<br>
-				<b>Nationality</b> : """+ kyc['nationality'] + """<br>
-				<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
-				<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
-				<b>Authority</b> : """+ kyc['authority']+"""<br>
-				<b>Country</b> : """+ kyc['country']+"""<br>
-				<b>Card Id</b> : """+ kyc['card_id']+"""<br>
-				<p>
-					<a class="text-secondary" href=/certificate/data/?dataId="""+ kyc['id'] + """:kyc>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>"""
-				my_kyc = my_kyc + kyc_html
+		my_kyc = ""
+
+		#if not len (issuer_explore.kyc):
+		#	my_kyc = """<a class="text-danger">No Certificate of Identity available</a>"""
+		#else :
+		#	my_kyc = "<b>Certificate issued by Talao</b><br><br>"
+		#	for kyc in issuer_explore.kyc :
+		#		kyc_html = """
+		#		<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
+		#		<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
+		#		<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
+		#		<b>Gender</b> : """+ kyc['sex'] +"""<br>
+		#		<b>Nationality</b> : """+ kyc['nationality'] + """<br>
+		#		<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
+		#		<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
+		#		<b>Authority</b> : """+ kyc['authority']+"""<br>
+		#		<b>Country</b> : """+ kyc['country']+"""<br>
+		#		<b>Card Id</b> : """+ kyc['card_id']+"""<br>
+		#		<p>
+		#			<a class="text-secondary" href=/certificate/data/?dataId="""+ kyc['id'] + """:kyc>
+		#				<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+		#			</a>
+		#		</p>"""
+		#		my_kyc = my_kyc + kyc_html
 
 
 		# experience
@@ -585,9 +588,7 @@ def certificate_issuer_explore(mode) :
 					<b>Title</b> : """+experience['title']+"""<br>
 					<b>Description</b> : """+experience['description'][:100]+"""...<br>
 					<p>
-						<a class="text-secondary" href=/certificate/data/?dataId="""+experience['id'] + """:experience>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
+						
 					</p>"""
 				issuer_experience = issuer_experience + exp_html + """<hr>"""
 
@@ -602,9 +603,7 @@ def certificate_issuer_explore(mode) :
 					<b>Title</b> : """+education['title']+"""<br>
 					<b>Description</b> : """+education['description'][:100]+"""...<br>
 					<p>
-						<a class="text-secondary" href=/certificate/data/?dataId="""+education['id'] + """:education>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-						</a>
+						
 					</p>"""
 				issuer_education = issuer_education + edu_html + """<hr>"""
 
@@ -623,16 +622,12 @@ def certificate_issuer_explore(mode) :
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 
-					<a class="text-secondary" href=/data/?dataId=""" + """:experience>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+					
 				</p>  -->"""
 				issuer_skills = issuer_skills + skill_html
 			issuer_skills = issuer_skills + """
 				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ issuer_explore.skills['id'] + """:skills>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+				
 				</p>"""
 
 		# certificates
@@ -657,9 +652,7 @@ def certificate_issuer_explore(mode) :
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 						<b></b><a href= """ + mode.server +  """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
-							<a class="text-secondary" href=/certificate/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-							</a>
+							
 						</p>"""
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
 		# services
@@ -705,9 +698,7 @@ def certificate_issuer_explore(mode) :
 				<b>Capital</b> : """+ kbis['capital']+"""<br>
 				<b>Address</b> : """+ kbis['address']+"""<br>
 				<p>
-					<a class="text-secondary" href=/certificate/data/?dataId="""+ kbis['id'] + """:kbis>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+					
 				</p>"""
 			my_kbis = my_kbis + kbis_html
 
@@ -720,9 +711,7 @@ def certificate_issuer_explore(mode) :
 				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
 				issuer_personal = issuer_personal + """
 				<span><b>"""+ topic_name +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""
-					<a class="text-secondary" href=/certificate/data/?dataId=""" + topicname_id + """:personal>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+					
 				</span><br>"""
 
 		services ="""<a class="text-warning">Register to get access to services.</a><br><br>"""
@@ -739,199 +728,6 @@ def certificate_issuer_explore(mode) :
 
 
 
-#@app.route('/certificate/data/', methods=['GET'])
-def certificate_data(mode) :
-	menu = session.get('menu', dict())
-	viewer = 'guest' if not session.get('username') else 'user'
-	dataId = request.args['dataId']
-	workspace_contract = '0x' + dataId.split(':')[3]
-	support = dataId.split(':')[4]
-	if support == 'document' :
-		doc_id = int(dataId.split(':')[5])
-		my_topic = dataId.split(':')[6]
-		if my_topic in [ 'experience', 'certificate', 'kbis', 'kyc', 'education', 'skills'] :
-			my_data = Document(my_topic)
-			my_data.relay_get(workspace_contract, doc_id, mode)
-		else :
-			print('Error : data in webserver.py, Class instance needed')
-			content = json.dumps({'topic' : 'error', 'msg' : 'Data Not Found'})
-			response = Response(content, status=406, mimetype='application/json')
-			return response
-		expires = my_data.expires
-		my_topic = my_data.topic.capitalize()
-
-	# certificate are seen as guest always (no access to private data)
-	if support == 'claim' :
-		claim_id = dataId.split(':')[5]
-		my_data = Claim()
-		my_data.get_by_id(None, None, workspace_contract, claim_id, mode)
-		expires = 'Unlimited'
-		my_topic = 'Personal'
-	myvisibility = my_data.privacy
-	#issuer_is_white = False
-
-	# issuer
-	issuer_name = my_data.issuer['name'] if my_data.issuer['category'] == 2001 else my_data.issuer['firstname'] + ' ' +my_data.issuer['lastname']
-	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
-	issuer_username = 'Unknown' if not issuer_username  else issuer_username
-	issuer_type = 'Company' if my_data.issuer['category'] == 2001 else 'Person'
-
-	if my_data.issuer['workspace_contract'] == workspace_contract or my_data.issuer['workspace_contract'] == mode.relay_workspace_contract :
-		front =  """
-				 <a class="text-warning">Self Declaration</a>
-				</span>"""
-	else :
-		front =  """
-					<a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract="""+ my_data.issuer['workspace_contract'] + """ >
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a><br>
-				</span>"""
-
-	myissuer = """
-				<span>
-				<b>Issuer</b>""" + front + """
-				<li><b>Name</b> : """ + issuer_name + """<br></li>
-				<li><b>Username</b> : """ + issuer_username +"""<br></li>
-				<li><b>Type</b> : """ + issuer_type + """<br></li>"""
-
-	# for audit
-	if support == 'document' :
-		myissuer= myissuer + """
-				<li><b>IP Address</b> : """ + my_data.request_remote_addr + """<br></li>
-				<li><b>Issuer Agent</b> : """ + my_data.request_remote_user_agent.get('string', 'None') + """<br></li>
-				<li><b>Issuer Browser</b> : """ + my_data.request_remote_user_agent.get('browser', 'None') + """<br></li>
-				<li><b>Issuer Platform</b> : """ + my_data.request_remote_user_agent.get('platform', 'None') + """<br></li>"""
-
-	# advanced """
-	(location, link) = (my_data.data_location, my_data.data_location)
-	path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
-	if support == 'document' :
-		myadvanced = """
-				<b>Advanced</b>
-				<li><b>Document Id</b> : """ + str(doc_id) + """<br></li>
-				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
-				<li><b>Created</b> : """ + my_data.created + """<br></li>
-				<li><b>Expires</b> : """ + expires + """<br></li>
-				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>
-				<li><b>Cryptography</b> : AES-128 AEX Mode, key = 'public_ipfs_key_'<br></li>
-				"""
-	else :
-		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
-		path = """https://rinkeby.etherscan.io/tx/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/tx/"""
-		myadvanced = """
-				<b>Advanced</b>
-				<li><b>Claim Id</b> : """ + str(claim_id) + """<br></li>
-				<li><b>Topic</b> : """ + str(my_data.topicname) + """<br></li>
-				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
-				<li><b>Created</b> : """ + my_data.created + """<br></li>
-				<li><b>Expires</b> : """ + expires + """<br></li>
-				<li><b>Transaction Hash</b> : <a class = "card-link" href = """ + path + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a><br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
-
-	# value
-	if my_topic.lower() == "experience"  :
-		myvalue = """
-				<b>Data Content</b>
-				<li><b>Title</b> : """+my_data.title + """<br></li>
-				<li><b>Company Name</b> : """+my_data.company['name']+"""<br></li>
-				<li><b>Contact Name</b> : """+my_data.company['contact_name']+"""<br></li>
-				<li><b>Contact Email</b> : """+my_data.company['contact_email']+"""<br></li>
-				<li><b>Contact Phone</b> : """+my_data.company['contact_phone']+"""<br></li>
-				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>
-				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
-				<li><b>Skills</b> : """+ " ".join(my_data.skills)+"""</li>"""
-
-	elif my_topic.lower() == "education" :
-		myvalue = """
-				<b>Data Content</b>
-				<li><b>Title</b> : """+my_data.title + """<br>
-				<li><b>Organization Name</b> : """+my_data.organization['name']+"""<br></li>
-				<li><b>Contact Name</b> : """+my_data.organization['contact_name']+"""<br></li>
-				<li><b>Contact Email</b> : """+my_data.organization['contact_email']+"""<br></li>
-				<li><b>Contact Phone</b> : """+my_data.organization['contact_phone']+"""<br></li>
-				<li><b>Start Date</b> : """+my_data.start_date + """<br></li>
-				<li><b>End Date</b> : """+my_data.end_date+"""<br></li>
-				<li><b>Skills</b> : """+ " ".join(my_data.skills) +"""<br></li>
-				<li><b>Diploma Link</b> : """+  my_data.certificate_link+"""</li>"""
-
-	elif my_topic.lower() == "certificate" :
-		if my_data.type == 'experience' :
-			myvalue = """
-				<b>Data Content</b>
-				<li><b>Title</b> : """ + my_data.title + """<br></li>
-				<li><b>Start Date</b> : """+ my_data.start_date + """<br></li>
-				<li><b>End Date</b> : """+ my_data.end_date + """<br></li>
-				<li><b>Skills</b> : """+ "".join(my_data.skills) + """<br></li>
-				<li><b>Delivery Quality</b> : """+ my_data.score_delivery + """<br></li>
-				<li><b>Schedule Respect</b> : """+ my_data.score_schedule + """<br></li>
-				<li><b>Communication Skill</b> : """+ my_data.score_communication + """<br></li>
-				<li><b>Recommendation</b> : """+ my_data.score_recommendation + """<br></li>"""
-				#<li><b>Manager</b> : """+ my_data.manager+"""</li>"""
-		elif my_data.type == 'recommendation' :
-			myvalue = """
-				<b>Data Content</b>
-				<li><b>Descrition</b> : """ + my_data.description + """<br></li>
-				<li><b>Relationship</b> : """+ my_data.relationship + """<br></li>"""
-		else :
-			myvalue = """
-				<b>Data Content</b>
-				<li><b>Title</b> : """ + my_data.title + """<br></li>
-				<li><b>Issued Date</b> : """+ my_data.end_date + """<br></li>
-				<li><b>Skills</b> : """ + my_data.description  + """<br></li>"""
-
-
-	elif my_topic.lower() == "kbis" :
-		myvalue = """
-				<b>Data Content</b>
-				<li><b>Name</b> : """ + my_data.name+ """<br></li>
-				<li><b>Siret</b> : """ + my_data.siret + """<br></li>
-				<li><b>Created</b> : """+ my_data.date + """<br></li>
-				<li><b>Address</b> : """+ my_data.address + """<br></li>
-				<li><b>Legal Form</b> : """+ my_data.legal_form + """<br></li>
-				<li><b>Capital</b> : """+ my_data.capital + """<br></li>
-				<li><b>Naf</b> : """+ my_data.naf + """<br></li>
-				<li><b>Activity</b> : """+ my_data.activity+"""</li>"""
-
-
-
-	elif my_topic.lower() == "kyc" :
-		myvalue = """
-				<b>Data Content</b>
-				<li><b>Firstname</b> : """+ my_data.firstname + """<br></li>
-				<li><b>Lastname</b> : """ + my_data.lastname + """<br></li>
-				<li><b>Sex</b> : """+ my_data.sex + """<br></li>
-				<li><b>Nationality</b> : """+ my_data.nationality + """<br></li>
-				<li><b>Birth Date</b> : """+ my_data.birthdate + """<br></li>
-				<li><b>Date of Issue</b> : """+ my_data.date_of_issue + """<br></li>
-				<li><b>Date of Expiration</b> : """+ my_data.date_of_expiration + """<br></li>
-				<li><b>Authority</b> : """+ my_data.authority + """<br></li>
-				<li><b>Country</b> : """+ my_data.country+"""</li>"""
-
-	elif my_topic.lower() == 'personal' :
-		myvalue = """<b>Data</b> : """+ my_data.claim_value
-
-	elif my_topic.lower() == 'skills' :
-		myvalue = ''
-		for skill in my_data.description :
-			skill_to_display = skill['skill_name'].capitalize()
-			myvalue = myvalue + """<li>  """+ skill_to_display + """</li>"""
-
-	else :
-		print('Error : topic not found')
-		content = json.dumps({'topic' : 'error', 'msg' : 'Data Not Found'})
-		response = Response(content, status=406, mimetype='application/json')
-		return response
-
-	#mydelete_link = "/talao/api/data/delete/"
-
-	my_verif = "<hr>" + myvalue + "<hr>" + myissuer +"<hr>" + myadvanced
-
-	return render_template('./certificate/certificate_data_check.html',
-							**menu,
-							verif=my_verif,
-							viewer=viewer,
-							)
 
 # Analysis
 #@app.route('/certificate/data_analysis/', methods=['GET'])

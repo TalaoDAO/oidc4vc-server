@@ -24,7 +24,7 @@ from eth_utils import decode_hex
 import logging
 
 import constante
-from core import Talao_ipfs, ns, public_address
+from components import Talao_ipfs, ns, public_address
 from protocol import contractsToOwners, get_keylist
 
 

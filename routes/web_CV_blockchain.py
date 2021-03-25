@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 # dependances
 from protocol import Document, read_profil, Identity, Claim
 import constante
-from core import ns, analysis
+from components import ns, analysis
 
 #@app.route('/resume/', methods=['GET'])
 def resume(mode) :
@@ -150,7 +150,7 @@ def resume(mode) :
 				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div><hr class='my-1'>"
 				#body
 				if experience['topic'] != 'experience':
-					carousel_rows_experience += """<p style="font-size: 1em"><b>Referent name: </b>"""
+					carousel_rows_experience += """<p style="font-size: 1em"><b>Referent name : </b>"""
 
 					if experience['issuer']['category'] == 2001:
 						carousel_rows_experience += experience['issuer']['name'] + """<br>"""
@@ -160,13 +160,13 @@ def resume(mode) :
 				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
 				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
 				if experience['topic']!='experience':
-					carousel_rows_experience += """<b>Description</b> :""" + description[:100:]
+					carousel_rows_experience += """<b>Description</b> : """ + description[:100:]
 					if len(description) > 100:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"
 				else:
-					carousel_rows_experience += """<b>Description</b> :""" + description[:150:]
+					carousel_rows_experience += """<b>Description</b> : """ + description[:150:]
 					if len(description)>150:
 						carousel_rows_experience += "...<br>"
 					else:
@@ -304,8 +304,7 @@ def resume(mode) :
 				#header
 				carousel_rows_education += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + education['title'] + "</h4></div></div>"
 				#body
-				carousel_rows_education += """<hr class="my-1"><p style="font-size: 1em"><b>Name: </b>""" + education['organization']['name'] + '<br>'
-
+				carousel_rows_education += """<hr class="my-1"><p style="font-size: 1em"><b>Name : </b>""" + education['organization']['name'] + '<br>'
 				carousel_rows_education += """<b>Start Date</b> : """ + education['start_date'] + """<br> """
 				carousel_rows_education += """<b>End Date</b> : """ + education['end_date'] + """<br>"""
 

@@ -11,7 +11,7 @@ from base64 import b64encode, b64decode
 #dependances
 import constante
 import environment
-from core import Talao_ipfs, privatekey
+from components import Talao_ipfs, privatekey
 
 def contracts_to_owners(workspace_contract, mode) :
 	w3 = mode.w3

@@ -41,7 +41,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_resolver, web_main, web_login
 
 # Release
-VERSION = "0.8.0"
+VERSION = "0.8.1"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -91,7 +91,7 @@ app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certific
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
-app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
+#app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
 # Centralized route for the Blockchain CV

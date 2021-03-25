@@ -27,13 +27,13 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-from core import credential
+from signaturesuite import RsaSignatureSuite2017
 
 # import des fonctions custom
 import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key, partnershiprequest, authorize_partnership
 from protocol import Claim, update_self_claims
-from core import privatekey, ns, Talao_message
+from components import privatekey, ns, Talao_message
 
 exporting_threads_all = {}
 exporting_threads = {}
@@ -287,7 +287,7 @@ def _create_user_step_2(address, workspace_contract, private_key, username, firs
 				"gender" : "",
 				},
 			}
-		signed_credential = credential.sign_credential(unsigned_credential, creator_rsa_key)
+		signed_credential = RsaSignatureSuite2017.sign(unsigned_credential, creator_rsa_key)
 		# signed kyc stored as did_authn ERC735 Claim
 		claim=Claim()
 		if not claim.add(creator_address,

@@ -13,7 +13,7 @@ import unidecode
 from datetime import timedelta, datetime
 
 # dependances
-from core import Talao_message, ns, directory
+from components import Talao_message, ns, directory
 from factory import createcompany
 from protocol import Claim
 

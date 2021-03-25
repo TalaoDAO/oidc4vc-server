@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from core import Talao_ipfs, Talao_message, ns, privatekey
+from components import Talao_ipfs, Talao_message, ns, privatekey
 import constante
 
 def read_profil (workspace_contract, mode, loading) :

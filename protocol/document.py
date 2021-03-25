@@ -37,7 +37,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 #dependances
-from core import Talao_ipfs, privatekey
+from components import Talao_ipfs, privatekey
 import constante
 from .Talao_token_transaction import read_profil
 

@@ -12,7 +12,7 @@ from base64 import b64encode, b64decode
 
 #dependances
 import constante
-from core import Talao_ipfs, privatekey
+from components import Talao_ipfs, privatekey
 from .Talao_token_transaction import read_profil, contractsToOwners, ownersToContracts
 
 def contracts_to_owners(workspace_contract, mode) :

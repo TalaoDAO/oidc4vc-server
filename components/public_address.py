@@ -4,6 +4,8 @@ from eth_account._utils.signing import extract_chain_id, to_standard_v
 from eth_account._utils.transactions import ALLOWED_TRANSACTION_KEYS
 from eth_account._utils.transactions import serializable_unsigned_transaction_from_dict
 import logging
+logging.basicConfig(level=logging.INFO)
+
 import constante
 
 def get_key(workspace_contract, address, days, mode) :

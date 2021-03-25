@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 # dependances
 from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, authorize_partnership, partnershiprequest
 from protocol import createWorkspace, Claim, update_self_claims
-from core import Talao_message, ns, privatekey
+from components import Talao_message, ns, privatekey
 import constante
 #import ethereum_bridge see later
 

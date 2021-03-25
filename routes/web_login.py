@@ -21,7 +21,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from core import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
+from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token

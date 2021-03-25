@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 
 # dependances
 from factory import ssi_createidentity, createidentity
-from core import sms,directory,ns, Talao_message
+from components import sms,directory,ns, Talao_message
 from protocol import has_vault_access
 
 def check_login() :

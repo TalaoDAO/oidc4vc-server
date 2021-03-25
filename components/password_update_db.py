@@ -1,4 +1,4 @@
-from core import ns
+from components import ns
 import constante
 import environment
 

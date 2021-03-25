@@ -180,6 +180,7 @@ def add_verifiable_credential(host_name, talent_username, reviewer_username, iss
 	"""
 	if status not in ['drafted', 'reviewed', 'signed'] :
 		logging.error('deprecated status')
+		return False
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
@@ -199,6 +200,7 @@ def add_verifiable_credential(host_name, talent_username, reviewer_username, iss
 	except :
 		conn.commit()
 		conn.close()
+		logging.error('add credential failed')
 		return False
 	return True
 
@@ -209,6 +211,7 @@ def update_verifiable_credential(id, host_name, reviewer_username, issuer_userna
 	"""
 	if status not in ['drafted', 'reviewed', 'signed'] :
 		logging.error('deprecated status')
+		return False
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name +'.db')
 	c = conn.cursor()
@@ -220,7 +223,6 @@ def update_verifiable_credential(id, host_name, reviewer_username, issuer_userna
 			'id' : id}
 	try :
 		c.execute("UPDATE credential SET reviewer_name = :reviewer_name, issuer_name = :issuer_name, status = :status, credential = :credential  WHERE id = :id", data)
-		logging.error('table credential updated')
 		conn.commit()
 		conn.close()
 	except sqlite3.Error as er :
@@ -403,7 +405,7 @@ def _get_data(username, mode) :
 		if select is None :
 			conn.commit()
 			conn.close()
-			logging.error('le host n existe pas dans le resolver')
+			logging.error('host not found in resolver table')
 			return None
 		host_workspace_contract = select[0]
 		data ={'identity_name' : identity_name}

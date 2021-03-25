@@ -12,7 +12,9 @@ import secrets
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from core import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, credential
+from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey
+from signaturesuite import RsaSignatureSuite2017
+
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance
 from protocol import Document, read_profil, get_image
@@ -164,7 +166,10 @@ def request_experience_certificate(mode) :
     # send an email to reviewer to go forward
     reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + issuer_username, mode)['email']
     subject = 'You have received a professional credential from '+ session['name'] + ' to review'
-    Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
+    try :
+        Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
+    except :
+        logging.error('email failed')
     # message to User
     flash('Your request for an experience credential has been registered for review.', 'success')
     return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
@@ -324,7 +329,7 @@ def issue_credential_workflow(mode) :
             my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
 
             # sign credential with company key
-            signed_credential = credential.sign_credential(my_credential, session['rsa_key_value'])
+            signed_credential = RsaSignatureSuite2017.sign(my_credential, session['rsa_key_value'])
             ns.update_verifiable_credential(session['credential_id'],
                                         session['host'],
                                         session['call'][2],
@@ -355,7 +360,10 @@ def issue_credential_workflow(mode) :
                 link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject_workspace_contract[2:] + ':document:' + str(doc_id)
                 subject_username = ns.get_username_from_resolver(subject_workspace_contract, mode)
                 subject_email = ns.get_data_from_username(subject_username, mode)['email']
-                Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': session['name'], 'link': link}, mode)
+                try :
+                    Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': session['name'], 'link': link}, mode)
+                except :
+                    logging.error('email error')
 
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
@@ -371,7 +379,11 @@ def issue_credential_workflow(mode) :
             issuer_email = ns.get_data_from_username(session['referent'] + '.' + session['host'], mode)['email']
             talent_name = my_credential['credentialSubject']['name']
             subject = 'You have received a professional credential from ' + talent_name + ' to issue'
-            Talao_message.messageHTML(subject, issuer_email, 'request_certificate', {'name' : talent_name, 'link' : 'https://talao.co'}, mode)
+            try :
+                Talao_message.messageHTML(subject, issuer_email, 'request_certificate', {'name' : talent_name, 'link' : 'https://talao.co'}, mode)
+            except :
+                logging.error('email error')
+
             flash('Credential has been reviewed and validated', 'success')
 
         # all exits except delete and back

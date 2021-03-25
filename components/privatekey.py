@@ -11,6 +11,7 @@ from base64 import b64encode, b64decode
 from eth_account import Account
 from Crypto.Util.Padding import pad
 import logging
+logging.basicConfig(level=logging.INFO)
 
 import constante
 

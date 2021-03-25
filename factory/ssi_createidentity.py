@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 
 # import des fonctions custom
-from core import Talao_message, ns, privatekey
+from components import Talao_message, ns, privatekey
 import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key, partnershiprequest, authorize_partnership, transfer_workspace
 from protocol import Claim, update_self_claims, has_vault_access
