@@ -1,9 +1,10 @@
 {
             "@context": [
-                "https://www.w3.org/2018/credentials/v1"
+                "https://www.w3.org/2018/credentials/v1",
+                "https://schema.org/"
                   ],
             "id": null,
-            "type": ["VerifiableCredential"],
+            "type": ["VerifiableCredential","IdentityCredential"],
             "issuer": null,
             "issuanceDate": null,
             "expirationDate" : null,
