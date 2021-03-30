@@ -5,73 +5,93 @@ import didkit
 import json
 from authlib.jose import jwk
 from components import privatekey
-
-rsa_key = """-----BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEAmz3frh5cMQw79IA/tqvb738FkZk0D10YiezTkj+Pg5CIg5Vj
-oe25koakQarsBeaMcVZF5dl48bFCUH9nRZq7Txv4IdxUAzm/3udvCOLSSLxKmzmw
-T7u3W3EMKy2pqJ1jKK4I+SuFNW+lQP7RWPqD97K/bxJGjQRUdeyj4Lmi8N8ahd4q
-OSRmoyBg6Z4tv9SNvp+8Z/9eyIBGThkN8HNwnJoGs9YNYWRNsp67taJNU5em6bRW
-9eae/FVB20YzaHxfOLni6NZY5xw3THdDsMSGBwTS9HJloM8oTqObLXa/FX6xp6K0
-WbXdOfYVcLIKn6GwqaEoHuKf7BB4dRsDwVN6EwIDAQABAoIBAA3TNsy+bp6Xl+2w
-T8kO1dyNE78U3upqjTlLQMdxDaQKOeR6zo91jxjNENFTgKCnfxf6abZZTBU9U5bw
-bnWbNm8j7upLdHGAS39B93hAUVKhu7f5k6M/wZaAVmfjl/MomqB2z0NeOTpT1QQZ
-LVk4bIqhZCPNUHPvT/sO6SrZA8Yux+dPewtaxQfHDryXPAEIMQ39cVpL37f14LwM
-Hvjw5Kj3v1Ssin8ie2+Z8FXu+ryV0zINN1Jx6R2UNxmrDr48b3K9EZk56YG6J0h7
-gc6M7ucV0VvOAs8Ow1w4uEhidlOahGdkBKYZ2butaKnwoHaAixYMoi+ltLar2UXL
-EAHBi0ECgYEAwMuApDDPFV0g+kLndjQKDQt+3FoBtmYdGEUYSkES11npTV0RsO9E
-W4NEZcpDiHEyxuFJS+Kh5ATHrr0s8RconTE3Lg2ODrEaRhw4+jyVSWhfoq04B9sr
-SPSRJu8yiq0cjtJzWkRETbR9Z9V00cTeMKNSVOUmhZcl6Ub3WwOnIkMCgYEAziKu
-IKfX9WsnfIcdySHPbdkt7CeWgnoJz1SIM9/Ovxx+kS1mwm6Spe4zTPWhBmGxpPbN
-aSqwkGPV3Zn6OKnuQYxJVj2b3CYpaMhk/wZxWmAVQ7eYv9ZPJYYkSvbBUowaaVmz
-rM2yjgiAHq2EYn358WRzEBg1/XiYhWNkMtrV0/ECgYAUqDlaXlhx446bAfwm8CB7
-kVXAamxwjLRlW1Hk8t//7wROY8B3gsuCOqhjd66QugBEyvK9jMTn15NFp8Ne+apC
-XXmaF522+UblaDS6qy8btHE6zvCH9vXGVV4QG+UActfyfZ4ad+IRqVseewKPT1a3
-Q2iY7Ayal71aJ15thBCuXQKBgQCpTCBY36DlhlES3GHhK+yR2nn153mcxaBC8LlA
-aYMCwONOVsx7yZaVwvHNNjs+44Oj6bNAuXfzzpr6epjgaugsW4xr0QOuJoWB8nvI
-XEFCqYEtcZ95hwjP18D89HZIVprmhW6k8PfB4UdgasA8qBxcXlSGFmxZNe+GNeA4
-SDSv8QKBgFCSDY9Ui06bHHJ4rjxHZkcKTTTRRguk7TdPs3Hext3PLs4tJYhgazwl
-YTnvfHfbTabqdIJN4sudD5a4/NxPl1kX11wBJy+JQcsAoy/lMHgnGt53zuSm2XfT
-KhF6aDCN+u79a2RngmoZlBiySDO7TBe3xgngCr2M62hq2nnbivrB
------END RSA PRIVATE KEY-----"""
+import base64
 
 
-# Generate JWK from rsa key
-key = jwk.dumps(rsa_key).__str__().replace("'", '"')
-print('type de rsa = ', type(key))
-
-
-key = didkit.generateEd25519Key()
-print('key Ed25519Key ', key)
+#key = didkit.generateEd25519Key()
+#print('key Ed25519Key ', key)
 
 #key = json.loads(didkit.generateEd25519Key())
 #print(key)
 
-did = didkit.keyToDID("key", key)
-print('did = ', did)
+#did = didkit.keyToDID("key", key)
+#print('did = ', did)
 
 #vm = didkit.keyToVerificationMethod('key', key)
 #print('vm = ', vm)
 
-#credential = { "@context": "https://www.w3.org/2018/credentials/v1",
-#                "type": ["VerifiableCredential"],
-#                 "issuer" : "did:example:d23dd687a7dc6787646f2eb98d0",
-#                   "issuanceDate": "2020-08-19T21:41:50Z",
-#                "credentialSubject": {
-#                "id": "did:example:d23dd687a7dc6787646f2eb98d0",
-#               }
-#                }
 
-#didkit_options = {
-#        "proofPurpose": "assertionMethod",
-#        "verificationMethod": "verification_method",
-#    }
 
-#credential = didkit.issueCredential(
-#        credential.__str__().replace("'", '"'),
-#        didkit_options.__str__().replace("'", '"'),
-#        key)
+from eth_keys import keys
+from eth_utils import decode_hex
+from jwcrypto import jwk
+pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
 
-#auth = didkit.DIDAuth(did, didkit_options.__str__().replace("'", '"'), key)
-#print('authn = ', auth)
 
-#print(credential)
+#key = jwk.JWK.generate(kty="EC", crv="secp256k1",  alg="ES256K-R",  b64 = False, crit = ["b64"])
+#key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
+#key=key.export_private()
+
+#print(key)
+
+def jwk_to_ethereum(jwk) :
+        jwk = json.loads(jwk)
+        private_key = "0x" + base64.urlsafe_b64decode(jwk["d"] + '=' * (4 - len(jwk["d"]) % 4)).hex()
+        priv_key_bytes = decode_hex(private_key)
+        priv_key = keys.PrivateKey(priv_key_bytes)
+        pub_key = priv_key.public_key
+        public_key = pub_key.to_hex()
+        address = pub_key.to_checksum_address()
+        return private_key, public_key, address
+
+
+def ethereum_to_jwk256kr(private_key) :
+        priv_key_bytes = decode_hex(private_key)
+        priv_key = keys.PrivateKey(priv_key_bytes)
+        pub_key = priv_key.public_key
+        d = private_key[2:]
+        x = pub_key.to_hex()[2:66]
+        y = pub_key.to_hex()[66:]
+
+        ad = bytes.fromhex(d)
+        d =  base64.urlsafe_b64encode((ad)).decode()[:-1]
+
+        ax = bytes.fromhex(x)
+        x =  base64.urlsafe_b64encode((ax)).decode()[:-1]
+
+        ay = bytes.fromhex(y)
+        y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
+
+        return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :"ES256K-R",  "b64": False, "crit": ["b64"]})
+
+key = ethereum_to_jwk256kr(pvk)
+did = didkit.keyToDID("ethr",key )
+print("did = ", did)
+
+
+verifmethod = didkit.keyToVerificationMethod("ethr", key)
+print("verifimethod = ", verifmethod)
+
+credential = { "@context": "https://www.w3.org/2018/credentials/v1",
+                "type": ["VerifiableCredential"],
+                 "issuer" : did,
+                   "issuanceDate": "2020-08-19T21:41:50Z",
+                "credentialSubject": {
+                "id": "did:example:d23dd687a7dc6787646f2eb98d0",
+               }
+                }
+
+didkit_options = {
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": verifmethod
+    }
+
+credential = didkit.issueCredential(
+        credential.__str__().replace("'", '"'),
+        didkit_options.__str__().replace("'", '"'),
+        key)
+
+print(credential)
+
+print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
+

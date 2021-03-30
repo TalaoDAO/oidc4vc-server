@@ -10,6 +10,7 @@
             "credentialStatus": null,
             "credentialSubject":
                 {
+               "@context": ["https://schema.org/"],
                 "id": null,
                 "name" : null,
                 "credentialCategory" : "experience",
