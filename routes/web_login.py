@@ -31,29 +31,40 @@ def check_login() :
 	if not session.get('workspace_contract') and not session.get('username') :
 		logging.error('abort')
 		abort(403)
-	else :
-		return True
+	return True
 
 def send_secret_code (username, code, mode) :
+	"""
+	if phone exist we send and SMS
+	if not we send an email
+	return : 'sms' or 'email' or None
+	"""
 	data = ns.get_data_from_username(username, mode)
 	if not data :
-		logging.error('no data for send secret code')
+		logging.error('cannot send secret code')
 		return None
 	if not data['phone'] :
-		subject = 'Talao : Email authentification  '
-		Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
-		logging.info('code sent by email')
-		return 'email'
-	else :
 		try :
-			sms.send_code(data['phone'], code, mode)
-		except :
 			subject = 'Talao : Email authentification  '
 			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
-			logging.warning('sms failed, code sent by email')
+			logging.info('code sent by email')
 			return 'email'
+		except :
+			logging.error('sms failed, no phone')
+			return None
+	try :
+		sms.send_code(data['phone'], code, mode)
 		logging.info('code sent by sms')
 		return 'sms'
+	except :
+		subject = 'Talao : Email authentification  '
+		try :
+			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
+			logging.info('sms failed, code sent by email')
+			return 'email'
+		except :
+			logging.error('sms failed, email failed')
+			return None
 
 
 # update wallet in Talao Identity
@@ -146,11 +157,12 @@ def wc_login(mode) :
 		del session['wallet_code']
 		return redirect(mode.server + 'user/')
 
-# two factor checking function
-#@app.route('/user/two_factor/', methods=['GET', 'POST'])
-""" this route has to be used as a function to check code before signing a certificate
-CF issue certificate in main.py to see how to use it with redirect and callback """
 def two_factor(mode) :
+	"""
+	@app.route('/user/two_factor/', methods=['GET', 'POST'])
+	this route has to be used as a function to check code before signing a certificate
+	CF issue certificate in main.py to see how to use it with redirect and callback 
+	"""
 	check_login()
 	if request.method == 'GET' :
 		session['two_factor'] = {'callback' : request.args.get('callback'),
@@ -192,10 +204,9 @@ def two_factor(mode) :
 def login_password():
 	return render_template('./login/login_password.html')
 
-
-#@app.route('login/', methods = ['GET', 'POST'])
 def login(mode) :
 	"""
+	@app.route('login/', methods = ['GET', 'POST'])
 	mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps for mobile devices
 	mode = mobile_off_qrcode_on : qrcode only for desktop
 	mode = password  : display password form
@@ -203,23 +214,22 @@ def login(mode) :
 	"""
 	if request.method == 'GET' :
 		session.clear()
-		if request.args.get('mode') == 'mobile_on':
-			logging.info('large QR code for mobile or desktop')
-			return render_template('./login/login_mobile.html')
-		elif request.args.get('mode') == 'password':
-			logging.info('password form')
-			return render_template('./login/login_password.html')
-		elif request.args.get('mode') == 'mobile_off_qrcode_on' :
-			logging.info('small QR code for desktop')
-			return render_template('./login/login_qrcode.html', username=request.args.get('username', ""))
-		else :
-			logging.info('qrcode for desktop and password gor mobile')
-			return render_template('./login/login.html', username=request.args.get('username', ""))
-	
-	if request.method == 'POST' :
-		if session.get('try_number') is None :
-			session['try_number'] = 1
+		#if request.args.get('mode') == 'mobile_on':
+		#	logging.info('large QR code for mobile or desktop')
+		#	return render_template('./login/login_mobile.html')
+		#elif request.args.get('mode') == 'password':
+		#	logging.info('password form')
+		return render_template('./login/login_password.html')
+		#elif request.args.get('mode') == 'mobile_off_qrcode_on' :
+		#	logging.info('small QR code for desktop')
+		#	return render_template('./login/login_qrcode.html', username=request.args.get('username', ""))
+		#else :
+		#	logging.info('qrcode for desktop and password for mobile')
+		#	return render_template('./login/login.html', username=request.args.get('username', ""))
 
+	if request.method == 'POST' :
+		if not session.get('try_number')  :
+			session['try_number'] = 1
 		session['username_to_log'] = request.form['username']
 		if not ns.username_exist(session['username_to_log'], mode)  :
 			logging.warning('username does not exist')
@@ -257,17 +267,19 @@ def login(mode) :
 				return render_template('./login/login.html', username="")
 			return render_template("./login/authentification.html", support=session['support'])
 
-# recuperation du code saisi
-#@app.route('/login/authentification/', methods = ['POST'])
+
 def login_authentification(mode) :
-	if session.get('username_to_log') is None or session.get('code') is None :
+	"""
+	verify code from user
+	@app.route('/login/authentification/', methods = ['POST'])
+	"""
+	if not session.get('username_to_log') or not session.get('code') :
 		flash("Authentification expired", "warning")
-		return render_template('./login/login.html')
+		return render_template('./login/login_password.html')
 	code = request.form['code']
 	session['try_number'] +=1
 	logging.info('code received = %s', code)
-	authorized_codes = [session['code'], '123456'] if mode.test else [session['code']]
-	if code in authorized_codes and datetime.now() < session['code_delay'] :
+	if code == session['code'] and datetime.now() < session['code_delay'] :
 		session['username'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']
@@ -276,10 +288,10 @@ def login_authentification(mode) :
 		return redirect(mode.server + 'user/')
 	elif session['code_delay'] < datetime.now() :
 		flash("Code expired", "warning")
-		return redirect(mode.server + 'user/')
+		return render_template('./login/login_password.html')
 	elif session['try_number'] > 3 :
 		flash("Too many trials (3 max)", "warning")
-		return render_template("./login/authentification.html")
+		return render_template('./login/login_password.html')
 	else :
 		if session['try_number'] == 2 :
 			flash('This code is incorrect, 2 trials left', 'warning')
@@ -287,50 +299,52 @@ def login_authentification(mode) :
 			flash('This code is incorrect, 1 trial left', 'warning')
 		return render_template("./login/authentification.html", support=session['support'])
 
-# logout
-#@app.route('/logout/', methods = ['GET'])
+
 def logout(mode) :
-	if not session.get('logout') :
-		session['logout'] = 'on'
-		return render_template('./login/logout.html')
-	# delete picture, signateure and files before logout, clear session.
+	"""
+	@app.route('/logout/', methods = ['GET'])
+	delete picture, signateure and files before logout, clear session.
+	"""
 	check_login()
+	if request.method == 'GET' :
+		return render_template('./login/logout.html')
 	try :
 		os.remove(mode.uploads_path + session['picture'])
 		os.remove(mode.uploads_path + session['signature'])
 	except :
-		logging.error('effacement picture/signature erreur')
+		logging.warning('delet picture and signature failed')
 	for one_file in session['identity_file'] :
 		try :
 			os.remove(mode.uploads_path + one_file['filename'])
 		except :
-			logging.error('effacement file error')
+			logging.warning('delete file failed')
 	session.clear()
 	flash('Thank you for your visit', 'success')
 	return redirect (mode.server + 'login/')
 
 
-# forgot username
-""" @app.route('/forgot_username/', methods = ['GET', 'POST'])
-This function is called from the login view.
-"""
 def forgot_username(mode) :
+	"""
+	@app.route('/forgot_username/', methods = ['GET', 'POST'])
+	This function is called from the login view.
+	"""
 	if request.method == 'GET' :
 		return render_template('./login/forgot_username.html')
 	if request.method == 'POST' :
 		username_list = ns.get_username_list_from_email(request.form['email'], mode)
-		if username_list == [] :
+		if not username_list :
 			flash('There is no Identity with this Email' , 'warning')
 		else :
 			flash('This Email is already used by Identities : ' + ", ".join(username_list) , 'success')
-		return render_template('./login/login.html', name="")
+		return render_template('./login/login_password.html', name="")
 
-# forgot password
-""" @app.route('/forgot_password/', methods = ['GET', 'POST'])
-This function is called from the login view.
-build JWE to store timestamp, username and email, we use Talao RSA key
-"""
+
 def forgot_password(mode) :
+	"""
+	@app.route('/forgot_password/', methods = ['GET', 'POST'])
+	This function is called from the login view.
+	build JWE to store timestamp, username and email, we use Talao RSA key
+	"""
 	if request.method == 'GET' :
 		return render_template('./login/forgot_password_init.html')
 	if request.method == 'POST' :
@@ -349,17 +363,18 @@ def forgot_password(mode) :
 		json_string = json.dumps({'username' : username, 'email' : email, 'expired' : expired})
 		payload = bytes(json_string, 'utf-8')
 		token = jwe.serialize_compact(header, payload, public_rsa_key)
-		link = mode.server + 'forgot_password_2/?'+ urlencode({'token'  : token.decode('utf-8')}, doseq=True)
+		link = mode.server + 'forgot_password_token/?'+ urlencode({'token'  : token.decode('utf-8')}, doseq=True)
 		subject = "Renew your password"
 		if Talao_message.messageHTML(subject, email, 'forgot_password', {'link': link}, mode):
 			flash("You are going to receive an email to renew your password.", "success")
-		return render_template('./login/login.html')
+		return render_template('./login/login_password.html')
 
-# forgot password 2
-""" @app.route('/forgot_password_2/', methods = ['GET', 'POST'])
-This function is called from email to decode token and reset password.
-"""
-def forgot_password_2(mode) :
+
+def forgot_password_token(mode) :
+	"""
+	@app.route('/forgot_password_token/', methods = ['GET', 'POST'])
+	This function is called from email to decode token and reset password.
+	"""
 	if request.method == 'GET' :
 		token = request.args.get('token')
 		key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
@@ -368,11 +383,12 @@ def forgot_password_2(mode) :
 			data = jwe.deserialize_compact(token, key)
 		except :
 			flash ('Incorrect data', 'danger')
-			return render_template('./login/login.html')
+			logging.warning('JWE did not decrypt')
+			return render_template('./login/login_password.html')
 		payload = json.loads(data['payload'].decode('utf-8'))
 		if payload['expired'] < datetime.timestamp(datetime.now()) :
 			flash ('Delay expired (3 minutes maximum)', 'danger')
-			return render_template('./login/login.html')
+			return render_template('./login/login_password.html')
 		session['email_password'] = payload['email']
 		session['username_password'] = payload['username']
 		return render_template('./login/update_password_external.html')
@@ -384,4 +400,4 @@ def forgot_password_2(mode) :
 		flash('Password updated', "success")
 		del session['email_password']
 		del session['username_password']
-		return render_template('./login/login.html')
+		return render_template('./login/login_password.html')

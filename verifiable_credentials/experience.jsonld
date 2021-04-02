@@ -1,0 +1,69 @@
+{
+            "@context": ["https://www.w3.org/2018/credentials/v1"],
+            "id": "",
+            "type": ["VerifiableCredential"],
+            "issuer": "",
+            "issuanceDate": "",
+            "credentialSubject":
+                {
+                "@context": ["https://schema.org/"],
+                "id": "",
+                "name" : "",
+                "credentialCategory" : "experience",
+                "title" : "",
+                "description" : "",
+                "employmentType" : "",
+                "startDate" : "",
+                "endDate" : "",
+                "skills": [],
+                "reviewRecommendation":
+                    {
+                      "@type": "Review",
+                      "reviewBody": "How likely are you to recommend this talent to others ?",
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "bestRating": "5",
+                        "ratingValue": "3",
+                        "worstRating": "1"
+                        }
+                    },
+                "reviewDelivery":
+                    {
+                        "@type": "Review",
+                        "reviewBody": "How satisfied are you with the overall delivery ?",
+                        "reviewRating": {
+                          "@type": "Rating",
+                          "bestRating": "5",
+                          "ratingValue": "3",
+                          "worstRating": "1"
+                        }
+                    },
+                "reviewSchedule":
+                        {
+                        "@type": "Review",
+                        "reviewBody": "How would you rate his or her ability to deliver to schedule ?",
+                        "reviewRating": {
+                          "@type": "Rating",
+                          "bestRating": "5",
+                          "ratingValue": "3",
+                          "worstRating": "1"
+                        }
+                    },
+                "reviewCommunication":
+                    {
+                        "@type": "Review",
+                        "reviewBody": "How would you rate his or her overall communication skills ?",
+                        "reviewRating": {
+                          "@type": "Rating",
+                          "bestRating": "5",
+                          "ratingValue": "3",
+                          "worstRating": "1"
+                        }
+                    },
+                "companyLogo" : "",
+                "managerSignature" : "",
+                "companyName" : "",
+                "managerName" : "",
+                "reviewerName" : ""
+            }
+}

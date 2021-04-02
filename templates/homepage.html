@@ -6,7 +6,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Carousel-Hero.css') }}">
 </head>
 
-<body onload="window.getAccountAddress()">
+<body >
   <div class="d-flex flex-column" id="content-wrapper">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

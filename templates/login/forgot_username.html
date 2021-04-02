@@ -1,21 +1,10 @@
 <!DOCTYPE html>
+<!-- forgot_username.html-->
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">    
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">   
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">  
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"> 
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}    
+
 </head>
 
 <body id="page-top">
@@ -35,7 +24,7 @@
                             <form action = "/forgot_username/" method="POST">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Enter your Email to&nbsp; receive your username(s).</p>
+                                        <p>Enter your email to get your username(s).</p>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -47,14 +36,11 @@
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Request</button></div>
                                     </div>
-                                    <div class="col-6 col-xl-3">
-										<a href="/login/">
-												<div class="form-group"><button class="btn btn-primary btn-sm" type="button" name="choice" value="cancel">Login</button></div>
-											</a>
-                                      
-                                    </div>
+                                   
                                 </div>
                             </form>
+                            <div class="text-center"><a class="small" href="/login/">Login</a></div>
+
                         </div>
                     </div>
                 </div>
@@ -66,11 +52,11 @@
                                 {% include 'user_footer.html' %}    
 
     </div>
-   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
 </body>
 
 </html>

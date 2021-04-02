@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 # dependances
 from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey
-from signaturesuite import RsaSignatureSuite2017
+from signaturesuite import RsaSignatureSuite2017, EcdsaSecp256k1RecoverySignature2020
 
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance
@@ -24,10 +24,7 @@ def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if not session.get('workspace_contract') and not session.get('username') :
 		abort(403)
-	else :
-		return True
-
-
+	return True
 
 def add_employee(mode) :
     """
@@ -138,16 +135,24 @@ def request_experience_certificate(mode) :
     reference = request.form['reference']
 
     # load templates for verifibale credential and init with view form and session
-    unsigned_credential = json.load(open('./verifiable_credentials/experience.json', 'r'))
+    unsigned_credential = json.load(open('./verifiable_credentials/experience.jsonld', 'r'))
+
+    # update credential with form data
     unsigned_credential["id"] = session['did'] + '#experience'+ id
-    unsigned_credential["issuer"] =  session['issuer_explore']['did'],
     unsigned_credential["credentialSubject"]["id"] = session['did']
     unsigned_credential["credentialSubject"]["name"] = session['name']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
     unsigned_credential["credentialSubject"]["startDate"] = request.form['start_date']
     unsigned_credential["credentialSubject"]["endDate"] = request.form['end_date']
-    unsigned_credential["credentialSubject"]["skills"] = request.form['skills'].split(',')
+    unsigned_credential["credentialSubject"]["skills"] = list()
+    for skill in request.form['skills'].split(',') :
+        unsigned_credential["credentialSubject"]["skills"].append( 
+            {
+            "@type": "DefinedTerm",
+            "description": skill
+            }
+        )
     unsigned_credential["credentialSubject"]["companyLogo"] = session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]["companyName"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]["managerName"] = ""
@@ -285,12 +290,23 @@ def issue_credential_workflow(mode) :
 
         # credential is loaded as a dict and pass to view as field have same names
         my_credential = json.loads(session['call'][5])['credentialSubject']
+        skills_str = ""
+        for skill in my_credential['skills'] :
+            skills_str += skill['description'] + ','
         return render_template ('./workflow/issue_experience_certificate_workflow.html',
                         credential_id=request.args['id'],
                         picturefile = session['picture'],
 						clipboard = mode.server  + "board/?did=" + session['did'],
                         **my_credential,
-                        skills_str= ",".join(my_credential['skills']),
+                        scoreRecommendation =  my_credential["reviewRecommendation"]["reviewRating"]["ratingValue"],
+                        questionRecommendation = my_credential["reviewRecommendation"]["reviewBody"],
+                        scoreSchedule =  my_credential["reviewSchedule"]["reviewRating"]["ratingValue"],
+                        questionSchedule = my_credential["reviewSchedule"]["reviewBody"],
+                        scoreCommunication =  my_credential["reviewCommunication"]["reviewRating"]["ratingValue"],
+                        questionCommunication = my_credential["reviewCommunication"]["reviewBody"],
+                        scoreDelivery =  my_credential["reviewDelivery"]["reviewRating"]["ratingValue"],
+                        questionDelivery = my_credential["reviewDelivery"]["reviewBody"],
+                        skills_str= skills_str,
                         field= field,
                         )
 
@@ -322,14 +338,14 @@ def issue_credential_workflow(mode) :
                                         json.dumps(my_credential),
                                         mode)
 
-        # credential has been signed
+        # credential has been signed by issuer
         elif request.form.get('exit') == 'sign' :
             # add issuer signature ipfs file id
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
             my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
 
-            # sign credential with company key
-            signed_credential = RsaSignatureSuite2017.sign(my_credential, session['rsa_key_value'])
+            # sign credential with company key with did:ethr
+            signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(my_credential, session['private_key_value'])
             ns.update_verifiable_credential(session['credential_id'],
                                         session['host'],
                                         session['call'][2],
@@ -337,7 +353,7 @@ def issue_credential_workflow(mode) :
                                         "signed",
                                         json.dumps(signed_credential),
                                         mode)
-            # ulpoad credential to Ethereum (as a depot) with company key signature
+            # ulpoad credential to Ethereum as a repositoty with company key signature
             subject_workspace_contract = '0x' + signed_credential['credentialSubject']['id'].split(':')[3]
             subject_address = contractsToOwners(subject_workspace_contract, mode)
             my_certificate = Document('certificate')
@@ -395,22 +411,23 @@ def issue_credential_workflow(mode) :
 
 def get_form_data(my_credential, form) :
     """
-    This function udate credential data from the form attached to the credentialCategory type
+    This function udates credential from the form depending on the credential
     """
-    if my_credential['credentialSubject']['credentialCategory'] == 'experience' :
-        my_credential['credentialSubject']['scoreDelivery'] = form['scoreDelivery']
-        my_credential['credentialSubject']['scoreRecommendation'] = form['scoreRecommendation']
-        my_credential['credentialSubject']['scoreSchedule'] = form['scoreSchedule']
-        my_credential['credentialSubject']['scoreCommunication'] = form['scoreCommunication']
-        my_credential['credentialSubject']['title'] = form['title']
-        my_credential['credentialSubject']['description'] = form['description']
-        my_credential['credentialSubject']['startDate'] = form['startDate']
-        my_credential['credentialSubject']['endDate'] = form['endDate']
-        my_credential['credentialSubject']['skills'] = form['skills_str'].split(',')
-        my_credential['credentialSubject']['managerName'] = form['managerName']
-        my_credential['credentialSubject']['reviewerName'] = form['reviewerName']
-
-    elif my_credential['credentialSubject']['credentialCategory'] == 'skill' :
-        pass
-
+    my_credential['credentialSubject']["reviewRecommendation"]["reviewRating"]["ratingValue"] = form["scoreRecommendation"]
+    my_credential['credentialSubject']["reviewSchedule"]["reviewRating"]["ratingValue"] = form["scoreSchedule"]
+    my_credential['credentialSubject']["reviewDelivery"]["reviewRating"]["ratingValue"] = form["scoreDelivery"]
+    my_credential['credentialSubject']["reviewCommunication"]["reviewRating"]["ratingValue"] = form["scoreCommunication"]
+    my_credential['credentialSubject']['title'] = form['title']
+    my_credential['credentialSubject']['description'] = form['description']
+    my_credential['credentialSubject']['startDate'] = form['startDate']
+    my_credential['credentialSubject']['endDate'] = form['endDate']
+    my_credential['credentialSubject']['skills'] = list()
+    for skill in form['skills_str'].split(',') :
+        my_credential["credentialSubject"]["skills"].append(
+                            {
+                            "@type": "DefinedTerm",
+                            "description": skill
+                            })
+    my_credential['credentialSubject']['managerName'] = form['managerName']
+    my_credential['credentialSubject']['reviewerName'] = form['reviewerName']
     return

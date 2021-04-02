@@ -6,7 +6,7 @@ $ gunicorn -c gunicornconf.py  --reload wsgi:app
 if script is launched without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
 $ export MYENV=livebox
-$ export AUTHLIB_INSECURE_TRANSPORT=1
+ NO -> $ export AUTHLIB_INSECURE_TRANSPORT=1
 $ python main.py
 
 """
@@ -15,8 +15,9 @@ import os
 import time
 from flask import Flask, redirect
 from flask_session import Session
-from flask_fontawesome import FontAwesome
+#from flask_fontawesome import FontAwesome
 from datetime import timedelta
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -41,7 +42,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_resolver, web_main, web_login
 
 # Release
-VERSION = "0.8.1"
+VERSION = "0.8.2"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -59,12 +60,14 @@ sess = Session()
 sess.init_app(app)
 
 # bootstrap font managment  -> recheck if needed !!!!!
-fa = FontAwesome(app)
+#fa = FontAwesome(app)
 
-# note that we set the 403 status explicitly
 @app.errorhandler(403)
 def page_abort(e):
-    logging.warning('appel abort 403')
+    """
+    we set the 403 status explicitly
+    """
+    logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
 # Centralized @route for Resolver
@@ -102,11 +105,11 @@ app.add_url_rule('/board/', view_func=web_CV_blockchain.board, methods = ['GET',
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for login
-app.add_url_rule('/wc_login/',  view_func=web_login.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
+#app.add_url_rule('/wc_login/',  view_func=web_login.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/logout/',  view_func=web_login.logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_username/',  view_func=web_login.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password/',  view_func=web_login.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_password_2/',  view_func=web_login.forgot_password_2, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/forgot_password_token/',  view_func=web_login.forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/login/authentification/',  view_func=web_login.login_authentification, methods = ['POST'], defaults={'mode': mode})
 app.add_url_rule('/login/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
@@ -192,7 +195,6 @@ app.add_url_rule('/user/download_QRCode/',  view_func=web_main.download_QRCode, 
 app.add_url_rule('/user/typehead/',  view_func=web_main.typehead, methods = ['GET','POST'])
 app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GET','POST'], defaults={'mode' : mode})
 
-
 # Centralized route for credential workflow
 app.add_url_rule('/company/add_employee/',  view_func=web_workflow.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -201,11 +203,9 @@ app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboar
 app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
 
 
-# MAIN entry point : Flask API server
-
+# MAIN entry point for test
 if __name__ == '__main__':
 
     # info release
     logging.info('flask serveur init')
-
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)

@@ -56,46 +56,37 @@ def sign(credential, pvk):
         "proofPurpose": "assertionMethod",
         "verificationMethod": vm
     }
+    return didkit.issueCredential(
+            credential.__str__().replace("'", '"'),
+            didkit_options.__str__().replace("'", '"'),
+            key)
 
-    credential = didkit.issueCredential(
-        json.dumps(credential),
-        didkit_options.__str__().replace("'", '"'),
-        key)
-    return credential
 
 if __name__ == "__main__" :
+    import uuid
 
     pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
+    key = ethereum_to_jwk256kr(pvk)
+    did = didkit.keyToDID("ethr",key )
 
-    credential = {
-            "@context": ["https://www.w3.org/2018/credentials/v1"],
-            "id": "http://khgkjg/dddd",
-            "type": ["VerifiableCredential", "IdentityCredential"],
-            "credentialSubject": {
-                "@context": ["https://schema.org/"],
-                "id": "urn:uuid:123132313",
-                "name" : "gggg",
-                "familyName" : None,
-                "givenName" : None,
-                "gender" : None,
-                "birthDate" : None,
-                "address" : None,
-                "telephone" : None,
-                "email" : None,
-                "image" : None
-                },
-            }
+    credential= json.load(open('/home/thierry/Talao/verifiable_credentials/experience.jsonld', 'r'))
+
+    credential['credentialSubject']["id"] =  "2020-08-19T21:41:50Z"
+    credential['id'] = "123123123131321:lkjh:mh"
+    credential["issuer"] = did
+    credential["issuanceDate"] = "2020-08-19T21:41:50Z"
 
     credential = sign(credential, pvk)
     print(credential)
-
-
+    """
     key = ethereum_to_jwk256kr(pvk)
     verifmethod = didkit.keyToVerificationMethod("ethr", key)
 
     didkit_options = {
         "proofPurpose": "assertionMethod",
         "verificationMethod": verifmethod
-    }
+        }
+
     print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
+    """
 

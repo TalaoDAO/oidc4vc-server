@@ -5,7 +5,7 @@
   {% include 'head.html' %}
 </head>
 
-<body id="page-top" onload='pageOnload()'>
+<body id="page-top" >
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
@@ -189,42 +189,8 @@
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 
 
-  <script>
-  async function getKyc(){
-    /*
-     Allow to get Identity data from blockchain.
-    this function regenerates keys with signature from wallet and
-    loads did_authn ERC725 from blckchain
-    Data are displayed only if user has his smartphone and wallet ready
-    */
-  console.log('is connected = ',window.isConnected());
-  const kyc = JSON.parse(await window.getDidAuthn());
-  const txt = "<b>Lastname</b> : " + kyc.did_authn.family_name +
-              "<br><b>Firstname</b> : "+ kyc.did_authn.given_name +
-              "<br><b>Birthdate</b> : "+ kyc.did_authn.birthdate +
-              "<br><b>Email</b> : " + kyc.did_authn.email +
-              "<br><b>Phone</b> : " + kyc.did_authn.phone +
-              "<br><b>Address</b> : " + kyc.did_authn.address +
-              "<br><b>Identification</b> : " + kyc.did_authn.identification;
-  document.getElementById("id_kyc").innerHTML = txt;
-  document.getElementById('button').innerHTML = "";
-}
-
-
-async function pageOnload(){
-/*
-  Manage download button depending on wallet connexion
-*/
-window.getAccountAddress();
-const wc = await window.isConnected();
-if (!wc)
-{document.getElementById('button').innerHTML = "";}
-}
-
-  </script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+<!-- logout.html -->-->
 <html>
 <head>
   {% include 'head.html' %}
 
 </head>
-<body id="page-top" onload="page_onload()" >
+<body id="page-top"  >
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
@@ -29,12 +30,13 @@
                   <div class="col">
                     <div  class="p-5">
                         <div class='text-center'><h4 class='text-dark mb-4'>Logout</h4>
-                       <div>
+                       <form class="user" action="." method="post">
+                          <div>
                             Your wallet account will be closed.
                             <br><br>
-                            <button class='btn btn-primary text-white btn-user' onclick="End()" type='submit'>Confirm your logout ?</button>
-
-                       </div>
+                            <button class='btn btn-primary text-white btn-user' type='submit'>Confirm your logout ?</button>
+                          </div>
+                        </form>
                 </div>
                   </div>
                 </div>
@@ -45,26 +47,9 @@
       </div>
     </div>
     {% include 'user_footer.html' %}
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='wc-talao.min.js') }}"></script>
-
-
-  <script> function End() {
-    window.onEnd();
-    window.location.href = "/logout/";
-  }
-  </script>
-
-<script>
-function page_onload(){
-  console.log('call load page');
-  window.getAccountAddress().then(value => {
-    console.log('value = ', value);
-    });
-}
-</script>
+ <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 </body>
 </html>

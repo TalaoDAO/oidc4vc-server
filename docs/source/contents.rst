@@ -4,7 +4,7 @@ Overview
 What is Talao ?
 ---------------
 
-Talao is a Blockchain protocol to manage a professional Self Sovereign Digital Identity.
+Talao is a Blockchain solution to manage a professional Self Sovereign Digital Identity.
 
 Traditional architectures to validate, certify, and manage professional data are based on centralized, top-down approaches that rely on third-party private operators.
 Unfortunately these solutions often lead to inappropriate use of personal data and hacks. Whatever the GDPR could impose to private operators, the fact is that our data
@@ -94,21 +94,15 @@ More information available :
   * https://joinup.ec.europa.eu/collection/ssi-eidas-bridge/about
 
 
-What blockchain support does Talao use ?
+What blockchains support does Talao use ?
 ----------------------------------------
 
-Talao is available on the public Ethereum Mainet and Rinkeby. See https://github.com/TalaoDAO/talao-contracts for details.
+The Talao solution is available with different public Blockchain with different did method :
 
-Talao is also available on a private Ethereum network named TalaoNet.
-TalaoNet runs a Proof Of Authority consensus (Clique) managed by the Talao team and partners.
+    * Ethereum with the did:ethr method, see https://github.com/uport-project/ethr-did-registry for details.
+    * Tezos with the did:tz with curve Ed25519 method, see https://did-tezos.spruceid.com/
 
-To connect to this blockchain use RPC URL https://talao.co/rpc
-
-Main contract addresses are :
-
-- Talao token : 0x6F4148395c94a455dc224A56A6623dEC2395b99B
-- Foundation : 0xb4C784Bda6A994f9879b791Ee2A243Aa47fDabb6
-- Workspace Factory : 0x0969E4E66f47D543a9Debb7b0B1F2928f1F50AAf
+We also use key pair did:key with curve secp256k1 for specif use cases, see https://w3c-ccg.github.io/did-method-key/
 
 
 Credits
