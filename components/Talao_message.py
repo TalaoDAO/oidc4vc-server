@@ -243,7 +243,10 @@ def message(subject, to, messagetext, mode) :
 	return True
 
 def message_file(to, text, subject, filename, path, mode)  :
-	""" @to is list of email, @filename is a list of files """
+	""" 
+	@to is list of email, 
+	@filename is a list of files 
+	"""
 
 	password = mode.smtp_password
 

@@ -3,12 +3,13 @@ import os
 from flask import Flask, session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
-from datetime import timedelta, datetime
+from datetime import  date
 import time
 import json
 import random
+import uuid
+from datetime import datetime
 import logging
-import secrets
 logging.basicConfig(level=logging.INFO)
 
 # dependances
@@ -18,7 +19,7 @@ from signaturesuite import RsaSignatureSuite2017, EcdsaSecp256k1RecoverySignatur
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance
 from protocol import Document, read_profil, get_image
-
+from signaturesuite import helpers
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -131,15 +132,16 @@ def request_certificate(mode) :
 def request_experience_certificate(mode) :
     check_login()
     issuer_username = ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)
-    id = str(secrets.randbits(64))
+    id = str(uuid.uuid1())
     reference = request.form['reference']
 
     # load templates for verifibale credential and init with view form and session
     unsigned_credential = json.load(open('./verifiable_credentials/experience.jsonld', 'r'))
 
     # update credential with form data
-    unsigned_credential["id"] = session['did'] + '#experience'+ id
-    unsigned_credential["credentialSubject"]["id"] = session['did']
+    method = ns.get_method(session['workspace_contract'], mode)
+    unsigned_credential["id"] = "data:" + id
+    unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], method)
     unsigned_credential["credentialSubject"]["name"] = session['name']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
@@ -147,7 +149,7 @@ def request_experience_certificate(mode) :
     unsigned_credential["credentialSubject"]["endDate"] = request.form['end_date']
     unsigned_credential["credentialSubject"]["skills"] = list()
     for skill in request.form['skills'].split(',') :
-        unsigned_credential["credentialSubject"]["skills"].append( 
+        unsigned_credential["credentialSubject"]["skills"].append(
             {
             "@type": "DefinedTerm",
             "description": skill
@@ -196,7 +198,7 @@ def company_dashboard(mode) :
 
     if request.method == 'GET' :
 
-        # init of dashboard display
+        # init of dashboard display / role
         if session['role'] == 'reviewer' :
             issuer_query = 'all'
             reviewer_query = session['employee']
@@ -207,6 +209,7 @@ def company_dashboard(mode) :
             issuer_query = 'all'
             reviewer_query = 'all'
 
+        # init of dashboard display / credential status
         signed = drafted = reviewed = ""
         if session['role'] == 'issuer' :
             reviewed = "checked"
@@ -215,8 +218,8 @@ def company_dashboard(mode) :
             drafted = 'checked'
             status = ('drafted',"","")
         else :
-            drafted =  reviewed = "checked"
-            status = ('drafted', 'reviewed', '')
+            drafted =  reviewed = signed = "checked"
+            status = ('drafted', 'reviewed', 'signed')
 
         credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
         return render_template('./workflow/company_dashboard.html',
@@ -260,8 +263,9 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     if mylist :
         for mycredential in mylist :
             subject_resume_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+            print(mycredential[6])
             credential = """<tr>
-                <td><a href=/company/issue_credential_workflow/?id=""" + str(json.loads(mycredential[6])) + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
+                <td><a href=/company/issue_credential_workflow/?id=""" + mycredential[6] + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
                 <td><a href=""" + subject_resume_link + """>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</a></td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['title'][:20] + """...</td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['description'] + """</td>
@@ -340,46 +344,65 @@ def issue_credential_workflow(mode) :
 
         # credential has been signed by issuer
         elif request.form.get('exit') == 'sign' :
-            # add issuer signature ipfs file id
+
+            # sign credential with company key
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
             my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
+            my_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+            my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+            signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(my_credential, session['private_key_value'], method=session['method'])
 
-            # sign credential with company key with did:ethr
-            signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(my_credential, session['private_key_value'])
+            # update local company database
             ns.update_verifiable_credential(session['credential_id'],
                                         session['host'],
                                         session['call'][2],
                                         session['employee'],
                                         "signed",
-                                        json.dumps(signed_credential),
+                                        signed_credential,
                                         mode)
-            # ulpoad credential to Ethereum as a repositoty with company key signature
-            subject_workspace_contract = '0x' + signed_credential['credentialSubject']['id'].split(':')[3]
-            subject_address = contractsToOwners(subject_workspace_contract, mode)
+
+            # ulpoad credential to repository repository with company key signature
+            subject_username = session['call'][1]
+            db_ns_call = ns.get_data_from_username(subject_username, mode)
+            subject_workspace_contract = db_ns_call['workspace_contract']
+            subject_address = db_ns_call['address']
+            subject_email = db_ns_call['email']
             my_certificate = Document('certificate')
             doc_id = my_certificate.add(session['address'],
                         session['workspace_contract'],
                         subject_address,
                         subject_workspace_contract,
                         session['private_key_value'],
-                        signed_credential,
+                        json.loads(signed_credential),
                         mode,
                         mydays=0,
                         privacy='public',
                          synchronous=True)[0]
             if not doc_id :
                 flash('Operation failed ', 'danger')
-                logging.error('transaction certificate add failed')
+                logging.error('certificate to repository failed')
             else :
-                flash('The credential has been issued', 'success')
-                # send an email to user
-                link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject_workspace_contract[2:] + ':document:' + str(doc_id)
-                subject_username = ns.get_username_from_resolver(subject_workspace_contract, mode)
-                subject_email = ns.get_data_from_username(subject_username, mode)['email']
-                try :
-                    Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': session['name'], 'link': link}, mode)
-                except :
-                    logging.error('email error')
+                flash('The credential has been added to the user repository', 'success')
+            # send an email to user
+            link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject_workspace_contract[2:] + ':document:' + str(doc_id)
+            try :
+                Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': session['name'], 'link': link}, mode)
+            except :
+                logging.error('email to subject failed')
+
+            # store signed credential on server to send it by email
+            try :
+                filename = session['credential_id'] + '_credential.jsonld'
+                path = "./signed_credentials/"
+                fp = open(path + filename, 'w')
+                fp.write(signed_credential)
+                fp.close()
+                signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
+                text = "\r\nHello\r\nYou will find attached your professional credential signed by your issuer." + signature
+                Talao_message.message_file([subject_email], text, "Your professional credential", [filename], path, mode) 
+                # TODO delete credential
+            except :
+                logging.error('credential to subject failed')
 
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
@@ -393,10 +416,10 @@ def issue_credential_workflow(mode) :
                                         mode)
             # send an email to issuer to go forward
             issuer_email = ns.get_data_from_username(session['referent'] + '.' + session['host'], mode)['email']
-            talent_name = my_credential['credentialSubject']['name']
-            subject = 'You have received a professional credential from ' + talent_name + ' to issue'
+            subject_name = my_credential['credentialSubject']['name']
+            subject = 'You have received a professional credential from ' + subject_name + ' to issue'
             try :
-                Talao_message.messageHTML(subject, issuer_email, 'request_certificate', {'name' : talent_name, 'link' : 'https://talao.co'}, mode)
+                Talao_message.messageHTML(subject, issuer_email, 'request_certificate', {'name' : subject_name, 'link' : 'https://talao.co'}, mode)
             except :
                 logging.error('email error')
 
@@ -423,7 +446,8 @@ def get_form_data(my_credential, form) :
     my_credential['credentialSubject']['endDate'] = form['endDate']
     my_credential['credentialSubject']['skills'] = list()
     for skill in form['skills_str'].split(',') :
-        my_credential["credentialSubject"]["skills"].append(
+        if skill :
+            my_credential["credentialSubject"]["skills"].append(
                             {
                             "@type": "DefinedTerm",
                             "description": skill

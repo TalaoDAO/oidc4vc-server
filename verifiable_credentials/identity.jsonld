@@ -1,14 +1,11 @@
 {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1"
-                  ],
-            "id": "",
+            "@context": ["https://www.w3.org/2018/credentials/v1"],
+            "id": "data:lll",
             "type": ["VerifiableCredential","IdentityCredential"],
             "issuer": "",
             "issuanceDate": "",
-            "credentialSubject":
-                {
-                "@context" : [ "https://schema.org/"],
+            "credentialSubject" : {
+                "@context" : ["https://schema.org/"],
                 "@type" : "Person",
                 "id": "",
                 "familyName" : "",
@@ -17,8 +14,6 @@
                 "birthDate" : "",
                 "address" : "",
                 "telephone" : "",
-                "email" : "",
-                "image" : ""
+                "email" : ""
                 }
-            }
-
+}

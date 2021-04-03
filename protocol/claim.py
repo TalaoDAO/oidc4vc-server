@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 from eth_account import Account
 from eth_account.messages import encode_defunct
 from base64 import b64encode, b64decode
+import logging
+logging.basicConfig(level=logging.INFO)
 
 
 #dependances
@@ -52,10 +54,11 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 
 	data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode,  address_caller=address_from)
 	if not data_encrypted :
+		logging.warning('no data encrypted')
 		return None, None, None
 	ipfs_hash = Talao_ipfs.ipfs_add(data_encrypted, mode)
 	if not ipfs_hash :
-		print('Error : ipfs hash error create_claim')
+		logging.error('ipfs hash error create_claim')
 		return None, None, None
 	data = privacy
 
@@ -78,6 +81,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 	if synchronous :
 		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
 		if not receipt['status'] :
+			logging.warning('no status for transaction')
 			return None, None, None
 	return claim_id, ipfs_hash, transaction_hash
 
@@ -121,7 +125,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		if msg :
 			data= msg[topicname]
 		else :
-			print('Error : decrypt failed')
+			logging.error('decrypt claim failed')
 			data = None
 
 	# transaction info
@@ -144,11 +148,11 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 				gas_used = 1
 				created = str(date)
 			except :
-				print( 'Error : problem transaction data in get claim')
+				logging.error( 'problem transaction data in get claim')
 				return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 			break
 	if not found :
-		print( 'Error : claim not found in claim.py')
+		logging.error( 'claim not found in claim.py')
 		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 

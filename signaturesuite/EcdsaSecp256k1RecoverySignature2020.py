@@ -1,5 +1,6 @@
 """
 method did:eth
+https://github.com/decentralized-identity/ethr-did-resolver/blob/master/doc/did-method-spec.md
 signature suite  with universal resolver
 """
 
@@ -12,43 +13,22 @@ from eth_keys import keys
 from eth_utils import decode_hex
 from jwcrypto import jwk
 from datetime import datetime
+from .helpers import jwk_to_ethereum, ethereum_to_jwk256kr
 
 
-def jwk_to_ethereum(jwk) :
-        jwk = json.loads(jwk)
-        private_key = "0x" + base64.urlsafe_b64decode(jwk["d"] + '=' * (4 - len(jwk["d"]) % 4)).hex()
-        priv_key_bytes = decode_hex(private_key)
-        priv_key = keys.PrivateKey(priv_key_bytes)
-        pub_key = priv_key.public_key
-        public_key = pub_key.to_hex()
-        address = pub_key.to_checksum_address()
-        return private_key, public_key, address
-
-
-def ethereum_to_jwk256kr(private_key) :
-        priv_key_bytes = decode_hex(private_key)
-        priv_key = keys.PrivateKey(priv_key_bytes)
-        pub_key = priv_key.public_key
-        d = private_key[2:]
-        x = pub_key.to_hex()[2:66]
-        y = pub_key.to_hex()[66:]
-
-        ad = bytes.fromhex(d)
-        d =  base64.urlsafe_b64encode((ad)).decode()[:-1]
-
-        ax = bytes.fromhex(x)
-        x =  base64.urlsafe_b64encode((ax)).decode()[:-1]
-
-        ay = bytes.fromhex(y)
-        y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
-        return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :"ES256K-R",  "b64": False, "crit": ["b64"]})
-
-
-def sign(credential, pvk):
-
+def sign(credential, pvk, method="ethr"):
+    """
+    @method str
+        ethr
+        tz (tz2)
+    @credential dict
+    Both curve secp256k1 and "alg" :"ES256K-R"
+    """
+    if not method :
+        method = 'ethr'
     key = ethereum_to_jwk256kr(pvk)
-    did = didkit.keyToDID("ethr",key )
-    vm = didkit.keyToVerificationMethod("ethr", key)
+    did = didkit.keyToDID(method,key )
+    vm = didkit.keyToVerificationMethod(method, key)
 
     credential["issuer"] = did
     credential["issuanceDate"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -65,9 +45,11 @@ def sign(credential, pvk):
 if __name__ == "__main__" :
     import uuid
 
+    method = "tz"
+
     pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
     key = ethereum_to_jwk256kr(pvk)
-    did = didkit.keyToDID("ethr",key )
+    did = didkit.keyToDID(method,key)
 
     credential= json.load(open('/home/thierry/Talao/verifiable_credentials/experience.jsonld', 'r'))
 
@@ -76,11 +58,11 @@ if __name__ == "__main__" :
     credential["issuer"] = did
     credential["issuanceDate"] = "2020-08-19T21:41:50Z"
 
-    credential = sign(credential, pvk)
-    print(credential)
-    """
+    credential = sign(credential, pvk, method=method)
+    print(json.dumps(json.loads(credential), indent=4))
+
     key = ethereum_to_jwk256kr(pvk)
-    verifmethod = didkit.keyToVerificationMethod("ethr", key)
+    verifmethod = didkit.keyToVerificationMethod(method, key)
 
     didkit_options = {
         "proofPurpose": "assertionMethod",
@@ -88,5 +70,5 @@ if __name__ == "__main__" :
         }
 
     print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
-    """
+
 

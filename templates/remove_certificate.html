@@ -2,19 +2,7 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 </head>
 
 <body id="page-top">
@@ -27,15 +15,13 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Certificate</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Credential</p>
                         </div>
                         <div class="card-body">
                             <form name="form" action="/user/remove_certificate/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p><br>Confirm
-                                            the removal of the following certificate</p>
-                                        <p><b>{{certificate_title}}</b></p>
+                                        <p><br>Confirm the removal of the credential</p>
                                     </div>
                                 </div>
 
@@ -61,18 +47,14 @@
     </div>
     </div>
     </div>
-
-
                            {% include 'user_footer.html' %}
 
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
 </body>
 
 </html>

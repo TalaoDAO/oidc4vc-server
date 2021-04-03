@@ -18,6 +18,8 @@ from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
+import didkit
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -26,7 +28,7 @@ from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, pri
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
-
+from signaturesuite import helpers
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -185,6 +187,9 @@ def user(mode) :
 		session['skills'] = user.skills
 		session['certificate'] = user.certificate
 		session['has_vault_access'] = user.has_vault_access
+		session['method'] = ns.get_method(session['workspace_contract'], mode)
+		if not session['method'] :
+			session['method'] = "ethr"
 
 		phone =  ns.get_data_from_username(session.get('username'), mode).get('phone')
 		session['phone'] = phone if phone else ""
@@ -230,33 +235,13 @@ def user(mode) :
 				session['role'] = 'creator'
 				session['referent'] = None
 
-		"""
-		# Warning message for first connexion
-		message1 = message2 = message3 = ""
-		if not session['private_key'] :
-			message1 = "Private key not found on server. "
-		if not session['rsa_key'] :
-			message2 = "Rsa key not found. "
-		if not session['has_vault_access'] :
-			message3 = "Your wallet is not activated. "
-		if message1 and message2 and not message3 :
-			message = "You control your Identity with your smartphone wallet."
-		elif message1 and message2 and message3 :
-			message = "You must activate your wallet to control your Identity."
-		elif message1 or message2 :
-			message = message1 + message2
-		else :
-			message = "Your have allowed this third party wallet to manage your Identity."
-		flash(message, 'warning')
-		"""
-
 		# Dashboard start for employees
 		if session['role'] in ['issuer', 'reviewer'] :
 			return redirect (mode.server + 'company/dashboard/')
 
 		# Homepage start for Talent
-		if user.type == 'person' :
-			return render_template('homepage.html', **session['menu'])
+		#if user.type == 'person' :
+		#	return render_template('homepage.html', **session['menu'])
 
 	# account
 	#my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
@@ -399,12 +384,11 @@ def user(mode) :
 				</p>"""
 
 
-
 	# specific to person
 	if session['type'] == 'person' :
 		# experience
 		my_experience = ""
-		if len (session['experience']) == 0:
+		if not session['experience'] :
 			my_experience = my_experience + """<a class="text-info">No Experience available</a>"""
 		else :
 			for experience in sorted(session['experience'], key= lambda d: time.strptime(d['start_date'], "%Y-%m-%d"), reverse=True) :
@@ -519,7 +503,7 @@ def user(mode) :
 					</span>"""
 				my_access +=  access_html + """<br>"""
 
-		# credentials
+		# credentials/certificates
 		my_certificates = ""
 		if not session['certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
@@ -547,7 +531,7 @@ def user(mode) :
 				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
 							<p>
 							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
-							<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+							<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 							</a>
 							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
@@ -799,10 +783,10 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# Blockchain data
+	did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
 	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
-	did = "did:talao:" + mode.BLOCKCHAIN + ":" + session['workspace_contract'][2:]
 	if ns.get_wallet_from_workspace_contract(session['workspace_contract'], mode) :
 		wallet = 'Alias (Centralized mode)'
 	else :
@@ -810,9 +794,8 @@ def user_advanced(mode) :
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
-					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
-					<b>DID</b> : <a class = "card-link" href = "https://talao.co/resolver?did=""" + did + """"">""" + did + """</a><br>
-					<b>Owner Address</b> : """+ session['address'] + """</a><br>
+					<b>DID</b> : """ + did + """<br>
+					<b>Credential repository </b> : """+ session['workspace_contract'] + """</a><br>
 					<b>Wallet</b> : """ + wallet  + """<br>
 					<b>Role</b> : """ + role + """<br>
 					<b>Referent</b> : """ + referent + """<br>"""

@@ -23,6 +23,7 @@ import requests
 from Crypto.PublicKey import RSA
 from authlib.jose import jwt
 import secrets
+import uuid
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -30,7 +31,7 @@ logging.basicConfig(level=logging.INFO)
 from factory import createcompany, createidentity
 from components import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509
 
-from signaturesuite import RsaSignatureSuite2017
+from signaturesuite import helpers, EcdsaSecp256k1RecoverySignature2020
 
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
@@ -772,9 +773,12 @@ def add_experience(mode) :
 			flash('New experience added', 'success')
 		return redirect(mode.server + 'user/')
 
-# issue kyc (Talao only). This is the function to issue the ID used by the OpenId Connect server
-#@app.route('/user/issue_kyc/', methods=['GET', 'POST'])
+
 def create_kyc(mode) :
+    """ issue kyc (Talao only). This is the function to issue the ID used by the OpenId Connect server
+
+    #@app.route('/user/issue_kyc/', methods=['GET', 'POST'])
+    """
     check_login()
     if session['username'] != 'talao' :
         flash('feature not available', 'danger')
@@ -793,16 +797,14 @@ def create_kyc(mode) :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
         kyc_address = contractsToOwners(kyc_workspace_contract, mode)
-        print('kyc address = ', kyc_address)
 
-
+        id = str(uuid.uuid1())
         # load templates for verifibale credential and init with view form and session
-        unsigned_credential = json.load(open('./verifiable_credentials/identity.json', 'r'))
-        unsigned_credential["id"] =  "did:talao:talaonet:" + kyc_workspace_contract[2:] + "#did_authn"
-        unsigned_credential["issuer"] = session['did']
-        unsigned_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-        unsigned_credential["type"] = ["VerifiableCredential",]
-        unsigned_credential["credentialSubject"]["id"] = "did:talao:talaonet:" + kyc_workspace_contract[2:]
+        unsigned_credential = json.load(open('./verifiable_credentials/identity.jsonld', 'r'))
+        unsigned_credential["id"] =  "data:" + id
+        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+        unsigned_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+        unsigned_credential["credentialSubject"]["id"] = "did:ethr:" + kyc_address
         unsigned_credential["credentialSubject"]["familyName"] = request.form['family_name']
         unsigned_credential["credentialSubject"]["givenName"] = request.form['given_name']
         unsigned_credential["credentialSubject"]["birthDate"] = request.form['birthdate']
@@ -810,9 +812,10 @@ def create_kyc(mode) :
         unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
         unsigned_credential["credentialSubject"]["email"] = request.form['email']
         unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
-        signed_credential = RsaSignatureSuite2017.sign(unsigned_credential, session['rsa_key_value'])
+        signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(unsigned_credential, session['private_key_value'], method=session['method'])
 
-        # signed kyc stored as did_authn ERC735 Claim
+        # signed verifiable identity is stored in repository as did_authn ERC735 Claim
+        kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
         claim=Claim()
         data = claim.add(session['address'],
                          session['workspace_contract'],
@@ -822,18 +825,34 @@ def create_kyc(mode) :
                          'did_authn',
                          signed_credential,
                          'private',
-                         mode,
-                         synchronous = True)
+                         mode)
         if not data[0] :
-            flash('Transaction failed', 'danger')
+            flash('Transaction to store verifiable ID on repository failed', 'danger')
+            logging.warning('store on repo failed')
         else :
-            flash('New kyc credential added for '+ kyc_username, 'success')
+            flash('New verifiable ID has been added on repository for '+ kyc_username, 'success')
             subject = 'Your proof of Identity'
             try :
-                kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
                 Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
             except :
-                logging.warning('no email available')
+                logging.warning('email failed')
+                flash('Email failed', 'warning')
+
+        # store signed credential on server to send it by email
+        filename = unsigned_credential['id'] + '_credential.jsonld'
+        path = "./signed_credentials/"
+        fp = open(path + filename, 'w')
+        fp.write(signed_credential)
+        fp.close()
+        signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
+        text = "\r\nHello\r\nYou will find attached your ID credential signed by Talao." + signature
+        try :
+            Talao_message.message_file([kyc_email], text, "Your professional credential", [filename], path, mode)
+        except :
+            logging.error('credential to subject failed')
+            flash('Email with credential failed', 'warning')
+
+        # TODO delete credential
         return redirect(mode.server + 'user/')
 
 
@@ -981,8 +1000,9 @@ def remove_certificate(mode) :
             data = Document('certificate').relay_delete(session['workspace_contract'], int(Id), mode)
             if not data :
                 flash('Transaction failed', 'danger')
+                logging.warning('transaction to delete credential failed')
             else :
-                flash('The certificate has been removed', 'success')
+                flash('The certificate has been removed from your repository', 'success')
             del session['certificate_to_remove']
             del session['certificate_title']
             return redirect (mode.server +'user/')

@@ -41,6 +41,16 @@ def alter_credential_table(database, mode) :
 	cur.close()
 	return True
 
+def alter_resolver_table(mode) :
+	path = mode.db_path
+	""" This function is only used to update """
+	conn = sqlite3.connect(path + "nameservice.db")
+	cur = conn.cursor()
+	cur.execute('alter table resolver add column method text')
+	conn.commit()
+	cur.close()
+	return True
+
 # update pour la mise en place du champ wallet dans resolver
 def alter_add_wallet_field(mode) :
 	path = mode.db_path
@@ -83,15 +93,15 @@ def init_host(host_name, mode) :
 	cur.close()
 	return True
 
-def add_identity(identity_name, identity_workspace_contract, email, mode, phone=None, password='identity', wallet='') :
+def add_identity(identity_name, identity_workspace_contract, email, mode, phone=None, password='identity', wallet='', method="ethr") :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
 
-	data = {'identity_name' : identity_name, 'identity_workspace_contract' : identity_workspace_contract, 'date' : datetime.timestamp(now), 'wallet' : wallet} 
-	c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet)", data)
+	data = {'identity_name' : identity_name, 'identity_workspace_contract' : identity_workspace_contract, 'date' : datetime.timestamp(now), 'wallet' : wallet, 'method' : method} 
+	c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet, :method)", data)
 
 	data = {'alias_name' : identity_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password} 
 	c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date, :phone, :password )", data)
@@ -441,6 +451,19 @@ def get_username_from_wallet(wallet, mode) :
 		return None
 	return select[0]
 
+def get_method(workspace_contract, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = {'workspace_contract' : workspace_contract}
+	c.execute("SELECT method FROM resolver WHERE identity_workspace_contract = :workspace_contract " , data)
+	select=c.fetchone()
+	conn.commit()
+	conn.close()
+	if not select :
+		return None
+	return select[0]
+
 def get_workspace_contract_from_wallet(wallet, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -648,6 +671,20 @@ def update_wallet(workspace_contract, wallet, mode) :
 	cur.close()
 	return True
 
+
+def update_method(workspace_contract, method, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	cur = conn.cursor()
+	data = { 'method' : method, 'workspace_contract' : workspace_contract}
+	try :
+		cur.execute("update resolver set method = :method where identity_workspace_contract = :workspace_contract", data )
+	except :
+		return False
+	conn.commit()
+	cur.close()
+	return True
+
 def must_renew_password(username, mode) :
 	if not username :
 		return False
@@ -699,8 +736,8 @@ def get_credentials(username, mode) :
 				 'scope' : metadata['scope'] })
 	return credentials
 
-"""
 
+"""
 if __name__ == '__main__':
 
 	import environment
@@ -708,6 +745,6 @@ if __name__ == '__main__':
 	mode = environment.currentMode()
 	w3 = mode.w3
 
-	#setup()
+	alter_resolver_table(mode)
 
 """

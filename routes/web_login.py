@@ -180,16 +180,15 @@ def two_factor(mode) :
 		code = request.form['code']
 		session['two_factor']['try_number'] += 1
 		logging.info('code received = %s', code)
-		authorized_codes = [session['two_factor']['code'], '123456'] if mode.test else [session['two_factor']['code']]
 		# loop for incorrect code
-		if code not in authorized_codes and datetime.now() < session['two_factor']['code_delay'] and session['two_factor']['try_number'] < 4 :
+		if code !=  session['two_factor']['code'] and datetime.now() < session['two_factor']['code_delay'] and session['two_factor']['try_number'] < 4 :
 			if session['two_factor']['try_number'] == 2 :
 				flash('This code is incorrect, 2 trials left', 'warning')
 			if session['two_factor']['try_number'] == 3 :
 				flash('This code is incorrect, 1 trial left', 'warning')
 			return render_template("./login/two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
 		# exit to callback
-		if code in authorized_codes and datetime.now() < session['two_factor']['code_delay'] :
+		if code != session['two_factor']['code'] and datetime.now() < session['two_factor']['code_delay'] :
 			two_factor = "True"
 		elif datetime.now() > session['two_factor']['code_delay']  :
 			two_factor = "False"

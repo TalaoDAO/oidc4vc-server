@@ -135,10 +135,10 @@ def show_certificate(mode):
 		# Icon "fa-star" treatment
 		score = []
 		context = dict()
-		score.append(int(session['displayed_certificate']['credentialSubject']['scoreRecommendation']))
-		score.append(int(session['displayed_certificate']['credentialSubject']['scoreDelivery']))
-		score.append(int(session['displayed_certificate']['credentialSubject']['scoreSchedule']))
-		score.append(int(session['displayed_certificate']['credentialSubject']['scoreCommunication']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['reviewRecommendation']['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['reviewDelivery']['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['reviewSchedule']['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['reviewCommunication']['reviewRating']['ratingValue']))
 		for q in range(0,4) :
 			for i in range(0,score[q]) :
 				context["star"+str(q)+str(i)] = yellow_star
@@ -149,7 +149,8 @@ def show_certificate(mode):
 			skills = session['displayed_certificate']['credentialSubject']['skills']
 			my_badge = ""
 			for skill in skills :
-				my_badge += """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill.strip(' ').capitalize() + """</span>"""
+				if skill['description'] :
+					my_badge += """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill['description'].strip(' ').capitalize() + """</span>"""
 		else :
 			my_badge = None
 

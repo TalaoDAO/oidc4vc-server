@@ -39,7 +39,7 @@ logging.info('end of init')
 # Centralized  routes : modules in ./routes
 from routes import web_create_identity, web_create_company_cci, web_certificate, web_workflow
 from routes import web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
-from routes import web_resolver, web_main, web_login
+from routes import web_main, web_login
 
 # Release
 VERSION = "0.8.2"
@@ -69,9 +69,6 @@ def page_abort(e):
     """
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
-
-# Centralized @route for Resolver
-app.add_url_rule('/resolver',  view_func=web_resolver.resolver, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
