@@ -1,31 +1,24 @@
-
-import os
-from flask import Flask, session, send_from_directory, flash, send_file
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
-from datetime import  date
-import time
+from flask import session, flash, request, redirect, render_template, abort
+from datetime import  date, datetime
 import json
 import random
 import uuid
-from datetime import datetime
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey
-from signaturesuite import RsaSignatureSuite2017, EcdsaSecp256k1RecoverySignature2020
-
+from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, company
+from signaturesuite import RsaSignatureSuite2017, EcdsaSecp256k1RecoverySignature2020, helpers
 import constante
-from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance
-from protocol import Document, read_profil, get_image
-from signaturesuite import helpers
+from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance, Document, read_profil, get_image
+
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if not session.get('workspace_contract') and not session.get('username') :
 		abort(403)
 	return True
+
 
 def add_employee(mode) :
     """
@@ -34,6 +27,10 @@ def add_employee(mode) :
      add_employee(employee_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
     """
     check_login()
+
+    # init employee db access
+    employee = company.Employee(session['host'], mode)
+
     if request.method == 'GET' :
         session['role_to_add'] = request.args.get('role_to_add')
 
@@ -41,7 +38,7 @@ def add_employee(mode) :
             return render_template('./workflow/add_issuer.html', **session['menu'])
 
         elif  session['role_to_add'] == 'reviewer' :
-            issuer_list = ns.get_employee_list(session['host'],'issuer', 'all', mode)
+            issuer_list = employee.get_list('issuer', 'all')
             issuer_select = ""
             for issuer in issuer_list :
                 issuer_select += """<option value=""" + issuer['username'].split('.')[0]  + """>""" + issuer['username'].split('.')[0] + """</option>"""
@@ -51,8 +48,9 @@ def add_employee(mode) :
             return render_template('./workflow/add_admin.html', **session['menu'])
 
     if request.method == 'POST' :
+
         # check if username is new
-        if ns.username_exist(request.form['employee_username'],mode)  or ns.does_employee_exist(request.form['employee_username'], session['host'], mode) :
+        if ns.username_exist(request.form['employee_username'],mode)  or employee.exist(request.form['employee_username']) :
             flash('This username is already used, lets try an another one !' , 'warning')
         else :
             employee_username = request.form['employee_username']
@@ -66,38 +64,44 @@ def add_employee(mode) :
                     referent = session['employee']
             else :
                 referent = None
+
             #add_employee(employee_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
-            if ns.add_employee(employee_username, identity_username, session['role_to_add'], referent, session['host'], request.form['employee_email'], mode) :
+            if employee.add(employee_username, identity_username, session['role_to_add'], referent, request.form['employee_email']) :
                 flash(employee_username.lower() + " has been added as " + session['role_to_add'] , 'success')
 
+        # clean up
         del session['role_to_add']
         return redirect (mode.server +'user/')
 
 
-
 def request_certificate(mode) :
     """ The request call comes from the Search Bar or from the Identity page
-    # request credential to be completed with email
+
+    request credential to be completed with email
+
     #@app.route('/user/request_certificate/', methods=['GET', 'POST'])
     """
     check_login()
 
     if request.method == 'GET' :
-        session['certificate_issuer_username'] = request.args.get('issuer_username')
-        # Check if issuer has private key
-        if session['certificate_issuer_username'] :
-            if not privatekey.get_key(session['issuer_explore']['address'], 'private_key', mode) :
-                flash('Sorry, this referent cannot issue Certificates.', 'warning')
-                return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
+        if session['issuer_username'] != request.args.get('issuer_username') :
+            logging.warning('problem init')
+            return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
+
+        if not privatekey.get_key(session['issuer_explore']['address'], 'private_key', mode) :
+            flash('This issuer cannot issue Certificates.', 'warning')
+            logging.warning('no private key available')
+            return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
+
         return render_template('request_certificate.html', **session['menu'])
 
     if request.method == 'POST' :
         # From Menu, if issuer does not exist, we request to user his email and type.
-        if not session['certificate_issuer_username'] :
+        if not session['issuer_username'] :
             session['issuer_email'] = request.form['issuer_email']
             session['issuer_type'] = 'person' if request.form['certificate_type']=='personal_recommendation' else 'company'
 
-            # we check if the issuer exists
+            # we check if issuer exists
             username_list = ns.get_username_list_from_email(request.form['issuer_email'], mode)
             if username_list :
                 msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar to check their identities and request a certificate.'
@@ -108,12 +112,13 @@ def request_certificate(mode) :
             session['issuer_email'] = ns.get_data_from_username(session['certificate_issuer_username'], mode)['email']
 
         select = ""
-        reviewer_list = ns.get_employee_list(session['certificate_issuer_username'], 'reviewer', 'all', mode)
+        employee = company.Employee(session['host'], mode) 
+        reviewer_list = employee.get_list(session['certificate_issuer_username'], 'reviewer', 'all')
         for reviewer in reviewer_list :
-            select = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
+            session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 
         if request.form['certificate_type'] == 'experience' :
-            return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=select)
+            return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
 
         elif request.form['certificate_type'] in ['personal_recommendation', 'company_recommendation'] :
             return render_template('request_recommendation_certificate.html', **session['menu'])
@@ -128,17 +133,34 @@ def request_certificate(mode) :
             flash('certificate not available' , 'warning')
             return redirect(mode.server + 'user/')
 
-#@app.route('/user/request_experience_certificate/', methods=['POST'])
-def request_experience_certificate(mode) :
-    check_login()
-    issuer_username = ns.get_username_from_resolver(session['issuer_explore']['workspace_contract'], mode)
-    id = str(uuid.uuid1())
-    reference = request.form['reference']
 
-    # load templates for verifibale credential and init with view form and session
+def request_experience_certificate(mode) :
+    """ Basic request for experience credential
+
+    @app.route('/user/request_experience_certificate/', methods=['POST'])
+
+    """
+    check_login()
+
+    # check if campaign exist
+    reference = request.form['reference']
+    try :
+        my_campaign = reference.split(':')[0]
+    except :
+        flash('This reference is incorrect.' , 'warning')
+        logging.warning('reference malformed')
+        return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
+    campaign = company.Campaign(session['certificate_issuer_username'], mode)
+    if not campaign.get(my_campaign, mode) :
+        flash('This reference does not exist.' , 'warning')
+        logging.warning('campaign does ot exist')
+        return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
+
+    # load templates for verifiable credential
     unsigned_credential = json.load(open('./verifiable_credentials/experience.jsonld', 'r'))
 
     # update credential with form data
+    id = str(uuid.uuid1())
     method = ns.get_method(session['workspace_contract'], mode)
     unsigned_credential["id"] = "data:" + id
     unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], method)
@@ -153,33 +175,42 @@ def request_experience_certificate(mode) :
             {
             "@type": "DefinedTerm",
             "description": skill
-            }
-        )
+            })
     unsigned_credential["credentialSubject"]["companyLogo"] = session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]["companyName"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]["managerName"] = ""
     unsigned_credential["credentialSubject"]["reviewerName"] = ""
 
-    manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + issuer_username, mode)['referent']
-    ns.add_verifiable_credential(issuer_username,
-                        session['username'],
+    # update local issuer database
+    manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['issuer_username'], mode)['referent']
+    credential = company.Credential(session['host'], mode)
+    credential.add(session['username'],
                         request.form['reviewer_username'],
                         manager_username,
                         "drafted",
                         id,
                         json.dumps(unsigned_credential),
-                        reference,
-                        mode)
-    # send an email to reviewer to go forward
-    reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + issuer_username, mode)['email']
+                        reference)
+
+    # send an email to reviewer for workflow
+    reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['issuer_username'], mode)['email']
     subject = 'You have received a professional credential from '+ session['name'] + ' to review'
     try :
         Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
     except :
         logging.error('email failed')
-    # message to User
+
+    # send email to user
     flash('Your request for an experience credential has been registered for review.', 'success')
+
+    # clean up and return
+    issuer_username = session['issuer_username']
+    del session['select']
+    del session['issuer_username']
+    del session['issuer_email']
+    del session['issuer_type']
     return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+
 
 def company_dashboard(mode) :
     """
@@ -187,12 +218,13 @@ def company_dashboard(mode) :
     """
     # created, user_name, reviewer_name, issuer_name, status, credential, id
     issuer_select = ""
-    issuer_list = ns.get_employee_list(session['host'],'issuer', 'all', mode)
+    employee = company.Employee(session['host'], mode)
+    issuer_list = employee.get_list('issuer', 'all')
     for issuer in issuer_list :
         issuer_select += """<option value=""" + issuer['username'].split('.')[0]  + """>""" + issuer['username'].split('.')[0] + """</option>"""
 
     reviewer_select = ""
-    reviewer_list = ns.get_employee_list(session['host'], 'reviewer', 'all', mode)
+    reviewer_list = employee.get_list('reviewer', 'all')
     for reviewer in reviewer_list :
         reviewer_select += """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 
@@ -221,6 +253,7 @@ def company_dashboard(mode) :
             drafted =  reviewed = signed = "checked"
             status = ('drafted', 'reviewed', 'signed')
 
+        # display dashboard
         credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
         return render_template('./workflow/company_dashboard.html',
                                 **session['menu'],
@@ -232,6 +265,8 @@ def company_dashboard(mode) :
                                 manager_select=issuer_select)
 
     if request.method == 'POST' :
+
+        # update dashboard with select
         status = (request.form.get('draftedbox', ""), request.form.get('reviewedbox', ""), request.form.get('signedbox', ""))
         drafted = "checked" if request.form.get('draftedbox') else ""
         signed = "checked" if request.form.get('signedbox') else ""
@@ -253,17 +288,19 @@ def company_dashboard(mode) :
                                 reviewer_select=reviewer_select,
                                 manager_select=issuer_select)
 
+
 def credential_list_html(host, issuer_username, reviewer_username, status, mode) :
-    """
-    helper
+    """ helper
+
     return the table list to display in dashboard in html
+
     """
-    mylist = ns.get_verifiable_credential(host, issuer_username, reviewer_username, status, mode)
+    credential = company.Credential(host, mode)
+    mylist = credential.get(issuer_username, reviewer_username, status)
     credential_list = ""
     if mylist :
         for mycredential in mylist :
             subject_resume_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
-            print(mycredential[6])
             credential = """<tr>
                 <td><a href=/company/issue_credential_workflow/?id=""" + mycredential[6] + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
                 <td><a href=""" + subject_resume_link + """>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</a></td>
@@ -279,6 +316,7 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
             credential_list += credential
     return credential_list
 
+
 def issue_credential_workflow(mode) :
     """
     @route /company/issue_credential_workflow/?id=xxxx
@@ -287,7 +325,8 @@ def issue_credential_workflow(mode) :
     """
     if request.method == 'GET' :
         session['credential_id'] = request.args['id']
-        session['call'] = ns.get_verifiable_credential_by_id(session['host'], session['credential_id'], mode)
+        credential = company.Credential(session['host'], mode)
+        session['call'] = credential.get_by_id(session['credential_id'])
 
         # credential cannot be updated if already signed
         field = "disabled" if session['call'][4] == 'signed' or session['role'] in ['admin', 'creator'] else ""
@@ -317,7 +356,8 @@ def issue_credential_workflow(mode) :
     if request.method == 'POST' :
         # credential is removed from database
         if request.form['exit'] == 'delete' :
-            ns.delete_verifiable_credential(session['credential_id'], session['host'], mode)
+            credential = company.Credential(session['host'], mode)
+            credential.delete(session['credential_id'])
             del session['credential_id']
             del session['call']
             return redirect (mode.server +'company/dashboard/')
@@ -334,13 +374,13 @@ def issue_credential_workflow(mode) :
 
         # update without review and signature
         if request.form.get('exit') == 'update' :
-            ns.update_verifiable_credential(session['credential_id'],
-                                        session['host'],
+            credential = company.Credential(session['host'], mode)
+            credential.update(session['credential_id'],
                                         session['call'][2],
                                         session['call'][3],
                                         session['call'][4],
                                         json.dumps(my_credential),
-                                        mode)
+                                        )
 
         # credential has been signed by issuer
         elif request.form.get('exit') == 'sign' :
@@ -353,13 +393,13 @@ def issue_credential_workflow(mode) :
             signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(my_credential, session['private_key_value'], method=session['method'])
 
             # update local company database
-            ns.update_verifiable_credential(session['credential_id'],
-                                        session['host'],
+            credential = company.Credential(session['host'], mode)
+            credential.update(session['credential_id'],
                                         session['call'][2],
                                         session['employee'],
                                         "signed",
                                         signed_credential,
-                                        mode)
+                                        )
 
             # ulpoad credential to repository repository with company key signature
             subject_username = session['call'][1]
@@ -390,30 +430,35 @@ def issue_credential_workflow(mode) :
             except :
                 logging.error('email to subject failed')
 
-            # store signed credential on server to send it by email
+            # store signed credential on server
             try :
                 filename = session['credential_id'] + '_credential.jsonld'
                 path = "./signed_credentials/"
                 fp = open(path + filename, 'w')
-                fp.write(signed_credential)
+                fp.write((json.dumps(json.loads(signed_credential), indent=4)))
                 fp.close()
+            except :
+                logging.error('store credential on server failed')
+
+            # send email to user
+            try :
                 signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
                 text = "\r\nHello\r\nYou will find attached your professional credential signed by your issuer." + signature
                 Talao_message.message_file([subject_email], text, "Your professional credential", [filename], path, mode) 
-                # TODO delete credential
             except :
-                logging.error('credential to subject failed')
+                logging.error('email credential to subject failed')
 
+            # TODO delete credential
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
             # update local database
-            ns.update_verifiable_credential(session['credential_id'],
-                                        session['host'],
+            credential = company.Credential[session['host'], mode]
+            credential.update(session['credential_id'],
                                         session['employee'],
                                         session['call'][3],
                                         "reviewed",
                                         json.dumps(my_credential),
-                                        mode)
+                                        )
             # send an email to issuer to go forward
             issuer_email = ns.get_data_from_username(session['referent'] + '.' + session['host'], mode)['email']
             subject_name = my_credential['credentialSubject']['name']
@@ -429,7 +474,6 @@ def issue_credential_workflow(mode) :
         del session['credential_id']
         del session['call']
         return redirect (mode.server +'company/dashboard/')
-
 
 
 def get_form_data(my_credential, form) :

@@ -83,6 +83,7 @@ def create_claim(address_from,workspace_contract_from, address_to, workspace_con
 		if not receipt['status'] :
 			logging.warning('no status for transaction')
 			return None, None, None
+	logging.info('claim has been added on repository')
 	return claim_id, ipfs_hash, transaction_hash
 
 # attention on ne retourne que le derniere !!!!!
@@ -128,6 +129,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 			logging.error('decrypt claim failed')
 			data = None
 
+	"""
 	# transaction info
 	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
 	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
@@ -154,6 +156,13 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	if not found :
 		logging.error( 'claim not found in claim.py')
 		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
+	"""
+
+	gas_used = 1000
+	created = ""
+	gas_price = 1
+	transaction_hash = "0"
+
 	return issuer, identity_workspace_contract, data, ipfs_hash, gas_price*gas_used, transaction_hash, scheme, claim_id, privacy,topic_value, created
 
 def delete_claim(address_from, workspace_contract_from, address_to, workspace_contract_to,private_key_from,claim_id, mode):

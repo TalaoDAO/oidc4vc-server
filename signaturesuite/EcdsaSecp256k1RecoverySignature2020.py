@@ -19,9 +19,10 @@ from .helpers import jwk_to_ethereum, ethereum_to_jwk256kr
 def sign(credential, pvk, method="ethr"):
     """
     @method str
-        ethr
+        default is is ethr
         tz (tz2)
-    @credential dict
+    @credential is dict
+    return is str
     Both curve secp256k1 and "alg" :"ES256K-R"
     """
     if not method :

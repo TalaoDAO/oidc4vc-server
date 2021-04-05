@@ -188,7 +188,7 @@ def two_factor(mode) :
 				flash('This code is incorrect, 1 trial left', 'warning')
 			return render_template("./login/two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
 		# exit to callback
-		if code != session['two_factor']['code'] and datetime.now() < session['two_factor']['code_delay'] :
+		if code == session['two_factor']['code'] and datetime.now() < session['two_factor']['code_delay'] :
 			two_factor = "True"
 		elif datetime.now() > session['two_factor']['code_delay']  :
 			two_factor = "False"
@@ -206,10 +206,10 @@ def login_password():
 def login(mode) :
 	"""
 	@app.route('login/', methods = ['GET', 'POST'])
-	mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps for mobile devices
-	mode = mobile_off_qrcode_on : qrcode only for desktop
-	mode = password  : display password form
-	mode = None : provide a dispaye with qrcode for desktop and password form for smartphone
+	@mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps for mobile devices
+	@mode = mobile_off_qrcode_on : qrcode only for desktop
+	@mode = password  : display password form
+	@mode = None : provide a dispaye with qrcode for desktop and password form for smartphone
 	"""
 	if request.method == 'GET' :
 		session.clear()

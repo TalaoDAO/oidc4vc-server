@@ -24,7 +24,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
+from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey, company
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
@@ -39,7 +39,7 @@ def check_login() :
 
 # mentions legales
 #@app.route('/company')
-def company() :
+def the_company() :
 	return render_template('company.html')
 
 # protection des données personelles
@@ -359,7 +359,7 @@ def user(mode) :
 				<b>Created</b> : """+ one_file['created'] + """<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_file/?file_id=""" + one_file['id'] + """&filename="""+one_file['filename'] +"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 
 					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
@@ -400,11 +400,7 @@ def user(mode) :
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + experience['id'] + """&experience_title="""+ experience['title'] + """">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-
-					<a class="text-secondary" href=/data/?dataId="""+ experience['id'] + """:experience>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 				</p>"""
 				my_experience = my_experience + exp_html + "<hr>"
@@ -422,10 +418,7 @@ def user(mode) :
 				<b>End Date</b> : """+education['end_date']+"""<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_education/?education_id=""" + education['id'] + """&education_title="""+ education['title'] + """">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-					<a class="text-secondary" href=/data/?dataId="""+ education['id'] + """:education>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
+						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 				</p>"""
 				my_education = my_education + edu_html	+ "<hr>"
@@ -448,9 +441,6 @@ def user(mode) :
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
 				my_personal = my_personal + """
 				<span><b>""" + Topic[topicname] + """</b> : """+ topicname_value + topicname_privacy +"""
-					<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
 				</span><br>"""
 
 		# kyc Digital Identity this is ann ERC725 claim
@@ -563,10 +553,13 @@ def user(mode) :
 	# specific to company
 	if session['type'] == 'company' :
 
+		# init employee table
+		employee = company.Employee(session['host'], mode)
+
 		# Admin list  and add admin
 		my_admin_start = """<a href="/company/add_employee/?role_to_add=admin">Add an Admin</a><hr> """
 		my_admins = ""
-		admin_list = ns.get_employee_list(session['host'],'admin', 'all', mode)
+		admin_list = employee.get_list('admin', 'all')
 		for admin in admin_list :
 			admin_html = """
 				<span>""" + admin['username'] + """ => """ +  admin['identity_name'] +"""
@@ -577,10 +570,12 @@ def user(mode) :
 			my_admins +=  admin_html + """<br>"""
 		my_admins = my_admin_start + my_admins
 
+	
+
 		# Issuer list and add issuer within a company
 		my_managers_start = """<a href="/company/add_employee/?role_to_add=issuer">Add an Issuer</a><hr> """
 		my_managers = ""
-		manager_list = ns.get_employee_list(session['host'],'issuer', 'all', mode)
+		manager_list = employee.get_list('issuer', 'all')
 		for manager in manager_list :
 			manager_html = """
 				<span>""" + manager['username'] + """ => """ +  manager['identity_name'] +"""
@@ -594,16 +589,30 @@ def user(mode) :
 		# Reviewer list and add reviewers
 		my_reviewers_start = """<a href="/company/add_employee/?role_to_add=reviewer">Add a Reviewer</a><hr> """
 		my_reviewers = ""
-		reviewer_list = ns.get_employee_list(session['host'], 'reviewer', 'all', mode)
+		reviewer_list = employee.get_list('reviewer', 'all')
 		for reviewer in reviewer_list :
 			reviewer_html = """
 				<span>""" + reviewer['username'] + """ => """ +  reviewer['identity_name'] +"""
 				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ reviewer['username']+"""">
-					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
+					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				</span>"""
 			my_reviewers += reviewer_html + """<br>"""
 		my_reviewers = my_reviewers_start + my_reviewers
+
+		# Company campaigns
+		my_campaign_start = """<a href="/company/add_campaign/">Add a Campaign</a><hr> """
+		my_campaign = ""
+		campaign = company.Campaign(session['host'], mode)
+		campaign_list = campaign.get_list()
+		for camp in campaign_list :
+			campaign_html = camp['campaign_name'] + """ : """ +  camp['description'][:100] + """...
+				<br><a class="text-secondary" href="/company/remove_campaign/?campaign_name="""+ camp['campaign_name']+"""">
+					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
+				</a>
+				<hr>"""
+			my_campaign += campaign_html 
+		my_campaign = my_campaign_start + my_campaign
 
 		# kbis
 		if not session['kbis'] :
@@ -657,46 +666,19 @@ def user(mode) :
 			for counter, certificate in enumerate(session['certificate'],1) :
 				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
 				issuer_username = 'Unknown' if not issuer_username else issuer_username
-				if certificate['issuer']['category'] == 2001 :
-					issuer_name = certificate['issuer']['name']
-				else :
+				if certificate['issuer']['category'] == 1001 :
 					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-				if certificate['type'] == 'agreement' :
-					if not issuer_name :
-						issuer_name = 'unknown'
-					cert_html = """<hr>
-								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate.get('type','').capitalize()+"""<br>
-								<b>Title</b> : """ + certificate.get('title',"").capitalize()+"""<br>
-								<b>Registration number</b> : """ + certificate.get('registration_number',"").capitalize()+"""<br>
-								<b>Description</b> : " """ + certificate['description'][:100]+"""..."<br>
-
+				if '@context' in certificate :
+					if  certificate['credentialSubject']['credentialCategory'] ==  "reference" :
+						cert_html = """<hr>
+								<b>Issuer Name</b> : """ + certificate['credentialSubject']['companyName'] + """<br>
+								<b>Certificate Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
+								<b>Title</b> : """ + certificate['credentialSubject']['offers']['title'] + """<br>
+								<b>Description</b> : """ + certificate['credentialSubject']['offers']['description']+ """<br>
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 								<p>
-								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate['type'].capitalize()+ """">
-								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-								</a>
-
-								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
-								</a>
-								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
-								</a>
-								</p>
-								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
-
-				elif certificate['type'] ==  "reference" :
-					cert_html = """<hr>
-								<b>Referent Name</b> : """ + issuer_name +"""<br>
-								<b>Certificate Type</b> : """ + certificate.get('type', 'Unknown').capitalize()+"""<br>
-								<b>Title</b> : """ + certificate.get('title', 'Unknown').capitalize()+"""<br>
-								<b>Description</b> : " """ + certificate.get('description', 'Unknown')[:100]+"""..."<br>
-								<b>Budget</b> : """ + certificate.get('budget', 'Unknown') + """<br>
-								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
-								<p>
-								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title=""" + certificate.get('type', 'Unknown').capitalize()+ """">
-								<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
+								<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 								</a>
 
 								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
@@ -709,8 +691,14 @@ def user(mode) :
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				else :
-					cert_html =""
-					logging.error('incorrect certificate type : ' + certificate.get('type', 'Unknown'))
+					cert_html ="""<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
+								<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>"""
+					logging.warning('incorrect certificate type')
 				my_certificates = my_certificates + cert_html
 			my_certificates = my_certificates + """</div>"""
 
@@ -726,6 +714,7 @@ def user(mode) :
 							certificates=my_certificates,
 							whitelist=my_white_issuer,
 							advanced=my_advanced,
+							company_campaign=my_campaign,
 							digitalvault=my_file)
 
 

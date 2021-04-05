@@ -62,8 +62,11 @@ def issuer_explore(mode) :
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		logging.info(' , issuer = %s', issuer_workspace_contract)
-		session['issuer_explore'] = Identity(issuer_workspace_contract, mode, workspace_contract_from = session['workspace_contract'], private_key_from=session['private_key_value']).__dict__.copy()
+		session['issuer_explore'] = Identity(issuer_workspace_contract, mode, authenticated=True,).__dict__.copy()
 		session['issuer_username'] = issuer_username
+		session['issuer_explore']['method'] = ns.get_method(session['issuer_explore']['workspace_contract'], mode)
+		if not session['issuer_explore']['method'] :
+			session['issuer_explore']['method'] = 'ethr'
 
 	#issuer_picture = session['issuer_explore']['picture']
 	if session['issuer_explore']['type'] == 'person' :
@@ -72,10 +75,10 @@ def issuer_explore(mode) :
 			my_file = """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
 		else:
 			my_file = ""
-			is_encrypted = False
+			#is_encrypted = False
 			for one_file in session['issuer_explore']['identity_file']:
 				if one_file.get('content') == 'Encrypted':
-					is_encrypted = True
+					#is_encrypted = True
 					file_html = """
 					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + 'Not available - Encrypted ' + """ ) <br>
 					<b>Created</b> : """ + one_file['created'] + """<br>"""
@@ -457,7 +460,7 @@ def issuer_explore(mode) :
 			host_name = session['username'] if len(session['username'].split('.')) == 1 else session['username'].split('.')[1]
 			referent_list =  is_username_in_list(session['issuer'], issuer_username)
 			white_list =  is_username_in_list(session['whitelist'], issuer_username)
-			is_manager = ns.does_manager_exist(issuer_username, host_name, mode)
+			is_manager = ns.does_employee_exist(issuer_username, host_name, mode)
 			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
 			partner_list = not is_username_in_list_for_partnership(session['partner'], issuer_username)
 

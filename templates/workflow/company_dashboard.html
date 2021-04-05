@@ -26,11 +26,11 @@
 		        {% endwith %}
 
                 {% if session['type'] == "company" %}
-                {% if session['role'] == "creator" %}
-                  {% include 'company_nav_bar.html' %}
-                {% else %}
-                  {% include 'manager_nav_bar.html' %}
-                {% endif %}
+                    {% if session['role'] == "creator" %}
+                        {% include 'company_nav_bar.html' %}
+                    {% else %}
+                    {% include 'manager_nav_bar.html' %}
+                    {% endif %}
               {% else %}
                 {% include 'user_nav_bar.html' %}
               {% endif %}

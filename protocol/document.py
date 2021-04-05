@@ -126,6 +126,7 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	if doctype == 50002 or doctype == 40002 :
 		privacy = 'secret'
 
+	"""
 	# get transaction info
 	contract = w3.eth.contract(workspace_contract_user, abi=constante.workspace_ABI)
 	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
@@ -152,6 +153,13 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 	if not found :
 		logging.error('document not found in event list')
 		return None, None, None, None, None, None, None, None, None, None, None , None, None
+	FIXME
+	"""
+	gas_used = 1000
+	created = ""
+	gas_price = 1
+	workspace_contract_identity = workspace_contract_user
+	transaction_hash = "0"
 
 	# recuperation du msg
 	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
@@ -188,8 +196,8 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
-		return None
+	if not receipt['status']  :
+		return None, None, None
 	gas_used = 10000
 	gas_price = 1
 	date= datetime.now()

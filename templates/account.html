@@ -24,7 +24,7 @@
         {% endwith %}
 
         {% if session['type'] == "company" %}
-          {% if not session['role'] %}
+          {% if session['role'] == 'creator' %}
             {% include 'company_nav_bar.html' %}
           {% else %}
             {% include 'manager_nav_bar.html' %}

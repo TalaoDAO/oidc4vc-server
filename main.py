@@ -119,7 +119,7 @@ app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POS
 app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/company/',  view_func=web_data_user.company, methods = ['GET', 'POST'])
+app.add_url_rule('/company/',  view_func=web_data_user.the_company, methods = ['GET', 'POST'])
 app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
 
 # Centralized route issuer for issue certificate for guest
@@ -143,9 +143,11 @@ app.add_url_rule('/user/data_analysis/',  view_func=web_main.data_analysis, meth
 app.add_url_rule('/user/tutotial/',  view_func=web_main.tutorial, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/prefetch',  view_func=web_main.prefetch, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/select_identity/',  view_func=web_main.select_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_certificate/',  view_func=web_main.issue_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issuer_experience_certificate/',  view_func=web_main.issue_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_recommendation/',  view_func=web_main.issue_recommendation, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/issue_reference_credential/',  view_func=web_main.issue_reference_credential, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_personal_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})

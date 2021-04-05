@@ -64,8 +64,12 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                         }
 }
 """
-fp=open("./verifiable_credentials/identity.jsonld", "r")
+fp=open("./verifiable_credentials/reference.jsonld", "r")
 credential = json.loads(fp.read())
+credential["issuanceDate"] = "2020-08-19T21:41:50Z"
+credential["issuer"] = did
+credential['id'] = "data:5656"
+credential["credentialSubject"]["id"] = "data:555"
 print('credential = ', credential)
 
 
