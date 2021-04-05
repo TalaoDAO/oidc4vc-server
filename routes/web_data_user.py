@@ -375,7 +375,6 @@ def user(mode) :
 			my_skills = my_skills + skill_html
 		my_skills = my_skills + """
 				<p>
-					
 				</p>"""
 
 
@@ -559,7 +558,7 @@ def user(mode) :
 			admin_html = """
 				<span>""" + admin['username'] + """ => """ +  admin['identity_name'] +"""
 				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ admin['username']+"""">
-					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
+					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				</span>"""
 			my_admins +=  admin_html + """<br>"""
@@ -573,7 +572,7 @@ def user(mode) :
 			manager_html = """
 				<span>""" + manager['username'] + """ => """ +  manager['identity_name'] +"""
 				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ manager['username']+"""">
-					<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">	</i>
+					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				</span>"""
 			my_managers += manager_html + """<br>"""

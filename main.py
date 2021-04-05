@@ -13,7 +13,7 @@ $ python main.py
 import sys
 import os
 import time
-from flask import Flask, redirect
+from flask import Flask, redirect, jsonify, request
 from flask_session import Session
 #from flask_fontawesome import FontAwesome
 from datetime import timedelta
@@ -42,7 +42,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_main, web_login
 
 # Release
-VERSION = "0.8.3"
+VERSION = "0.8.4"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -200,6 +200,32 @@ app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_c
 app.add_url_rule('/user/request_experience_certificate/',  view_func=web_workflow.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+
+
+
+
+@app.route('/thierry/did.json', methods=['GET', 'POST'])
+def web() :
+    if request.method == 'GET' :
+        doc = {
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    {
+      "@base": "did:web:talao.co:thierry"
+    }
+  ],
+  "id": "did:web:talao.co:thierry",
+  "publicKey": [
+    {
+      "id": "#z6MkkQBvgvqb6zGvS4cydworpUaRDzpszSFixq49ahbDeUTG",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "",
+      "publicKeyBase58": "6wvt6gb9mSnTKZnGxNr1yP2RQRZ2aZ1NGp9DkRdCjFft"
+    }
+  ]
+}
+        return jsonify (doc)
+
 
 
 # MAIN entry point for test

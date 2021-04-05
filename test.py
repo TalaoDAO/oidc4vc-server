@@ -11,7 +11,6 @@ from signaturesuite import helpers
 
 from datetime import datetime
 
-print(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))
 
 #key = didkit.generateEd25519Key()
 #print('key Ed25519Key ', key)
@@ -35,26 +34,23 @@ print(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))
 pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
 
 
-key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R",  b64=False, crit=["b64"])
+#key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
 #key = jwk.JWK.generate(kty="EC", crv="P-256")
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1")
-#key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
-key=key.export_private()
-print('key = ', key)
-did = didkit.keyToDID("tz", key)
+key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
+#key=key.export_private()
+#print('key = ', key)
+
+key = "127.0.0.1:3000/thierry"
+method = "web"
+did = didkit.keyToDID(method, key)
 print('did  = ', did)
 
-#did_key = didkit.keyToDID("key", key)
-#print('did key = ', did_key)
-
-#print(key)
-
-verifmethod = didkit.keyToVerificationMethod("tz", key)
-
-verifmethod = didkit.keyToVerificationMethod("ethr", key)
+verifmethod = didkit.keyToVerificationMethod(method, key)
+#verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 
-"""
+
 credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                         "type": ["VerifiableCredential"],
                         "issuer" : did  ,
@@ -63,16 +59,13 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                         "id": "did:example:d23dd687a7dc6787646f2eb98d0",
                         }
 }
-"""
+
 fp=open("./verifiable_credentials/reference.jsonld", "r")
 credential = json.loads(fp.read())
 credential["issuanceDate"] = "2020-08-19T21:41:50Z"
 credential["issuer"] = did
 credential['id'] = "data:5656"
 credential["credentialSubject"]["id"] = "data:555"
-print('credential = ', credential)
-
-
 
 didkit_options = {
         "proofPurpose": "assertionMethod",
@@ -85,6 +78,6 @@ credential = didkit.issueCredential(
         key
         )
 
-print(json.dumps(json.loads(credential), indent=4))
 
+print(json.dumps(json.loads(credential), indent=4))
 print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
