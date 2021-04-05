@@ -22,7 +22,7 @@ class ClientWebResolver:
                     line += '/'
                 url = line + did
                 httpResponse = requests.get(url) 
-                if httpResponse.status_code is 200:
+                if httpResponse.status_code == 200:
                     return httpResponse.json()
             raise TypeError
         except TypeError:

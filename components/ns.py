@@ -9,18 +9,17 @@ import secrets
 import logging
 logging.basicConfig(level=logging.INFO)
 
+"""
 def add_table_employee(host_name, mode) :
-	""" This function is only used in createcompany """
-	path = mode.db_path
+	path = "/home/thierry/dbaws/"
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
 	cur.execute('create table employee(employee_name text, identity_name text, email text, phone text, date real, password text, role text, referent text)')
 	conn.commit()
 	cur.close()
 	return True
-
+"""
 def add_table_campaign(host_name, mode) :
-	""" This function is only used in createcompany """
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
@@ -28,10 +27,9 @@ def add_table_campaign(host_name, mode) :
 	conn.commit()
 	cur.close()
 	return True
-
+"""
 def alter_add_table_credential(database, mode) :
 	path = mode.db_path
-	""" This function is only used to update """
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
 	cur.execute('create table credential(created real, user_name text, reviewer_name text, issuer_name text, status text, credential text, id text)')
@@ -39,10 +37,8 @@ def alter_add_table_credential(database, mode) :
 	cur.close()
 	return True
 
-
 def alter_credential_table(database, mode) :
 	path = mode.db_path
-	""" This function is only used to update """
 	conn = sqlite3.connect(path + database)
 	cur = conn.cursor()
 	cur.execute('alter table credential add column reference text')
@@ -50,15 +46,6 @@ def alter_credential_table(database, mode) :
 	cur.close()
 	return True
 
-def alter_resolver_table(mode) :
-	path = mode.db_path
-	""" This function is only used to update """
-	conn = sqlite3.connect(path + "nameservice.db")
-	cur = conn.cursor()
-	cur.execute('alter table resolver add column method text')
-	conn.commit()
-	cur.close()
-	return True
 
 # update pour la mise en place du champ wallet dans resolver
 def alter_add_wallet_field(mode) :
@@ -69,7 +56,7 @@ def alter_add_wallet_field(mode) :
 	conn.commit()
 	cur.close()
 	return True
-
+"""
 
 def _contractsToOwners(workspace_contract, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)

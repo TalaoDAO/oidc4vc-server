@@ -307,7 +307,6 @@ def user(mode) :
 				</spn>"""
 			my_partner = my_partner + partner_html + """<br>"""
 
-
 	# Issuer for document, they have an ERC725 key 20002
 	if not session['issuer']  :
 		my_issuer = """  <a class="text-info">No Referents available</a>"""
@@ -327,7 +326,6 @@ def user(mode) :
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
 
-
 	# whitelist
 	if not session['whitelist'] :
 		my_white_issuer = """  <a class="text-info">No Whitelist available</a>"""
@@ -346,7 +344,6 @@ def user(mode) :
 					</a>
 				</span>"""
 			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
-
 
 	# files
 	if not session['identity_file'] :
@@ -378,9 +375,7 @@ def user(mode) :
 			my_skills = my_skills + skill_html
 		my_skills = my_skills + """
 				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ session['skills']['id'] + """:skills>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
+					
 				</p>"""
 
 
@@ -570,8 +565,6 @@ def user(mode) :
 			my_admins +=  admin_html + """<br>"""
 		my_admins = my_admin_start + my_admins
 
-	
-
 		# Issuer list and add issuer within a company
 		my_managers_start = """<a href="/company/add_employee/?role_to_add=issuer">Add an Issuer</a><hr> """
 		my_managers = ""
@@ -605,13 +598,14 @@ def user(mode) :
 		my_campaign = ""
 		campaign = company.Campaign(session['host'], mode)
 		campaign_list = campaign.get_list()
-		for camp in campaign_list :
-			campaign_html = camp['campaign_name'] + """ : """ +  camp['description'][:100] + """...
+		if campaign_list :
+			for camp in campaign_list :
+				campaign_html = camp['campaign_name'] + """ : """ +  camp['description'][:100] + """...
 				<br><a class="text-secondary" href="/company/remove_campaign/?campaign_name="""+ camp['campaign_name']+"""">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				<hr>"""
-			my_campaign += campaign_html 
+				my_campaign += campaign_html 
 		my_campaign = my_campaign_start + my_campaign
 
 		# kbis
@@ -651,9 +645,6 @@ def user(mode) :
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
 				my_personal = my_personal + """
 				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""
-					<a class="text-secondary" href=/data/?dataId=""" + topicname_id + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
 				</span><br>"""
 		if session['role'] in ['creator', 'admin'] :
 			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
