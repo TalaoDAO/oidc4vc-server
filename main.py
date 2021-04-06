@@ -221,6 +221,12 @@ def web() :
       "type": "Ed25519VerificationKey2018",
       "controller": "",
       "publicKeyBase58": "6wvt6gb9mSnTKZnGxNr1yP2RQRZ2aZ1NGp9DkRdCjFft"
+    },
+     {
+      "id": "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller",
+      "type": "EcdsaSecp256k1RecoveryMethod2020",
+      "controller": "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb",
+      "blockchainAccountId": "0x9E98af48200c62f51AC9Ebdcc41FE718d1bE04FB@eip155:1"
     }
   ]
 }
