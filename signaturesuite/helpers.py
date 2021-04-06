@@ -72,4 +72,4 @@ def ethereum_to_jwk256kr(private_key) :
 
         ay = bytes.fromhex(y)
         y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
-        return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :"ES256K-R",  "b64": False, "crit": ["b64"]})
+        return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :"ES256K-R"})

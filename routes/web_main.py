@@ -483,6 +483,8 @@ def issue_reference_credential(mode):
 
     FIXME  rework the loading of credential
 
+    call within the "issuer_explore" context
+
     @app.route('/commpany/issue_reference_credential/', methods=['GET','POST'])
 
     The signature is the manager's signature except if the issuer is the company 
@@ -504,7 +506,7 @@ def issue_reference_credential(mode):
             path = "./signed_credentials/"
             try :
                 fp = open(path + filename, 'w')
-                fp.write(json.dumps(json.loads(signed_credential), indent=4))
+                fp.write(json.dumps(json.loads(signed_credential), indent=4, ensure_ascii=False))
                 fp.close()
                 logging.info('credential strored on server')
             except :
@@ -536,11 +538,13 @@ def issue_reference_credential(mode):
         unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
         unsigned_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         unsigned_credential[ "credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['issuer_explore']['private_key_value'], session['issuer_explore']['method'])
+        unsigned_credential[ "credentialSubject"]["name"] = session['issuer_explore']["name"]
         unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
         unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
         unsigned_credential[ "credentialSubject"]["offers"]["startDate"] = request.form['startDate']
         unsigned_credential[ "credentialSubject"]["offers"]["endDate"] = request.form['endDate']
         unsigned_credential[ "credentialSubject"]["offers"]["price"] = request.form['budget']
+        unsigned_credential[ "credentialSubject"]["offers"]["location"] = request.form['location']
         unsigned_credential[ "credentialSubject"]["review"]["reviewBody"] = request.form['review']
         unsigned_credential[ "credentialSubject"]["companyLogo"] = session['picture']
         unsigned_credential[ "credentialSubject"]["companyName"] = session['name']

@@ -29,7 +29,7 @@
                     <div class="card-header py-3">
                       <div class="row">
                         <div class="col-xl-12">
-                          <p class="text-primary m-0 font-weight-bold"><strong>Reference </strong>Certificate
+                          <p class="text-primary m-0 font-weight-bold"><strong>Reference </strong>Credential
                             <a class="text-secondary" href="/certificate/verify/?certificate_id={{certificate_id}}"><i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a>
                           </p>
                         </div>
@@ -40,86 +40,33 @@
 
                       <div class="row">
                         <div class="col-md-7" >
-                            <p class="text-dark" >This claim was issued to : <strong>{{issued_to_name}}</strong><br></p>
+                            <p class="text-dark" >This credential was issued to <strong>{{issued_to_name}}</strong></p>
+                        </div>
+                        <div class="col">
+                          <p class="text-dark">Date of issuance :<strong> {{issuanceDate}}</strong></p>
                         </div>
                     </div>
 
                     <div class="row">
                             <div class="col-md-7">
-                              <p class="text-dark">From <strong>{{start_date}}</strong> to <strong>{{end_date}}</strong><br></p>
+                              <p class="text-dark">Project schedule : <strong>{{startDate}}</strong> to <strong>{{endDate}}</strong><br></p>
                             </div>
                             <div class="col">
-                              <p class="text-dark">Location :<strong> {{location}}</strong></p>
+                              <p class="text-dark">Project location :<strong> {{location}}</strong></p>
                             </div>
                       </div>
                       <div class="row">
                             <div class="col-md-7">
-                              <p class="text-dark">Budget :<strong> {{budget}} Euros</strong></p>
-                            </div>
-                            <div class="col">
-                              <p class="text-dark">Staff :<strong> {{staff}}</strong></p>
+                              <p class="text-dark">Budget :<strong> {{price}} {{currency}}</strong></p>
                             </div>
                       </div>
-                          <p class="text-dark m-0">Description :</p>
+                          <p class="text-dark m-0">Project description :</p>
                           <p class="text-dark p-2 text-justify overflow-auto" style="height: 150px;font-weight: 400;font-size: 16px;border: 1px solid #ced4da;border-radius: .25rem;">{{description}}</p>
-                          <hr>
-                      {% if badge != '' %}
-                      <div class="text-center">
-                            {{badge|safe}}
-                      </div>
-                      <hr>
-                      {% endif %}
-                      <div class="form-row">
-                            <div class="col">
-                              <div class="form-group">
-                                <p style="font-size: 16px;">How satisfied are you with the overall delivery ?</p>
-                              </div>
-                            </div>
-                            <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star"
-                                style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
-                      </div>
-                      <div class="form-row">
-                            <div class="col">
-                              <div class="form-group">
-                                <p style="font-size: 16px;">How would you rate his/her ability to deliver to schedule ?</p>
-                              </div>
-                            </div>
-                            <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star"
-                                style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
-                      </div>
-                      <div class="form-row">
-                            <div class="col">
-                              <div class="form-group">
-                                <p style="font-size: 16px;">How would you rate its communication ?</p>
-                              </div>
-                            </div>
-                            <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star"
-                                style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
-                      </div>
-                      <div class="form-row">
-                            <div class="col">
-                              <div class="form-group">
-                                <p style="font-size: 16px;">How would you rate its ability to stay within the set budget?</p>
-                              </div>
-                            </div>
-                            <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star"
-                                style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
-                      </div>
-
-                      <div class="form-row">
-                            <div class="col">
-                              <div class="form-group">
-                                <p style="font-size: 16px;">How likely are you to recommand this company ?</p>
-                              </div>
-                            </div>
-                            <div class="col-md-12 col-xl-2 order-1" style="height: 40px;"><i class="fa fa-star" style="{{star40}}"></i><i class="fa fa-star" style="{{star41}}"></i><i class="fa fa-star" style="{{star42}}"></i><i class="fa fa-star"
-                                style="{{star43}}"></i><i class="fa fa-star" style="{{star44}}"></i>
-                            </div>
-                      </div>
-
+                          <br>
+                          <p class="text-dark m-0">Customer review :</p>
+                          <p class="text-dark p-2 text-justify overflow-auto" style="height: 150px;font-weight: 400;font-size: 16px;border: 1px solid #ced4da;border-radius: .25rem;">{{review}}</p>
                           <hr>
 
-                          {% if signature != None and logo != None %}
                           <div class="row mt-3" >
                               <div class="col">
                                   <p class="text-dark" >Issued by : <strong>{{issuer_name}}</strong> </p>
@@ -130,15 +77,8 @@
                                   <div class="text-center"><img src="{{ url_for('send_file', filename=signature) }}" style="width: 200px;"></div>
                               </div>
                           </div>
-                          {% else %}
-                          <div class="row mt-3" >
-                            <div class="col">
-                                <p class="text-dark " >Issued by : <strong>{{issuer_name}}</strong></p>
-                            </div>
-                          </div>
-                          {% endif %}
                       <br>
-                      <p class="text-dark text-center  m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This certificate was issued through the Talao plateform.&nbsp; </p>
+                      <p class="text-dark text-center  m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This credential was issued through the Talao plateform.&nbsp; </p>
                     </div>
                   </div>
                 </div>

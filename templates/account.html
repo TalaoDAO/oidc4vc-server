@@ -51,7 +51,7 @@
                   <div role="tablist" id="accordion-2">
 
                     <!-- Update picture / logo-->
-                    {% if not session['role'] %}
+                    {% if session['role'] in ['creator', 'admin'] %}
                     <div class="card">
                       <div class="card-header" role="tab">
                         <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-user-circle"></i>
@@ -66,7 +66,7 @@
                     <!-- Update signature -->
                     <div class="card">
                       <div class="card-header" role="tab">
-                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-pencil"></i>
+                        <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fas fa-pen"></i>
                           <a class="text-secondary" href="/user/signature/">&nbsp;Update signature</a>
                         </h5>
                       </div>

@@ -8,6 +8,7 @@
                 {
                 "@context": ["https://schema.org/"],
                 "id": "",
+                "name" : "",
                 "credentialCategory" : "reference",
                 "offers": {
                     "@type": "Offer",

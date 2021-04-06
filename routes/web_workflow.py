@@ -435,7 +435,7 @@ def issue_credential_workflow(mode) :
                 filename = session['credential_id'] + '_credential.jsonld'
                 path = "./signed_credentials/"
                 fp = open(path + filename, 'w')
-                fp.write((json.dumps(json.loads(signed_credential), indent=4)))
+                fp.write((json.dumps(json.loads(signed_credential), indent=4, ensure_ascii=False)))
                 fp.close()
             except :
                 logging.error('store credential on server failed')

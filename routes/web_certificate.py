@@ -127,7 +127,7 @@ def show_certificate(mode):
 							link = session['displayed_certificate']['certificate_link']
 							)
 
-	# Experience Certificate Display
+	# Experience Credential Display
 	if session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'experience' :
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
@@ -345,30 +345,16 @@ def show_certificate(mode):
 							service_product_group = service_product_group,
 							certificate_id=certificate_id,
 							)
-	# if reference certificate display
-	if session['displayed_certificate']['type'] == 'reference' :
+
+	# if reference credential display
+	if session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'reference' :
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 
-		# Icon "fa-star" treatment
-		score = []
-		context = dict()
-		score.append(int(session['displayed_certificate'].get('score_delivery',1)))
-		score.append(int(session['displayed_certificate'].get('score_schedule', 1)))
-		score.append(int(session['displayed_certificate'].get('score_communication',1)))
-		score.append(int(session['displayed_certificate'].get('score_budget', 1)))
-		score.append(int(session['displayed_certificate'].get('score_recommendation',1)))
-
-		for q in range(0,5) :
-			for i in range(0,score[q]) :
-				context["star"+str(q)+str(i)] = yellow_star
-			for i in range(score[q],5) :
-				context ["star"+str(q)+str(i)] = black_star
-
 		description = session['displayed_certificate'].get('description','Unknown').replace('\r\n','<br>')
 
-		signature = session['displayed_certificate']['issued_by']['signature']
-		logo = session['displayed_certificate']['issued_by']['logo']
+		signature = session['displayed_certificate']['credentialSubject']['managerSignature']
+		logo = session['displayed_certificate']['credentialSubject']['companyLogo']
 
 		if signature and logo :
 			if not path.exists(mode.uploads_path + signature) :
@@ -384,107 +370,67 @@ def show_certificate(mode):
 				with open(mode.uploads_path + logo, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
-
-		if session['displayed_certificate']['competencies'] :
-			# cf probleme avec autre modifs / CCI
-			#competencies = session['displayed_certificate']['competencies'].replace(' ', '').split(",")
-			competencies = session['displayed_certificate']['competencies']
-			my_badge = ""
-			for competencie in competencies :
-				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ competencie.capitalize() + """</span>"""
-		else :
-			my_badge = None
-
 		return render_template('./certificate/reference_certificate.html',
 							**menu,
-							issued_to_name = session['displayed_certificate']['issued_to']['name'],
-							start_date = session['displayed_certificate']['start_date'],
-							end_date = session['displayed_certificate']['end_date'],
-							location = session['displayed_certificate'].get('location', 'Unknown'),
-							staff = session['displayed_certificate'].get('staff', 'Unknown'),
-							budget = session['displayed_certificate'].get('budget', 'Unknown'),
-							description=description,
+							issued_to_name = session['displayed_certificate']['credentialSubject']['name'],
+							issuanceDate = session['displayed_certificate']['issuanceDate'][:10],
+							startDate = session['displayed_certificate']['credentialSubject']['offers']['startDate'],
+							endDate = session['displayed_certificate']['credentialSubject']['offers']['endDate'],
+							price = session['displayed_certificate']['credentialSubject']['offers']['price'],
+							currency = session['displayed_certificate']['credentialSubject']['offers']['priceCurrency'],
+							description=session['displayed_certificate']['credentialSubject']['offers']['description'],
+							review= session['displayed_certificate']['credentialSubject']['review']['reviewBody'],
+							location=session['displayed_certificate']['credentialSubject']['offers']['location'],
 							logo=logo,
-							issuer_name = session['displayed_certificate']['issued_by']['name'],
-							title = session['displayed_certificate'].get('title', 'Unknown'),
+							issuer_name = session['displayed_certificate']['credentialSubject']['companyName'],
+							title = session['displayed_certificate']['credentialSubject']['offers']['title'],
 							signature=signature,
-							badge = my_badge,
-							manager = session['displayed_certificate']['issued_by']['manager'],
+							manager = session['displayed_certificate']['credentialSubject']['companyName'],
 							certificate_id=certificate_id,
 							viewer=viewer,
-							**context)
+							)
 
 
 
-#		 verify certificate
-#@app.route('/certificate/verify/, methods=['GET'])
 def certificate_verify(mode) :
+	"""		 verify certificate
 
+	@app.route('/certificate/verify/, methods=['GET'])
+
+	"""
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 
 	certificate_id = request.args['certificate_id']
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
-	issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract']
-	certificate = copy.deepcopy(session['displayed_certificate'])
-	convert(certificate)
-
-	if certificate_id != certificate['id'] :
-		content = json.dumps({'topic' : 'error', 'msg' : 'Certificate Not Found'})
-		response = Response(content, status=406, mimetype='application/json')
-		return response
-
-	issuer_type = 'Person' if certificate['issuer']['category'] == 1001 else 'Company'
-
-	user_profil, user_category = read_profil(identity_workspace_contract, mode, 'full')
-	user_type = 'Person' if user_category == 1001 else 'Company'
-	convert(user_profil)
-
-	# Issuer , Referent
-	if issuer_type == 'Company' :
-		issuer = """
-				<span>
-				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract +"""&certificate_id=""" + certificate_id + """>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check Issuer Identity"></i></a>
-				<br><b>DID</b> : """ + certificate['issuer']['id']
-	if issuer_type == 'Person' :
-		issuer = """
-				<span>
-				<hr>
-				<b>Referent Identity (Issuer)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + issuer_workspace_contract + """&certificate_id=""" + certificate_id +""">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check Issuer Identity"></i></a>
-				<br><b>DID</b> : """ + certificate['issuer']['id']
-
-
-	# User, Receiver
-	user =""
-	if user_type == 'Company' :
-		user = """
-				<span>
-				<hr>
-				<b>User Identity</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
-				<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
-	#if user_type == 'Person' :
-	#	user = """
-	#			<span>
-	#			<hr>
-	#			<b>User Identity (Receiver)</b><a class="text-secondary" href=/certificate/issuer_explore/?workspace_contract=""" + identity_workspace_contract + """&certificate_id=""" + certificate_id +""">
-	#					<i data-toggle="tooltip" class="fa fa-search-plus" title="Check User Identity"></i></a>
-	#			<br><b>DID</b> : """ + 'did:talao:'+ mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:]
-
+	#issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract']
+	
 	# Verifiable Credential
 	credential = Document('certificate')
 	doc_id = int(session['certificate_id'].split(':')[5])
 	credential.relay_get_credential(identity_workspace_contract, doc_id, mode, loading = 'full')
 	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 
-	my_verif = "".join([issuer, user, '<br>'])
+	"""
+	if certificate_id != certificate['id'] :
+		content = json.dumps({'topic' : 'error', 'msg' : 'Certificate Not Found'})
+		response = Response(content, status=406, mimetype='application/json')
+		return response
+	"""
+
+	# Issuer , Referent
+	issuer = """<b>Issuer DID</b> : """ + credential.issuer
+
+	# User, holder
+	user = """<b>User DID</b> : """ + credential.credentialSubject['id']
+
+
+	my_verif = "".join([issuer, "<br>", user, '<br>'])
 
 	return render_template('./certificate/verify_certificate.html',
 							**menu,
 							certificate_id=certificate_id,
-							topic = certificate['topic'].capitalize(),
+							topic = "",
 							credential = credential_text,
 							verif=my_verif,
 							viewer=viewer,
