@@ -179,7 +179,6 @@ def get_key(address, key_type, mode, address_caller=None) :
 			logging.error('private key not found in privatekey.py')
 			return None
 		encrypted = fp.read()
-		fp.close()
 		return Account.decrypt(encrypted, mode.password).hex()
 
 	# first we try to find a the new rsa file with .pem

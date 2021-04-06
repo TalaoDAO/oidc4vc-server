@@ -13,6 +13,7 @@ $ python main.py
 import sys
 import os
 import time
+import json
 from flask import Flask, redirect, jsonify, request
 from flask_session import Session
 #from flask_fontawesome import FontAwesome
@@ -211,10 +212,9 @@ app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.
 def web(username, mode) :
     if request.method == 'GET' :
         address = ns.get_data_from_username(username, mode).get('address')
-        pvk = privatekey.get_key(address, 'private_key', mode)
-        key = helpers.ethereum_to_jwk256kr(pvk)
-        didtz = helpers.ethereum_pvk_to_DID(pvk, 'tz')
         if address :
+            pvk = privatekey.get_key(address, 'private_key', mode)
+            didtz = helpers.ethereum_pvk_to_DID(pvk, 'tz')
             DIDdocument = {
                 "@context": [
                 "https://www.w3.org/ns/did/v1",
