@@ -21,6 +21,9 @@ from datetime import timedelta
 import logging
 logging.basicConfig(level=logging.INFO)
 
+from components import ns, privatekey
+from signaturesuite import helpers
+
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
 mychain = os.getenv('MYCHAIN')
@@ -204,33 +207,40 @@ app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.
 
 
 
-@app.route('/thierry/did.json', methods=['GET', 'POST'])
-def web() :
+@app.route('/<username>/did.json', methods=['GET', 'POST'], defaults={'mode' : mode})
+def web(username, mode) :
     if request.method == 'GET' :
-        doc = {
-  "@context": [
-    "https://www.w3.org/ns/did/v1",
-    {
-      "@base": "did:web:talao.co:thierry"
-    }
-  ],
-  "id": "did:web:talao.co:thierry",
-  "publicKey": [
-    {
-      "id": "#z6MkkQBvgvqb6zGvS4cydworpUaRDzpszSFixq49ahbDeUTG",
-      "type": "Ed25519VerificationKey2018",
-      "controller": "",
-      "publicKeyBase58": "6wvt6gb9mSnTKZnGxNr1yP2RQRZ2aZ1NGp9DkRdCjFft"
-    },
-     {
-      "id": "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller",
-      "type": "EcdsaSecp256k1RecoveryMethod2020",
-      "controller": "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb",
-      "blockchainAccountId": "0x9E98af48200c62f51AC9Ebdcc41FE718d1bE04FB@eip155:1"
-    }
-  ]
-}
-        return jsonify (doc)
+        address = ns.get_data_from_username(username, mode).get('address')
+        pvk = privatekey.get_key(address, 'private_key', mode)
+        key = helpers.ethereum_to_jwk256kr(pvk)
+        didtz = helpers.ethereum_pvk_to_DID(pvk, 'tz')
+        if address :
+            DIDdocument = {
+                "@context": [
+                "https://www.w3.org/ns/did/v1",
+                    {
+                    "@base": "did:web:talao.co:" + username
+                    }
+                ],
+                "id": "did:web:talao.co:" + username,
+                "publicKey": [
+                    {
+                    "id": "did:ethr:" + address +"#controller",
+                    "type": "EcdsaSecp256k1RecoveryMethod2020",
+                    "controller": "did:ethr:" + address,
+                    "blockchainAccountId": address + "@eip155:1"
+                    },
+                    {
+                    "id": didtz + "#blockchainAccountId",
+                    "type": "EcdsaSecp256k1RecoveryMethod2020",
+                    "controller": didtz,
+                    "blockchainAccountId": didtz + "@tezos:mainnet"
+                    }
+                ]
+            }
+        else :
+            DIDdocument = {'result' : 'No DID document'}
+        return jsonify (DIDdocument)
 
 
 
