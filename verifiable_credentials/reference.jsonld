@@ -12,6 +12,7 @@
                 "credentialCategory" : "reference",
                 "offers": {
                     "@type": "Offer",
+                    "skills": [],
                     "title" : "",
                     "description" : "",
                     "location" : "",

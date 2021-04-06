@@ -40,6 +40,7 @@ def show_certificate(mode):
 	"""
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
+
 	certificate_id = request.args['certificate_id']
 	doc_id = int(certificate_id.split(':')[5])
 	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
@@ -370,6 +371,12 @@ def show_certificate(mode):
 				with open(mode.uploads_path + logo, 'wb') as out_file:
 					shutil.copyfileobj(response.raw, out_file)
 				del response
+		skills_str = ""
+		try :
+			for skill in session['displayed_certificate']['credentialSubject']['offers']['skills'] :
+				skills_str += skill['description'] + ','
+		except :
+			logging.warning('skills not found')
 		return render_template('./certificate/reference_certificate.html',
 							**menu,
 							issued_to_name = session['displayed_certificate']['credentialSubject']['name'],
@@ -388,6 +395,7 @@ def show_certificate(mode):
 							manager = session['displayed_certificate']['credentialSubject']['companyName'],
 							certificate_id=certificate_id,
 							viewer=viewer,
+							skills=skills_str
 							)
 
 

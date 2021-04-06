@@ -546,6 +546,12 @@ def issue_reference_credential(mode):
         unsigned_credential[ "credentialSubject"]["offers"]["price"] = request.form['budget']
         unsigned_credential[ "credentialSubject"]["offers"]["location"] = request.form['location']
         unsigned_credential[ "credentialSubject"]["review"]["reviewBody"] = request.form['review']
+        for skill in request.form['skills'].split(',') :
+            unsigned_credential["credentialSubject"]["offers"]["skills"].append(
+            {
+            "@type": "DefinedTerm",
+            "description": skill
+            })
         unsigned_credential[ "credentialSubject"]["companyLogo"] = session['picture']
         unsigned_credential[ "credentialSubject"]["companyName"] = session['name']
         unsigned_credential[ "credentialSubject"]["managerName"] = "Director"
