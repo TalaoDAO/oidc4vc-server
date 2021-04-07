@@ -239,10 +239,7 @@ def did_document(username, ec_public, rsa_public) :
     return {
                 "@context":
                     [
-                        "https://www.w3.org/ns/did/v1",
-                        {
-                            "@base": id
-                        }
+                        "https://www.w3.org/ns/did/v1"
                     ],
                 "id": id,
                 "verificationMethod":
