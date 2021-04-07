@@ -55,8 +55,13 @@ def jwk_to_ethereum(jwk) :
         address = pub_key.to_checksum_address()
         return private_key, public_key, address
 
+def ethereum_to_jwk256k(private_key) :
+    return _ethereum_to_jwk256k(private_key, "ES256K")
 
 def ethereum_to_jwk256kr(private_key) :
+    return _ethereum_to_jwk256k(private_key, "ES256K-R")
+
+def _ethereum_to_jwk256k(private_key, alg) :
         priv_key_bytes = decode_hex(private_key)
         priv_key = keys.PrivateKey(priv_key_bytes)
         pub_key = priv_key.public_key
@@ -72,4 +77,4 @@ def ethereum_to_jwk256kr(private_key) :
 
         ay = bytes.fromhex(y)
         y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
-        return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :"ES256K-R"})
+        return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :alg})

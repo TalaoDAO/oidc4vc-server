@@ -16,6 +16,7 @@ import time
 import json
 from flask import Flask, redirect, jsonify, request
 from flask_session import Session
+from jwcrypto import jwk
 #from flask_fontawesome import FontAwesome
 from datetime import timedelta
 
@@ -24,6 +25,7 @@ logging.basicConfig(level=logging.INFO)
 
 from components import ns, privatekey
 from signaturesuite import helpers
+from protocol import ownersToContracts
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
@@ -46,7 +48,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_main, web_login
 
 # Release
-VERSION = "0.8.6"
+VERSION = "0.8.7"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -206,43 +208,68 @@ app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboar
 app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
 
 
+@app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
+def wellknown (mode) :
+    return redirect('/talao/did.json')
 
-
-@app.route('/<username>/did.json', methods=['GET', 'POST'], defaults={'mode' : mode})
+@app.route('/<username>/did.json', methods=['GET'], defaults={'mode' : mode})
 def web(username, mode) :
-    if request.method == 'GET' :
-        address = ns.get_data_from_username(username, mode).get('address')
-        if address :
-            pvk = privatekey.get_key(address, 'private_key', mode)
-            didtz = helpers.ethereum_pvk_to_DID(pvk, 'tz')
-            DIDdocument = {
-                "@context": [
-                "https://www.w3.org/ns/did/v1",
-                    {
-                    "@base": "did:web:talao.co:" + username
-                    }
-                ],
-                "id": "did:web:talao.co:" + username,
-                "publicKey": [
-                    {
-                    "id": "did:ethr:" + address +"#controller",
-                    "type": "EcdsaSecp256k1RecoveryMethod2020",
-                    "controller": "did:ethr:" + address,
-                    "blockchainAccountId": address + "@eip155:1"
-                    },
-                    {
-                    "id": didtz + "#blockchainAccountId",
-                    "type": "EcdsaSecp256k1RecoveryMethod2020",
-                    "controller": didtz,
-                    "blockchainAccountId": didtz + "@tezos:mainnet"
-                    }
-                ]
+    address = ns.get_data_from_username(username, mode).get('address')
+    if address :
+        workspace_contract = ownersToContracts(address, mode)
+        fp = open('/home/thierry/Talao/RSA_key/talaonet/did:talao:talaonet:' + workspace_contract[2:] + '.pem',"r")
+        key = jwk.JWK.from_pem(fp.read().encode())
+        rsa_public = key.export_public(as_dict=True)
+        del rsa_public['kid']
+
+        pvk = privatekey.get_key(address, 'private_key', mode)
+        key = helpers.ethereum_to_jwk256k(pvk)
+        ec_public = json.loads(key)
+        del ec_public['d']
+
+        DIDdocument = did_document(username, ec_public, rsa_public)
+    else :
+        DIDdocument = {'result' : 'No DID found'}
+    return jsonify (DIDdocument)
+
+def did_document(username, ec_public, rsa_public) :
+    if username == 'talao' :
+        id = "did:web:talao.co"
+    else :
+        id =  "did:web:talao.co:" + username
+    return {
+                "@context":
+                    [
+                        "https://www.w3.org/ns/did/v1",
+                        {
+                            "@base": id
+                        }
+                    ],
+                "id": id,
+                "verificationMethod":
+                    [
+                        {
+                        "id": id + "#key-1",
+                        "type": "JsonWebKey2020",
+                        "publicKeyJwk": ec_public
+                        },
+                        {
+                        "id": id + "#key-2",
+                        "type": "JsonWebKey2020",
+                        "publicKeyJwk": rsa_public
+                        }
+                    ],
+                "authentication" :
+                    [
+                    id + "#key-1",
+                    id + "#key-2"
+                    ],
+                "assertionmethod" :
+                    [
+                    id + "#key-1",
+                    id + "#key-2"
+                    ]
             }
-        else :
-            DIDdocument = {'result' : 'No DID document'}
-        return jsonify (DIDdocument)
-
-
 
 # MAIN entry point for test
 if __name__ == '__main__':

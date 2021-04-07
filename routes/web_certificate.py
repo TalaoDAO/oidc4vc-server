@@ -2,7 +2,7 @@
 import copy
 import os.path
 from os import path
-from flask import Flask, session, send_from_directory, flash
+from flask import Flask, session, send_from_directory, flash, jsonify
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 import requests
@@ -11,6 +11,7 @@ from flask_fontawesome import FontAwesome
 import json
 from sys import getsizeof
 import random
+import didkit
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -399,39 +400,35 @@ def show_certificate(mode):
 							)
 
 
-
 def certificate_verify(mode) :
-	"""		 verify certificate
+	"""		 verify credential data and did
 
-	@app.route('/certificate/verify/, methods=['GET'])
+	app.route('/certificate/verify/, methods=['GET']
 
 	"""
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 
-	certificate_id = request.args['certificate_id']
-	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
-	#issuer_workspace_contract = session['displayed_certificate']['issuer']['workspace_contract']
-	
-	# Verifiable Credential
-	credential = Document('certificate')
-	doc_id = int(session['certificate_id'].split(':')[5])
-	credential.relay_get_credential(identity_workspace_contract, doc_id, mode, loading = 'full')
-	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
-
-	"""
-	if certificate_id != certificate['id'] :
-		content = json.dumps({'topic' : 'error', 'msg' : 'Certificate Not Found'})
-		response = Response(content, status=406, mimetype='application/json')
-		return response
-	"""
+	try :
+		certificate_id = request.args['certificate_id']
+		identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+		credential = Document('certificate')
+		doc_id = int(certificate_id.split(':')[5])
+		credential.relay_get_credential(identity_workspace_contract, doc_id, mode, loading = 'full')
+		credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
+	except :
+		logging.error('data not found')
+		return jsonify ({'result' : 'certificate not found'})
 
 	# Issuer , Referent
-	issuer = """<b>Issuer DID</b> : """ + credential.issuer
+	issuer_did = credential.issuer
+	issuer = """<b>Issuer DID</b> : """ + issuer_did
+	#print(json.dumps(json.loads(didkit.resolveDID(issuer_did, '{}')), indent=4))
 
 	# User, holder
-	user = """<b>User DID</b> : """ + credential.credentialSubject['id']
-
+	user_did = credential.credentialSubject['id']
+	user = """<b>User DID</b> : """ + user_did
+	#print(json.dumps(json.loads(didkit.resolveDID(user_did, '{}')), indent=4))
 
 	my_verif = "".join([issuer, "<br>", user, '<br>'])
 
@@ -443,7 +440,6 @@ def certificate_verify(mode) :
 							verif=my_verif,
 							viewer=viewer,
 							)
-
 
 
 # issuer explore

@@ -55,7 +55,7 @@ if __name__ == '__main__':
     test_did_2 = "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB" #  wrong did
     fp = open('/home/thierry/Talao/RSA_key/talaonet/' + test_did_1 + '.pem',"r")
     rsa_key = fp.read()
-    fp.close()
+
 
 
     unsigned_credential = {"test" : 5}
