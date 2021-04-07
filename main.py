@@ -216,9 +216,8 @@ def wellknown (mode) :
 def web(username, mode) :
     address = ns.get_data_from_username(username, mode).get('address')
     if address :
-        workspace_contract = ownersToContracts(address, mode)
-        fp = open('/home/thierry/Talao/RSA_key/talaonet/did:talao:talaonet:' + workspace_contract[2:] + '.pem',"r")
-        key = jwk.JWK.from_pem(fp.read().encode())
+        pvk = privatekey.get_key(address, 'rsa_key', mode)
+        key = jwk.JWK.from_pem(pvk.encode())
         rsa_public = key.export_public(as_dict=True)
         del rsa_public['kid']
 
