@@ -762,7 +762,10 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# Blockchain data
-	did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+	if session['method'] == "web" :
+		did = "did:web:talao.co:" + session['username']
+	else :
+		did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
 	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'

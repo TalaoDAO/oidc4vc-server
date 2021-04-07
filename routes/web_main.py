@@ -269,18 +269,30 @@ def select_identity (mode) :
         did_key = "did:key:" + session['address']
         did_ethr = helpers.ethereum_pvk_to_DID(session['private_key_value'], "ethr") + " (Ethereum)"
         did_tz = helpers.ethereum_pvk_to_DID(session['private_key_value'], "tz") + " (Tezos)"
-        if ns.get_method(session['workspace_contract'], mode) == 'ethr' :
+        did_web = "did:web:talao.co:" + session['username']
+        method = ns.get_method(session['workspace_contract'], mode)
+        if method == "ethr" :
             ethr_box = "checked"
-            tz_box = ""
-        else :
+            tz_box =  ""
+            web_box = ""
+        elif method == "tz" :
             ethr_box= ""
             tz_box = "checked"
-        return render_template('select_identity.html', **session['menu'], did_ethr=did_ethr, ethr_box=ethr_box, tz_box=tz_box, did_tz=did_tz, did_key=did_key)
+            web_box = ""
+        else :
+            ethr_box= ""
+            tz_box = ""
+            web_box = "checked"
+        return render_template('select_identity.html', **session['menu'], did_ethr=did_ethr, ethr_box=ethr_box, tz_box=tz_box, web_box=web_box, did_tz=did_tz, did_web=did_web)
 
     if request.method == 'POST' :
         ns.update_method(session['workspace_contract'], request.form['method'], mode)
         session['method'] = request.form['method']
-        flash('your did = ' + helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method']), 'success')
+        if session['method'] == "web" :
+            did = "did:web:talao.co:" + session['username']
+        else :
+            did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+        flash('your did = ' + did, 'success')
         return redirect(mode.server + 'user/')
 
 

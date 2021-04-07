@@ -32,14 +32,16 @@ mode = environment.currentMode('talaonet','airbox')
 
 username = 'thierrythevenet'
 address = ns.get_data_from_username(username, mode).get('address')
-"""
+
 pvk = privatekey.get_key(address, 'rsa_key', mode)
 key = jwk.JWK.from_pem(pvk.encode())
-rsa_public = key.export_public(as_dict=True)
-del rsa_public['kid']
+key = key.export_private()
+#del rsa_public['kid']
+
 """
 pvk = privatekey.get_key(address, 'private_key', mode)
 key = helpers.ethereum_to_jwk256k(pvk)
+"""
 
 method = "web"
 
@@ -56,7 +58,7 @@ method = "web"
 #a = key.export_to_pem(private_key=True, password=b'test')
 #print (a)
 #key=key.export_private()
-print('key = ', key)
+#print('key = ', key)
 
 
 
@@ -64,7 +66,7 @@ print('key = ', key)
 #did = didkit.keyToDID(method, key)
 #print('did  = ', did)
 did = "did:web:talao.co:thierrythevenet"
-did = "did:web:did.actor:mike"
+#did = "did:web:did.actor:mike"
 
 DIDdocument = didkit.resolveDID(did,'{}')
 print(json.dumps(json.loads(DIDdocument), indent=4))
@@ -73,8 +75,8 @@ print(json.dumps(json.loads(DIDdocument), indent=4))
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
-verifmethod = did + "#key-1"
-print('verfif method = ', verifmethod)
+verifmethod = did + "#key-2"
+#print('verfif method = ', verifmethod)
 
 credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                         "type": ["VerifiableCredential"],
@@ -113,5 +115,5 @@ credential = didkit.issueCredential(
 """
 
 #print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
-print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
+#print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
 

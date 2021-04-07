@@ -39,28 +39,6 @@ def contractsToOwners(workspace_contract, mode) :
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address
 
-
-# to setup keystore first time from previous SQLIte database. To be removed later
-def setup_keystore(mode) :
-	path = mode.db_path
-	try :
-		conn = sqlite3.connect(path + 'private_key.db')
-	except :
-		return None
-	c = conn.cursor()
-	c.execute("SELECT private_key FROM key")
-	select = c.fetchall()
-	conn.close()
-	if select is None :
-		return None
-	for private_key in [pvk[0] for pvk in select] :
-		encrypted = Account.encrypt(private_key, mode.password)
-		address = mode.w3.toChecksumAddress(encrypted['address'])
-		with open(mode.keystore_path + address[2:] +".json", 'w') as f:
-  			f.write(json.dumps(encrypted))
-		f.close()
-	return
-
 def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=None) :
 	#recuperer la cle AES cryptée
 	# on encrypt en mode CBC pour compatiblité avec librairie JS
@@ -119,21 +97,7 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode, address_calle
 	if not aes :
 		logging.error('RSA key not found on server or cannot decrypt AES')
 		return None
-	"""
-	# AES-EAX encryption DEPRECATED
-	try : 
-		bytesdatajson = bytes(json.dumps(data), 'utf-8') # data(dict) -> json(str) -> bytes
-		header = b"header"
-		cipher = AES.new(aes, AES.MODE_EAX)
-		cipher.update(header)
-		ciphertext, tag = cipher.encrypt_and_digest(bytesdatajson)
-	except :
-		print('Error : decrypt problem dans private key . decrypt')
-		return None
-	json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
-	json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
-	dict_data = dict(zip(json_k, json_v))
-	"""
+
 	# AES-CBC encryption for compatibility with Javascrip librairy
 	message = json.dumps(data).encode('utf-8')
 	bytes = PBKDF2(aes, "salt".encode("utf-8"), 128, 128)
@@ -165,7 +129,6 @@ def create_rsa_key(private_key, mode) :
 	my_rand.counter = 0
 	RSA_key = RSA.generate(2048, randfunc=my_rand)
 	return  RSA_key, RSA_key.exportKey('PEM'), RSA_key.publickey().exportKey('PEM')
-
 
 def get_key(address, key_type, mode, address_caller=None) :
 	logging.warning('get_key address_caller in privatekey = %s', address_caller)
