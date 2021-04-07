@@ -239,18 +239,23 @@ def did_document(username, ec_public, rsa_public) :
     return {
                 "@context":
                     [
-                        "https://www.w3.org/ns/did/v1"
+                        "https://www.w3.org/ns/did/v1",
+                        {
+                            "@base" : id
+                        }
                     ],
                 "id": id,
                 "verificationMethod":
                     [
                         {
-                        "id": id + "#key-1",
+                        "id": "#key-1",
+                        "controller" : id,
                         "type": "JsonWebKey2020",
                         "publicKeyJwk": ec_public
                         },
                         {
-                        "id": id + "#key-2",
+                        "id": "#key-2",
+                        "controller" : id,
                         "type": "JsonWebKey2020",
                         "publicKeyJwk": rsa_public
                         }
