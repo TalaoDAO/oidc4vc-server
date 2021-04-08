@@ -48,7 +48,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_main, web_login
 
 # Release
-VERSION = "0.8.8"
+VERSION = "0.8.9"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -210,32 +210,39 @@ app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.
 
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
 def wellknown (mode) :
-    return redirect('/talao/did.json')
+    """ did:web
+    specifications : https://w3c-ccg.github.io/did-method-web/
 
-@app.route('/<username>/did.json', methods=['GET'], defaults={'mode' : mode})
-def web(username, mode) :
-    address = ns.get_data_from_username(username, mode).get('address')
-    if address :
+    """
+    return redirect('/0xE7d045966ABf7cAdd026509fc485D1502b1843F1/did.json')
+
+@app.route('/<address>/did.json', methods=['GET'], defaults={'mode' : mode})
+def web(address, mode) :
+    """ did:web management
+    specificatiosn : https://w3c-ccg.github.io/did-method-web/
+    """
+    try  :
+        # RSA
         pvk = privatekey.get_key(address, 'rsa_key', mode)
         key = jwk.JWK.from_pem(pvk.encode())
         rsa_public = key.export_public(as_dict=True)
         del rsa_public['kid']
-
+        # secp256k
         pvk = privatekey.get_key(address, 'private_key', mode)
         key = helpers.ethereum_to_jwk256k(pvk)
         ec_public = json.loads(key)
         del ec_public['d']
 
-        DIDdocument = did_document(username, ec_public, rsa_public)
-    else :
+        DIDdocument = did_document(address, ec_public, rsa_public)
+    except :
         DIDdocument = {'result' : 'No DID found'}
     return jsonify (DIDdocument)
 
-def did_document(username, ec_public, rsa_public) :
-    if username == 'talao' :
+def did_document(address, ec_public, rsa_public) :
+    if address == '0xE7d045966ABf7cAdd026509fc485D1502b1843F1' : #talao address
         id = "did:web:talao.co"
     else :
-        id =  "did:web:talao.co:" + username
+        id =  "did:web:talao.co:" + address
     return {
                 "@context":
                     [

@@ -331,7 +331,7 @@ def issue_credential_workflow(mode) :
         # credential cannot be updated if already signed
         field = "disabled" if session['call'][4] == 'signed' or session['role'] in ['admin', 'creator'] else ""
 
-        # credential is loaded as a dict and pass to view as field have same names
+        # credential is loaded  as dict
         my_credential = json.loads(session['call'][5])['credentialSubject']
         skills_str = ""
         for skill in my_credential['skills'] :
@@ -388,8 +388,8 @@ def issue_credential_workflow(mode) :
             # sign credential with company key
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
             my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
-            my_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-            my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+            #my_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+            my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], username=session['username'])
             signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(my_credential, session['private_key_value'], method=session['method'])
 
             # update local company database

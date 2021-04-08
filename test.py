@@ -8,9 +8,11 @@ from eth_keys import keys
 from eth_utils import decode_hex
 from jwcrypto import jwk
 from signaturesuite import helpers
-
+from protocol import ownersToContracts
 from datetime import datetime
 from components import privatekey, ns
+
+from signaturesuite import credential, helpers
 
 #key = didkit.generateEd25519Key()
 #print('key Ed25519Key ', key)
@@ -32,20 +34,25 @@ mode = environment.currentMode('talaonet','airbox')
 
 username = 'thierrythevenet'
 address = ns.get_data_from_username(username, mode).get('address')
+print('address = ', address)
+pvk = privatekey.get_key(address, 'private_key', mode)
 
-pvk = privatekey.get_key(address, 'rsa_key', mode)
-key = jwk.JWK.from_pem(pvk.encode())
-key = key.export_private()
+#key = jwk.JWK.from_pem(pvk.encode())
+#key = key.export_private()
 #del rsa_public['kid']
 
-"""
-pvk = privatekey.get_key(address, 'private_key', mode)
-key = helpers.ethereum_to_jwk256k(pvk)
-"""
 
-method = "web"
+#pvk = privatekey.get_key(address, 'private_key', mode)
+#key = helpers.ethereum_to_jwk256k(pvk)
+
 
 #pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
+#address = helpers.ethereum_pvk_to_address(pvk)
+#workspace_contract = ownersToContracts(address,mode)
+
+#print('address = ', helpers.ethereum_pvk_to_address(pvk))
+#print('workspace_contract = ', workspace_contract)
+
 #key = helpers.ethereum_to_jwk256kr(pvk)
 #did = helpers.ethereum_pvk_to_DID(pvk, method)
 
@@ -62,50 +69,85 @@ method = "web"
 
 
 
+method = "web"
+key = helpers.ethereum_to_jwk(pvk, method)
+print('key = ', key)
+if method == "web" :
+        did = "did:web:talao.co:" + address
+else :
+        did = didkit.keyToDID(method, key)
+print('did = ', did)
 
-#did = didkit.keyToDID(method, key)
+
 #print('did  = ', did)
-did = "did:web:talao.co:thierrythevenet"
+#did = "did:web:talao.co:thierrythevenet"
 #did = "did:web:did.actor:mike"
 
-DIDdocument = didkit.resolveDID(did,'{}')
-print(json.dumps(json.loads(DIDdocument), indent=4))
+#DIDdocument = didkit.resolveDID(did,'{}')
+#print(json.dumps(json.loads(DIDdocument), indent=4))
 
 #verifmethod = didkit.keyToVerificationMethod(method, key)
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
-verifmethod = did + "#key-2"
+#verifmethod = did + "#key-2"
 #print('verfif method = ', verifmethod)
 
-credential = { "@context": "https://www.w3.org/2018/credentials/v1",
-                        "type": ["VerifiableCredential"],
-                        "issuer" : did  ,
-                        "issuanceDate": "2020-08-19T21:41:50Z",
-                        "credentialSubject": {
-                        "id": "did:example:d23dd687a7dc6787646f2eb98d0",
+"""
+verificationPurpose = {
+            "proofPurpose": "authentication",
+            "verificationMethod": verifmethod,
+            "challenge": "132132132"
+        }
+
+presentation = didkit.DIDAuth(
+            did,
+            verificationPurpose.__str__().replace("'", '"'),
+            key
+        )
+
+print('presentation = ', presentation)
+
+verifyResult = json.loads(didkit.verifyPresentation(
+            presentation,
+            verificationPurpose.__str__().replace("'", '"')))
+
+print(verifyResult)
+"""
+cred = { "@context": "https://www.w3.org/2018/credentials/v1",
+                "type": ["VerifiableCredential"],
+                "issuer" : did  ,
+                "issuanceDate": "2020-08-19T21:41:50Z",
+                "credentialSubject": {
+                "id": "did:example:d23dd687a7dc6787646f2eb98d0",
                         }
-}
+        }
+
+print(credential.sign(cred, pvk, method))
 
 
 #fp=open("./verifiable_credentials/reference.jsonld", "r")
 #credential = json.loads(fp.read())
-credential["issuanceDate"] = "2020-08-19T21:41:50Z"
-credential["issuer"] = did
+
+#credential["issuanceDate"] = "2020-08-19T21:41:50Z"
+#credential["issuer"] = did
+
 #credential['id'] = "data:5656"
 #credential["credentialSubject"]["id"] = "data:555"
 
+"""
 didkit_options = {
         "proofPurpose": "assertionMethod",
         "verificationMethod": verifmethod
         }
-
 
 credential = didkit.issueCredential(
         credential.__str__().replace("'", '"'),
         didkit_options.__str__().replace("'", '"'),
         key
         )
+"""
+
 """
 credential = didkit.issueCredential(
         json.dumps(credential, ensure_ascii=False),
@@ -116,4 +158,5 @@ credential = didkit.issueCredential(
 
 #print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
 #print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
+
 

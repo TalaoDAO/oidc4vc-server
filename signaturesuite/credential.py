@@ -1,69 +1,55 @@
+"""
+method did:eth
+https://github.com/decentralized-identity/ethr-did-resolver/blob/master/doc/did-method-spec.md
+signature suite  with universal resolver
+"""
 
-from authlib.jose import JsonWebSignature
-import requests
+import pytz
+
+import didkit
 import json
-from datetime import datetime
 import base64
+from eth_keys import keys
+from eth_utils import decode_hex
+from jwcrypto import jwk
+from datetime import datetime
+from .helpers import jwk_to_ethereum, ethereum_to_jwk256kr, ethereum_pvk_to_address, ethereum_to_jwk256k
 
 
-
-
-def verify_credential(signed_credential, did) :
+def sign(credential, pvk, method="ethr"):
     """
-    Verify credential signed with RSA key of the DID
-    @parma signed_credential as a dict
-    @param did as a str
-    return bool
+    @method : str
+        default is ethr -> curve secp256k1 and "alg" :"ES256K-R"
+        tz (tz2) -> curve  secp256k1 and "alg" :"ES256K-R"
+        web  -> curve secp256k1 and "alg" :"ES256K"
+    @credential is dict
+    return is str
+    Both curve secp256k1 and "alg" :"ES256K-R"
     """
-    read = requests.get('https://talao.co/resolver?did=' + did)
-    #read = requests.get('http://127.0.0.1:3000/resolver?did=' + did)
-
-    for Key in read.json()['publicKey'] :
-        if Key.get('id') == did + "#secondary" :
-            public_key = Key['publicKeyPem']
-            break
-    jws = JsonWebSignature()
-    try :
-        jws.deserialize_compact(signed_credential['proof']['jws'], public_key)
-    except :
-        return False
-    return True
+    if not method :
+        method = 'ethr'
+    if method == 'web' :
+        key = ethereum_to_jwk256k(pvk)
+        address = ethereum_pvk_to_address(pvk)
+        did = 'did:talao:' + address
+        vm = didkit.keyToVerificationMethod(method, key)
+    else :
+        key = ethereum_to_jwk256kr(pvk)
+        did = didkit.keyToDID(method,key )
+        vm = didkit.keyToVerificationMethod(method, key)
 
 
-def sign_credential(credential, key) :
-    """
-    Sign credential with RSA key of the did, add the signature as linked data JSONLD
-    @parma credential as a dict
-    #param key a string PEM private RSA key
-    return signed credential as a dict
-    """
-    payload = json.dumps(credential)
-    credential_jws = JsonWebSignature(algorithms=['RS256'])
-    protected = {'alg': 'RS256'}
-    signature = credential_jws.serialize_compact(protected, payload, key.encode()).decode()
-    credential["proof"] = {"type": "RsaSignature2018",
-                "created": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
-                "proofPurpose": "assertionMethod",
-                "verificationMethod": "https://talao.readthedocs.io/en/latest/",
-                "jws" : signature
-             }
-    return credential
+    print('did = ', did)
+    print('vm = ', vm)
 
-if __name__ == '__main__':
-
-    test_did_1 = "did:talao:talaonet:c5C1B070b46138AC3079cD9Bce10010d6e1fCD8D" # correct did
-    test_did_2 = "did:talao:talaonet:81d8800eDC8f309ccb21472d429e039E0d9C79bB" #  wrong did
-    fp = open('/home/thierry/Talao/RSA_key/talaonet/' + test_did_1 + '.pem',"r")
-    rsa_key = fp.read()
-
-
-
-    unsigned_credential = {"test" : 5}
-
-    signed_credential = sign_credential_detached(unsigned_credential, rsa_key)
-    print(signed_credential, type(signed_credential))
-
-    print(validate_credential(signed_credential, test_did_2))
-
-
-
+    credential["issuer"] = did
+    credential["issuanceDate"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+    didkit_options = {
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": vm
+    }
+    return didkit.issueCredential(
+            #credential.__str__().replace("'", '"'),
+            json.dumps(credential, ensure_ascii=False),
+            didkit_options.__str__().replace("'", '"'),
+            key)
