@@ -95,7 +95,7 @@
                         </div>
                       </div>
 
-
+                      {% if session['type'] == "company" %}
                       <div class="card">
                           <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Get your client_id and client_secret for the API server.">
                               <h5 class="mb-0"><i class="fas fa-server"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-11" href="#accordion-2 .item-11">&nbsp; API Credentials</a></h5>
@@ -106,6 +106,18 @@
                               </div>
                           </div>
                       </div>
+                      {% endif %}
+
+                      <div class="card">
+                        <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Get your client_id and client_secret for the API server.">
+                            <h5 class="mb-0"><i class="fas fa-book-open"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-13" href="#accordion-2 .item-13">&nbsp; DID document</a></h5>
+                        </div>
+                        <div class="collapse item-13" role="tabpanel" data-parent="#accordion-2">
+                            <div class="card-body">
+                                    <p class="card-text"><pre>{{did_doc}}</pre></p>
+                            </div>
+                        </div>
+                    </div>
 
 
                       <div class="card">

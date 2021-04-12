@@ -1,8 +1,6 @@
 
-from flask import Flask, session, send_from_directory, flash, send_file, abort
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
-from flask_fontawesome import FontAwesome
+from flask import Flask, session, send_from_directory, flash
+from flask import request, redirect, render_template,abort
 import unidecode
 
 # dependances

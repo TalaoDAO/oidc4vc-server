@@ -1,16 +1,11 @@
 """ Issuer explore is used to display Ientity when search """
 
-import os
 from os import path
 import time
-from flask import Flask, session, send_from_directory, flash, send_file
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
-from flask_fontawesome import FontAwesome
+from flask import session, send_from_directory, flash
+from flask import request, redirect, render_template,abort
 from datetime import timedelta, datetime
 import json
-import random
-from Crypto.PublicKey import RSA
 import requests
 import shutil
 import logging
@@ -41,6 +36,7 @@ def is_username_in_list(my_list, username) :
 			return True
 	return False
 
+
 # helper
 def is_username_in_list_for_partnership(partner_list, username) :
 	if not username :
@@ -49,6 +45,7 @@ def is_username_in_list_for_partnership(partner_list, username) :
 		if partner['username'] == username and partner['authorized'] not in ['Removed',"Unknown", "Rejected"]:
 			return True
 	return False
+
 
 # issuer explore
 # This view allow user to explore other identities
@@ -133,6 +130,7 @@ def issuer_explore(mode) :
 					endDate = experience['credentialSubject']['endDate']
 					description = experience['credentialSubject']['description']
 					title = experience['credentialSubject']['title']
+					issuer_name = experience['credentialSubject']['companyName']
 
 				# for self claims
 				except:
@@ -141,6 +139,7 @@ def issuer_explore(mode) :
 					endDate = experience['end_date']
 					description = experience['description']
 					title = experience['title']
+					issuer_name  = ""
 
 				if logo != None:
 					if not path.exists(mode.uploads_path + logo) :
@@ -168,11 +167,7 @@ def issuer_explore(mode) :
 				#body
 				if experience['topic']!='experience':
 					carousel_rows_experience += """<p  style="font-size: 1em"><b>Referent name: </b>"""
-
-					if experience['issuer']['category']==2001:
-						carousel_rows_experience += experience['issuer']['name'] + """<br>"""
-					else:
-						carousel_rows_experience += experience['issuer']['firstname'] + ' ' + experience['issuer']['lastname'] + """<br>"""
+					carousel_rows_experience += issuer_name + """<br>"""
 
 				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
 				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
@@ -194,10 +189,7 @@ def issuer_explore(mode) :
 					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
 					carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
 				else:
-					if experience['issuer']['category']==2001:
-						carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  experience['issuer']['name'] + """</footer>"""
-					else:
-						carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + experience['issuer']['firstname'] + " " +  experience['issuer']['lastname'] + """</footer>"""
+					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  issuer_username + """</footer>"""
 					carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
 
 				carousel_rows_experience += """</figure></div>"""
@@ -503,10 +495,8 @@ def issuer_explore(mode) :
 			my_file = """<a class="text-info">No Files available</a>"""
 		else:
 			my_file = ""
-			is_encrypted = False
 			for one_file in session['issuer_explore']['identity_file']:
 				if one_file.get('content') == 'Encrypted':
-					is_encrypted = True
 					file_html = """
 					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + 'Not available - Encrypted ' + """ ) <br>
 					<b>Created</b> : """ + one_file['created'] + """<br>"""
@@ -519,12 +509,16 @@ def issuer_explore(mode) :
 					</a>"""
 				my_file = my_file + file_html + """<br>"""
 
+		#aggremet credentials
 		agreements = []
 		for certificate in session['issuer_explore']['certificate']:
-			if certificate['type'] == "agreement" or certificate['type'] == "agrement":
+			if certificate['type'] == "agreement" :
 				agreements.append(certificate)
 		carousel_indicators_agreement = """<li data-target="#agreement-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_agreement = ""
+
+		#FIXME no aggrements available
+		agreements = []
 		if agreements == []:
 			pass
 		else:
@@ -580,31 +574,38 @@ def issuer_explore(mode) :
 				if i == len(agreements)-1:
 					carousel_rows_agreement += '</div></div>'
 
+		# reference credentials
 		references = []
 		for certificate in session['issuer_explore']['certificate']:
-			if certificate['type'] == "reference":
+			if certificate['credentialSubject']['credentialCategory'] =='reference':
 				references.append(certificate)
 		carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_reference = ""
-		if references == []:
+		if not references :
 			pass
 		else:
 			nbr_rows = (len(references)-1)//3
 			for i in range(nbr_rows):
 				carousel_indicators_reference += '<li data-target="#reference-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, reference in enumerate(references):
-				try:
-					logo = reference['issued_by']['logo']
-				except:
+
+				logo = reference['credentialSubject']['companyLogo']
+				startDate = reference['credentialSubject']['offers']['startDate']
+				endDate = reference['credentialSubject']['offers']['endDate']
+				description = reference['credentialSubject']['offers']['description']
+				title = reference['credentialSubject']['offers']['title']
+				issuer_name = reference['credentialSubject']['companyName']
+				budget = reference['credentialSubject']['offers']['price']
+
+				if not logo :
 					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo != None:
-					if not path.exists(mode.uploads_path + logo) :
-						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-						response = requests.get(url, stream=True)
-						with open(mode.uploads_path + logo, 'wb') as out_file:
-							shutil.copyfileobj(response.raw, out_file)
-							del response
+				if not path.exists(mode.uploads_path + logo) :
+					url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+					response = requests.get(url, stream=True)
+					with open(mode.uploads_path + logo, 'wb') as out_file:
+						shutil.copyfileobj(response.raw, out_file)
+						del response
 
 				if i%3==0:
 					carousel_rows_reference += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
@@ -617,21 +618,21 @@ def issuer_explore(mode) :
 				#verified
 				carousel_rows_reference += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
-				carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + reference.get('project_title', "") + "</h4></div></div>"
+				carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div>"
 				#body
-				carousel_rows_reference += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + reference['issuer']['name'] + '<br>'
+				carousel_rows_reference += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + issuer_name + '<br>'
 
-				carousel_rows_reference += """<b>Start date</b> : """ + reference['start_date'] + """<b>	End date</b> : """ + reference['end_date'] + """<br> """
-				carousel_rows_reference += """<b>Project Budget</b> : """ + reference.get('project_budget', "") + """<br> """
+				carousel_rows_reference += """<b>Start date</b> : """ + startDate + """<b>	End date</b> : """ + endDate + """<br> """
+				carousel_rows_reference += """<b>Project Budget</b> : """ + budget + """<br> """
 
-				carousel_rows_reference += """<b> Description: </b>""" + reference.get('project_description', "")[:150]
-				if len(reference.get('project_description', ""))>150:
+				carousel_rows_reference += """<b> Description: </b>""" + description[:150]
+				if len(description)>150:
 					carousel_rows_reference += "...<br>"
 				else:
 					carousel_rows_reference += "<br>"
 				carousel_rows_reference += "</p>"
 				#Footer
-				carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + reference['issuer']['name'] + """</footer>"""
+				carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + issuer_name + """</footer>"""
 				#Lien certificates
 				carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """></a>"""
 
@@ -659,9 +660,6 @@ def issuer_explore(mode) :
 			white_list =  is_username_in_list(session['whitelist'], issuer_username)
 			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
 			partner_list = is_username_in_list_for_partnership(session['partner'], issuer_username)
-
-
-
 
 		#kyc
 		kyc = False

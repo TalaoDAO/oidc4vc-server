@@ -1,8 +1,5 @@
-import csv
 import json
 import os
-from datetime import datetime
-import sqlite3
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Protocol.KDF import PBKDF2
@@ -11,9 +8,12 @@ from base64 import b64encode, b64decode
 from eth_account import Account
 from Crypto.Util.Padding import pad
 import logging
+from jwcrypto import jwk
+
 logging.basicConfig(level=logging.INFO)
 
 import constante
+from signaturesuite import helpers
 
 # Gloval variables for RSA algo
 master_key = ""
@@ -63,8 +63,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 		jv = {k:b64decode(b64[k]) for k in json_k}
 		cipher = AES.new(aes, AES.MODE_EAX, nonce=jv['nonce'])
 		cipher.update(jv['header'])
-		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag'])
-		msg = json.loads(plaintext.decode('utf-8'))
+		plaintext = cipher.decrypt_and_verify(jv['ciphertext'], jv['tag']).decode('utf-8')
 		logging.warning('EAX decryptage - to be deprecated')
 	except :
 		data = b64decode(data['ciphertext'])
@@ -74,9 +73,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 		cipher = AES.new(key, AES.MODE_CBC, iv)
 		plaintext = cipher.decrypt(data)
 		plaintext = plaintext[:-plaintext[-1]].decode("utf-8")
-		msg = json.loads(plaintext)
-		logging.info('CBC decryptage')
-	return msg
+	return json.loads(plaintext)
 
 def encrypt_data(identity_workspace_contract, data, privacy, mode, address_caller=None) :
 	# parameter data is dict
@@ -120,6 +117,31 @@ def add_private_key(private_key, mode) :
 	f.close()
 	return True
 
+def generate_store_key(address, curve, mode) :
+	"""
+	curve = Ed25519 or P-256, and secp255k1... id needed
+	return str
+	"""
+	if curve == 'Ed25519' :
+		key = jwk.JWK.generate(kty="OKP", crv='Ed25519')
+	elif curve == 'P-256' :
+		key = jwk.JWK.generate(kty="EC", crv="P-256")
+	elif curve == 'secpp256k1' :
+		key = jwk.JWK.generate(kty="EC", crv="secp256k1")
+		logging.info('key not stored')
+		return False
+	else :
+		logging.error('curve not supported')
+		return False
+	curve = curve.replace('-','')
+	key_pem = key.export_to_pem(private_key=True, password=mode.password.encode())
+	filename = getattr(mode, curve + '_path') + address + '.' + curve
+	f = open(filename, 'w')
+	f.write(key_pem.decode())
+	f.close()
+	return True
+
+
 # create a RSA key from Ethereum private key
 def create_rsa_key(private_key, mode) :
 	global salt
@@ -131,56 +153,84 @@ def create_rsa_key(private_key, mode) :
 	return  RSA_key, RSA_key.exportKey('PEM'), RSA_key.publickey().exportKey('PEM')
 
 def get_key(address, key_type, mode, address_caller=None) :
-	logging.warning('get_key address_caller in privatekey = %s', address_caller)
+	""" main function to get key from server storage
+
+	"""
 	if not mode.w3.isAddress(address) or address == '0x0000000000000000000000000000000000000000' :
+		logging.error('incorrect address = %s', address)
 		return None
 
-	if key_type == 'private_key' :
+	if key_type == 'P-256' :
 		try :
-			fp = open(mode.keystore_path + address[2:] + '.json', "r")
+			fp = open(mode.P256_path + address + '.P256', 'r')
+		except :
+			logging.error('P256 key not found in privatekey.py')
+			return None
+		key = jwk.JWK.from_pem(fp.read().encode(), password=mode.password.encode())
+		return key.export_private()
+
+	if key_type == 'Ed25519' :
+		try :
+			fp = open(mode.Ed25519_path + address + '.Ed25519', 'r')
+		except :
+			logging.error('Ed25519 key not found in privatekey.py')
+			return None
+		key = jwk.JWK.from_pem(fp.read().encode(), password=mode.password.encode())
+		return key.export_private()
+
+	if key_type == 'secp256k1' :
+		try :
+			fp = open(mode.keystore_path + address[2:] + '.json', 'r')
 		except :
 			logging.error('private key not found in privatekey.py')
 			return None
-		encrypted = fp.read()
-		return Account.decrypt(encrypted, mode.password).hex()
+		pvk = Account.decrypt(fp.read(), mode.password).hex()
+		return helpers.ethereum_to_jwk(pvk, mode)
+
+	if key_type == 'private_key' :
+		try :
+			fp = open(mode.keystore_path + address[2:] + '.json', 'r')
+		except :
+			logging.error('private key not found in privatekey.py')
+			return None
+		return Account.decrypt(fp.read(), mode.password).hex()
 
 	# first we try to find a the new rsa file with .pem
 	workspace_contract = ownersToContracts(address, mode)
 	previous_filename = "./RSA_key/" + mode.BLOCKCHAIN + '/' + address + "_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt"
 	new_filename = "./RSA_key/" + mode.BLOCKCHAIN + '/did:talao:' + mode.BLOCKCHAIN + ':'  + workspace_contract[2:] + ".pem"
 	try :
-		fp_new = open(new_filename,"r")
+		fp_new = open(new_filename,'r')
 	except IOError :
-		logging.warning('new RSA file (.pem) not found on disk')
 		try :
-			fp_prev = open(previous_filename,"r")
+			fp_prev = open(previous_filename,'r')
 		except IOError :
-			logging.warning('old RSA file not found on disk ')
+			logging.warning('RSA key not found')
 			rsa_key  = None
 		else :
 			rsa_key = fp_prev.read()
-			fp_prev.close()
 			os.rename(previous_filename, new_filename)
-			logging.info('old RSA file renamed')
 	else :
 		rsa_key = fp_new.read()
-		fp_new.close()
-		logging.info('new RSA file found')
 
-	if key_type == 'rsa_key' :
+	if key_type in ['rsa_key', 'RSA'] :
 		return rsa_key
 
+	# get data for AES keys from workspace contract
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	data = contract.functions.identityInformation().call()
-	aes_encrypted = data[5]
-	secret_encrypted = data[6]
 
-	if key_type == 'aes_key' and rsa_key :
+	if key_type in ['aes_key', 'private']  and rsa_key :
 		key = RSA.importKey(rsa_key)
 		cipher = PKCS1_OAEP.new(key)
-		return cipher.decrypt(aes_encrypted)
+		return cipher.decrypt(data[5])
 
-	elif key_type == 'aes_key' and address_caller : # look for partnership data
+	elif key_type in ['secret_key', 'secret'] and rsa_key :
+		key = RSA.importKey(rsa_key)
+		cipher = PKCS1_OAEP.new(key)
+		return cipher.decrypt(data[6])
+
+	elif key_type in ['aes_key', 'private'] and address_caller : # look for partnership data
 		#recuperer les cle AES cryptée du user sur son partnership de l identité (caller)
 		workspace_contract_caller = ownersToContracts(address_caller, mode)
 		contract = mode.w3.eth.contract(workspace_contract_caller, abi = constante.workspace_ABI)
@@ -193,7 +243,7 @@ def get_key(address, key_type, mode, address_caller=None) :
 		try :
 			partnership_data = contract.functions.getPartnership(workspace_contract).call()
 		except :
-			logging.error('problem with getPartnership ligne 232 privatekey.py')
+			logging.error('problem with getPartnership')
 			return None
 		# one tests if the user is in partnershipg with identity (pending or authorized) and if his aes_key exist (status rejected ?)
 		if partnership_data[1] in [1, 2] and partnership_data[4] != b'':
@@ -205,15 +255,10 @@ def get_key(address, key_type, mode, address_caller=None) :
 		rsa_key_caller = get_key(address_caller, 'rsa_key', mode)
 		key = RSA.importKey(rsa_key_caller)
 		cipher = PKCS1_OAEP.new(key)
-		logging.info('private key decrypted with partnership data = ', cipher.decrypt(aes_encrypted))
+		logging.info('private key decrypted with partnership data = %s', cipher.decrypt(aes_encrypted))
 		return cipher.decrypt(aes_encrypted)
 
-	elif key_type == 'secret_key' and rsa_key :
-		key = RSA.importKey(rsa_key)
-		cipher = PKCS1_OAEP.new(key)
-		return cipher.decrypt(secret_encrypted)
-
 	else :
-		logging.error('no key decrypted ', key_type)
+		logging.error('no key decrypted %s', key_type)
 		return None
 

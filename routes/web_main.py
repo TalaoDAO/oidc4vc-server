@@ -22,10 +22,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 from factory import createcompany, createidentity
-from components import Talao_message, Talao_ipfs, hcode, ns, analysis, history, privatekey, QRCode, directory, sms, siren, talao_x509, company
+from components import Talao_message, Talao_ipfs, hcode, ns, privatekey, QRCode, directory, sms, siren, talao_x509, company
 from signaturesuite import helpers, EcdsaSecp256k1RecoverySignature2020
 import constante
-from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image, authorize_partnership, reject_partnership, destroy_workspace
+from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image
+from protocol import  authorize_partnership, reject_partnership, destroy_workspace
 from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
 
@@ -266,10 +267,9 @@ def select_identity (mode) :
     if request.method == 'GET' :
         #did_key = helpers.ethereum_pvk_to_DID(session['private_key_value'], "key")
         # FIXME
-        did_key = "did:key:" + session['address']
-        did_ethr = helpers.ethereum_pvk_to_DID(session['private_key_value'], "ethr") + " (Ethereum)"
-        did_tz = helpers.ethereum_pvk_to_DID(session['private_key_value'], "tz") + " (Tezos)"
-        did_web = "did:web:talao.co:" + session['username']
+        did_ethr = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'ethr', session['address']) + ' (Ethereum)'
+        did_tz = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'tz', session['address']) + ' (Tezos)'
+        did_web = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'web', session['address']) + ' (Talao DNS)'
         method = ns.get_method(session['workspace_contract'], mode)
         if method == "ethr" :
             ethr_box = "checked"
@@ -288,30 +288,9 @@ def select_identity (mode) :
     if request.method == 'POST' :
         ns.update_method(session['workspace_contract'], request.form['method'], mode)
         session['method'] = request.form['method']
-        if session['method'] == "web" :
-            did = "did:web:talao.co:" + session['username']
-        else :
-            did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+        did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
         flash('your did = ' + did, 'success')
         return redirect(mode.server + 'user/')
-
-
-def data_analysis(mode) :
-    """ Dashboard, Analysis, history
-
-    TODO : cleanup
-
-    #@app.route('/user/data_analysis/', methods=['GET'])
-    """
-    check_login()
-    if request.method == 'GET' :
-        if request.args.get('user') == 'issuer_explore' :
-            my_analysis = analysis.dashboard(session['issuer_explore']['workspace_contract'],session['issuer_explore'], mode)
-            history_string = history.history_html(session['issuer_explore']['workspace_contract'],15, mode)
-        else :
-            my_analysis = analysis.dashboard(session['workspace_contract'],session['resume'], mode)
-            history_string = history.history_html(session['workspace_contract'],15, mode)
-        return render_template('dashboard.html', **session['menu'],    history=history_string,    **my_analysis)
 
 
 # Tutorial
@@ -1102,8 +1081,7 @@ def remove_experience(mode) :
         session['experience'] = [experience for experience in session['experience'] if experience['id'] != session['experience_to_remove']]
         Id = session['experience_to_remove'].split(':')[5]
         my_experience = Document('experience')
-        data = my_experience.relay_delete(session['workspace_contract'], int(Id), mode)
-        if not data :
+        if not my_experience.relay_delete(session['workspace_contract'], int(Id), mode) :
             flash('Transaction failed', 'danger')
         else :
             del session['experience_to_remove']
@@ -1155,8 +1133,7 @@ def remove_certificate(mode) :
         if request.args.get('two_factor') == "True" :
             session['certificate'] = [certificate for certificate in session['certificate'] if certificate['id'] != session['certificate_to_remove']]
             Id = session['certificate_to_remove'].split(':')[5]
-            data = Document('certificate').relay_delete(session['workspace_contract'], int(Id), mode)
-            if not data :
+            if not  Document('certificate').relay_delete(session['workspace_contract'], int(Id), mode) :
                 flash('Transaction failed', 'danger')
                 logging.warning('transaction to delete credential failed')
             else :
@@ -1187,8 +1164,7 @@ def remove_file(mode) :
         session['identity_file'] = [one_file for one_file in session['identity_file'] if one_file['id'] != session['file_id_to_remove']]
         Id = session['file_id_to_remove'].split(':')[5]
         my_file = File()
-        data = my_file.relay_delete(session['workspace_contract'], int(Id), mode)
-        if not data :
+        if not my_file.relay_delete(session['workspace_contract'], int(Id), mode) :
             flash('Transaction failed', 'danger')
         else :
             del session['file_id_to_remove']
@@ -1240,8 +1216,7 @@ def remove_education(mode) :
         session['education'] = [education for education in session['education'] if education['id'] != session['education_to_remove']]
         doc_id = session['education_to_remove'].split(':')[5]
         my_education = Document('education')
-        data = my_education.relay_delete(session['workspace_contract'], int(doc_id), mode)
-        if not data :
+        if not my_education.relay_delete(session['workspace_contract'], int(doc_id), mode) :
             flash('Transaction failed', 'danger')
         else :
             for counter,edu in enumerate(session['education'], 0) :

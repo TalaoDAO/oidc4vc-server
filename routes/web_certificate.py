@@ -4,10 +4,8 @@ import os.path
 from os import path
 from flask import Flask, session, send_from_directory, flash, jsonify
 from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
 import requests
 import shutil
-from flask_fontawesome import FontAwesome
 import json
 from sys import getsizeof
 import random
@@ -19,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 # dependances
 from protocol import Document, read_profil, Identity, Claim
 import constante
-from components import ns, analysis
+from components import ns
 
 def convert(obj):
 	if type(obj) == list:
@@ -42,29 +40,27 @@ def show_certificate(mode):
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 
-	certificate_id = request.args['certificate_id']
-	doc_id = int(certificate_id.split(':')[5])
-	identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
-	self_claim = None
-
-	try:
+	try :
+		certificate_id = request.args['certificate_id']
+		doc_id = int(certificate_id.split(':')[5])
+		identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+	except :
+		content = json.dumps({'topic' : 'error', 'msg' : 'Request malformed'})
+		return Response(content, status=406, mimetype='application/json')
+	try :
 		self_claim = certificate_id.split(':')[6]
 	except:
-		pass
+		self_claim = None
 
-	if session.get('certificate_id') != certificate_id :
+	if session.get('certificate_id') != request.args['certificate_id'] :
 		certificate = Document('certificate')
-		exist = certificate.relay_get(identity_workspace_contract, doc_id, mode, loading = 'full')
-		if not exist :
-			content = json.dumps({'topic' : 'error', 'msg' : 'Credential Not Found'})
-			response = Response(content, status=406, mimetype='application/json')
-			return response
-		session['certificate_id'] = certificate_id
+		if not certificate.relay_get(identity_workspace_contract, doc_id, mode, loading = 'full') :
+			content = json.dumps({'topic' : 'error', 'msg' : 'Credential not found'})
+			return Response(content, status=406, mimetype='application/json')
+		if certificate.privacy != 'public' :
+			content = json.dumps({'topic' : 'error', 'msg' : 'This credential is private'})
+			return Response(content, status=406, mimetype='application/json')
 		session['displayed_certificate'] = certificate.__dict__
-
-	identity_profil= read_profil(identity_workspace_contract, mode, 'light')[0]
-	issuer_username = None if 'issuer_username' not in session else session['issuer_username']
-	identity_username = None if 'username' not in session else session['username']
 
 	if self_claim == "experience" :
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
@@ -154,67 +150,46 @@ def show_certificate(mode):
 				if skill['description'] :
 					my_badge += """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill['description'].strip(' ').capitalize() + """</span>"""
 		else :
-			my_badge = None
+			my_badge = ""
 
-		if session['displayed_certificate']['issuer']['category'] == 2001 : # company
-			signature = session['displayed_certificate']['credentialSubject']['managerSignature']
-			logo = session['displayed_certificate']['credentialSubject']['companyLogo']
+		# if there is no signature one uses Picasso signature
+		signature = session['displayed_certificate']['credentialSubject']['managerSignature']
+		if not signature :
+			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
 
-			# if there is no signature one uses Picasso signature
-			if not signature :
-				signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
-			# if there is no logo one uses default logo
-			if not logo  :
-				logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+		# if there is no logo one uses default logo
+		logo = session['displayed_certificate']['credentialSubject']['companyLogo']
+		if not logo  :
+			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
 
-			if not path.exists(mode.uploads_path + signature) :
-				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + signature, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-				del response
+		# upload signature and logo on server
+		if not path.exists(mode.uploads_path + signature) :
+			url = 'https://gateway.pinata.cloud/ipfs/'+ signature
+			response = requests.get(url, stream=True)
+			with open(mode.uploads_path + signature, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
 
-			if not path.exists(mode.uploads_path + logo) :
-				url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + logo, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-				del response
+		if not path.exists(mode.uploads_path + logo) :
+			url = 'https://gateway.pinata.cloud/ipfs/'+ logo
+			response = requests.get(url, stream=True)
+			with open(mode.uploads_path + logo, 'wb') as out_file:
+				shutil.copyfileobj(response.raw, out_file)
+			del response
 
-			return render_template('./certificate/experience_certificate.html',
+		return render_template('./certificate/experience_certificate.html',
 							**menu,
-							manager= session['displayed_certificate']['credentialSubject']['managerName'],
+							managerName=session['displayed_certificate']['credentialSubject']['managerName'],
+							companyName=session['displayed_certificate']['credentialSubject']['companyName'],
 							badge=my_badge,
 							title = session['displayed_certificate']['credentialSubject']['title'],
-							identity_firstname=identity_profil['firstname'],
-							identity_lastname=identity_profil['lastname'],
+							subject_name = session['displayed_certificate']['credentialSubject']['name'],
 							description=session['displayed_certificate']['credentialSubject']['description'],
 							start_date=session['displayed_certificate']['credentialSubject']['startDate'],
 							end_date=session['displayed_certificate']['credentialSubject']['endDate'],
 							signature=signature,
 							logo=logo,
 							certificate_id=certificate_id,
-							identity_username=identity_username,
-							issuer_username=issuer_username,
-							viewer=viewer,
-							#verify_link = session['displayed_certificate']['issuer']['website']+ "/verify?certificate_id=" + session['certificate_id'],
-							**context)
-
-
-		else : # issuer is a person
-			return render_template('./certificate/certificate_light.html',
-							**menu,
-							manager= session['displayed_certificate']['manager'],
-							badge=my_badge,
-							title = session['displayed_certificate']['title'],
-							identity_firstname=identity_profil['firstname'],
-							identity_lastname=identity_profil['lastname'],
-							description=session['displayed_certificate']['description'],
-							start_date=session['displayed_certificate']['start_date'],
-							end_date=session['displayed_certificate']['end_date'],
-							certificate_id=certificate_id,
-							identity_username=identity_username,
-							issuer_username=issuer_username,
 							viewer=viewer,
 							**context)
 
@@ -239,8 +214,8 @@ def show_certificate(mode):
 		description = """ " """ + session['displayed_certificate']['description'] + """ " """
 		return render_template('./certificate/recommendation_certificate.html',
 							**menu,
-							identity_firstname=identity_profil['firstname'],
-							identity_lastname=identity_profil['lastname'],
+							#identity_firstname=identity_profil['firstname'],
+							#identity_lastname=identity_profil['lastname'],
 							description=description,
 							issuer_picture=issuer_picture,
 							issuer_title=issuer_title,
@@ -248,8 +223,8 @@ def show_certificate(mode):
 							issuer_lastname=session['displayed_certificate']['issuer']['lastname']if session['displayed_certificate']['issuer']['category']== 1001 else "",
 							relationship=session['displayed_certificate']['relationship'],
 							certificate_id=certificate_id,
-							identity_username=identity_username,
-							issuer_username=issuer_username,
+							#identity_username=identity_username,
+							#issuer_username=issuer_username,
 							viewer=viewer
 							)
 
@@ -286,16 +261,16 @@ def show_certificate(mode):
 		return render_template('./certificate/skill_certificate.html',
 							**menu,
 							manager= session['displayed_certificate']['manager'],
-							identity_firstname=identity_profil['firstname'],
-							identity_lastname=identity_profil['lastname'],
-							identity_name =identity_profil['firstname'] + ' ' + identity_profil['lastname'],
+							#identity_firstname=identity_profil['firstname'],
+							#identity_lastname=identity_profil['lastname'],
+							#identity_name =identity_profil['firstname'] + ' ' + identity_profil['lastname'],
 							description=description,
 							issuer_picture=issuer_picture,
 							signature=signature,
 							logo=logo,
 							certificate_id=certificate_id,
 							title=session['displayed_certificate']['title'],
-							issuer_name=session['displayed_certificate']['issuer']['name'],
+							#issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer
 							)
 	# if agreement certificate display
@@ -421,14 +396,12 @@ def certificate_verify(mode) :
 		return jsonify ({'result' : 'certificate not found'})
 
 	# Issuer , Referent
-	issuer_did = credential.issuer
-	issuer = """<b>Issuer DID</b> : """ + issuer_did
-	#print(json.dumps(json.loads(didkit.resolveDID(issuer_did, '{}')), indent=4))
+	issuer = """<b>Issuer DID</b> : """ + credential.issuer
+	#print(json.dumps(json.loads(didkit.resolveDID(credential.issuer, '{}')), indent=4))
 
 	# User, holder
-	user_did = credential.credentialSubject['id']
-	user = """<b>User DID</b> : """ + user_did
-	#print(json.dumps(json.loads(didkit.resolveDID(user_did, '{}')), indent=4))
+	user = """<b>User DID</b> : """ + credential.credentialSubject['id']
+	#print(json.dumps(json.loads(didkit.resolveDID(credential.credentialSubject['id'], '{}')), indent=4))
 
 	my_verif = "".join([issuer, "<br>", user, '<br>'])
 
@@ -452,7 +425,6 @@ def certificate_issuer_explore(mode) :
 
 	issuer_workspace_contract = request.args['workspace_contract']
 	certificate_id = request.args.get('certificate_id')
-	#session['certificate_id'] = certificate_id
 	try :
 		issuer_explore = Identity(issuer_workspace_contract, mode, authenticated=False)
 	except :
@@ -495,38 +467,13 @@ def certificate_issuer_explore(mode) :
 		issuer_personal = """<span><b>Username</b> : """ + issuer_username +"""<br>"""
 		for topic_name in issuer_explore.personal.keys() :
 			if issuer_explore.personal[topic_name]['claim_value']  :
-				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
+				#topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
 				issuer_personal = issuer_personal + """
 				<span><b>"""+ Topic[topic_name] +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""
-					
 				</span><br>"""
 
 		# Proofs of Identity
 		my_kyc = ""
-
-		#if not len (issuer_explore.kyc):
-		#	my_kyc = """<a class="text-danger">No Certificate of Identity available</a>"""
-		#else :
-		#	my_kyc = "<b>Certificate issued by Talao</b><br><br>"
-		#	for kyc in issuer_explore.kyc :
-		#		kyc_html = """
-		#		<b>Firstname</b> : """+ kyc['firstname'] +"""<br>
-		#		<b>Lastname</b> : """+ kyc['lastname'] +"""<br>
-		#		<b>Birth Date</b> : """+ kyc['birthdate'] +"""<br>
-		#		<b>Gender</b> : """+ kyc['sex'] +"""<br>
-		#		<b>Nationality</b> : """+ kyc['nationality'] + """<br>
-		#		<b>Date of Issue</b> : """+ kyc['date_of_issue']+"""<br>
-		#		<b>Date of Expiration</b> : """+ kyc['date_of_expiration']+"""<br>
-		#		<b>Authority</b> : """+ kyc['authority']+"""<br>
-		#		<b>Country</b> : """+ kyc['country']+"""<br>
-		#		<b>Card Id</b> : """+ kyc['card_id']+"""<br>
-		#		<p>
-		#			<a class="text-secondary" href=/certificate/data/?dataId="""+ kyc['id'] + """:kyc>
-		#				<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-		#			</a>
-		#		</p>"""
-		#		my_kyc = my_kyc + kyc_html
-
 
 		# experience
 		issuer_experience = ''
@@ -539,7 +486,6 @@ def certificate_issuer_explore(mode) :
 					<b>Title</b> : """+experience['title']+"""<br>
 					<b>Description</b> : """+experience['description'][:100]+"""...<br>
 					<p>
-						
 					</p>"""
 				issuer_experience = issuer_experience + exp_html + """<hr>"""
 
@@ -554,7 +500,6 @@ def certificate_issuer_explore(mode) :
 					<b>Title</b> : """+education['title']+"""<br>
 					<b>Description</b> : """+education['description'][:100]+"""...<br>
 					<p>
-						
 					</p>"""
 				issuer_education = issuer_education + edu_html + """<hr>"""
 
@@ -572,13 +517,10 @@ def certificate_issuer_explore(mode) :
 					<a class="text-secondary" href="/user/remove_experience/?experience_id="""  + """>
 						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
-
-					
 				</p>  -->"""
 				issuer_skills = issuer_skills + skill_html
 			issuer_skills = issuer_skills + """
 				<p>
-				
 				</p>"""
 
 		# certificates
@@ -591,10 +533,8 @@ def certificate_issuer_explore(mode) :
 				certificate_issuer_username = 'Unknown' if not certificate_issuer_username else certificate_issuer_username
 				if certificate['issuer']['category'] == 2001 :
 					certificate_issuer_name = certificate['issuer']['name']
-					#certificate_issuer_type = 'Company'
 				elif  certificate['issuer']['category'] == 1001 :
 					certificate_issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					#certificate_issuer_type = 'Person'
 				else :
 					pass
 				cert_html = """
@@ -603,14 +543,8 @@ def certificate_issuer_explore(mode) :
 						<b>Description</b> : """ + certificate['description'][:100]+"""...<br>
 						<b></b><a href= """ + mode.server +  """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_workspace_contract[2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 						<p>
-							
 						</p>"""
 				issuer_certificates = issuer_certificates + cert_html + """<hr>"""
-		# services
-		#services ="""
-		#		<a class="text-success" href="/certificate/certificate_data_analysis/" >Talent Dashboard</a></br>
-		#		<a class="text-success" href="" >Send a memo to this Talent</a></br>
-		#		<a href="/register/" class="text-warning"> Register to get access to other services.</a><br><br>"""
 
 		return render_template('./certificate/certificate_person_issuer_identity.html',
 							**menu,
@@ -622,7 +556,6 @@ def certificate_issuer_explore(mode) :
 							skills=issuer_skills,
 							certificates=issuer_certificates,
 							education=issuer_education,
-							#services=services,
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id= certificate_id,
 							viewer=viewer,)
@@ -635,10 +568,7 @@ def certificate_issuer_explore(mode) :
 			my_kbis = """<p class="text-warning">No data available</p><br>"""
 
 		if issuer_explore.personal['website']['claim_value'] :
-			#on_line_check = on_line_checking(issuer_explore.personal['website']['claim_value'])
 			my_kbis = """<b>Contact</b> : """ + issuer_explore.personal['contact_email']['claim_value'] #+ """ <br>
-			#	<b>Visual check</b> : <a href=" """ + issuer_explore.personal['website']['claim_value'] + """/did/">""" + issuer_explore.personal['website']['claim_value'] + """</a><br>
-			#	<b>On-Line check</b> : """ + on_line_check
 
 		for kbis in issuer_explore.kbis :
 			my_kbis = my_kbis + "<hr><b>Certificate issued by Talao</b><br><br>"
@@ -649,7 +579,6 @@ def certificate_issuer_explore(mode) :
 				<b>Capital</b> : """+ kbis['capital']+"""<br>
 				<b>Address</b> : """+ kbis['address']+"""<br>
 				<p>
-					
 				</p>"""
 			my_kbis = my_kbis + kbis_html
 
@@ -662,7 +591,6 @@ def certificate_issuer_explore(mode) :
 				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:] + ':claim:' + issuer_explore.personal[topic_name]['claim_id']
 				issuer_personal = issuer_personal + """
 				<span><b>"""+ topic_name +"""</b> : """+ issuer_explore.personal[topic_name]['claim_value']+"""
-					
 				</span><br>"""
 
 		services ="""<a class="text-warning">Register to get access to services.</a><br><br>"""
@@ -676,21 +604,3 @@ def certificate_issuer_explore(mode) :
 							issuer_picturefile=issuer_explore.picture,
 							certificate_id=certificate_id,
 							viewer=viewer,)
-
-
-
-
-# Analysis
-#@app.route('/certificate/data_analysis/', methods=['GET'])
-def certificate_data_analysis(mode) :
-
-	viewer = 'guest' if not session.get('username') else 'user'
-
-	certificate_id = session['certificate_id']
-	identity_workspace_contract = '0x' + certificate_id.split(':')[3]
-	if request.method == 'GET' :
-		my_analysis = analysis.dashboard(identity_workspace_contract, session['resume'], mode)
-
-		return render_template('dashboard.html',
-								viewer= viewer,
-								**my_analysis)

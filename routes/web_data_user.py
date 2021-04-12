@@ -6,15 +6,12 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import session, send_from_directory, flash
 from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
-from flask_fontawesome import FontAwesome
 from datetime import timedelta, datetime
 import time
 import json
 import random
-from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
@@ -50,7 +47,6 @@ def privacy() :
 
 def data(mode) :
 	"""
-	 on ne gere aucune information des data en session 
 	#@app.route('/data/', methods=['GET'])
 	"""
 	check_login()
@@ -69,7 +65,6 @@ def data(mode) :
 		if not my_data.relay_get(workspace_contract, doc_id, mode) :
 			logging.error('document does not exist')
 			return redirect(mode.server + 'user/')
-		expires = my_data.expires
 		my_topic = my_data.topic.capitalize()
 
 	if support == 'claim' :
@@ -78,24 +73,12 @@ def data(mode) :
 		if not my_data.get_by_id(session.get('workspace_contract'), session.get('private_key_value'), workspace_contract, claim_id, mode) :
 			logging.error('claim does ot exist')
 			return redirect(mode.server + 'user/')
-		expires = 'Unlimited'
 		my_topic = 'Personal'
 
 	myvisibility = my_data.privacy
 
-	# issuer
-	issuer_username = ns.get_username_from_resolver(my_data.issuer['workspace_contract'], mode)
-	issuer_username = 'Unknown' if not issuer_username  else issuer_username
-
 	# advanced """
 	(location, link) = (my_data.data_location, my_data.data_location)
-	if mode.BLOCKCHAIN == 'rinkeby' :
-		transaction_hash = """<a class = "card-link" href = https://rinkeby.etherscan.io/tx/ """ + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a>"""
-	elif mode.BLOCKCHAIN == 'ethereum' :
-		transaction_hash = """<a class = "card-link" href = https://etherscan.io/tx/ """ + my_data.transaction_hash + """>"""+ my_data.transaction_hash + """</a>"""
-	else :
-		transaction_hash = my_data.transaction_hash
-
 	if support == 'document' :
 		myadvanced = """
 				<b>Advanced</b>
@@ -115,9 +98,6 @@ def data(mode) :
 				<li><b>Claim Id</b> : """ + str(claim_id) + """<br></li>
 				<li><b>Topic</b> : """ + str(my_data.topicname) + """<br></li>
 				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
-				<li><b>Created</b> : """ + my_data.created + """<br></li>
-				<li><b>Expires</b> : """ + expires + """<br></li>
-				<li><b>Transaction Hash</b> : """ +transaction_hash + """<br></li>
 				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
 
 	return render_template('data_check.html', **session['menu'], verif=myadvanced, credential=credential_text)
@@ -431,39 +411,14 @@ def user(mode) :
 		for topicname in session['personal'].keys() :
 			if session['personal'][topicname]['claim_value'] :
 				topicname_value = session['personal'][topicname]['claim_value']
-				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
+				#topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
 				my_personal = my_personal + """
 				<span><b>""" + Topic[topicname] + """</b> : """+ topicname_value + topicname_privacy +"""
 				</span><br>"""
 
-		# kyc Digital Identity this is ann ERC725 claim
+		# kyc deprecated
 		my_kyc = ""
-		if not session['kyc'] or not session['kyc'][0]['claim_id']:
-			my_kyc = my_kyc + """<p>Your Professionnal Digital Identity has not been activated yet.
-			  You can now start the Identity verification process.</p>
-			 				<br>
-							 <a href="/user/request_proof_of_identity/">
-                            	<div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Identity verification</button></div>
-                             </a>
-							"""
-		else :
-			kyc = session['kyc'][0]
-			kyc_html = """ Your Professionnal Digital Identity has been activated by """ +  kyc['issuer'].get('name', 'Unknown') + """<br>
-				<b>Date of issue</b> : """ + kyc['created'] + """<br>
-
-				<div id="id_kyc"></div>
-				<p>
-					<a class="text-secondary" href="/user/remove_kyc/?kyc_id=""" + kyc.get('id',"") + """">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-					<a class="text-secondary" href="/data/?dataId=""" + kyc.get('id',"") + """">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>
-                    <div id="button" class="form-group"> <button id="in_progress_button" onclick="getKyc()" class="btn btn-primary btn-sm " type="button">Check your Digital Identity</button></div>
-				"""
-			my_kyc = my_kyc + kyc_html
 
 		# Alias
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
@@ -493,38 +448,30 @@ def user(mode) :
 			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
 		else :
 			for counter, certificate in enumerate(session['certificate'],1) :
-				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
-				issuer_username = 'Unknown' if not issuer_username else issuer_username
-				if certificate['issuer']['category'] == 2001 : # company
-					issuer_name = certificate['issuer']['name']
-					#issuer_type = 'Company'
-				elif  certificate['issuer']['category'] == 1001 :
-					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
-					#issuer_type = 'Person'
-				else :
-					pass
-				try :
+				try : 
 					cert_html = """<hr>
-							<b>Referent Name</b> : """ + issuer_name +"""<br>
-							<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
-							<b>Title</b> : """ + certificate['credentialSubject']['title'] + """<br>
-							<b>Description</b> : """ + certificate['credentialSubject']['description'][:100]+"""...<br>"""
+					<b>Credential Id</b> : """ + certificate['id'] +"""<br>
+					<b>Issuer Name</b> : """ + certificate['credentialSubject']['companyName'] +"""<br>
+					<b>Issuer DID</b> : """ + certificate['issuer'] +"""<br>
+					<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
+					<b>Issuance Date</b> : """ + certificate['proof']['created'] + """<br>"""
 				except :
-					cert_html = "credential : #" + str(counter) + """<br>"""
+					cert_html = """<hr>
+					<b>#</b> : """ + str(counter) + "<br>"
 
 				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
-							<p>
-							<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
-							<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
-							</a>
-							<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-							<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
-							</a>
-							<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-							<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link"></i>
-							</a>
-							</p>
-							<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+					<p>
+					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
+					<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
+					</a>
+					<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+					<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+					</a>
+					<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+					<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link"></i>
+					</a>
+					</p>
+					<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				my_certificates += cert_html
 
 		return render_template('person_identity.html',
@@ -648,16 +595,12 @@ def user(mode) :
 		if session['role'] in ['creator', 'admin'] :
 			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
-		# certificates
+		# credentials
 		if  not session['certificate'] :
 			my_certificates =  """<a class="text-info">No Credentials available</a>"""
 		else :
 			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
 			for counter, certificate in enumerate(session['certificate'],1) :
-				issuer_username = ns.get_username_from_resolver(certificate['issuer']['workspace_contract'], mode)
-				issuer_username = 'Unknown' if not issuer_username else issuer_username
-				if certificate['issuer']['category'] == 1001 :
-					issuer_name = certificate['issuer']['firstname'] + ' ' + certificate['issuer']['lastname']
 				if '@context' in certificate :
 					if  certificate['credentialSubject']['credentialCategory'] ==  "reference" :
 						cert_html = """<hr>
@@ -761,11 +704,13 @@ def user_advanced(mode) :
 					</span>"""
 			my_access = my_access + access_html + """<br>"""
 
+
+	# DID document
+	did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+	DIDdocument = didkit.resolveDID(did,'{}')
+	did_doc = json.dumps(json.loads(DIDdocument), indent=4)
+
 	# Blockchain data
-	if session['method'] == "web" :
-		did = "did:web:talao.co:" + session['username']
-	else :
-		did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
 	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
@@ -793,8 +738,6 @@ def user_advanced(mode) :
 	else :
 		my_partner = ""
 		for partner in session['partner'] :
-			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
-			#partner_username = 'Unknown' if partner_username is None else partner_username
 			partner_username = partner['username']
 			if partner['authorized'] == 'Pending' :
 				partner_html = """
@@ -818,7 +761,6 @@ def user_advanced(mode) :
 				</spn>"""
 			my_partner = my_partner + partner_html + """<br>"""
 
-
 	# Issuer for document, they have an ERC725 key 20002
 	if session['issuer'] == [] :
 		my_issuer = """  <a class="text-info">No Referents available</a>"""
@@ -837,7 +779,6 @@ def user_advanced(mode) :
 					</a>
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
-
 
 	# whitelist
 	if session['whitelist'] == [] :
@@ -863,9 +804,11 @@ def user_advanced(mode) :
 							access=my_access,
 							partner=my_partner,
 							issuer=my_issuer,
+							did_doc=did_doc,
 							api=my_api,
 							whitelist=my_white_issuer,
 							advanced=my_advanced)
+
 
 # account settings
 def user_account(mode) :

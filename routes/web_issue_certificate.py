@@ -5,9 +5,8 @@ If they do not have an Identity we create one.
 
 
 import os
-from flask import Flask, session, send_from_directory, flash, send_file
+from flask import session, send_from_directory, flash
 from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
 from flask_fontawesome import FontAwesome
 from datetime import timedelta, datetime
 import json

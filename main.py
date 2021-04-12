@@ -48,7 +48,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_main, web_login
 
 # Release
-VERSION = "0.8.9"
+VERSION = "0.8.10"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -97,8 +97,6 @@ app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certific
 app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode})
 app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
-#app.add_url_rule('/certificate/data/',  view_func=web_certificate.certificate_data, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/certificate/certificate_data_analysis/',  view_func=web_certificate.certificate_data_analysis, methods = ['GET'], defaults={'mode': mode})
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -145,7 +143,6 @@ app.add_url_rule('/user/update_phone/',  view_func=web_main.update_phone, method
 app.add_url_rule('/user/update_password/',  view_func=web_main.update_password, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/signature/',  view_func=web_main.signature, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/report',  view_func=web_main.report, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/data_analysis/',  view_func=web_main.data_analysis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/tutotial/',  view_func=web_main.tutorial, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/prefetch',  view_func=web_main.prefetch, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -214,7 +211,7 @@ def wellknown (mode) :
     specifications : https://w3c-ccg.github.io/did-method-web/
 
     """
-    return redirect('/0xE7d045966ABf7cAdd026509fc485D1502b1843F1/did.json')
+    return redirect('/' + mode.owner_talao + '/did.json')
 
 @app.route('/<address>/did.json', methods=['GET'], defaults={'mode' : mode})
 def web(address, mode) :
@@ -226,7 +223,6 @@ def web(address, mode) :
         pvk = privatekey.get_key(address, 'rsa_key', mode)
         key = jwk.JWK.from_pem(pvk.encode())
         rsa_public = key.export_public(as_dict=True)
-        del rsa_public['kid']
         # secp256k
         pvk = privatekey.get_key(address, 'private_key', mode)
         key = helpers.ethereum_to_jwk256k(pvk)
@@ -239,7 +235,7 @@ def web(address, mode) :
     return jsonify (DIDdocument)
 
 def did_document(address, ec_public, rsa_public) :
-    if address == '0xE7d045966ABf7cAdd026509fc485D1502b1843F1' : #talao address
+    if address == mode.owner_talao : #talao address
         id = "did:web:talao.co"
     else :
         id =  "did:web:talao.co:" + address

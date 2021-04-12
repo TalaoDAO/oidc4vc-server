@@ -12,6 +12,7 @@ from protocol import ownersToContracts
 from datetime import datetime
 from components import privatekey, ns
 
+from components import privatekey
 from signaturesuite import credential, helpers
 
 #key = didkit.generateEd25519Key()
@@ -32,10 +33,22 @@ from signaturesuite import credential, helpers
 
 mode = environment.currentMode('talaonet','airbox')
 
-username = 'thierrythevenet'
-address = ns.get_data_from_username(username, mode).get('address')
-print('address = ', address)
-pvk = privatekey.get_key(address, 'private_key', mode)
+username = 'pascaldelorme'
+for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauldupont', 'masociete' ] :
+        address = ns.get_data_from_username(username, mode).get('address')
+        privatekey.generate_store_key(address, 'Ed25519', mode)
+        privatekey.generate_store_key(address, 'P-256', mode)
+
+
+#print('key = ', privatekey.get_key(address, 'P-256', mode))
+#print('key = ', privatekey.get_key(address, 'secp256k1', mode))
+#print('key = ', privatekey.get_key(address, 'Ed25519', mode))
+
+
+#print('p256 = ', privatekey.generate_store_key(address, 'Ed25519', mode))
+
+#print('address = ', address)
+#pvk = privatekey.get_key(address, 'private_key', mode)
 
 #key = jwk.JWK.from_pem(pvk.encode())
 #key = key.export_private()
@@ -58,25 +71,22 @@ pvk = privatekey.get_key(address, 'private_key', mode)
 
 #key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K-R"})
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
-#key = jwk.JWK.generate(kty="EC", crv="P-256")
+key = jwk.JWK.generate(kty="EC", crv="P-256")
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1")
 #key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
 #key = jwk.JWK.generate(kty='RSA', size=2048)
 #a = key.export_to_pem(private_key=True, password=b'test')
 #print (a)
-#key=key.export_private()
+key=key.export_private()
 #print('key = ', key)
 
 
 
-method = "web"
-key = helpers.ethereum_to_jwk(pvk, method)
-print('key = ', key)
-if method == "web" :
-        did = "did:web:talao.co:" + address
-else :
-        did = didkit.keyToDID(method, key)
-print('did = ', did)
+#method = "tz"
+#key = helpers.ethereum_to_jwk(pvk, method)
+#did = helpers.jwk_to_did(method, key)
+
+#print('did = ', did)
 
 
 #print('did  = ', did)
@@ -113,7 +123,7 @@ verifyResult = json.loads(didkit.verifyPresentation(
             verificationPurpose.__str__().replace("'", '"')))
 
 print(verifyResult)
-"""
+
 cred = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "type": ["VerifiableCredential"],
                 "issuer" : did  ,
@@ -122,8 +132,8 @@ cred = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "id": "did:example:d23dd687a7dc6787646f2eb98d0",
                         }
         }
-
-print(credential.sign(cred, pvk, method))
+"""
+#print(credential.sign(cred, pvk, method))
 
 
 #fp=open("./verifiable_credentials/reference.jsonld", "r")

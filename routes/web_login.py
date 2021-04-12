@@ -6,10 +6,8 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import Flask, session, send_from_directory, flash, send_file
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
-#from flask_fontawesome import FontAwesome
+from flask import session, send_from_directory, flash, send_file
+from flask import request, redirect, render_template,abort
 from datetime import timedelta, datetime
 import json
 import secrets
@@ -234,7 +232,7 @@ def login(mode) :
 			logging.warning('username does not exist')
 			flash('Username not found', "warning")
 			session['try_number'] = 1
-			return render_template('./login/login.html', username="")
+			return render_template('./login/login_password.html', username="")
 
 		if not ns.check_password(session['username_to_log'], request.form['password'], mode)  :
 			logging.warning('wrong secret code')

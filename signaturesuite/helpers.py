@@ -52,6 +52,11 @@ def ethereum_pvk_to_address(pvk) :
     pub_key = priv_key.public_key
     return pub_key.to_checksum_address()
 
+def ethereum_pvk_to_pub(pvk) :
+    priv_key_bytes = decode_hex(pvk)
+    priv_key = keys.PrivateKey(priv_key_bytes)
+    return priv_key.public_key
+
 def jwk_to_ethereum(jwk) :
     jwk = json.loads(jwk)
     private_key = "0x" + base64.urlsafe_b64decode(jwk["d"] + '=' * (4 - len(jwk["d"]) % 4)).hex()
@@ -61,6 +66,12 @@ def jwk_to_ethereum(jwk) :
     public_key = pub_key.to_hex()
     address = pub_key.to_checksum_address()
     return private_key, public_key, address
+
+def jwk_to_did(method, key) :
+    if method == "web" :
+        return "did:web:talao.co:" +  jwk_to_ethereum(key)[2]
+    else :
+        return didkit.keyToDID(method, key)
 
 def ethereum_to_jwk256k(private_key) :
     return _ethereum_to_jwk256k(private_key, "ES256K")

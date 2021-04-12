@@ -26,11 +26,7 @@ doctypeversion = 3 : RGPD --> public data encodé avec une cle aes publique
 
 import json
 import hashlib
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES
 from eth_account import Account
-from base64 import b64encode
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
 import logging
@@ -49,16 +45,16 @@ def owners_to_contracts(address, mode) :
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	return contract.functions.ownersToContracts(address).call()
 
-def create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
+def create(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
 
 	# @data = dict
 
 	# check privacy vs doctype
 	if doctype in [50000, 40000, 10000, 15000, 20000, 11000] :
 		standard_privacy = 'public'
-	elif doctype == 50001 or doctype == 40001 or doctype == 15001 :
+	elif doctype in [50001, 40001, 15001, 20001] :
 		standard_privacy = 'private'
-	elif doctype == 50002 or doctype == 40002 :
+	elif doctype in [50002, 40002] :
 		standard_privacy = 'secret'
 	else :
 		standard_privacy = None
@@ -111,55 +107,23 @@ def create_document(address_from, workspace_contract_from, address_to, workspace
 	document_id = eventlist[-1]['args']['id']
 	return document_id, ipfs_hash, transaction_hash
 
-def get_document(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
+def get(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
 	try :
 		(doctype, doctypeversion, expires, issuer, checksum, engine, ipfshash, encrypted, related) = contract.functions.getDocument(documentId).call()
 	except :
-		return None, None, None, None, None, None, None, None, None, None, None , None, None
+		return None, None, None, None, None
 
 	if doctype in [50000,40000,10000,15000,20000,11000] :
 		privacy = 'public'
-	if doctype == 50001 or doctype == 40001 or doctype == 15001 :
+	if doctype in [50001, 40001, 15001, 20001]:
 		privacy = 'private'
-	if doctype == 50002 or doctype == 40002 :
+	if doctype in [50002, 40002] :
 		privacy = 'secret'
-
-	"""
-	# get transaction info
-	contract = w3.eth.contract(workspace_contract_user, abi=constante.workspace_ABI)
-	claim_filter = contract.events.DocumentAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
-	event_list = claim_filter.get_all_entries()
-	found = False
-	for doc in event_list :
-		if doc['args']['id'] == documentId :
-			found = True
-			transactionhash = doc['transactionHash']
-			transaction_hash = transactionhash.hex()
-			try :
-				transaction = w3.eth.getTransaction(transaction_hash)
-			except :
-				logging.error('get transaction document.py')
-				return None, None, None, None, None, None, None, None, None, None, None , None, None
-			gas_price = transaction['gasPrice']
-			workspace_contract_identity = transaction['to']
-			block_number = transaction['blockNumber']
-			block = mode.w3.eth.getBlock(block_number)
-			date = datetime.fromtimestamp(block['timestamp'])
-			gas_used = 1000
-			created = str(date)
-			break
-	if not found :
-		logging.error('document not found in event list')
-		return None, None, None, None, None, None, None, None, None, None, None , None, None
-	FIXME
-	"""
-	gas_used = 1000
 	created = ""
-	gas_price = 1
 	workspace_contract_identity = workspace_contract_user
-	transaction_hash = "0"
+	#transaction_hash = "0"
 
 	# recuperation du msg
 	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
@@ -171,21 +135,21 @@ def get_document(workspace_contract_from, private_key_from, workspace_contract_u
 		myexpires = datetime.fromtimestamp(expires)
 		expires = str(myexpires)
 
-	# compatiblité avec les documents non cryptés des version precedentes 
+	# compatiblité avec les documents non cryptés des version precedentes
 	if privacy  == 'public' and doctypeversion == 2 :
-		return issuer, workspace_contract_identity, data, ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
+		return issuer, workspace_contract_identity, data, ipfshash.decode('utf-8'), privacy
 
 	# decrypt data pour autres documents
 	msg = privatekey.decrypt_data(workspace_contract_user, data, privacy, mode)
 	if msg :
 		# decrypt avec algo AES-EAX ou AES-CBC
-		return issuer, workspace_contract_user, msg,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
+		return issuer, workspace_contract_user, msg, ipfshash.decode('utf-8'), privacy
 	else :
 		# la clé RSA n'est pas disponible sur le serveur
-		print("Warning : Cannot decrypt data in document.py for doc = ", documentId, ' doctype = ', doctype, ' privacy = ', privacy)
-		return issuer, workspace_contract_user, {"data" : 'Encrypted'} ,ipfshash.decode('utf-8'), gas_price*gas_used, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related
+		logging.warning('Cannot decrypt data')
+		return issuer, workspace_contract_user, {"data" : 'Encrypted'} ,ipfshash.decode('utf-8'), privacy
 
-def delete_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
+def _delete(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, documentId, mode):
 	w3 = mode.w3
 	contract=w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	nonce = w3.eth.getTransactionCount(address_from)
@@ -195,14 +159,7 @@ def delete_document(address_from, workspace_contract_from, address_to, workspace
 	# send transaction
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
-	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if not receipt['status']  :
-		return None, None, None
-	gas_used = 10000
-	gas_price = 1
-	date= datetime.now()
-	deleted = date.strftime("%y/%m/%d")
-	return transaction_hash, gas_used*gas_price, deleted
+	return w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)['status']
 
 class Document() :
 	def __init__(self, topic) :
@@ -223,63 +180,37 @@ class Document() :
 			return 15000
 		elif my_topic == 'kyc_p' :
 			return 15001
-		elif my_topic == 'certificate' :
+		elif my_topic in ['certificate', 'credential'] :
 			return 20000
-		else :
-			return None
+		elif my_topic in ['private_credential'] :
+			return 20001
 
 	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
-		return create_document(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous, request)
+		return create(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
 	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request)
+		return create(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return create_document(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request, address_caller=mode.owner_talao)
+		return create(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request, address_caller=mode.owner_talao)
 
 	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :
-		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
+		(issuer_address, identity_workspace_contract, data, ipfshash, privacy) = get(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 		if not issuer_address :
 			return False
 		else :
 			self.__dict__.update(data)
-			issuer_workspace_contract = owners_to_contracts(issuer_address, mode)
-			(issuer_profil, issuer_category) = read_profil(issuer_workspace_contract, mode, loading)
-			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
-			self.request_remote_addr = data.get('request_remote_addr','None')
-			self.request_remote_user = data.get('request_remote_user', 'None')
-			self.request_remote_user_agent = data.get('request_user_agent', dict())
-			self.created = created
-			self.issuer = {'address' : issuer_address,
-						'workspace_contract' : issuer_workspace_contract,
-						'category' : issuer_category,
-						'id' : issuer_id}
-			if issuer_profil :
-				self.issuer.update(issuer_profil)
-			self.transaction_hash = transaction_hash
-			self.transaction_fee = transaction_fee
-			self.doctypeversion = doctypeversion
 			self.ipfshash = ipfshash
 			self.data_location = 'https://gateway.pinata.cloud/ipfs/'+ ipfshash
-			self.expires = expires
 			self.privacy = privacy
 			self.doc_id = doc_id
 			self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
-
-			contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
-			identity_category = contract.functions.identityInformation().call()[1]
-
-			self.identity= {'address' : contracts_to_owners(identity_workspace_contract, mode),
-						'workspace_contract' : identity_workspace_contract,
-						'category' : identity_category,
-						'id' : 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] }
-			self.transaction_fee = transaction_fee
 		return True
 
 	def relay_get_credential(self, identity_workspace_contract, doc_id, mode, loading='light') :
-		(issuer_address, identity_workspace_contract, data, ipfshash, transaction_fee, transaction_hash, doctype, doctypeversion, created, expires, issuer, privacy, related) = get_document(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
+		(issuer_address, identity_workspace_contract, data, ipfshash, privacy) = get(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 		if not issuer_address :
 			return False
 		else :
@@ -291,8 +222,8 @@ class Document() :
 
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return delete_document(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)
+		return _delete(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)
 
 	def delete(self, identity_workspace_contract, identity_private_key, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return delete_document(identity_address, identity_workspace_contract, identity_address, identity_workspace_contract, identity_private_key, doc_id, mode)
+		return _delete(identity_address, identity_workspace_contract, identity_address, identity_workspace_contract, identity_private_key, doc_id, mode)

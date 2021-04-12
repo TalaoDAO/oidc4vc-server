@@ -1,13 +1,10 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-import csv
-import sys
-import time
+#import time
 import hashlib
 import json
 from datetime import datetime
 from eth_account.messages import encode_defunct
-import random
 from eth_account import Account
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -108,7 +105,7 @@ def ownersToContracts(address, mode) :
 		return None
 	if address == '0x0000000000000000000000000000000000000000' :
 		logging.warning('owners to contract : return 0x')
-		return address
+		return None
 	contract = mode.w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	if workspace_address == '0x0000000000000000000000000000000000000000' :
@@ -125,9 +122,9 @@ def destroy_workspace(workspace_contract, private_key, mode) :
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
-		return None
-	return hash1
+	if not receipt['status'] :
+		return False
+	return True
 
 def transfer_workspace(address_from, private_key, address_to, mode) :
 
@@ -145,9 +142,9 @@ def transfer_workspace(address_from, private_key, address_to, mode) :
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
-		return None
-	return hash1
+	if not receipt['status'] :
+		return False
+	return True
 
 
 def get_data_from_token(mode) :
@@ -170,7 +167,7 @@ def token_transfer(address_to, value, mode) :
 	# tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
 	transaction_hash=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
 	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		return None
 	return transaction_hash.hex()
 
@@ -192,7 +189,7 @@ def ether_transfer(address_to, value, mode) :
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash = w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(hash, timeout=2000)
-	if receipt['status'] == 0 :
+	if not receipt['status'] :
 		return None
 	return hash
 
@@ -510,7 +507,6 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 	return True
 
 
-
 def get_image(workspace_contract, image_type, mode) :
 	"""
 	image(profil picture) = 105109097103101  signature = 115105103110097116117114101
@@ -601,10 +597,10 @@ def update_self_claims(address, private_key, dict, mode) :
 	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	hash1= w3.toHex(w3.keccak(signed_txn.rawTransaction))
 	receipt = w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-	if receipt['status'] == 0 :
+	if not receipt['status']  :
 		return None
 	return hash1
- 
+
 ############################################################
 #  Read workspace Info
 ############################################################
@@ -658,3 +654,13 @@ def getDocumentIndex(address, _doctype,mode) :
 			index=index+1
 	return index
 
+
+def get_all_credentials(workspace_contract, mode) :
+	credentials_list=[]
+	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
+	document_list =  contract.functions.getDocuments().call()
+	for document_id in document_list :
+		doctype = contract.functions.getDocument(document_id).call()[0]
+		if doctype in [20000, 20001] :
+			credentials_list.append(document_id)
+	return credentials_list
