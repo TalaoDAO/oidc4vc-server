@@ -659,6 +659,7 @@ def get_all_credentials(workspace_contract, mode) :
 	credentials_list=[]
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	document_list =  contract.functions.getDocuments().call()
+	print(document_list)
 	for document_id in document_list :
 		doctype = contract.functions.getDocument(document_id).call()[0]
 		if doctype in [20000, 20001] :

@@ -54,8 +54,8 @@ def show_certificate(mode):
 
 	if session.get('certificate_id') != request.args['certificate_id'] :
 		certificate = Document('certificate')
-		if not certificate.relay_get(identity_workspace_contract, doc_id, mode, loading = 'full') :
-			content = json.dumps({'topic' : 'error', 'msg' : 'Credential not found'})
+		if not certificate.relay_get(identity_workspace_contract, doc_id, mode) :
+			content = json.dumps({'topic' : 'error', 'msg' : 'This credential has been deleted'})
 			return Response(content, status=406, mimetype='application/json')
 		if certificate.privacy != 'public' :
 			content = json.dumps({'topic' : 'error', 'msg' : 'This credential is private'})
