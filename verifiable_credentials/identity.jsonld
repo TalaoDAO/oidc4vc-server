@@ -1,12 +1,13 @@
 {
             "@context": ["https://www.w3.org/2018/credentials/v1"],
-            "id": "data:lll",
+            "id": "",
             "type": ["VerifiableCredential","IdentityCredential"],
             "issuer": "",
             "issuanceDate": "",
             "credentialSubject" : {
                 "@context" : ["https://schema.org/"],
                 "@type" : "Person",
+ 		"credentialCategory" : "identity",
                 "id": "",
                 "familyName" : "",
                 "givenName" : "",
@@ -17,3 +18,5 @@
                 "email" : ""
                 }
 }
+
+

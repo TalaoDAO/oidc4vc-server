@@ -72,7 +72,7 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K-R"})
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
 key = jwk.JWK.generate(kty="EC", crv="P-256")
-#key = jwk.JWK.generate(kty="EC", crv="secp256k1")
+key = jwk.JWK.generate(kty="EC", crv="secp256k1")
 #key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
 #key = jwk.JWK.generate(kty='RSA', size=2048)
 #a = key.export_to_pem(private_key=True, password=b'test')
@@ -82,9 +82,9 @@ key=key.export_private()
 
 
 
-#method = "tz"
+method = "tz"
 #key = helpers.ethereum_to_jwk(pvk, method)
-#did = helpers.jwk_to_did(method, key)
+did = helpers.jwk_to_did(method, key)
 
 #print('did = ', did)
 
@@ -93,8 +93,8 @@ key=key.export_private()
 #did = "did:web:talao.co:thierrythevenet"
 #did = "did:web:did.actor:mike"
 
-#DIDdocument = didkit.resolveDID(did,'{}')
-#print(json.dumps(json.loads(DIDdocument), indent=4))
+DIDdocument = didkit.resolveDID(did,'{}')
+print(json.dumps(json.loads(DIDdocument), indent=4))
 
 #verifmethod = didkit.keyToVerificationMethod(method, key)
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)

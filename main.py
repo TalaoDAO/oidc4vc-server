@@ -48,7 +48,7 @@ from routes import web_data_user, web_issue_certificate, web_skills, web_CV_bloc
 from routes import web_main, web_login
 
 # Release
-VERSION = "0.8.10"
+VERSION = "0.8.11"
 
 # Framework Flask and Session setup
 app = Flask(__name__)

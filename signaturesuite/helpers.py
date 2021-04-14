@@ -38,10 +38,10 @@ print(response)
 """
 
 
-def ethereum_pvk_to_DID(pvk, method, address=None) :
+def ethereum_pvk_to_DID(pvk, method, address) :
     if not method :
         method = 'ethr'
-    if method == 'web' and address :
+    if method == 'web' :
         return "did:web:talao.co:" + address
     key = ethereum_to_jwk256kr(pvk)
     return didkit.keyToDID(method,key)

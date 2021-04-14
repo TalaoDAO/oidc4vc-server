@@ -41,8 +41,8 @@ def sign(credential, pvk, method="ethr", rsa=None):
         "proofPurpose": "assertionMethod",
         "verificationMethod": vm
     }
-    return didkit.issueCredential(
-            #credential.__str__().replace("'", '"'),
-            json.dumps(credential, ensure_ascii=False),
-            didkit_options.__str__().replace("'", '"'),
-            key)
+    print('type de key = ', type(key))
+    return didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
+                                    didkit_options.__str__().replace("'", '"'),
+                                     key)
+

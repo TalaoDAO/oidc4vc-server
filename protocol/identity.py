@@ -246,7 +246,7 @@ class Identity() :
 				self.education_list.append(doc_id)
 			elif doctype == 10000 :
 				self.kbis_list.append(doc_id)
-			elif doctype in [20000, 200001] :
+			elif doctype in [20000] :
 				self.certificate_list.append(doc_id)
 			elif doctype == 11000 :
 				self.skills_list.append(doc_id)

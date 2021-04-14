@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 
 # dependances
 from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, company
-from signaturesuite import RsaSignatureSuite2017, EcdsaSecp256k1RecoverySignature2020, helpers
+from signaturesuite import RsaSignatureSuite2017, credential, helpers
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance, Document, read_profil, get_image
 
@@ -388,9 +388,9 @@ def issue_credential_workflow(mode) :
             # sign credential with company key
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
             my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
-            #my_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+            my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], username=session['username'])
-            signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(my_credential, session['private_key_value'], method=session['method'])
+            signed_credential = credential.sign(my_credential, session['private_key_value'], method=session['method'])
 
             # update local company database
             credential = company.Credential(session['host'], mode)

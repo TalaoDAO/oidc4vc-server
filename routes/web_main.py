@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 
 from factory import createcompany, createidentity
 from components import Talao_message, Talao_ipfs, hcode, ns, privatekey, QRCode, directory, sms, siren, talao_x509, company
-from signaturesuite import helpers, EcdsaSecp256k1RecoverySignature2020
+from signaturesuite import helpers, credential
 import constante
 from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image
 from protocol import  authorize_partnership, reject_partnership, destroy_workspace
@@ -444,7 +444,7 @@ def issue_experience_certificate(mode):
             "credentialSubject": {
                 "id": did_to,},
             "issuer": session['did'],
-            "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+            "issuanceDate": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
             "version" : 1,
             "title" : request.form['title'],
             "description" : request.form['description'],
@@ -464,7 +464,7 @@ def issue_experience_certificate(mode):
             "manager_manager" : session['certificate_signatory'],
             "reviewer_name" : request.form['reviewer_name'],
         }
-        session['certificate_to_register'] = EcdsaSecp256k1RecoverySignature2020.sign(unsigned_credential, session['rsa_key_value'])
+        session['certificate_to_register'] = credential.sign(unsigned_credential, session['rsa_key_value'], session['method'])
         # call the two factor checking function :
         return redirect(mode.server + 'user/two_factor/?callback=user/issuer_experience_certificate/')
 
@@ -489,7 +489,7 @@ def issue_reference_credential(mode):
             workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 
             # sign credential
-            signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(session['unsigned_credential'], session['private_key_value'], method=session['method'])
+            signed_credential = credential.sign(session['unsigned_credential'], session['private_key_value'], method=session['method'])
             logging.info('credential signed')
 
             # store signed credential on server
@@ -526,9 +526,9 @@ def issue_reference_credential(mode):
         unsigned_credential = json.load(open('./verifiable_credentials/reference.jsonld', 'r'))
         id = str(uuid.uuid1())
         unsigned_credential["id"] =  "data:" + id
-        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
-        unsigned_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-        unsigned_credential[ "credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['issuer_explore']['private_key_value'], session['issuer_explore']['method'])
+        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+        unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        unsigned_credential[ "credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['issuer_explore']['private_key_value'], session['issuer_explore']['method'], session['isuer_explore']['address'])
         unsigned_credential[ "credentialSubject"]["name"] = session['issuer_explore']["name"]
         unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
         unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
@@ -593,7 +593,7 @@ def issue_recommendation(mode):
                     "id": "data:" + id,
                     "@type": ["VerifiableCredential",],
                     "issuer": session['did'],
-                    "issuanceDate": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+                    "issuanceDate": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
                     "credentialSubject": {
                         "id": did_to,},
                     "version" : 1,
@@ -602,7 +602,7 @@ def issue_recommendation(mode):
                     "relationship" : request.form['relationship'],
 			        "picture" : session['picture'],
 			        "title" : session.get('title', '')}
-        session['recommendation_to_register'] = EcdsaSecp256k1RecoverySignature2020.sign(unsigned_credential, session['rsa_key_value'])
+        session['recommendation_to_register'] = credential.sign(unsigned_credential, session['rsa_key_value'])
         # call the two factor checking function :
         return redirect(mode.server + 'user/two_factor/?callback=user/issue_recommendation/')
 
@@ -938,14 +938,15 @@ def create_kyc(mode) :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
         kyc_address = contractsToOwners(kyc_workspace_contract, mode)
-
+        kyc_method =ns.get_method(kyc_workspace_contract, mode)
+        kyc_private_key = privatekey.get_key(kyc_address, 'private_key', mode)
         id = str(uuid.uuid1())
         # load templates for verifibale credential and init with view form and session
         unsigned_credential = json.load(open('./verifiable_credentials/identity.jsonld', 'r'))
         unsigned_credential["id"] =  "data:" + id
-        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
-        unsigned_credential["issuanceDate"] = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-        unsigned_credential["credentialSubject"]["id"] = "did:ethr:" + kyc_address
+        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+        unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(kyc_private_key, kyc_method, kyc_address)
         unsigned_credential["credentialSubject"]["familyName"] = request.form['family_name']
         unsigned_credential["credentialSubject"]["givenName"] = request.form['given_name']
         unsigned_credential["credentialSubject"]["birthDate"] = request.form['birthdate']
@@ -953,12 +954,13 @@ def create_kyc(mode) :
         unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
         unsigned_credential["credentialSubject"]["email"] = request.form['email']
         unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
-        signed_credential = EcdsaSecp256k1RecoverySignature2020.sign(unsigned_credential, session['private_key_value'], method=session['method'])
+        print('unsigned credetial = ', unsigned_credential)
+        signed_credential = credential.sign(unsigned_credential, session['private_key_value'], method=session['method'])
 
         # signed verifiable identity is stored in repository as did_authn ERC735 Claim
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-        claim=Claim()
-        data = claim.relay_add(kyc_workspace_contract,'did_authn', signed_credential,'private', mode)
+        identity_credential=Document('credential')
+        data = identity_credential.relay_add(kyc_workspace_contract,signed_credential,mode)
         if not data[0] :
             flash('Transaction to store verifiable ID on repository failed', 'danger')
             logging.warning('store on repo failed')
