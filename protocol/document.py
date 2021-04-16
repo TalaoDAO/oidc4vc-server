@@ -47,7 +47,10 @@ def owners_to_contracts(address, mode) :
 
 def create(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
 
-	# @data = dict
+	# @data = dict 
+	if isinstance (data, str) :
+		data = json.loads(data)
+		logging.error('data must be a dict')
 
 	# check privacy vs doctype
 	if doctype in [50000, 40000, 10000, 15000, 20000, 11000] :
@@ -188,32 +191,42 @@ class Document() :
 	def add(self, address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		return create(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
+
 	def relay_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return create(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request)
 
+
 	def talao_add(self, identity_workspace_contract, data, mode, mydays=0, privacy='public', synchronous=True, request=None) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return create(mode.owner_talao,  mode.workspace_contract_talao, identity_address, identity_workspace_contract, mode.owner_talao_private_key, self.doctype, data, mydays, privacy, mode, synchronous, request, address_caller=mode.owner_talao)
+
 
 	def relay_get(self, identity_workspace_contract, doc_id, mode, loading='light') :
 		(issuer_address, identity_workspace_contract, data, ipfshash, privacy) = get(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 		if not issuer_address :
 			return False
 		else :
+			if isinstance(data, str) :
+				data = json.loads(data)
 			self.__dict__.update(data)
-			self.ipfshash = ipfshash
+			#self.ipfshash = ipfshash
 			self.data_location = 'https://gateway.pinata.cloud/ipfs/'+ ipfshash
 			self.privacy = privacy
 			self.doc_id = doc_id
 			self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
+			del self.doctype
+			del self.topic
 		return True
+
 
 	def relay_get_credential(self, identity_workspace_contract, doc_id, mode, loading='light') :
 		(issuer_address, identity_workspace_contract, data, ipfshash, privacy) = get(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
 		if not issuer_address :
 			return False
 		else :
+			if isinstance(data, str) :
+				data = json.loads(data)
 			self.__dict__.update(data)
 			del self.doctype
 			del self.topic
@@ -223,6 +236,7 @@ class Document() :
 	def relay_delete(self, identity_workspace_contract, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return _delete(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)
+
 
 	def delete(self, identity_workspace_contract, identity_private_key, doc_id, mode) :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)

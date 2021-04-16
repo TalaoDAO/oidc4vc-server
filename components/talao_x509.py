@@ -1,5 +1,6 @@
 from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.hazmat.primitives import serialization
+from flask import session
 import datetime
 from cryptography import x509
 from cryptography.x509.oid import NameOID
@@ -11,6 +12,7 @@ import environment
 from protocol import contractsToOwners, ownersToContracts, read_profil, Claim
 import constante
 from components import privatekey, ns
+from signaturesuite import helpers
 
 
 def generate_CA(mode) :
@@ -30,7 +32,7 @@ def generate_CA(mode) :
     x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "talao.io"),
     #x509.NameAttribute(NameOID.POSTAL_ADDRESS, "16 rue de wattignies, 75012 Paris"),
     x509.NameAttribute(NameOID.COMMON_NAME, "talao"),
-    x509.NameAttribute(NameOID.USER_ID, 'did:talao:taleaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'),])
+    x509.NameAttribute(NameOID.USER_ID, 'did:web:talao.io'),])
 
     # issue CA certificate for Talao
     cert = x509.CertificateBuilder()
@@ -66,6 +68,9 @@ def generate_CA(mode) :
 ############# generate certificate for user
 
 def generate_X509(workspace_contract, password, mode) :
+
+    did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+
     talao_issuer = x509.Name([
     x509.NameAttribute(NameOID.COUNTRY_NAME, "FR"),
     x509.NameAttribute(NameOID.LOCALITY_NAME, "Paris"),
@@ -73,7 +78,7 @@ def generate_X509(workspace_contract, password, mode) :
     x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "talao.io"),
     #x509.NameAttribute(NameOID.POSTAL_ADDRESS, "16 rue de wattignies, 75012 Paris"),
     x509.NameAttribute(NameOID.COMMON_NAME, "talao"),
-    x509.NameAttribute(NameOID.USER_ID, 'did:talao:talaonet:4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'),])
+    x509.NameAttribute(NameOID.USER_ID, did),])
 
     # upload the Talao private rsa key
     talao_rsa_private_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
@@ -95,16 +100,15 @@ def generate_X509(workspace_contract, password, mode) :
     #name = profil['firstname'] + ' ' + profil['lastname']
     username = ns.get_username_from_resolver(workspace_contract,mode)
     email = ns.get_data_from_username(username,mode)['email']
-    did = 'did:talao:' + mode.BLOCKCHAIN + ':' + workspace_contract[2:]
  
     subject = x509.Name([
-    #x509.NameAttribute(NameOID.COUNTRY_NAME, "FR"),
-    #x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, ""),
-    #x509.NameAttribute(NameOID.LOCALITY_NAME, "Paris"),
-    #x509.NameAttribute(NameOID.ORGANIZATION_NAME, ""),
-    #x509.NameAttribute(NameOID.COMMON_NAME, name),
-    x509.NameAttribute(NameOID.EMAIL_ADDRESS, email),
-    x509.NameAttribute(NameOID.USER_ID, did),])
+            #x509.NameAttribute(NameOID.COUNTRY_NAME, "FR"),
+            #x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, ""),
+            #x509.NameAttribute(NameOID.LOCALITY_NAME, "Paris"),
+            #x509.NameAttribute(NameOID.ORGANIZATION_NAME, ""),
+            x509.NameAttribute(NameOID.COMMON_NAME, session['name']),
+            x509.NameAttribute(NameOID.EMAIL_ADDRESS, email),
+            x509.NameAttribute(NameOID.USER_ID, did),])
 
     cert = x509.CertificateBuilder()
     cert = cert.subject_name(subject)

@@ -256,12 +256,13 @@ class Identity() :
 
 	def get_identity_certificate(self,mode) :
 		self.certificate = []
-		#contract = self.mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
+		print('certificate list = ',self.certificate_list )
 		for doc_id in self.certificate_list  :
-			certificate = Document('certificate')
-			certificate.relay_get(self.workspace_contract, doc_id, mode, loading='light')
-			new_certificate = certificate.__dict__
-			self.certificate.append(new_certificate)
+			if doc_id != 101 :
+				certificate = Document('certificate')
+				certificate.relay_get(self.workspace_contract, doc_id, mode)
+				new_certificate = certificate.__dict__
+				self.certificate.append(new_certificate)
 		return True
 
 	def get_identity_kbis(self, mode) :

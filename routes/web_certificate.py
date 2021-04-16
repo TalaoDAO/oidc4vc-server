@@ -2,7 +2,7 @@
 import copy
 import os.path
 from os import path
-from flask import Flask, session, send_from_directory, flash, jsonify
+from flask import session, send_from_directory, flash, jsonify
 from flask import request, redirect, render_template,abort, Response
 import requests
 import shutil
@@ -273,7 +273,7 @@ def show_certificate(mode):
 							#issuer_name=session['displayed_certificate']['issuer']['name'],
 							viewer=viewer
 							)
-	# if agreement certificate display
+	# agreement certificate display
 	if session['displayed_certificate']['type'] == 'agreement':
 		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
 
@@ -374,6 +374,11 @@ def show_certificate(mode):
 							skills=skills_str
 							)
 
+	else :
+		del session['displayed_certificate']['doc_id']
+		del session['displayed_certificate']['data_location']
+		del session['displayed_certificate']['privacy']
+		return jsonify(session['displayed_certificate'])
 
 def certificate_verify(mode) :
 	"""		 verify credential data and did

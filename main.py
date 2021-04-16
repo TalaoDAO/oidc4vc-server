@@ -228,13 +228,12 @@ def web(address, mode) :
         key = helpers.ethereum_to_jwk256k(pvk)
         ec_public = json.loads(key)
         del ec_public['d']
-
-        DIDdocument = did_document(address, ec_public, rsa_public)
+        DidDocument = did_doc(address, ec_public, rsa_public)
     except :
-        DIDdocument = {'result' : 'No DID found'}
-    return jsonify (DIDdocument)
+        DidDocument = None
+    return jsonify (DidDocument)
 
-def did_document(address, ec_public, rsa_public) :
+def did_doc(address, ec_public, rsa_public) :
     if address == mode.owner_talao : #talao address
         id = "did:web:talao.co"
     else :

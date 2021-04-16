@@ -60,12 +60,10 @@ def data(mode) :
 
 	if support == 'document' :
 		doc_id = int(dataId.split(':')[5])
-		my_topic = dataId.split(':')[6]
-		my_data = Document(my_topic)
+		my_data = Document(dataId.split(':')[6])
 		if not my_data.relay_get(workspace_contract, doc_id, mode) :
 			logging.error('document does not exist')
 			return redirect(mode.server + 'user/')
-		my_topic = my_data.topic.capitalize()
 
 	if support == 'claim' :
 		claim_id = dataId.split(':')[5]
@@ -73,7 +71,6 @@ def data(mode) :
 		if not my_data.get_by_id(session.get('workspace_contract'), session.get('private_key_value'), workspace_contract, claim_id, mode) :
 			logging.error('claim does ot exist')
 			return redirect(mode.server + 'user/')
-		my_topic = 'Personal'
 
 	myvisibility = my_data.privacy
 
@@ -450,10 +447,9 @@ def user(mode) :
 			for counter, certificate in enumerate(session['certificate'],1) :
 				try : 
 					cert_html = """<hr>
-					<b>Credential Id</b> : """ + certificate['id'] +"""<br>
-					<b>Issuer Name</b> : """ + certificate['credentialSubject']['companyName'] +"""<br>
-					<b>Issuer DID</b> : """ + certificate['issuer'] +"""<br>
 					<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
+					<b>Credential Context</b> : """ + ",".join(certificate['credentialSubject']['@context']) + """<br>
+					<b>Issuer DID</b> : """ + certificate['issuer'] +"""<br>
 					<b>Issuance Date</b> : """ + certificate['proof']['created'] + """<br>"""
 				except :
 					cert_html = """<hr>

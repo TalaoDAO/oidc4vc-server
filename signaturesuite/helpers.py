@@ -9,34 +9,6 @@ import didkit
 import logging
 logging.basicConfig(level=logging.INFO)
 
-class ClientWebResolver:
-    def __init__(self, config):
-        pass
-
-    def resolve(self, did):
-        lines = ["https://uniresolver.io/1.0/identifiers"]
-
-        try:
-            for line in lines:
-                if not line.endswith('/'):
-                    line += '/'
-                url = line + did
-                httpResponse = requests.get(url) 
-                if httpResponse.status_code == 200:
-                    return httpResponse.json()
-            raise TypeError
-        except TypeError:
-             print("All web services tested. Please add a working web resolver to the config file and try again.")
-
-    def modifier(self, did):
-        pass
-
-"""
-webResolver = ClientWebResolver("")
-response = webResolver.resolve(did)
-print(response)
-"""
-
 
 def ethereum_pvk_to_DID(pvk, method, address) :
     if not method :
@@ -46,16 +18,19 @@ def ethereum_pvk_to_DID(pvk, method, address) :
     key = ethereum_to_jwk256kr(pvk)
     return didkit.keyToDID(method,key)
 
+
 def ethereum_pvk_to_address(pvk) :
     priv_key_bytes = decode_hex(pvk)
     priv_key = keys.PrivateKey(priv_key_bytes)
     pub_key = priv_key.public_key
     return pub_key.to_checksum_address()
 
+
 def ethereum_pvk_to_pub(pvk) :
     priv_key_bytes = decode_hex(pvk)
     priv_key = keys.PrivateKey(priv_key_bytes)
     return priv_key.public_key
+
 
 def jwk_to_ethereum(jwk) :
     jwk = json.loads(jwk)
@@ -67,17 +42,21 @@ def jwk_to_ethereum(jwk) :
     address = pub_key.to_checksum_address()
     return private_key, public_key, address
 
+
 def jwk_to_did(method, key) :
     if method == "web" :
         return "did:web:talao.co:" +  jwk_to_ethereum(key)[2]
     else :
         return didkit.keyToDID(method, key)
 
+
 def ethereum_to_jwk256k(private_key) :
     return _ethereum_to_jwk256k(private_key, "ES256K")
 
+
 def ethereum_to_jwk256kr(private_key) :
     return _ethereum_to_jwk256k(private_key, "ES256K-R")
+
 
 def ethereum_to_jwk(private_key, method) :
     if method == "web" :

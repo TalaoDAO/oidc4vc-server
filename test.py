@@ -4,6 +4,10 @@ import os
 import didkit
 import json
 import base64
+import sys
+
+import requests
+
 from eth_keys import keys
 from eth_utils import decode_hex
 from jwcrypto import jwk
@@ -31,6 +35,7 @@ from signaturesuite import credential, helpers
 #vm = didkit.keyToVerificationMethod('key', key)
 #print('vm = ', vm)
 
+"""
 mode = environment.currentMode('talaonet','airbox')
 
 username = 'pascaldelorme'
@@ -38,14 +43,13 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
         address = ns.get_data_from_username(username, mode).get('address')
         privatekey.generate_store_key(address, 'Ed25519', mode)
         privatekey.generate_store_key(address, 'P-256', mode)
-
+"""
 
 #print('key = ', privatekey.get_key(address, 'P-256', mode))
 #print('key = ', privatekey.get_key(address, 'secp256k1', mode))
 #print('key = ', privatekey.get_key(address, 'Ed25519', mode))
 
 
-#print('p256 = ', privatekey.generate_store_key(address, 'Ed25519', mode))
 
 #print('address = ', address)
 #pvk = privatekey.get_key(address, 'private_key', mode)
@@ -69,23 +73,23 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key = helpers.ethereum_to_jwk256kr(pvk)
 #did = helpers.ethereum_pvk_to_DID(pvk, method)
 
-#key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K-R"})
+key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K-R"})
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
-key = jwk.JWK.generate(kty="EC", crv="P-256")
-key = jwk.JWK.generate(kty="EC", crv="secp256k1")
+#key = jwk.JWK.generate(kty="EC", crv="P-256")
+#key = jwk.JWK.generate(kty="EC", crv="secp256k1")
 #key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
 #key = jwk.JWK.generate(kty='RSA', size=2048)
 #a = key.export_to_pem(private_key=True, password=b'test')
 #print (a)
-key=key.export_private()
+#key=key.export_private()
 #print('key = ', key)
-
-
+#key = '{"crv":"P-256","d":"zqojPOaQaVLmCZfHM5sYQNJ4pGqt4H8jTLUrokW04vU","kty":"EC","x":"OlhAgrdZrGbUcuoNeY8FNuUhcJGlDFkvXUv9DhvRsHc","y":"PyKwME0TRLcAQaQ1xexNkN_87bhCRseKgf5dDc261oQ"}'
 
 method = "tz"
 #key = helpers.ethereum_to_jwk(pvk, method)
-did = helpers.jwk_to_did(method, key)
+#did = helpers.jwk_to_did(method, key)
 
+did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
 
@@ -94,30 +98,41 @@ did = helpers.jwk_to_did(method, key)
 #did = "did:web:did.actor:mike"
 
 DIDdocument = didkit.resolveDID(did,'{}')
-print(json.dumps(json.loads(DIDdocument), indent=4))
+#print(json.dumps(json.loads(DIDdocument), indent=4))
 
-#verifmethod = didkit.keyToVerificationMethod(method, key)
+verifmethod = didkit.keyToVerificationMethod(method, key)
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
 #verifmethod = did + "#key-2"
 #print('verfif method = ', verifmethod)
 
-"""
+# step 1 contact endpoint to get challenge
+response = requests.get("http://127.0.0.1:10000/repository/authn")
+challenge = response.json()['challenge']
+
+# step 2 response with DID signature
 verificationPurpose = {
             "proofPurpose": "authentication",
             "verificationMethod": verifmethod,
-            "challenge": "132132132"
+            "challenge" : challenge
         }
-
 presentation = didkit.DIDAuth(
             did,
             verificationPurpose.__str__().replace("'", '"'),
             key
         )
+response = requests.post("http://127.0.0.1:10000/repository/authn", json = json.loads(presentation))
+token = response.json()['token']
 
-print('presentation = ', presentation)
+# step 3 call an endpoint
+credential = {'test' : 123 }
+data = {"token" : token, "credential" : credential }
+response = requests.post("http://127.0.0.1:10000/repository/publish", json = data)
 
+
+
+"""
 verifyResult = json.loads(didkit.verifyPresentation(
             presentation,
             verificationPurpose.__str__().replace("'", '"')))

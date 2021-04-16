@@ -1,6 +1,6 @@
 
 import os.path, time
-from flask import Flask, session, send_from_directory, flash, jsonify, render_template_string
+from flask import session, send_from_directory, flash, jsonify, render_template_string
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 import random
@@ -960,7 +960,7 @@ def create_kyc(mode) :
         # signed verifiable identity is stored in repository as did_authn ERC735 Claim
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
         identity_credential=Document('credential')
-        data = identity_credential.relay_add(kyc_workspace_contract,signed_credential,mode)
+        data = identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode)
         if not data[0] :
             flash('Transaction to store verifiable ID on repository failed', 'danger')
             logging.warning('store on repo failed')
