@@ -47,11 +47,11 @@ def owners_to_contracts(address, mode) :
 
 def create(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, doctype, data, mydays, privacy, mode, synchronous, request, address_caller=None) :
 
-	# @data = dict 
+	# @data = dict
 	if isinstance (data, str) :
 		data = json.loads(data)
 		logging.error('data must be a dict')
-
+	"""
 	# check privacy vs doctype
 	if doctype in [50000, 40000, 10000, 15000, 20000, 11000] :
 		standard_privacy = 'public'
@@ -63,6 +63,7 @@ def create(address_from, workspace_contract_from, address_to, workspace_contract
 		standard_privacy = None
 	if standard_privacy != privacy :
 		logging.error('privacy does not match with doctype')
+	"""
 
 	#encrypt data with AES key (public, private or secret)
 	data = privatekey.encrypt_data(workspace_contract_to, data, privacy, mode, address_caller=address_caller)
@@ -70,21 +71,13 @@ def create(address_from, workspace_contract_from, address_to, workspace_contract
 		logging.error('encryption problem')
 		return None, None, None
 
-	# Date
-	if not mydays :
-		expires = 0
-	else :
-		myexpires = datetime.utcnow() + datetime.timedelta(days = mydays, seconds = 0)
-		expires = int(myexpires.timestamp())
-
 	# Build transaction
 	contract = mode.w3.eth.contract(workspace_contract_to,abi = constante.workspace_ABI)
 	nonce = mode.w3.eth.getTransactionCount(address_from)
 
 	# store bytes on ipfs
-	try :
-		ipfs_hash = Talao_ipfs.ipfs_add(data, mode)
-	except :
+	ipfs_hash = Talao_ipfs.ipfs_add(data, mode)
+	if not ipfs_hash :
 		logging.error('IPFS connexion problem')
 		return None, None, None
 
@@ -93,7 +86,9 @@ def create(address_from, workspace_contract_from, address_to, workspace_contract
 	checksum = hashlib.md5(bytes(_data, 'utf-8')).hexdigest()
 
 	# Transaction with doctype version = 3 for RGPD constraint
-	txn = contract.functions.createDocument(doctype,3,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	expires = 0
+	version = 3
+	txn = contract.functions.createDocument(doctype,version,expires,checksum,1, bytes(ipfs_hash, 'utf-8'), True).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 1000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
@@ -102,7 +97,7 @@ def create(address_from, workspace_contract_from, address_to, workspace_contract
 		logging.error('transaction to create document failed. See receipt : %s', receipt)
 		return None, None, None
 
-	# Get document  id on last event
+	# Get document id on last event
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
 	from_block = mode.w3.eth.blockNumber - 10
 	myfilter = contract.events.DocumentAdded.createFilter(fromBlock= from_block ,toBlock = 'latest')
@@ -124,19 +119,10 @@ def get(workspace_contract_from, private_key_from, workspace_contract_user, docu
 		privacy = 'private'
 	if doctype in [50002, 40002] :
 		privacy = 'secret'
-	created = ""
 	workspace_contract_identity = workspace_contract_user
-	#transaction_hash = "0"
 
 	# recuperation du msg
 	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
-
-	# calcul de la date
-	if not expires :
-		expires = 'Unlimited'
-	else :
-		myexpires = datetime.fromtimestamp(expires)
-		expires = str(myexpires)
 
 	# compatiblité avec les documents non cryptés des version precedentes
 	if privacy  == 'public' and doctypeversion == 2 :
@@ -216,7 +202,7 @@ class Document() :
 			self.doc_id = doc_id
 			self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
 			del self.doctype
-			del self.topic
+			#del self.topic
 		return True
 
 

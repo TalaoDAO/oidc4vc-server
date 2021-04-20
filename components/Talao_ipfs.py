@@ -28,7 +28,6 @@ def add_dict_to_pinata (data_dict, name, mode) :
 	try :
 		response = requests.post('https://api.pinata.cloud/pinning/pinJSONToIPFS', data=json.dumps(data), headers=headers)
 	except :
-		logging.error('connexion problem ')
 		return None
 	return response.json()['IpfsHash']
 

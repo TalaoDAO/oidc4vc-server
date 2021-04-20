@@ -15,7 +15,6 @@ from datetime import timedelta, datetime
 # dependances
 from components import Talao_message, ns, directory
 from factory import createcompany
-from protocol import Claim
 
 # route /create_company_cci/
 def cci(mode) :

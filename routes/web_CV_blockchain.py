@@ -11,7 +11,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from protocol import Document, read_profil, Identity, Claim
+from protocol import Document, read_profil, Identity
 import constante
 from components import ns
 

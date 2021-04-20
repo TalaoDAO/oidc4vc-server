@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 from components import Talao_message, Talao_message, hcode, ns, sms
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
-from protocol import Claim, File, Identity, Document, read_profil
+from protocol import File, Identity, Document, read_profil
 
 
 def check_login() :

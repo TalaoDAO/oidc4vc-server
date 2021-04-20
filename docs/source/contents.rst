@@ -4,7 +4,7 @@ Overview
 What is Talao ?
 ---------------
 
-Talao is a Blockchain solution to manage a professional Self Sovereign Digital Identity.
+Talao is a solution to manage a professional Self Sovereign Digital Identity.
 
 Traditional architectures to validate, certify, and manage professional data are based on centralized, top-down approaches that rely on third-party private operators.
 Unfortunately these solutions often lead to inappropriate use of personal data and hacks. Whatever the GDPR could impose to private operators, the fact is that our data
@@ -97,12 +97,15 @@ More information available :
 What blockchains support does Talao use ?
 ----------------------------------------
 
-The Talao solution is available with different public Blockchain with different did method :
+The Talao solution is available with different public Blockchain vs did method :
 
-    * Ethereum with the did:ethr method, see https://github.com/uport-project/ethr-did-registry for details.
-    * Tezos with the did:tz with curve Ed25519 method, see https://did-tezos.spruceid.com/
+  * Ethereum with the did:ethr method, see https://github.com/uport-project/ethr-did-registry for details.
+  * Tezos with the did:tz with curve Ed25519 method, see https://did-tezos.spruceid.com/
 
-We also use key pair did:key with curve secp256k1 for specif use cases, see https://w3c-ccg.github.io/did-method-key/
+We also use :
+
+  * did:key with curve secp256k1 for specif use cases, see https://w3c-ccg.github.io/did-method-key/
+  * did:web (did:wab:talao.io:...) with curve secp256k1 and a RSA256 key see https://w3c-ccg.github.io/did-method-web/
 
 
 Credits
@@ -110,9 +113,8 @@ Credits
 
 Thanks to the Ethereum community which provide us with great tools, Solidity code and inspiration.
 
+Special thanks to `Spruce <https://www.spruceid.com/>`_ for their implementation of SSI and its wide JSON_LD signing suite.
+
 Special thanks to `the WalletConnect team <https://walletconnect.org/>`_ for their implementation of an awesome protocol to connect crypto wallets with Dapps.
 
 Special thanks to `OriginProtocol <https://originprotocol.com/>`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications.
-
-Thanks to the NLTK team and community for their Natural Language Programming work we used in the Dashboard panel is based on the python librairy `NLTK <https://www.nltk.org/>`_.
-For more information Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.

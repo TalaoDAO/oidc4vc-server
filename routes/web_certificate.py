@@ -4,6 +4,9 @@ import os.path
 from os import path
 from flask import session, send_from_directory, flash, jsonify
 from flask import request, redirect, render_template,abort, Response
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Hash import SHA512
+
 import requests
 import shutil
 import json
@@ -15,9 +18,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from protocol import Document, read_profil, Identity, Claim
+from protocol import Document, read_profil, Identity, Claim, ownersToContracts
 import constante
 from components import ns
+from signaturesuite import helpers
+
+SALT = 'repository_salt'
 
 def convert(obj):
 	if type(obj) == list:
@@ -40,13 +46,37 @@ def show_certificate(mode):
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 
-	try :
+	try  :
 		certificate_id = request.args['certificate_id']
-		doc_id = int(certificate_id.split(':')[5])
-		identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+		method = certificate_id.split(':')[1]
+
+		# translator for repository claim
+		if method in ['web', 'tz', 'ethr'] :
+			did = 'did:' + method + ':' + certificate_id.split(':')[2]
+			private_key = '0x' + PBKDF2(did.encode(), SALT, 32, count=1000000, hmac_hash_module=SHA512).hex()
+			address = helpers.ethereum_pvk_to_address(private_key)
+			workspace_contract = ownersToContracts(address, mode)
+			claim_id = certificate_id.split(':')[4]
+			credential = Claim()
+			credential.get_by_id( mode.relay_workspace_contract, None, workspace_contract, claim_id, mode)
+			return jsonify(credential.claim_value)
+
+		# standard
+		elif method == 'talao' :
+			try :
+				doc_id = int(certificate_id.split(':')[5])
+				identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+			except :
+				content = json.dumps({'message' : 'request malformed'})
+				return Response(content, status=406, mimetype='application/json')
+		else :
+			content = json.dumps({'message' : 'method not supported'})
+			return Response(content, status=406, mimetype='application/json')
+
 	except :
-		content = json.dumps({'topic' : 'error', 'msg' : 'Request malformed'})
+		content = json.dumps({'message' : 'request malformed'})
 		return Response(content, status=406, mimetype='application/json')
+
 	try :
 		self_claim = certificate_id.split(':')[6]
 	except:
@@ -55,10 +85,10 @@ def show_certificate(mode):
 	if session.get('certificate_id') != request.args['certificate_id'] :
 		certificate = Document('certificate')
 		if not certificate.relay_get(identity_workspace_contract, doc_id, mode) :
-			content = json.dumps({'topic' : 'error', 'msg' : 'This credential does not exist or it has been deleted'})
+			content = json.dumps({'message' : 'This credential does not exist or it has been deleted'})
 			return Response(content, status=406, mimetype='application/json')
 		if certificate.privacy != 'public' :
-			content = json.dumps({'topic' : 'error', 'msg' : 'This credential is private'})
+			content = json.dumps({'message' : 'This credential is private'})
 			return Response(content, status=406, mimetype='application/json')
 		session['displayed_certificate'] = certificate.__dict__
 

@@ -15,29 +15,19 @@ logging.basicConfig(level=logging.INFO)
 import constante
 from signaturesuite import helpers
 
-# Gloval variables for RSA algo
-master_key = ""
-salt = ""
-
-# deterministic RSA key https://stackoverflow.com/questions/20483504/making-rsa-keys-from-a-password-in-python
-# deterministic rand function for RSA calculation
-def my_rand(n):
-    """ use of kluge: use PBKDF2 with count=1 and incrementing salt as deterministic PRNG """
-    my_rand.counter += 1
-    return PBKDF2(master_key, "my_rand:%d" % my_rand.counter, dkLen=n, count=1)
-
-
 def ownersToContracts(address, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	workspace_address = contract.functions.ownersToContracts(address).call()
 	return workspace_address
 
+
 def contractsToOwners(workspace_contract, mode) :
 	w3 = mode.w3
 	contract = w3.eth.contract(mode.foundation_contract,abi=constante.foundation_ABI)
 	address = contract.functions.contractsToOwners(workspace_contract).call()
 	return address
+
 
 def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=None) :
 	#recuperer la cle AES cryptée
@@ -75,6 +65,7 @@ def decrypt_data(workspace_contract_user, data, privacy, mode, address_caller=No
 		plaintext = plaintext[:-plaintext[-1]].decode("utf-8")
 	return json.loads(plaintext)
 
+
 def encrypt_data(identity_workspace_contract, data, privacy, mode, address_caller=None) :
 	# parameter data is dict
 	# return dict is dict
@@ -106,6 +97,7 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode, address_calle
 	dict_data = {"ciphertext" : ct}
 	return dict_data
 
+
 def add_private_key(private_key, mode) :
 	encrypted = Account.encrypt(private_key, mode.password)
 	address = mode.w3.toChecksumAddress(encrypted['address'])
@@ -116,6 +108,7 @@ def add_private_key(private_key, mode) :
 	f.write(json.dumps(encrypted))
 	f.close()
 	return True
+
 
 def generate_store_key(address, curve, mode) :
 	"""
@@ -144,13 +137,9 @@ def generate_store_key(address, curve, mode) :
 
 # create a RSA key from Ethereum private key
 def create_rsa_key(private_key, mode) :
-	global salt
-	global master_key
-	salt = private_key
-	master_key = PBKDF2(mode.password, salt, count=10000)
-	my_rand.counter = 0
-	RSA_key = RSA.generate(2048, randfunc=my_rand)
+	RSA_key = RSA.generate(2048)
 	return  RSA_key, RSA_key.exportKey('PEM'), RSA_key.publickey().exportKey('PEM')
+
 
 def get_key(address, key_type, mode, address_caller=None) :
 	""" main function to get key from server storage

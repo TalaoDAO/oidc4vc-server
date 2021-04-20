@@ -45,7 +45,7 @@ logging.info('end of init')
 # Centralized  routes : modules in ./routes
 from routes import web_create_identity, web_create_company_cci, web_certificate, web_workflow
 from routes import web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
-from routes import web_main, web_login
+from routes import web_main, web_login, repository
 
 # Release
 VERSION = "0.8.11"
@@ -203,6 +203,13 @@ app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_c
 app.add_url_rule('/user/request_experience_certificate/',  view_func=web_workflow.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+
+# Centralized route for repository
+app.add_url_rule('/repository/authn',  view_func=repository.authn, methods = ['POST'], defaults={'mode' : mode})
+app.add_url_rule('/repository/publish',  view_func=repository.publish, methods = ['POST'], defaults={'mode' : mode})
+app.add_url_rule('/repository/create',  view_func=repository.create, methods = ['GET'], defaults={'mode' : mode})
+app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
+
 
 
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})

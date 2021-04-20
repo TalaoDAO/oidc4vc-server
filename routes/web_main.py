@@ -663,7 +663,7 @@ def update_personal_settings(mode) :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
             if     form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
                 if form_value[topicname] :
-                    claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)[0]
+                    claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
                     if not claim_id :
                         flash('Update impossible (RSA not found)', 'danger')
                         return redirect(mode.server + 'user/')
@@ -771,7 +771,7 @@ def update_company_settings(mode) :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
             if form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
                 if form_value[topicname] :
-                    claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)[0]
+                    claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
                     change = True
                     session['personal'][topicname]['claim_value'] = form_value[topicname]
                     session['personal'][topicname]['privacy'] = form_privacy[topicname]
@@ -961,7 +961,7 @@ def create_kyc(mode) :
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
         identity_credential=Document('credential')
         data = identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode)
-        if not data[0] :
+        if not data :
             flash('Transaction to store verifiable ID on repository failed', 'danger')
             logging.warning('store on repo failed')
         else :

@@ -44,49 +44,47 @@ def topicname2topicvalue(topicname) :
 		if int(a) < 100 :
 			a='0'+a
 		topicvaluestr = topicvaluestr + a
-	return int(topicvaluestr)
+	i =  999999999999999999999999999999 # modulo 10 letters max
+	return int(topicvaluestr) % i
 
 
 def create_claim(address_from,workspace_contract_from, address_to, workspace_contract_to,private_key_from, topicname, data, privacy, mode, synchronous) :
-	# @data = str
-	# scheme 2
-	topic_value = topicname2topicvalue(topicname)
-
-	data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode,  address_caller=address_from)
+	""" main reate claim function
+	@data = str
+	@topicname is credential id
+	@privacy is public/private/secret
+	scheme 2
+	"""
+	# calculate claim_id derived from credential "id" (topicname)
+	topicvalue = topicname2topicvalue(topicname)
+	claim_id = mode.w3.solidityKeccak(['address', 'uint256'], [address_from, topicvalue]).hex()
+	# encrypt data
+	data_encrypted = privatekey.encrypt_data(workspace_contract_to, {topicname : data}, privacy, mode, address_caller=address_from)
 	if not data_encrypted :
 		logging.warning('no data encrypted')
-		return None, None, None
+		return None
+
+	# store on IPFS
 	ipfs_hash = Talao_ipfs.ipfs_add(data_encrypted, mode)
 	if not ipfs_hash :
 		logging.error('ipfs hash error create_claim')
-		return None, None, None
-	data = privacy
+		return None
 
+	# fire transaction
 	nonce = mode.w3.eth.getTransactionCount(address_from)
-	issuer = address_from
-
-	# calcul de la signature
-	msg = mode.w3.solidityKeccak(['bytes32','address', 'bytes32', 'bytes32' ], [bytes(topicname, 'utf-8'), issuer, bytes(data, 'utf-8'), bytes(ipfs_hash, 'utf-8')])
-	message = encode_defunct(text=msg.hex())
-	signed_message = mode.w3.eth.account.sign_message(message, private_key=private_key_from)
-	signature = signed_message['signature']
-	claim_id = mode.w3.solidityKeccak(['address', 'uint256'], [address_from, topic_value]).hex()
-
-	#transaction
 	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-	txn = contract.functions.addClaim(topic_value,2,issuer, signature, bytes(data, 'utf-8'),ipfs_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
+	txn = contract.functions.addClaim(topicvalue, 2, address_from, b'signature', privacy.encode(), ipfs_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
 	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
-	if synchronous :
-		receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
-		if not receipt['status'] :
-			logging.warning('no status for transaction')
-			return None, None, None
+	receipt = mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	if not receipt['status'] :
+		logging.error('transaction failed')
+		return None
 	logging.info('claim has been added on repository')
-	return claim_id, ipfs_hash, transaction_hash
+	return claim_id
 
-# attention on ne retourne que le derniere !!!!!
+
 def get_claim(workspace_contract_from, private_key_from, identity_workspace_contract, topicname, mode) :
 	topic_value =  topicname2topicvalue(topicname)
 	contract = mode.w3.eth.contract(identity_workspace_contract,abi=constante.workspace_ABI)
@@ -109,7 +107,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 	issuer = claim[2]
 	scheme = claim[1]
 	topic_value = claim[0]
-	topicname = topicvalue2topicname(topic_value)
+	#topicname = topicvalue2topicname(topic_value)
 	if data != 'private' and data != 'secret' and data != 'public' :
 		# compatiblité avec version precedente. data public non cryptee
 		to_be_decrypted = False
@@ -124,39 +122,11 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		address_from = contracts_to_owners(workspace_contract_from, mode)
 		msg = privatekey.decrypt_data(identity_workspace_contract, data_encrypted, privacy, mode, address_caller=address_from)
 		if msg :
-			data= msg[topicname]
+			#data= msg[topicname]
+			data = list(msg.values())[0]
 		else :
 			logging.error('decrypt claim failed')
 			data = None
-
-	"""
-	# transaction info
-	contract = w3.eth.contract(identity_workspace_contract, abi=constante.workspace_ABI)
-	claim_filter = contract.events.ClaimAdded.createFilter(fromBlock=mode.fromBlock,toBlock = 'latest')
-	event_list = claim_filter.get_all_entries()
-	found = False
-	for claim in event_list :
-		if claim['args']['claimId'].hex() == claim_id :
-			found = True
-			transactionhash = claim['transactionHash']
-			transaction_hash = transactionhash.hex()
-			try :
-				transaction = w3.eth.getTransaction(transaction_hash)
-				gas_price = transaction['gasPrice']
-				identity_workspace_contract = transaction['to'] 
-				block_number = transaction['blockNumber']
-				block = mode.w3.eth.getBlock(block_number)
-				date = datetime.fromtimestamp(block['timestamp'])
-				gas_used = 1
-				created = str(date)
-			except :
-				logging.error( 'problem transaction data in get claim')
-				return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
-			break
-	if not found :
-		logging.error( 'claim not found in claim.py')
-		return issuer, identity_workspace_contract, None, "", 0, None, None, None, 'public',topic_value, None
-	"""
 
 	gas_used = 1000
 	created = ""
@@ -204,10 +174,10 @@ class Claim() :
 
 		self.topicvalue = topicvalue
 		self.topicname = topicname
-		self.created = created
-		self.transaction_hash = transaction_hash
+		#self.created = created
+		#self.transaction_hash = transaction_hash
 		self.issuer = issuer
-		self.transaction_fee = transaction_fee
+		#self.transaction_fee = transaction_fee
 		self.claim_id = claim_id
 		self.ipfs_hash = ipfs_hash
 		self.data_location = data_location
@@ -243,7 +213,7 @@ class Claim() :
 			issuer_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + issuer_workspace_contract[2:]
 		else :
 			return False
-		self.created = created
+		#self.created = created
 		self.topicname = topicvalue2topicname(self.topicvalue)
 		self.claim_value = data
 		self.issuer = {'address' : issuer_address,
@@ -252,8 +222,8 @@ class Claim() :
 						'id' : issuer_id}
 		if issuer_profil :
 			self.issuer.update(issuer_profil)
-		self.transaction_hash = transaction_hash
-		self.transaction_fee = transaction_fee
+		#self.transaction_hash = transaction_hash
+		#self.transaction_fee = transaction_fee
 		self.ipfs_hash = ipfs_hash
 		self.data_location = mode.BLOCKCHAIN if ipfs_hash == "" else 'https://gateway.ipfs.io/ipfs/' + ipfs_hash
 		self.privacy = privacy

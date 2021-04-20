@@ -73,7 +73,7 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key = helpers.ethereum_to_jwk256kr(pvk)
 #did = helpers.ethereum_pvk_to_DID(pvk, method)
 
-key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K-R"})
+#key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K-R"})
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
 #key = jwk.JWK.generate(kty="EC", crv="P-256")
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1")
@@ -84,14 +84,15 @@ key =  json.dumps({"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHa
 #key=key.export_private()
 #print('key = ', key)
 #key = '{"crv":"P-256","d":"zqojPOaQaVLmCZfHM5sYQNJ4pGqt4H8jTLUrokW04vU","kty":"EC","x":"OlhAgrdZrGbUcuoNeY8FNuUhcJGlDFkvXUv9DhvRsHc","y":"PyKwME0TRLcAQaQ1xexNkN_87bhCRseKgf5dDc261oQ"}'
-
-method = "tz"
 #key = helpers.ethereum_to_jwk(pvk, method)
 #did = helpers.jwk_to_did(method, key)
 
-did = didkit.keyToDID(method, key)
+method = "tz"
+#did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
+key = '{"alg":"ES256K-R","crv":"secp256k1","d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U","kty":"EC","x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk","y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"}'
+did = "did:tz:tz2JKnkcJ4FswZkWUUxsihboc9CeQPnovgy8"
 
 #print('did  = ', did)
 #did = "did:web:talao.co:thierrythevenet"
@@ -101,38 +102,88 @@ DIDdocument = didkit.resolveDID(did,'{}')
 #print(json.dumps(json.loads(DIDdocument), indent=4))
 
 verifmethod = didkit.keyToVerificationMethod(method, key)
+#print('verifmethod = ', verifmethod)
+
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
 #verifmethod = did + "#key-2"
 #print('verfif method = ', verifmethod)
 
-# step 1 contact endpoint to get challenge
-response = requests.get("http://127.0.0.1:10000/repository/authn")
-challenge = response.json()['challenge']
+"""
+# create
+response = requests.get("http://127.0.0.1:3000/repository/create?did=" + did)
+print(response.json())
+if response.status_code != 200 :
+        sys.exit()
+sys.exit()
+"""
 
-# step 2 response with DID signature
+#topicvalue =  349369237269256357346239253356
+#claim_id =  0x83aa3ce4876fcb7eabaa9516025f08489af936f03369aa8ba271df66bf185c2e
+
+#127.0.0.1:3000/certificate/?certificate_id=did:tz:tz2JKnkcJ4FswZkWUUxsihboc9CeQPnovgy8:claim:0x83aa3ce4876fcb7eabaa9516025f08489af936f03369aa8ba271df66bf185c2e
+
+
+"""
+# step 1 
 verificationPurpose = {
             "proofPurpose": "authentication",
             "verificationMethod": verifmethod,
-            "challenge" : challenge
+            "domain" : "https://talao.co/repository"
         }
 presentation = didkit.DIDAuth(
             did,
             verificationPurpose.__str__().replace("'", '"'),
             key
         )
-response = requests.post("http://127.0.0.1:10000/repository/authn", json = json.loads(presentation))
+response = requests.post("http://127.0.0.1:3000/repository/authn", json = json.loads(presentation))
+print(response.json())
+if response.status_code != 200 :
+        sys.exit()
 token = response.json()['token']
 
-# step 3 call an endpoint
-credential = {'test' : 123 }
-data = {"token" : token, "credential" : credential }
-response = requests.post("http://127.0.0.1:10000/repository/publish", json = data)
 
+# step 2 call an endpoint
+credential = open('./signed_credentials/data:05c2f36c-96f4-11eb-99ea-3ca82aaebc39_credential.jsonld').read()
+data = {"token" : token, "credential" : credential }
+response = requests.post("http://127.0.0.1:3000/repository/publish", json = data)
+print(response.json())
+if response.status_code != 200 :
+        sys.exit()
+
+"""
+
+
+# step 1 
+verificationPurpose = {
+            "proofPurpose": "authentication",
+            "verificationMethod": verifmethod,
+            "domain" : "https://talao.co/repository"
+        }
+presentation = didkit.DIDAuth(
+            did,
+            verificationPurpose.__str__().replace("'", '"'),
+            key
+        )
+response = requests.post("http://127.0.0.1:3000/repository/authn", json = json.loads(presentation))
+if response.status_code != 200 :
+        sys.exit()
+token = response.json()['token']
+
+
+# step 2 call an endpoint
+credential = open('./signed_credentials/data:05c2f36c-96f4-11eb-99ea-3ca82aaebc39_credential.jsonld').read()
+credential_id = "data:05c2f36c-96f4-11eb-99ea-3ca82aaebc39"
+data = {"token" : token, "credential_id" : credential_id }
+response = requests.post("http://127.0.0.1:3000/repository/get", json = data)
+print(response.json())
+if response.status_code != 200 :
+        sys.exit()
 
 
 """
+
 verifyResult = json.loads(didkit.verifyPresentation(
             presentation,
             verificationPurpose.__str__().replace("'", '"')))
@@ -145,9 +196,10 @@ cred = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "issuanceDate": "2020-08-19T21:41:50Z",
                 "credentialSubject": {
                 "id": "did:example:d23dd687a7dc6787646f2eb98d0",
+                
                         }
         }
-"""
+
 #print(credential.sign(cred, pvk, method))
 
 
@@ -160,7 +212,7 @@ cred = { "@context": "https://www.w3.org/2018/credentials/v1",
 #credential['id'] = "data:5656"
 #credential["credentialSubject"]["id"] = "data:555"
 
-"""
+
 didkit_options = {
         "proofPurpose": "assertionMethod",
         "verificationMethod": verifmethod
@@ -171,17 +223,18 @@ credential = didkit.issueCredential(
         didkit_options.__str__().replace("'", '"'),
         key
         )
-"""
 
-"""
+
+
 credential = didkit.issueCredential(
         json.dumps(credential, ensure_ascii=False),
         didkit_options.__str__().replace("'", '"'),
         key
         )
-"""
+
 
 #print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
 #print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
 
 
+"""
