@@ -162,6 +162,8 @@ app.add_url_rule('/user/remove_kyc/',  view_func=web_main.remove_kyc, methods = 
 app.add_url_rule('/user/issue_kbis/',  view_func=web_main.issue_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_kbis/',  view_func=web_main.remove_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/remove_education/',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
+
 app.add_url_rule('/user/create_company/',  view_func=web_main.create_company, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_certificate/',  view_func=web_main.remove_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_file/',  view_func=web_main.remove_file, methods = ['GET','POST'], defaults={'mode' : mode})

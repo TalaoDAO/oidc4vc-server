@@ -303,10 +303,11 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
             subject_resume_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
             credential = """<tr>
                 <td><a href=/company/issue_credential_workflow/?id=""" + mycredential[6] + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
-                <td><a href=""" + subject_resume_link + """>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</a></td>
+                <!-- <td><a href=""" + subject_resume_link + """>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</a></td> -->
+                <td>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</td>
+                <td>""" + mycredential[7] + """</td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['title'][:20] + """...</td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['description'] + """</td>
-                <td>""" + mycredential[7] + """</td>
                 <td>""" + mycredential[0][:10] + """</td>
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['credentialCategory'].capitalize() + """</td>
                 <td>""" + mycredential[2] + """</td>

@@ -289,6 +289,9 @@ def select_identity (mode) :
         ns.update_method(session['workspace_contract'], request.form['method'], mode)
         session['method'] = request.form['method']
         did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+        did_list = ns.get_did(session['workspace_contract'], mode)
+        if did not in did_list :
+            ns.add_did(session['workspace_contract'], did, mode)
         flash('your did = ' + did, 'success')
         return redirect(mode.server + 'user/')
 
@@ -504,8 +507,8 @@ def issue_reference_credential(mode):
                 logging.warning('credential not stored on server')
 
             # upload to repository
-            execution = Document('certificate').relay_add(workspace_contract_to, json.loads(signed_credential), mode)
-            if not execution[0] :
+            ref = Document('certificate')
+            if not ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode)[0] :
                 logging.warning('transacion failed to store reference on repository')
                 flash('transaction to upload reference failed ', 'danger')
             else :
@@ -661,7 +664,7 @@ def update_personal_settings(mode) :
         change = False
         for topicname in session['personal'].keys() :
             form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
-            if     form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
+            if form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
                 if form_value[topicname] :
                     claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
                     if not claim_id :
@@ -894,11 +897,10 @@ def add_experience(mode) :
 				my_skills = Document('skills')
 				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
 				# issue new skill document
-				data = my_skills.relay_add(session['workspace_contract'], skill_data, mode)
-				if not data[0] :
+				dac_id = my_skills.relay_add(session['workspace_contract'], skill_data, mode)[0]
+				if not doc_id :
 					flash('Transaction to add skill failed', 'danger')
 					return redirect( mode.server + 'user/')
-				doc_id = data[0]
 				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
 
 			# add experience in current session
@@ -959,9 +961,8 @@ def create_kyc(mode) :
 
         # signed verifiable identity is stored in repository as did_authn ERC735 Claim
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-        identity_credential=Document('credential')
-        data = identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode)
-        if not data :
+        identity_credential = Document('credential')
+        if not identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode)[0] :
             flash('Transaction to store verifiable ID on repository failed', 'danger')
             logging.warning('store on repo failed')
         else :
@@ -1195,7 +1196,7 @@ def add_education(mode) :
         education['certificate_link'] = request.form['certificate_link']
         privacy = 'public'
         doc_id = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)[0]
-        if not doc_id[0]  :
+        if not doc_id  :
             flash('Transaction failed', 'danger')
         else :
             # add experience in session

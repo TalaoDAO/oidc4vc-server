@@ -706,7 +706,7 @@ def user_advanced(mode) :
 	DIDdocument = didkit.resolveDID(did,'{}')
 	did_doc = json.dumps(json.loads(DIDdocument), indent=4)
 
-	# Blockchain data
+	# Repository data
 	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
@@ -717,8 +717,9 @@ def user_advanced(mode) :
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
-					<b>DID</b> : """ + did + """<br>
-					<b>Credential repository </b> : """+ session['workspace_contract'] + """</a><br>
+					<b>Repository</b> : """+ session['workspace_contract'] + """</a><br>
+					<b>Current DID</b> : """ + did + """<br>
+					<b>Identity attached</b> : """ + "<br>".join(ns.get_did(session['workspace_contract'], mode)) + """<br>
 					<b>Wallet</b> : """ + wallet  + """<br>
 					<b>Role</b> : """ + role + """<br>
 					<b>Referent</b> : """ + referent + """<br>"""

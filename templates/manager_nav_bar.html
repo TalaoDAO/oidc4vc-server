@@ -16,7 +16,7 @@
         <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit by email&nbsp;</a>
         <div class="dropdown-divider"></div>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
+        <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
         <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://talao.readthedocs.io/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
@@ -77,7 +77,7 @@
           <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
             <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;My account&nbsp;</a>
             {% if session['role'] in ['admin', 'creator'] %}
-            <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
+            <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
             {% endif %}
             <div class="dropdown-divider"></div>
             <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit by email&nbsp;</a>
@@ -90,12 +90,6 @@
 </nav>
 
 
-<script>function logout() {
-console.log('call de logout');
-window.onEnd();
-window.location.href = "/logout/";
-}
-</script>
 
 <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
 <script>
@@ -107,8 +101,7 @@ window.location.href = "/logout/";
     $temp.remove();
   }
 </script>
-<script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
 
-<!-- <script src="{{ url_for('static', filename='jquery.min.js') }}"></script> -->
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script> 
 <script type="text/javascript" src="{{ url_for('static', filename='typeahead.bundle.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='Typeahead.js') }}"></script> 

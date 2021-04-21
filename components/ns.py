@@ -41,8 +41,7 @@ def alter_resolver_table(mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()
-	cur.execute('alter table resolver drop column p256')
-	cur.execute('alter table resolver drop column ed25519')
+	cur.execute('alter table resolver add column did text')
 	conn.commit()
 	cur.close()
 
@@ -116,6 +115,56 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 	conn.commit()
 	conn.close()
 	return True
+
+def add_did(workspace_contract, did, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = { "workspace_contract" : workspace_contract}
+	c.execute("SELECT did FROM resolver WHERE identity_workspace_contract = :workspace_contract", data)
+	previous_did = c.fetchone()[0]
+	if not previous_did :
+		new_did = list()
+		new_did.append(did)
+	else :
+		new_did = json.loads(previous_did)
+		if not did in new_did :
+			new_did.append(did)
+		else :
+			logging.warning('did already in did list')
+	new_did = json.dumps(new_did)
+	data = { "workspace_contract" : workspace_contract, 'did' : new_did}
+	c.execute("update resolver set did = :did where identity_workspace_contract = :workspace_contract", data )
+	conn.commit()
+	conn.close()
+
+
+def get_did(workspace_contract,mode) :
+	"""
+	return dict
+	"""
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = { "workspace_contract" : workspace_contract}
+	c.execute("SELECT did FROM resolver WHERE identity_workspace_contract = :workspace_contract", data)
+	did = c.fetchone()[0]
+	conn.close()
+	return  [] if not did else json.loads(did)
+
+
+def get_workspace_contract_from_did(did, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = { 'did' : '%"' + did + '"%'}
+	c.execute('SELECT identity_workspace_contract FROM resolver WHERE did LIKE  :did ', data)
+	wc = c.fetchone()
+	conn.close()
+	if not wc :
+		return None
+	return wc[0]
+
 
 def add_publickey(address, mode) :
 	path = mode.db_path

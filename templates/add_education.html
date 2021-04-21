@@ -79,15 +79,12 @@
                                             </div>
 
                                              <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"></div><button class="btn btn-primary btn-sm" id="in_progress_button" type="submit">Add</button></div>
-                                    </div>
-                                    <div class="col-6 col-xl-3">
-										<a href="/user/">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
-                                        </a>
-                                    </div>
-                                </div>
+                                                <div class="col-6 col-xl-3">
+                                                    <div class="form-group"><button class="btn btn-primary btn-sm" id="in_progress_button" type="submit">Add</button></div>
+                                                </div>
+                                                    <div class="col-6 col-xl-3"><a href="/user/"> <div class="form-group"><div><button class="btn btn-primary btn-sm" type="button">Back</button></div></a>
+                                                </div>
+                                            </div>
 
                                         </form>
                                     </div>
@@ -102,13 +99,11 @@
                                {% include 'user_footer.html' %}
     </div>
    </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	<script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
     <script>function copyToClipboard(element) {
         var $temp = $("<input>");
         $("body").append($temp);

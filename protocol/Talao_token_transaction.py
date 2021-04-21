@@ -574,17 +574,17 @@ def topicname2topicvalue(topicname) :
 #        bytes _data,
 #        uint256[] _offsets
 
-def update_self_claims(address, private_key, dict, mode) :
+def update_self_claims(address, private_key, mydict, mode) :
 	# dict
 	w3 = mode.w3
 	chaine = ''
 	offset = list()
 	topic = list()
-	for key in dict :
+	for key in mydict :
 		#chaine = chaine + '_' + dict[key]
 		#offset.append(len('_' +  dict[key]))
-		chaine = chaine + dict[key]
-		offset.append(len(dict[key]))
+		chaine = chaine + mydict[key]
+		offset.append(len(mydict[key]))
 		topic.append(topicname2topicvalue(key))
 	bchaine=bytes(chaine, 'utf-8')
 	workspace_contract=ownersToContracts(address,mode)

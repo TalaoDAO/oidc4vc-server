@@ -49,22 +49,7 @@
                 <div class="card-body">
                   <h1 style="text-align: center;">{{issuer_name}}</h1>
                   <h5 style="text-align: center;">{{issuer_profil_title}}</h5>
-                  <hr>
-                  <div class="row">
-                    <div class="col-8">
-                      <p class="m-0 text-dark">Proof of Identity :</p>
-                    </div>
-                    <div class="col">
-                      <p class="m-0">
-                        {% if kyc %}
-                        <i class="fa fa-check" style="font-size: 25px;color: rgb(48,225,56)" title="This user has provided a Proof of Identity"></i>
-                        {% else %}
-                        <i class="fa fa-remove" style="font-size: 25px;color: rgb(179,61,61);" title="This user has not provided a Proof of Identity"></i>
-                        {% endif %}
-                      </p>
-                    </div>
-                  </div>
-                  <hr>
+                    <hr>
                   <h5><i class="fa fa-phone-square"></i>&nbsp;Contact :</h5>
                   <p>Name : {{contact_name}}<br>Phone number : {{contact_phone}}<br>Email : {{contact_email}}<br>Website : <a href="{{website}}">{{website}}</a></p>
                   <hr>

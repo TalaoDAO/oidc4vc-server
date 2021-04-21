@@ -116,15 +116,13 @@ def show_certificate(mode):
 							)
 
 	if self_claim == "skills" :
-		description = session['displayed_certificate']['description']
-
-		my_badge = ''
-		#for skill in session['displayed_certificate']['skills'] :
-		#	skill_to_display = skill.replace(" ", "").capitalize().strip(',')
-		#	my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
+		description = ""
+		print (session['displayed_certificate'])
+		for skill in session['displayed_certificate']['description'] :
+			description += skill["skill_name"] + " "
 		return render_template('./certificate/self_claim.html',
 							**menu,
-							type = 'Experience',
+							type = 'Skill',
 							certificate_id= certificate_id,
 							description = description,
 							viewer=viewer,
@@ -405,6 +403,8 @@ def show_certificate(mode):
 							)
 
 	else :
+		# clean up to get a standard credential
+		del session['displayed_certificate']['topic']
 		del session['displayed_certificate']['doc_id']
 		del session['displayed_certificate']['data_location']
 		del session['displayed_certificate']['privacy']
