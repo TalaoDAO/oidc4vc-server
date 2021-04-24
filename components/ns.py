@@ -42,6 +42,7 @@ def alter_resolver_table(mode) :
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()
 	cur.execute('alter table resolver add column did text')
+	cur.execute('alter table resolver add column personal text')
 	conn.commit()
 	cur.close()
 
@@ -329,12 +330,38 @@ def get_method(workspace_contract, mode) :
 	return select[0]
 
 
+def get_personal(workspace_contract, mode) :
+	"""
+	return json 
+	"""
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = {'workspace_contract' : workspace_contract}
+	c.execute("SELECT personal FROM resolver WHERE identity_workspace_contract = :workspace_contract " , data)
+	select=c.fetchone()
+	conn.close()
+	if not select :
+		return None
+	return select[0]
+
+
 def update_method(workspace_contract, method, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()
 	data = { 'method' : method, 'workspace_contract' : workspace_contract}
 	cur.execute("update resolver set method = :method where identity_workspace_contract = :workspace_contract", data )
+	conn.commit()
+	conn.close()
+
+
+def update_personal(workspace_contract, personal, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	cur = conn.cursor()
+	data = { 'personal' : personal, 'workspace_contract' : workspace_contract}
+	cur.execute("update resolver set personal = :personal where identity_workspace_contract = :workspace_contract", data )
 	conn.commit()
 	conn.close()
 

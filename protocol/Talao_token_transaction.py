@@ -1,6 +1,5 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-#import time
 import hashlib
 import json
 from datetime import datetime
@@ -382,7 +381,6 @@ def authorize_partnership(address_from, workspace_contract_from, identity_addres
 #       4 identityInformation.asymetricEncryptionPublicKey = _asymetricEncryptionPublicKey;
 #       5 identityInformation.symetricEncryptionEncryptedKey = _symetricEncryptionEncryptedKey;
 #       6 identityInformation.encryptedSecret = _encryptedSecret;
-
 def partnershiprequest(address_from, workspace_contract_from, identity_address, identity_workspace_contract, private_key_from, partner_workspace_contract, identity_rsa_key, mode, synchronous= True) :
 	# identity is the partner requested
 	w3 = mode.w3
@@ -507,54 +505,6 @@ def reject_partnership(address_from, workspace_contract_from, address_to, worksp
 	return True
 
 
-def get_image(workspace_contract, image_type, mode) :
-	"""
-	image(profil picture) = 105109097103101  signature = 115105103110097116117114101
-	return ipfs id
-	"""
-	w3 = mode.w3
-	topicvalue = 105109097103101 if image_type in ['photo', 'logo', 'image', 'picture'] else 115105103110097116117114101
-	contract = w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
-	try :
-		a = contract.functions.getClaimIdsByTopic(topicvalue).call()
-	except Exception as res :
-		logging.error('get picture in talao_transaction %s', res)
-		return None
-	if len(a) :
-		claim_Id = a[-1].hex()
-		picture_hash = contract.functions.getClaim(claim_Id).call()[5]
-		return picture_hash
-	else :
-		return None
-
-
-############################################################
-#  Update pictures or signature, etc
-############################################################
-#  @picturefile : type str, nom fichier de la photo avec path ex  './cvpdh.json'
-# claim topic 105109097103101
-def save_image(address_from, workspace_contract_from, address_to, workspace_contract_to, private_key_from, picturefile, picture_type, mode, synchronous = True) :
-
-	# upload picture on ipfs
-	picture_hash = Talao_ipfs.file_add(picturefile, mode)
-
-	topic = 105109097103101 if picture_type == 'picture' else 115105103110097116117114101
-	contract = mode.w3.eth.contract(workspace_contract_to,abi=constante.workspace_ABI)
-
-	# Build and sign transaction
-	nonce = mode.w3.eth.getTransactionCount(address_from)
-	txn = contract.functions.addClaim(topic,1,address_from, '0x', '0x01',picture_hash ).buildTransaction({'chainId': mode.CHAIN_ID,'gas': 4000000,'gasPrice': mode.w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce,})
-	signed_txn = mode.w3.eth.account.signTransaction(txn,private_key_from)
-
-	# send transaction
-	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-	hash1 = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
-	if synchronous :
-		receipt = mode.w3.eth.waitForTransactionReceipt(hash1, timeout=2000, poll_latency=1)
-		if not receipt['status'] :
-			return None
-	return picture_hash
-
 def topicname2topicvalue(topicname) :
 	topicvaluestr =''
 	for i in range(0, len(topicname))  :
@@ -564,15 +514,6 @@ def topicname2topicvalue(topicname) :
 		topicvaluestr = topicvaluestr + a
 	return int(topicvaluestr)
 
-
-############################################################
-#  Mise a jour du profil 
-############################################################
-#
-# function updateSelfClaims(
-#        uint256[] _topic,
-#        bytes _data,
-#        uint256[] _offsets
 
 def update_self_claims(address, private_key, mydict, mode) :
 	# dict
@@ -600,6 +541,7 @@ def update_self_claims(address, private_key, mydict, mode) :
 	if not receipt['status']  :
 		return None
 	return hash1
+
 
 ############################################################
 #  Read workspace Info
@@ -634,12 +576,6 @@ def read_workspace_info (address, rsa_key, mode) :
 
 	return category, secret, aes
 
-#########################################################
-# read Talao experience or diploma index
-#########################################################
-# @_doctype = int (40000 = Diploma, 50000 = experience)
-# return Int
-# attention cela retourne le nombre de doc mais pas les docuements actifs !!!!
 
 def getDocumentIndex(address, _doctype,mode) :
 	w3 = mode.w3

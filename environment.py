@@ -100,7 +100,7 @@ class currentMode() :
 			logging.error('environment variable problem')
 
 		self.start_block = 10000
-		self.GASPRICE='2'
+		self.GASPRICE='3'
 		self.fromBlock= 1000
 		self.CHAIN_ID = 50000
 		# POA middleware

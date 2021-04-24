@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- person_issuer_identity.html -->
 <html>
 
 <head>
@@ -46,21 +47,7 @@
                 <div class="card-body">
                   <h1 style="text-align: center;">{{issuer_name}}</h1>
                   <h5 style="text-align: center;">{{issuer_profil_title}}</h5>
-                  <hr>
-                  <div class="row">
-                    <div class="col-8">
-                      <p class="m-0 text-dark">Digital Identity :</p>
-                    </div>
-                    <div class="col">
-                      <p class="m-0">
-                        {% if kyc %}
-                        <i class="fa fa-check" style="font-size: 25px;color: rgb(48,225,56)" title="This user has provided a Proof of Identity"></i>
-                        {% else %}
-                        <i class="fa fa-remove" style="font-size: 25px;color: rgb(179,61,61);" title="This user has not provided a Proof of Identity"></i>
-                        {% endif %}
-                      </p>
-                    </div>
-                  </div>
+                 
                   <hr>
                   <h5><i class="fa fa-phone-square"></i>&nbsp;Contact :</h5>
                   <p>Address : {{adress}}<br>Phone number : {{phone}}<br>Email : {{email}}</p>
@@ -200,30 +187,6 @@
 
                     {% endif %}
                     <div class="row m-2">
-
-                      {% if white_list %}
-
-                      <div class="col-9 p-0 w-100">
-                        <button class="btn btn-primary py-0" title="Your Whitelist is made up of issuers you rely on" type="button"
-                          style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
-                          This user is in your <strong> White List</strong></button>
-                      </div>
-                      <div class="col ml-2 p-0 text-right">
-                        <a class="text-secondary" href="/user/remove_white_issuer/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
-                          <button class="btn btn-primary" type="button" style="color: white;background: #D2D2D2;border-color: #D2D2D2;height: 50px;width: 50px" title="Remove this user from your White List">
-                            <i class="fas fa-times" style="font-size: 20px;"></i>
-                        </a></button>
-                      </div>
-
-                      {% else %}
-                      <div class="col w-100 p-0">
-                        <a href="/user/add_white_issuer/?issuer_username={{issuer_username}}">
-                          <button class="btn btn-primary w-100" title="Your Whitelist is made up of issuers you rely on" type="button"
-                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">Add this user to
-                            your <strong>White List</strong></button>
-                        </a>
-                      </div>
-                      {% endif %}
 
                     </div>
                     <div class="row m-2">

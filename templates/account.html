@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-
+<!-- account.html -->
 <head>
   {% include 'head.html' %}
 </head>
@@ -47,11 +47,11 @@
             <div class="col-lg-8 col-xl-4 offset-xl-4">
               <div class="card shadow mb-5">
                 <div class="card-body">
-                  <h4 title="Services available." class="text-center">Settings</h4>
+                  <h4 title="Services available." class="text-center">Account</h4>
                   <div role="tablist" id="accordion-2">
 
                     <!-- Update picture / logo-->
-                    {% if session['role'] in ['creator', 'admin'] %}
+                    {% if not session['role'] or session['role'] in ['creator', 'admin'] %}
                     <div class="card">
                       <div class="card-header" role="tab">
                         <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title=""><i class="fa fa-user-circle"></i>
@@ -101,6 +101,8 @@
                     </div>
                     {% endif %}
 
+                    {% if not session['role'] or session['role'] in ['creator', 'admin'] %}
+
                     <!-- Change Directory -->
                     <div class="card">
                       <div class="card-header" role="tab">
@@ -119,6 +121,8 @@
                         </div>
                       </div>
                     </div>
+                    {% endif %}
+
                   </div>
                   <br>
                   <div class="form-row">

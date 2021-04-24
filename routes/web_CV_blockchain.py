@@ -37,7 +37,6 @@ def resume(mode) :
 		del session['resume']['experience_list']
 		del session['resume']['education_list']
 		del session['resume']['other_list']
-		del session['resume']['kbis_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
 		del session['resume']['synchronous']
@@ -45,7 +44,6 @@ def resume(mode) :
 		del session['resume']['rsa_key']
 		del session['resume']['relay_activated']
 		del session['resume']['private_key']
-		del session['resume']['category']
 		session['resume']['topic'] = 'resume'
 
 		# file
@@ -192,7 +190,7 @@ def resume(mode) :
 				carousel_indicators_recommendation += '<li data-target="#recommendation-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, recommendation in enumerate(recommendations):
 
-				if recommendation['issuer']['category'] == 2001:
+				if recommendation['issuer']['type'] == 2001:
 					name = recommendation['issuer']['name']
 				else :
 					name = recommendation['issuer']['firstname'] + " " + recommendation['issuer']['lastname']
@@ -374,7 +372,7 @@ def resume(mode) :
 
 				carousel_rows_skill += "</p>"
 				#Footer
-				if skill['issuer']['category']==2001:
+				if skill['issuer']['type']== 'company':
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  skill['issuer']['name'] + """</footer>"""
 				else:
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
@@ -457,7 +455,6 @@ def board(mode):
 		del session['resume']['experience_list']
 		del session['resume']['education_list']
 		del session['resume']['other_list']
-		del session['resume']['kbis_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
 		del session['resume']['synchronous']
@@ -465,7 +462,6 @@ def board(mode):
 		del session['resume']['rsa_key']
 		del session['resume']['relay_activated']
 		del session['resume']['private_key']
-		del session['resume']['category']
 		session['resume']['topic'] = 'resume'
 		contact_name = issuer_explore.personal['contact_name']['claim_value']
 		contact_email = issuer_explore.personal['contact_email']['claim_value']

@@ -23,9 +23,9 @@ logging.basicConfig(level=logging.INFO)
 
 from factory import createcompany, createidentity
 from components import Talao_message, Talao_ipfs, hcode, ns, privatekey, QRCode, directory, sms, siren, talao_x509, company
-from signaturesuite import helpers, credential
+from signaturesuite import helpers, vc_signature
 import constante
-from protocol import ownersToContracts, contractsToOwners, save_image, partnershiprequest, remove_partnership, get_image
+from protocol import ownersToContracts, contractsToOwners,partnershiprequest, remove_partnership
 from protocol import  authorize_partnership, reject_partnership, destroy_workspace
 from protocol import delete_key, has_key_purpose, add_key
 from protocol import Claim, File, Identity, Document, read_profil
@@ -33,6 +33,8 @@ from protocol import Claim, File, Identity, Document, read_profil
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' 
+PERSON_TOPIC = ['firstname','lastname', 'about', 'profil_title', 'birthdate', 'contact_email', 'contact_phone','postal_address', 'education']
+COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
 
 
 # Check if session is active and access is fine. To be used for all routes, excetp external call
@@ -88,10 +90,13 @@ def picture(mode) :
         filename = "profile_pic.jpg"
         myfile.save(os.path.join(mode.uploads_path, filename))
         picturefile = mode.uploads_path  + filename
-        session['picture'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, picturefile, 'picture',mode, synchronous = False)
+        picture_hash = Talao_ipfs.file_add(picturefile, mode)
+        session['personal']['picture'] = session['picture'] = picture_hash
+        ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
         Talao_ipfs.get_picture(session['picture'], mode.uploads_path+ '/' + session['picture'])
         session['menu']['picturefile'] = session['picture']
         return redirect(mode.server + 'user/')
+
 
 #@app.route('/user/success/', methods=['GET'])
 def success(mode) :
@@ -173,7 +178,9 @@ def signature(mode) :
         filename = "signature.png"
         myfile.save(os.path.join(mode.uploads_path, filename))
         signaturefile = mode.uploads_path + '/' + filename
-        session['signature'] = save_image(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, signaturefile, 'signature', mode, synchronous = False)
+        signature_hash = Talao_ipfs.file_add(signaturefile, mode)
+        session['personal']['signature'] = session['signature'] = signature_hash
+        ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
         Talao_ipfs.get_picture(session['signature'], mode.uploads_path+ '/' + session['signature'])
         flash('Your signature has been updated', 'success')
         return redirect(mode.server + 'user/')
@@ -350,37 +357,8 @@ def issue_certificate(mode):
                                 **session['menu'],
                                 issuer_username=session['issuer_username'])
     if request.method == 'POST' :
-        if request.form['certificate_type'] == 'experience' :
-            if len(session['username'].split('.')) == 2 :
-                # look for signature of manager
-                manager_username = session['username'].split('.')[0]
-                manager_workspace_contract = ns.get_data_from_username(manager_username, mode)['workspace_contract']
-                session['certificate_signature'] = get_image(manager_workspace_contract, 'signature', mode)
-                # look for firstname, lasname and name of manager
-                firstname_claim = Claim()
-                lastname_claim = Claim()
-                firstname_claim.get_by_topic_name(None, None, manager_workspace_contract, 'firstname', mode)
-                lastname_claim.get_by_topic_name(None, None, manager_workspace_contract, 'lastname', mode)
-                session['certificate_signatory'] = firstname_claim.claim_value + ' ' + lastname_claim.claim_value
-            elif session['type'] == 'company' :
-                session['certificate_signature'] = session['signature']
-                session['certificate_signatory'] = 'Director'
-            else :
-                session['certificate_signature'] = session['signature']
-                session['certificate_signatory'] = session['name']
 
-            return render_template("issue_experience_certificate.html",
-                                    **session['menu'],
-                                    manager_name=session['certificate_signatory'],
-                                    issuer_username=session['issuer_username'],
-                                    talent_name=session['issuer_explore']['name'] )
-
-        elif request.form['certificate_type'] == 'skill' :
-            return render_template("create_skill_certificate.html",
-                                    **session['menu'],
-                                    identity_username=session['issuer_username'] )
-
-        elif request.form['certificate_type'] == 'recommendation'  :
+        if request.form['certificate_type'] == 'recommendation'  :
             return render_template('issue_recommendation.html',
                                     **session['menu'],
                                     issuer_username=session['issuer_username'],
@@ -395,81 +373,6 @@ def issue_certificate(mode):
         else :
             flash('This certificate is not implemented yet !', 'warning')
             return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
-
-def issue_experience_certificate(mode):
-    """ issue an experience certificate without review and no request
-
-    FIXME  rework the loading of credential
-
-    #@app.route('/user/issuer_experience_certificate/', methods=['GET','POST'])
-    The signature is the manager's signature except if the issuer is the company 
-    # issue experience certificate for person with  with two factor check
-    """
-    check_login()
-    # call from two factor checking function
-    if request.method == 'GET' :
-        if request.args.get('two_factor') == "True" :     # code is correct
-            workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
-            address_to = contractsToOwners(workspace_contract_to, mode)
-            execution = Document('certificate').add(session['address'],
-                        session['workspace_contract'],
-                        address_to,
-                        workspace_contract_to,
-                        session['private_key_value'],
-                        session['certificate_to_register'],
-                        mode,
-                        mydays=0,
-                        privacy='public',
-                        synchronous=True,
-                        request=request)
-            if not execution[0] :
-                flash('Transaction failed ', 'danger')
-            else :
-                flash('Certificate has been issued', 'success')
-        else :   # fail to check code
-            logging.warning('incorrect code in issue experience certificate %s', request.args.get('two_factor'))
-        del session['certificate_signature']
-        del session['certificate_signatory']
-        del session['certificate_to_register']
-        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
-    # call from issue_experience_certificate.html
-    if request.method == 'POST' :
-        workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
-        did_to = 'did:talao:talaonet:'+ workspace_contract_to[2:]
-        id = str(uuid.uuid1())
-        unsigned_credential = {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                  ],
-            "id": "data:" + id,
-            "@type": ["VerifiableCredential",],
-            "type" : "experience",
-            "credentialSubject": {
-                "id": did_to,},
-            "issuer": session['did'],
-            "issuanceDate": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
-            "version" : 1,
-            "title" : request.form['title'],
-            "description" : request.form['description'],
-            "start_date" : request.form['start_date'],
-            "end_date" : request.form['end_date'],
-            "skills" : request.form['skills'].split(','),
-            "question_recommendation" : "How likely are you to recommend this talent to others ?",
-            "score_recommendation" : request.form['score_recommendation'],
-            "question_delivery" : "How satisfied are you with the overall delivery ?",
-            "score_delivery" : request.form['score_delivery'],
-            "question_schedule" : "How would you rate his/her ability to deliver to schedule ?",
-            "score_schedule" : request.form['score_schedule'],
-            "question_communication" : "How would you rate his/her overall communication skills ?",
-            "score_communication" : request.form['score_communication'],
-            "logo" : session['picture'],
-            "signature" : session['certificate_signature'],
-            "manager_manager" : session['certificate_signatory'],
-            "reviewer_name" : request.form['reviewer_name'],
-        }
-        session['certificate_to_register'] = credential.sign(unsigned_credential, session['rsa_key_value'], session['method'])
-        # call the two factor checking function :
-        return redirect(mode.server + 'user/two_factor/?callback=user/issuer_experience_certificate/')
 
 
 def issue_reference_credential(mode):
@@ -492,28 +395,21 @@ def issue_reference_credential(mode):
             workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 
             # sign credential
-            signed_credential = credential.sign(session['unsigned_credential'], session['private_key_value'], method=session['method'])
+            signed_credential = vc_signature.sign(session['unsigned_credential'], session['private_key_value'], method=session['method'])
             logging.info('credential signed')
 
             # store signed credential on server
             filename = session['unsigned_credential']['id'] + '_credential.jsonld'
             path = "./signed_credentials/"
-            try :
-                fp = open(path + filename, 'w')
-                fp.write(json.dumps(json.loads(signed_credential), indent=4, ensure_ascii=False))
-                fp.close()
+            with open(path + filename, 'w') as outfile :
+                json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
                 logging.info('credential strored on server')
-            except :
-                logging.warning('credential not stored on server')
 
             # upload to repository
             ref = Document('certificate')
-            if not ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode)[0] :
-                logging.warning('transacion failed to store reference on repository')
-                flash('transaction to upload reference failed ', 'danger')
-            else :
-                logging.info('reference credential uploaded to repository')
-                flash('Credential has been issued', 'success')
+            ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode, synchronous=False)
+            logging.info('transaction launched asynchronous')
+            flash('Credential is beeing issued', 'success')
 
         else :   # fail to check code
             logging.warning('incorrect code to issue experience certificate %s', request.args.get('two_factor'))
@@ -531,7 +427,7 @@ def issue_reference_credential(mode):
         unsigned_credential["id"] =  "data:" + id
         unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
         unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        unsigned_credential[ "credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['issuer_explore']['private_key_value'], session['issuer_explore']['method'], session['isuer_explore']['address'])
+        unsigned_credential[ "credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['issuer_explore']['private_key_value'], session['issuer_explore']['method'], session['issuer_explore']['address'])
         unsigned_credential[ "credentialSubject"]["name"] = session['issuer_explore']["name"]
         unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
         unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
@@ -556,60 +452,6 @@ def issue_reference_credential(mode):
         return redirect(mode.server + 'user/two_factor/?callback=company/issue_reference_credential/')
 
 
-def issue_recommendation(mode):
-    """ issue recommendation for person with two factor check without any formal request
-
-    FIXME loading of credential
-
-    @app.route('/user/issue_recommendation/', methods=['GET', 'POST'])
-    """
-    check_login()
-     # call from two factor checking function
-    if request.method == 'GET' :
-        if request.args.get('two_factor') == "True" :     # code is correct
-            execution = Document('certificate').add(session['address'],
-                                        session['workspace_contract'],
-                                        session['issuer_explore']['address'],
-                                        session['issuer_explore']['workspace_contract'],
-                                        session['private_key_value'],
-                                        session['recommendation_to_register'],
-                                        mode,
-                                        mydays=0,
-                                        privacy='public',
-                                        synchronous=True,
-                                        request=request)
-            if not execution[0] :
-                flash('Operation failed ', 'danger')
-            else :
-                flash('Certificate has been issued', 'success')
-        else : # fail to check code
-            logging.warning('incorrect code in issue recommendation %s', request.args.get('two_factor'))
-        del session['recommendation_to_register']
-        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
-    if request.method == 'POST' :
-        did_to = session['issuer_explore']['did']
-        id = str(uuid.uuid1())
-        unsigned_credential = {
-                    "@context": [
-                    "https://www.w3.org/2018/credentials/v1",
-                    ],
-                    "id": "data:" + id,
-                    "@type": ["VerifiableCredential",],
-                    "issuer": session['did'],
-                    "issuanceDate": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
-                    "credentialSubject": {
-                        "id": did_to,},
-                    "version" : 1,
-                    "type" : "recommendation",
-                    "description" : request.form['description'],
-                    "relationship" : request.form['relationship'],
-			        "picture" : session['picture'],
-			        "title" : session.get('title', '')}
-        session['recommendation_to_register'] = credential.sign(unsigned_credential, session['rsa_key_value'])
-        # call the two factor checking function :
-        return redirect(mode.server + 'user/two_factor/?callback=user/issue_recommendation/')
-
-
 def update_personal_settings(mode) :
     """  personal settings
 
@@ -620,7 +462,7 @@ def update_personal_settings(mode) :
     convert(personal)
     if request.method == 'GET' :
         privacy=dict()
-        for topicname in session['personal'].keys() :
+        for topicname in PERSON_TOPIC :
             if session['personal'][topicname]['privacy']=='secret' :
                 (p1,p2,p3) = ("", "", "selected")
             if session['personal'][topicname]['privacy']=='private' :
@@ -651,7 +493,6 @@ def update_personal_settings(mode) :
                                 )
     if request.method == 'POST' :
         form_privacy = dict()
-        form_value = dict()
         form_privacy['contact_phone'] = request.form['contact_phone_select']
         form_privacy['contact_email'] = request.form['contact_email_select']
         form_privacy['birthdate'] = request.form['birthdate_select']
@@ -661,22 +502,15 @@ def update_personal_settings(mode) :
         form_privacy['about'] = 'public'
         form_privacy['profil_title'] = 'public'
         form_privacy['education'] = 'public'
-        change = False
-        for topicname in session['personal'].keys() :
-            form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
-            if form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
-                if form_value[topicname] :
-                    claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
-                    if not claim_id :
-                        flash('Update impossible (RSA not found)', 'danger')
-                        return redirect(mode.server + 'user/')
-                    change = True
-                    session['personal'][topicname]['claim_value'] = form_value[topicname]
-                    session['personal'][topicname]['privacy'] = form_privacy[topicname]
-                    session['personal'][topicname]['claim_id'] = claim_id[2:]
-        if change :
-            flash('Personal has been updated', 'success')
+        for topicname in PERSON_TOPIC :
+            personal[topicname]['claim_value'] = request.form[topicname]
+            personal[topicname]['privacy'] = form_privacy[topicname]
+            session['personal'][topicname] = personal[topicname]
+        ns.update_personal(session['workspace_contract'], json.dumps(personal, ensure_ascii=False), mode)
+        session['name'] = session['menu']['name'] = personal['firstname']['claim_value'] + ' ' + personal['lastname']['claim_value']
+        flash('Personal has been updated', 'success')
         return redirect(mode.server + 'user/')
+
 
 def convert(obj):
     if type(obj) == list:
@@ -690,6 +524,7 @@ def convert(obj):
                 convert(v)
     return True
 
+
 # company settings
 #@app.route('/user/update_company_settings/', methods=['GET', 'POST'])
 def update_company_settings(mode) :
@@ -698,7 +533,7 @@ def update_company_settings(mode) :
     convert(personal)
     if request.method == 'GET' :
         privacy=dict()
-        for topicname in session['personal'].keys() :
+        for topicname in COMPANY_TOPIC :
             if session['personal'][topicname]['privacy']=='secret' :
                 (p1,p2,p3) = ("", "", "selected")
             if session['personal'][topicname]['privacy']=='private' :
@@ -752,11 +587,8 @@ def update_company_settings(mode) :
                             postal_address=personal['postal_address']['claim_value'],
                             )
 
-
-
     if request.method == 'POST' :
         form_privacy = dict()
-        form_value = dict()
         form_privacy['contact_name'] = request.form['contact_name_select']
         form_privacy['contact_phone'] = request.form['contact_phone_select']
         form_privacy['contact_email'] = request.form['contact_email_select']
@@ -768,21 +600,15 @@ def update_company_settings(mode) :
         form_privacy['mother_company'] = 'public'
         form_privacy['siren'] = 'public'
         form_privacy['postal_address'] = 'public'
-
-        change = False
-        for topicname in session['personal'].keys() :
-            form_value[topicname] = None if request.form[topicname] in ['None', '', ' '] else request.form[topicname]
-            if form_value[topicname] != session['personal'][topicname]['claim_value'] or session['personal'][topicname]['privacy'] != form_privacy[topicname] :
-                if form_value[topicname] :
-                    claim_id = Claim().relay_add( session['workspace_contract'],topicname, form_value[topicname], form_privacy[topicname], mode)
-                    change = True
-                    session['personal'][topicname]['claim_value'] = form_value[topicname]
-                    session['personal'][topicname]['privacy'] = form_privacy[topicname]
-                    session['personal'][topicname]['claim_id'] = claim_id[2:]
-        if change :
-            session['menu']['name'] = session['personal']['name']['claim_value']
-            flash('Company Settings has been updated', 'success')
+        for topicname in COMPANY_TOPIC :
+            personal[topicname]['claim_value'] = request.form[topicname]
+            personal[topicname]['privacy'] = form_privacy[topicname]
+            session['personal'][topicname] = personal[topicname]
+        ns.update_personal(session['workspace_contract'], json.dumps(personal, ensure_ascii=False), mode)
+        session['name'] = session['menu']['name'] = personal['name']['claim_value']
+        flash('Company settings have been updated', 'success')
         return redirect(mode.server + 'user/')
+
 
 # digital vault
 #@app.route('/user/store_file/', methods=['GET', 'POST'])
@@ -849,6 +675,29 @@ def create_person(mode) :
         flash('Identity creation in progress', 'success')
         return redirect(mode.server + 'user/')
 
+
+def add_campaign(mode) :
+    """ create a new campaign 
+    """
+    check_login()
+    if request.method == 'GET' :
+        return render_template('add_campaign.html', **session['menu'])
+    if request.method == 'POST' :
+        new_campaign = company.Campaign(session['username'], mode)
+        new_campaign.add(request.form['name'], request.form['description'])
+        flash('New campaign added', 'success')
+        return redirect(mode.server + 'user/')
+
+
+def remove_campaign(mode) :
+    """ create a new campaign 
+    """
+    check_login()
+    new_campaign = company.Campaign(session['username'], mode)
+    new_campaign.delete(request.args['campaign_name'])
+    flash('Campaign removed', 'success')
+    return redirect(mode.server + 'user/')
+
 # add experience
 #@app.route('/user/add_experience/', methods=['GET', 'POST'])
 def add_experience(mode) :
@@ -897,7 +746,7 @@ def add_experience(mode) :
 				my_skills = Document('skills')
 				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
 				# issue new skill document
-				dac_id = my_skills.relay_add(session['workspace_contract'], skill_data, mode)[0]
+				doc_id = my_skills.relay_add(session['workspace_contract'], skill_data, mode)[0]
 				if not doc_id :
 					flash('Transaction to add skill failed', 'danger')
 					return redirect( mode.server + 'user/')
@@ -956,30 +805,25 @@ def create_kyc(mode) :
         unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
         unsigned_credential["credentialSubject"]["email"] = request.form['email']
         unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
-        print('unsigned credetial = ', unsigned_credential)
-        signed_credential = credential.sign(unsigned_credential, session['private_key_value'], method=session['method'])
+        signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], method=session['method'])
 
         # signed verifiable identity is stored in repository as did_authn ERC735 Claim
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
         identity_credential = Document('credential')
-        if not identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode)[0] :
-            flash('Transaction to store verifiable ID on repository failed', 'danger')
-            logging.warning('store on repo failed')
-        else :
-            flash('New verifiable ID has been added on repository for '+ kyc_username, 'success')
-            subject = 'Your proof of Identity'
-            try :
-                Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
-            except :
-                logging.warning('email failed')
-                flash('Email failed', 'warning')
+        identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode, synchronous=False)
+        flash('New verifiable ID has been added on repository for '+ kyc_username, 'success')
+        subject = 'Your proof of Identity'
+        try :
+            Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
+        except :
+            logging.warning('email failed')
+            flash('Email failed', 'warning')
 
         # store signed credential on server
         filename = unsigned_credential['id'] + '_credential.jsonld'
         path = "./signed_credentials/"
-        fp = open(path + filename, 'w')
-        fp.write(json.dumps(json.loads(signed_credential), indent=4))
-        fp.close()
+        with open(path + filename, 'w') as outfile :
+            json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
 
         # send credential by email
         signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
@@ -1073,6 +917,7 @@ def remove_kbis(mode) :
             flash('You cannot remove this Proof of Identy (No Private Key found)', 'warning')
         return redirect (mode.server +'user/')
 
+
 #@app.route('/user/remove_experience/', methods=['GET', 'POST'])
 def remove_experience(mode) :
     check_login()
@@ -1091,6 +936,7 @@ def remove_experience(mode) :
             del session['experience_title']
             flash('The experience has been removed', 'success')
         return redirect (mode.server +'user/')
+
 
 # create company with two factor checking function
 #@app.route('/user/create_company/', methods=['GET', 'POST'])
@@ -1175,6 +1021,7 @@ def remove_file(mode) :
             flash('The file has been deleted', 'success')
         return redirect (mode.server +'user/')
 
+
 # add education
 #@app.route('/user/add_education/', methods=['GET', 'POST'])
 def add_education(mode) :
@@ -1231,6 +1078,7 @@ def remove_education(mode) :
             flash('The Education has been removed', 'success')
         return redirect (mode.server +'user/')
 
+
 # invit
 #@app.route('/user/invit/', methods=['GET', 'POST'])
 def invit(mode) :
@@ -1253,6 +1101,7 @@ def invit(mode) :
             flash('Your invit has not been sent', 'danger')
         return redirect(mode.server + 'user/')
 
+
 # send memo by email
 #@app.route('/user/send_memo/', methods=['GET', 'POST'])
 def send_memo(mode) :
@@ -1269,6 +1118,7 @@ def send_memo(mode) :
         # message to user
         flash("Your memo has been sent to " + session['memo_username'], 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['memo_username'])
+
 
 # request partnership
 #@app.route('/user/request_partnership/', methods=['GET', 'POST'])
@@ -1326,6 +1176,7 @@ def request_partnership(mode) :
             flash('Request to ' + session['partner_username'] + ' failed', 'danger')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
+
 # remove partnership
 #@app.route('/user/remove_partner/', methods=['GET', 'POST'])
 def remove_partner(mode) :
@@ -1345,6 +1196,7 @@ def remove_partner(mode) :
         del session['partner_username_to_remove']
         del session['partner_workspace_contract_to_remove']
         return redirect (mode.server +'user/')
+
 
 # reject partnership
 #@app.route('/user/reject_partner/', methods=['GET', 'POST'])
@@ -1371,6 +1223,7 @@ def reject_partner(mode) :
         del session['partner_username_to_reject']
         del session['partner_workspace_contract_to_reject']
         return redirect (mode.server +'user/')
+
 
 # authorize partnership
 #@app.route('/user/authorize_partner/', methods=['GET', 'POST'])
@@ -1430,42 +1283,6 @@ def request_recommendation_certificate(mode) :
     if session['certificate_issuer_username'] :
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
     return redirect(mode.server + 'user/')
-
-"""
-#@app.route('/user/request_experience_certificate/', methods=['POST'])
-def request_experience_certificate(mode) :
-    check_login()
-    # email to Referent/issuer
-    issuer_workspace_contract = None if not session['certificate_issuer_username'] else session['issuer_explore']['workspace_contract']
-    issuer_name = None if not session['certificate_issuer_username']  else session['issuer_explore']['name']
-    payload = {'issuer_email' : session['issuer_email'],
-            'certificate_type' : 'experience',
-            'title' : request.form['title'],
-             'description' : request.form['description'],
-             'skills' :request.form['skills'],
-             'end_date' :  request.form['end_date'],
-             'start_date' : request.form['start_date'],
-             'user_name' : session['name'],
-             'user_username' : session['username'],
-             'user_workspace_contract' : session['workspace_contract'],
-             'issuer_username' : session['certificate_issuer_username'],
-             'issuer_workspace_contract' : issuer_workspace_contract,
-             'issuer_name' : issuer_name,
-             'issuer_type' : session['issuer_type'],}
-    # build JWT for link
-    header = {'alg': 'RS256'}
-    key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
-    token = jwt.encode(header, payload, key).decode('utf-8')
-    # build email
-    url = mode.server + 'issue/?token=' + token
-    subject = 'You have received a request for a professional certificate from '+ session['name']
-    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
-    # message to user/Talent
-    flash('Your request for an Experience Certificate has been sent.', 'success')
-    if session['certificate_issuer_username'] :
-        return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
-    return redirect(mode.server + 'user/')
-"""
 
 
 #@app.route('/user/request_agreement_certificate/', methods=['POST'])
@@ -1563,7 +1380,6 @@ def add_alias(mode) :
         return redirect (mode.server +'user/')
 
 
-
 def remove_access(mode) :
     """     remove access (alias/admin/issuer/reviewer
     #@app.route('/user/remove_access/', methods=['GET'])
@@ -1622,8 +1438,8 @@ def import_rsa_key(mode) :
         myfile.save(os.path.join(RSA_FOLDER + mode.BLOCHAIN, filename))
         filename = "./RSA_key/"+mode.BLOCKCHAIN + '/' + filename
         try :
-            f = open(filename,'r')
-            key = RSA.import_key(f.read())
+            with open(filename,'r') as infile :
+                key = RSA.import_key(infile.read())
             RSA_public = key.publickey().exportKey('PEM')
         except :
             flash('RSA key is not found', 'danger')
@@ -1691,7 +1507,7 @@ def add_issuer(mode) :
             issuer_workspace_contract = ownersToContracts(issuer_address, mode)
             session['issuer'].append(ns.get_data_from_username(session['referent_username'], mode))
             # email to issuer
-            if session['issuer_explore']['category'] == 2001 :
+            if session['issuer_explore']['type'] == 'company' :
                 subject = "Your company has been chosen by " + session['name'] + " as a Referent."
             else :
                 subject = "You have been chosen by " + session['name'] + " as a Referent."
@@ -1744,48 +1560,6 @@ def remove_issuer(mode) :
         else :
             session['issuer'] = [ issuer for issuer in session['issuer'] if issuer['address'] != session['issuer_address_to_remove']]
             flash('The Issuer '+session['issuer_username_to_remove']+ '  has been removed', 'success')
-        del session['issuer_username_to_remove']
-        del session['issuer_address_to_remove']
-        return redirect (mode.server +'user/')
-
-
-# add  White Issuer or WhiteList They all have an ERC725 key with purpose 5
-#@app.route('/user/add_white_issuer/', methods=['GET', 'POST'])
-def add_white_issuer(mode) :
-    check_login()
-    if request.method == 'GET' :
-        session['whitelist_username'] = request.args['issuer_username']
-        return render_template('add_white_issuer.html', **session['menu'], whitelist_username=session['whitelist_username'])
-    elif request.method == 'POST' :
-        issuer_workspace_contract = ns.get_data_from_username(session['whitelist_username'],mode)['workspace_contract']
-        issuer_address = contractsToOwners(issuer_workspace_contract, mode)
-        if not add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 5, mode, synchronous=True) :
-            flash('transaction failed', 'danger')
-        else :
-            # update issuer list in session
-            #issuer_key = mode.w3.soliditySha3(['address'], [issuer_address])
-            #contract = mode.w3.eth.contract(mode.foundation_contract,abi = constante.foundation_ABI)
-            issuer_workspace_contract = ownersToContracts(issuer_address, mode)
-            session['whitelist'].append(ns.get_data_from_username(session['whitelist_username'], mode))
-            flash(session['whitelist_username'] + ' has been added as Issuer in your White List', 'success')
-        return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['whitelist_username'])
-
-
-# remove white issuer
-#@app.route('/user/remove_white_issuer/', methods=['GET', 'POST'])
-def remove_white_issuer(mode) :
-    check_login()
-    if request.method == 'GET' :
-        session['issuer_username_to_remove'] = request.args['issuer_username']
-        session['issuer_address_to_remove'] = request.args['issuer_address']
-        return render_template('remove_white_issuer.html', **session['menu'], issuer_name=session['issuer_username_to_remove'])
-    elif request.method == 'POST' :
-        #address_partner = session['issuer_address_to_remove']
-        if not delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 5, mode) :
-            flash('transaction failed', 'danger')
-        else :
-            session['whitelist'] = [ issuer for issuer in session['whitelist'] if issuer['address'] != session['issuer_address_to_remove']]
-            flash('The Issuer '+session['issuer_username_to_remove']+ '  has been removed from your White list', 'success')
         del session['issuer_username_to_remove']
         del session['issuer_address_to_remove']
         return redirect (mode.server +'user/')

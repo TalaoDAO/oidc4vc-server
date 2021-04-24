@@ -8,9 +8,9 @@ logging.basicConfig(level=logging.INFO)
 
 # dependances
 from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, company
-from signaturesuite import RsaSignatureSuite2017, credential, helpers
+from signaturesuite import RsaSignatureSuite2017, vc_signature, helpers
 import constante
-from protocol import ownersToContracts, contractsToOwners, save_image,  token_balance, Document, read_profil, get_image
+from protocol import ownersToContracts, contractsToOwners, token_balance, Document, read_profil
 
 
 def check_login() :
@@ -76,55 +76,22 @@ def add_employee(mode) :
 
 def request_certificate(mode) :
     """ The request call comes from the Search Bar or from the Identity page
-
-    request credential to be completed with email
-
     #@app.route('/user/request_certificate/', methods=['GET', 'POST'])
     """
     check_login()
-
     if request.method == 'GET' :
-        if session['issuer_username'] != request.args.get('issuer_username') :
-            logging.warning('problem init')
-            return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
-
-        if not privatekey.get_key(session['issuer_explore']['address'], 'private_key', mode) :
-            flash('This issuer cannot issue Certificates.', 'warning')
-            logging.warning('no private key available')
-            return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
-
+        session['credential_issuer_username'] = request.args.get('issuer_username')
         return render_template('request_certificate.html', **session['menu'])
 
     if request.method == 'POST' :
-        # From Menu, if issuer does not exist, we request to user his email and type.
-        if not session['issuer_username'] :
-            session['issuer_email'] = request.form['issuer_email']
-            session['issuer_type'] = 'person' if request.form['certificate_type']=='personal_recommendation' else 'company'
-
-            # we check if issuer exists
-            username_list = ns.get_username_list_from_email(request.form['issuer_email'], mode)
-            if username_list :
-                msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar to check their identities and request a certificate.'
-                flash(msg , 'warning')
-                return redirect(mode.server + 'user/')
-        else :
-            session['issuer_type'] = session['issuer_explore']['type']
-            session['issuer_email'] = ns.get_data_from_username(session['certificate_issuer_username'], mode)['email']
-
         select = ""
-        employee = company.Employee(session['host'], mode) 
-        reviewer_list = employee.get_list(session['certificate_issuer_username'], 'reviewer', 'all')
+        employee = company.Employee(session['credential_issuer_username'], mode) 
+        reviewer_list = employee.get_list('reviewer', 'all')
         for reviewer in reviewer_list :
             session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 
         if request.form['certificate_type'] == 'experience' :
             return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
-
-        elif request.form['certificate_type'] in ['personal_recommendation', 'company_recommendation'] :
-            return render_template('request_recommendation_certificate.html', **session['menu'])
-
-        elif request.form['certificate_type'] == 'agreement' :
-            return render_template('request_agreement_certificate.html', **session['menu'])
 
         elif request.form['certificate_type'] == 'reference' :
             return render_template('request_reference_certificate.html', **session['menu'])
@@ -144,14 +111,8 @@ def request_experience_certificate(mode) :
 
     # check if campaign exist
     reference = request.form['reference']
-    try :
-        my_campaign = reference.split(':')[0]
-    except :
-        flash('This reference is incorrect.' , 'warning')
-        logging.warning('reference malformed')
-        return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
-    campaign = company.Campaign(session['certificate_issuer_username'], mode)
-    if not campaign.get(my_campaign, mode) :
+    campaign = company.Campaign(session['credential_issuer_username'], mode)
+    if not campaign.get(reference.split(':')[0]) :
         flash('This reference does not exist.' , 'warning')
         logging.warning('campaign does ot exist')
         return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
@@ -163,7 +124,7 @@ def request_experience_certificate(mode) :
     id = str(uuid.uuid1())
     method = ns.get_method(session['workspace_contract'], mode)
     unsigned_credential["id"] = "data:" + id
-    unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], method)
+    unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], method, session['address'])
     unsigned_credential["credentialSubject"]["name"] = session['name']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
@@ -182,8 +143,8 @@ def request_experience_certificate(mode) :
     unsigned_credential["credentialSubject"]["reviewerName"] = ""
 
     # update local issuer database
-    manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['issuer_username'], mode)['referent']
-    credential = company.Credential(session['host'], mode)
+    manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['referent']
+    credential = company.Credential(session['credential_issuer_username'], mode)
     credential.add(session['username'],
                         request.form['reviewer_username'],
                         manager_username,
@@ -193,7 +154,7 @@ def request_experience_certificate(mode) :
                         reference)
 
     # send an email to reviewer for workflow
-    reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['issuer_username'], mode)['email']
+    reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['email']
     subject = 'You have received a professional credential from '+ session['name'] + ' to review'
     try :
         Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
@@ -204,11 +165,8 @@ def request_experience_certificate(mode) :
     flash('Your request for an experience credential has been registered for review.', 'success')
 
     # clean up and return
-    issuer_username = session['issuer_username']
+    issuer_username = session['credential_issuer_username']
     del session['select']
-    del session['issuer_username']
-    del session['issuer_email']
-    del session['issuer_type']
     return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
 
 
@@ -388,10 +346,10 @@ def issue_credential_workflow(mode) :
 
             # sign credential with company key
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
-            my_credential['credentialSubject']['managerSignature'] = get_image(manager_workspace_contract, 'signature', mode)
+            my_credential['credentialSubject']['managerSignature'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-            my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], username=session['username'])
-            signed_credential = credential.sign(my_credential, session['private_key_value'], method=session['method'])
+            my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+            signed_credential = vc_signature.sign(my_credential, session['private_key_value'], method=session['method'])
 
             # update local company database
             credential = company.Credential(session['host'], mode)
@@ -404,48 +362,47 @@ def issue_credential_workflow(mode) :
 
             # ulpoad credential to repository repository with company key signature
             subject_username = session['call'][1]
-            db_ns_call = ns.get_data_from_username(subject_username, mode)
-            subject_workspace_contract = db_ns_call['workspace_contract']
-            subject_address = db_ns_call['address']
-            subject_email = db_ns_call['email']
+            subject = ns.get_data_from_username(subject_username, mode)
             my_certificate = Document('certificate')
             doc_id = my_certificate.add(session['address'],
                         session['workspace_contract'],
-                        subject_address,
-                        subject_workspace_contract,
+                        subject['address'],
+                        subject['workspace_contract'],
                         session['private_key_value'],
                         json.loads(signed_credential),
                         mode,
                         mydays=0,
                         privacy='public',
-                         synchronous=True)[0]
+                         synchronous=False)[0]
+            """
             if not doc_id :
                 flash('Operation failed ', 'danger')
                 logging.error('certificate to repository failed')
             else :
-                flash('The credential has been added to the user repository', 'success')
+            """    
+            flash('The credential has been added to the user repository', 'success')
+            """
             # send an email to user
-            link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject_workspace_contract[2:] + ':document:' + str(doc_id)
+            link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)
             try :
-                Talao_message.messageHTML('Your professional credential has been issued.', subject_email, 'certificate_issued', {'username': session['name'], 'link': link}, mode)
+                Talao_message.messageHTML('Your professional credential has been issued.', subject['email'], 'certificate_issued', {'username': session['name'], 'link': link}, mode)
             except :
                 logging.error('email to subject failed')
-
+            """
             # store signed credential on server
             try :
                 filename = session['credential_id'] + '_credential.jsonld'
                 path = "./signed_credentials/"
-                fp = open(path + filename, 'w')
-                fp.write((json.dumps(json.loads(signed_credential), indent=4, ensure_ascii=False)))
-                fp.close()
+                with open(path + filename, 'w') as outfile :
+                    json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
             except :
-                logging.error('store credential on server failed')
+                logging.error('signed credential not stored')
 
             # send email to user
             try :
                 signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
                 text = "\r\nHello\r\nYou will find attached your professional credential signed by your issuer." + signature
-                Talao_message.message_file([subject_email], text, "Your professional credential", [filename], path, mode) 
+                Talao_message.message_file(subject['email'], text, "Your professional credential", [filename], path, mode)
             except :
                 logging.error('email credential to subject failed')
 
@@ -453,12 +410,12 @@ def issue_credential_workflow(mode) :
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
             # update local database
-            credential = company.Credential[session['host'], mode]
+            credential = company.Credential(session['host'], mode)
             credential.update(session['credential_id'],
                                         session['employee'],
                                         session['call'][3],
                                         "reviewed",
-                                        json.dumps(my_credential),
+                                        json.dumps(my_credential, ensure_ascii=False),
                                         )
             # send an email to issuer to go forward
             issuer_email = ns.get_data_from_username(session['referent'] + '.' + session['host'], mode)['email']
@@ -479,7 +436,7 @@ def issue_credential_workflow(mode) :
 
 def get_form_data(my_credential, form) :
     """
-    This function udates credential from the form depending on the credential
+    This function updates credential with form data
     """
     my_credential['credentialSubject']["reviewRecommendation"]["reviewRating"]["ratingValue"] = form["scoreRecommendation"]
     my_credential['credentialSubject']["reviewSchedule"]["reviewRating"]["ratingValue"] = form["scoreSchedule"]

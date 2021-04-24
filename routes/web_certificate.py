@@ -482,7 +482,6 @@ def certificate_issuer_explore(mode) :
 		del session['resume']['rsa_key']
 		del session['resume']['relay_activated']
 		del session['resume']['private_key']
-		del session['resume']['category']
 		del session['resume']['identity_file']
 		session['resume']['topic'] = 'resume'
 

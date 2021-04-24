@@ -17,7 +17,6 @@ import json
 from flask import Flask, redirect, jsonify, request
 from flask_session import Session
 from jwcrypto import jwk
-#from flask_fontawesome import FontAwesome
 from datetime import timedelta
 
 import logging
@@ -43,12 +42,12 @@ mode = environment.currentMode(mychain,myenv)
 logging.info('end of init')
 
 # Centralized  routes : modules in ./routes
-from routes import web_create_identity, web_create_company_cci, web_certificate, web_workflow
-from routes import web_data_user, web_issue_certificate, web_skills, web_CV_blockchain, web_issuer_explore
+from routes import web_create_identity, web_create_company_cci, web_certificate, web_issuer
+from routes import web_data_user, web_skills, web_CV_blockchain, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.8.11"
+VERSION = "0.9.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -65,9 +64,6 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 sess = Session()
 sess.init_app(app)
 
-# bootstrap font managment  -> recheck if needed !!!!!
-#fa = FontAwesome(app)
-
 @app.errorhandler(403)
 def page_abort(e):
     """
@@ -76,11 +72,11 @@ def page_abort(e):
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
+
 # Centralized @route for create identity
 app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
-
 app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 app.add_url_rule('/wc_register/',  view_func=web_create_identity.wc_register, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/wc_register_activate/',  view_func=web_create_identity.wc_register_activate, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -106,7 +102,6 @@ app.add_url_rule('/board/', view_func=web_CV_blockchain.board, methods = ['GET',
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for login
-#app.add_url_rule('/wc_login/',  view_func=web_login.wc_login, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/logout/',  view_func=web_login.logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_username/',  view_func=web_login.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/forgot_password/',  view_func=web_login.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -126,11 +121,6 @@ app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, method
 app.add_url_rule('/company/',  view_func=web_data_user.the_company, methods = ['GET', 'POST'])
 app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
 
-# Centralized route issuer for issue certificate for guest
-app.add_url_rule('/issue/',  view_func=web_issue_certificate.issue_certificate_for_guest, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/issue/create_authorize_issue/',  view_func=web_issue_certificate.create_authorize_issue, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/issue/logout/',  view_func=web_issue_certificate.issue_logout, methods = ['GET', 'POST'], defaults={'mode': mode})
-
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
@@ -148,22 +138,21 @@ app.add_url_rule('/prefetch',  view_func=web_main.prefetch, methods = ['GET','PO
 app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/select_identity/',  view_func=web_main.select_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_certificate/',  view_func=web_main.issue_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/issuer_experience_certificate/',  view_func=web_main.issue_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/issue_recommendation/',  view_func=web_main.issue_recommendation, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/issue_reference_credential/',  view_func=web_main.issue_reference_credential, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_personal_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/add_campaign/',  view_func=web_main.add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/remove_campaign/',  view_func=web_main.remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
+
 app.add_url_rule('/user/create_person/',  view_func=web_main.create_person, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
-#app.add_url_rule('/user/issue_skill_certificate/',  view_func=web_main.issue_skill_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_kyc/',  view_func=web_main.remove_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kbis/',  view_func=web_main.issue_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_kbis/',  view_func=web_main.remove_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_education/',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
-
 app.add_url_rule('/user/create_company/',  view_func=web_main.create_company, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_certificate/',  view_func=web_main.remove_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_file/',  view_func=web_main.remove_file, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -184,8 +173,6 @@ app.add_url_rule('/user/import_rsa_key/',  view_func=web_main.import_rsa_key, me
 app.add_url_rule('/user/request_proof_of_identity/',  view_func=web_main.request_proof_of_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_issuer/',  view_func=web_main.add_issuer, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_key/',  view_func=web_main.add_key_for_other, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_issuer/',  view_func=web_main.remove_issuer, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/add_white_issuer/',  view_func=web_main.add_white_issuer, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/delete_identity/',  view_func=web_main.delete_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/uploads/<filename>',  view_func=web_main.send_file, defaults={'mode' : mode})
 app.add_url_rule('/fonts/<filename>',  view_func=web_main.send_fonts)
@@ -200,18 +187,17 @@ app.add_url_rule('/user/typehead/',  view_func=web_main.typehead, methods = ['GE
 app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GET','POST'], defaults={'mode' : mode})
 
 # Centralized route for credential workflow
-app.add_url_rule('/company/add_employee/',  view_func=web_workflow.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_certificate/',  view_func=web_workflow.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_experience_certificate/',  view_func=web_workflow.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/dashboard/',  view_func=web_workflow.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_workflow.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/add_employee/',  view_func=web_issuer.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/request_certificate/',  view_func=web_issuer.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/request_experience_certificate/',  view_func=web_issuer.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/dashboard/',  view_func=web_issuer.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_issuer.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
 
 # Centralized route for repository
 app.add_url_rule('/repository/authn',  view_func=repository.authn, methods = ['POST'], defaults={'mode' : mode})
 app.add_url_rule('/repository/publish',  view_func=repository.publish, methods = ['POST'], defaults={'mode' : mode})
 app.add_url_rule('/repository/create',  view_func=repository.create, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
-
 
 
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
@@ -221,6 +207,7 @@ def wellknown (mode) :
 
     """
     return redirect('/' + mode.owner_talao + '/did.json')
+
 
 @app.route('/<address>/did.json', methods=['GET'], defaults={'mode' : mode})
 def web(address, mode) :
@@ -241,6 +228,7 @@ def web(address, mode) :
     except :
         DidDocument = None
     return jsonify (DidDocument)
+
 
 def did_doc(address, ec_public, rsa_public) :
     if address == mode.owner_talao : #talao address
@@ -279,6 +267,7 @@ def did_doc(address, ec_public, rsa_public) :
                     id + "#key-2"
                     ]
             }
+
 
 # MAIN entry point for test
 if __name__ == '__main__':

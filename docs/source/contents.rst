@@ -13,10 +13,10 @@ are stored on their servers and they will ultimately do what they want with our 
 Talao approaches this issue starting from a user perspective through a Blockchain Decentralized IDentity (DID) focused on professional data :
 
   - You own your data for your lifetime.
-  - No one can access your encrypted data without your permission.
+  - No one can access your data without your permission.
   - No storage costs.
   - Claims are verifiables credentials, they are tamper proof, trackable and signed by the issuer.
-  - Claims issuers are identified.
+  - Credentials issuers are identified.
 
 Talao allows Professional Identities for Talents, Companies and claims issuers such as Schools or Training Centers.
 It is for everyone the opportunity to use a new technology to get tamper proof professional data while keeping the ownership of those data.
@@ -95,7 +95,7 @@ More information available :
 
 
 What blockchains support does Talao use ?
-----------------------------------------
+-----------------------------------------
 
 The Talao solution is available with different public Blockchain vs did method :
 
@@ -114,7 +114,5 @@ Credits
 Thanks to the Ethereum community which provide us with great tools, Solidity code and inspiration.
 
 Special thanks to `Spruce <https://www.spruceid.com/>`_ for their implementation of SSI and its wide JSON_LD signing suite.
-
-Special thanks to `the WalletConnect team <https://walletconnect.org/>`_ for their implementation of an awesome protocol to connect crypto wallets with Dapps.
 
 Special thanks to `OriginProtocol <https://originprotocol.com/>`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications.

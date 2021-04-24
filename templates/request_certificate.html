@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-
+<!-- requets_certificate.html-->
 <head>
     {% include 'head.html' %}
 </head>
@@ -28,39 +28,20 @@
                                     <div class="col">
                                         <p>To get a new credential, Talao will contact your referent through his/her email to request him/her a referral.
                                         <br><br>
-                                        If your referent has already a Digital Identity, use the "Search Bar" to access the referent profil.
-                                        In the other case fill the form below.<br><br>
                                         </p>
-                                        {% if not session['certificate_issuer_username'] %}
-                                            <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" ><strong>Referent Email</strong><br></label><input title="Referent will be contacted by email." class="form-control" name ="issuer_email" required="" type="email"></div>
-                                        {% endif %}
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>Credential Type</strong><br></label>
 											<select class="form-control" name="certificate_type">
                                                 {% if session['type'] == "company" %}
-                                                    <option value="agreement">Agreement Credential</option>
                                                     <option value="reference">Reference Credential</option>
                                                 {% else %}
-                                                    {% if not session['certificate_issuer_username'] %}
-                                                        <option selected value="experience" >Professional Experience (Issued by a company only)</option>
-                                                        <option value="personal_recommendation">Personal recommendation (Issued by a person)</option>
-                                                        <option value="company_recommendation">Company recommendation (Issued by a company)</option>
-                                                    {% else %}
-                                                        {% if session['issuer_explore']['type'] == 'company' %}
-                                                            <option value="company_recommendation">Company recommendation </option>
-                                                            <option selected value="experience" >Experience Certificate</option>
-                                                            <option value="skill" >Skill Certificate</option>
-
-                                                        {% else %}
-                                                            <option value="personal_recommendation">Personal recommendation </option>
-                                                        {% endif %}
-                                                    {% endif %}
+                                                    <option selected value="experience" >Professional Experience</option>
                                                 {% endif %}
 											</select></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Go to the Certificate form." type="submit" name="choice" value="send">Next</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Go to the credential form." type="submit" name="choice" value="send">Next</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button onclick="goBack()" title="Back to previous view" class="btn btn-primary btn-sm" type="button">Back</button></div>
@@ -78,11 +59,10 @@
                                                              {% include 'user_footer.html' %}
     </div>
     <script>function goBack() {  window.history.back();}</script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 </body>
 
 </html>

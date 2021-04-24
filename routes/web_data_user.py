@@ -23,9 +23,12 @@ logging.basicConfig(level=logging.INFO)
 # dependances
 from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey, company
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
+from protocol import ownersToContracts, contractsToOwners, destroy_workspace, partnershiprequest, remove_partnership, token_balance
 from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
 from signaturesuite import helpers
+
+COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
+
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -53,49 +56,25 @@ def data(mode) :
 	try :
 		dataId = request.args['dataId']
 		workspace_contract = '0x' + dataId.split(':')[3]
-		support = dataId.split(':')[4]
 	except :
 		logging.error('data request malformed')
 		return redirect(mode.server + 'user/')
 
-	if support == 'document' :
-		doc_id = int(dataId.split(':')[5])
-		my_data = Document(dataId.split(':')[6])
-		if not my_data.relay_get(workspace_contract, doc_id, mode) :
-			logging.error('document does not exist')
-			return redirect(mode.server + 'user/')
+	doc_id = int(dataId.split(':')[5])
+	my_data = Document(dataId.split(':')[6])
+	if not my_data.relay_get(workspace_contract, doc_id, mode) :
+		logging.error('document does not exist')
+		return redirect(mode.server + 'user/')
 
-	if support == 'claim' :
-		claim_id = dataId.split(':')[5]
-		my_data = Claim()
-		if not my_data.get_by_id(session.get('workspace_contract'), session.get('private_key_value'), workspace_contract, claim_id, mode) :
-			logging.error('claim does ot exist')
-			return redirect(mode.server + 'user/')
-
-	myvisibility = my_data.privacy
-
-	# advanced """
+	# advanced
 	(location, link) = (my_data.data_location, my_data.data_location)
-	if support == 'document' :
-		myadvanced = """
-				<b>Advanced</b>
-				<li><b>Document Id</b> : """ + dataId + """<br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+	myadvanced = """
+				<b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a>"""
 
-		# Verifiable Credential
-		credential = Document('certificate')
-		credential.relay_get_credential(session['workspace_contract'], doc_id, mode, loading = 'full')
-		credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
-
-	# if support is an ERC725 Claim
-	else :
-		(location, link) = (mode.BLOCKCHAIN, "") if myvisibility == 'public' else (my_data.data_location, my_data.data_location)
-		myadvanced = """
-				<b>Advanced</b>
-				<li><b>Claim Id</b> : """ + str(claim_id) + """<br></li>
-				<li><b>Topic</b> : """ + str(my_data.topicname) + """<br></li>
-				<li><b>Privacy</b> : """ + myvisibility + """<br></li>
-				<li><b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a></li>"""
+	# Verifiable Credential
+	credential = Document('certificate')
+	credential.relay_get_credential(session['workspace_contract'], doc_id, mode, loading = 'full')
+	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 
 	return render_template('data_check.html', **session['menu'], verif=myadvanced, credential=credential_text)
 
@@ -144,7 +123,6 @@ def user(mode) :
 		session['address'] = user.address
 		session['workspace_contract'] = user.workspace_contract
 		session['issuer'] = user.issuer_keys
-		session['whitelist'] = user.white_keys
 		session['partner'] = user.partners
 		session['did'] = user.did
 		session['eth'] = user.eth
@@ -164,6 +142,7 @@ def user(mode) :
 		session['skills'] = user.skills
 		session['certificate'] = user.certificate
 		session['has_vault_access'] = user.has_vault_access
+
 		session['method'] = ns.get_method(session['workspace_contract'], mode)
 		if not session['method'] :
 			session['method'] = "ethr"
@@ -174,7 +153,6 @@ def user(mode) :
 		if user.type == 'person' :
 			session['experience'] = user.experience
 			session['education'] = user.education
-			session['kyc'] = user.kyc
 			session['profil_title'] = user.profil_title
 			session['menu'] = {'picturefile' : user.picture,
 								'username' : session.get('username', ""),
@@ -187,8 +165,7 @@ def user(mode) :
 			session['host'] = session['employee'] = None
 			session['role'] = session['referent'] = None
 
-		if user.type == 'company' :
-			session['kbis'] = user.kbis
+		if session['type'] == 'company' :
 			session['profil_title'] = ""
 			session['menu'] = {'picturefile' : user.picture,
 								'username' : session['username'],
@@ -221,8 +198,6 @@ def user(mode) :
 		#	return render_template('homepage.html', **session['menu'])
 
 	# account
-	#my_account = """ <b>ETH</b> : """ + str(session['eth'])+"""<br>
-	#				<b>token TALAO</b> : """ + str(session['token'])
 	my_account = ""
 	if session['username'] == 'talao' :
 		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
@@ -243,7 +218,6 @@ def user(mode) :
 	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
-	#path = """https://rinkeby.etherscan.io/address/""" if mode.BLOCKCHAIN == 'rinkeby' else  """https://etherscan.io/address/"""
 	my_advanced = """
 					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
 					<b>DID</b> : did:talao:talaonet:""" + session['workspace_contract'][2:] + """</a><br>
@@ -260,8 +234,6 @@ def user(mode) :
 	else :
 		my_partner = ""
 		for partner in session['partner'] :
-			#partner_username = ns.get_username_from_resolver(partner['workspace_contract'])
-			#partner_username = 'Unknown' if partner_username is None else partner_username
 			if partner['authorized'] == 'Pending' :
 				partner_html = """
 				<span><a href="/user/issuer_explore/?issuer_username="""+ partner['username'] + """">"""+ partner['username'] + """</a>  (""" + partner['authorized'] + """ - """ +   partner['status'] +   """ )
@@ -302,25 +274,6 @@ def user(mode) :
 					</a>
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
-
-	# whitelist
-	if not session['whitelist'] :
-		my_white_issuer = """  <a class="text-info">No Whitelist available</a>"""
-	else :
-		my_white_issuer = ""
-		for issuer in session['whitelist'] :
-			issuer_username = ns.get_username_from_resolver(issuer['workspace_contract'], mode)
-			issuer_username = 'Unknown' if issuer_username is None else issuer_username
-			issuer_html = """
-				<span>""" + issuer_username + """
-					<a class="text-secondary" href="/user/remove_white_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+issuer['address']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</span>"""
-			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
 
 	# files
 	if not session['identity_file'] :
@@ -395,7 +348,7 @@ def user(mode) :
 				my_education = my_education + edu_html	+ "<hr>"
 
 		# personal
-		Topic = {'firstname' : 'Firstname',
+		TOPIC = {'firstname' : 'Firstname',
 				'lastname' : 'Lastname',
 				'about' : 'About',
 				'profil_title' : 'Title',
@@ -405,17 +358,10 @@ def user(mode) :
 				'postal_address' : 'Postal Address',
 				'education' : 'Education'}
 		my_personal = ""
-		for topicname in session['personal'].keys() :
-			if session['personal'][topicname]['claim_value'] :
-				topicname_value = session['personal'][topicname]['claim_value']
-				#topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
-				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
-				my_personal = my_personal + """
-				<span><b>""" + Topic[topicname] + """</b> : """+ topicname_value + topicname_privacy +"""
-				</span><br>"""
-
-		# kyc deprecated
-		my_kyc = ""
+		for topicname in TOPIC.keys() :
+			if session['personal'][topicname].get('claim_value') :
+				text = session['personal'][topicname]['claim_value'] + ' (' + session['personal'][topicname]['privacy'] + ')'
+				my_personal += """<b>""" + TOPIC[topicname] + """</b> : """+ text + """<br>"""
 
 		# Alias
 		if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
@@ -474,7 +420,6 @@ def user(mode) :
 							**session['menu'],
 							display_alias = display_alias,
 							personal=my_personal,
-							kyc=my_kyc,
 							experience=my_experience,
 							education=my_education,
 							skills=my_skills,
@@ -482,7 +427,6 @@ def user(mode) :
 							access=my_access,
 							partner=my_partner,
 							issuer=my_issuer,
-							whitelist=my_white_issuer,
 							advanced=my_advanced,
 							digitalvault= my_file,
 							nb_certificates=len(session['certificate'])
@@ -540,38 +484,16 @@ def user(mode) :
 		my_campaign = ""
 		campaign = company.Campaign(session['host'], mode)
 		campaign_list = campaign.get_list()
+		print(campaign_list)
 		if campaign_list :
 			for camp in campaign_list :
-				campaign_html = camp['campaign_name'] + """ : """ +  camp['description'][:100] + """...
-				<br><a class="text-secondary" href="/company/remove_campaign/?campaign_name="""+ camp['campaign_name']+"""">
+				campaign_html = camp.get('campaign_name', 'unknown') + """ : """ +  camp.get('description', 'unkown')[:100] + """...
+				<a class="text-secondary" href="/company/remove_campaign/?campaign_name="""+ camp.get('campaign_name', 'unkown') + """">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				<hr>"""
 				my_campaign += campaign_html 
 		my_campaign = my_campaign_start + my_campaign
-
-		# kbis
-		if not session['kbis'] :
-			my_kbis = """<a href="/user/request_proof_of_identity/">Request a Proof of Identity</a><hr>
-					<a class="text-danger">No Proof of Identity available</a>"""
-		else :
-			my_kbis = ""
-			for kbis in session['kbis'] :
-				kbis_html = """
-				<b>Name</b> : """+ kbis['name'] +"""<br>
-				<b>SIREN</b> : """+ kbis.get('siren', '') +"""<br>
-				<b>Creation</b> : """+ kbis['date'] + """<br>
-				<b>Capital</b> : """+ kbis['capital']+"""<br>
-				<b>Address</b> : """+ kbis['address']+"""<br>
-
-					<a class="text-secondary" href="/user/remove_kbis/?kbis_id=""" + kbis['id'] + """">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-					<a class="text-secondary" href=/data/?dataId="""+ kbis['id'] + """:kbis>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				"""
-				my_kbis = my_kbis + kbis_html
 
 		# company settings
 		if session['role'] in ['creator', 'admin'] :
@@ -580,10 +502,9 @@ def user(mode) :
 		else :
 			my_personal = ""
 
-		for topicname in session['personal'].keys() :
+		for topicname in COMPANY_TOPIC :
 			if session['personal'][topicname]['claim_value'] :
 				topicname_value = session['personal'][topicname]['claim_value']
-				topicname_id = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':claim:' + session['personal'][topicname]['claim_id']
 				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
 				my_personal = my_personal + """
 				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""
@@ -638,10 +559,8 @@ def user(mode) :
 							reviewer=my_reviewers,
 							personal=my_personal,
 							skills=my_skills,
-							kbis=my_kbis,
 							issuer=my_issuer,
 							certificates=my_certificates,
-							whitelist=my_white_issuer,
 							advanced=my_advanced,
 							company_campaign=my_campaign,
 							digitalvault=my_file)
@@ -710,24 +629,20 @@ def user_advanced(mode) :
 	vault = 'Yes' if session['has_vault_access'] else 'No'
 	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
 	relay_private_key = 'Yes' if session['private_key'] else 'No'
-	if ns.get_wallet_from_workspace_contract(session['workspace_contract'], mode) :
-		wallet = 'Alias (Centralized mode)'
-	else :
-		wallet = 'Owner (Decentralized mode)'
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
 					<b>Repository</b> : """+ session['workspace_contract'] + """</a><br>
 					<b>Current DID</b> : """ + did + """<br>
 					<b>Identity attached</b> : """ + "<br>".join(ns.get_did(session['workspace_contract'], mode)) + """<br>
-					<b>Wallet</b> : """ + wallet  + """<br>
+					<hr>
 					<b>Role</b> : """ + role + """<br>
 					<b>Referent</b> : """ + referent + """<br>"""
 	if session['username'] != 'talao' :
 		my_advanced = my_advanced + """ <hr><b>Wallet has locked token : </b>""" + vault + """<br>"""
 		my_advanced = my_advanced + """<b>RSA Key on server </b> : """ + relay_rsa_key + """<br>"""
 		my_advanced = my_advanced + """<b>Private Key on server </b> : """ + relay_private_key +"""<br>"""
-	my_advanced = my_advanced + "<hr>" + my_account
+	my_advanced = my_advanced  + my_account
 
 	# Partners
 	if session['partner'] == [] :
@@ -777,25 +692,6 @@ def user_advanced(mode) :
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
 
-	# whitelist
-	if session['whitelist'] == [] :
-		my_white_issuer = """  <a class="text-info">No Whitelist available</a>"""
-	else :
-		my_white_issuer = ""
-		for issuer in session['whitelist'] :
-			issuer_username = ns.get_username_from_resolver(issuer['workspace_contract'], mode)
-			issuer_username = 'Unknown' if not issuer_username else issuer_username
-			issuer_html = """
-				<span>""" + issuer_username + """
-					<a class="text-secondary" href="/user/remove_white_issuer/?issuer_username="""+issuer_username +"""&amp;issuer_address="""+issuer['address']+"""">
-						<i data-toggle="tooltip" class="fa fa-trash-o" title="Remove">&nbsp&nbsp&nbsp</i>
-					</a>
-					<a class="text-secondary" href="/user/issuer_explore/?issuer_username=""" + issuer_username + """">
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</span>"""
-			my_white_issuer = my_white_issuer + issuer_html + """<br>"""
-
 	return render_template('advanced.html',
 							**session['menu'],
 							access=my_access,
@@ -803,7 +699,6 @@ def user_advanced(mode) :
 							issuer=my_issuer,
 							did_doc=did_doc,
 							api=my_api,
-							whitelist=my_white_issuer,
 							advanced=my_advanced)
 
 

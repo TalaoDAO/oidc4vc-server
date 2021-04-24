@@ -12,9 +12,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_message, hcode, ns, sms
+from components import Talao_message, Talao_message, hcode, ns, sms, company
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroy_workspace, save_image, partnershiprequest, remove_partnership, token_balance
+from protocol import ownersToContracts, contractsToOwners, destroy_workspace, partnershiprequest, remove_partnership, token_balance
 from protocol import File, Identity, Document, read_profil
 
 
@@ -214,7 +214,7 @@ def issuer_explore(mode) :
 				carousel_indicators_recommendation += '<li data-target="#recommendation-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, recommendation in enumerate(recommendations):
 
-				if recommendation['issuer']['category'] == 1001 :
+				if recommendation['issuer']['type'] == 1001 :
 					issuer_name = recommendation['issuer']['firstname'] + ' ' +recommendation['issuer']['lastname']
 				else :
 					issuer_name = recommendation['issuer']['name']
@@ -399,7 +399,7 @@ def issuer_explore(mode) :
 
 				carousel_rows_skill += "</p>"
 				#Footer
-				if skill['issuer']['category']==2001:
+				if skill['issuer']['type'] == 'company':
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  skill['issuer']['name'] + """</footer>"""
 				else:
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
@@ -441,7 +441,6 @@ def issuer_explore(mode) :
 		#Services
 		if session['type'] == 'person' :
 			referent_list =  is_username_in_list(session['issuer'], issuer_username)
-			white_list =  is_username_in_list(session['whitelist'], issuer_username)
 			# est ce qu il est dans ma partnership list
 			partner_list =  is_username_in_list_for_partnership(session['partner'], issuer_username)
 			# est ce que je suis dans l'issuer list de ce Talent ?
@@ -451,13 +450,9 @@ def issuer_explore(mode) :
 		if session['type'] == 'company' :
 			host_name = session['username'] if len(session['username'].split('.')) == 1 else session['username'].split('.')[1]
 			referent_list =  is_username_in_list(session['issuer'], issuer_username)
-			white_list =  is_username_in_list(session['whitelist'], issuer_username)
-			is_manager = ns.does_employee_exist(issuer_username, host_name, mode)
+			is_manager = company.Employee(host_name, mode).exist(issuer_username)
 			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
 			partner_list = not is_username_in_list_for_partnership(session['partner'], issuer_username)
-
-		#kyc Digital Identity
-		kyc = session['issuer_explore']['kyc'] and session['issuer_explore']['kyc'][0]['claim_id']
 
 		# personal details
 		adress = session['issuer_explore']['personal']['postal_address']['claim_value']
@@ -475,8 +470,8 @@ def issuer_explore(mode) :
 							issuer_picturefile=session['issuer_explore']['picture'],
 							digitalvault=my_file, adress = adress, phone = phone,
 							email = email, birth_date = birth_date, education = education,
-							about = about, kyc = kyc, user_type = session['type'],
-							referent_list = referent_list,white_list = white_list, partner_list = partner_list,
+							about = about, user_type = session['type'],
+							referent_list = referent_list, partner_list = partner_list,
 							in_referent_list = in_referent_list, is_manager = is_manager,
 							carousel_indicators_experience=carousel_indicators_experience,
 							carousel_indicators_recommendation=carousel_indicators_recommendation,
@@ -509,16 +504,16 @@ def issuer_explore(mode) :
 					</a>"""
 				my_file = my_file + file_html + """<br>"""
 
-		#aggremet credentials
+		#aggrement credentials
 		agreements = []
 		for certificate in session['issuer_explore']['certificate']:
-			if certificate['type'] == "agreement" :
-				agreements.append(certificate)
+			try :
+				if certificate['credentialSubject']['credentialCategory'] == 'agreement':
+					agreements.append(certificate)
+			except :
+				pass
 		carousel_indicators_agreement = """<li data-target="#agreement-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_agreement = ""
-
-		#FIXME no aggrements available
-		agreements = []
 		if agreements == []:
 			pass
 		else:
@@ -577,8 +572,11 @@ def issuer_explore(mode) :
 		# reference credentials
 		references = []
 		for certificate in session['issuer_explore']['certificate']:
-			if certificate['credentialSubject']['credentialCategory'] =='reference':
-				references.append(certificate)
+			try :
+				if certificate['credentialSubject']['credentialCategory'] =='reference':
+					references.append(certificate)
+			except :
+				pass
 		carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_reference = ""
 		if not references :
@@ -643,12 +641,10 @@ def issuer_explore(mode) :
 					carousel_rows_reference += '</div></div>'
 		#Services
 		referent_list = False
-		white_list = False
 		partner_list = False
 		in_referent_list = False
 		if session['type'] == 'person' :
 			referent_list =  is_username_in_list(session['issuer'], issuer_username)
-			white_list =  is_username_in_list(session['whitelist'], issuer_username)
 			# est ce qu il est dans ma partnership list
 			partner_list =  is_username_in_list_for_partnership(session['partner'], issuer_username)
 			# est ce que je suis dans l'issuer list de ce Talent ?
@@ -657,12 +653,10 @@ def issuer_explore(mode) :
 		if session['type'] == 'company' :
 			host_name = session['username'] if len(session['username'].split('.')) == 1 else session['username'].split('.')[1]
 			referent_list =  is_username_in_list(session['issuer'], issuer_username)
-			white_list =  is_username_in_list(session['whitelist'], issuer_username)
 			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
 			partner_list = is_username_in_list_for_partnership(session['partner'], issuer_username)
 
 		#kyc
-		kyc = False
 		user_type = session['type']
 		contact_name = session['issuer_explore']['personal']['contact_name']['claim_value']
 		contact_email = session['issuer_explore']['personal']['contact_email']['claim_value']
@@ -697,8 +691,8 @@ def issuer_explore(mode) :
 							issuer_picturefile=session['issuer_explore']['picture'],
 							contact_name = contact_name, contact_email = contact_email, contact_phone = contact_phone,
 							website = website,about = about, staff = staff, sales = sales, siren = siren,
-							digitalvault=my_file, kyc = kyc,
-							referent_list = referent_list,white_list = white_list, partner_list = partner_list,
+							digitalvault=my_file, 
+							referent_list = referent_list, partner_list = partner_list,
 							in_referent_list = in_referent_list,
 							carousel_indicators_agreement=carousel_indicators_agreement,
 							carousel_rows_agreement=carousel_rows_agreement,
