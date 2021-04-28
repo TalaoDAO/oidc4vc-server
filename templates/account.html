@@ -8,8 +8,7 @@
 <body id="page-top">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
-      <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
-        
+      <div id="content">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -32,17 +31,10 @@
         {% else %}
           {% include 'user_nav_bar.html' %}
         {% endif %}
-
-        <div class="container-fluid">
-          <div class="text-center mt-3">
-            <h3 class="text-dark mb-4">{{name}}
-              <a class="text-secondary" onclick="copyToClipboard('#p100')">
-                <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-              </a>
-            </h3>
-            <p hidden id="p100">{{clipboard}}</p>
-            <h6 class="text-dark mb-4">{{profil_title}}</h6>
-          </div>
+        <div class="container-fluid mt-3">
+          <h3 class="text-dark mb-4">{{name}}</h3>
+          <h6 class="text-dark mb-4">{{profil_title}}</h6>
+        
           <div class="row">
             <div class="col-lg-8 col-xl-4 offset-xl-4">
               <div class="card shadow mb-5">

@@ -8,7 +8,8 @@
 <body id="page-top">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
-      <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
+      <div id="content">
+
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
@@ -31,16 +32,10 @@
       {% else %}
           {% include 'user_nav_bar.html' %}
       {% endif %}
-        <div class="container-fluid">
-          <div class="text-center mt-3">
-          <h3 class="text-dark mb-4">{{name}}
-            <a class="text-secondary" onclick="copyToClipboard('#p100')">
-              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-            </a>
-          </h3>
-          <p hidden id="p100">{{clipboard}}</p>
-          <h6 class="text-dark mb-4">{{profil_title}}</h6>
-          </div>
+        <div class="container-fluid mt-3">
+          <h3 class="text-dark mb-4">{{name}}</h3>
+                <h6 class="text-dark mb-4">{{profil_title}}</h6>
+          
 
             <div class="row">
               <div class="col-lg-8 col-xl-4 offset-xl-4">
@@ -157,12 +152,12 @@
 
                     <div class="card">
                       <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Access to your private key">
-                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Repository Private Key</a></h5>
+                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Repository Key</a></h5>
                       </div>
                       <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
                         <div class="card-body">
                           {% if session['private_key'] %}
-                          <a onclick="copyToClipboard('#p200')" class="dropdown-item " title="Copy private key to clipboard" role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy Private Key&nbsp;</a>
+                          <a onclick="copyToClipboard('#p200')" class="dropdown-item " title="Copy private key to clipboard" role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy JWK&nbsp;</a>
                           <p hidden id="p200">{{private_key_value}}</p>
                           {% else %}
                           <a class="dropdown-item " title="Import private key" role="presentation" href="/user/import_private_key/"><i class="fa fa-upload fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Import Private Key&nbsp;</a>

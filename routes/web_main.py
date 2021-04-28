@@ -76,9 +76,7 @@ def homepage() :
 
 def picture(mode) :
     """ This is to download the user picture or company logo to the uploads folder
-
     app.route('/user/picture/', methods=['GET', 'POST'])
-
     """
     check_login()
     if request.method == 'GET' :
@@ -95,6 +93,30 @@ def picture(mode) :
         ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
         Talao_ipfs.get_picture(session['picture'], mode.uploads_path+ '/' + session['picture'])
         session['menu']['picturefile'] = session['picture']
+        flash('Your picture has been updated', 'success')
+        return redirect(mode.server + 'user/')
+
+
+def signature(mode) :
+    """
+    #@app.route('/user/signature/', methods=['GET', 'POST'])
+    """
+    check_login()
+    my_signature = session['signature']
+    if request.method == 'GET' :
+        if request.args.get('badtype') == 'true' :
+            flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
+        return render_template('signature.html', **session['menu'], signaturefile=my_signature)
+    if request.method == 'POST' :
+        myfile = request.files['croppedImage']
+        filename = "signature.png"
+        myfile.save(os.path.join(mode.uploads_path, filename))
+        signaturefile = mode.uploads_path + filename
+        signature_hash = Talao_ipfs.file_add(signaturefile, mode)
+        session['personal']['signature'] = session['signature'] = signature_hash
+        ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
+        Talao_ipfs.get_picture(session['signature'], mode.uploads_path+ '/' + session['signature'])
+        flash('Your signature has been updated', 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -161,28 +183,6 @@ def update_password(mode) :
             return render_template('update_password.html', **session['menu'])
         ns.update_password(session['username'], new_password, mode)
         flash ('Password updated', 'success')
-        return redirect(mode.server + 'user/')
-
-
-# signature
-#@app.route('/user/signature/', methods=['GET', 'POST'])
-def signature(mode) :
-    check_login()
-    my_signature = session['signature']
-    if request.method == 'GET' :
-        if request.args.get('badtype') == 'true' :
-            flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
-        return render_template('signature.html', **session['menu'], signaturefile=my_signature)
-    if request.method == 'POST' :
-        myfile = request.files['croppedImage']
-        filename = "signature.png"
-        myfile.save(os.path.join(mode.uploads_path, filename))
-        signaturefile = mode.uploads_path + '/' + filename
-        signature_hash = Talao_ipfs.file_add(signaturefile, mode)
-        session['personal']['signature'] = session['signature'] = signature_hash
-        ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
-        Talao_ipfs.get_picture(session['signature'], mode.uploads_path+ '/' + session['signature'])
-        flash('Your signature has been updated', 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -274,9 +274,9 @@ def select_identity (mode) :
     if request.method == 'GET' :
         #did_key = helpers.ethereum_pvk_to_DID(session['private_key_value'], "key")
         # FIXME
-        did_ethr = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'ethr', session['address']) + ' (Ethereum)'
-        did_tz = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'tz', session['address']) + ' (Tezos)'
-        did_web = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'web', session['address']) + ' (Talao DNS)'
+        did_ethr = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'ethr', session['address'])[:35] + '... (Ethereum)'
+        did_tz = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'tz', session['address'])[:35] + '... (Tezos)'
+        did_web = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'web', session['address'])[:35] + '... (Talao DNS)'
         method = ns.get_method(session['workspace_contract'], mode)
         if method == "ethr" :
             ethr_box = "checked"

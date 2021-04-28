@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- logout.html -->-->
+<!-- logout.html -->
 <html>
 <head>
   {% include 'head.html' %}
@@ -21,7 +21,16 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-        {% include 'guest_nav_bar.html' %}
+
+        {% if session['type'] == "company" %}
+        {% if session['role'] == 'creator' %}
+          {% include 'company_nav_bar.html' %}
+        {% else %}
+          {% include 'manager_nav_bar.html' %}
+        {% endif %}
+    {% else %}
+        {% include 'user_nav_bar.html' %}
+    {% endif %}
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-md-9 col-lg-10 col-xl-8">
@@ -32,10 +41,17 @@
                         <div class='text-center'><h4 class='text-dark mb-4'>Logout</h4>
                        <form class="user" action="." method="post">
                           <div>
-                            Your wallet account will be closed.
-                            <br><br>
-                            <button class='btn btn-primary text-white btn-user' type='submit'>Confirm your logout ?</button>
+                            <p>Your wallet account will be closed.</p>
+                          
                           </div>
+                          <div class="form-row">
+                            <div class="col-6 col-xl-3">
+                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
+                            </div>
+                            <div class="col-6 col-xl-3">
+                                <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                            </div>
+                        </div>
                         </form>
                 </div>
                   </div>
@@ -47,6 +63,8 @@
       </div>
     </div>
     {% include 'user_footer.html' %}
+    <script>function goBack() {  window.history.back();}</script>
+
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>

@@ -65,6 +65,9 @@ def ethereum_to_jwk(private_key, method) :
         return ethereum_to_jwk256kr(private_key)
 
 def _ethereum_to_jwk256k(private_key, alg) :
+    """
+    return json
+    """
     priv_key_bytes = decode_hex(private_key)
     priv_key = keys.PrivateKey(priv_key_bytes)
     pub_key = priv_key.public_key

@@ -142,41 +142,23 @@ def user(mode) :
 		session['skills'] = user.skills
 		session['certificate'] = user.certificate
 		session['has_vault_access'] = user.has_vault_access
-
 		session['method'] = ns.get_method(session['workspace_contract'], mode)
 		if not session['method'] :
 			session['method'] = "ethr"
-
 		phone =  ns.get_data_from_username(session.get('username'), mode).get('phone')
 		session['phone'] = phone if phone else ""
 
 		if user.type == 'person' :
+			session['profil_title'] = user.profil_title
 			session['experience'] = user.experience
 			session['education'] = user.education
-			session['profil_title'] = user.profil_title
-			session['menu'] = {'picturefile' : user.picture,
-								'username' : session.get('username', ""),
-								'name' : session['name'],
-								'private_key_value' : user.private_key_value,
-								'rsa_filename': session['rsa_filename'],
-								'profil_title' : session['profil_title'],
-								'clipboard' : mode.server  + "resume/?did=" + session['did']}
 			# no credential workflow
 			session['host'] = session['employee'] = None
 			session['role'] = session['referent'] = None
 
 		if session['type'] == 'company' :
 			session['profil_title'] = ""
-			session['menu'] = {'picturefile' : user.picture,
-								'username' : session['username'],
-								'name' : user.name,
-								'private_key_value' : user.private_key_value,
-								'rsa_filename': session['rsa_filename'],
-								'profil_title' : session['profil_title'],
-								'clipboard' : mode.server  + "board/?did=" + session['did']}
-
-			# data for credential workflow
-			# for admin, issuer or reviewer
+			# data for credential workflow for admin, issuer or reviewer
 			try :
 				session['host'] = session['username'].split('.')[1]
 				session['employee'] = session['username'].split('.')[0]
@@ -188,6 +170,15 @@ def user(mode) :
 				session['employee'] = None
 				session['role'] = 'creator'
 				session['referent'] = None
+
+		# for nav bar menu display
+		session['menu'] = {'picturefile' : session['picture'],
+							'username' : session.get('username', ""),
+							'name' : session['name'],
+							#'private_key_value' : user.private_key_value,
+							'rsa_filename': session['rsa_filename'],
+							'profil_title' : session.get('profil_title', ''),
+							'clipboard' : mode.server  + "resume/?did=" + session['did']}
 
 		# Dashboard start for employees
 		if session['role'] in ['issuer', 'reviewer'] :
@@ -480,20 +471,22 @@ def user(mode) :
 		my_reviewers = my_reviewers_start + my_reviewers
 
 		# Company campaigns
-		my_campaign_start = """<a href="/company/add_campaign/">Add a Campaign</a><hr> """
-		my_campaign = ""
+		if session['role'] not in ['issuer', 'reviewer'] :
+			my_campaign = """<a href="/company/add_campaign/">Add a Campaign</a><hr> """
+		else :
+			my_campaign = ""
 		campaign = company.Campaign(session['host'], mode)
 		campaign_list = campaign.get_list()
-		print(campaign_list)
 		if campaign_list :
 			for camp in campaign_list :
-				campaign_html = camp.get('campaign_name', 'unknown') + """ : """ +  camp.get('description', 'unkown')[:100] + """...
+				campaign_html = camp.get('campaign_name', 'unknown') + """ : """ +  camp.get('description', 'unkown')[:100]
+				remove_option = """...
 				<a class="text-secondary" href="/company/remove_campaign/?campaign_name="""+ camp.get('campaign_name', 'unkown') + """">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
-				</a>
-				<hr>"""
-				my_campaign += campaign_html 
-		my_campaign = my_campaign_start + my_campaign
+				</a>"""
+				if session['role'] not in ['issuer', 'reviewer'] :
+					campaign_html += remove_option
+				my_campaign += "<hr>" + campaign_html 
 
 		# company settings
 		if session['role'] in ['creator', 'admin'] :
@@ -619,7 +612,6 @@ def user_advanced(mode) :
 					</span>"""
 			my_access = my_access + access_html + """<br>"""
 
-
 	# DID document
 	did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
 	DIDdocument = didkit.resolveDID(did,'{}')
@@ -695,6 +687,7 @@ def user_advanced(mode) :
 	return render_template('advanced.html',
 							**session['menu'],
 							access=my_access,
+							private_key_value = helpers. ethereum_to_jwk256k(session['private_key_value']),
 							partner=my_partner,
 							issuer=my_issuer,
 							did_doc=did_doc,

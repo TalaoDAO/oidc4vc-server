@@ -8,8 +8,6 @@
 <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-
                 {% if session['type'] == "company" %}
                     {% if session['role'] == 'creator' %}
                         {% include 'company_nav_bar.html' %}
@@ -19,8 +17,9 @@
                 {% else %}
                     {% include 'user_nav_bar.html' %}
                 {% endif %}
-
               <div class="container-fluid mt-3">
+                <h3 class="text-dark mb-4">{{name}}</h3>
+                <h6 class="text-dark mb-4">{{profil_title}}</h6>
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
@@ -40,16 +39,16 @@
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Email</strong><br></label><input class="form-control" type="email" required="" name="email"></div>
                                     </div>
                                 </div>
+
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Invit</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
-
                                         <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
-
                                     </div>
                                 </div>
+
                             </form>
                         </div>
                     </div>

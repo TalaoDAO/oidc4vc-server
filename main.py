@@ -47,7 +47,7 @@ from routes import web_data_user, web_skills, web_CV_blockchain, web_issuer_expl
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.0"
+VERSION = "0.9.1"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -199,7 +199,7 @@ app.add_url_rule('/repository/publish',  view_func=repository.publish, methods =
 app.add_url_rule('/repository/create',  view_func=repository.create, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
 
-
+#app.route('/.well-known/did-configuration.json', methods=['GET'], defaults={'mode' : mode})
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
 def wellknown (mode) :
     """ did:web

@@ -2,9 +2,20 @@
 <html>
 
 <head>
-  {% include 'head.html' %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Talao Professional Identity</title>
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
 
- 
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 </head>
@@ -56,24 +67,6 @@
                   <p class="text-primary m-0 font-weight-bold">Signature</p>
                 </div>
                 <div class="card-body text-center shadow">
-
-                  <!-- <form name="form" action="/user/signature/" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                      <img id="output" height="150" width="150" src="{{ url_for('send_file', filename=signaturefile) }}">
-                    </div>
-                    <div class="form-group">
-                      <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <button class="btn btn-primary btn-sm" id="loading_button" type="submit">Save</button>
-                        </div>
-                        <div class="custom-file">
-                          <label class="custom-file-label" for="file"></label>
-                          <input type="file" required="" id="file" onchange="loadFile(event)" class="custom-file-input" style="display: none;" name="image">
-                        </div>
-                        <a href="/user/"><button class="btn btn-primary text-left" type="button">Back</button></a>
-                      </div>
-                    </div>
-                  </form> -->
                   <div class="image_container">
                     <img id="input" src="#" class="d-none"/>
                     <img id="old" src="{{ url_for('send_file', filename=signaturefile) }}" style="height: 300px; max-width:500"/>
@@ -98,10 +91,13 @@
 
 
       {% include 'user_footer.html' %}
+
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-      <script src="{{ url_for('static', filename='theme.js') }}"></script>
-      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+      <script type="text/javascript" src="{{ url_for('static', filename='cropperjs/dist/cropper.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 
       <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
       <script type="text/javascript" src="{{ url_for('static', filename='cropperjs/dist/cropper.js') }}"></script>

@@ -248,7 +248,7 @@ def login(mode) :
 
 			flash("Too many trials (3 max)", "warning")
 			session['try_number'] = 1
-			return render_template('./login/login.html', username="")
+			return render_template('./login/login_password.html', username="")
 		else :
 			# secret code to send by email or sms
 			session['code'] = str(secrets.randbelow(99999))
@@ -261,7 +261,7 @@ def login(mode) :
 				session['try_number'] = 1
 			except :
 				flash("Connexion problem", 'danger')
-				return render_template('./login/login.html', username="")
+				return render_template('./login/login_password.html', username="")
 			return render_template("./login/authentification.html", support=session['support'])
 
 
@@ -304,7 +304,7 @@ def logout(mode) :
 	"""
 	check_login()
 	if request.method == 'GET' :
-		return render_template('./login/logout.html')
+		return render_template('./login/logout.html', **session['menu'])
 	try :
 		os.remove(mode.uploads_path + session['picture'])
 		os.remove(mode.uploads_path + session['signature'])
@@ -348,7 +348,7 @@ def forgot_password(mode) :
 		username = request.form.get('username')
 		if not ns.username_exist(username, mode) :
 			flash("Username not found", "warning")
-			return render_template('./login/login.html')
+			return render_template('./login/login_password.html')
 		email= ns.get_data_from_username(username, mode)['email']
 		private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 		RSA_KEY = RSA.import_key(private_rsa_key)

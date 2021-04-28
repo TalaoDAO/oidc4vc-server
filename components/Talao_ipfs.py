@@ -84,6 +84,9 @@ def ipfs_get_pinata(ipfs_hash) :
 	return response.json()
 
 def ipfs_get_local(ipfs_hash) :
+	"""
+	return : json str
+	"""
 	response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5)
 	return(response.json())
 

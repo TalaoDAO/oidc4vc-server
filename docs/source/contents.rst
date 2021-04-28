@@ -14,16 +14,14 @@ Talao approaches this issue starting from a user perspective through a Blockchai
 
   - You own your data for your lifetime.
   - No one can access your data without your permission.
-  - No storage costs.
-  - Claims are verifiables credentials, they are tamper proof, trackable and signed by the issuer.
-  - Credentials issuers are identified.
+  - Credentials are digitally signed by issuers.
+  - Identifiers for issuers and users are stored on a blockchain registry.
+  - Credentials and identifiers are compliant with W3C standards.
 
-Talao allows Professional Identities for Talents, Companies and claims issuers such as Schools or Training Centers.
+Talao allows Professional Identities for Talents, Companies and credentials issuers such as Schools or Training Centers.
 It is for everyone the opportunity to use a new technology to get tamper proof professional data while keeping the ownership of those data.
 
-Identities with their verifiable credentials can be displayed anywhere on digital platforms : social medias, websites, Job boards, etc. They provide to third parties reliable data about professional experiences, skills and education.
-
-Terminology : in this document we will consider "Self Sovereign Identity" as an equivalent to 'Decentralized IDentity'.
+Credentials are stored on private devices or displayed anywhere on digital platforms : social medias, websites, Job boards, etc. They provide to third parties reliable data about professional experiences, skills and education.
 
 
 How does Talao work ?
@@ -82,7 +80,7 @@ biometric protocol, can be used to verify a proof that was created for the purpo
 Service endpoints enable trusted interactions with the DID controller.”
 
 Furthermore eIDAS regulations now in place in Europe are taking the opportunity to include Self Sovereign Identiy technologies to expand security
-and data protection (see the SSI-eIDAS Bridge project launched by EU)..
+and data protection (see the SSI-eIDAS Bridge project launched by EU).
 
 
 More information available :
@@ -97,16 +95,17 @@ More information available :
 What blockchains support does Talao use ?
 -----------------------------------------
 
-The Talao solution is available with different public Blockchain vs did method :
+The Talao solution is available with different Self Sovereign Identities and public blockchains :
 
-  * Ethereum with the did:ethr method, see https://github.com/uport-project/ethr-did-registry for details.
-  * Tezos with the did:tz with curve Ed25519 method, see https://did-tezos.spruceid.com/
+  * Ethereum with the `did-ethr method <https://github.com/uport-project/ethr-did-registry>`_.
+  * Tezos with the `did-tz method <https://did-tezos.spruceid.com/>`_ with curve secp256k1 (tz2).
 
 We also use :
 
-  * did:key with curve secp256k1 for specif use cases, see https://w3c-ccg.github.io/did-method-key/
-  * did:web (did:wab:talao.io:...) with curve secp256k1 and a RSA256 key see https://w3c-ccg.github.io/did-method-web/
+  * `did-key <https://w3c-ccg.github.io/did-method-key/>`_  with curve secp256k1 for specific use cases.
+  * `did-web <https://w3c-ccg.github.io/did-method-web/>`_  (did:web:talao.io:...) with curve secp256k1 and a RSA256 key.
 
+Check the Talao DID Document on the `DIF Universal Resolver <https://dev.uniresolver.io/>`_ with Talao DID did:web:talao.co
 
 Credits
 -------
@@ -115,4 +114,4 @@ Thanks to the Ethereum community which provide us with great tools, Solidity cod
 
 Special thanks to `Spruce <https://www.spruceid.com/>`_ for their implementation of SSI and its wide JSON_LD signing suite.
 
-Special thanks to `OriginProtocol <https://originprotocol.com/>`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications.
+Special thanks to `OriginProtocol <https://originprotocol.com/>`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications to support our credential repository.

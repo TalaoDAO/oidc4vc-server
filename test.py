@@ -17,7 +17,7 @@ from datetime import datetime
 from components import privatekey, ns
 
 from components import privatekey
-from signaturesuite import credential, helpers
+from signaturesuite import vc_signature, helpers
 
 #key = didkit.generateEd25519Key()
 #print('key Ed25519Key ', key)
@@ -91,17 +91,17 @@ method = "tz"
 #did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
-key = '{"alg":"ES256K-R","crv":"secp256k1","d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U","kty":"EC","x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk","y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"}'
-did = "did:tz:tz2JKnkcJ4FswZkWUUxsihboc9CeQPnovgy8"
+key = '{"alg":"ES256K","crv":"secp256k1","d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U","kty":"EC","x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk","y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"}'
+did = "did:xxx:tz2JKnkcJ4FswZkWUUxsihboc9CeQPnovgy8"
 
 #print('did  = ', did)
 #did = "did:web:talao.co:thierrythevenet"
 #did = "did:web:did.actor:mike"
 
-DIDdocument = didkit.resolveDID(did,'{}')
+#DIDdocument = didkit.resolveDID(did,'{}')
 #print(json.dumps(json.loads(DIDdocument), indent=4))
 
-verifmethod = didkit.keyToVerificationMethod(method, key)
+#verifmethod = didkit.keyToVerificationMethod(method, key)
 #print('verifmethod = ', verifmethod)
 
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
@@ -152,7 +152,7 @@ print(response.json())
 if response.status_code != 200 :
         sys.exit()
 
-"""
+
 
 
 # step 1 
@@ -182,21 +182,21 @@ if response.status_code != 200 :
         sys.exit()
 
 
-"""
+
 
 verifyResult = json.loads(didkit.verifyPresentation(
             presentation,
             verificationPurpose.__str__().replace("'", '"')))
 
 print(verifyResult)
-
-cred = { "@context": "https://www.w3.org/2018/credentials/v1",
+"""
+credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "type": ["VerifiableCredential"],
                 "issuer" : did  ,
                 "issuanceDate": "2020-08-19T21:41:50Z",
                 "credentialSubject": {
-                "id": "did:example:d23dd687a7dc6787646f2eb98d0",
-                
+                "id": "did:example:d23dd687a7dc6787646f2eb98d0"
+
                         }
         }
 
@@ -212,18 +212,18 @@ cred = { "@context": "https://www.w3.org/2018/credentials/v1",
 #credential['id'] = "data:5656"
 #credential["credentialSubject"]["id"] = "data:555"
 
-
+vm = "EcdsaSecp256k1VerificationKey2019"
 didkit_options = {
         "proofPurpose": "assertionMethod",
-        "verificationMethod": verifmethod
+        "verificationMethod": vm
         }
-
+"""
 credential = didkit.issueCredential(
         credential.__str__().replace("'", '"'),
         didkit_options.__str__().replace("'", '"'),
         key
         )
-
+"""
 
 
 credential = didkit.issueCredential(
@@ -233,8 +233,7 @@ credential = didkit.issueCredential(
         )
 
 
-#print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
+print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
 #print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
 
 
-"""
