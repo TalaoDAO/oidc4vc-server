@@ -87,23 +87,32 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key = helpers.ethereum_to_jwk(pvk, method)
 #did = helpers.jwk_to_did(method, key)
 
-method = "tz"
+method = "key"
 #did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
-key = '{"alg":"ES256K","crv":"secp256k1","d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U","kty":"EC","x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk","y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"}'
-did = "did:xxx:tz2JKnkcJ4FswZkWUUxsihboc9CeQPnovgy8"
+key = json.dumps({"alg":"ES256K", 
+        "crv":"secp256k1", 
+        "d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
+        "kty":"EC", 
+       # "crit":["b64"],
+       # "b64" : False,
+        "x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk", 
+        "y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"})
 
-#print('did  = ', did)
+did = didkit.keyToDID(method, key)
+print('did  = ', did)
 #did = "did:web:talao.co:thierrythevenet"
+
 #did = "did:web:did.actor:mike"
+#did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
+DIDdocument = didkit.resolveDID(did,'{}')
+print(json.dumps(json.loads(DIDdocument), indent=4))
 
-#DIDdocument = didkit.resolveDID(did,'{}')
-#print(json.dumps(json.loads(DIDdocument), indent=4))
 
-#verifmethod = didkit.keyToVerificationMethod(method, key)
-#print('verifmethod = ', verifmethod)
-
+vm = didkit.keyToVerificationMethod(method, key)
+print('verifmethod = ', vm)
+vm = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
@@ -212,10 +221,10 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
 #credential['id'] = "data:5656"
 #credential["credentialSubject"]["id"] = "data:555"
 
-vm = "EcdsaSecp256k1VerificationKey2019"
+
 didkit_options = {
         "proofPurpose": "assertionMethod",
-        "verificationMethod": vm
+        "verificationMethod": "JwsVerificationKey2020",
         }
 """
 credential = didkit.issueCredential(

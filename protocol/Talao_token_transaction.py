@@ -76,7 +76,6 @@ def get_keylist(key, workspace_contract, mode) :
 	contract = mode.w3.eth.contract(workspace_contract,abi = constante.workspace_ABI)
 	return [ key.hex() for key in  contract.functions.getKeysByPurpose(key).call()]
 
-
 def get_category (workspace_contract, mode) :
 	contract = mode.w3.eth.contract(workspace_contract,abi=constante.workspace_ABI)
 	try :

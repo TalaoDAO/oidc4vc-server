@@ -101,7 +101,7 @@ def create(address_from, workspace_contract_from, address_to, workspace_contract
 	mode.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 	transaction_hash = mode.w3.toHex(mode.w3.keccak(signed_txn.rawTransaction))
 	if synchronous :
-		if not mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)['status']
+		if not mode.w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)['status'] :
 			logging.error('transaction to create document failed')
 			return None, None, None
 

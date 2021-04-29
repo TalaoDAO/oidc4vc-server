@@ -39,7 +39,6 @@ def resume(mode) :
 		del session['resume']['other_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
-		del session['resume']['synchronous']
 		del session['resume']['authenticated']
 		del session['resume']['rsa_key']
 		del session['resume']['relay_activated']
@@ -439,8 +438,12 @@ def resume(mode) :
 		logging.error('resume entry with category company')
 		abort(403)
 
-# /board
+
 def board(mode):
+	""" company registry
+	route # /board and /company/registry/
+
+	"""
 	try :
 		workspace_contract = '0x' + request.args.get('did').split(':')[3]
 		issuer_explore = Identity(workspace_contract, mode)
@@ -457,7 +460,6 @@ def board(mode):
 		del session['resume']['other_list']
 		del session['resume']['certificate_list']
 		del session['resume']['partners']
-		del session['resume']['synchronous']
 		del session['resume']['authenticated']
 		del session['resume']['rsa_key']
 		del session['resume']['relay_activated']

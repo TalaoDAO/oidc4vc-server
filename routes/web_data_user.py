@@ -155,6 +155,7 @@ def user(mode) :
 			# no credential workflow
 			session['host'] = session['employee'] = None
 			session['role'] = session['referent'] = None
+			clipboard = mode.server  + "resume/?did=" + session['did']
 
 		if session['type'] == 'company' :
 			session['profil_title'] = ""
@@ -170,6 +171,7 @@ def user(mode) :
 				session['employee'] = None
 				session['role'] = 'creator'
 				session['referent'] = None
+			clipboard = mode.server  + "board/?did=" + session['did']
 
 		# for nav bar menu display
 		session['menu'] = {'picturefile' : session['picture'],
@@ -177,8 +179,8 @@ def user(mode) :
 							'name' : session['name'],
 							#'private_key_value' : user.private_key_value,
 							'rsa_filename': session['rsa_filename'],
-							'profil_title' : session.get('profil_title', ''),
-							'clipboard' : mode.server  + "resume/?did=" + session['did']}
+							'profil_title' : session['profil_title'],
+							'clipboard' : clipboard}
 
 		# Dashboard start for employees
 		if session['role'] in ['issuer', 'reviewer'] :

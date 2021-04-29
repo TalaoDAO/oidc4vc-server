@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 
 from components import ns, privatekey
 from signaturesuite import helpers
-from protocol import ownersToContracts
+from protocol import ownersToContracts, get_category
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
@@ -43,11 +43,11 @@ logging.info('end of init')
 
 # Centralized  routes : modules in ./routes
 from routes import web_create_identity, web_create_company_cci, web_certificate, web_issuer
-from routes import web_data_user, web_skills, web_CV_blockchain, web_issuer_explore
+from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.1"
+VERSION = "0.9.2"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -95,8 +95,9 @@ app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.cert
 app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
 
 # Centralized route for the Blockchain CV
-app.add_url_rule('/resume/', view_func=web_CV_blockchain.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/board/', view_func=web_CV_blockchain.board, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/resume/', view_func=web_external.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/board/', view_func=web_external.board, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/company/registry/', view_func=web_external.board, methods = ['GET', 'POST'], defaults={'mode': mode}) # same as previous
 
 # Centralized route fo Issuer explore
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -144,7 +145,6 @@ app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_co
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/add_campaign/',  view_func=web_main.add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/remove_campaign/',  view_func=web_main.remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
-
 app.add_url_rule('/user/create_person/',  view_func=web_main.create_person, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -199,7 +199,6 @@ app.add_url_rule('/repository/publish',  view_func=repository.publish, methods =
 app.add_url_rule('/repository/create',  view_func=repository.create, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
 
-#app.route('/.well-known/did-configuration.json', methods=['GET'], defaults={'mode' : mode})
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
 def wellknown (mode) :
     """ did:web
@@ -224,18 +223,21 @@ def web(address, mode) :
         key = helpers.ethereum_to_jwk256k(pvk)
         ec_public = json.loads(key)
         del ec_public['d']
-        DidDocument = did_doc(address, ec_public, rsa_public)
+        DidDocument = did_doc(address, ec_public, rsa_public, mode)
     except :
         DidDocument = None
-    return jsonify (DidDocument)
+    return jsonify(DidDocument)
 
 
-def did_doc(address, ec_public, rsa_public) :
+def did_doc(address, ec_public, rsa_public, mode) :
+    """ build the DID document
+    add service endpoint if company
+    """
     if address == mode.owner_talao : #talao address
         id = "did:web:talao.co"
     else :
         id =  "did:web:talao.co:" + address
-    return {
+    document =  {
                 "@context":
                     [
                         "https://www.w3.org/ns/did/v1"
@@ -267,7 +269,16 @@ def did_doc(address, ec_public, rsa_public) :
                     id + "#key-2"
                     ]
             }
-
+    workspace_contract = ownersToContracts(address, mode)
+    if get_category(workspace_contract, mode) == 2001 :
+        document["services"] =  [
+                    {
+                    "id":id + "#company-registry",
+                    "type": "CompanyRegistry", 
+                    "serviceEndpoint": "https://talao.co/company/registry/?did=did:talao:talaonet:" + workspace_contract[2:]
+                    }
+                ]
+    return document
 
 # MAIN entry point for test
 if __name__ == '__main__':
