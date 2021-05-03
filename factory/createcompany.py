@@ -2,71 +2,27 @@
 If this script is called in a standalone mode (_name_ == '_main_').
 It will setup workspaces for Relay and Talao
 """
-
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Protocol.KDF import PBKDF2
 import json
-from eth_account.messages import encode_defunct
 from Crypto.Cipher import AES
-from base64 import b64encode
 from datetime import datetime
-from base64 import b64encode, b64decode
 import random
-import threading
-import secrets
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key, authorize_partnership, partnershiprequest
-from protocol import createWorkspace, Claim, update_self_claims
+from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key
+from protocol import createWorkspace
 from components import Talao_message, ns, privatekey
 import constante
-#import ethereum_bridge see later
 
 relay_address = ""
 
-exporting_threads = {}
-
-# Multithreading creatidentity setup
-class ExportingThread(threading.Thread):
-	def __init__(self, address, private_key, workspace_contract,email, username, mode, creator, partner, send_email) :
-		super().__init__()
-		self.username = username
-		self.email = email
-		self.send_email = send_email
-		self.mode = mode
-		self.creator = creator
-		self.partner = partner
-		self.address = address
-		self.workspace_contract = workspace_contract
-		self.private_key = private_key
-
-	def run(self):
-		_create_company_step_2(self.address, self.private_key, self.workspace_contract,self.email, self.username, self.mode, self.creator, self.partner, self.send_email)
-		return
-
 # Main function
-def create_company(email, username, mode, creator=None, partner=False, send_email=True, siren=None, password=None, name=None, is_thread=True) :
-
-	# step 1
-	address, private_key, workspace_contract = _create_company_step_1(email, username, mode, password, siren, name)
-	if not address :
-		return None, None, None
-
-	# step 2 maybe asynchronous
-	if is_thread :
-		thread_id = str(random.randint(0,10000 ))
-		exporting_threads[thread_id] = ExportingThread(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email)
-		exporting_threads[thread_id].start()
-	else :
-		_create_company_step_2(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email)
-	return address, private_key, workspace_contract
-
-def _create_company_step_1(email, username, mode, password, siren, name) :
-	""" username is a company username here """
+def create_company(email, username, mode, siren=None, password='', name=None) :
 
 	global relay_address
 
@@ -93,23 +49,26 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 	# Email to bytes
 	bemail = bytes(email , 'utf-8')
 
-	# Transaction pour le transfert des nethers depuis le portfeuille TalaoGen
-	hash1 = ether_transfer(address, mode.ether2transfer, mode)
-
-	# Transaction pour le transfert des tokens Talao depuis le portfeuille TalaoGen
-	hash2 = token_transfer(address, mode.talao_to_transfer, mode)
-
-	# Transaction pour l'acces dans le token Talao par createVaultAccess
-	hash3=createVaultAccess(address, private_key, mode)
-	logging.info('hash createVaultaccess = %s', hash3)
-
-	# Transaction pour la creation du workspace :
-	bemail = bytes(email , 'utf-8')
-	hash = createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode, user_type=2001)
-	if not hash :
-		logging.error('create workspace failed')
+	try :
+		# Transaction pour le transfert des nethers depuis le portfeuille TalaoGen
+		h1 = ether_transfer(address, mode.ether2transfer, mode)
+		logging.info('ether transfer done')
+		# Transaction pour le transfert des tokens Talao depuis le portfeuille TalaoGen
+		h2 = token_transfer(address, mode.talao_to_transfer, mode)
+		logging.info('token trasnfer done')
+		# Transaction pour l'acces dans le token Talao par createVaultAccess
+		h3 = createVaultAccess(address, private_key, mode)
+		logging.info('create vault access done')
+		# Transaction pour la creation du workspace :
+		bemail = bytes(email , 'utf-8')
+		h4 = createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode, user_type=2001)
+		logging.info('create createWorkspace done')
+	except :
+		logging.error('transaction failed')
 		return None, None, None
-	logging.info('hash createWorkspace = %s', hash)
+	if not (h1 and h2 and h3 and h4) :
+		logging.error('transaction failed')
+		return None, None, None
 
 	# lecture de l'adresse du workspace contract dans la fondation
 	workspace_contract = ownersToContracts(address, mode)
@@ -133,37 +92,23 @@ def _create_company_step_1(email, username, mode, password, siren, name) :
 		return None, None, None
 
 	# update resolver and create local database for this company with last check on username
-	if ns.username_exist(username, mode) :
-		username = username + str(random.randint(1, 100))
-	ns.add_identity(username, workspace_contract, email, mode)
-	# create database for manager within the company
-	ns.init_host(username, mode)
+	if not ns.add_identity(username, workspace_contract, email, mode) :
+		logging.error('add identity in nameservice failed')
+		return None, None, None
 
-	# add password, name and siren
+	# create database for manager within the company
+	if not ns.init_host(username, mode) :
+		logging.error('add company in nameservice failed')
+
+	# add password
 	if password :
-		if ns.update_password(username, password, mode) :
-			logging.info('password has been updated')
-	if name :
-		if Claim().add(address, workspace_contract, address, workspace_contract, private_key, 'name', name, 'public', mode)[0] :
-			logging.info('name has been updated')
-		else :
-			logging.warning('name has not been updated')
-	else :
-		logging.warning('name has not been given')
-	if siren :
-		if Claim().add(address, workspace_contract, address, workspace_contract, private_key,'siren', siren, 'public', mode)[0] :
-			logging.info('siren has been updated')
+		ns.update_password(username, password, mode)
+		logging.info('password has been updated')
 
 	# For setup of new chain one need to first create workspaces for Relay and Talao
 	if username != 'relay' and username != 'talao' :
 		# management key (1) issued to Relay
 		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.relay_address, 1, mode)
-
-	logging.info("end of step 1 of createcompany")
-	return address, private_key, workspace_contract
-
-
-def _create_company_step_2(address, private_key, workspace_contract,email, username, mode, creator, partner, send_email) :
 
 	if username == 'relay' :
 		# one stores relay address for Talao workspace setup
@@ -171,51 +116,14 @@ def _create_company_step_2(address, private_key, workspace_contract,email, usern
 	if username == 'talao' :
 		add_key(address, workspace_contract, address, workspace_contract, private_key, relay_address, 1, mode)
 
-	# rewrite encrypted email with scheme 2 to differenciate from freedapp email that are not encrypted
-	if Claim().add(address,workspace_contract, address, workspace_contract, private_key, 'email', email, 'private', mode)[0] :
-		logging.info('email updated')
-	else :
-		logging.warning('email not updated')
-
-	if username != 'talao' and username != 'relay' :
-		# key 20002 to Talao to ask Talao to issue Proof of Identity
-		add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 20002 , mode) 
-		# key 5 to put Talao in White List
-		# add_key(address, workspace_contract, address, workspace_contract, private_key, mode.owner_talao, 5 , mode, synchronous=True)
-		# key 5 to put ourself in Whitelist
-		add_key(address, workspace_contract, address, workspace_contract, private_key, address, 5 , mode)
-
-	# Creator
-	if creator and creator != mode.owner_talao :
-		creator_address = creator
-		creator_workspace_contract = ownersToContracts(creator_address, mode)
-		creator_rsa_key = privatekey.get_key(creator_address, 'rsa_key', mode)
-		creator_private_key = privatekey.get_key(creator_address,'private_key', mode)
-		RSA_private = privatekey.get_key(address, 'rsa_key', mode)
-		# setup parnership with creator
-		if partner :
-			# creator requests partnership
-			if partnershiprequest(creator_address, creator_workspace_contract, creator_address, creator_workspace_contract, creator_private_key, workspace_contract, creator_rsa_key, mode) :
-				if authorize_partnership(address, workspace_contract, address, workspace_contract, private_key, creator_workspace_contract, RSA_private, mode) :
-					logging.info('partnership request from creator has been accepted')
-				else :
-					logging.error('authorize partnership with creator failed')
-			else :
-				logging.error('creator partnership request failed')
-		#add creator as referent
-		if add_key(address, workspace_contract, address, workspace_contract, private_key, creator, 20002 , mode) :
-			logging.info('key 20002 issued for creator')
-		else :
-			logging.warning('key 20002 for creator failed')
-
 	# send messages
 	Talao_message.messageLog("no lastname","no firstname", username, email, 'Company created by Talao', address, private_key, workspace_contract, "", email, "", "", mode)
 	# one sends an email by default
-	if send_email :
-		Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
+	Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
 
-	logging.info('end of step 2 of create company')
-	return
+	logging.info('end of of create company')
+	return address, private_key, workspace_contract
+
 
 # MAIN, for new Blockchain setup. Talao and Relay setup
 if __name__ == '__main__':

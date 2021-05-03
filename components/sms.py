@@ -26,6 +26,6 @@ def check_phone(phone, mode) :
 		client.sms.send(to=phone, message="Your phone number has been verified.")
 		return True
 	except SmsApiException as e:
-		print(e.message)
+		print('sms api message = ', e.message)
 		return False
 

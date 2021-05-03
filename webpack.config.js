@@ -2,14 +2,16 @@ const webpack = require("webpack");
 const path = require("path");
 
 let config = {
-   mode: 'development',
-    entry: "./src/index.js",
-    output: {
+  mode: 'development',
+  entry : "./node_modules/@decentralized-identity/did-crypto-typescript/dist/lib/DidKey.js",
+  //entry: "./src/index.js",
+  output: {
       path: path.resolve(__dirname, "/home/thierry/Talao/static"),
-      filename: "./wc-talao.min.js"
+      filename: "./didkey.js"
     },
-node: {
-  fs: "empty"
+  node: {
+    fs: "empty"
+  },
+ 
 }
-}
-  module.exports = config;
+module.exports = config;

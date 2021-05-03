@@ -20,6 +20,7 @@ from authlib.jose import jwt
 import uuid
 import logging
 logging.basicConfig(level=logging.INFO)
+import didkit
 
 from factory import createcompany, createidentity
 from components import Talao_message, Talao_ipfs, hcode, ns, privatekey, QRCode, directory, sms, siren, talao_x509, company
@@ -45,6 +46,14 @@ def check_login() :
     else :
         return True
 
+def getDID() :
+    key = request.args['key']
+    method = request.args['method']
+    return jsonify (didkit.keyToDID(method, key))
+
+def getDID_Document(did) :
+    DIDdocument = didkit.resolveDID(did,'{}')
+    return jsonify(DIDdocument)
 
 # helper
 def is_username_in_list(my_list, username) :
@@ -647,35 +656,6 @@ def store_file(mode) :
         return redirect(mode.server + 'user/')
 
 
-def create_person(mode) :
-    """ create a repository 
-
-    FIXME to be updated
-    app.route('/user/create_person/', methods=['GET', 'POST'])
-    create a profesisonalidentity
-    This funcitonality is open to companies
-    The identity is created with company as referent and partner
-    company has a key 3 and key 20002
-
-
-    """
-    check_login()
-    if request.method == 'GET' :
-        return render_template('create_identity.html', **session['menu'])
-    if request.method == 'POST' :
-        talent_username = ns.build_username(request.form['firstname'], request.form['lastname'], mode)
-        createidentity.create_user(talent_username,
-                            request.form['email'],
-                            mode,
-                            creator=session['address'],
-                            firstname = request.form['firstname'],
-                            lastname = request.form['lastname'],
-                            partner=True,
-                            is_all_thread=True)
-        flash('Identity creation in progress', 'success')
-        return redirect(mode.server + 'user/')
-
-
 def add_campaign(mode) :
     """ create a new campaign 
     """
@@ -697,6 +677,7 @@ def remove_campaign(mode) :
     new_campaign.delete(request.args['campaign_name'])
     flash('Campaign removed', 'success')
     return redirect(mode.server + 'user/')
+
 
 # add experience
 #@app.route('/user/add_experience/', methods=['GET', 'POST'])
@@ -788,16 +769,19 @@ def create_kyc(mode) :
         if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
-        kyc_address = contractsToOwners(kyc_workspace_contract, mode)
-        kyc_method =ns.get_method(kyc_workspace_contract, mode)
-        kyc_private_key = privatekey.get_key(kyc_address, 'private_key', mode)
+
+        method = ns.get_method(kyc_workspace_contract, mode)
+        for did in ns.get_did(kyc_workspace_contract,mode) :
+            if method == did.split(':')[1] :
+                subject_did = did
+                break
         id = str(uuid.uuid1())
         # load templates for verifibale credential and init with view form and session
         unsigned_credential = json.load(open('./verifiable_credentials/identity.jsonld', 'r'))
         unsigned_credential["id"] =  "data:" + id
         unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
         unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(kyc_private_key, kyc_method, kyc_address)
+        unsigned_credential["credentialSubject"]["id"] = subject_did
         unsigned_credential["credentialSubject"]["familyName"] = request.form['family_name']
         unsigned_credential["credentialSubject"]["givenName"] = request.form['given_name']
         unsigned_credential["credentialSubject"]["birthDate"] = request.form['birthdate']
@@ -836,86 +820,6 @@ def create_kyc(mode) :
 
         # TODO delete credential
         return redirect(mode.server + 'user/')
-
-
-# remove kyc
-#@app.route('/user/remove_kyc/', methods=['GET', 'POST'])
-def remove_kyc(mode) :
-    check_login()
-    if request.method == 'GET' :
-        session['kyc_to_remove'] = request.args['kyc_id']
-        return render_template('remove_kyc.html', **session['menu'])
-    if request.method == 'POST' :
-        session['kyc'] = [kyc for kyc in session['kyc'] if kyc['id'] != session['kyc_to_remove']]
-        doc_id = session['kyc_to_remove'].split(':')[5]
-        my_kyc = Document('kyc')
-        if session['private_key'] :
-            my_kyc.delete(session['workspace_contract'], session['private_key_value'], int(doc_id), mode)
-            for counter,kyc in enumerate(session['kyc'], 0) :
-                if kyc['doc_id'] == doc_id :
-                    del session['kyc'][counter]
-                    break
-            del session['kyc_to_remove']
-            flash('The Proof of Identity has been removed', 'success')
-        else :
-            flash('You cannot remove this Proof of Identy', 'warning')
-        return redirect (mode.server +'user/')
-
-
-# create kbis (Talao only)
-#@app.route('/user/issue_kbis/', methods=['GET', 'POST'])
-def issue_kbis(mode) :
-    check_login()
-    if request.method == 'GET' :
-        return render_template('issue_kbis.html', **session['menu'])
-    if request.method == 'POST' :
-        kbis = Document('kbis')
-        my_kbis = dict()
-        kbis_username = request.form['username']
-        kbis_workspace_contract = ns.get_data_from_username(kbis_username,mode).get('workspace_contract')
-        if not kbis_workspace_contract :
-            flash(kbis_username + ' does not exist ', 'danger')
-            return redirect(mode.server + 'user/')
-        my_kbis['name'] = request.form['name']
-        my_kbis['date'] = request.form['date']
-        my_kbis['legal_form'] = request.form['legal_form']
-        my_kbis['capital'] = request.form['capital']
-        my_kbis['naf'] = request.form['naf']
-        my_kbis['activity'] = request.form['activity']
-        my_kbis['address'] = request.form['address']
-        my_kbis['ceo'] = request.form['ceo']
-        my_kbis['siren'] = request.form['siren']
-        my_kbis['managing_director'] = request.form['managing_director']
-        data = kbis.talao_add(kbis_workspace_contract, my_kbis, mode)[0]
-        if not data :
-            flash('Transaction failed', 'danger')
-        else :
-            flash('New kbis added for '+ kbis_username, 'success')
-        return redirect(mode.server + 'user/')
-
-
-# remove kbis
-#@app.route('/user/remove_kbis/', methods=['GET', 'POST'])
-def remove_kbis(mode) :
-    check_login()
-    if request.method == 'GET' :
-        session['kbis_to_remove'] = request.args['kbis_id']
-        return render_template('remove_kbis.html', **session['menu'])
-    if request.method == 'POST' :
-        session['kbis'] = [kbis for kbis in session['kbis'] if kbis['id'] != session['kbis_to_remove']]
-        doc_id = session['kbis_to_remove'].split(':')[5]
-        my_kbis = Document('kbis')
-        if session['private_key'] :
-            my_kbis.delete(session['workspace_contract'], session['private_key_value'], int(doc_id), mode)
-            for counter,kbis in enumerate(session['kbis'], 0) :
-                if kbis['doc_id'] == doc_id :
-                    del session['kbis'][counter]
-                    break
-            del session['kbis_to_remove']
-            flash('The Proof of Identity has been removed', 'success')
-        else :
-            flash('You cannot remove this Proof of Identy (No Private Key found)', 'warning')
-        return redirect (mode.server +'user/')
 
 
 #@app.route('/user/remove_experience/', methods=['GET', 'POST'])
@@ -1622,6 +1526,7 @@ def download_file(mode):
     filename = request.args['filename']
     return send_from_directory(mode.uploads_path, filename, as_attachment=True, cache_timeout=1)
 
+
 #@app.route('/user/download_rsa_key/', methods=['GET', 'POST'])
 def download_rsa_key(mode):
     check_login()
@@ -1629,10 +1534,12 @@ def download_rsa_key(mode):
     attachment_filename = session['workspace_contract']+ '.key'
     return send_from_directory(RSA_FOLDER + mode.BLOCKCHAIN,filename, attachment_filename = attachment_filename,as_attachment=True,cache_timeout=1)
 
+
 #@app.route('/talao_ca/', methods=['GET', 'POST'])
 def ca(mode):
     talao_x509.generate_CA(mode)
     return send_from_directory('./','talao.pem', as_attachment=True, cache_timeout=1)
+
 
 #@app.route('/user/download_x509/', methods=['GET', 'POST'])
 def download_x509(mode):

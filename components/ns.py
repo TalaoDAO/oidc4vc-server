@@ -75,47 +75,60 @@ def init_host(host_name, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + host_name + '.db')
 	cur = conn.cursor()
-	cur.execute('create table employee(employee_name text, identity_name text, email text, phone text, date real, password text, role text, referent text)')
-	cur.execute('create table credential(created real, user_name text, reviewer_name text, issuer_name text, status text, credential text, id text, reference text)')
-	cur.execute('create table campaign(campaign_name text, description text, date real)')
-	conn.commit()
-	cur.close()
+	try :
+		cur.execute('create table employee(employee_name text, identity_name text, email text, phone text, date real, password text, role text, referent text)')
+		cur.execute('create table credential(created real, user_name text, reviewer_name text, issuer_name text, status text, credential text, id text, reference text)')
+		cur.execute('create table campaign(campaign_name text, description text, date real)')
+		conn.commit()
+		cur.close()
+		return True
+	except :
+		return False
 
 
-def add_identity(identity_name, identity_workspace_contract, email, mode, phone='', password='identity', wallet='', method="ethr") :
+def add_identity(identity_name, identity_workspace_contract, email, mode, phone='', password='identity', wallet='', did = '', personal='') :
 	""" This is called once (first time), it creates a username for an identity and it creates an alias with same username as alias name. Publickey is created too"""
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
-
-	data = {'identity_name' : identity_name,
+	if password != 'identity' :
+		password = mode.w3.keccak(text=password).hex()
+	if did :
+		method = did.split(':')[1]
+		base = list()
+		base.append(did)
+		did =json.dumps(base)
+	else :
+		method = ''
+	try :
+		data = {'identity_name' : identity_name,
 			 'identity_workspace_contract' : identity_workspace_contract,
 			 'date' : datetime.timestamp(now),
 			 'wallet' : wallet,
-			 'method' : method,}
-	try :
-		c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet, :method)", data)
-	except :
-		return False
-
-	data = {'alias_name' : identity_name, 'identity_name' : identity_name, 'email' : email, 'date' : datetime.timestamp(now), 'phone' : phone, 'password' : password} 
-	try :
+			 'method' : method,
+			 'did' : did,
+			 'personal' : personal}
+		c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet, :method, :did, :personal)", data)
+		data = {'alias_name' : identity_name,
+			 'identity_name' : identity_name,
+			 'email' : email,
+			 'date' : datetime.timestamp(now),
+			 'phone' : phone,
+			 'password' : password} 
 		c.execute("INSERT INTO alias VALUES (:alias_name, :identity_name, :email, :date, :phone, :password )", data)
-	except :
-		return False
-
-	address = _contractsToOwners(identity_workspace_contract, mode)
-	key = mode.w3.solidityKeccak(['address'], [address]).hex()
-	data = {'address' : address, 'key' : key}
-	try :
+		address = _contractsToOwners(identity_workspace_contract, mode)
+		key = mode.w3.solidityKeccak(['address'], [address]).hex()
+		data = {'address' : address, 'key' : key}
 		c.execute("INSERT INTO publickey VALUES (:address, :key)", data)
 	except :
+		conn.commit()
+		conn.close()
 		return False
-
 	conn.commit()
 	conn.close()
 	return True
+
 
 def add_did(workspace_contract, did, mode) :
 	path = mode.db_path
@@ -123,18 +136,17 @@ def add_did(workspace_contract, did, mode) :
 	c = conn.cursor()
 	data = { "workspace_contract" : workspace_contract}
 	c.execute("SELECT did FROM resolver WHERE identity_workspace_contract = :workspace_contract", data)
-	previous_did = c.fetchone()[0]
-	if not previous_did :
-		new_did = list()
-		new_did.append(did)
-	else :
-		new_did = json.loads(previous_did)
-		if not did in new_did :
-			new_did.append(did)
+	try :
+		did_list = json.loads(c.fetchone()[0])
+		if not did in did_list :
+			did_list.append(did)
 		else :
 			logging.warning('did already in did list')
-	new_did = json.dumps(new_did)
-	data = { "workspace_contract" : workspace_contract, 'did' : new_did}
+	except :
+		did_list = list()
+		did_list.append(did)
+	did_list_str = json.dumps(did_list)
+	data = { "workspace_contract" : workspace_contract, 'did' : did_list_str}
 	c.execute("update resolver set did = :did where identity_workspace_contract = :workspace_contract", data )
 	conn.commit()
 	conn.close()
@@ -149,9 +161,12 @@ def get_did(workspace_contract,mode) :
 	c = conn.cursor()
 	data = { "workspace_contract" : workspace_contract}
 	c.execute("SELECT did FROM resolver WHERE identity_workspace_contract = :workspace_contract", data)
-	did = c.fetchone()[0]
+	did = c.fetchone()
 	conn.close()
-	return  [] if not did else json.loads(did)
+	try :
+		return json.loads(did[0])
+	except :
+		return[]
 
 
 def get_workspace_contract_from_did(did, mode) :

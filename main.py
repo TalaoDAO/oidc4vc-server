@@ -47,7 +47,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.2"
+VERSION = "0.9.3"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -61,6 +61,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifet
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 sess = Session()
 sess.init_app(app)
 
@@ -74,12 +75,11 @@ def page_abort(e):
 
 
 # Centralized @route for create identity
+app.add_url_rule('/register/identity/',  view_func=web_create_identity.register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
-app.add_url_rule('/wc_register/',  view_func=web_create_identity.wc_register, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/wc_register_activate/',  view_func=web_create_identity.wc_register_activate, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized @route for create company CCI
 app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -126,6 +126,9 @@ app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET'
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for main features
+app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
+app.add_url_rule('/getDID_Document/',  view_func=web_main.getDID_Document, methods = ['GET'])
+
 app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'])
 app.add_url_rule('/user/picture/',  view_func=web_main.picture, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/success/',  view_func=web_main.success, methods = ['GET'], defaults={'mode' : mode})
@@ -145,12 +148,8 @@ app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_co
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/add_campaign/',  view_func=web_main.add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/remove_campaign/',  view_func=web_main.remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/create_person/',  view_func=web_main.create_person, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_kyc/',  view_func=web_main.remove_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/issue_kbis/',  view_func=web_main.issue_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_kbis/',  view_func=web_main.remove_kbis, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_education/',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/create_company/',  view_func=web_main.create_company, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -248,13 +247,13 @@ def did_doc(address, ec_public, rsa_public, mode) :
                         {
                         "id": id + "#key-1",
                         "controller" : id,
-                        "type": "JsonWebKey2020",
+                        "type": "EcdsaSecp256k1VerificationKey2019",
                         "publicKeyJwk": ec_public
                         },
                         {
                         "id": id + "#key-2",
                         "controller" : id,
-                        "type": "JsonWebKey2020",
+                        "type": "RsaVerificationKey2018",
                         "publicKeyJwk": rsa_public
                         }
                     ],

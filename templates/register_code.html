@@ -1,52 +1,48 @@
 <!DOCTYPE html>
-<!-- register code.html -->
+<!-- register_identity.html -->
 <html>
 
 <head>
     {% include 'head.html' %}
 </head>
- <body id="page-top">
+
+<body id="page-top" >
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 {% include 'guest_nav_bar.html' %}
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-md-9 col-lg-12 col-xl-10">
-                            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
-                                <div class="card-body p-0">
+                <div class="container-fluid mt-3">
+                <div class="row mb-3">
+                    <div class="col-lg-4 col-xl-4 offset-lg-4 offset-xl-4">
+                            <div class="card shadow mb-3">
+                                <div class="card-header py-3">
                                     <div class="row">
-                                        <div class="col-lg-6 d-none d-lg-flex">
-                                            <div class="flex-grow-1 bg-login-image">
-                                                <div class="text-center" style="margin: 75px 50px 0px;">
-                                                    <br><br>
-                                                    <div id="id_text">You are going to receive an SMS with a secret code. <br>
-                                                        Copy this secret code for authentication.<br>
-                                                    </div>
-                                                    <br><br><br><br><br>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="p-5">
-                                                <div id="id_page" class="text-center">
-                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Check your phone</h4>
-                                                </div>
-                                                <form id="form" class="user" action="/register/code/" method="POST">
-                                                    <div class="form-group">
-                                                        <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
-                                                    </div>
-                                                    <div id="id_spinner" class="text-center"></div>
-                                                    <div id="id_code" class="form-group">
-                                                        <input class="form-control" type="password" placeholder="Enter your secret code" name="mycode" style="color: rgb(133,135,150);">
-                                                    </div>
-                                                    <div id="id_create"  class="form-group"><button class="btn btn-primary text-white btn-block border rounded btn-user" onclick="on_click()" type="button">Create my Professional Identity</button></div> 
-                                                </form>
-                                                <div class="text-center"><a class="small" href="/login/">Login</a></div>
-
-                                            </div>
+                                        <div id="id_page" class="col-xl-12">
+                                            <p class="text-primary m-0 font-weight-bold">&nbsp;Check your phone.</p>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="id_text">You are going to receive an SMS with a secret code. <br>
+                                        Copy this secret code for authentication.</div>
+                                    <form id="form" class="user" action="/register/code/" method="POST">
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
+                                        </div>
+                                        <div id="id_spinner" class="text-center"></div>
+                                        <div id="id_code" class="form-group">
+                                            <input class="form-control" type="password" placeholder="Enter your secret code" name="mycode" style="color: rgb(133,135,150);">
+                                        </div>
+                                        <br>
+                                        <div class="form-row">
+                                            <div class="col-sm">
+                                                <div  id="id_create" class="form-group"><button onclick="on_click()"  class="btn btn-primary btn-sm" type="button">Next</button></div>
+                                            </div>
+                                            <div  class="col-sm">
+											    <div id="id_back" onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -55,27 +51,33 @@
             </div>
         </div>
     </div>
-    {% include 'user_footer.html' %}
+    </div>
+    </div>
+                                {% include 'user_footer.html' %}
+
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
+    <script>
+        function goBack() {
+          window.history.back();
+        }
+      </script>
 
 
+<script>async function on_click() {
+    document.getElementById("id_page").innerHTML = ' <p class="text-primary m-0 font-weight-bold">&nbsp;Your Identity is being deployed.</p>';
+    document.getElementById("id_create").innerHTML = "";
+    document.getElementById("id_back").innerHTML = "";
+    document.getElementById("id_code").style.visibility = "hidden";
+    document.getElementById("id_text").innerHTML = "Your Professional Identity will be installed. This process can take up to 2 minutes.";
+    document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
+    document.getElementById("form").submit();
 
-
-
-
-    <script>async function on_click() {
-          document.getElementById("id_page").innerHTML = '<h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Identity is being deployed</h4>';
-          document.getElementById("id_create").innerHTML = "";
-          document.getElementById("id_code").style.visibility = "hidden";
-          document.getElementById("id_text").innerHTML = "Your Professional Identity will be installed. This process can take up to 2 minutes";
-          document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
-          document.getElementById("form").submit();
-
-    }
-    </script>
+}
+</script>
 
 </body>
+
 </html>

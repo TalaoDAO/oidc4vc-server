@@ -93,12 +93,21 @@ method = "key"
 
 key = json.dumps({"alg":"ES256K", 
         "crv":"secp256k1", 
-        "d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
+        #"d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
         "kty":"EC", 
        # "crit":["b64"],
        # "b64" : False,
         "x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk", 
         "y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"})
+
+key = json.dumps(
+        {
+        "crv": "P-256",
+        #"d": "HJjVZ1qx2m4NJF-ohV55VlD7UwkjOBUESo4hwCmny-Y",
+        "kty" : "EC",
+        "x" : "Bls7WaGu_jsharYBAzakvuSERIV_IFR2tS64e5p_Y_Q",
+        "y" : "haeKjXQ9uzyK4Ind1W4SBUkR_9udjjx1OmKK4vl1jko"
+        })
 
 did = didkit.keyToDID(method, key)
 print('did  = ', did)
@@ -110,9 +119,9 @@ DIDdocument = didkit.resolveDID(did,'{}')
 print(json.dumps(json.loads(DIDdocument), indent=4))
 
 
-vm = didkit.keyToVerificationMethod(method, key)
-print('verifmethod = ', vm)
-vm = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
+#vm = didkit.keyToVerificationMethod(method, key)
+#print('verifmethod = ', vm)
+#vm = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
 #verifmethod = didkit.keyToVerificationMethod("key", key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
@@ -232,7 +241,7 @@ credential = didkit.issueCredential(
         didkit_options.__str__().replace("'", '"'),
         key
         )
-"""
+
 
 
 credential = didkit.issueCredential(
@@ -245,4 +254,4 @@ credential = didkit.issueCredential(
 print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
 #print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
 
-
+"""

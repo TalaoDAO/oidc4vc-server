@@ -615,9 +615,18 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# DID document
-	did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
-	DIDdocument = didkit.resolveDID(did,'{}')
-	did_doc = json.dumps(json.loads(DIDdocument), indent=4)
+	if session['type'] == 'company' :
+		did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+		DIDdocument = didkit.resolveDID(did,'{}')
+		did_doc = json.dumps(json.loads(DIDdocument), indent=4)
+	else :
+		did_list = ns.get_did(session['workspace_contract'], mode)
+		did_doc = "No DID available"
+		if did_list :
+			for did in did_list :
+				if session['method'] == did.split(':')[1] and session['method'] != 'ion' :
+					did_doc = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+					break
 
 	# Repository data
 	vault = 'Yes' if session['has_vault_access'] else 'No'
@@ -632,10 +641,6 @@ def user_advanced(mode) :
 					<hr>
 					<b>Role</b> : """ + role + """<br>
 					<b>Referent</b> : """ + referent + """<br>"""
-	if session['username'] != 'talao' :
-		my_advanced = my_advanced + """ <hr><b>Wallet has locked token : </b>""" + vault + """<br>"""
-		my_advanced = my_advanced + """<b>RSA Key on server </b> : """ + relay_rsa_key + """<br>"""
-		my_advanced = my_advanced + """<b>Private Key on server </b> : """ + relay_private_key +"""<br>"""
 	my_advanced = my_advanced  + my_account
 
 	# Partners

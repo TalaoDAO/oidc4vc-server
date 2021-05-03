@@ -123,8 +123,12 @@ def request_experience_certificate(mode) :
     # update credential with form data
     id = str(uuid.uuid1())
     method = ns.get_method(session['workspace_contract'], mode)
+    for did in ns.get_did(session['workspace_contract'],mode) :
+        if method == did.split(':')[1] :
+            subject_did = did
+            break
     unsigned_credential["id"] = "data:" + id
-    unsigned_credential["credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], method, session['address'])
+    unsigned_credential["credentialSubject"]["id"] = subject_did
     unsigned_credential["credentialSubject"]["name"] = session['name']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
