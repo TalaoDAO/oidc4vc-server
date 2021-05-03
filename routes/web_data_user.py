@@ -627,6 +627,8 @@ def user_advanced(mode) :
 				if session['method'] == did.split(':')[1] and session['method'] != 'ion' :
 					did_doc = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
 					break
+		else :
+			did = "No DID available"
 
 	# Repository data
 	vault = 'Yes' if session['has_vault_access'] else 'No'
