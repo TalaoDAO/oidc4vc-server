@@ -5,7 +5,7 @@
   {% include 'head.html' %}
 </head>
 
-<body id="page-top">
+<body id="page-top" onload="pageonload()">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
@@ -13,7 +13,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
           <span>{{ message }}</span>
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -93,8 +93,8 @@
                       {% endif %}
 
                       <div class="card">
-                        <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Get your client_id and client_secret for the API server.">
-                            <h5 class="mb-0"><i class="fas fa-book-open"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-13" href="#accordion-2 .item-13">&nbsp; Current DID document</a></h5>
+                        <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Get your DID Document provided by the Universal Resolver (DIF).">
+                            <h5 class="mb-0"><i class="fas fa-book-open"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-13" href="#accordion-2 .item-13">&nbsp; DID document</a></h5>
                         </div>
                         <div class="collapse item-13" role="tabpanel" data-parent="#accordion-2">
                             <div class="card-body">
@@ -152,19 +152,16 @@
                     -->
                     <div class="card">
                       <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Access to your private key">
-                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Repository Key</a></h5>
+                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Identity Key</a></h5>
                       </div>
                       <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
                         <div class="card-body">
-                          {% if session['private_key'] %}
-                          <a onclick="copyToClipboard('#p200')" class="dropdown-item " title="Copy private key to clipboard" role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy JWK&nbsp;</a>
-                          <p hidden id="p200">{{private_key_value}}</p>
-                          {% else %}
-                          <a class="dropdown-item " title="Import private key" role="presentation" href="/user/import_private_key/"><i class="fa fa-upload fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Import Private Key&nbsp;</a>
-                          {% endif %}
+                          <a onclick="copyToClip('#p200')" class="dropdown-item " title="Copy private key to clipboard" role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy JWK&nbsp;</a>
+                          <p hidden id="p200"></p>
                         </div>
                       </div>
                     </div>
+
                     <div class="card">
                       <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Advanced information about your Profesionnal Identity ">
                         <h5 class="mb-0"><i class="fas fa-link"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-7" href="#accordion-2 .item-7">&nbsp; Repository Information</a></h5>
@@ -198,24 +195,39 @@
   </div>
   {% include 'user_footer.html' %}
 
-
+  
   <script>
-    function copyToClipboard(element) {
-      var $temp = $("<input>");
-      $("body").append($temp);
-      $temp.val($(element).text()).select();
-      document.execCommand("copy");
-      $temp.remove();
+
+async function pageonload(){
+  var key;
+  const encrypted = localStorage.getItem('identity_key');
+  if (!encrypted) {
+  key = "Not key available";
+  } else {
+  key = await Decode(encrypted, "{{session['username']}}");
+  }
+  document.getElementById("p200").innerHTML = key ;
+  }
+
+function copyToClip(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
     }
+
+
   </script>
-  <script type="text/javascript">
-    window.setTimeout("document.getElementById('successMessage').style.display='none';", 4000);
-  </script>
+
+
   <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='theme.js') }}"></script>
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='encryption.js') }}"></script>
+
 </body>
 
 </html>

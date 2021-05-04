@@ -1,30 +1,21 @@
 """
-pour l authentication cf https://realpython.com/token-based-authentication-with-flask/
-pour la validation du bearer token https://auth0.com/docs/quickstart/backend/python/01-authorization
-interace wsgi https://www.bortzmeyer.org/wsgi.html
-request : http://blog.luisrei.com/articles/flaskrest.html
-
+Identity init for users and companies
 """
 import os
-from flask import session, send_from_directory, flash
-from flask import request, redirect, render_template,abort, Response
-from datetime import timedelta, datetime
+from flask import session, flash
+from flask import request, redirect, render_template, abort
 import time
 import json
+import requests
 import random
-from authlib.jose import JsonWebEncryption
-from urllib.parse import urlencode
-from eth_account.messages import defunct_hash_message
 import didkit
-
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey, company
+from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, company
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroy_workspace, partnershiprequest, remove_partnership, token_balance
-from protocol import Claim, File, Identity, Document, read_profil, get_data_from_token
+from protocol import ownersToContracts, contractsToOwners, Identity, Document
 from signaturesuite import helpers
 
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
@@ -37,14 +28,18 @@ def check_login() :
 	else :
 		return True
 
-# mentions legales
-#@app.route('/company')
+
 def the_company() :
+	""" mentions legales
+	@app.route('/company')
+	"""
 	return render_template('company.html')
 
-# protection des données personelles
-#@app.route('/privacy')
+
 def privacy() :
+	"""# Privacy documentaion
+	#@app.route('/privacy')
+	"""
 	return render_template('privacy.html')
 
 
@@ -66,23 +61,24 @@ def data(mode) :
 		logging.error('document does not exist')
 		return redirect(mode.server + 'user/')
 
-	# advanced
+	# advanced information about storage location
 	(location, link) = (my_data.data_location, my_data.data_location)
-	myadvanced = """
-				<b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a>"""
+	myadvanced = """<b>Data storage</b> : <a class="card-link" href=""" + link + """>""" + location + """</a>"""
 
-	# Verifiable Credential
+	# Display raw verifiable credential
 	credential = Document('certificate')
 	credential.relay_get_credential(session['workspace_contract'], doc_id, mode, loading = 'full')
 	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
-
-	return render_template('data_check.html', **session['menu'], verif=myadvanced, credential=credential_text)
+	return render_template('data_check.html',
+							**session['menu'],
+							verif=myadvanced,
+							credential=credential_text)
 
 
 def user(mode) :
 	"""
 	#@app.route('/user/', methods = ['GET'])
-	Main view for Identity
+	Main view for Identity Repository
 	We setup Ientity with workspace or username depending of the login method
 	"""
 	check_login()
@@ -106,18 +102,9 @@ def user(mode) :
 				flash('session aborted', 'warning')
 				return render_template('login.html')
 
-		logging.warning('end of first intanciation')
+		logging.info('end of first intanciation')
 
-		# clean up for resume
-		user_dict = user.__dict__.copy()
-		del user_dict['aes']
-		del user_dict['rsa_key_value']
-		del user_dict['private_key_value']
-		del user_dict['secret']
-		del user_dict['partners']
-
-		# init session
-		session['resume'] = user_dict
+		# init session side by redis
 		session['uploaded'] = True
 		session['type'] = user.type
 		session['address'] = user.address
@@ -191,40 +178,12 @@ def user(mode) :
 		#if user.type == 'person' :
 		#	return render_template('homepage.html', **session['menu'])
 
-		# check Identity key Pair
-		if not ns.get_did(session['workspace_contract'], mode) :
+		# check Identity key Pair for person only client side
+		# Keypairs for companies are setpu server side
+		if not ns.get_did(session['workspace_contract'], mode) and session['type'] == 'person' :
 			return redirect (mode.server + 'user/generate_identity/')
 
-	# account
-	my_account = ""
-	if session['username'] == 'talao' :
-		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
-		relay_token = float(token_balance(mode.relay_address,mode))
-		talaogen_eth = mode.w3.eth.getBalance(mode.Talaogen_public_key)/1000000000000000000
-		talaogen_token = float(token_balance(mode.Talaogen_public_key, mode))
-		total_deposit, vault_deposit = get_data_from_token(mode)
-		my_account = my_account + """<br><br>
-					<b>Relay ETH</b> : """ + str(relay_eth) + """<br>
-					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
-					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
-					<b>Talao Gen token Talao</b> : """ + str(talaogen_token) + """<br><br>
-					<b>Vault Deposit</b> : """ + str(vault_deposit/10**18) + """ TALAO <br>
-					<b>Total Deposit</b> : """ + str(total_deposit/10**18) + """ TALAO<br>
-					<b>Nb Identities</b> : """ + str(int(total_deposit/vault_deposit))
-
-	# advanced
-	relay = 'Activated' if session['relay_activated'] else 'Not Activated'
-	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
-	relay_private_key = 'Yes' if session['private_key'] else 'No'
-	my_advanced = """
-					<b>Blockchain</b> : """ + mode.BLOCKCHAIN.capitalize() + """<br>
-					<b>DID</b> : did:talao:talaonet:""" + session['workspace_contract'][2:] + """</a><br>
-					<b>Owner Wallet Address</b> : """ + session['address'] + """<br>"""
-	if session['username'] != 'talao' :
-		my_advanced = my_advanced + """ <hr><b>Relay Status : </b>""" + relay + """<br>"""
-		my_advanced = my_advanced + """<b>RSA Key on server</b> : """ + relay_rsa_key + """<br>"""
-		my_advanced = my_advanced + """<b>Private Key on server </b> : """ + relay_private_key +"""<br>"""
-	my_advanced = my_advanced + "<hr>" + my_account +  "<hr>"
+	
 
 	# Partners
 	if not session['partner'] :
@@ -425,7 +384,6 @@ def user(mode) :
 							access=my_access,
 							partner=my_partner,
 							issuer=my_issuer,
-							advanced=my_advanced,
 							digitalvault= my_file,
 							nb_certificates=len(session['certificate'])
 							)
@@ -561,7 +519,6 @@ def user(mode) :
 							skills=my_skills,
 							issuer=my_issuer,
 							certificates=my_certificates,
-							advanced=my_advanced,
 							company_campaign=my_campaign,
 							digitalvault=my_file)
 
@@ -600,7 +557,6 @@ def user_advanced(mode) :
 
 	# Alias
 	if session['username'] != ns.get_username_from_resolver(session['workspace_contract'], mode) :
-		#display_alias = False
 		my_access = ""
 	else :
 		my_access = ""
@@ -619,32 +575,31 @@ def user_advanced(mode) :
 					</span>"""
 			my_access = my_access + access_html + """<br>"""
 
-	# DID document
-	if session['type'] == 'company' :
-		did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
-		DIDdocument = didkit.resolveDID(did,'{}')
-		did_doc = json.dumps(json.loads(DIDdocument), indent=4)
-	else :
-		did_list = ns.get_did(session['workspace_contract'], mode)
-		did_doc = "No DID available"
-		print('did list = ', did_list)
-		if did_list :
-			for did in did_list :
-				if session['method'] == did.split(':')[1] and session['method'] != 'ion' :
-					did_doc = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+	# DID and DID document
+	DID = DID_Document = "No DID available"
+	did_list = ns.get_did(session['workspace_contract'], mode)
+	if did_list :
+		for did in did_list :
+			if session['method'] == did.split(':')[1] and session['method'] == 'tz' :
+				DID = did
+				DID_Document = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+				break
+			elif session['method'] == did.split(':')[1] :
+				r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + did)
+				if r.status_code == 200 :
+					DID = did
+					DID_Document = json.dumps(r.json(), indent=4)
 					break
-		else :
-			did = "No DID available"
+				else :
+					logging.warning('request has been rejected by Universal Resolver.')
+					break
 
 	# Repository data
-	vault = 'Yes' if session['has_vault_access'] else 'No'
-	relay_rsa_key = 'Yes' if session['rsa_key']  else 'No'
-	relay_private_key = 'Yes' if session['private_key'] else 'No'
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
 					<b>Repository</b> : """+ session['workspace_contract'] + """</a><br>
-					<b>Current DID</b> : """ + did + """<br>
+					<b>Current DID</b> : """ + DID + """<br>
 					<b>Identity attached</b> : """ + "<br>".join(ns.get_did(session['workspace_contract'], mode)) + """<br>
 					<hr>
 					<b>Role</b> : """ + role + """<br>
@@ -705,7 +660,7 @@ def user_advanced(mode) :
 							private_key_value = helpers. ethereum_to_jwk256k(session['private_key_value']),
 							partner=my_partner,
 							issuer=my_issuer,
-							did_doc=did_doc,
+							did_doc=DID_Document,
 							api=my_api,
 							advanced=my_advanced)
 

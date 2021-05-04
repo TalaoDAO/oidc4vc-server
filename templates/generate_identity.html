@@ -118,7 +118,7 @@ async function generateDIDs() {
     const keyDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'key');
 
     document.getElementById("label_tz").innerHTML = tzDID ;
-    document.getElementById("label_ion").innerHTML = ionDID ;
+    document.getElementById("label_ion").innerHTML = ionDID.substr(0,60) + "..." ;
     document.getElementById("label_ethr").innerHTML = ethrDID ;
     document.getElementById("label_key").innerHTML = keyDID ;
     document.getElementById("tz").value = tzDID;
@@ -142,20 +142,14 @@ async function getIONDID(key) {
         id: 'key-1',
         type: 'EcdsaSecp256k1VerificationKey2019',
         publicKeyJwk: key,
-        purposes: [ 'authentication' ]
+        purposes: [ 'authentication', 'assertionMethod' ]
       }
         ],
-        services: [
-        {
-        id: 'domain-1',
-        type: 'LinkedDomains',
-        serviceEndpoint: 'https://foo.example.com'
-      }
-    ]
     }
     });
 
-    return await did.getURI('short');
+    //return await did.getURI('short');
+    return await did.getURI();
 }
 
 async function storeKeyPair(password){

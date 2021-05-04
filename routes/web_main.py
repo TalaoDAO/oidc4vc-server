@@ -52,7 +52,11 @@ def getDID() :
     return jsonify (didkit.keyToDID(method, key))
 
 def getDID_Document(did) :
-    DIDdocument = didkit.resolveDID(did,'{}')
+    if did.split(':')[1] == 'tz' : 
+        DIDdocument = didkit.resolveDID(did,'{}')
+    else :
+        response.get('https://dev.uniresolver.io/1.0/identifiers/' + did)
+        DIDdocument = response.json()
     return jsonify(DIDdocument)
 
 

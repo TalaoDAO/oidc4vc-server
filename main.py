@@ -1,4 +1,15 @@
 """
+Talao is made up of 3 components :
+    - a credential repository built on an Private Ethereum network Talaonet and the Talao protocol (Talao smart contract + ERC725/ERC735).
+        This repository is a minimum EDM (Encrypted Data Vault)
+    - a DID manager for create and read operations. The cryptographiv keys are stores on user wallet (Localstorage browser) and on a encrypted desktop file for users
+        and tehye are stored server side for companies.
+    - an issuer for companies. This issuer is designed for specific worksflows.
+
+WE currently use the Spruce didkit server side to manage did:tz, did:key and did:ethr. 
+we use ion tools to manage did:ion
+EC secp256k1 (and possibly p-256 and Ed25519 in the near future)
+
 Main script to start web server through Gunicorn
 Arguments of main.py are in gunicornconf.py (global variables) :
 $ gunicorn -c gunicornconf.py  --reload wsgi:app
