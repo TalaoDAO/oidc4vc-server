@@ -27,9 +27,9 @@ Credentials are stored on private devices or displayed anywhere on digital platf
 How does Talao work ?
 ---------------------
 
-That is quite simple, first you download the crypto wallet app of your choice on your smarphone, then you scan the QR Code displayed on your desktop and you are in !
+That is quite simple, for users you register `here <https://talao.co/register/>`_  with your desktop. A new Identity will be setup and the cryptographic keys will be stored on your computer.
 
-Under the hood, Talao is based on Ethereum smart contracts Identities. Smart contract Identities are like digital vault where you can store your data as Digital ID, diplomas, professional certificates, business contracts, pay slips,...
+Under the hood, Talao is based on smart contracts Identities. Smart contract Identities are like digital vault where you can store your data as Digital ID, diplomas, professional certificates, business contracts, pay slips,...
 Each individual or company has its own private key to access and update its Identity.
 
 Thanks to cryptographic algorithms those private keys are used to sign messages sent by the Identity owner to the Blockchain nodes (Internet servers).
@@ -37,7 +37,7 @@ If someone wants to update its data, he/she will sign a message with a private k
 Each server will check the signature, update data then compare them to other server copies. As those data are duplicated on multiple servers, no one can alone hack the Identity.
 
 This Talao web application https://talao.co is a relay to access Self Sovereign Identities with a simple User Interface and automated processus.
-From a blockchain perspective, the Identity owner is the Ethereum account attached to the the smartphone crypto wallet.
+From a blockchain perspective, the Identity owner is an account owner.
 
 What are Verifiable Credentials ?
 -----------------------------------
@@ -112,6 +112,6 @@ Credits
 
 Thanks to the Ethereum community which provide us with great tools, Solidity code and inspiration.
 
-Special thanks to `Spruce <https://www.spruceid.com/>`_ for their implementation of SSI and its wide JSON_LD signing suite.
+Special thanks to `Spruce <https://www.spruceid.com/>`_ for their implementation of SSI and its wide JSON_LD signing suite for different platforms.
 
 Special thanks to `OriginProtocol <https://originprotocol.com/>`_ for their implementation of `ERC 725 and ERC 735 <https://erc725alliance.org/>`_, which we use with slight modifications to support our credential repository.

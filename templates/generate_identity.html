@@ -10,25 +10,28 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                {% include 'guest_nav_bar.html' %}
+                {% include 'user_nav_bar.html' %}
                 <div class="container-fluid mt-3">
+                    <h3 class="text-dark mb-4">{{name}}</h3>
+                    <h6 class="text-dark mb-4">{{profil_title}}</h6>
                 <div class="row mb-3">
                     <div class="col-lg-8 col-xl-6 offset-lg-2 offset-xl-3">
                             <div class="card shadow mb-3">
                                 <div class="card-header py-3">
                                     <div class="row">
                                         <div class="col-xl-12">
-                                            <p class="text-primary m-0 font-weight-bold">&nbsp;Select an Identity registry.</p>
+                                            <p class="text-primary m-0 font-weight-bold">&nbsp;Generate an Identity.</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p>You have now to choose the support of your Decentralized Identity. Talao has selected 4 options as your can see below.
+                                    <p>
+                                    You have now to choose the support of your Decentralized Identity. Talao has selected 4 options as your can see below.
                                     In case you don't have specific expectations, keep the Identity selected by default.<br>
                                     Your cryptographic keys to manage your Identity and sign verifiable credentials will be stored encrypted on this browser.
-                                    You will be prompted for a password to encrypt those keys. Do not lose it as there will be solutions to get your keys back.</p>
+                                    </p>
                                     <br>
-                                    <form id="form" name="form" action="/register/identity/" method="POST"  >
+                                    <form id="form" name="form" action="/user/generate_identity/" method="POST"  >
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
@@ -76,12 +79,7 @@
                                             <div class="col-sm">
                                                 <div  class="form-group"><button onclick="storeKeyPair('{{session['username']}}')" class="btn btn-primary btn-sm" type="button">Next</button></div>
                                             </div>
-                                            <div class="col-sm">
-											    <div onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
-                                            </div>
-                                            <div class="col-sm">
-											    <div hidden onclick="" class="form-group"><button class="btn btn-primary btn-sm" type="button">test</button></div>
-                                            </div>
+                                            
                                         </div>
 
                                     </form>
@@ -104,9 +102,6 @@
     <script src="{{ url_for('static', filename='encryption.js') }}"></script>
 
     <script>
-function goBack() {
-    window.history.back();
-    }
 
 var KeyPair;
 
@@ -134,7 +129,7 @@ async function generateDIDs() {
 
 // get DID built on server with didkit
 async function fetchDID(key, method) {
-  const response = await fetch("https://talao.co/getDID/?key="+ key + "&method=" + method);
+  const response = await fetch("{{session['mode_server']}}" + "getDID/?key="+ key + "&method=" + method);
   return response.json();
 }
 

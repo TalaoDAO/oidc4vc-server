@@ -143,6 +143,7 @@ def user(mode) :
 		session['certificate'] = user.certificate
 		session['has_vault_access'] = user.has_vault_access
 		session['method'] = ns.get_method(session['workspace_contract'], mode)
+		session['mode_server'] = mode.server
 		if not session['method'] :
 			session['method'] = "ethr"
 		phone =  ns.get_data_from_username(session.get('username'), mode).get('phone')
@@ -189,6 +190,10 @@ def user(mode) :
 		# Homepage start for Talent
 		#if user.type == 'person' :
 		#	return render_template('homepage.html', **session['menu'])
+
+		# check Identity key Pair
+		if not ns.get_did(session['workspace_contract'], mode) :
+			return redirect (mode.server + 'user/generate_identity/')
 
 	# account
 	my_account = ""
@@ -622,6 +627,7 @@ def user_advanced(mode) :
 	else :
 		did_list = ns.get_did(session['workspace_contract'], mode)
 		did_doc = "No DID available"
+		print('did list = ', did_list)
 		if did_list :
 			for did in did_list :
 				if session['method'] == did.split(':')[1] and session['method'] != 'ion' :

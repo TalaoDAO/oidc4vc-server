@@ -55,6 +55,18 @@ def getDID_Document(did) :
     DIDdocument = didkit.resolveDID(did,'{}')
     return jsonify(DIDdocument)
 
+
+def generate_identity(mode) :
+    if request.method == 'GET' :
+        return render_template('generate_identity.html', **session['menu'])
+    if request.method == 'POST' :
+        did = request.form['did']
+        session['method'] = did.split(':')[1]
+        ns.add_did(session['workspace_contract'], did, mode)
+        ns.update_method(session['workspace_contract'], session['method'], mode)
+        return redirect (mode.server + 'user/')
+
+
 # helper
 def is_username_in_list(my_list, username) :
     if not username :

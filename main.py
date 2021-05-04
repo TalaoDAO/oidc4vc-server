@@ -47,7 +47,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.5"
+VERSION = "0.9.6"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -61,7 +61,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifet
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 sess = Session()
 sess.init_app(app)
 
@@ -128,7 +127,7 @@ app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, me
 # Centralized route for main features
 app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
 app.add_url_rule('/getDID_Document/',  view_func=web_main.getDID_Document, methods = ['GET'])
-
+app.add_url_rule('/user/generate_identity/',  view_func=web_main.generate_identity, methods = ['GET', 'POST'],  defaults={'mode' : mode})
 app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'])
 app.add_url_rule('/user/picture/',  view_func=web_main.picture, methods = ['GET', 'POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/success/',  view_func=web_main.success, methods = ['GET'], defaults={'mode' : mode})
