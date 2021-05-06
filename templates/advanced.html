@@ -38,7 +38,8 @@
           
 
             <div class="row">
-              <div class="col-lg-8 col-xl-4 offset-xl-4">
+                <div class="col-8 col-xl-4 offset-2 offset-xl-4">
+
                 <div class="card shadow mb-5">
                   <div class="card-body">
                     <h4 title="Services available." class="text-center">Advanced</h4>
@@ -156,7 +157,7 @@
                       </div>
                       <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
                         <div class="card-body">
-                          <a onclick="copyToClip('#p200')" class="dropdown-item " title="Copy private key to clipboard" role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy JWK&nbsp;</a>
+                          <a onclick="copyToClip('#p200')" class="dropdown-item " title="Keep this key private." role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy your private key to clipboard &nbsp;</a>
                           <p hidden id="p200"></p>
                         </div>
                       </div>
@@ -202,7 +203,7 @@ async function pageonload(){
   var key;
   const encrypted = localStorage.getItem('identity_key');
   if (!encrypted) {
-  key = "Not key available";
+  key = "No key available";
   } else {
   key = await Decode(encrypted, "{{session['username']}}");
   }

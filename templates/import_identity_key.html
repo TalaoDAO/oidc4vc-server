@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<!-- import identity_key file.html -->
+<head>
+    <meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+    {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+                {% include 'user_nav_bar.html' %}
+
+        <div class="container-fluid">
+          <h3 class="text-dark mb-4">{{name}}</h3>
+          <h6 class="text-dark mb-4">{{profil_title}}</h6>
+            <div class="row mb-3">
+                <div class="col-lg-6 col-xl-6 offset-lg-3 offset-xl-3">
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Import your Identity_key file</p>
+                        </div>
+                        <div class="card-body">
+                            <form  id="form" action="/user/import_identity_key/" method="post">
+                                <div class="form-row">
+                                    <div class="col-md-8 offset-md-2">
+                                        <div class="custom-file">
+                                            <label class="custom-file-label" for="file" id="label"></label>
+                                              <input class="custom-file-input" id="file" name="file" type="file" onchange="readURL(this);">
+                                        </div>
+                                        <br><br>
+                                        <button class="btn btn-primary text-left" type="submit">Back</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <form  id="form2" action="/user/import_identity_key/" method="get">
+                                </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'user_footer.html' %}
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+    <script src="{{ url_for('static', filename='encryption.js') }}"></script>
+
+
+<script>
+
+async function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = async function(e) {
+            var decoded ;
+            $('#input').attr('src', e.target.result)
+            $('#input').attr('class', "")
+            $('#old').attr('class', "d-none")
+            var text = reader.result;
+            try {
+                decoded = await Decode(text, "{{session['username']}}");
+                console.log('decoded = ', decoded);
+                }
+            catch(e) {
+                decoded = "error";
+                }
+            if (decoded == 'error'){
+                error();
+                }
+            else {
+                var answer = window.confirm("Confirm update of your browser ?")
+                if (answer) {
+                    localStorage.setItem('identity_key', text);
+                    }
+                // exit
+                document.getElementById("form").submit();
+                };
+            };
+        document.getElementById('label').innerHTML = input.files[0]['name'];
+        reader.readAsText(input.files[0]);
+        }
+    }
+
+function error(){
+    var answer = window.confirm("Wrong file !, try again ?");
+    if (answer) {
+            // redo
+            location.reload(true);
+            }
+            else {
+             // exit (POST)
+            document.getElementById("form").submit();
+            }
+    }
+</script>
+
+
+</body>
+</html>

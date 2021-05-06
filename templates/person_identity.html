@@ -5,7 +5,7 @@
   {% include 'head.html' %}
 </head>
 
-<body id="page-top" >
+<body id="page-top" onload="pageonload()">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
@@ -191,7 +191,42 @@
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+  <script src="{{ url_for('static', filename='encryption.js') }}"></script>
 
 
+<script>
+
+var KeyPair;
+
+async function pageonload(){
+  if ("{{session['check_identity_key']}}" != "False")
+    {return ;}
+  const encrypted_key = localStorage.getItem('identity_key');
+  var key;
+  if (!encrypted_key) {
+      promptUser();
+      }
+  else {
+      key = await Decode(encrypted_key, "{{session['username']}}");
+      if (key == 'error') {
+        promptUser();
+        }
+    return ;
+  }
+
+function promptUser(){
+  var answer = window.confirm("Your local Identity keys are no more available. Update your browser with new Keys ?");  
+  if (answer) {
+      window.location.href = "/user/import_identity_key/";
+      }
+  else {
+    window.location.href = "/user/";
+    }
+  }
+
+}
+
+
+</script>
 </body>
 </html>

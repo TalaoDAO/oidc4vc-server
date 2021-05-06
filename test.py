@@ -87,43 +87,52 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key = helpers.ethereum_to_jwk(pvk, method)
 #did = helpers.jwk_to_did(method, key)
 
-method = "key"
+method = "ethr"
 #did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
-key = json.dumps({"alg":"ES256K", 
+key1 = json.dumps({
+        #"alg":"ES256K", 
         "crv":"secp256k1", 
-        #"d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
+        "d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
         "kty":"EC", 
-       # "crit":["b64"],
-       # "b64" : False,
+        #"crit":["b64"],
+        #"b64" : False,
         "x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk", 
         "y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"})
 
-key = json.dumps(
+key2 = json.dumps(
         {
         "crv": "P-256",
-        #"d": "HJjVZ1qx2m4NJF-ohV55VlD7UwkjOBUESo4hwCmny-Y",
+        "d": "HJjVZ1qx2m4NJF-ohV55VlD7UwkjOBUESo4hwCmny-Y",
         "kty" : "EC",
         "x" : "Bls7WaGu_jsharYBAzakvuSERIV_IFR2tS64e5p_Y_Q",
         "y" : "haeKjXQ9uzyK4Ind1W4SBUkR_9udjjx1OmKK4vl1jko"
         })
 
-did = didkit.keyToDID(method, key)
+key3 = json.dumps({
+        "crv": "secp256k1",
+        "d": "WxNkSy38UZUxfAOBWbHQSynEi8pmu97fKehiojNv9mw",
+        "kty": "EC",
+        "x": "bjyWuKGoDtUXKD6RzbE4suxoNk0E6pKe0qZTHh1LMg4",
+        "y": "O1JNLN8bO3EP23WNIiqxfGY8OwOkrcw4hmXXHzwmsGg"})
+
+
+did = didkit.keyToDID(method, key1)
 print('did  = ', did)
 #did = "did:web:talao.co:thierrythevenet"
 
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 DIDdocument = didkit.resolveDID(did,'{}')
-print(json.dumps(json.loads(DIDdocument), indent=4))
+print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #vm = didkit.keyToVerificationMethod(method, key)
 #print('verifmethod = ', vm)
 #vm = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 #verifmethod = didkit.keyToVerificationMethod("ethr", key)
-#verifmethod = didkit.keyToVerificationMethod("key", key)
+#verifmethod = didkit.keyToVerificationMethod(method, key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
 #verifmethod = did + "#key-2"
 #print('verfif method = ', verifmethod)
@@ -177,13 +186,17 @@ if response.status_code != 200 :
 verificationPurpose = {
             "proofPurpose": "authentication",
             "verificationMethod": verifmethod,
-            "domain" : "https://talao.co/repository"
+            "domain" : "https://talao.co/repository",
+            "challenge" : "123456"
         }
 presentation = didkit.DIDAuth(
             did,
             verificationPurpose.__str__().replace("'", '"'),
             key
         )
+
+#print(json.dumps(json.loads(presentation), indent=4))
+
 response = requests.post("http://127.0.0.1:3000/repository/authn", json = json.loads(presentation))
 if response.status_code != 200 :
         sys.exit()
@@ -230,12 +243,12 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
 #credential['id'] = "data:5656"
 #credential["credentialSubject"]["id"] = "data:555"
 
-
+"""
 didkit_options = {
         "proofPurpose": "assertionMethod",
         "verificationMethod": "JwsVerificationKey2020",
         }
-"""
+
 credential = didkit.issueCredential(
         credential.__str__().replace("'", '"'),
         didkit_options.__str__().replace("'", '"'),
@@ -253,5 +266,10 @@ credential = didkit.issueCredential(
 
 print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
 #print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
+
+
+
+eyJhbGciOiJFUzI1NksifQ.IjEyMzQ1NiI.hPxkRQ9mGbZigHc3wnFeFlnx0OFTqkGoBaloeQoOZB4YFnceSg1yvOPd-Dv4bn9KAPUeYXk5S2_Yn-gYZwKaBw
+eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..f1R-I8DkxE6cdBFaqK4Z3HHrunxr0FoXS7GIVL2-LGM7QT9Ez4AqJdG-elibOZbX1s2gAKsiHlp2iAgElUI4yQ"
 
 """

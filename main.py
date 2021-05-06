@@ -123,6 +123,8 @@ app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], def
 app.add_url_rule('/user/two_factor/',  view_func=web_login.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/update_wallet/',  view_func=web_login.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/login_password/',  view_func=web_login.login_password, methods = ['GET', 'POST'])
+app.add_url_rule('/did_auth/',  view_func=web_login.did_auth, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -131,6 +133,9 @@ app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, meth
 app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/company/',  view_func=web_data_user.the_company, methods = ['GET', 'POST'])
 app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
+app.add_url_rule('/user/import_identity_key/',  view_func=web_data_user.import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/user/import_identity_key2/',  view_func=web_data_user.import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})

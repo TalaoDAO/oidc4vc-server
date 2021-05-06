@@ -8,21 +8,25 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 import os
 from flask import session, send_from_directory, flash, send_file
 from flask import request, redirect, render_template,abort
+import requests
 from datetime import timedelta, datetime
 import json
 import secrets
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
+import jwt
 from urllib.parse import urlencode
 from eth_account.messages import defunct_hash_message
 import logging
+import didkit
 logging.basicConfig(level=logging.INFO)
-
+import uuid 
 # dependances
 from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
 import constante
 from protocol import ownersToContracts, contractsToOwners, destroy_workspace, partnershiprequest, remove_partnership, token_balance
 from protocol import File, Identity, Document, read_profil, get_data_from_token
+from signaturesuite import helpers
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -201,28 +205,59 @@ def two_factor(mode) :
 def login_password():
 	return render_template('./login/login_password.html')
 
-def login(mode) :
-	"""
-	@app.route('login/', methods = ['GET', 'POST'])
-	@mode = mobile_on : we display the original (large) qrcode which provides a list of mobile apps for mobile devices
-	@mode = mobile_off_qrcode_on : qrcode only for desktop
-	@mode = password  : display password form
-	@mode = None : provide a dispaye with qrcode for desktop and password form for smartphone
+
+def did_auth(mode) :
+	""" login with DID
+
+	@app.route('ssi/login/', methods = ['GET', 'POST'])
+	https://github.com/WebOfTrustInfo/rwot6-santabarbara/blob/master/final-documents/did-auth.md
+	only based on secp256k1 
+	we use webauth more than did auth : we pass the public key to the server to verify the signature of te challenge.
+	we do not have the lib to verfy te signatuer from the DID document (except for ion:did and did:web)
+
 	"""
 	if request.method == 'GET' :
 		session.clear()
-		#if request.args.get('mode') == 'mobile_on':
-		#	logging.info('large QR code for mobile or desktop')
-		#	return render_template('./login/login_mobile.html')
-		#elif request.args.get('mode') == 'password':
-		#	logging.info('password form')
+		session['challenge'] =  str(uuid.uuid1())
+		payload = {
+            "did" : "did:web:talao.co",
+			"challenge" : session['challenge']
+        	}
+		private_key = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+		key = helpers.ethereum_to_jwk256k(private_key)
+		key = jwt.algorithms.ECAlgorithm.from_jwk(key)
+		JWT = jwt.encode(payload, key=key, algorithm="ES256K")
+		return render_template('./login/did_auth.html',request=JWT)
+
+	if request.method == 'POST' :
+		response_dict = json.loads(request.form['response'])
+		#did = response_dict['did']
+		username = response_dict['username']
+		publicJwk = response_dict['publicJwk']
+		signed_challenge = response_dict['signed_challenge']
+		publicKey = jwt.algorithms.ECAlgorithm.from_jwk(publicJwk)
+		try :
+			decoded = jwt.decode(signed_challenge, key=publicKey, algorithms=["ES256K"])
+			if decoded['challenge'] == session['challenge'] :
+				logging.info('Success, Identity logged')
+				# success exit
+				session['username'] = username
+				return redirect(mode.server + 'user/')
+			else :
+				logging.info('Key is correct but challenge failed, Identity rejected')
+				return redirect(mode.server + 'did_auth/')
+		except :
+			logging.info('Wrong key, Identity rejected')
+		return redirect(mode.server + 'did_auth/')
+
+def login(mode) :
+	"""
+	@app.route('login/', methods = ['GET', 'POST'])
+	
+	"""
+	if request.method == 'GET' :
+		session.clear()
 		return render_template('./login/login_password.html')
-		#elif request.args.get('mode') == 'mobile_off_qrcode_on' :
-		#	logging.info('small QR code for desktop')
-		#	return render_template('./login/login_qrcode.html', username=request.args.get('username', ""))
-		#else :
-		#	logging.info('qrcode for desktop and password for mobile')
-		#	return render_template('./login/login.html', username=request.args.get('username', ""))
 
 	if request.method == 'POST' :
 		if not session.get('try_number')  :
@@ -276,6 +311,7 @@ def login_authentification(mode) :
 	code = request.form['code']
 	session['try_number'] +=1
 	logging.info('code received = %s', code)
+	# success logn exit
 	if code == session['code'] and datetime.now() < session['code_delay'] :
 		session['username'] = session['username_to_log']
 		del session['username_to_log']

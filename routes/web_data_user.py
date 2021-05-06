@@ -42,6 +42,12 @@ def privacy() :
 	"""
 	return render_template('privacy.html')
 
+def import_identity_key(mode) :
+	if request.method == 'GET' :
+		return render_template ('import_identity_key.html', **session['menu'])
+	session['check_identity_key'] = True
+	return redirect (mode.server + 'user/')
+
 
 def data(mode) :
 	"""
@@ -84,14 +90,12 @@ def user(mode) :
 	check_login()
 	if not session.get('uploaded', False) :
 		logging.info('start first instanciation')
-
 		if not session.get('workspace_contract') :
 			logging.info('Identity set up from username')
 			data_from_username = ns.get_data_from_username(session['username'], mode)
 			session['workspace_contract'] = data_from_username['workspace_contract']
 		else :
 			logging.info('Identity set up from workspace contract')
-
 		if mode.test :
 			user = Identity(session['workspace_contract'], mode, authenticated=True)
 		else :
@@ -101,7 +105,6 @@ def user(mode) :
 				logging.error('cannot init Identity')
 				flash('session aborted', 'warning')
 				return render_template('login.html')
-
 		logging.info('end of first intanciation')
 
 		# init session side by redis
@@ -145,6 +148,8 @@ def user(mode) :
 			session['role'] = session['referent'] = None
 			clipboard = mode.server  + "resume/?did=" + session['did']
 
+			session['check_identity_key'] = False
+
 		if session['type'] == 'company' :
 			session['profil_title'] = ""
 			# data for credential workflow for admin, issuer or reviewer
@@ -183,7 +188,8 @@ def user(mode) :
 		if not ns.get_did(session['workspace_contract'], mode) and session['type'] == 'person' :
 			return redirect (mode.server + 'user/generate_identity/')
 
-	
+	else :
+		session['check_identity_key'] = True
 
 	# Partners
 	if not session['partner'] :

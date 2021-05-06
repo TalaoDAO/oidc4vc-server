@@ -46,6 +46,7 @@ def register(mode) :
 
 def register_identity(mode) :
 	if request.method == 'GET' :
+		session['server'] = mode.server
 		return render_template("register_identity.html")
 	if request.method == 'POST' :
 		session['did'] = request.form['did']
