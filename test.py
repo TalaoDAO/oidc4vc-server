@@ -118,14 +118,26 @@ key3 = json.dumps({
         "y": "O1JNLN8bO3EP23WNIiqxfGY8OwOkrcw4hmXXHzwmsGg"})
 
 
-did = didkit.keyToDID(method, key1)
-print('did  = ', did)
-#did = "did:web:talao.co:thierrythevenet"
+import environment
+mychain = os.getenv('MYCHAIN')
+myenv = os.getenv('MYENV')
+mode = environment.currentMode(mychain,myenv)
+
+address = mode.owner_talao
+pvk = privatekey.get_key(address, 'private_key', mode)
+key = helpers.ethereum_to_jwk256k(pvk)
+ec_public = json.loads(key)
+del ec_public['d']
+key = json.dumps(ec_public)
+
+print(key)
+#did = didkit.keyToDID("key", key)
+did = "did:web:talao.co"
 
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
-DIDdocument = didkit.resolveDID(did,'{}')
-print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
+#DIDdocument = didkit.resolveDID(did,'{}')
+#print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #vm = didkit.keyToVerificationMethod(method, key)
@@ -220,7 +232,8 @@ verifyResult = json.loads(didkit.verifyPresentation(
             verificationPurpose.__str__().replace("'", '"')))
 
 print(verifyResult)
-"""
+
+
 credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "type": ["VerifiableCredential"],
                 "issuer" : did  ,
@@ -230,6 +243,25 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
 
                         }
         }
+"""
+
+credential ={
+  "@context": "https://www.w3.org/2018/credentials/v1",
+  "issuer": did,
+  "issuanceDate": "2021-05-06T14:08:28-06:00",
+  "expirationDate": "2025-12-04T14:08:28-06:00",
+  "type": [
+    "VerifiableCredential",
+  ],
+  "credentialSubject": {
+    "id": did,
+    "origin": "https://talao.co"
+  },
+}
+
+
+"""
+
 
 #print(credential.sign(cred, pvk, method))
 
@@ -243,10 +275,10 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
 #credential['id'] = "data:5656"
 #credential["credentialSubject"]["id"] = "data:555"
 
-"""
+
 didkit_options = {
         "proofPurpose": "assertionMethod",
-        "verificationMethod": "JwsVerificationKey2020",
+        "verificationMethod": did + "#key-1",
         }
 
 credential = didkit.issueCredential(
@@ -254,22 +286,15 @@ credential = didkit.issueCredential(
         didkit_options.__str__().replace("'", '"'),
         key
         )
+"""
+credential = vc_signature.sign(credential, pvk, method="web", rsa=None)
 
+print(json.dumps(json.loads(credential), indent=4))
 
-
+"""
 credential = didkit.issueCredential(
         json.dumps(credential, ensure_ascii=False),
         didkit_options.__str__().replace("'", '"'),
         key
         )
-
-
-print(json.dumps(json.loads(credential), indent=4, ensure_ascii=False))
-#print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
-
-
-
-eyJhbGciOiJFUzI1NksifQ.IjEyMzQ1NiI.hPxkRQ9mGbZigHc3wnFeFlnx0OFTqkGoBaloeQoOZB4YFnceSg1yvOPd-Dv4bn9KAPUeYXk5S2_Yn-gYZwKaBw
-eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..f1R-I8DkxE6cdBFaqK4Z3HHrunxr0FoXS7GIVL2-LGM7QT9Ez4AqJdG-elibOZbX1s2gAKsiHlp2iAgElUI4yQ"
-
 """

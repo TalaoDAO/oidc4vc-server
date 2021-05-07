@@ -58,17 +58,7 @@
 
                                                 </div>
                                             </div>
-                                        </div>
-                                        <hr>
-                                        <div class="form-row">
-                                            <div class="col">
-                                                <div class="form-group form-check">
-                                                    <input id="key" checked type="radio" class="form-check-input" value="" name="did">
-                                                    <label id="label_key" style="color: rgb(133,135,150);" title="" >did:key. This Identity is only supported by your local cryptographic keys.</label>
-
-                                                </div>
-                                            </div>
-                                        </div>
+                                        </div>                                        
                                         <br>
                                         <div class="form-row">
                                             <div class="col-sm">
@@ -108,17 +98,13 @@ async function generateDIDs() {
     const tzDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'tz');
     // did:ethr build on server with didkit
     const ethrDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'ethr');
-    // did:key build on server with didkit
-    const keyDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'key');
 
     document.getElementById("label_tz").innerHTML = tzDID ;
     document.getElementById("label_ion").innerHTML = ionDID.substr(0,50) + "..." ;
     document.getElementById("label_ethr").innerHTML = ethrDID ;
-    document.getElementById("label_key").innerHTML = keyDID ;
     document.getElementById("tz").value = tzDID;
     document.getElementById("ion").value = ionDID;
     document.getElementById("ethr").value = ethrDID;
-    document.getElementById("key").value = keyDID;
 }
 
 // get DID unpublishd built on server with didkit

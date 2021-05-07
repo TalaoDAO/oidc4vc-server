@@ -58,7 +58,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.6"
+VERSION = "0.9.7"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -213,33 +213,51 @@ app.add_url_rule('/repository/publish',  view_func=repository.publish, methods =
 app.add_url_rule('/repository/create',  view_func=repository.create, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
 
+
+@app.route('/.well-known/did-configuration.json', methods=['GET']) 
+def well_known_did_configuration (mode) :
+    document = {
+        "@context": "https://identity.foundation/.well-known/did-configuration/v1",
+        "linked_dids": [
+            {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://identity.foundation/.well-known/did-configuration/v1"
+            ],
+        "issuer": "did:web:talao.co",
+        "issuanceDate": "2021-05-07T12:00:00-00:00",
+        "expirationDate": "2026-05-07T12:00:00-00:00",
+        "type": [
+            "VerifiableCredential",
+            "DomainLinkageCredential"
+            ],
+        "credentialSubject": {
+            "id": "did:web:talao.co",
+            "origin": "https://talao.co"
+            },
+        "proof": {}
+        }
+    ]}
+    return jsonify(document)
+
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
-def wellknown (mode) :
+def well_known_did (mode) :
     """ did:web
     specifications : https://w3c-ccg.github.io/did-method-web/
-
+    https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains
     """
-    return redirect('/' + mode.owner_talao + '/did.json')
-
-
-@app.route('/<address>/did.json', methods=['GET'], defaults={'mode' : mode})
-def web(address, mode) :
-    """ did:web management
-    specificatiosn : https://w3c-ccg.github.io/did-method-web/
-    """
-    try  :
-        # RSA
-        pvk = privatekey.get_key(address, 'rsa_key', mode)
-        key = jwk.JWK.from_pem(pvk.encode())
-        rsa_public = key.export_public(as_dict=True)
-        # secp256k
-        pvk = privatekey.get_key(address, 'private_key', mode)
-        key = helpers.ethereum_to_jwk256k(pvk)
-        ec_public = json.loads(key)
-        del ec_public['d']
-        DidDocument = did_doc(address, ec_public, rsa_public, mode)
-    except :
-        DidDocument = None
+    address = mode.owner_talao
+    
+    # RSA
+    pvk = privatekey.get_key(address, 'rsa_key', mode)
+    key = jwk.JWK.from_pem(pvk.encode())
+    rsa_public = key.export_public(as_dict=True)
+    # secp256k
+    pvk = privatekey.get_key(address, 'private_key', mode)
+    key = helpers.ethereum_to_jwk256k(pvk)
+    ec_public = json.loads(key)
+    del ec_public['d']
+    DidDocument = did_doc(address, ec_public, rsa_public, mode)
     return jsonify(DidDocument)
 
 
@@ -247,51 +265,49 @@ def did_doc(address, ec_public, rsa_public, mode) :
     """ build the DID document
     add service endpoint if company
     """
-    if address == mode.owner_talao : #talao address
-        id = "did:web:talao.co"
-    else :
-        id =  "did:web:talao.co:" + address
+    id = "did:web:talao.co"
     document =  {
                 "@context":
                     [
                         "https://www.w3.org/ns/did/v1"
                     ],
-                "id": id,
+                "id": "did:web:talao.co",
                 "verificationMethod":
                     [
                         {
-                        "id": id + "#key-1",
-                        "controller" : id,
+                        "id": "did:web:talao.co#key-1",
+                        "controller" : "did:web:talao.co",
                         "type": "EcdsaSecp256k1VerificationKey2019",
                         "publicKeyJwk": ec_public
                         },
                         {
                         "id": id + "#key-2",
-                        "controller" : id,
+                        "controller" : "did:web:talao.co",
                         "type": "RsaVerificationKey2018",
                         "publicKeyJwk": rsa_public
                         }
                     ],
                 "authentication" :
                     [
-                    id + "#key-1",
-                    id + "#key-2"
+                    "did:web:talao.co#key-1",
+                    "did:web:talao.co#key-2"
                     ],
                 "assertionmethod" :
                     [
-                    id + "#key-1",
-                    id + "#key-2"
+                    "did:web:talao.co#key-1",
+                    "did:web:talao.co#key-2"
+                    ],
+                "service":
+                    [
+                        {
+                        "id": 'did:web:talao.co#domain-1',
+                        "type" : 'LinkedDomains',
+                        "serviceEndpoint": {
+                            "origins": ["https://talao.co", "https://talao.io"]
+                                }
+                        }
                     ]
             }
-    workspace_contract = ownersToContracts(address, mode)
-    if get_category(workspace_contract, mode) == 2001 :
-        document["services"] =  [
-                    {
-                    "id":id + "#company-registry",
-                    "type": "CompanyRegistry", 
-                    "serviceEndpoint": "https://talao.co/company/registry/?did=did:talao:talaonet:" + workspace_contract[2:]
-                    }
-                ]
     return document
 
 # MAIN entry point for test
