@@ -1,6 +1,21 @@
 """
 If this script is called in a standalone mode (_name_ == '_main_').
 It will setup workspaces for Relay and Talao
+
+
+Pour le lien au domaine:
+did:web  ou did:ion
+avec unservice endpoint sur linkedDomain
+Puis un fichier  {
+        "@context": "https://identity.foundation/.well-known/did-configuration/v1",
+        "linked_dids": ["eyJhbGciOiJFUzI1NksiLCJraWQiOiJkaWQ6d2ViOnRhbGFvLmNvI2RvbWFpbi0xIn0.eyJleHAiOjE3Nzc2MzUwNDMsImlzcyI6ImRpZDp3ZWI7dGFsYW8uY28iLCJuYmYiOjE2MjAzODcwNDMsInN1YiI6ImRpZDp3ZWI6dGFsYW8uY28iLCJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vaWRlbnRpdHkuZm91bmRhdGlvbi8ud2VsbC1rbm93bi9kaWQtY29uZmlndXJhdGlvbi92MSJdLCJjcmVkZW50aWFsU3ViamVjdCI6eyJpZCI6ImRpZDp3ZWI6dGFsYW8uY28iLCJvcmlnaW4iOiJodHRwczovL3RhbGFvLmNvIn0sImV4cGlyYXRpb25EYXRlIjoiMjAyNS0xMi0wNFQxNDowODowMC0wMDowMCIsImlzc3VhbmNlRGF0ZSI6IjIwMjEtMDUtMDdUMTQ6MDg6MjgtMDY6MDAiLCJpc3N1ZXIiOiJkaWQ6d2ViOnRhbGFvLmNvIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIkRvbWFpbkxpbmthZ2VDcmVkZW50aWFsIl19.V9jL8eMPHQW4SUy0CDds9VFaGrvkcBhaNYKvnb01rAdKQoKGtII00zzZggIS2KbF_zN_llP5Em1gkhnw6ztJLA"
+            ]}
+sur https://nom.domaone//.well-known/did-configuration.json
+utiliser un JWT pour obtenir une signature correcte
+
+
+
+
 """
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes

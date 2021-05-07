@@ -215,29 +215,11 @@ app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'
 
 
 @app.route('/.well-known/did-configuration.json', methods=['GET']) 
-def well_known_did_configuration (mode) :
+def well_known_did_configuration () :
     document = {
         "@context": "https://identity.foundation/.well-known/did-configuration/v1",
-        "linked_dids": [
-            {
-        "@context": [
-            "https://www.w3.org/2018/credentials/v1",
-            "https://identity.foundation/.well-known/did-configuration/v1"
-            ],
-        "issuer": "did:web:talao.co",
-        "issuanceDate": "2021-05-07T12:00:00-00:00",
-        "expirationDate": "2026-05-07T12:00:00-00:00",
-        "type": [
-            "VerifiableCredential",
-            "DomainLinkageCredential"
-            ],
-        "credentialSubject": {
-            "id": "did:web:talao.co",
-            "origin": "https://talao.co"
-            },
-        "proof": {}
-        }
-    ]}
+        "linked_dids": ["eyJhbGciOiJFUzI1NksiLCJraWQiOiJkaWQ6d2ViOnRhbGFvLmNvI2RvbWFpbi0xIn0.eyJleHAiOjE3Nzc2MzUwNDMsImlzcyI6ImRpZDp3ZWI7dGFsYW8uY28iLCJuYmYiOjE2MjAzODcwNDMsInN1YiI6ImRpZDp3ZWI6dGFsYW8uY28iLCJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vaWRlbnRpdHkuZm91bmRhdGlvbi8ud2VsbC1rbm93bi9kaWQtY29uZmlndXJhdGlvbi92MSJdLCJjcmVkZW50aWFsU3ViamVjdCI6eyJpZCI6ImRpZDp3ZWI6dGFsYW8uY28iLCJvcmlnaW4iOiJodHRwczovL3RhbGFvLmNvIn0sImV4cGlyYXRpb25EYXRlIjoiMjAyNS0xMi0wNFQxNDowODowMC0wMDowMCIsImlzc3VhbmNlRGF0ZSI6IjIwMjEtMDUtMDdUMTQ6MDg6MjgtMDY6MDAiLCJpc3N1ZXIiOiJkaWQ6d2ViOnRhbGFvLmNvIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIkRvbWFpbkxpbmthZ2VDcmVkZW50aWFsIl19.V9jL8eMPHQW4SUy0CDds9VFaGrvkcBhaNYKvnb01rAdKQoKGtII00zzZggIS2KbF_zN_llP5Em1gkhnw6ztJLA"
+            ]}
     return jsonify(document)
 
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
@@ -252,6 +234,7 @@ def well_known_did (mode) :
     pvk = privatekey.get_key(address, 'rsa_key', mode)
     key = jwk.JWK.from_pem(pvk.encode())
     rsa_public = key.export_public(as_dict=True)
+    del rsa_public['kid']
     # secp256k
     pvk = privatekey.get_key(address, 'private_key', mode)
     key = helpers.ethereum_to_jwk256k(pvk)
@@ -260,10 +243,9 @@ def well_known_did (mode) :
     DidDocument = did_doc(address, ec_public, rsa_public, mode)
     return jsonify(DidDocument)
 
-
 def did_doc(address, ec_public, rsa_public, mode) :
-    """ build the DID document
-    
+    """
+        Build the DID document
     """
     id = "did:web:talao.co"
     document =  {

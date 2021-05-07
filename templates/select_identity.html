@@ -39,14 +39,26 @@
                                 <div class="card-body">
                                     <p></p>
                                     <form name="form" action="/user/select_identity/" method="POST">
+                                        <!--
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
                                                     <input {{ethr_box}} type="radio" class="form-check-input" value="ethr" name="method">
-                                                    <label style="color: rgb(133,135,150);" title="" >{{did_ethr}}</label>
+                                                    <label style="color: rgb(133,135,150);" title="" >did:ethr. Ethereum registry</label>
                                                 </div>
                                             </div>
                                         </div>
+                                    -->
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="form-group form-check">
+                                                    <input {{ethr_box}} type="radio" class="form-check-input" value="ethr" name="method">
+                                                    <label style="color: rgb(133,135,150);" title="" >did:ion. Bitcoin/Sidetree registry</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
@@ -54,12 +66,12 @@
                                                     <label style="color: rgb(133,135,150);" title="" >{{did_tz}}</label>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>  -->
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
                                                     <input {{web_box}} type="radio" class="form-check-input" value="web" name="method">
-                                                    <label style="color: rgb(133,135,150);" title="" >{{did_web}}</label>
+                                                    <label style="color: rgb(133,135,150);" title="" >did:web. DNS registry</label>
                                                 </div>
                                             </div>
                                         </div>

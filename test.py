@@ -5,7 +5,7 @@ import didkit
 import json
 import base64
 import sys
-
+import jwt
 import requests
 
 from eth_keys import keys
@@ -87,7 +87,7 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key = helpers.ethereum_to_jwk(pvk, method)
 #did = helpers.jwk_to_did(method, key)
 
-method = "ethr"
+#method = "ethr"
 #did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
@@ -118,22 +118,32 @@ key3 = json.dumps({
         "y": "O1JNLN8bO3EP23WNIiqxfGY8OwOkrcw4hmXXHzwmsGg"})
 
 
-import environment
-mychain = os.getenv('MYCHAIN')
-myenv = os.getenv('MYENV')
-mode = environment.currentMode(mychain,myenv)
+#address = mode.owner_talao
+#pvk = privatekey.get_key(address, 'private_key', mode)
+#key = helpers.ethereum_to_jwk256k(pvk)
 
-address = mode.owner_talao
-pvk = privatekey.get_key(address, 'private_key', mode)
-key = helpers.ethereum_to_jwk256k(pvk)
-ec_public = json.loads(key)
-del ec_public['d']
-key = json.dumps(ec_public)
+key = {"crv": "secp256k1",
+        "d": "8POOMms0FeS6fmIN7neX7PROjMrFE9c2q4L58R0iVXo",
+        "kty": "EC",
+        "x": "gmQ9LW8cvcZElSrFu-qSEtEM2KN90jVFV--Ap3cSLis",
+        "y": "W7mcKtpQwZTrRxjsYkm549lQQLIcuEFo9Ts3tyopOxw",
+        "alg": "ES256K",
+        "typ" : "JWT",
+        "crit": [
+                "b64"
+                ],
+        "b64": False}
+
+#key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+key = jwk.JWK.generate(kty="EC", crv="P-256")
+#key = jwk.JWK.generate(kty="EC", crv="secp256k1")
+key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
+key=key.export_private()
 
 print(key)
-#did = didkit.keyToDID("key", key)
-did = "did:web:talao.co"
-
+did = didkit.keyToDID("tz", key)
+#did = "did:web:talao.co"
+print('did = ', did)
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 DIDdocument = didkit.resolveDID(did,'{}')
@@ -242,38 +252,32 @@ credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "id": "did:example:d23dd687a7dc6787646f2eb98d0"
 
                         }
-        }
-"""
-
-credential ={
-  "@context": "https://www.w3.org/2018/credentials/v1",
-  "issuer": did,
-  "issuanceDate": "2021-05-06T14:08:28-06:00",
-  "expirationDate": "2025-12-04T14:08:28-06:00",
-  "type": [
-    "VerifiableCredential",
-  ],
-  "credentialSubject": {
-    "id": did,
-    "origin": "https://talao.co"
-  },
+                }
+{
+  "@context": [
+    {
+      "@version": 1.1,
+      "@protected": true,
+      "LinkedDomains": "https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains",
+      "DomainLinkageCredential": "https://identity.foundation/.well-known/resources/did-configuration/#DomainLinkageCredential",
+      "origin": "https://identity.foundation/.well-known/resources/did-configuration/#origin",
+      "linked_dids": "https://identity.foundation/.well-known/resources/did-configuration/#linked_dids"
+    }
+  ]
 }
 
 
-"""
-
-
-#print(credential.sign(cred, pvk, method))
-
-
-#fp=open("./verifiable_credentials/reference.jsonld", "r")
-#credential = json.loads(fp.read())
-
-#credential["issuanceDate"] = "2020-08-19T21:41:50Z"
-#credential["issuer"] = did
-
-#credential['id'] = "data:5656"
-#credential["credentialSubject"]["id"] = "data:555"
+credential ={
+        "@context":  ["https://www.w3.org/2018/credentials/v1", "https://identity.foundation/.well-known/did-configuration/v1"],
+        "issuer": did,
+        "issuanceDate": "2021-05-06T14:08:28-06:00",
+        "expirationDate": "2025-12-04T14:08:28-06:00",
+        "type": ["VerifiableCredential", "DomainLinkageCredential"],
+        "credentialSubject": {
+                "id": did,
+                "origin": "https://talao.co"
+  },
+}
 
 
 didkit_options = {
@@ -281,20 +285,12 @@ didkit_options = {
         "verificationMethod": did + "#key-1",
         }
 
-credential = didkit.issueCredential(
+didkit_credential = didkit.issueCredential(
         credential.__str__().replace("'", '"'),
         didkit_options.__str__().replace("'", '"'),
-        key
+        json.dumps(key)
         )
-"""
-credential = vc_signature.sign(credential, pvk, method="web", rsa=None)
 
-print(json.dumps(json.loads(credential), indent=4))
 
-"""
-credential = didkit.issueCredential(
-        json.dumps(credential, ensure_ascii=False),
-        didkit_options.__str__().replace("'", '"'),
-        key
-        )
+print(json.dumps(json.loads(didkit_credential), indent=4))
 """

@@ -96,6 +96,7 @@ def user(mode) :
 			session['workspace_contract'] = data_from_username['workspace_contract']
 		else :
 			logging.info('Identity set up from workspace contract')
+			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		if mode.test :
 			user = Identity(session['workspace_contract'], mode, authenticated=True)
 		else :

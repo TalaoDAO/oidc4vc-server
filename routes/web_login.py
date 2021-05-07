@@ -231,17 +231,21 @@ def did_auth(mode) :
 
 	if request.method == 'POST' :
 		response_dict = json.loads(request.form['response'])
-		#did = response_dict['did']
-		username = response_dict['username']
 		publicJwk = response_dict['publicJwk']
+		did = publicJwk['kid']
+		print('did = ', did)
 		signed_challenge = response_dict['signed_challenge']
 		publicKey = jwt.algorithms.ECAlgorithm.from_jwk(publicJwk)
 		try :
 			decoded = jwt.decode(signed_challenge, key=publicKey, algorithms=["ES256K"])
 			if decoded['challenge'] == session['challenge'] :
-				logging.info('Success, Identity logged')
-				# success exit
-				session['username'] = username
+				logging.info('Success, Identity logged !')
+				wc = ns.get_workspace_contract_from_did(did, mode)
+				if not wc :
+					logging.info('User unknown')
+					flash('User unknown', 'warning')
+				else :
+					session['workspace_contract'] = wc
 				return redirect(mode.server + 'user/')
 			else :
 				logging.info('Key is correct but challenge failed, Identity rejected')

@@ -61,6 +61,8 @@ def getDID_Document(did) :
 
 
 def generate_identity(mode) :
+    """ only for users
+    """
     if request.method == 'GET' :
         return render_template('generate_identity.html', **session['menu'])
     if request.method == 'POST' :
@@ -297,11 +299,11 @@ def view_job_offer(mode) :
 
 def select_identity (mode) :
     if request.method == 'GET' :
-        #did_key = helpers.ethereum_pvk_to_DID(session['private_key_value'], "key")
+        """
+        On utilise uniquement did:web et did:ion
+        """
         # FIXME
-        did_ethr = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'ethr', session['address'])[:35] + '... (Ethereum)'
-        did_tz = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'tz', session['address'])[:35] + '... (Tezos)'
-        did_web = helpers.ethereum_pvk_to_DID(session['private_key_value'], 'web', session['address'])[:35] + '... (Talao DNS)'
+     
         method = ns.get_method(session['workspace_contract'], mode)
         if method == "ethr" :
             ethr_box = "checked"
@@ -315,7 +317,7 @@ def select_identity (mode) :
             ethr_box= ""
             tz_box = ""
             web_box = "checked"
-        return render_template('select_identity.html', **session['menu'], did_ethr=did_ethr, ethr_box=ethr_box, tz_box=tz_box, web_box=web_box, did_tz=did_tz, did_web=did_web)
+        return render_template('select_identity.html', **session['menu'], ethr_box=ethr_box, tz_box=tz_box, web_box=web_box)
 
     if request.method == 'POST' :
         ns.update_method(session['workspace_contract'], request.form['method'], mode)
@@ -324,7 +326,7 @@ def select_identity (mode) :
         did_list = ns.get_did(session['workspace_contract'], mode)
         if did not in did_list :
             ns.add_did(session['workspace_contract'], did, mode)
-        flash('your did = ' + did, 'success')
+        #flash('your did = ' + did, 'success')
         return redirect(mode.server + 'user/')
 
 

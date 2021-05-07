@@ -77,6 +77,7 @@ async function make_response(){
         document.getElementById("username").value = ""
         return ;}
         }
+    console.log('key password is OK');
     const KeyPair = JSON.parse(key)
     const signed_challenge = await ION.signJws({
         payload: {"challenge" : rp_request.challenge},
@@ -91,8 +92,8 @@ async function make_response(){
         signed_challenge : signed_challenge,
         did : KeyPair.privateJwk.kid,
         publicJwk : KeyPair.publicJwk,
-        username : username
         }
+    console.log('Your DID is :', KeyPair.privateJwk.kid)
     document.getElementById("response").value = JSON.stringify(response) ;
     document.getElementById("form").submit();
     }
