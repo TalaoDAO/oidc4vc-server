@@ -263,7 +263,7 @@ def well_known_did (mode) :
 
 def did_doc(address, ec_public, rsa_public, mode) :
     """ build the DID document
-    add service endpoint if company
+    
     """
     id = "did:web:talao.co"
     document =  {
@@ -302,9 +302,7 @@ def did_doc(address, ec_public, rsa_public, mode) :
                         {
                         "id": 'did:web:talao.co#domain-1',
                         "type" : 'LinkedDomains',
-                        "serviceEndpoint": {
-                            "origins": ["https://talao.co", "https://talao.io"]
-                                }
+                        "serviceEndpoint": "https://talao.co"
                         }
                     ]
             }

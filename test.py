@@ -136,8 +136,8 @@ did = "did:web:talao.co"
 
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
-#DIDdocument = didkit.resolveDID(did,'{}')
-#print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
+DIDdocument = didkit.resolveDID(did,'{}')
+print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #vm = didkit.keyToVerificationMethod(method, key)
