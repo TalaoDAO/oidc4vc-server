@@ -240,6 +240,7 @@ def well_known_did (mode) :
     key = helpers.ethereum_to_jwk256k(pvk)
     ec_public = json.loads(key)
     del ec_public['d']
+    del ec_public['alg']
     DidDocument = did_doc(address, ec_public, rsa_public, mode)
     return jsonify(DidDocument)
 

@@ -84,13 +84,6 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
-key = json.dumps({
-        "alg":"ES256K, 
-        "crv":"secp256k1", 
-        "d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
-        "kty":"EC", 
-        "x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk", 
-        "y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"})
 
 key2 = json.dumps(
         {
@@ -118,12 +111,7 @@ key = {"crv": "secp256k1",
         "kty": "EC",
         "x": "gmQ9LW8cvcZElSrFu-qSEtEM2KN90jVFV--Ap3cSLis",
         "y": "W7mcKtpQwZTrRxjsYkm549lQQLIcuEFo9Ts3tyopOxw",
-        "alg": "ES256K",
-        "typ" : "JWT",
-        "crit": [
-                "b64"
-                ],
-        "b64": False}
+       }
 
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
 #key = jwk.JWK.generate(kty="EC", crv="P-256")
@@ -132,13 +120,13 @@ key = {"crv": "secp256k1",
 #key=key.export_private()
 
 print(key)
-did = didkit.keyToDID("tz", json.dumps(key))
-#did = "did:web:talao.co"
+#did = didkit.keyToDID("web", json.dumps(key))
+did = "did:web:talao.co"
 print('did = ', did)
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 DIDdocument = didkit.resolveDID(did,'{}')
-print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
+#print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #vm = didkit.keyToVerificationMethod(method, key)
@@ -154,54 +142,23 @@ print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 #print(json.dumps(json.loads(presentation), indent=4))
 
 
-"""
-verifyResult = json.loads(didkit.verifyPresentation(
-            presentation,
-            verificationPurpose.__str__().replace("'", '"')))
-
-print(verifyResult)
-"""
-
-credential = { "@context": "https://www.w3.org/2018/credentials/v1",
-                "type": ["VerifiableCredential"],
-                "issuer" : did  ,
-                "issuanceDate": "2020-08-19T21:41:50Z",
-                "credentialSubject": {
-                "id": "did:example:d23dd687a7dc6787646f2eb98d0"
-
-                        }
-                }
-{
-  "@context": [
-    {
-      "@version": 1.1,
-      "@protected": true,
-      "LinkedDomains": "https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains",
-      "DomainLinkageCredential": "https://identity.foundation/.well-known/resources/did-configuration/#DomainLinkageCredential",
-      "origin": "https://identity.foundation/.well-known/resources/did-configuration/#origin",
-      "linked_dids": "https://identity.foundation/.well-known/resources/did-configuration/#linked_dids"
-    }
-  ]
-}
-
-
 credential ={
-        "@context":  ["https://www.w3.org/2018/credentials/v1", "https://identity.foundation/.well-known/did-configuration/v1"],
+        "@context":  "https://www.w3.org/2018/credentials/v1",
         "issuer": did,
         "issuanceDate": "2021-05-06T14:08:28-06:00",
         "expirationDate": "2025-12-04T14:08:28-06:00",
-        "type": ["VerifiableCredential", "DomainLinkageCredential"],
+        "type": ["VerifiableCredential"],
         "credentialSubject": {
                 "id": did,
-                "origin": "https://talao.co"
-  },
-}
+                },
+        }
 
 
 didkit_options = {
         "proofPurpose": "assertionMethod",
-        "verificationMethod": did + "#key-1",
+        "verificationMethod": did + "#key-3",
         }
+
 
 didkit_credential = didkit.issueCredential(
         credential.__str__().replace("'", '"'),
