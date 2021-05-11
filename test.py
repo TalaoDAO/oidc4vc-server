@@ -132,18 +132,18 @@ DIDdocument = didkit.resolveDID(did,'{}')
 #vm = didkit.keyToVerificationMethod(method, key)
 #print('verifmethod = ', vm)
 #vm = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
-#verifmethod = didkit.keyToVerificationMethod("ethr", key)
+verifmethod = didkit.keyToVerificationMethod("web", key)
 #verifmethod = didkit.keyToVerificationMethod(method, key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
 #verifmethod = did + "#key-2"
-#print('verfif method = ', verifmethod)
+print('verfif method = ', verifmethod)
 
 
 #print(json.dumps(json.loads(presentation), indent=4))
 
 
 credential ={
-        "@context":  "https://www.w3.org/2018/credentials/v1",
+        "@context":  ["https://www.w3.org/2018/credentials/v1", "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"],
         "issuer": did,
         "issuanceDate": "2021-05-06T14:08:28-06:00",
         "expirationDate": "2025-12-04T14:08:28-06:00",

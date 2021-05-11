@@ -268,25 +268,17 @@ def did_doc(address, ec_public, rsa_public, mode) :
                         "controller" : "did:web:talao.co",
                         "type": "RsaVerificationKey2018",
                         "publicKeyJwk": rsa_public
-                        },
-                         {
-                        "id": id + "#key-3",
-                        "controller" : "did:web:talao.co",
-                        "type": "JsonWebKey2020",
-                        "publicKeyJwk": ec_public
                         }
                     ],
                 "authentication" :
                     [
                     "did:web:talao.co#key-1",
-                    "did:web:talao.co#key-2",
-                    "did:web:talao.co#key-3"
+                    "did:web:talao.co#key-2"
                     ],
-                "assertionmethod" :
+                "assertionMethod" :
                     [
                     "did:web:talao.co#key-1",
-                    "did:web:talao.co#key-2",
-                    "did:web:talao.co#key-3"
+                    "did:web:talao.co#key-2"
                     ],
                 "service":
                     [

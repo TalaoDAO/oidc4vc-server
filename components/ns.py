@@ -191,8 +191,8 @@ def get_did(workspace_contract, mode) :
 		return None
 	for did in did_list :
 		if method == did.split(':')[1] :
-			return None
-	return did
+			return did
+	return None
 
 
 def get_workspace_contract_from_did(did, mode) :

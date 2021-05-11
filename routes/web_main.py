@@ -406,15 +406,10 @@ def issue_certificate(mode):
 
 def issue_reference_credential(mode):
     """ issue a reference credential to company without review and no request
-
     FIXME  rework the loading of credential
-
     call within the "issuer_explore" context
-
     @app.route('/commpany/issue_reference_credential/', methods=['GET','POST'])
-
     The signature is the manager's signature except if the issuer is the company 
-
     """
     check_login()
 
@@ -443,7 +438,6 @@ def issue_reference_credential(mode):
         else :   # fail to check code
             logging.warning('incorrect code to issue experience certificate %s', request.args.get('two_factor'))
         del session['unsigned_credential']
-        # TODO delete credential
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
     # call from issue_reference_credential.html

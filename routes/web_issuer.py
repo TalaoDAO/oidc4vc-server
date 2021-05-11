@@ -128,28 +128,29 @@ def request_reference_credential(mode) :
     unsigned_credential = json.load(open('./verifiable_credentials/reference.jsonld', 'r'))
     id = str(uuid.uuid1())
     unsigned_credential["id"] =  "data:" + id
-    unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
-    unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['issuer_explore']['workspace_contract'], mode)
-    unsigned_credential[ "credentialSubject"]["name"] = session['issuer_explore']["name"]
+    unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['workspace_contract'], mode)
+    unsigned_credential[ "credentialSubject"]["name"] = session["name"]
     unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
     unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
+    print('request form description= ', request.form['description'])
     unsigned_credential[ "credentialSubject"]["offers"]["startDate"] = request.form['startDate']
     unsigned_credential[ "credentialSubject"]["offers"]["endDate"] = request.form['endDate']
     unsigned_credential[ "credentialSubject"]["offers"]["price"] = request.form['budget']
     unsigned_credential[ "credentialSubject"]["offers"]["location"] = request.form['location']
-    unsigned_credential[ "credentialSubject"]["review"]["reviewBody"] = request.form['review']
-    for skill in request.form['skills'].split(',') :
+    unsigned_credential[ "credentialSubject"]["offers"]["staff"] = request.form['staff']
+
+    for skill in request.form['competencies'].split(',') :
         unsigned_credential["credentialSubject"]["offers"]["skills"].append(
             {
             "@type": "DefinedTerm",
             "description": skill
             })
-    unsigned_credential[ "credentialSubject"]["companyLogo"] = session['picture']
-    unsigned_credential[ "credentialSubject"]["companyName"] = session['name']
-    unsigned_credential[ "credentialSubject"]["managerName"] = "Director"
-    unsigned_credential[ "credentialSubject"]["managerSignature"] = session['signature']
-    session['unsigned_credential'] = unsigned_credential
+    unsigned_credential["credentialSubject"]["companyLogo"] = session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]["companyName"] = session['issuer_explore']['name']
+    unsigned_credential["credentialSubject"]["managerName"] = ""
+    unsigned_credential["credentialSubject"]["reviewerName"] = ""
+
+    print('unsigned credential = ', unsigned_credential)
 
     # update local issuer database
     manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['referent']
@@ -171,7 +172,7 @@ def request_reference_credential(mode) :
         logging.error('email failed')
 
     # send email to user
-    flash('Your request for a reference credential has been registered for review.', 'success')
+    flash('Your request for a reference credential has been snt.', 'success')
 
     # clean up and return
     issuer_username = session['credential_issuer_username']
@@ -331,31 +332,44 @@ def company_dashboard(mode) :
 
 
 def credential_list_html(host, issuer_username, reviewer_username, status, mode) :
-    """ helper
-
+    """ build the html list
     return the table list to display in dashboard in html
-
     """
     credential = company.Credential(host, mode)
     mylist = credential.get(issuer_username, reviewer_username, status)
     credential_list = ""
-    if mylist :
-        for mycredential in mylist :
-            subject_resume_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
-            credential = """<tr>
+    for mycredential in mylist :
+        if json.loads(mycredential[5])['credentialSubject']['credentialCategory'] == "experience" :
+            subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+            title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
+            description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
+            type = json.loads(mycredential[5])['credentialSubject']['credentialCategory'].capitalize()
+
+        elif json.loads(mycredential[5])['credentialSubject']['credentialCategory'] == "reference" :
+            subject_link = mode.server + 'board/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+            title = json.loads(mycredential[5])['credentialSubject']['offers']['title'][:20]
+            description = json.loads(mycredential[5])['credentialSubject']['offers']['description'][:200] +"..."
+            type = json.loads(mycredential[5])['credentialSubject']['credentialCategory'].capitalize()
+
+        elif "IdentityCredential" in json.loads(mycredential[5])['type'] :
+            subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+            type = "Identity"
+            title = description = "N/A"
+
+        credential = """<tr>
                 <td><a href=/company/issue_credential_workflow/?id=""" + mycredential[6] + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
-                <!-- <td><a href=""" + subject_resume_link + """>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</a></td> -->
+                <!-- <td><a href=""" + subject_link + """>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</a></td> -->
                 <td>""" + json.loads(mycredential[5])['credentialSubject']['name'] + """</td>
                 <td>""" + mycredential[7] + """</td>
-                <td>""" + json.loads(mycredential[5])['credentialSubject']['title'][:20] + """...</td>
-                <td>""" + json.loads(mycredential[5])['credentialSubject']['description'] + """</td>
+                <td>""" + title + """...</td>
+                <td>""" + description + """</td>
                 <td>""" + mycredential[0][:10] + """</td>
-                <td>""" + json.loads(mycredential[5])['credentialSubject']['credentialCategory'].capitalize() + """</td>
+                <td>""" + type + """</td>
                 <td>""" + mycredential[2] + """</td>
                 <td>""" + mycredential[3] + """ </td>
-                <td>""" + mycredential[4] +  """</td>
-            </tr>"""
-            credential_list += credential
+                <td>""" + mycredential[4] + """</td>
+                </tr>"""
+        credential_list += credential
     return credential_list
 
 
