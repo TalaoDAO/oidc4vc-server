@@ -53,12 +53,12 @@ mode = environment.currentMode(mychain,myenv)
 logging.info('end of init')
 
 # Centralized  routes : modules in ./routes
-from routes import web_create_identity, web_create_company_cci, web_certificate, web_issuer
+from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.7"
+VERSION = "0.9.8"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -85,11 +85,11 @@ def page_abort(e):
 
 
 # Centralized @route for create identity
-app.add_url_rule('/register/identity/',  view_func=web_create_identity.register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/',  view_func=web_create_identity.register, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/password/',  view_func=web_create_identity.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/code/', view_func=web_create_identity.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/post_code/', view_func=web_create_identity.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
+app.add_url_rule('/register/identity/',  view_func=web_register.register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/',  view_func=web_register.register, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/password/',  view_func=web_register.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/code/', view_func=web_register.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/register/post_code/', view_func=web_register.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 
 # Centralized @route for create company CCI
 app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -122,9 +122,8 @@ app.add_url_rule('/login/',  view_func=web_login.login, methods = ['GET', 'POST'
 app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
 app.add_url_rule('/user/two_factor/',  view_func=web_login.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/update_wallet/',  view_func=web_login.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/login_password/',  view_func=web_login.login_password, methods = ['GET', 'POST'])
+#app.add_url_rule('/login_password/',  view_func=web_login.login_password, methods = ['GET', 'POST'])
 app.add_url_rule('/did_auth/',  view_func=web_login.did_auth, methods = ['GET', 'POST'], defaults={'mode': mode})
-
 
 # Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -139,6 +138,7 @@ app.add_url_rule('/user/import_identity_key2/',  view_func=web_data_user.import_
 
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized route for main features
 app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
@@ -161,8 +161,6 @@ app.add_url_rule('/company/issue_reference_credential/',  view_func=web_main.iss
 app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_personal_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/add_campaign/',  view_func=web_main.add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/remove_campaign/',  view_func=web_main.remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -177,9 +175,6 @@ app.add_url_rule('/user/request_partnership/',  view_func=web_main.request_partn
 app.add_url_rule('/user/remove_partner/',  view_func=web_main.remove_partner, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/reject_partner/',  view_func=web_main.reject_partner, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/authorize_partner/',  view_func=web_main.authorize_partner, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_recommendation_certificate/',  view_func=web_main.request_recommendation_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_agreement_certificate/',  view_func=web_main.request_agreement_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_reference_certificate/',  view_func=web_main.request_reference_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_alias/',  view_func=web_main.add_alias, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_access/',  view_func=web_main.remove_access, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/import_private_key/',  view_func=web_main.import_private_key, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -200,12 +195,17 @@ app.add_url_rule('/user/download_QRCode/',  view_func=web_main.download_QRCode, 
 app.add_url_rule('/user/typehead/',  view_func=web_main.typehead, methods = ['GET','POST'])
 app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GET','POST'], defaults={'mode' : mode})
 
-# Centralized route for credential workflow
+
+# Centralized route for credential issuer
 app.add_url_rule('/company/add_employee/',  view_func=web_issuer.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_certificate/',  view_func=web_issuer.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_experience_certificate/',  view_func=web_issuer.request_experience_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/request_experience_credential/',  view_func=web_issuer.request_experience_credential, methods = ['POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/request_reference_credential/',  view_func=web_issuer.request_reference_credential, methods = ['POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/dashboard/',  view_func=web_issuer.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_issuer.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/add_campaign/',  view_func=web_issuer.add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/remove_campaign/',  view_func=web_issuer.remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
+
 
 # Centralized route for repository
 app.add_url_rule('/repository/authn',  view_func=repository.authn, methods = ['POST'], defaults={'mode' : mode})
@@ -267,17 +267,25 @@ def did_doc(address, ec_public, rsa_public, mode) :
                         "controller" : "did:web:talao.co",
                         "type": "RsaVerificationKey2018",
                         "publicKeyJwk": rsa_public
+                        },
+                         {
+                        "id": id + "#key-3",
+                        "controller" : "did:web:talao.co",
+                        "type": "JsonWebKey2020",
+                        "publicKeyJwk": ec_public
                         }
                     ],
                 "authentication" :
                     [
                     "did:web:talao.co#key-1",
-                    "did:web:talao.co#key-2"
+                    "did:web:talao.co#key-2",
+                    "did:web:talao.co#key-3"
                     ],
                 "assertionmethod" :
                     [
                     "did:web:talao.co#key-1",
-                    "did:web:talao.co#key-2"
+                    "did:web:talao.co#key-2",
+                    "did:web:talao.co#key-3"
                     ],
                 "service":
                     [

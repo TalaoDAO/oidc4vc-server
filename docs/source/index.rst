@@ -11,8 +11,7 @@ Welcome to Talao's documentation!
    :caption: Contents:
    
    contents
-   privacy
-   resume
+  
   
 	
 .. toctree::

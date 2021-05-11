@@ -37,7 +37,7 @@ import constante
 relay_address = ""
 
 # Main function
-def create_company(email, username, mode, siren=None, password='', name=None) :
+def create_company(email, username, did, mode, siren=None, name=None) :
 
 	global relay_address
 
@@ -70,14 +70,14 @@ def create_company(email, username, mode, siren=None, password='', name=None) :
 		logging.info('ether transfer done')
 		# Transaction pour le transfert des tokens Talao depuis le portfeuille TalaoGen
 		h2 = token_transfer(address, mode.talao_to_transfer, mode)
-		logging.info('token trasnfer done')
+		logging.info('token transfer done')
 		# Transaction pour l'acces dans le token Talao par createVaultAccess
 		h3 = createVaultAccess(address, private_key, mode)
 		logging.info('create vault access done')
 		# Transaction pour la creation du workspace :
 		bemail = bytes(email , 'utf-8')
 		h4 = createWorkspace(address, private_key, RSA_public, AES_encrypted, SECRET_encrypted, bemail, mode, user_type=2001)
-		logging.info('create createWorkspace done')
+		logging.info('create create workspace done')
 	except :
 		logging.error('transaction failed')
 		return None, None, None
@@ -106,19 +106,14 @@ def create_company(email, username, mode, siren=None, password='', name=None) :
 		logging.error('add private key failed')
 		return None, None, None
 
-	# update resolver and create local database for this company with last check on username
-	if not ns.add_identity(username, workspace_contract, email, mode) :
+	# update resolver and create local database for this company
+	if not ns.add_identity(username, workspace_contract, email, mode, did=did) :
 		logging.error('add identity in nameservice failed')
 		return None, None, None
 
 	# create database for manager within the company
 	if not ns.init_host(username, mode) :
 		logging.error('add company in nameservice failed')
-
-	# add password
-	if password :
-		ns.update_password(username, password, mode)
-		logging.info('password has been updated')
 
 	# For setup of new chain one need to first create workspaces for Relay and Talao
 	if username != 'relay' and username != 'talao' :

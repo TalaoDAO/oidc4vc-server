@@ -10,6 +10,18 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
                 {% include 'guest_nav_bar.html' %}
                 <div class="container-fluid mt-3">
                 <div class="row mb-3">
@@ -23,12 +35,22 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p>You can now choose the registry to support your Decentralized Identity.
-                                    In case you don't have specific expectations, keep the Identity selected by default.<br><br>
+                                    <p>If you do not have a Decentralized Identity (DID), you can choose the registry to support your future Decentralized Identity.
+                                    In case you don't have specific expectations, keep the registry selected by default.<br><br>
                                     Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser and on your computer.
-                                    Do not delete this file (identity_key.text) as there will be no solutions to get your keys back.</p>
+                                    If you lose this file (identity_key.text), there will be no solutions to get your keys back.</p>
                                     <br>
                                     <form id="form" name="form" action="/register/identity/" method="POST"  >
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="form-group form-check">
+                                                    <input id="own" type="radio" class="form-check-input" value="own" name="did">
+                                                    <label id="label_own" style="color: rgb(133,135,150);" title="" >I have my own DID : </label>
+                                                    <input id="did_input" type="text"  class="form-control" name="own_did" title="Enter your DID. Must start with 'did:'. Talao supports all DID method available on the Universal Resolver." placeholder="Ex : did:ether0x1245a23132ff13">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
@@ -70,8 +92,9 @@
 											    <div hidden onclick="" class="form-group"><button class="btn btn-primary btn-sm" type="button">test</button></div>
                                             </div>
                                         </div>
-
                                     </form>
+                                    <div class="text-center"><a class="small" href="/login/">Sign-In</a></div>
+
                                 </div>
                             </div>
                         </div>
@@ -111,6 +134,9 @@ async function generateDIDs() {
     document.getElementById("tz").value = tzDID;
     document.getElementById("ion").value = ionDID;
     document.getElementById("ethr").value = ethrDID;
+  
+
+   
 }
 
 
@@ -144,6 +170,7 @@ async function storeKeyPair(password){
     const did = getradio();
     KeyPair.publicJwk['kid'] = did;
     KeyPair.privateJwk['kid'] = did;
+    console.log("kid = ",  KeyPair.publicJwk['kid'] )
     // local storage
     const encryptedKeyPair = await Encode(JSON.stringify(KeyPair), password)
     localStorage.setItem('identity_key', encryptedKeyPair );
@@ -180,6 +207,8 @@ function getradio(){
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked) {
             did = radios[i].value;
+            if (did == "own")
+                {did = document.getElementById("did_input").value;}
             break;
             }
         }

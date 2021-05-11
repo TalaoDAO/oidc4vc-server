@@ -65,37 +65,21 @@
                 <div class="card shadow my-2 ">
                   <div class="card-body">
                     <div class="row m-2">
-                      {% if referent_list %}
                       <div class="col p-0 text-center">
                         <a href="/user/request_certificate/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
                             Request a Credential</button>
                         </a>
-                      </div>
-                      {% else %}
-                      <div class="col p-0 text-center">
-                        <button class="btn btn-primary py-0 w-100" title="User need to be in your referent list to request a certificate" type="button"
-                          style="background: rgba(0,123,255,0);color: #c9c9c9;font-size: 15px;border-color: #c9c9c9;height: 50px;">
-                          Request a Credential</button>
-                      </div>
-                      {% endif %}
+                      </div>  
                     </div>
                     {% if user_type == "company" %}
                     <div class="row m-2">
-                      {% if in_referent_list %}
                       <div class="col p-0 text-center">
                         <a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username={{issuer_username}}" >
                           <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
                             Issue a Credential</button>
                         </a>
                       </div>
-                      {% else %}
-                      <div class="col p-0 text-center">
-                        <button class="btn btn-primary py-0 w-100" title="You are not in this company Referent list" type="button"
-                          style="background: rgba(0,123,255,0);color: #c9c9c9;font-size: 15px;border-color: #c9c9c9;height: 50px;">
-                          Issue a Credential</button>
-                      </div>
-                      {% endif %}
                     </div>
                     {% endif %}
                     <div class="row mt-3">
@@ -134,6 +118,7 @@
                     </div>
                   </div>
                 </div>
+                <!--
                 <div class="card shadow my-2">
                   <div class="card-body">
                     <div class="row m-2">
@@ -194,10 +179,10 @@
 
                     </div>
                   </div>
-                </div>
+                </div> 
               </span>
-              {% endif %}
-            </div>
+              {% endif %} -->
+            </div> 
             <!-- Col carousels -->
             <div class="col-md p-0">
               <!-- Agreement carousel large screen  -->
@@ -323,10 +308,7 @@
     </div>
   </div>
   </div>
-
-
   {% include 'user_footer.html' %}
-
   </div>
   </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>

@@ -299,11 +299,14 @@ def view_job_offer(mode) :
 
 def select_identity (mode) :
     if request.method == 'GET' :
-        """
+
+        """ Slect Identity for companies only
+        
+        DEPRECATED
+        
         On utilise uniquement did:web et did:ion
         """
         # FIXME
-     
         method = ns.get_method(session['workspace_contract'], mode)
         if method == "ethr" :
             ethr_box = "checked"
@@ -326,7 +329,6 @@ def select_identity (mode) :
         did_list = ns.get_did(session['workspace_contract'], mode)
         if did not in did_list :
             ns.add_did(session['workspace_contract'], did, mode)
-        #flash('your did = ' + did, 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -403,7 +405,7 @@ def issue_certificate(mode):
 
 
 def issue_reference_credential(mode):
-    """ issue a reference credential to company thout review and no request
+    """ issue a reference credential to company without review and no request
 
     FIXME  rework the loading of credential
 
@@ -422,7 +424,7 @@ def issue_reference_credential(mode):
             workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 
             # sign credential
-            signed_credential = vc_signature.sign(session['unsigned_credential'], session['private_key_value'], method=session['method'])
+            signed_credential = vc_signature.sign(session['unsigned_credential'], session['private_key_value'], session['unsigned_credential']['issuer'])
             logging.info('credential signed')
 
             # store signed credential on server
@@ -452,9 +454,9 @@ def issue_reference_credential(mode):
         unsigned_credential = json.load(open('./verifiable_credentials/reference.jsonld', 'r'))
         id = str(uuid.uuid1())
         unsigned_credential["id"] =  "data:" + id
-        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+        unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
         unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        unsigned_credential[ "credentialSubject"]["id"] = helpers.ethereum_pvk_to_DID(session['issuer_explore']['private_key_value'], session['issuer_explore']['method'], session['issuer_explore']['address'])
+        unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['issuer_explore']['workspace_contract'], mode)
         unsigned_credential[ "credentialSubject"]["name"] = session['issuer_explore']["name"]
         unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
         unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
@@ -674,29 +676,6 @@ def store_file(mode) :
         return redirect(mode.server + 'user/')
 
 
-def add_campaign(mode) :
-    """ create a new campaign 
-    """
-    check_login()
-    if request.method == 'GET' :
-        return render_template('add_campaign.html', **session['menu'])
-    if request.method == 'POST' :
-        new_campaign = company.Campaign(session['username'], mode)
-        new_campaign.add(request.form['name'], request.form['description'])
-        flash('New campaign added', 'success')
-        return redirect(mode.server + 'user/')
-
-
-def remove_campaign(mode) :
-    """ create a new campaign 
-    """
-    check_login()
-    new_campaign = company.Campaign(session['username'], mode)
-    new_campaign.delete(request.args['campaign_name'])
-    flash('Campaign removed', 'success')
-    return redirect(mode.server + 'user/')
-
-
 # add experience
 #@app.route('/user/add_experience/', methods=['GET', 'POST'])
 def add_experience(mode) :
@@ -775,31 +754,20 @@ def create_kyc(mode) :
         flash('feature not available', 'danger')
         logging.warning('non authorised')
         return redirect(mode.server + 'user/')
-
     if request.method == 'GET' :
         return render_template('issue_kyc.html', **session['menu'])
     if request.method == 'POST' :
-        kyc_username = request.form['username']
-        if kyc_username[:3] == 'did':
-            kyc_workspace_contract = '0x' + kyc_username.split(':')[3]
-        else :
-            kyc_workspace_contract = ns.get_data_from_username(kyc_username,mode).get('workspace_contract')
+        kyc_workspace_contract = ns.get_data_from_username(request.form['username']).get('workspace_contract')
         if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
-
-        method = ns.get_method(kyc_workspace_contract, mode)
-        for did in ns.get_did(kyc_workspace_contract,mode) :
-            if method == did.split(':')[1] :
-                subject_did = did
-                break
         id = str(uuid.uuid1())
         # load templates for verifibale credential and init with view form and session
         unsigned_credential = json.load(open('./verifiable_credentials/identity.jsonld', 'r'))
         unsigned_credential["id"] =  "data:" + id
-        unsigned_credential["issuer"] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
+        unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
         unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        unsigned_credential["credentialSubject"]["id"] = subject_did
+        unsigned_credential["credentialSubject"]["id"] = ns.get_did(kyc_workspace_contract, mode)
         unsigned_credential["credentialSubject"]["familyName"] = request.form['family_name']
         unsigned_credential["credentialSubject"]["givenName"] = request.form['given_name']
         unsigned_credential["credentialSubject"]["birthDate"] = request.form['birthdate']
@@ -807,7 +775,7 @@ def create_kyc(mode) :
         unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
         unsigned_credential["credentialSubject"]["email"] = request.form['email']
         unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
-        signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], method=session['method'])
+        signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], unsigned_credential["issuer"])
 
         # signed verifiable identity is stored in repository as did_authn ERC735 Claim
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
@@ -860,37 +828,29 @@ def remove_experience(mode) :
         return redirect (mode.server +'user/')
 
 
-# create company with two factor checking function
-#@app.route('/user/create_company/', methods=['GET', 'POST'])
+
 def create_company(mode) :
+    """ create company with two factor checking function
+    @app.route('/user/create_company/', methods=['GET', 'POST'])
+    """
     check_login()
     if request.method == 'GET' :
-        # code is correct
-        if request.args.get('two_factor') == "True" :
-            workspace_contract =  createcompany.create_company(session['company_email'], session['company_username'], mode, siren=session['company_siren'])[2]
-            if workspace_contract :
-                Claim().relay_add(workspace_contract, 'name', session['company_name'], 'public', mode)
-                directory.add_user(mode, session['company_name'], session['company_username'], session['company_siren'])
-                flash(session['company_username'] + ' has been created as company', 'success')
-            else :
-                flash('Company Creation failed', 'danger')
-            return redirect(mode.server + 'user/')
-        # code is incorrect
-        elif request.args.get('two_factor') == "False" :
-            flash('Incorrect code', 'danger')
-            return redirect(mode.server + 'user/')
-        # first call
-        else :
-            return render_template('create_company.html', **session['menu'])
+        return render_template('create_company.html', **session['menu'])
     if request.method == 'POST' :
-        session['company_email'] = request.form['email']
-        session['company_name'] = request.form['name']
-        session['company_username'] = session['company_name'].lower()
-        session['company_siren'] = request.form['siren']
-        if ns.username_exist(session['company_username'], mode)   :
-            session['company_username'] = session['company_username'] + str(random.randint(1, 100))
-        # call the two factor checking function :
-        return redirect(mode.server + 'user/two_factor/?callback=user/create_company/')
+        email = request.form['email']
+        name = request.form['name']
+        did = request.form['did']
+        username = request.form['name'].lower()
+        siren = request.form['siren']
+        if ns.username_exist(username, mode)   :
+            username = username + str(random.randint(1, 100))
+        workspace_contract =  createcompany.create_company(email, username, did, mode, siren=siren)[2]
+        if workspace_contract :
+            directory.add_user(mode, request.form['name'], username, siren)
+            flash(username + ' has been created as company', 'success')
+        else :
+            flash('Company Creation failed', 'danger')
+        return redirect(mode.server + 'user/')
 
 
 def remove_certificate(mode) :
@@ -976,6 +936,7 @@ def add_education(mode) :
             session['education'].append(education)
             flash('New Education added', 'success')
         return redirect(mode.server + 'user/')
+
 
 #@app.route('/user/remove_education/', methods=['GET', 'POST'])
 def remove_education(mode) :
@@ -1174,10 +1135,9 @@ def authorize_partner(mode) :
         del session['partner_workspace_contract_to_authorize']
         return redirect (mode.server +'user/')
 
-
+"""
 #@app.route('/user/request_recommendation_certificate/', methods=['POST'])
 def request_recommendation_certificate(mode) :
-    """ With this view one sends an email with link to the Referent"""
     check_login()
     issuer_workspace_contract = None if not session['certificate_issuer_username'] else session['issuer_explore']['workspace_contract']
     issuer_name = None if not session['certificate_issuer_username'] else session['issuer_explore']['name']
@@ -1205,11 +1165,10 @@ def request_recommendation_certificate(mode) :
     if session['certificate_issuer_username'] :
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
     return redirect(mode.server + 'user/')
-
-
+"""
+"""
 #@app.route('/user/request_agreement_certificate/', methods=['POST'])
 def request_agreement_certificate(mode) :
-    """ This is to send the email with link """
     check_login()
     # email to Referent/issuer
     issuer_workspace_contract = None if not session['certificate_issuer_username'] else session['issuer_explore']['workspace_contract']
@@ -1245,45 +1204,7 @@ def request_agreement_certificate(mode) :
     if session['certificate_issuer_username'] :
         return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
     return redirect(mode.server + 'user/')
-
-
-#@app.route('/user/request_reference_certificate/', methods=['POST'])
-def request_reference_certificate(mode) :
-    """ This is to send the email with link """
-    check_login()
-    # email to Referent/issuer
-    issuer_workspace_contract = None if not session['certificate_issuer_username'] else session['issuer_explore']['workspace_contract']
-    issuer_name = None if not session['certificate_issuer_username'] else session['issuer_explore']['name']
-    payload = {'issuer_email' : session['issuer_email'],
-             'certificate_type' : 'reference',
-             'title' : request.form['title'],
-             'description' : request.form['description'],
-             'competencies' :request.form['competencies'],
-             'end_date' :  request.form['end_date'],
-             'start_date' : request.form['start_date'],
-             'project_location' : request.form['project_location'],
-             'project_staff' : request.form['project_staff'],
-             'project_budget' : request.form['project_budget'],
-             'user_name' : session['name'],
-             'user_username' : session['username'],
-             'user_workspace_contract' : session['workspace_contract'],
-             'issuer_username' : session['certificate_issuer_username'],
-             'issuer_workspace_contract' : issuer_workspace_contract,
-             'issuer_name' : issuer_name,
-             'issuer_type' : session['issuer_type'],}
-    # build JWT for link
-    header = {'alg': 'RS256'}
-    key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
-    token = jwt.encode(header, payload, key).decode('utf-8')
-    # build email
-    url = mode.server + 'issue/?token=' + token
-    subject = 'You have received a request for a reference claim from '+ session['name']
-    Talao_message.messageHTML(subject, session['issuer_email'], 'request_certificate', {'name' : session['name'], 'link' : url}, mode)
-    # message to user/Talent
-    flash('Your request for an Agreement Certificate has been sent.', 'success')
-    if session['certificate_issuer_username'] :
-        return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['certificate_issuer_username'])
-    return redirect(mode.server + 'user/')
+"""
 
 
 # add alias (alternative Username for user as a person )
@@ -1569,6 +1490,7 @@ def download_x509(mode):
         return redirect (mode.server +'login/')
     return send_from_directory(mode.uploads_path,filename, as_attachment=True, cache_timeout=1)
 
+
 #@app.route('/user/download_pkcs12/', methods=['GET', 'POST'])
 def download_pkcs12(mode):
     check_login()
@@ -1593,9 +1515,11 @@ def download_QRCode(mode):
     return send_from_directory(mode.uploads_path,
                                filename, as_attachment=True)
 
+
 #@app.route('/user/typehead/', methods=['GET', 'POST'])
 def typehead() :
     return render_template('typehead.html')
+
 
 # To manage the navbar search field. !!!! The json file is uploaded once
 #@app.route('/user/data/', methods=['GET', 'POST'])

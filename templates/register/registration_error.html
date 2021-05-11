@@ -2,15 +2,7 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 </head>
     <body id="page-top">
         <div id="wrapper">
@@ -32,6 +24,8 @@
                                             </div>
                                             <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Back to Register</button>
                                         </form>
+                                        <div class="text-center"><a class="small" href="/login/">Sign-In</a></div>
+
                                     </div>
                                 </div>
                             </div>

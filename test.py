@@ -11,13 +11,10 @@ import requests
 from eth_keys import keys
 from eth_utils import decode_hex
 from jwcrypto import jwk
-from signaturesuite import helpers
-from protocol import ownersToContracts
 from datetime import datetime
-from components import privatekey, ns
 
-from components import privatekey
-from signaturesuite import vc_signature, helpers
+#from components import privatekey
+#from signaturesuite import vc_signature, helpers
 
 #key = didkit.generateEd25519Key()
 #print('key Ed25519Key ', key)
@@ -49,8 +46,6 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #print('key = ', privatekey.get_key(address, 'secp256k1', mode))
 #print('key = ', privatekey.get_key(address, 'Ed25519', mode))
 
-
-
 #print('address = ', address)
 #pvk = privatekey.get_key(address, 'private_key', mode)
 
@@ -58,10 +53,8 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #key = key.export_private()
 #del rsa_public['kid']
 
-
 #pvk = privatekey.get_key(address, 'private_key', mode)
 #key = helpers.ethereum_to_jwk256k(pvk)
-
 
 #pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
 #address = helpers.ethereum_pvk_to_address(pvk)
@@ -91,13 +84,11 @@ for username in ['talao', 'mycompany', 'pascaldelorme', 'thierrythevenet','pauld
 #did = didkit.keyToDID(method, key)
 #print('did = ', did)
 
-key1 = json.dumps({
-        #"alg":"ES256K", 
+key = json.dumps({
+        "alg":"ES256K, 
         "crv":"secp256k1", 
         "d":"fL7tbHq_cPJ9HuElbbw5OVZS4Bk1iFPW1DByKwrUm_U", 
         "kty":"EC", 
-        #"crit":["b64"],
-        #"b64" : False,
         "x":"--eKPRDS_bk5Pm_Wy6LaAn6btTyB-mY_J3JgL7CV8Uk", 
         "y":"tjx_FsTCaAU2sYIICkf73CS0yBAlWvQOHLo8e1c9qt4"})
 
@@ -135,13 +126,13 @@ key = {"crv": "secp256k1",
         "b64": False}
 
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
-key = jwk.JWK.generate(kty="EC", crv="P-256")
+#key = jwk.JWK.generate(kty="EC", crv="P-256")
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1")
-key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
-key=key.export_private()
+#key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
+#key=key.export_private()
 
 print(key)
-did = didkit.keyToDID("tz", key)
+did = didkit.keyToDID("tz", json.dumps(key))
 #did = "did:web:talao.co"
 print('did = ', did)
 #did = "did:web:did.actor:mike"
@@ -159,90 +150,17 @@ print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 #verifmethod = did + "#key-2"
 #print('verfif method = ', verifmethod)
 
-"""
-# create
-response = requests.get("http://127.0.0.1:3000/repository/create?did=" + did)
-print(response.json())
-if response.status_code != 200 :
-        sys.exit()
-sys.exit()
-"""
-
-#topicvalue =  349369237269256357346239253356
-#claim_id =  0x83aa3ce4876fcb7eabaa9516025f08489af936f03369aa8ba271df66bf185c2e
-
-#127.0.0.1:3000/certificate/?certificate_id=did:tz:tz2JKnkcJ4FswZkWUUxsihboc9CeQPnovgy8:claim:0x83aa3ce4876fcb7eabaa9516025f08489af936f03369aa8ba271df66bf185c2e
-
-
-"""
-# step 1 
-verificationPurpose = {
-            "proofPurpose": "authentication",
-            "verificationMethod": verifmethod,
-            "domain" : "https://talao.co/repository"
-        }
-presentation = didkit.DIDAuth(
-            did,
-            verificationPurpose.__str__().replace("'", '"'),
-            key
-        )
-response = requests.post("http://127.0.0.1:3000/repository/authn", json = json.loads(presentation))
-print(response.json())
-if response.status_code != 200 :
-        sys.exit()
-token = response.json()['token']
-
-
-# step 2 call an endpoint
-credential = open('./signed_credentials/data:05c2f36c-96f4-11eb-99ea-3ca82aaebc39_credential.jsonld').read()
-data = {"token" : token, "credential" : credential }
-response = requests.post("http://127.0.0.1:3000/repository/publish", json = data)
-print(response.json())
-if response.status_code != 200 :
-        sys.exit()
-
-
-
-
-# step 1 
-verificationPurpose = {
-            "proofPurpose": "authentication",
-            "verificationMethod": verifmethod,
-            "domain" : "https://talao.co/repository",
-            "challenge" : "123456"
-        }
-presentation = didkit.DIDAuth(
-            did,
-            verificationPurpose.__str__().replace("'", '"'),
-            key
-        )
 
 #print(json.dumps(json.loads(presentation), indent=4))
 
-response = requests.post("http://127.0.0.1:3000/repository/authn", json = json.loads(presentation))
-if response.status_code != 200 :
-        sys.exit()
-token = response.json()['token']
 
-
-# step 2 call an endpoint
-credential = open('./signed_credentials/data:05c2f36c-96f4-11eb-99ea-3ca82aaebc39_credential.jsonld').read()
-credential_id = "data:05c2f36c-96f4-11eb-99ea-3ca82aaebc39"
-data = {"token" : token, "credential_id" : credential_id }
-response = requests.post("http://127.0.0.1:3000/repository/get", json = data)
-print(response.json())
-if response.status_code != 200 :
-        sys.exit()
-
-
-
-
+"""
 verifyResult = json.loads(didkit.verifyPresentation(
             presentation,
             verificationPurpose.__str__().replace("'", '"')))
 
 print(verifyResult)
-
+"""
 
 credential = { "@context": "https://www.w3.org/2018/credentials/v1",
                 "type": ["VerifiableCredential"],
@@ -293,4 +211,3 @@ didkit_credential = didkit.issueCredential(
 
 
 print(json.dumps(json.loads(didkit_credential), indent=4))
-"""

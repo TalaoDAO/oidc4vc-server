@@ -96,9 +96,7 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 		password = mode.w3.keccak(text=password).hex()
 	if did :
 		method = did.split(':')[1]
-		base = list()
-		base.append(did)
-		did =json.dumps(base)
+		did = '[' + did + ']'
 	else :
 		method = ''
 	try :
@@ -122,7 +120,6 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 		data = {'address' : address, 'key' : key}
 		c.execute("INSERT INTO publickey VALUES (:address, :key)", data)
 	except :
-		conn.commit()
 		conn.close()
 		return False
 	conn.commit()
@@ -152,9 +149,9 @@ def add_did(workspace_contract, did, mode) :
 	conn.close()
 
 
-def get_did(workspace_contract,mode) :
+def get_did_list(workspace_contract,mode) :
 	"""
-	return dict
+	return list of dict
 	"""
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
@@ -167,6 +164,35 @@ def get_did(workspace_contract,mode) :
 		return json.loads(did[0])
 	except :
 		return[]
+
+
+def get_method(workspace_contract, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'nameservice.db')
+	c = conn.cursor()
+	data = {'workspace_contract' : workspace_contract}
+	c.execute("SELECT method FROM resolver WHERE identity_workspace_contract = :workspace_contract " , data)
+	select=c.fetchone()
+	conn.close()
+	if not select :
+		return None
+	return select[0]
+
+
+def get_did(workspace_contract, mode) :
+	"""
+	return the current did as a str
+	"""
+	method = get_method(workspace_contract, mode)
+	if not method :
+		return None
+	did_list = get_did_list(workspace_contract,mode)
+	if not did_list :
+		return None
+	for did in did_list :
+		if method == did.split(':')[1] :
+			return None
+	return did
 
 
 def get_workspace_contract_from_did(did, mode) :

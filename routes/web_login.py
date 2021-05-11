@@ -94,70 +94,7 @@ def update_wallet(mode) :
 			flash('Update failed', 'danger')
 		return redirect (mode.server +'user/')
 
-# walletconnect login
-#@app.route('/wc_login/', methods = ['GET', 'POST'])
-def wc_login(mode) :
-	if request.method == 'GET' :
-		# call from JS, the wallet is in a wallectconnect session with the dapp
-		# QRmodal rejected by user
-		if not request.args.get('wallet_address') or request.args.get('wallet_address') == 'undefined' :
-			flash('Scan QR code or log with password', 'warning')
-			return redirect (mode.server + 'login/')
-		# call from JS, wrong wallet data
-		if not mode.w3.isAddress(request.args.get('wallet_address')) :
-			flash('This account is not an Ethereum account.', 'warning')
-			return render_template('./login/login.html')
-		wallet_address = mode.w3.toChecksumAddress(request.args.get('wallet_address'))
-		session['workspace_contract'] = ownersToContracts(wallet_address, mode)
-		if not session['workspace_contract'] or session['workspace_contract'] == '0x0000000000000000000000000000000000000000':
-			# This wallet address is not an Identity owner, lets check if it is an alias (mode workspace = wallet used only for login)
-			session['username'] = ns.get_username_from_wallet(wallet_address, mode)
-			if not session['username'] :
-				# This wallet addresss is not an alias, lest rejest and propose a new registration
-				return render_template('./login/wc_reject.html', wallet_address=wallet_address)
-			else :
-				logging.info('This wallet is an Alias')
-				# This wallet is an alias, we look for the workspace_contract attached
-				session['workspace_contract'] = ns.get_data_from_username(session['username'], mode)['workspace_contract']
-		else :
-			logging.info('This wallet is an Owner')
-			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
-		# random code to check the wallet signature
-		code = secrets.randbelow(99999)
-		session['wallet_code'] = str(code)
-		src = request.args.get('wallet_logo')
-		wallet_name = request.args.get('wallet_name')
-		if request.args.get('wallet_logo') == 'undefined' :
-			logging.info('wallet name = %s', wallet_name)
-			if wallet_name != 'undefined' :
-				filename= wallet_name.replace(' ', '').lower()
-				src = "/static/img/wallet/" + filename + ".png"
-			else :
-				src = ""
-				wallet_name = ''
-		return render_template('./login/wc_confirm.html',
-								wallet_address=wallet_address,
-								wallet_code=session['wallet_code'],
-								wallet_code_hex= '0x' + bytes(str(code), 'utf-8').hex(),
-								wallet_name = wallet_name,
-								wallet_logo= src)
 
-	if request.method == 'POST' :
-		signature = request.form.get('wallet_signature')
-		wallet_address = request.form.get('wallet_address')
-		message_hash = defunct_hash_message(text=session['wallet_code'])
-		try :
-			signer = mode.w3.eth.account.recoverHash(message_hash, signature=signature)
-		except :
-			logging.warning('incorrect signature')
-			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
-			return render_template('./login/login.html')
-		if signer != wallet_address :
-			logging.warning('incorrect signer')
-			flash('This account is an Identity but wallet signature is incorrect.', 'danger')
-			return render_template('./login/login.html')
-		del session['wallet_code']
-		return redirect(mode.server + 'user/')
 
 def two_factor(mode) :
 	"""
@@ -202,9 +139,6 @@ def two_factor(mode) :
 		del session['two_factor']
 		return redirect (mode.server + callback + "?two_factor=" + two_factor)
 
-def login_password():
-	return render_template('./login/login_password.html')
-
 
 def did_auth(mode) :
 	""" login with DID
@@ -233,7 +167,6 @@ def did_auth(mode) :
 		response_dict = json.loads(request.form['response'])
 		publicJwk = response_dict['publicJwk']
 		did = publicJwk['kid']
-		print('did = ', did)
 		signed_challenge = response_dict['signed_challenge']
 		publicKey = jwt.algorithms.ECAlgorithm.from_jwk(publicJwk)
 		try :

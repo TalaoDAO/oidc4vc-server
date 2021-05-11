@@ -35,17 +35,17 @@ def add_employee(mode) :
         session['role_to_add'] = request.args.get('role_to_add')
 
         if  session['role_to_add'] == 'issuer' :
-            return render_template('./workflow/add_issuer.html', **session['menu'])
+            return render_template('./issuer/add_issuer.html', **session['menu'])
 
         elif  session['role_to_add'] == 'reviewer' :
             issuer_list = employee.get_list('issuer', 'all')
             issuer_select = ""
             for issuer in issuer_list :
                 issuer_select += """<option value=""" + issuer['username'].split('.')[0]  + """>""" + issuer['username'].split('.')[0] + """</option>"""
-            return render_template('./workflow/add_reviewer.html', **session['menu'], issuer_select=issuer_select)
+            return render_template('./issuer/add_reviewer.html', **session['menu'], issuer_select=issuer_select)
 
         elif  session['role_to_add'] == 'admin' :
-            return render_template('./workflow/add_admin.html', **session['menu'])
+            return render_template('./issuer/add_admin.html', **session['menu'])
 
     if request.method == 'POST' :
 
@@ -81,27 +81,106 @@ def request_certificate(mode) :
     check_login()
     if request.method == 'GET' :
         session['credential_issuer_username'] = request.args.get('issuer_username')
-        return render_template('request_certificate.html', **session['menu'])
+         # check if campaign exist
+        campaign = company.Campaign(session['credential_issuer_username'], mode)
+        if not campaign.get_list() :
+            flash('This company as no active campaign', 'warning')
+            return redirect(mode.server + 'user/')
+        return render_template('./issuer/request_certificate.html', **session['menu'])
 
     if request.method == 'POST' :
         select = ""
-        employee = company.Employee(session['credential_issuer_username'], mode) 
-        reviewer_list = employee.get_list('reviewer', 'all')
+        reviewer = company.Employee(session['credential_issuer_username'], mode) 
+        reviewer_list = reviewer.get_list('reviewer', 'all')
         for reviewer in reviewer_list :
             session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 
         if request.form['certificate_type'] == 'experience' :
-            return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
+            return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
 
         elif request.form['certificate_type'] == 'reference' :
-            return render_template('request_reference_certificate.html', **session['menu'])
+            return render_template('./issuer/request_reference_credential.html', **session['menu'], select=session['select'])
 
         else :
-            flash('certificate not available' , 'warning')
+            flash('credential not available' , 'warning')
             return redirect(mode.server + 'user/')
 
 
-def request_experience_certificate(mode) :
+def request_reference_credential(mode) :
+    """ Basic request for experience credential
+
+    @app.route('/user/request_reference_credential/', methods=['POST'])
+
+    """
+    check_login()
+
+    # check if campaign exist
+    reference = request.form['reference']
+    campaign = company.Campaign(session['credential_issuer_username'], mode)
+    if not campaign.get(reference.split(':')[0]) :
+        flash('This reference does not exist.' , 'warning')
+        logging.warning('campaign does ot exist')
+        return render_template('./issuer/request_reference_credential.html', **session['menu'], select=session['select'])
+
+    workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
+
+    # load templates for verifibale credential and init with view form and session
+    unsigned_credential = json.load(open('./verifiable_credentials/reference.jsonld', 'r'))
+    id = str(uuid.uuid1())
+    unsigned_credential["id"] =  "data:" + id
+    unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
+    unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['issuer_explore']['workspace_contract'], mode)
+    unsigned_credential[ "credentialSubject"]["name"] = session['issuer_explore']["name"]
+    unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
+    unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
+    unsigned_credential[ "credentialSubject"]["offers"]["startDate"] = request.form['startDate']
+    unsigned_credential[ "credentialSubject"]["offers"]["endDate"] = request.form['endDate']
+    unsigned_credential[ "credentialSubject"]["offers"]["price"] = request.form['budget']
+    unsigned_credential[ "credentialSubject"]["offers"]["location"] = request.form['location']
+    unsigned_credential[ "credentialSubject"]["review"]["reviewBody"] = request.form['review']
+    for skill in request.form['skills'].split(',') :
+        unsigned_credential["credentialSubject"]["offers"]["skills"].append(
+            {
+            "@type": "DefinedTerm",
+            "description": skill
+            })
+    unsigned_credential[ "credentialSubject"]["companyLogo"] = session['picture']
+    unsigned_credential[ "credentialSubject"]["companyName"] = session['name']
+    unsigned_credential[ "credentialSubject"]["managerName"] = "Director"
+    unsigned_credential[ "credentialSubject"]["managerSignature"] = session['signature']
+    session['unsigned_credential'] = unsigned_credential
+
+    # update local issuer database
+    manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['referent']
+    credential = company.Credential(session['credential_issuer_username'], mode)
+    credential.add(session['username'],
+                        request.form['reviewer_username'],
+                        manager_username,
+                        "drafted",
+                        id,
+                        json.dumps(unsigned_credential),
+                        reference)
+
+    # send an email to reviewer for workflow
+    reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['email']
+    subject = 'You have received a reference credential from '+ session['name'] + ' to review'
+    try :
+        Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
+    except :
+        logging.error('email failed')
+
+    # send email to user
+    flash('Your request for a reference credential has been registered for review.', 'success')
+
+    # clean up and return
+    issuer_username = session['credential_issuer_username']
+    del session['select']
+    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+
+
+
+def request_experience_credential(mode) :
     """ Basic request for experience credential
 
     @app.route('/user/request_experience_certificate/', methods=['POST'])
@@ -115,9 +194,9 @@ def request_experience_certificate(mode) :
     if not campaign.get(reference.split(':')[0]) :
         flash('This reference does not exist.' , 'warning')
         logging.warning('campaign does ot exist')
-        return render_template('./workflow/request_experience_certificate.html', **session['menu'], select=session['select'])
+        return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
 
-    # load templates for verifiable credential
+    # load templates for verifiable credential template
     unsigned_credential = json.load(open('./verifiable_credentials/experience.jsonld', 'r'))
 
     # update credential with form data
@@ -217,7 +296,7 @@ def company_dashboard(mode) :
 
         # display dashboard
         credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
-        return render_template('./workflow/company_dashboard.html',
+        return render_template('./issuer/company_dashboard.html',
                                 **session['menu'],
                                 credential_list=credential_list,
                                 drafted=drafted,
@@ -241,7 +320,7 @@ def company_dashboard(mode) :
             issuer_query = request.form['issuer']
             reviewer_query = request.form['reviewer']
         credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
-        return render_template('./workflow/company_dashboard.html',
+        return render_template('./issuer/company_dashboard.html',
                                  **session['menu'],
                                 credential_list=credential_list,
                                 drafted=drafted,
@@ -299,7 +378,7 @@ def issue_credential_workflow(mode) :
         skills_str = ""
         for skill in my_credential['skills'] :
             skills_str += skill['description'] + ','
-        return render_template ('./workflow/issue_experience_certificate_workflow.html',
+        return render_template ('./issuer/issue_experience_credential_workflow.html',
                         credential_id=request.args['id'],
                         picturefile = session['picture'],
 						clipboard = mode.server  + "board/?did=" + session['did'],
@@ -347,13 +426,12 @@ def issue_credential_workflow(mode) :
 
         # credential has been signed by issuer
         elif request.form.get('exit') == 'sign' :
-
             # sign credential with company key
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
             my_credential['credentialSubject']['managerSignature'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-            my_credential['issuer'] = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
-            signed_credential = vc_signature.sign(my_credential, session['private_key_value'], method=session['method'])
+            my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
+            signed_credential = vc_signature.sign(my_credential, session['private_key_value'], my_credential['issuer'])
 
             # update local company database
             credential = company.Credential(session['host'], mode)
@@ -461,3 +539,26 @@ def get_form_data(my_credential, form) :
     my_credential['credentialSubject']['managerName'] = form['managerName']
     my_credential['credentialSubject']['reviewerName'] = form['reviewerName']
     return
+
+
+def add_campaign(mode) :
+    """ create a new campaign 
+    """
+    check_login()
+    if request.method == 'GET' :
+        return render_template('./issuer/add_campaign.html', **session['menu'])
+    if request.method == 'POST' :
+        new_campaign = company.Campaign(session['username'], mode)
+        new_campaign.add(request.form['name'], request.form['description'])
+        flash('New campaign added', 'success')
+        return redirect(mode.server + 'user/')
+
+
+def remove_campaign(mode) :
+    """ create a new campaign 
+    """
+    check_login()
+    new_campaign = company.Campaign(session['username'], mode)
+    new_campaign.delete(request.args['campaign_name'])
+    flash('Campaign removed', 'success')
+    return redirect(mode.server + 'user/')

@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 from .helpers import ethereum_to_jwk256kr, ethereum_pvk_to_address, ethereum_to_jwk256k
 
-def sign(credential, pvk, method="ethr", rsa=None):
+def sign(credential, pvk, did, rsa=None):
     """ sign credential for did:ethr, did:tz, did:web
 
     @method is str
@@ -17,25 +17,20 @@ def sign(credential, pvk, method="ethr", rsa=None):
     return is str
 
     """
-    if not method :
-        method = 'ethr'
-
+    method = did.split(':')[1]
     if method == 'web' and not rsa :
         key = ethereum_to_jwk256k(pvk)
-        did = 'did:web:talao.co:' + ethereum_pvk_to_address(pvk)
         vm = did + "#key-1"
 
     elif method == 'web' and rsa :
         key = jwk.JWK.from_pem(rsa.encode())
         key = key.export_private()
         #del key['kid']
-        did = 'did:web:talao.co:' + ethereum_pvk_to_address(pvk)
         vm = did + "#key-2"
 
     else :
-        key = ethereum_to_jwk256kr(pvk)
-        did = didkit.keyToDID(method,key )
-        vm = didkit.keyToVerificationMethod(method, key)
+        logging.error('method not supported')
+        return None
 
     logging.info('key = %s', key)
     logging.info('did = %s', did)

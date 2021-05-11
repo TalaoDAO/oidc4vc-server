@@ -584,30 +584,26 @@ def user_advanced(mode) :
 
 	# DID and DID document
 	DID = DID_Document = "No DID available"
-	did_list = ns.get_did(session['workspace_contract'], mode)
-	if did_list :
-		for did in did_list :
-			if session['method'] == did.split(':')[1] and session['method'] == 'tz' :
-				DID = did
-				DID_Document = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
-				break
-			elif session['method'] == did.split(':')[1] :
-				r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + did)
-				if r.status_code == 200 :
-					DID = did
-					DID_Document = json.dumps(r.json(), indent=4)
-					break
-				else :
-					logging.warning('request has been rejected by Universal Resolver.')
-					break
+	DID = ns.get_did(session['workspace_contract'], mode)
+	if not DID :
+		logging.warning('No DID available in local database')
+	if DID.split(':')[1]  == 'tz' :
+		# did:tz has no driver for Universal resolver
+		DID_Document = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+	else  :
+		r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + DID)
+		if r.status_code == 200 :
+			DID_Document = json.dumps(r.json(), indent=4)
+		else :
+			logging.warning('DID Document resolution has been rejected by Universal Resolver.')
 
 	# Repository data
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
 					<b>Repository</b> : """+ session['workspace_contract'] + """</a><br>
-					<b>Current DID</b> : """ + DID + """<br>
-					<b>Identity attached</b> : """ + "<br>".join(ns.get_did(session['workspace_contract'], mode)) + """<br>
+					<b>DID</b> : """ + DID + """<br>
+					<b>All DID attached</b> : """ + "<br>".join(ns.get_did_list(session['workspace_contract'], mode)) + """<br>
 					<hr>
 					<b>Role</b> : """ + role + """<br>
 					<b>Referent</b> : """ + referent + """<br>"""
