@@ -389,6 +389,11 @@ def issue_credential_workflow(mode) :
 
         # credential is loaded  as dict
         my_credential = json.loads(session['call'][5])['credentialSubject']
+
+        if my_credential["credentialCategory"] != 'experience' :
+            flash('view not yet available', 'warning')
+            return redirect (mode.server +'company/dashboard/')
+
         skills_str = ""
         for skill in my_credential['skills'] :
             skills_str += skill['description'] + ','

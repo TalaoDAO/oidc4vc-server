@@ -58,7 +58,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.8"
+VERSION = "0.9.9"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -144,7 +144,6 @@ app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, me
 app.add_url_rule('/verifier/',  view_func=web_main.verifier, methods = ['GET', 'POST'])
 
 app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
-app.add_url_rule('/getDID_Document/',  view_func=web_main.getDID_Document, methods = ['GET'])
 app.add_url_rule('/user/generate_identity/',  view_func=web_main.generate_identity, methods = ['GET', 'POST'],  defaults={'mode' : mode})
 app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'])
 app.add_url_rule('/user/picture/',  view_func=web_main.picture, methods = ['GET', 'POST'], defaults={'mode' : mode})

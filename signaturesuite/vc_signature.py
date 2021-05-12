@@ -5,6 +5,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 from .helpers import ethereum_to_jwk256kr, ethereum_pvk_to_address, ethereum_to_jwk256k
 
+
+
+
 def sign(credential, pvk, did, rsa=None):
     """ sign credential for did:ethr, did:tz, did:web
 
@@ -47,6 +50,7 @@ def sign(credential, pvk, did, rsa=None):
 
 def verify (credential) :
     """
+    credential  str
     return list
     """
     try :
@@ -55,6 +59,6 @@ def verify (credential) :
         return "Failed : JSON-LD malformed"
 
     if not json.loads(result)['errors'] :
-        return "Success"
+        return "Signature verified : "
     else :
-        return "Failed : " + result
+        return "Signature rejected : " + result

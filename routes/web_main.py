@@ -4,6 +4,7 @@ from flask import session, send_from_directory, flash, jsonify, render_template_
 from flask import request, redirect, render_template,abort, Response
 from flask_session import Session
 import random
+import requests
 from datetime import timedelta, datetime
 import json
 from werkzeug.utils import secure_filename
@@ -50,14 +51,6 @@ def getDID() :
     key = request.args['key']
     method = request.args['method']
     return jsonify (didkit.keyToDID(method, key))
-
-def getDID_Document(did) :
-    if did.split(':')[1] == 'tz' : 
-        DIDdocument = didkit.resolveDID(did,'{}')
-    else :
-        response.get('https://dev.uniresolver.io/1.0/identifiers/' + did)
-        DIDdocument = response.json()
-    return jsonify(DIDdocument)
 
 
 def generate_identity(mode) :
@@ -108,7 +101,55 @@ def verifier() :
         return render_template('verifier.html', **session['menu'])
     if request.method == 'POST' :
         data = request.get_json()
-        return jsonify(vc_signature.verify(data['credential']))
+        try :
+            credential = json.loads(data['credential']) # dict
+        except :
+            return jsonify("Credential is not a JSON-LD.")
+
+        # lookup DID Document
+        if credential['issuer'].split(':')[1]  == 'tz' :
+            # did:tz has no driver for Universal resolver
+            DID_Document = json.loads(didkit.resolveDID(credential['issuer'],'{}'))
+        else :
+            try :
+                r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + credential['issuer'])
+            except :
+                return jsonify("Network connexion problem.")
+            if r.status_code == 200 :
+                DID_Document = r.json()['didDocument']
+            else :
+                return jsonify("Unknown issuer DID.")
+
+        # lookup Domain list of the service linkedDomains endpoint
+        service_list = DID_Document.get('service', [])
+        domain_list = list()
+        for service in service_list :
+            if service['type'] == 'LinkedDomains' :
+                domain_list = service['serviceEndpoint']
+        if not domain_list :
+            return jsonify(vc_signature.verify(data['credential']) + "No issuer credential has been found (No LinkedDomains service Endpoint).")
+        if isinstance(domain_list, str) :
+            domain_list = domain_list.split()
+
+        # lookup issuer dids with  '.well-known/did-configuration.json'
+        linked_dids = ""
+        breakloop = False
+        message = "No issuer credential has been found."
+        for domain in domain_list :
+            r = requests.get(domain + '/.well-known/did-configuration.json')
+            if r.status_code == 200 :
+                did_configuration = r.json()
+                linked_did_list = did_configuration['linked_dids'] 
+                for linked_did in linked_did_list :
+                    if linked_did['proof']['verificationMethod'] == credential['proof']['verificationMethod'] :
+                        result = didkit.verifyCredential(json.dumps(linked_did), '{}')
+                        if not json.loads(result)['errors'] :
+                            message = "This Issuer owns the domain  " + domain +"."
+                            breakloop = True
+                            break
+                if breakloop :
+                    break
+        return jsonify(vc_signature.verify(data['credential']) + message)
 
 
 def picture(mode) :
@@ -761,7 +802,8 @@ def create_kyc(mode) :
     if request.method == 'GET' :
         return render_template('issue_kyc.html', **session['menu'])
     if request.method == 'POST' :
-        kyc_workspace_contract = ns.get_data_from_username(request.form['username']).get('workspace_contract')
+        kyc_username = request.form['username']
+        kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode).get('workspace_contract')
         if not kyc_workspace_contract :
             flash(kyc_username + ' does not exist ', 'danger')
             return redirect(mode.server + 'user/')
