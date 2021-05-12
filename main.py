@@ -141,6 +141,8 @@ app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, me
 
 
 # Centralized route for main features
+app.add_url_rule('/verifier/',  view_func=web_main.verifier, methods = ['GET', 'POST'])
+
 app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
 app.add_url_rule('/getDID_Document/',  view_func=web_main.getDID_Document, methods = ['GET'])
 app.add_url_rule('/user/generate_identity/',  view_func=web_main.generate_identity, methods = ['GET', 'POST'],  defaults={'mode' : mode})
@@ -218,18 +220,46 @@ app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'
 def well_known_did_configuration () :
     document = {
         "@context": "https://identity.foundation/.well-known/did-configuration/v1",
-        "linked_dids": ["eyJhbGciOiJFUzI1NksiLCJraWQiOiJkaWQ6d2ViOnRhbGFvLmNvI2RvbWFpbi0xIn0.eyJleHAiOjE3Nzc2MzUwNDMsImlzcyI6ImRpZDp3ZWI7dGFsYW8uY28iLCJuYmYiOjE2MjAzODcwNDMsInN1YiI6ImRpZDp3ZWI6dGFsYW8uY28iLCJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vaWRlbnRpdHkuZm91bmRhdGlvbi8ud2VsbC1rbm93bi9kaWQtY29uZmlndXJhdGlvbi92MSJdLCJjcmVkZW50aWFsU3ViamVjdCI6eyJpZCI6ImRpZDp3ZWI6dGFsYW8uY28iLCJvcmlnaW4iOiJodHRwczovL3RhbGFvLmNvIn0sImV4cGlyYXRpb25EYXRlIjoiMjAyNS0xMi0wNFQxNDowODowMC0wMDowMCIsImlzc3VhbmNlRGF0ZSI6IjIwMjEtMDUtMDdUMTQ6MDg6MjgtMDY6MDAiLCJpc3N1ZXIiOiJkaWQ6d2ViOnRhbGFvLmNvIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIkRvbWFpbkxpbmthZ2VDcmVkZW50aWFsIl19.V9jL8eMPHQW4SUy0CDds9VFaGrvkcBhaNYKvnb01rAdKQoKGtII00zzZggIS2KbF_zN_llP5Em1gkhnw6ztJLA"
-            ]}
+        "linked_dids": [{
+  "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {
+            "origin": "https://identity.foundation/.well-known/resources/did-configuration/#origin",
+            "DomainLinkageCredential": "https://identity.foundation/.well-known/resources/did-configuration/#DomainLinkageCredential",
+            "LinkedDomains": "https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains",
+            "linked_dids": "https://identity.foundation/.well-known/resources/did-configuration/#linked_dids"
+        }
+    ],
+  "type": [
+    "VerifiableCredential",
+    "DomainLinkageCredential"
+  ],
+  "credentialSubject": {
+    "id": "did:web:talao.co",
+    "origin": "https://talao.co"
+  },
+  "issuer": "did:web:talao.co",
+  "issuanceDate": "2021-05-02T00:00:00Z",
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:web:talao.co#key-1",
+    "created": "2021-05-12T07:51:17.888Z",
+    "jws": "eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..Nq3lF-bFOCpZ-kSB8RufLDOwsqaHH77LNzUdTcOCnbJqRGGCqZ3MsnGlBFscl_8QNJ2PRFiAVi5hOHWe0dLjLg"
+  },
+  "expirationDate": "2026-05-01T00:00:00Z"
+    }]}
+
     return jsonify(document)
 
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
 def well_known_did (mode) :
     """ did:web
-    specifications : https://w3c-ccg.github.io/did-method-web/
+    https://w3c-ccg.github.io/did-method-web/
     https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains
     """
     address = mode.owner_talao
-    
+
     # RSA
     pvk = privatekey.get_key(address, 'rsa_key', mode)
     key = jwk.JWK.from_pem(pvk.encode())

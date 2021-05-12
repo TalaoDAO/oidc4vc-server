@@ -43,3 +43,18 @@ def sign(credential, pvk, did, rsa=None):
     return didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
+
+
+def verify (credential) :
+    """
+    return list
+    """
+    try :
+        result = didkit.verifyCredential(credential, '{}')
+    except:
+        return "Failed : JSON-LD malformed"
+
+    if not json.loads(result)['errors'] :
+        return "Success"
+    else :
+        return "Failed : " + result

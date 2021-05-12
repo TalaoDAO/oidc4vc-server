@@ -126,17 +126,17 @@ print('did = ', did)
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
 DIDdocument = didkit.resolveDID(did,'{}')
-#print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
+print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #vm = didkit.keyToVerificationMethod(method, key)
 #print('verifmethod = ', vm)
 #vm = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
-verifmethod = didkit.keyToVerificationMethod("web", key)
+#verifmethod = didkit.keyToVerificationMethod("web", json.dumps(key))
 #verifmethod = didkit.keyToVerificationMethod(method, key)
 #verifmethod = "did:ethr:0x9e98af48200c62f51ac9ebdcc41fe718d1be04fb#controller"
 #verifmethod = did + "#key-2"
-print('verfif method = ', verifmethod)
+#print('verfif method = ', verifmethod)
 
 
 #print(json.dumps(json.loads(presentation), indent=4))
@@ -167,4 +167,4 @@ didkit_credential = didkit.issueCredential(
         )
 
 
-print(json.dumps(json.loads(didkit_credential), indent=4))
+#print(json.dumps(json.loads(didkit_credential), indent=4))

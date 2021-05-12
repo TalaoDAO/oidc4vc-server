@@ -589,7 +589,7 @@ def user_advanced(mode) :
 		logging.warning('No DID available in local database')
 	if DID.split(':')[1]  == 'tz' :
 		# did:tz has no driver for Universal resolver
-		DID_Document = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+		DID_Document = json.dumps(json.loads(didkit.resolveDID(DID,'{}')), indent=4)
 	else  :
 		r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + DID)
 		if r.status_code == 200 :

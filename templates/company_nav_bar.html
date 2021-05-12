@@ -106,6 +106,8 @@
 
             {% if session['username'] == 'talao' %}
               <div class="dropdown-divider"></div>
+              <a class="dropdown-item" role="presentation" title="Verify a credential" href="/verifier/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Verifier</a>
+
               <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
               <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
             {% endif %}

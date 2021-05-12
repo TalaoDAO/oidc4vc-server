@@ -101,6 +101,16 @@ def homepage() :
         return render_template('homepage.html', **session['menu'])
 
 
+#@app.route('/verifier/', methods=['GET'])
+def verifier() :
+    check_login()
+    if request.method == 'GET' :
+        return render_template('verifier.html', **session['menu'])
+    if request.method == 'POST' :
+        data = request.get_json()
+        return jsonify(vc_signature.verify(data['credential']))
+
+
 def picture(mode) :
     """ This is to download the user picture or company logo to the uploads folder
     app.route('/user/picture/', methods=['GET', 'POST'])

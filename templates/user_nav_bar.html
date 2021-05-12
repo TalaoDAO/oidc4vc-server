@@ -20,6 +20,7 @@
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
         <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://talao.readthedocs.io/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
+
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
         <div class="dropdown-divider"></div>
@@ -80,6 +81,8 @@
             {% if not session['has_vault_access'] %}
             <a class="dropdown-item" role="presentation" title="For Metamask wallet only" href="/wc_register_activate/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activate wallet</a>
             {% endif %}
+            <a class="dropdown-item" role="presentation" title="Verify a credential" href="/verifier/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Verifier</a>
+
             <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
             <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
             <div class="dropdown-divider"></div>
