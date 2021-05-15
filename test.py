@@ -111,6 +111,10 @@ key = {"crv": "secp256k1",
         "kty": "EC",
         "x": "gmQ9LW8cvcZElSrFu-qSEtEM2KN90jVFV--Ap3cSLis",
         "y": "W7mcKtpQwZTrRxjsYkm549lQQLIcuEFo9Ts3tyopOxw",
+        "crit": [
+    "b64"
+  ],
+  "b64": False
        }
 
 #key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
@@ -121,12 +125,12 @@ key = {"crv": "secp256k1",
 
 print(key)
 #did = didkit.keyToDID("web", json.dumps(key))
-did = "did:web:talao.co"
-print('did = ', did)
+#did = "did:web:talao.co"
+#print('did = ', did)
 #did = "did:web:did.actor:mike"
 #did = "did:ion:EiBgFSQI9fBXGuAam_OvZnldleL5auu1VTCp6Wzdyv98_w"
-DIDdocument = didkit.resolveDID(did,'{}')
-print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
+#DIDdocument = didkit.resolveDID(did,'{}')
+#print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #vm = didkit.keyToVerificationMethod(method, key)
@@ -140,23 +144,39 @@ print('DID Document = ', json.dumps(json.loads(DIDdocument), indent=4))
 
 
 #print(json.dumps(json.loads(presentation), indent=4))
-
-
 credential ={
+    "@context":  ["https://www.w3.org/2018/credentials/v1", "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"],
+    "issuer": "did:web:talao.co",
+    "issuanceDate": "2021-05-06T14:08:28-06:00",
+    "expirationDate": "2025-12-04T14:08:28-06:00",
+    "type": ["VerifiableCredential"],
+    "credentialSubject": {
+            "id": "did:web:talao.co",
+            },
+    }
+
+signed_credential ={
         "@context":  ["https://www.w3.org/2018/credentials/v1", "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"],
-        "issuer": did,
+        "issuer": "did:web:talao.co",
         "issuanceDate": "2021-05-06T14:08:28-06:00",
         "expirationDate": "2025-12-04T14:08:28-06:00",
         "type": ["VerifiableCredential"],
         "credentialSubject": {
-                "id": did,
+                "id": "did:web:talao.co",
                 },
-        }
+                "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:talao.co#key-1",
+        "created": "2021-05-12T12:10:56.655Z",
+        "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..m6HGetBv0-1SLqHrg21SZfqu0JzyNDoROXu3v-IGkNtUpPWRWr_7ejQRzud6wy2De3qGNzydTEKbDp_bmpqAfg"
+                }
+}
 
-
+"""
 didkit_options = {
         "proofPurpose": "assertionMethod",
-        "verificationMethod": did + "#key-3",
+        "verificationMethod": "did:web:talao.co#key-1",
         }
 
 
@@ -165,6 +185,9 @@ didkit_credential = didkit.issueCredential(
         didkit_options.__str__().replace("'", '"'),
         json.dumps(key)
         )
+"""
 
+result = didkit.verifyCredential(json.dumps(signed_credential), '{}')
+print(result)
 
 #print(json.dumps(json.loads(didkit_credential), indent=4))

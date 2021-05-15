@@ -724,65 +724,29 @@ def store_file(mode) :
 # add experience
 #@app.route('/user/add_experience/', methods=['GET', 'POST'])
 def add_experience(mode) :
-	check_login()
-	if request.method == 'GET' :
-		return render_template('add_experience.html',**session['menu'])
-	if request.method == 'POST' :
-		my_experience = Document('experience')
-		experience = dict()
-		experience['company'] = {'contact_email' : request.form['contact_email'],
-								'name' : request.form['company_name'],
-								'contact_name' : request.form['contact_name'],
-								'contact_phone' : request.form['contact_phone']}
-		experience['title'] = request.form['title']
-		experience['description'] = request.form['description']
-		experience['start_date'] = request.form['from']
-		experience['end_date'] = request.form['to']
-		experience['skills'] = request.form['skills'].split(', ')
-		privacy = 'public'
-		# issue experience document
-		doc_id_exp = my_experience.relay_add(session['workspace_contract'], experience, mode, privacy=privacy)[0]
-		if not doc_id_exp  :
-			flash('Transaction failed', 'danger')
-		else :
-			if experience['skills']!= [''] :
-				# add skills  in document skill
-				for skill in experience['skills'] :
-					skill_code = unidecode.unidecode(skill.lower())
-					skill_code = skill_code.replace(" ", "")
-					skill_code = skill_code.replace("-", "")
-					my_skill = {'skill_code' : skill_code,
-									'skill_name' : skill.capitalize(),
-									'skill_level' : "Intermediate",
-									'skill_domain' : ""}
-					if session['skills'] is None  :
-						session['skills'] = dict()
-						session['skills']['description'] = []
-						session['skills']['version'] = 1
-					for one_skill in session['skills']['description'] :
-						if one_skill['skill_code'] == skill_code :
-							pass
-						else :
-							session['skills']['description'].append(my_skill)
-							break
-				# update skills
-				my_skills = Document('skills')
-				skill_data = {'version' : session['skills']['version'],  'description' : session['skills']['description']}
-				# issue new skill document
-				doc_id = my_skills.relay_add(session['workspace_contract'], skill_data, mode)[0]
-				if not doc_id :
-					flash('Transaction to add skill failed', 'danger')
-					return redirect( mode.server + 'user/')
-				session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
-
-			# add experience in current session
-			experience['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id_exp)
-			experience['doc_id'] = doc_id_exp
-			experience['created'] = str(datetime.now())
-			experience['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
-			session['experience'].append(experience)
-			flash('New experience added', 'success')
-		return redirect(mode.server + 'user/')
+    check_login()
+    if request.method == 'GET' :
+        return render_template('add_experience.html',**session['menu'])
+    if request.method == 'POST' :
+        experience = dict()
+        experience['company'] = {'contact_email' : request.form['contact_email'],
+                                'name' : request.form['company_name'],
+                                'contact_name' : request.form['contact_name'],
+                                'contact_phone' : request.form['contact_phone']}
+        experience['title'] = request.form['title']
+        experience['description'] = request.form['description']
+        experience['start_date'] = request.form['from']
+        experience['end_date'] = request.form['to']
+        experience['skills'] = request.form['skills'].split(', ')
+        experience['id'] =  str(uuid.uuid1())
+        personal = json.loads(ns.get_personal(session['workspace_contract'], mode))
+        if not personal.get('experience_claims') :
+            personal['experience_claims'] = list()
+        personal['experience_claims'].append(experience)
+        ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
+        session['experience'].append(experience)
+        flash('New experience added', 'success')
+        return redirect(mode.server + 'user/')
 
 
 def create_kyc(mode) :
@@ -857,21 +821,20 @@ def create_kyc(mode) :
 #@app.route('/user/remove_experience/', methods=['GET', 'POST'])
 def remove_experience(mode) :
     check_login()
-    if request.method == 'GET' :
-        session['experience_to_remove'] = request.args['experience_id']
-        session['experience_title'] = request.args['experience_title']
-        return render_template('remove_experience.html', **session['menu'], experience_title=session['experience_title'])
-    elif request.method == 'POST' :
-        session['experience'] = [experience for experience in session['experience'] if experience['id'] != session['experience_to_remove']]
-        Id = session['experience_to_remove'].split(':')[5]
-        my_experience = Document('experience')
-        if not my_experience.relay_delete(session['workspace_contract'], int(Id), mode) :
-            flash('Transaction failed', 'danger')
-        else :
-            del session['experience_to_remove']
-            del session['experience_title']
-            flash('The experience has been removed', 'success')
-        return redirect (mode.server +'user/')
+    personal = json.loads(ns.get_personal(session['workspace_contract'], mode))
+    experience = personal.get('experience_claims', [])
+    for counter,exp in enumerate(session['experience'], 0) :
+        if exp['id'] == request.args['experience_id'] :
+            del session['experience'][counter]
+            break
+    for counter,exp in enumerate(experience, 0) :
+        if exp['id'] == request.args['experience_id'] :
+            del experience[counter]
+            break
+    personal['experience_claims'] = experience
+    ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
+    flash('The experience has been removed', 'success')
+    return redirect (mode.server +'user/')
 
 
 
@@ -969,43 +932,34 @@ def add_education(mode) :
         education['end_date'] = request.form['to']
         education['skills'] = request.form['skills'].split(',')
         education['certificate_link'] = request.form['certificate_link']
-        privacy = 'public'
-        doc_id = my_education.relay_add(session['workspace_contract'], education, mode, privacy=privacy)[0]
-        if not doc_id  :
-            flash('Transaction failed', 'danger')
-        else :
-            # add experience in session
-            education['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] + ':document:'+str(doc_id)
-            education['doc_id'] = doc_id
-            education['created'] = str(datetime.now())
-            education['issuer'] = {'workspace_contract' : mode.relay_workspace_contract, 'category' : 2001}
-            session['education'].append(education)
-            flash('New Education added', 'success')
+        education['id'] =  str(uuid.uuid1())
+        personal = json.loads(ns.get_personal(session['workspace_contract'], mode))
+        if not personal.get('education_claims') :
+            personal['education_claims'] = list()
+        personal['education_claims'].append(education)
+        ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
+        session['education'].append(education)
+        flash('New Education added', 'success')
         return redirect(mode.server + 'user/')
 
 
-#@app.route('/user/remove_education/', methods=['GET', 'POST'])
 def remove_education(mode) :
+    #@app.route('/user/remove_education/', methods=['GET', 'POST'])
     check_login()
-    if request.method == 'GET' :
-        session['education_to_remove'] = request.args['education_id']
-        session['education_title'] = request.args['education_title']
-        return render_template('remove_education.html', **session['menu'], education_title=session['education_title'])
-    elif request.method == 'POST' :
-        session['education'] = [education for education in session['education'] if education['id'] != session['education_to_remove']]
-        doc_id = session['education_to_remove'].split(':')[5]
-        my_education = Document('education')
-        if not my_education.relay_delete(session['workspace_contract'], int(doc_id), mode) :
-            flash('Transaction failed', 'danger')
-        else :
-            for counter,edu in enumerate(session['education'], 0) :
-                if edu['doc_id'] == doc_id :
-                    del session['education'][counter]
-                    break
-            del session['education_to_remove']
-            del session['education_title']
-            flash('The Education has been removed', 'success')
-        return redirect (mode.server +'user/')
+    personal = json.loads(ns.get_personal(session['workspace_contract'], mode))
+    education = personal.get('education_claims', [])
+    for counter,edu in enumerate(session['education'], 0) :
+        if edu['id'] == request.args['education_id'] :
+            del session['education'][counter]
+            break
+    for counter,edu in enumerate(education, 0) :
+        if edu['id'] == request.args['education_id'] :
+            del education[counter]
+            break
+    personal['education_claims'] = education
+    ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
+    flash('The Education has been removed', 'success')
+    return redirect (mode.server +'user/')
 
 
 # invit

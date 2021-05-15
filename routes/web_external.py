@@ -31,8 +31,8 @@ def resume(mode) :
 		abort(403)
 
 	if issuer_explore.type == 'person' :
+		"""
 		session['resume']= issuer_explore.__dict__
-		""" resume clean up """
 		del session['resume']['file_list']
 		del session['resume']['experience_list']
 		del session['resume']['education_list']
@@ -44,7 +44,7 @@ def resume(mode) :
 		del session['resume']['relay_activated']
 		del session['resume']['private_key']
 		session['resume']['topic'] = 'resume'
-
+		"""
 		# file
 		if not issuer_explore.identity_file :
 			my_file = """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
@@ -452,8 +452,8 @@ def board(mode):
 		abort(403)
 
 	if issuer_explore.type == 'company' :
+		"""
 		session['resume']= issuer_explore.__dict__
-		""" clean up """
 		del session['resume']['file_list']
 		del session['resume']['experience_list']
 		del session['resume']['education_list']
@@ -465,6 +465,7 @@ def board(mode):
 		del session['resume']['relay_activated']
 		del session['resume']['private_key']
 		session['resume']['topic'] = 'resume'
+		"""
 		contact_name = issuer_explore.personal['contact_name']['claim_value']
 		contact_email = issuer_explore.personal['contact_email']['claim_value']
 		contact_phone = issuer_explore.personal['contact_phone']['claim_value']

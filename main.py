@@ -58,7 +58,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.9"
+VERSION = "0.9.10"
 
 # Framework Flask and Session setup
 app = Flask(__name__)

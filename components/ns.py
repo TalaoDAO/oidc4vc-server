@@ -18,14 +18,6 @@ def add_table_employee(host_name, mode) :
 	cur.close()
 	return True
 
-def add_table_campaign(host_name, mode) :
-	path = mode.db_path
-	conn = sqlite3.connect(path + host_name + '.db')
-	cur = conn.cursor()
-	cur.execute('create table campaign(campaign_name text, description text, date real)')
-	conn.commit()
-	cur.close()
-	return True
 
 def alter_add_table_credential(database, mode) :
 	path = mode.db_path

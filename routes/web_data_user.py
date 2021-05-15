@@ -73,7 +73,7 @@ def data(mode) :
 
 	# Display raw verifiable credential
 	credential = Document('certificate')
-	credential.relay_get_credential(session['workspace_contract'], doc_id, mode, loading = 'full')
+	credential.relay_get_credential(session['workspace_contract'], doc_id, mode)
 	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 	return render_template('data_check.html',
 							**session['menu'],
@@ -132,6 +132,9 @@ def user(mode) :
 		session['signature'] = user.signature
 		session['skills'] = user.skills
 		session['certificate'] = user.certificate
+		session['private_certificate'] = user.private_certificate
+		session['secret_certificate'] = user.secret_certificate
+		session['all_certificate'] = user.certificate + user.private_certificate + user.secret_certificate
 		session['has_vault_access'] = user.has_vault_access
 		session['method'] = ns.get_method(session['workspace_contract'], mode)
 		session['mode_server'] = mode.server
@@ -287,7 +290,7 @@ def user(mode) :
 					<b>End Date</b> : """+experience['end_date']+"""<br>
 				<b>Description</b> : """+experience['description'][:100]+"""...<br>
 				<p>
-					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + experience['id'] + """&experience_title="""+ experience['title'] + """">
+					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + experience['id'] + """">
 						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 				</p>"""
@@ -295,6 +298,7 @@ def user(mode) :
 
 		# education
 		my_education = ""
+		print('education = ', session['education'])
 		if not session['education'] :
 			my_education = my_education + """<a class="text-info">No Education available</a>"""
 		else :
@@ -305,7 +309,7 @@ def user(mode) :
 				<b>Start Date</b> : """+education['start_date']+"""<br>
 				<b>End Date</b> : """+education['end_date']+"""<br>
 				<p>
-					<a class="text-secondary" href="/user/remove_education/?education_id=""" + education['id'] + """&education_title="""+ education['title'] + """">
+					<a class="text-secondary" href="/user/remove_education/?education_id=""" + education['id'] + """">
 						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 				</p>"""
@@ -351,14 +355,14 @@ def user(mode) :
 
 		# credentials/certificates
 		my_certificates = ""
-		if not session['certificate'] :
+		if not session['all_certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
 		else :
-			for counter, certificate in enumerate(session['certificate'],1) :
+			for counter, certificate in enumerate(session['all_certificate'],1) :
 				try : 
 					cert_html = """<hr>
 					<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
-					<b>Credential Context</b> : """ + ",".join(certificate['credentialSubject']['@context']) + """<br>
+					<b>Credential Context</b> : """ + ",".join(certificate['@context']) + """<br>
 					<b>Issuer DID</b> : """ + certificate['issuer'] +"""<br>
 					<b>Issuance Date</b> : """ + certificate['proof']['created'] + """<br>"""
 				except :
@@ -370,12 +374,17 @@ def user(mode) :
 					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
 					<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
+
 					<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
-					<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+					<i data-toggle="tooltip" class="fa fa-search-plus" title="Credential data">&nbsp&nbsp&nbsp</i>
 					</a>
+
 					<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
 					<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link"></i>
 					</a>
+
+					<a class="text-secondary" title="Update privacy" href=/data/?dataId=""" + certificate['id'] + """:certificate>&nbsp;&nbsp;"""+ certificate['privacy'].capitalize() + """ credential</a>
+
 					</p>
 					<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				my_certificates += cert_html
@@ -392,7 +401,7 @@ def user(mode) :
 							partner=my_partner,
 							issuer=my_issuer,
 							digitalvault= my_file,
-							nb_certificates=len(session['certificate'])
+							nb_certificates=len(session['all_certificate'])
 							)
 	# specific to company
 	if session['type'] == 'company' :
@@ -478,11 +487,11 @@ def user(mode) :
 			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
 		# credentials
-		if  not session['certificate'] :
+		if  not session['all_certificate'] :
 			my_certificates =  """<a class="text-info">No Credentials available</a>"""
 		else :
 			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
-			for counter, certificate in enumerate(session['certificate'],1) :
+			for counter, certificate in enumerate(session['all_certificate'],1) :
 				if '@context' in certificate :
 					if  certificate['credentialSubject']['credentialCategory'] ==  "reference" :
 						cert_html = """<hr>
@@ -503,6 +512,9 @@ def user(mode) :
 								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
+
+							
+
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				else :

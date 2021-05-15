@@ -74,9 +74,9 @@ def encrypt_data(identity_workspace_contract, data, privacy, mode, address_calle
 
 	identity_address = contractsToOwners(identity_workspace_contract, mode)
 	if privacy == 'public' :
-		aes = mode.aes_public_key.encode('utf-8')
+		aes = mode.aes_public_key.encode()
 	elif privacy == 'private' :
-		aes = get_key(identity_address, 'aes_key', mode, address_caller=address_caller)
+		aes = get_key(identity_address, 'aes_key', mode)
 	elif privacy == 'secret' :
 		aes = get_key(identity_address, 'secret_key', mode)
 	else :

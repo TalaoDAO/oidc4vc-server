@@ -151,7 +151,7 @@
                          <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-primary btn-sm" type="button">Request New Credential</button></a>
                       </h4>
                       -->
-                      {% if session['certificate'] == [] %}
+                      {% if session['all_certificate'] == [] %}
                       <div style="height:50px;overflow:auto;overflow-x: hidden;">
                         <p class="card-text">{{certificates|safe}}</p>
                       </div>

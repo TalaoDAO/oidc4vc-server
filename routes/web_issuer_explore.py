@@ -95,7 +95,6 @@ def issuer_explore(mode) :
 				experiences.append(experience)
 		for experience in session['issuer_explore']['experience']:
 			experiences.append(experience)
-
 		# tri par date
 		for i, experience in enumerate(experiences):
 			min = i
@@ -158,20 +157,19 @@ def issuer_explore(mode) :
 				except:
 					carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
-				if experience['topic']=='experience':
+				if experience.get('topic') != 'certificate':
 					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
 				else:
 					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
 				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div><hr class='my-1'>"
 				#body
-				if experience['topic']!='experience':
-					carousel_rows_experience += """<p  style="font-size: 1em"><b>Referent name: </b>"""
-					carousel_rows_experience += issuer_name + """<br>"""
+				if experience.get('topic') == 'certificate':
+					carousel_rows_experience += """<p  style="font-size: 1em"><b>Issuer name : </b>""" + issuer_name + """<br>"""
 
 				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
 				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
-				if experience['topic']!='experience':
+				if experience.get('topic') != 'experience':
 					carousel_rows_experience += """<b>Description</b> : """ + description[:100:]
 					if len(description)>100:
 						carousel_rows_experience += "...<br>"
@@ -185,11 +183,11 @@ def issuer_explore(mode) :
 						carousel_rows_experience += "<br>"
 				carousel_rows_experience += "</p>"
 				#Footer
-				if experience['topic']=='experience':
+				if experience.get('topic') != 'certificate':
 					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-					carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
+					#carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
 				else:
-					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  issuer_username + """</footer>"""
+					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  issuer_name + """</footer>"""
 					carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
 
 				carousel_rows_experience += """</figure></div>"""
@@ -317,7 +315,7 @@ def issuer_explore(mode) :
 				#Footer
 				carousel_rows_education += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
 				#Lien certificates
-				carousel_rows_education += """<a href=  /certificate/?certificate_id="""+education['id'] + """:education></a>"""
+				#carousel_rows_education += """<a href=  /certificate/?certificate_id="""+education['id'] + """:education></a>"""
 
 				carousel_rows_education += """</figure></div>"""
 				if (i+1)%3==0 and (len(educations)%3!=0 or len(educations)!=i+1):
@@ -357,7 +355,7 @@ def issuer_explore(mode) :
 						elif i==4:
 							carousel_rows_skill += ""
 					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-					carousel_rows_skill += """<a href=  /certificate/?certificate_id="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
+					#carousel_rows_skill += """<a href=  /certificate/?certificate_id="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
 					carousel_rows_skill += """</figure></div>"""
 					carousel_rows_skill += '</div></div>'
 		else:
@@ -404,7 +402,7 @@ def issuer_explore(mode) :
 				else:
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
 				#Lien certificates
-				carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
+				#carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
 
 				carousel_rows_skill += """</figure></div>"""
 				if (i+1)%3==0 and (len(skills)%3!=0 or len(skills)!=i+1):

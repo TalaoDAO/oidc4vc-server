@@ -450,7 +450,9 @@ def issue_credential_workflow(mode) :
             my_credential['credentialSubject']['managerSignature'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
-            signed_credential = vc_signature.sign(my_credential, session['private_key_value'], my_credential['issuer'])
+            signed_credential = vc_signature.sign(my_credential,
+                                                session['private_key_value'],
+                                                my_credential['issuer'])
 
             # update local company database
             credential = company.Credential(session['host'], mode)
@@ -461,27 +463,24 @@ def issue_credential_workflow(mode) :
                                         signed_credential,
                                         )
 
-            # ulpoad credential to repository repository with company key signature
+            # ulpoad credential to repository with company key signature
             subject_username = session['call'][1]
             subject = ns.get_data_from_username(subject_username, mode)
             my_certificate = Document('certificate')
             doc_id = my_certificate.add(session['address'],
-                        session['workspace_contract'],
-                        subject['address'],
-                        subject['workspace_contract'],
-                        session['private_key_value'],
-                        json.loads(signed_credential),
-                        mode,
-                        mydays=0,
-                        privacy='public',
-                         synchronous=False)[0]
-            """
+                                        session['workspace_contract'],
+                                        subject['address'],
+                                        subject['workspace_contract'],
+                                        session['private_key_value'],
+                                        json.loads(signed_credential),
+                                        mode,
+                                        privacy='public',
+                                        synchronous=False)[0]
             if not doc_id :
                 flash('Operation failed ', 'danger')
                 logging.error('certificate to repository failed')
             else :
-            """    
-            flash('The credential has been added to the user repository', 'success')
+                flash('The credential has been added to the user repository', 'success')
             """
             # send an email to user
             link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)

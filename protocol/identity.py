@@ -44,6 +44,8 @@ class Identity() :
 		self.get_issuer_keys(mode)
 		self.get_identity_skills(mode)
 		self.get_identity_certificate(mode)
+		self.get_identity_private_certificate(mode)
+		self.get_identity_secret_certificate(mode)
 		self.has_vault_access = has_vault_access(self.address, mode)
 
 		if self.authenticated :
@@ -78,8 +80,9 @@ class Identity() :
 		else : # self.type == "person" :
 			self.profil_title = self.personal['profil_title']['claim_value']
 			self.name = self.personal['firstname']['claim_value'] + ' ' + self.personal['lastname']['claim_value']
-			self.get_identity_experience(mode)
-			self.get_identity_education(mode)
+			personal = json.loads(ns.get_personal(self.workspace_contract, mode))
+			self.experience = personal.get('experience_claims' , [])
+			self.education = personal.get('education_claims' , [])
 
 		#get image/logo and signature ipfs and download files to upload folder
 		#self.picture = get_image(self.workspace_contract, 'picture', mode)
@@ -202,31 +205,32 @@ class Identity() :
 
 	def get_all_documents(self, mode) :
 		self.file_list = []
-		self.experience_list = []
-		self.education_list = []
 		self.other_list = []
-		self.certificate_list=[]
+		self.certificate_list= []
+		self.private_credential_list = []
+		self.secret_credential_list = []
 		self.skills_list = []
 		contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		try :
 			doc_list =  contract.functions.getDocuments().call()
 		except :
-			logging.warning('getDocuments.call is not available yet in identity 243')
+			logging.error('getDocuments.call is not available yet in identity.py')
 			return False
 		for doc_id in doc_list :
 			doctype = contract.functions.getDocument(doc_id).call()[0]
 			if doctype in [30000, 30001, 30002] :
 				self.file_list.append(doc_id)
-			elif doctype in [50000, 50001, 50002] :
-				self.experience_list.append(doc_id)
-			elif doctype in [40000, 40001, 40002] :
-				self.education_list.append(doc_id)
 			elif doctype in [20000] :
 				self.certificate_list.append(doc_id)
+			elif doctype in [20001] :
+				self.private_credential_list.append(doc_id)
+			elif doctype in [20002] :
+				self.secret_credential_list.append(doc_id)
 			elif doctype == 11000 :
 				self.skills_list.append(doc_id)
 			else :
 				self.other_list.append(doc_id)
+		logging.warning('list of documents unreferenced = %s', self.other_list )
 		return True
 
 	def get_identity_certificate(self,mode) :
@@ -234,17 +238,23 @@ class Identity() :
 		for doc_id in self.certificate_list  :
 			certificate = Document('certificate')
 			certificate.relay_get(self.workspace_contract, doc_id, mode)
-			new_certificate = certificate.__dict__
-			self.certificate.append(new_certificate)
+			self.certificate.append(certificate.__dict__)
 		return True
 
-	def get_identity_education(self,mode) :
-		self.education = []
-		for doc_id in self.education_list  :
-			education = Document('education')
-			education.relay_get(self.workspace_contract, doc_id, mode, loading='light')
-			new_education = education.__dict__
-			self.education.append(new_education)
+	def get_identity_private_certificate(self,mode) :
+		self.private_certificate = []
+		for doc_id in self.private_credential_list  :
+			certificate = Document('certificate')
+			certificate.relay_get(self.workspace_contract, doc_id, mode)
+			self.private_certificate.append(certificate.__dict__)
+		return True
+
+	def get_identity_secret_certificate(self,mode) :
+		self.secret_certificate = []
+		for doc_id in self.secret_credential_list  :
+			certificate = Document('certificate')
+			certificate.relay_get(self.workspace_contract, doc_id, mode)
+			self.secret_certificate.append(certificate.__dict__)
 		return True
 
 	def get_identity_skills(self,mode) :
@@ -256,20 +266,10 @@ class Identity() :
 			self.skills = None
 		return True
 
-	def get_identity_experience(self,mode) :
-		self.experience = []
-		for doc_id in self.experience_list  :
-			experience = Document('experience')
-			experience.relay_get(self.workspace_contract, doc_id, mode, loading='light')
-			new_experience = experience.__dict__
-			self.experience.append(new_experience)
-		return True
-
 	def get_identity_file(self, workspace_contract_from, private_key_from, mode) :
 		self.identity_file = []
 		for doc_id in self.file_list :
 			this_file = File()
 			if this_file.get(workspace_contract_from, private_key_from, self.workspace_contract, doc_id, "", mode) :
-				new_file = this_file.__dict__
-				self.identity_file.append(new_file)
+				self.identity_file.append(this_file.__dict__)
 		return True
