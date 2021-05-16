@@ -44,7 +44,8 @@ myenv = os.getenv('MYENV')
 if not mychain or not myenv :
     logging.error('environment variables missing')
     logging.error('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
-    exit()
+    mychain='talaonet'
+    myenv='airbox'
 if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
     logging.error('wrong chain')
     exit()

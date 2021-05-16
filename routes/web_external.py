@@ -129,20 +129,21 @@ def resume(mode) :
 				except:
 					carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
-				if experience['topic']=='experience':
+				if experience.get('topic') != 'certificate':
 					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
 				else:
 					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
 				#header
 				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div><hr class='my-1'>"
 				#body
-				if experience['topic'] != 'experience':
-					carousel_rows_experience += """<p style="font-size: 1em"><b>Referent name : </b>"""
-					carousel_rows_experience += issuer_name + """<br>"""
+				if experience.get('topic') == 'certificate':
+					carousel_rows_experience += """<p style="font-size: 1em"><b>Issuer name : </b>""" + issuer_name + """<br>"""
+				else :
+					carousel_rows_experience += """<p style="font-size: 1em"><b>Company name : </b>""" + experience['company']['name'] + """<br>"""
 
 				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
 				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
-				if experience['topic']!='experience':
+				if experience.get('topic') != 'experience':
 					carousel_rows_experience += """<b>Description</b> : """ + description[:100:]
 					if len(description) > 100:
 						carousel_rows_experience += "...<br>"
@@ -157,9 +158,9 @@ def resume(mode) :
 				carousel_rows_experience += "</p>"
 
 				#Footer
-				if experience['topic']=='experience':
+				if experience.get('topic') != 'certificate':
 					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-					carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
+					#carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
 				else:
 					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  issuer_name + """</footer>"""
 					carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
@@ -329,7 +330,7 @@ def resume(mode) :
 					elif i==4:
 						carousel_rows_skill += ""
 				carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
-				carousel_rows_skill += """<a href=/certificate/?certificate_id="""+ issuer_explore.skills['id'] + """:skills></a>"""
+				#carousel_rows_skill += """<a href=/certificate/?certificate_id="""+ issuer_explore.skills['id'] + """:skills></a>"""
 				carousel_rows_skill += """</figure></div>"""
 				carousel_rows_skill += '</div></div>'
 		else:
@@ -375,7 +376,7 @@ def resume(mode) :
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  skill['issuer']['name'] + """</footer>"""
 				else:
 					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
-				carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
+				#carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + issuer_explore.workspace_contract[2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
 
 				carousel_rows_skill += """</figure></div>"""
 				if (i+1)%3==0 and (len(skills)%3!=0 or len(skills)!=i+1):

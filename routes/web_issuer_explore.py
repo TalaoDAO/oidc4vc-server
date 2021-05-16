@@ -166,6 +166,8 @@ def issuer_explore(mode) :
 				#body
 				if experience.get('topic') == 'certificate':
 					carousel_rows_experience += """<p  style="font-size: 1em"><b>Issuer name : </b>""" + issuer_name + """<br>"""
+				else : 
+					carousel_rows_experience += """<p  style="font-size: 1em"><b>Company name : </b>""" + experience['company']['name'] + """<br>"""
 
 				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
 				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
