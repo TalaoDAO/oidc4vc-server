@@ -722,8 +722,10 @@ def store_file(mode) :
 
 
 # add experience
-#@app.route('/user/add_experience/', methods=['GET', 'POST'])
 def add_experience(mode) :
+    """ Add ad experience in teh local database
+    @app.route('/user/add_experience/', methods=['GET', 'POST'])
+    """
     check_login()
     if request.method == 'GET' :
         return render_template('add_experience.html',**session['menu'])
@@ -737,6 +739,34 @@ def add_experience(mode) :
         experience['description'] = request.form['description']
         experience['start_date'] = request.form['from']
         experience['end_date'] = request.form['to']
+        experience['skills'] = request.form['skills'].split(', ')
+        experience['id'] =  str(uuid.uuid1())
+        personal = json.loads(ns.get_personal(session['workspace_contract'], mode))
+        if not personal.get('experience_claims') :
+            personal['experience_claims'] = list()
+        personal['experience_claims'].append(experience)
+        ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
+        session['experience'].append(experience)
+        flash('New experience added', 'success')
+        return redirect(mode.server + 'user/')
+
+def add_activity(mode) :
+    """ Add an experience with current as end_date in the local database
+    @app.route('/user/add_experience/', methods=['GET', 'POST'])
+    """
+    check_login()
+    if request.method == 'GET' :
+        return render_template('add_activity.html',**session['menu'])
+    if request.method == 'POST' :
+        experience = dict()
+        experience['company'] = {'contact_email' : request.form['contact_email'],
+                                'name' : request.form['company_name'],
+                                'contact_name' : request.form['contact_name'],
+                                'contact_phone' : request.form['contact_phone']}
+        experience['title'] = request.form['title']
+        experience['description'] = request.form['description']
+        experience['start_date'] = request.form['from']
+        experience['end_date'] = ""
         experience['skills'] = request.form['skills'].split(', ')
         experience['id'] =  str(uuid.uuid1())
         personal = json.loads(ns.get_personal(session['workspace_contract'], mode))

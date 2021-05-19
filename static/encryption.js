@@ -1,3 +1,6 @@
+// Talao copyright
+
+
 async function getKeyMaterial(password) {
   const password_buffer = str2ab(password);
   return window.crypto.subtle.importKey(
@@ -40,7 +43,6 @@ async function Encode(text, password){
     const keyMaterial = await getKeyMaterial(password);
     salt = str2ab("123456789ABCDEF");
     const encryptingKey = await getKey(keyMaterial, salt);
-    console.log('encryptingKey = ', encryptingKey);
     const encoded = str2ab(text);
     const iv = str2ab("1000")
     const encrypted = await window.crypto.subtle.encrypt(
@@ -51,9 +53,8 @@ async function Encode(text, password){
         encryptingKey,
         encoded
         );
-    const decoded =  arrayBufferToBase64(encrypted) 
-    console.log("text encrypted = ", decoded);
-    return decoded;
+        console.log('encrypted = ' , encrypted)
+    return  arrayBufferToBase64(encrypted);
     }
 
 

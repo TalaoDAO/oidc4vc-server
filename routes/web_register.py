@@ -57,17 +57,13 @@ def register_identity(mode) :
 			session['did'] = request.form['own_did']
 			if session['did'].split(':')[1]  == 'tz' :
 				try :
-					DID_Document = json.dumps(json.loads(didkit.resolveDID(session['did'],'{}')), indent=4)
+					didkit.resolveDID(session['did'],'{}')
 				except :
-					logging.warning('DID resolution has been rejected by Universal Resolver.')
 					flash('DID resolution has been rejected by Universal Resolver.', 'warning')
 					return render_template("/register/register_identity.html")
 			else  :
 				r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + session['did'])
-				if r.status_code == 200 :
-					DID_Document = json.dumps(r.json(), indent=4)
-				else :
-					logging.warning('DID resolution has been rejected by Universal Resolver.')
+				if r.status_code != 200 :
 					flash('DID resolution has been rejected by Universal Resolver.', 'warning')
 					return render_template("/register/register_identity.html")
 		else :

@@ -283,12 +283,16 @@ def user(mode) :
 			my_experience = my_experience + """<a class="text-info">No Experience available</a>"""
 		else :
 			for experience in sorted(session['experience'], key= lambda d: time.strptime(d['start_date'], "%Y-%m-%d"), reverse=True) :
+				if not experience['end_date'] :
+					end_date = "Current"
+				else :
+					end_date = experience['end_date']
 				exp_html = """
-				<b>Company</b> : """+experience['company']['name']+"""<br>
-				<b>Title</b> : """+experience['title']+"""<br>
-				<b>Start Date</b> : """+experience['start_date']+"""<br>
-					<b>End Date</b> : """+experience['end_date']+"""<br>
-				<b>Description</b> : """+experience['description'][:100]+"""...<br>
+				<b>Company</b> : """ + experience['company']['name'] + """<br>
+				<b>Title</b> : """ + experience['title'] + """<br>
+				<b>Start Date</b> : """ + experience['start_date'] + """<br>
+					<b>End Date</b> : """ + end_date + """<br>
+				<b>Description</b> : """ + experience['description'][:100] + """...<br>
 				<p>
 					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + experience['id'] + """">
 						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
@@ -460,14 +464,18 @@ def user(mode) :
 		campaign_list = campaign.get_list()
 		if campaign_list :
 			for camp in campaign_list :
-				campaign_html = camp.get('campaign_name', 'unknown') + """ : """ +  camp.get('description', 'unkown')[:100]
+				try :
+					description = json.loads(camp['description'])['description']
+				except :
+					description = camp.get('description', 'unkown')
+				campaign_html = camp.get('campaign_name', 'unknown') + """ : """ +  description[:100]
 				remove_option = """...
 				<a class="text-secondary" href="/company/remove_campaign/?campaign_name="""+ camp.get('campaign_name', 'unkown') + """">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>"""
 				if session['role'] not in ['issuer', 'reviewer'] :
 					campaign_html += remove_option
-				my_campaign += "<hr>" + campaign_html 
+				my_campaign += campaign_html + "<hr>"
 
 		# company settings
 		if session['role'] in ['creator', 'admin'] :
@@ -676,6 +684,7 @@ def user_advanced(mode) :
 							partner=my_partner,
 							issuer=my_issuer,
 							did_doc=DID_Document,
+							did=DID,
 							api=my_api,
 							advanced=my_advanced)
 

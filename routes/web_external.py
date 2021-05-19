@@ -72,14 +72,14 @@ def resume(mode) :
 		for i, experience in enumerate(experiences):
 			min = i
 			try :
-				DTmin = time.strptime(experience['end_date'], "%Y-%m-%d")
+				DTmin = time.strptime(experience['start_date'], "%Y-%m-%d")
 			except :
-				DTmin = time.strptime(experience['credentialSubject']['endDate'], "%Y-%m-%d")
+				DTmin = time.strptime(experience['credentialSubject']['startDate'], "%Y-%m-%d")
 			for j, certi in enumerate(experiences[i::]):
 				try :
-					DTcerti = time.strptime(certi['end_date'], "%Y-%m-%d")
+					DTcerti = time.strptime(certi['start_date'], "%Y-%m-%d")
 				except :
-					DTcerti = time.strptime(certi['credentialSubject']['endDate'], "%Y-%m-%d")
+					DTcerti = time.strptime(certi['credentialSubject']['startDate'], "%Y-%m-%d")
 				if DTcerti < DTmin:
 					min = j + i
 					DTmin = DTcerti
@@ -107,7 +107,7 @@ def resume(mode) :
 				except:
 					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 					startDate = experience['start_date']
-					endDate = experience['end_date']
+					endDate = experience['end_date'] if experience['end_date'] else "Current"
 					description = experience['description']
 					title = experience['title']
 					issuer_name = ""

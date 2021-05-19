@@ -5,7 +5,7 @@
   {% include 'head.html' %}
 </head>
 
-<body id="page-top" onload="pageonload()">
+<body id="page-top">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
@@ -38,7 +38,7 @@
           
 
             <div class="row">
-                <div class="col-8 col-xl-4 offset-2 offset-xl-4">
+                <div class=" col-xl-6  offset-xl-3">
 
                 <div class="card shadow mb-5">
                   <div class="card-body">
@@ -153,7 +153,7 @@
                     -->
                     <div class="card">
                       <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Access to your private key">
-                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Identity Key</a></h5>
+                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary" onclick="decrypt_key()" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-8" href="#accordion-2 .item-8">&nbsp; Identity Key</a></h5>
                       </div>
                       <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
                         <div class="card-body">
@@ -196,21 +196,24 @@
   </div>
   {% include 'user_footer.html' %}
 
-  
+
   <script>
 
-async function pageonload(){
+
+async function decrypt_key(){
   var key;
-  const encrypted = localStorage.getItem('identity_key');
+  const encrypted = localStorage.getItem('{{did}}');
   if (!encrypted) {
   key = "No key available";
   } else {
-  key = await Decode(encrypted, "{{session['username']}}");
+  var password = prompt("Please enter your password : ");
+  key = await Decode(encrypted, password);
   }
   document.getElementById("p200").innerHTML = key ;
+  console.log('key = ', key)
   }
 
-function copyToClip(element) {
+async function copyToClip(element) {
   var $temp = $("<input>");
   $("body").append($temp);
   $temp.val($(element).text()).select();

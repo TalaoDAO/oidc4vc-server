@@ -16,7 +16,6 @@ from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 import jwt
 from urllib.parse import urlencode
-from eth_account.messages import defunct_hash_message
 import logging
 import didkit
 logging.basicConfig(level=logging.INFO)
@@ -24,8 +23,6 @@ import uuid
 # dependances
 from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
 import constante
-from protocol import ownersToContracts, contractsToOwners, destroy_workspace, partnershiprequest, remove_partnership, token_balance
-from protocol import File, Identity, Document, read_profil, get_data_from_token
 from signaturesuite import helpers
 
 def check_login() :
@@ -72,6 +69,9 @@ def send_secret_code (username, code, mode) :
 # update wallet in Talao Identity
 #@app.route('/user/update_wallet/', methods = ['GET', 'POST'])
 def update_wallet(mode) :
+	"""
+	DEPRECATED
+	"""
 	check_login()
 	if request.method == 'GET' :
 		return render_template('./login/update_wallet.html', **session['menu'])
@@ -142,6 +142,8 @@ def two_factor(mode) :
 
 def did_auth(mode) :
 	""" login with DID
+
+	DEPRECATED
 
 	@app.route('ssi/login/', methods = ['GET', 'POST'])
 	https://github.com/WebOfTrustInfo/rwot6-santabarbara/blob/master/final-documents/did-auth.md

@@ -1,18 +1,4 @@
 """
-Talao is made up of 3 components :
-    - a credential repository built on an Private Ethereum network Talaonet and the Talao protocol (Talao smart contract + ERC725/ERC735).
-        This repository is a minimum EDM (Encrypted Data Vault)
-    - a DID manager for create and read operations. The cryptographiv keys are stores on user wallet (Localstorage browser) and on a encrypted desktop file for users
-        and tehye are stored server side for companies.
-    - an issuer for companies. This issuer is designed for specific worksflows.
-
-WE currently use the Spruce didkit server side to manage did:tz, did:key and did:ethr. 
-we use ion tools to manage did:ion
-EC secp256k1 (and possibly p-256 and Ed25519 in the near future)
-
-Main script to start web server through Gunicorn
-Arguments of main.py are in gunicornconf.py (global variables) :
-$ gunicorn -c gunicornconf.py  --reload wsgi:app
 
 if script is launched without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
@@ -124,7 +110,7 @@ app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], def
 app.add_url_rule('/user/two_factor/',  view_func=web_login.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/update_wallet/',  view_func=web_login.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
 #app.add_url_rule('/login_password/',  view_func=web_login.login_password, methods = ['GET', 'POST'])
-app.add_url_rule('/did_auth/',  view_func=web_login.did_auth, methods = ['GET', 'POST'], defaults={'mode': mode})
+#app.add_url_rule('/did_auth/',  view_func=web_login.did_auth, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -164,6 +150,8 @@ app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_p
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/add_activity/',  view_func=web_main.add_activity, methods = ['GET','POST'], defaults={'mode' : mode})
+
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_education/',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})

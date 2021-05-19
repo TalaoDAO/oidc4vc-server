@@ -567,7 +567,11 @@ def add_campaign(mode) :
         return render_template('./issuer/add_campaign.html', **session['menu'])
     if request.method == 'POST' :
         new_campaign = company.Campaign(session['username'], mode)
-        new_campaign.add(request.form['name'], request.form['description'])
+        data = {'description' : request.form['description'],
+                'nb_subject' : 0,
+                'startDate' : '',
+                'endDate' : ''}
+        new_campaign.add(request.form['name'], json.dumps(data, ensure_ascii=False))
         flash('New campaign added', 'success')
         return redirect(mode.server + 'user/')
 

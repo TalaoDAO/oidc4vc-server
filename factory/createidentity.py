@@ -36,6 +36,7 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	account = mode.w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530'+email)
 	address = account.address
 	private_key = account.key.hex()
+	logging.info('user repository talaonet address setup')
 
 	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
@@ -67,7 +68,7 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 
 	# CreateVaultAccess call in the token to declare the identity within the Talao Token smart contract
 	hash = createVaultAccess(address,private_key,mode)
-	logging.info('create vault acces done')
+	logging.info('create vault access done')
 
 	# Identity setup
 	contract = mode.w3.eth.contract(mode.workspacefactory_contract,abi=constante.Workspace_Factory_ABI)

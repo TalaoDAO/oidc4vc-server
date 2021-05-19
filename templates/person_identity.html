@@ -5,7 +5,7 @@
   {% include 'head.html' %}
 </head>
 
-<body id="page-top" onload="pageonload()">
+<body id="page-top">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background.png');">
@@ -28,7 +28,7 @@
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}
             <a class="text-secondary" onclick="copyToClipboard('#p100')">
-              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
+              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your portfolio."></i>
             </a>
             <p hidden id="p100">{{clipboard}}</p></h3>
             <h6 class="text-dark mb-4">{{profil_title}}</h6>
@@ -41,20 +41,6 @@
                       <h4 class="text-center" title="Complete your Resume.">My Resume</h4>
                       <div role="tablist" id="accordion-1">
 
-                        <!--
-                        <div class="card">
-                          <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Your proof of Identity issued by Talao.">
-                            <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-12" href="#accordion-1 .item-12">&nbsp; Professionnal Digital Identity</a></h5>
-                          </div>
-                          <div class="collapse item-12" role="tabpanel" data-parent="#accordion-1">
-                            <div class="card-body">
-                              <div style="overflow:auto;overflow-x: hidden;">
-                                <p class="card-text">{{kyc|safe}}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      -->
                         <div class="card">
                           <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all your personal details.">
                             <h5 class="mb-0"><i class="fa fa-user"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Personal Details</a></h5>
@@ -91,16 +77,29 @@
 
                         <div class="card">
                           <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of all the experiences you provided.">
-                            <h5 class="mb-0"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience</a></h5>
+                            <h5 class="mb-0"><i class="fa fa-briefcase"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordio-1.item-2" href="#accordion-1 .item-3">&nbsp; Experience and current activities</a></h5>
                           </div>
                           <div class="collapse item-3" role="tabpanel" data-parent="#accordion-1">
                             <div class="card-body">
                               <div style="height:400px;overflow:auto;overflow-x: hidden;">
                                 <p class="card-text">{{experience|safe}}</p></div>
-                                <a href="/user/add_experience/">
-                                <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Add Experience</button></div>
-                                </a>
-                              <br>
+
+                                <div class="form-row">
+                                  <div class="col">
+                                    <a href="/user/add_experience/">
+                                      <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Add Experience</button></div>
+                                    </a>
+                                  </div>
+                                  <div class="col">
+                                    <a href="/user/add_activity/">
+                                      <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Add Current</button></div>
+                                    </a>
+                                  </div>
+                                </div>  
+
+
+
+                                <br>
                             </div>
                           </div>
                         </div>
@@ -147,10 +146,6 @@
                   <div class="card shadow mb-5">
                     <div class="card-body">
                       <h4 class="text-center">{{nb_certificates}} Credential(s) </h4>
-                      <!--
-                         <a class="text-secondary" href="/user/request_certificate/"><button class="btn btn-primary btn-sm" type="button">Request New Credential</button></a>
-                      </h4>
-                      -->
                       {% if session['all_certificate'] == [] %}
                       <div style="height:50px;overflow:auto;overflow-x: hidden;">
                         <p class="card-text">{{certificates|safe}}</p>
@@ -168,7 +163,7 @@
             </div>
             <div class="row justify-content-md-center">
               <div class="col-3 text-center">
-                <a class="dropdown-item" title="Download your personal QRCode" role="presentation" href="/user/download_QRCode/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;QRCode to your external view&nbsp;</a>
+                <a class="dropdown-item" title="Download your personal QRCode" role="presentation" href="/user/download_QRCode/"><i class="fa fa-download fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;QRCode to link your portfolio&nbsp;</a>
               </div>
             </div>
           </div>
@@ -190,7 +185,6 @@
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
   <script src="{{ url_for('static', filename='encryption.js') }}"></script>
 
 

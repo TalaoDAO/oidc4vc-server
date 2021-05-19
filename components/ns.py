@@ -84,20 +84,20 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 	conn = sqlite3.connect(path + 'nameservice.db')
 	c = conn.cursor()
 	now = datetime.now()
+	did_list = list()
+	method = ''
 	if password != 'identity' :
 		password = mode.w3.keccak(text=password).hex()
 	if did :
 		method = did.split(':')[1]
-		did = '[' + did + ']'
-	else :
-		method = ''
+		did_list.append(did)
 	try :
 		data = {'identity_name' : identity_name,
 			 'identity_workspace_contract' : identity_workspace_contract,
 			 'date' : datetime.timestamp(now),
 			 'wallet' : wallet,
 			 'method' : method,
-			 'did' : did,
+			 'did' : json.dumps(did_list),
 			 'personal' : personal}
 		c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet, :method, :did, :personal)", data)
 		data = {'alias_name' : identity_name,

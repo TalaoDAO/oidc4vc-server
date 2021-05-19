@@ -5,6 +5,7 @@
   {% include 'head.html' %}
 
 </head>
+
 <body id="page-top"  >
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
@@ -31,9 +32,12 @@
     {% else %}
         {% include 'user_nav_bar.html' %}
     {% endif %}
-        <div class="container">
+          <div class="container-fluid mt-3">
+          <h3 class="text-dark mb-4">{{name}}</h3>
+                <h6 class="text-dark mb-4">{{profil_title}}</h6>
+
           <div class="row justify-content-center">
-            <div class="col-md-9 col-lg-10 col-xl-8">
+            <div class="col-xl-4">
               <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                 <div class="card-body p-0">
                   <div class="col">
@@ -41,14 +45,13 @@
                         <div class='text-center'><h4 class='text-dark mb-4'>Logout</h4>
                        <form class="user" action="." method="post">
                           <div>
-                            <p>Your wallet account will be closed.</p>
                           
                           </div>
                           <div class="form-row">
-                            <div class="col-6 col-xl-3">
+                            <div class="col">
                                 <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
                             </div>
-                            <div class="col-6 col-xl-3">
+                            <div class="col">
                                 <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
                             </div>
                         </div>
@@ -70,4 +73,3 @@
  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 </body>
-</html>

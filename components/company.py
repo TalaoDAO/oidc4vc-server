@@ -21,7 +21,7 @@ class Campaign() :
 		try :
 			c.execute("INSERT INTO campaign VALUES (:campaign_name, :description, :date )", data)
 		except sqlite3.Error as er :
-			logging.error('add camapaign failed  %s', er)
+			logging.error('add campaign failed  %s', er)
 			conn.close()
 			return None
 		conn.commit()

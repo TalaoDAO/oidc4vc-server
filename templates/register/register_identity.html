@@ -60,6 +60,7 @@
                                             </div>
                                         </div>
                                         <hr>
+                                        <!--
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
@@ -69,7 +70,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <hr>
+                                        <hr>  -->
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
@@ -79,11 +80,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                       
+                                        <hr>
                                         <br>
                                         <div class="form-row">
                                             <div class="col">
-                                                <div  class="form-group"><button onclick="storeKeyPair('{{session['username']}}')" class="btn btn-primary btn-sm" type="button">Next</button></div>
+                                                <div  class="form-group"><button onclick="storeKeyPair()" class="btn btn-primary btn-sm" type="button">Next</button></div>
                                             </div>
                                             <div class="col">
 											    <div onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
@@ -109,8 +110,10 @@
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='ion.js') }}"></script>
     <script src="{{ url_for('static', filename='encryption.js') }}"></script>
+    <script src="{{ url_for('static', filename='bn.js') }}"></script>
+    <script src="{{ url_for('static', filename='secp256k1.js') }}"></script>
+
 
     <script>
 
@@ -122,21 +125,47 @@ function goBack() {
 
 
 async function generateDIDs() {
-    // create a secp255k1 key pair for all
-    KeyPair = await ION.generateKeyPair();
-    // did:ion build on browser with ion.js
-    const ionDID = await getIONDID(KeyPair.publicJwk);
+    // create a secp255k1 key pair for all. 
+    //The private key is local to the browser and is not transfered to the server.
+    // That key will be stored plain text client side on session storage and
+    // as a file encrypted on the client desktop.
+
+    // Generating private key
+    // https://github.com/enumatech/secp256k1-js
+    const privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32))
+    const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
+    // Generating public key
+    const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
+    const pubX = Secp256k1.uint256(publicKey.x, 16) 
+    const pubY = Secp256k1.uint256(publicKey.y, 16)
+    const x = base64ToUrlBase64(bnToB64(pubX))
+    const y = base64ToUrlBase64(bnToB64(pubY))
+    const d = base64ToUrlBase64(bnToB64(privateKey))
+
+    KeyPair = {
+            "publicJwk": {
+                "crv": "secp256k1",
+                "kty": "EC",
+                "x": x,
+                "y": y
+                },
+            "privateJwk": {
+                "crv": "secp256k1",
+                "d": d,
+                "kty": "EC",
+                "x": x,
+                "y": y
+                }
+            }
+
     // did:tz build on server with didkit
     const tzDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'tz');
     // did:ethr build on server with didkit
     const ethrDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'ethr');
 
     document.getElementById("tz").value = tzDID;
-    document.getElementById("ion").value = ionDID;
     document.getElementById("ethr").value = ethrDID;
-  
 
-   
 }
 
 
@@ -147,58 +176,19 @@ async function fetchDID(key, method) {
 }
 
 
-// get DID built on browser with ion.js
-async function getIONDID(key) {
-    let did = new ION.DID({
-    content: {
-        publicKeys: [
-      {
-        id: 'key-1',
-        type: 'EcdsaSecp256k1VerificationKey2019',
-        publicKeyJwk: key,
-        purposes: [ 'authentication', 'assertionMethod"' ]
-      }
-        ],
-    }
-    });
-    return await did.getURI();
-}
-
-
 // store keypair on locastorage and desktop. kid(did) is added to the key pai
-async function storeKeyPair(password){
+async function storeKeyPair(){
     const did = getradio();
     KeyPair.publicJwk['kid'] = did;
     KeyPair.privateJwk['kid'] = did;
-    console.log("kid = ",  KeyPair.publicJwk['kid'] )
-    // local storage
-    const encryptedKeyPair = await Encode(JSON.stringify(KeyPair), password)
-    localStorage.setItem('identity_key', encryptedKeyPair );
-    // desktop storage
-    const filename = 'identity_key.txt'
-    save_file(encryptedKeyPair, filename, 'text/plain');
-    // Next button
+    if (did != "own"){
+        sessionStorage.setItem("did", did)
+        sessionStorage.setItem(did, JSON.stringify(KeyPair) )
+        }
     document.getElementById("form").submit();
     }
 
 
-function save_file(data, filename, type) {
-    var file = new Blob([data], {type: type});
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
-        window.navigator.msSaveOrOpenBlob(file, filename);
-    else { // Others
-        var a = document.createElement("a"),
-                url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
-    }
-}
 
 
 function getradio(){
@@ -207,13 +197,37 @@ function getradio(){
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked) {
             did = radios[i].value;
-            if (did == "own")
-                {did = document.getElementById("did_input").value;}
+            //if (did == "own"){
+            //    did = document.getElementById("did_input").value;
+            //    }
             break;
             }
         }
     return did;
     }
+
+
+// https://coolaj86.com/articles/bigints-and-base64-in-javascript/
+function bnToB64(bn) {
+  var hex = BigInt(bn).toString(16);
+  if (hex.length % 2) { hex = '0' + hex; }
+  var bin = [];
+  var i = 0;
+  var d;
+  var b;
+  while (i < hex.length) {
+    d = parseInt(hex.slice(i, i + 2), 16);
+    b = String.fromCharCode(d);
+    bin.push(b);
+    i += 2;
+  }
+  return btoa(bin.join(''));
+}
+
+
+function base64ToUrlBase64(str) {
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
 </script>
 
 </body>
