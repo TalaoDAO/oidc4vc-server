@@ -146,6 +146,7 @@ async function generateDIDs() {
             "publicJwk": {
                 "crv": "secp256k1",
                 "kty": "EC",
+                "alg" : "ES256K-R",
                 "x": x,
                 "y": y
                 },
@@ -153,6 +154,7 @@ async function generateDIDs() {
                 "crv": "secp256k1",
                 "d": d,
                 "kty": "EC",
+                "alg" : "ES256K-R",
                 "x": x,
                 "y": y
                 }
@@ -197,9 +199,6 @@ function getradio(){
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked) {
             did = radios[i].value;
-            //if (did == "own"){
-            //    did = document.getElementById("did_input").value;
-            //    }
             break;
             }
         }

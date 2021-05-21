@@ -21,6 +21,7 @@ def sign(credential, pvk, did, rsa=None):
 
     """
     method = did.split(':')[1]
+
     if method == 'web' and not rsa :
         key = ethereum_to_jwk256k(pvk)
         vm = did + "#key-1"
@@ -28,25 +29,35 @@ def sign(credential, pvk, did, rsa=None):
     elif method == 'web' and rsa :
         key = jwk.JWK.from_pem(rsa.encode())
         key = key.export_private()
-        #del key['kid']
         vm = did + "#key-2"
+
+    elif method == 'ethr' :
+        key = ethereum_to_jwk256kr(pvk)
+        vm = did + "#controller"
+
+    elif method == 'tz' :
+        key = ethereum_to_jwk256kr(pvk)
+        vm = did + "#blockchainAccountId"
 
     else :
         logging.error('method not supported')
         return None
 
-    logging.info('key = %s', key)
-    logging.info('did = %s', did)
-    logging.info('vm = %s', vm)
-
     didkit_options = {
         "proofPurpose": "assertionMethod",
         "verificationMethod": vm
     }
-    return didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
+
+    signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
 
+    # verify credential before leaving
+    if json.loads(didkit.verifyCredential(signed_credential, '{}'))["errors"] :
+        logging.error('signature failed')
+        return None
+
+    return signed_credential
 
 def verify (credential) :
     """

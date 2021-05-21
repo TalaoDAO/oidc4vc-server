@@ -17,7 +17,6 @@ async function Decode(ciphertext, password){
   const keyMaterial = await getKeyMaterial(password);
   salt = str2ab("123456789ABCDEF");
   const encryptingKey = await getKey(keyMaterial, salt);
-  console.log('encryptingKey = ', encryptingKey);
   const encoded = base64ToArrayBuffer(ciphertext);
   const iv = str2ab("1000");
   var result;
@@ -41,7 +40,7 @@ async function Decode(ciphertext, password){
 
 async function Encode(text, password){
     const keyMaterial = await getKeyMaterial(password);
-    salt = str2ab("123456789ABCDEF");
+    const salt = str2ab("123456789ABCDEF");
     const encryptingKey = await getKey(keyMaterial, salt);
     const encoded = str2ab(text);
     const iv = str2ab("1000")
@@ -53,7 +52,6 @@ async function Encode(text, password){
         encryptingKey,
         encoded
         );
-        console.log('encrypted = ' , encrypted)
     return  arrayBufferToBase64(encrypted);
     }
 

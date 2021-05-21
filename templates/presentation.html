@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<!-- add_experience.html-->
+<head>
+  {% include 'head.html' %}
+
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% include 'user_nav_bar.html' %}
+        <div class="container-fluid mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+         
+          <div class="row mb-3">
+            <div class="col-xl-8 offset-xl-2">
+
+              <div class="card shadow mb-3">
+                <div class="card-header py-3">
+                  <div class="row">
+                    <div class="col-xl-6">
+                      <p class="text-primary m-0 font-weight-bold">&nbsp;Make a presentation</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                    <p>"Verifiable presentations are packages of evidence—either credentials, or data derived from one or more credentials—built by holders to satisfy a verifier’s requirements. 
+                      Verifiers learn with certainty which issuers have attested something by checking digital signatures against a verifiable data registry" [W3C].<br> 
+                      <br>Select all the credentials you want to add to your presentation.</p>
+                  <br>
+                    <form name="form" action="/user/presentation/" method="POST">
+                   
+                    {{template|safe}}
+
+                    <div hidden class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label for="first_name"><strong>Summary</strong></label><textarea title="Description of the project, with objectives, budget, technos, delays...." class="form-control" data-toggle="tooltip"
+                            data-bs-tooltip="" rows="3" name="description" ></textarea></div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="col-6 col-xl-3">
+                        <div class="form-group"><button id="in_progress_button" title="Add this experience to my Identity." class="btn btn-primary btn-sm" type="submit">Next</button></div>
+                      </div>
+                      <div class="col-6 col-xl-3">
+                        <a href="/user/"><div class="form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div></a>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'user_footer.html' %}
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+  
+
+
+
+</body>
+
+</html>

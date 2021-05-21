@@ -269,11 +269,9 @@ def message_file(to, text, subject, filename, path, mode)  :
 	msg.attach(MIMEText(body, 'plain'))
 
 	for myfile in filename :
-		print(myfile)
 		# open the file to be sent
 		file_with_path = path + myfile
 		filename = myfile
-		print(file_with_path)
 		attachment = open(file_with_path, "rb")
 		# instance of MIMEBase and named as p
 		p = MIMEBase('application', 'octet-stream')

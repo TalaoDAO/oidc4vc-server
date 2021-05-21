@@ -132,7 +132,6 @@ def request_reference_credential(mode) :
     unsigned_credential[ "credentialSubject"]["name"] = session["name"]
     unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
     unsigned_credential[ "credentialSubject"]["offers"]["description"] = request.form['description']
-    print('request form description= ', request.form['description'])
     unsigned_credential[ "credentialSubject"]["offers"]["startDate"] = request.form['startDate']
     unsigned_credential[ "credentialSubject"]["offers"]["endDate"] = request.form['endDate']
     unsigned_credential[ "credentialSubject"]["offers"]["price"] = request.form['budget']
@@ -149,8 +148,6 @@ def request_reference_credential(mode) :
     unsigned_credential["credentialSubject"]["companyName"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]["managerName"] = ""
     unsigned_credential["credentialSubject"]["reviewerName"] = ""
-
-    print('unsigned credential = ', unsigned_credential)
 
     # update local issuer database
     manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['referent']
@@ -202,13 +199,8 @@ def request_experience_credential(mode) :
 
     # update credential with form data
     id = str(uuid.uuid1())
-    method = ns.get_method(session['workspace_contract'], mode)
-    for did in ns.get_did(session['workspace_contract'],mode) :
-        if method == did.split(':')[1] :
-            subject_did = did
-            break
     unsigned_credential["id"] = "data:" + id
-    unsigned_credential["credentialSubject"]["id"] = subject_did
+    unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
     unsigned_credential["credentialSubject"]["name"] = session['name']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
@@ -453,6 +445,12 @@ def issue_credential_workflow(mode) :
             signed_credential = vc_signature.sign(my_credential,
                                                 session['private_key_value'],
                                                 my_credential['issuer'])
+            if not signed_credential :
+                flash('Operation failed ', 'danger')
+                logging.error('credential signature failed')
+                del session['credential_id']
+                del session['call']
+                return redirect (mode.server +'company/dashboard/')
 
             # update local company database
             credential = company.Credential(session['host'], mode)
@@ -481,6 +479,7 @@ def issue_credential_workflow(mode) :
                 logging.error('certificate to repository failed')
             else :
                 flash('The credential has been added to the user repository', 'success')
+
             """
             # send an email to user
             link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)
@@ -506,7 +505,6 @@ def issue_credential_workflow(mode) :
             except :
                 logging.error('email credential to subject failed')
 
-            # TODO delete credential
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
             # update local database

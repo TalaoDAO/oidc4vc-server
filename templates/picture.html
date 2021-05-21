@@ -2,8 +2,9 @@
 <html>
 
 <head>
+  {% include 'head.html' %}
 
-  <meta charset="utf-8">
+<!--  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
   <title>Talao Professional Identity</title>
   <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
@@ -16,7 +17,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">  -->
 </head>
 
 <body id="page-top">
@@ -48,18 +49,12 @@
 
 
 
-        <div class="container-fluid">
-          <div class="text-center mt-3">
-          <h3 class="text-dark mb-4">{{name}}
-            <a class="text-secondary" onclick="copyToClipboard('#p100')">
-              <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-            </a>
-          </h3>
-          <p hidden id="p100">{{clipboard}}</p>
+        <div class="container-fluid mt-3">
+          <h3 class="text-dark mb-4">{{name}}</h3>
           <h6 class="text-dark mb-4">{{profil_title}}</h6>
-          </div>
+        
           <div class="row mb-3">
-            <div class="col-lg-4 col-xl-4 offset-xl-4">
+            <div class="col-xl-4 offset-xl-4">
               <div class="card mb-3">
                 <div class="card-header py-3">
                   <p class="text-primary m-0 font-weight-bold">Image</p>
@@ -67,10 +62,10 @@
                 <div class="card-body text-center shadow">
 
                   <div class="image_container">
-                    <img id="input" src="#" class="d-none"/>
-                    <img id="old" src="{{ url_for('send_file', filename=picturefile) }}" style="height: 300px; max-width:500"/>
+               <!--     <img id="input" src="#" class="d-none"/>    style="height: 300px; max-width:500"-->
+                    <img id="old" src="{{ url_for('send_file', filename=picturefile) }}" style="height: 300px; max-width:500" >
                   </div>
-
+                  <br><br>
                   <div class="input-group mb-3">
                     <div class="input-group-prepend">
                       <button class="btn btn-primary btn-sm"  id="loading_button">Save</button>
@@ -79,7 +74,7 @@
                       <label class="custom-file-label" for="file" id="label"></label>
                       <input class="custom-file-input" type="file" name="image" id="file" onchange="readURL(this);" />
                     </div>
-                      <a href="/user/"> <button class="btn btn-primary text-left" type="button">Back</button></a>
+                      <a href="/user/account"> <button class="btn btn-primary text-left" type="button">Back</button></a>
                   </div>
                 </div>
 

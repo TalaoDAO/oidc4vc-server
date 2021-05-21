@@ -45,7 +45,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository
 
 # Release
-VERSION = "0.9.10"
+VERSION = "0.9.11"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -128,8 +128,8 @@ app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, me
 
 
 # Centralized route for main features
-app.add_url_rule('/verifier/',  view_func=web_main.verifier, methods = ['GET', 'POST'])
 
+app.add_url_rule('/verifier/',  view_func=web_main.verifier, methods = ['GET', 'POST'])
 app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
 app.add_url_rule('/user/generate_identity/',  view_func=web_main.generate_identity, methods = ['GET', 'POST'],  defaults={'mode' : mode})
 app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'])
@@ -151,6 +151,7 @@ app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_co
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_activity/',  view_func=web_main.add_activity, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/presentation/',  view_func=web_main.presentation, methods = ['GET','POST'], defaults={'mode' : mode})
 
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -246,7 +247,7 @@ def well_known_did (mode) :
     https://w3c-ccg.github.io/did-method-web/
     https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains
     """
-    address = mode.owner_talao
+    address = mode.owner_talao 
 
     # RSA
     pvk = privatekey.get_key(address, 'rsa_key', mode)

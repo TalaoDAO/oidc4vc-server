@@ -50,16 +50,10 @@
 
 
 
-        <div class="container-fluid">
-          <div class="text-center mt-3">
-            <h3 class="text-dark mb-4">{{name}}
-              <a class="text-secondary" onclick="copyToClipboard('#p100')">
-                <i data-toggle="tooltip" style="font-size: 20px;" class="fa fa-clipboard " title="Copy public link to your Identity."></i>
-              </a>
-            </h3>
-            <p hidden id="p100">{{clipboard}}</p>
-            <h6 class="text-dark mb-4">{{profil_title}}</h6>
-          </div>
+        <div class="container-fluid mt-3">
+          <h3 class="text-dark mb-4">{{name}}</h3>
+          <h6 class="text-dark mb-4">{{profil_title}}</h6>
+         
           <div class="row mb-3">
             <div class="col-lg-4 col-xl-4 offset-xl-4">
               <div class="card mb-3">
@@ -69,8 +63,9 @@
                 <div class="card-body text-center shadow">
                   <div class="image_container">
                     <img id="input" src="#" class="d-none"/>
-                    <img id="old" src="{{ url_for('send_file', filename=signaturefile) }}" style="height: 300px; max-width:500"/>
+                    <img id="old" src="{{ url_for('send_file', filename=signaturefile) }}" style="height: 300px; max-width:500">
                   </div>
+                  <br><br>
 
                   <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -80,7 +75,7 @@
                       <label class="custom-file-label" for="file" id="label"></label>
                       <input class="custom-file-input" type="file" name="image" id="file" onchange="readURL(this);" />
                     </div>
-                      <a href="/user/"> <button class="btn btn-primary text-left" type="button">Back</button></a>
+                      <a href="/user/account/"> <button class="btn btn-primary text-left" type="button">Back</button></a>
                   </div>
                 </div>
               </div>
@@ -98,9 +93,6 @@
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
       <script type="text/javascript" src="{{ url_for('static', filename='cropperjs/dist/cropper.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-
-      <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
-      <script type="text/javascript" src="{{ url_for('static', filename='cropperjs/dist/cropper.js') }}"></script>
 
       <script type="text/javascript" defer>
         function readURL(input) {

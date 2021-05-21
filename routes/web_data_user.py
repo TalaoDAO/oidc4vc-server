@@ -302,7 +302,6 @@ def user(mode) :
 
 		# education
 		my_education = ""
-		print('education = ', session['education'])
 		if not session['education'] :
 			my_education = my_education + """<a class="text-info">No Education available</a>"""
 		else :
@@ -557,14 +556,10 @@ def user_advanced(mode) :
 	my_account = ""
 	if session['username'] == 'talao' :
 		relay_eth = mode.w3.eth.getBalance(mode.relay_address)/1000000000000000000
-		relay_token = float(token_balance(mode.relay_address,mode))
 		talaogen_eth = mode.w3.eth.getBalance(mode.Talaogen_public_key)/1000000000000000000
-		talaogen_token = float(token_balance(mode.Talaogen_public_key, mode))
 		my_account = my_account + """<br><br>
 					<b>Relay ETH</b> : """ + str(relay_eth) + """<br>
-					<b>Relay token Talao</b> : """ + str(relay_token) + """<br><br>
-					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>
-					<b>Talao Gen token Talao</b> : """ + str(talaogen_token)
+					<b>Talao Gen ETH</b> : """ + str(talaogen_eth) + """<br>"""
 
 	# API
 	credentials = ns.get_credentials(session['username'], mode)
@@ -611,7 +606,9 @@ def user_advanced(mode) :
 		# did:tz has no driver for Universal resolver
 		DID_Document = json.dumps(json.loads(didkit.resolveDID(DID,'{}')), indent=4)
 	else  :
-		r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + DID)
+		resolver = 'https://resolver.identity.foundation/'
+		#resolver = 'https://dev.uniresolver.io/1.0/identifiers/'
+		r = requests.get( resolver + DID)
 		if r.status_code == 200 :
 			DID_Document = json.dumps(r.json(), indent=4)
 		else :
@@ -621,7 +618,8 @@ def user_advanced(mode) :
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
-					<b>Repository</b> : """+ session['workspace_contract'] + """</a><br>
+					<b>Repository smart contract</b> : """+ session['workspace_contract'] + """<br>
+					<b>Repository controller</b> : """+ session['address'] + """<br>
 					<b>DID</b> : """ + DID + """<br>
 					<b>All DID attached</b> : """ + "<br>".join(ns.get_did_list(session['workspace_contract'], mode)) + """<br>
 					<hr>

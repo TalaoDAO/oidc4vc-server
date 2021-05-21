@@ -7,7 +7,8 @@ import ipfshttpclient
 from eth_account import Account
 from datetime import datetime, timedelta
 from base64 import b64encode, b64decode
-
+import logging
+logging.basicConfig(level=logging.INFO)
 #dependances
 import constante
 import environment
@@ -24,7 +25,7 @@ def add_file(address_from, workspace_contract_from, address_to, workspace_contra
 	try :
 		this_file = open(file_path, mode='rb')  # b is important -> binary
 	except IOError :
-		print('Error : IOEroor open file in File.py')
+		logging.error('Error : IOEroor open file in File.py')
 		return None, None, None
 	this_data = this_file.read()
 	data = {'filename' : file_name , 'content' : b64encode(this_data).decode('utf_8')}
@@ -103,7 +104,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	elif doctype == 30002 :
 		privacy = 'secret'
 	else :
-		print('Error : wrong doctype in get file')
+		logging.error('Error : wrong doctype in get file')
 		return None
 
 	# get transaction info
@@ -127,7 +128,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			created = str(date)
 			break
 	if not found :
-		print('Error : event list in get_file')
+		logging.error('Error : event list in get_file')
 		return None
 
 	# recuperation du msg
@@ -172,7 +173,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 	else : 	# workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None:
 		to_be_decrypted = False
 		to_be_stored = False
-		print('Warning : workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None (file.py)')
+		logging.error('Warning : workspace_contract_from != wokspace_contract_user and privacy == secret or private_key_from is None (file.py)')
 		data =  {'filename': filename, 'content': "Encrypted"}
 
 	if to_be_decrypted :
@@ -181,7 +182,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		address_from = contract.functions.contractsToOwners(workspace_contract_from).call()
 		rsa_key = privatekey.get_key(address_from, 'rsa_key', mode)
 		if rsa_key is None :
-			print('Warning : RSA key not found in file.py')
+			logging.error('Warning : RSA key not found in file.py')
 			return None
 
 		# decoder la cle AES cryptée avec la cle RSA privée
@@ -201,7 +202,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 			msg = json.loads(plaintext.decode('utf-8'))
 			data = msg
 		except ValueError :
-			print("Error : data Decryption error")
+			logging.error("Error : data Decryption error")
 			return None
 
 	new_filename = filename if new_filename == "" else new_filename

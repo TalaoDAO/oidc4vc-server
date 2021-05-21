@@ -27,7 +27,8 @@
                                 <div class="card-body">
                                     <p>
                                     You can now choose the registry to support your Decentralized Identity. In case you don't have specific expectations, keep the Identity selected by default.<br>
-                                    Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser and an encrypted file will be saved on your desktop (identity_key.txt)
+                                    <br>Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser
+                                     and an encrypted file will be saved on your desktop.
                                     </p>
                                     <br>
                                     <form id="form" name="form" action="/user/generate_identity/" method="POST"  >
@@ -40,20 +41,11 @@
                                             </div>
                                         </div>
                                         <hr>
-                               <!--         <div class="form-row">
-                                            <div class="col">
-                                                <div class="form-group form-check">
-                                                    <input id="ion" type="radio" class="form-check-input" value="" name="did">
-                                                    <label id="label_ion" style="color: rgb(133,135,150);" title="" >did:ion. This Identity is supported by the Bitcoin blockchain.</label>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr>  -->
+                            
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
-                                                    <input id="tz" type="radio" class="form-check-input" value="" name="did">
+                                                    <input id="tz" checked type="radio" class="form-check-input" value="" name="did">
                                                     <label id="label_tz" style="color: rgb(133,135,150);" title="" >did:tz. This Identity is supported by the Tezos blockchain.</label>
 
                                                 </div>
@@ -62,7 +54,7 @@
                                         <br>
                                         <div class="form-row">
                                             <div class="col-sm">
-                                                <div  class="form-group"><button onclick="storeKeyPair('{{session['username']}}')" class="btn btn-primary btn-sm" type="button">Next</button></div>
+                                                <div  class="form-group"><button onclick="storeKeyPair()" class="btn btn-primary btn-sm" type="button">Next</button></div>
                                             </div>
                                         </div>
                                     </form>
@@ -81,32 +73,55 @@
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='ion.js') }}"></script>
     <script src="{{ url_for('static', filename='encryption.js') }}"></script>
+    <script src="{{ url_for('static', filename='bn.js') }}"></script>
+    <script src="{{ url_for('static', filename='secp256k1.js') }}"></script>
+
 
     <script>
 
 var KeyPair;
 
 async function generateDIDs() {
-    // create a secp255k1 key pair for all
-    KeyPair = await ION.generateKeyPair();
 
-    // did:ion build on browser with ion.js
-    //const ionDID = await getIONDID(KeyPair.publicJwk);
+    const privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32))
+    const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
+    // Generating public key
+    const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
+    const pubX = Secp256k1.uint256(publicKey.x, 16) 
+    const pubY = Secp256k1.uint256(publicKey.y, 16)
+    const x = base64ToUrlBase64(bnToB64(pubX))
+    const y = base64ToUrlBase64(bnToB64(pubY))
+    const d = base64ToUrlBase64(bnToB64(privateKey))
+
+    KeyPair = {
+            "publicJwk": {
+                "crv": "secp256k1",
+                "kty": "EC",
+                "alg" : "ES256K-R",
+                "x": x,
+                "y": y
+                },
+            "privateJwk": {
+                "crv": "secp256k1",
+                "d": d,
+                "kty": "EC",
+                "alg" : "ES256K-R",
+                "x": x,
+                "y": y
+                }
+            }
 
     // did:tz build on server with didkit
     const tzDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'tz');
     // did:ethr build on server with didkit
     const ethrDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'ethr');
 
-    document.getElementById("label_tz").innerHTML = tzDID ;
-    //document.getElementById("label_ion").innerHTML = ionDID.substr(0,50) + "..." ;
-    document.getElementById("label_ethr").innerHTML = ethrDID ;
     document.getElementById("tz").value = tzDID;
-    //document.getElementById("ion").value = ionDID;
     document.getElementById("ethr").value = ethrDID;
 }
+
+
 
 // get DID unpublishd built on server with didkit
 async function fetchDID(key, method) {
@@ -114,60 +129,16 @@ async function fetchDID(key, method) {
   return response.json();
 }
 
-/*
-// get DID unpublished build on browser with ion.js
-async function getIONDID(key) {
-    let did = new ION.DID({
-    content: {
-        publicKeys: [
-      {
-        id: 'key-1',
-        type: 'EcdsaSecp256k1VerificationKey2019',
-        publicKeyJwk: key,
-        purposes: [ 'authentication', 'assertionMethod' ]
-      }
-        ],
-    }
-    });
-    //return await did.getURI('short');
-    return await did.getURI();
-}
-*/
-
-// store keypair on locastorage and desktop. kid(did) is added to the key pai
-async function storeKeyPair(password){
+// store keypair on session storage and desktop. kid(did) is added to the key pai
+async function storeKeyPair(){
     const did = getradio();
     KeyPair.publicJwk['kid'] = did;
     KeyPair.privateJwk['kid'] = did;
-    // local storage
-    const encryptedKeyPair = await Encode(JSON.stringify(KeyPair), password)
-    localStorage.setItem('identity_key', encryptedKeyPair );
-    // desktop storage
-    const filename = 'identity_key.txt'
-    save_file(encryptedKeyPair, filename, 'text/plain');
+    sessionStorage.setItem('did', did );
+    sessionStorage.setItem(did, JSON.stringify(KeyPair) );
     // Next button
     document.getElementById("form").submit();
     }
-
-
-// basic store file function client side
-function save_file(data, filename, type) {
-    var file = new Blob([data], {type: type});
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
-        window.navigator.msSaveOrOpenBlob(file, filename);
-    else { // Others
-        var a = document.createElement("a"),
-                url = URL.createObjectURL(file);
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
-    }
-}
 
 
 // rerurn the value of the radion button checked
@@ -182,6 +153,29 @@ function getradio(){
         }
     return did;
     }
+
+
+// https://coolaj86.com/articles/bigints-and-base64-in-javascript/
+function bnToB64(bn) {
+  var hex = BigInt(bn).toString(16);
+  if (hex.length % 2) { hex = '0' + hex; }
+  var bin = [];
+  var i = 0;
+  var d;
+  var b;
+  while (i < hex.length) {
+    d = parseInt(hex.slice(i, i + 2), 16);
+    b = String.fromCharCode(d);
+    bin.push(b);
+    i += 2;
+  }
+  return btoa(bin.join(''));
+}
+
+
+function base64ToUrlBase64(str) {
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
 
 </script>
 

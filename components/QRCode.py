@@ -5,6 +5,9 @@ from sys import getsizeof
 import time
 import qrcode
 from PIL import Image, ImageEnhance
+import logging
+logging.basicConfig(level=logging.INFO)
+import constante
 
 def get_QRCode(mode, link):
     #Generate the QRCode linking to teh outside view of the CV and saves it
@@ -27,7 +30,7 @@ def get_QRCode(mode, link):
     try :
         logo = Image.open(getcwd() + '/static/img/'  + logo)
     except :
-        print('pb file open dans qrcode?py')
+        logging.error('pb file open dans qrcode?py')
     logo.convert("RGB")
 
     #merge both png to get the final result and saves it

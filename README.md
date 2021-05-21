@@ -9,8 +9,6 @@ Legal identities for persons and organizations.
 Customer references.
 Business certificates and licences.
 
-Here is an example of a customer reference issued by a company for one of its professional services providers (this credential has been stored in a repository to be publicly available). 
-
 The approach we use is based on the Self Sovereign Identities standards (SSI) to manage Decentralized Identifiers (DID) and Verifiable Credentials (VC). Those standards have been published by the W3 Consortium  :
 
 * https://www.w3.org/TR/did-core/

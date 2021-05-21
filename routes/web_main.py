@@ -39,6 +39,7 @@ PERSON_TOPIC = ['firstname','lastname', 'about', 'profil_title', 'birthdate', 'c
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
 
 
+
 # Check if session is active and access is fine. To be used for all routes, excetp external call
 def check_login() :
     if not session.get('workspace_contract') and not session.get('username') :
@@ -63,7 +64,65 @@ def generate_identity(mode) :
         session['method'] = did.split(':')[1]
         ns.add_did(session['workspace_contract'], did, mode)
         ns.update_method(session['workspace_contract'], session['method'], mode)
-        return redirect (mode.server + 'user/')
+        return render_template('generate_identity_password.html', **session['menu'], did=did)
+
+
+def presentation(mode) :
+    """ make a presentation 
+    @route /user/presenttaion/
+    """
+    if request.method == 'GET' :
+        if not session['all_certificate'] :
+            lign = """<a class="text-info">No Credential available</a>"""
+        else :
+            template =''
+            for counter, certificate in enumerate(session['all_certificate'],0) :
+                # Display raw verifiable credential
+                doc_id = certificate['id'].split(':')[5]
+                credential = Document('certificate')
+                credential.relay_get_credential(session['workspace_contract'], int(doc_id), mode)
+                credential_text = json.dumps(credential.__dict__, indent=4, ensure_ascii=False)
+                try :
+                    lign = """<div class="form-row">
+                        <div class="col">
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" value='"""+ doc_id +"""' name='""" + str(counter) + """' >
+                                <label><b>id</b> : """ + credential.__dict__['id'] + """</label>
+                                <b>Credential Type</b> : """ + credential.__dict__['credentialSubject']['credentialCategory'].capitalize()+ """  <b>Privacy</b> : """ +certificate['privacy'].capitalize() + """<br>
+                                <div> <textarea  readonly class="form-control" rows="5">""" + credential_text + """</textarea></div>
+                                </div>
+                            </div>
+                        </div>"""
+                except :
+                    lign = """<hr>
+                    <b>#</b> : """ + str(counter) + "<br>"
+                template += lign
+                session['counter'] = str(counter)
+
+        return render_template('presentation.html', **session['menu'], template=template)
+
+    if request.method == 'POST' :
+        vc_list = list()
+        for counter in range(0,int(session['counter'])+1) :
+            if request.form.get(str(counter)) :
+                credential = Document('certificate')
+                credential.relay_get_credential(session['workspace_contract'], int(request.form[str(counter)]), mode)
+                vc_list.append(credential.__dict__)
+        if not vc_list :
+            flash("No credential selected", "warning")
+            return redirect(mode.server + 'user/presentation/')
+        did = ns.get_did(session['workspace_contract'], mode)
+        presentation = {
+            "@context": ["https://www.w3.org/2018/credentials/v1"],
+            "id": "data:" + str(uuid.uuid1()),
+            "type": ["VerifiablePresentation"],
+            "holder":  did,
+            "verifiableCredential": vc_list
+            }
+        return render_template('sign_presentation.html', **session['menu'],
+                                did=did,
+                                presentation=json.dumps(presentation),
+                                presentation_displayed=json.dumps(presentation, ensure_ascii= False, indent=4))
 
 
 # helper
@@ -351,11 +410,9 @@ def view_job_offer(mode) :
 def select_identity (mode) :
     if request.method == 'GET' :
 
-        """ Slect Identity for companies only
-        
-        DEPRECATED
-        
-        On utilise uniquement did:web et did:ion
+        """ Select Identity for companies only
+
+            On utilise uniquement did:web et did:ethr
         """
         # FIXME
         method = ns.get_method(session['workspace_contract'], mode)
@@ -376,9 +433,13 @@ def select_identity (mode) :
     if request.method == 'POST' :
         ns.update_method(session['workspace_contract'], request.form['method'], mode)
         session['method'] = request.form['method']
-        did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'], session['address'])
-        did_list = ns.get_did(session['workspace_contract'], mode)
-        if did not in did_list :
+        if session['method'] == 'ethr' :
+            did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+        else :
+            did = request.form.get('web_did')
+            if not did :
+                return redirect(mode.server + 'user/')
+        if not did in ns.get_did_list(session['workspace_contract'], mode) :
             ns.add_did(session['workspace_contract'], did, mode)
         return redirect(mode.server + 'user/')
 

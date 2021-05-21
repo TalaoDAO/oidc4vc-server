@@ -35,8 +35,6 @@
         <div class="container-fluid mt-3">
           <h3 class="text-dark mb-4">{{name}}</h3>
                 <h6 class="text-dark mb-4">{{profil_title}}</h6>
-          
-
             <div class="row">
                 <div class=" col-xl-6  offset-xl-3">
 
@@ -44,7 +42,10 @@
                   <div class="card-body">
                     <h4 title="Services available." class="text-center">Advanced</h4>
                     <div role="tablist" id="accordion-2">
+
+                        <!--
                       {% if display_alias == True %}
+                    
                       <div class="card">
                         <div class="card-header" role="tab">
                           <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="An Alias allows you to manage your Identity through different username and email."><i class="fa fa-laptop"></i><a class="text-secondary" data-toggle="collapse"
@@ -57,6 +58,7 @@
                         </div>
                       </div>
                       {% endif %}
+
                       <div class="card">
                         <div class="card-header" role="tab">
                           <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Referent is an individual or a company you have authorized to issue certificates confirming your skills, experience or abilities."><i
@@ -68,6 +70,7 @@
                           </div>
                         </div>
                       </div>
+                    -->
                       <div class="card">
                         <div class="card-header" role="tab">
                           <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="A Partner is a Referent with which you aggree to exchange private data. It is the highest ranking."><i class="fas fa-hands-helping"></i><a class="text-secondary"
@@ -157,8 +160,25 @@
                       </div>
                       <div class="collapse item-8" role="tabpanel" data-parent="#accordion-2">
                         <div class="card-body">
-                          <a onclick="copyToClip('#p200')" class="dropdown-item " title="Keep this key private." role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy your private key to clipboard &nbsp;</a>
+                          <a id='clipboard_display' onclick="copyToClip('#p200')" class="dropdown-item " title="Keep this key private." role="presentation" href=""><i class="fa fa-clipboard fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Copy your private key to clipboard &nbsp;</a>
                           <p hidden id="p200"></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card">
+                      <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Import Identity">
+                        <h5 class="mb-0"><i class="fa fa-clipboard"></i><a class="text-secondary"  data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-18" href="#accordion-2 .item-18">&nbsp; Import Identity</a></h5>
+                      </div>
+                      <div class="collapse item-18" role="tabpanel" data-parent="#accordion-2">
+                        <div class="card-body">
+                          <div class="input-group mb-3">
+                            <div class="custom-file">
+                              <label class="custom-file-label" for="file" id="label"></label>
+                              <input class="custom-file-input" type="file"  id="file-upload">
+                            </div>
+                              <a href="/user/advanced/"> <button class="btn btn-primary text-left" type="button">Back</button></a>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -174,7 +194,6 @@
                             <hr>
                             <b>Version</b> :{{Version}} <br>
                             <b>Created</b> :{{Created}} <br>
-
                           </div>
                         </div>
                       </div>
@@ -197,21 +216,30 @@
   {% include 'user_footer.html' %}
 
 
-  <script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='encryption.js') }}"></script>
 
+<script>
 
 async function decrypt_key(){
   var key;
   const encrypted = localStorage.getItem('{{did}}');
   if (!encrypted) {
-  key = "No key available";
+      key = "No key available";
+      alert('Your cryptographic key is not available.')
+      document.getElementById("clipboard_display").style.display = "none";  
   } else {
-  var password = prompt("Please enter your password : ");
-  key = await Decode(encrypted, password);
+      var password = prompt("Please enter your password : ");
+      key = await Decode(encrypted, password);
   }
   document.getElementById("p200").innerHTML = key ;
   console.log('key = ', key)
   }
+
 
 async function copyToClip(element) {
   var $temp = $("<input>");
@@ -222,15 +250,25 @@ async function copyToClip(element) {
     }
 
 
+    var input_file = document.getElementById('file-upload');
+    input_file.onchange = function() {
+      var file = this.files[0];
+      document.getElementById('label').innerHTML = file['name'];
+      var reader = new FileReader();
+      reader.onload = async function(ev) {
+            const encrypted = ev.target.result;
+            console.log(encrypted);
+            var password = prompt("Please enter your password : ");
+            const key = await Decode(encrypted, password);
+            const did = await JSON.parse(key)['publicJwk']['kid']
+            localStorage.setItem(did, encrypted);
+          };
+      reader.readAsText(file); 
+    };
+
   </script>
 
 
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='encryption.js') }}"></script>
 
 </body>
 
