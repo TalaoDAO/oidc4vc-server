@@ -16,13 +16,13 @@
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Credential</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Change credential privacy</p>
                         </div>
                         <div class="card-body">
-                            <form name="form" action="/user/remove_certificate/" method="post">
+                            <form name="form" action="/user/swap_privacy/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Confirm the removal of the credential</p>
+                                        <p>Confirm you want to make this certificate {{new_privacy}}</p>
                                     </div>
                                 </div>
 

@@ -24,9 +24,6 @@ doctypeversion = 5 : data encrypted client side as JW. There is no encryption , 
 
 import json
 import hashlib
-from eth_account import Account
-from datetime import datetime, timedelta
-from base64 import b64encode, b64decode
 from authlib.jose import JsonWebEncryption
 from Crypto.PublicKey import RSA
 import uuid
@@ -146,13 +143,19 @@ def _create(address_from, workspace_contract_from, address_to, workspace_contrac
 		return None, None, None
 
 def _get(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :
+
+	# @documentID is int
+	if not isinstance (documentId, int) :
+		documentId = int(documentId)
+		logging.error('doc_id must be int')
+
 	w3 = mode.w3
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
-	try :
-		(doctype, doctypeversion, unused, issuer, unused, unused, ipfshash, unused, unused) = contract.functions.getDocument(documentId).call()
-	except :
-		logging.error('connexion blockchain talaonet impossble, document.py')
-		return None, None, None, None, None, None, None
+	#try :
+	(doctype, doctypeversion, unused, issuer, unused, unused, ipfshash, unused, unused) = contract.functions.getDocument(documentId).call()
+	#except :
+	#	logging.error('connexion blockchain talaonet impossble, document.py')
+	#	return None, None, None, None, None, None, None
 
 	if doctype in [50000,40000,10000,15000,20000,11000] :
 		privacy = 'public'
@@ -254,7 +257,7 @@ class Document() :
 			self.data_location = 'https://gateway.pinata.cloud/ipfs/'+ ipfshash
 			self.privacy = privacy
 			self.doc_id = doc_id
-			self.id = 'did:talao:' + mode.BLOCKCHAIN + ':' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
+			self.id = 'did:talao:talaonet:' + identity_workspace_contract[2:] + ':document:' + str(doc_id)
 			del self.doctype
 		return True
 
@@ -282,7 +285,7 @@ class Document() :
 
 	def relay_update_privacy(self, identity_workspace_contract, doc_id, new_privacy, mode) :
 		(issuer_address, identity_workspace_contract, data, ipfshash, privacy, id, sequence) = _get(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)
-		if privacy == new_privacy :
+		if privacy == new_privacy or issuer_address is None :
 			return None, None, None
 		self.relay_delete(identity_workspace_contract, doc_id, mode)
 		sequence += 1

@@ -236,6 +236,7 @@ class Credential() :
 
 
     def get(self, issuer_username, reviewer_username, status) :
+	
 	    path = self.mode.db_path
 	    conn = sqlite3.connect(path + self.company +'.db')
 	    c = conn.cursor()
@@ -255,11 +256,11 @@ class Credential() :
 		    logging.error('get veriable credential failed %s', er)
 		    conn.commit()
 		    conn.close()
-		    return None
+		    return []
 	    select=c.fetchall()
 	    conn.close()
 	    if not select :
-		    return None
+		    return []
 	    return select
 
     def get_by_id(self, id) :

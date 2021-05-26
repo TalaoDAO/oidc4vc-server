@@ -364,8 +364,9 @@ def user(mode) :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				try : 
 					cert_html = """<hr>
-					<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize()+"""<br>
-					<b>Credential Context</b> : """ + ",".join(certificate['@context']) + """<br>
+					<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
+					<b>Privacy</b> : """ + certificate['privacy'].capitalize() + """ credential<br>
+					<b>Issuer name</b> : """ + certificate['credentialSubject'].get('companyName', 'None').capitalize() + """ <br>
 					<b>Issuer DID</b> : """ + certificate['issuer'] +"""<br>
 					<b>Issuance Date</b> : """ + certificate['proof']['created'] + """<br>"""
 				except :
@@ -374,7 +375,7 @@ def user(mode) :
 
 				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
 					<p>
-					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """&certificate_title="""+ certificate.get('title', "None") + """">
+					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
 					<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 
@@ -383,10 +384,12 @@ def user(mode) :
 					</a>
 
 					<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
-					<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link"></i>
+					<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link">&nbsp&nbsp&nbsp</i>
 					</a>
 
-					<a class="text-secondary" title="Update privacy" href=/data/?dataId=""" + certificate['id'] + """:certificate>&nbsp;&nbsp;"""+ certificate['privacy'].capitalize() + """ credential</a>
+					<a class="text-secondary" href=/user/swap_privacy/?certificate_id=""" + certificate['id'] + """&privacy=""" + certificate['privacy'] +  """>
+					<i data-toggle="tooltip" title="Change privacy" class="fas fa-redo" >&nbsp&nbsp&nbsp</i>
+					</a>
 
 					</p>
 					<p hidden id="p""" + str(counter) + """" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
@@ -519,9 +522,6 @@ def user(mode) :
 								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
 								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
 								</a>
-
-							
-
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				else :

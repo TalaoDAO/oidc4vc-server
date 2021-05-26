@@ -9,12 +9,22 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                      {% if session['type'] == "company" %}
-                 {% include 'company_nav_bar.html' %}
-             {% else %}
-                 {% include 'user_nav_bar.html' %}
-             {% endif %}
-
+                {% if session['type'] == "company" %}
+                {% if session['role'] == 'creator' %}
+                    {% include 'company_nav_bar.html' %}
+                {% else %}
+                    {% include 'manager_nav_bar.html' %}
+                {% endif %}
+            {% else %}
+                {% include 'user_nav_bar.html' %}
+            {% endif %}
+          <div class="container-fluid mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+            {% if session['type'] == 'company' %}
+            <h6 class="text-dark mb-4">{{session['employee']}}, {{session['role']}} </h6>
+            {% else %}
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+            {% endif %}
         <div class="container-fluid mt-3">
             <div class="row mb-3">
                 <div class="col-lg-6 offset-lg-3">

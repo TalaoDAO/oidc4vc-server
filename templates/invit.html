@@ -19,23 +19,27 @@
                 {% endif %}
               <div class="container-fluid mt-3">
                 <h3 class="text-dark mb-4">{{name}}</h3>
+                {% if session['type'] == 'company' %}
+                <h6 class="text-dark mb-4">{{session['employee']}}, {{session['role']}} </h6>
+                {% else %}
                 <h6 class="text-dark mb-4">{{profil_title}}</h6>
+                {% endif %}
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Invit a Talent or a Referent</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;Invit a Talent</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/invit/" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Invit a Talent or a Referent to setup his/her own Professional Digital Identity.
+                                        <p>Invit a Talent to setup his/her own Professional Digital Identity.
                                              He/Her will receive an email.</p>
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="col-md-6 col-xl-6">
+                                    <div class="col-md-6 offset-md-3 col-xl-6 offset-xl-3">
                                         <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="name text"><strong>Email</strong><br></label><input class="form-control" type="email" required="" name="email"></div>
                                     </div>
                                 </div>
@@ -62,11 +66,11 @@
 
     </div>
     <script>function goBack() {  window.history.back();}</script>
-    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+ <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
 </body>
 
 </html>

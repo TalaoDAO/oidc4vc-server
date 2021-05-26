@@ -1,15 +1,11 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-import hashlib
-import json
-from datetime import datetime
-from eth_account.messages import encode_defunct
 from eth_account import Account
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_ipfs, Talao_message, ns, privatekey
+from components import Talao_message, privatekey
 import constante
 
 def read_profil (workspace_contract, mode, loading) :
@@ -155,19 +151,23 @@ def get_data_from_token(mode) :
 def token_transfer(address_to, value, mode) :
 	""" Transfert de tokens  Talao depuis le portefeuille TalaoGen """
 	w3 = mode.w3
-	contract=w3.eth.contract(mode.Talao_token_contract,abi=constante.Talao_Token_ABI)
-	# calcul du nonce de l envoyeur de token . Ici le portefeuille TalaoGen
+	contract = w3.eth.contract(mode.Talao_token_contract, abi=constante.Talao_Token_ABI)
 	nonce = w3.eth.getTransactionCount(mode.Talaogen_public_key)
-	# Build transaction
-	valueTalao=value*10**18
-	w3.eth.defaultAccount=mode.Talaogen_public_key
 	logging.info("token balance Talaogen = %s", token_balance(mode.Talaogen_public_key,mode))
-	# tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
-	transaction_hash=contract.functions.transfer(address_to, valueTalao ).transact({'from' : mode.Talaogen_public_key,'gas': 4000000,'gasPrice': w3.toWei(mode.GASPRICE, 'gwei'),'nonce': nonce})	
-	receipt = w3.eth.waitForTransactionReceipt(transaction_hash, timeout=2000, poll_latency=1)
+	txn = contract.functions.transfer(address_to, value*10**18).buildTransaction({
+						'from' : mode.Talaogen_public_key,
+						'chainId': mode.CHAIN_ID,
+						'gas': 60000,
+						'gasPrice': w3.toWei(4, 'gwei'),
+						'nonce': nonce})
+	signed_txn = w3.eth.account.sign_transaction(txn, mode.Talaogen_private_key)
+	w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+	hash= w3.toHex(w3.keccak(signed_txn.rawTransaction))
+	receipt = w3.eth.waitForTransactionReceipt(hash)
+	logging.info("token balance new account = %s", token_balance(address_to,mode))
 	if not receipt['status'] :
 		return None
-	return transaction_hash.hex()
+	return hash
 
 def ether_transfer(address_to, value, mode) :
 	w3 = mode.w3

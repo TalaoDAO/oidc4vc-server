@@ -7,11 +7,10 @@ $ export MYENV=livebox
 $ python main.py
 
 """
-import sys
 import os
 import time
 import json
-from flask import Flask, redirect, jsonify, request
+from flask import Flask, redirect, jsonify
 from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
@@ -21,7 +20,6 @@ logging.basicConfig(level=logging.INFO)
 
 from components import ns, privatekey
 from signaturesuite import helpers
-from protocol import ownersToContracts, get_category
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
@@ -152,12 +150,14 @@ app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = 
 app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_activity/',  view_func=web_main.add_activity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/presentation/',  view_func=web_main.presentation, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/swap_privacy/',  view_func=web_main.swap_privacy, methods = ['GET','POST'], defaults={'mode' : mode})
 
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_education/',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/create_company/',  view_func=web_main.create_company, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_certificate/',  view_func=web_main.remove_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/create_user/',  view_func=web_main.create_user, methods = ['GET','POST'], defaults={'mode' : mode})
+
 app.add_url_rule('/user/remove_file/',  view_func=web_main.remove_file, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_education/',  view_func=web_main.add_education, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/invit/',  view_func=web_main.invit, methods = ['GET','POST'], defaults={'mode' : mode})

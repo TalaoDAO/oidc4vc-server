@@ -33,8 +33,12 @@
         {% endif %}
         <div class="container-fluid mt-3">
           <h3 class="text-dark mb-4">{{name}}</h3>
+          {% if session['type'] == 'company' %}
+          <h6 class="text-dark mb-4">{{session['employee']}}, {{session['role']}} </h6>
+          {% else %}
           <h6 class="text-dark mb-4">{{profil_title}}</h6>
-        
+          {% endif %}
+
           <div class="row">
               <div class="col-8 col-xl-4 offset-2 offset-xl-4">
               <div class="card shadow mb-5">
@@ -55,6 +59,8 @@
                         </h5>
                       </div>
                     </div>
+                    {% endif %}
+                    {% if not session['role'] or session['role'] in ['creator', 'admin', 'issuer'] %}
                     <!-- Update signature -->
                     <div class="card">
                       <div class="card-header" role="tab">

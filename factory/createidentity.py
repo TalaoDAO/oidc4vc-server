@@ -8,16 +8,9 @@ une cle 1 (ERC725) est donnée au Web Relay pour uen délégation de signature
 La cle privée de l identité est sauvergaée dans private.key.db
 
 """
-import sys
-import csv
-from Crypto.Protocol.KDF import PBKDF2
-from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 import json
-import random
-from Crypto.Cipher import AES
-from datetime import datetime, timedelta
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -28,7 +21,7 @@ from components import privatekey, ns, Talao_message
 
 
 # main function called by external modules
-def create_user(username, email, mode, did='', password='', firstname=None,  lastname=None, phone=''):
+def create_user(username, email, mode, did='', password='', firstname=None,  lastname=None, phone='', silent=False):
 
 	email = email.lower()
 
@@ -59,15 +52,21 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	bemail = bytes(email , 'utf-8')
 
 	# Ether transfer from TalaoGen wallet
-	hash = ether_transfer(address, mode.ether2transfer,mode)
+	if not ether_transfer(address, mode.ether2transfer,mode) :
+		logging.error('ether transfer failed')
+		return None, None, None
 	logging.info('ether transfer done')
 
 	# Talao tokens transfer from TalaoGen wallet
-	hash = token_transfer(address,mode.talao_to_transfer,mode)
+	if not token_transfer(address,mode.talao_to_transfer,mode) :
+		logging.error('token transfer failed')
+		return None, None, None
 	logging.info('token transfer done')
 
 	# CreateVaultAccess call in the token to declare the identity within the Talao Token smart contract
-	hash = createVaultAccess(address,private_key,mode)
+	if not createVaultAccess(address,private_key,mode) :
+		logging.error('create vault access failed')
+		return None, None, None
 	logging.info('create vault access done')
 
 	# Identity setup
@@ -130,10 +129,12 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	else :
 		logging.info('key 1 to web Relay has been added')
 
-	# emails send to user and admin
+	# emails send to admin
 	Talao_message.messageLog(lastname, firstname, username, email, "createidentity.py", address, private_key, workspace_contract, "", email, "", "", mode)
-	# By default an email is sent to user
-	Talao_message.messageUser(lastname, firstname, username, email, address, private_key, workspace_contract, mode)
+
+	if not silent :
+		# By default an email is sent to user
+		Talao_message.messageUser(lastname, firstname, username, email, address, private_key, workspace_contract, mode)
 
 	logging.info('end of create identity')
 	return address, private_key, workspace_contract

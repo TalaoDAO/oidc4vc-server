@@ -1,8 +1,5 @@
-import json
 import sqlite3
 
-from protocol import document
-from components import ns
 
 def update_user(mode, session, bool):
     username = session['username']

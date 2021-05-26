@@ -449,9 +449,6 @@ def get_data_from_publickey(publickey, mode) :
 
 
 def _get_data_for_login(username, mode) :
-	if not username :
-		return None
-	""" ne pas utiliser en externe """
 	call = _get_data(username, mode)
 	if call is None :
 		return None
@@ -472,15 +469,16 @@ def get_data_from_username(username, mode) :
 	""" It is almost the same as get_data_for_login but with dict as return """
 	if not username :
 		return dict()
+	#call =	_get_data(username, mode)
 	call = _get_data_for_login(username, mode)
 	if call is None :
 		return dict()
 	workspace_contract, email, phone, password, role, referent, identity_workspace_contract = call
 	address = _contractsToOwners(workspace_contract,mode)
 	return {'email' : email,
-			'address' : address,
-			'workspace_contract' : workspace_contract,
-			'identity_workspace_contract' : identity_workspace_contract,
+			'address' : address, # host
+			'workspace_contract' : workspace_contract, # host
+			'identity_workspace_contract' : identity_workspace_contract, # employee
 			'username' : username,
 			'phone' : phone,
 			'hash_password' : password,

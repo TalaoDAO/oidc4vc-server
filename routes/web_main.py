@@ -1,36 +1,30 @@
 
-import os.path, time
-from flask import session, send_from_directory, flash, jsonify, render_template_string
-from flask import request, redirect, render_template,abort, Response
-from flask_session import Session
+import os.path
+from flask import session, send_from_directory, flash, jsonify
+from flask import request, redirect, render_template,abort
 import random
 import requests
-from datetime import timedelta, datetime
+from datetime import datetime
 import json
 from werkzeug.utils import secure_filename
 import copy
-import urllib.parse
-import unidecode
 from eth_keys import keys
 from eth_utils import decode_hex
-from eth_account.messages import encode_defunct
-from eth_account import Account
 import requests
 from Crypto.PublicKey import RSA
-from authlib.jose import jwt
 import uuid
 import logging
 logging.basicConfig(level=logging.INFO)
 import didkit
 
 from factory import createcompany, createidentity
-from components import Talao_message, Talao_ipfs, hcode, ns, privatekey, QRCode, directory, sms, siren, talao_x509, company
+from components import Talao_message, Talao_ipfs, ns, privatekey, QRCode, directory, sms, siren, talao_x509, company
 from signaturesuite import helpers, vc_signature
 import constante
 from protocol import ownersToContracts, contractsToOwners,partnershiprequest, remove_partnership
 from protocol import  authorize_partnership, reject_partnership, destroy_workspace
-from protocol import delete_key, has_key_purpose, add_key
-from protocol import Claim, File, Identity, Document, read_profil
+from protocol import delete_key, add_key
+from protocol import File, Document
 
 # Constants
 FONTS_FOLDER='templates/assets/fonts'
@@ -237,22 +231,40 @@ def picture(mode) :
 def signature(mode) :
     """
     #@app.route('/user/signature/', methods=['GET', 'POST'])
+    this function is also called for issuer within the company view
     """
     check_login()
-    my_signature = session['signature']
+    if session['role'] != 'issuer' :
+        signature = session['signature']
+    else :
+        session['employee_workspace_contract'] = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
+        signature = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))['signature']
+        if not signature  :
+            signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
+        if not os.path.exists(mode.uploads_path + signature) :
+            Talao_ipfs.get_picture(signature, mode.uploads_path + signature)
+        session['employee_signature'] = signature
     if request.method == 'GET' :
         if request.args.get('badtype') == 'true' :
             flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
-        return render_template('signature.html', **session['menu'], signaturefile=my_signature)
+        return render_template('signature.html', **session['menu'], signaturefile=signature)
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
         filename = "signature.png"
         myfile.save(os.path.join(mode.uploads_path, filename))
         signaturefile = mode.uploads_path + filename
         signature_hash = Talao_ipfs.file_add(signaturefile, mode)
-        session['personal']['signature'] = session['signature'] = signature_hash
-        ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
-        Talao_ipfs.get_picture(session['signature'], mode.uploads_path+ '/' + session['signature'])
+        if session['role'] != 'issuer' :
+            session['personal']['signature'] = session['signature'] = signature_hash
+            ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
+            Talao_ipfs.get_picture(session['signature'], mode.uploads_path + '/' + session['signature'])
+        else:
+            personal = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))
+            personal['signature'] = signature_hash
+            ns.update_personal(session['employee_workspace_contract'], json.dumps(personal), mode)
+            Talao_ipfs.get_picture(session['employee_signature'], mode.uploads_path + '/' + session['employee_signature'])
+            del session['employee_workspace_contract']
+            del session['employee_signature']
         flash('Your signature has been updated', 'success')
         return redirect(mode.server + 'user/')
 
@@ -881,7 +893,7 @@ def create_kyc(mode) :
         # signed verifiable identity is stored in repository as did_authn ERC735 Claim
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
         identity_credential = Document('credential')
-        identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode, synchronous=False)
+        identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode, privacy="private", synchronous=False)
         flash('New verifiable ID has been added on repository for '+ kyc_username, 'success')
         subject = 'Your proof of Identity'
         try :
@@ -953,35 +965,97 @@ def create_company(mode) :
         return redirect(mode.server + 'user/')
 
 
-def remove_certificate(mode) :
-    """ delete a certificate with two factor checking
+def create_user(mode) :
+    """ create an employee for a company 
+    @app.route('/user/create_user/', methods=['GET', 'POST'])
+    """
+    check_login()
+    if request.method == 'GET' :
+        return render_template('create_user.html', **session['menu'])
+    if request.method == 'POST' :
+        email = request.form['email']
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+        username = (firstname + lastname).lower()
+        if ns.username_exist(username, mode)   :
+            username = username + str(random.randint(1, 100))
+        if createidentity.create_user(username, email, mode, firstname=firstname, lastname=lastname, silent=True)[2] :
+            name = request.form['firstname'] + ' ' + request.form['lastname']
+            directory.add_user(mode, username, name, '')
+            flash(username + ' has been created as a new user of the company', 'success')
+        else :
+            flash('Identity creation failed', 'danger')
+        return redirect(mode.server + 'user/')
 
+
+def remove_certificate(mode) :
+    """ delete a certificate 
     @app.route('/user/remove_certificate/', methods=['GET', 'POST'])
     """
     check_login()
     if request.method == 'GET' :
-         # call from two factor checking function, code is ok
-        if request.args.get('two_factor') == "True" :
-            session['certificate'] = [certificate for certificate in session['certificate'] if certificate['id'] != session['certificate_to_remove']]
-            Id = session['certificate_to_remove'].split(':')[5]
-            if not  Document('certificate').relay_delete(session['workspace_contract'], int(Id), mode) :
-                flash('Transaction failed', 'danger')
-                logging.warning('transaction to delete credential failed')
-            else :
-                flash('The certificate has been removed from your repository', 'success')
-            del session['certificate_to_remove']
-            return redirect (mode.server +'user/')
-        # call from two factor checking function, code incorrect
-        elif request.args.get('two_factor') == "False" :
-            del session['certificate_to_remove']
-            return redirect (mode.server +'user/')
-        # first call
+        session['certificate_to_remove'] = request.args['certificate_id']
+        return render_template('remove_certificate.html', **session['menu'])
+    if request.method == 'POST' :
+        session['all_certificate'] = [certificate for certificate in session['all_certificate'] if certificate['id'] != session['certificate_to_remove']]
+        doc_id = session['certificate_to_remove'].split(':')[5]
+        if not  Document('certificate').relay_delete(session['workspace_contract'], int(doc_id), mode) :
+            flash('Transaction failed', 'danger')
+            logging.warning('transaction to delete credential failed')
         else :
-            session['certificate_to_remove'] = request.args['certificate_id']
-            return render_template('remove_certificate.html', **session['menu'])
-    elif request.method == 'POST' :
-        # call the two factor checking function :
-        return redirect(mode.server + 'user/two_factor/?callback=user/remove_certificate/')
+            flash('The certificate has been removed from your repository', 'success')
+            del session['certificate_to_remove']
+            return redirect (mode.server +'user/')
+
+
+
+def swap_privacy(mode) :
+    """ swap privacy of a certificate 
+    @app.route('/user/swap_privacy/', methods=['GET', 'POST'])
+    """
+    check_login()
+    if request.method == 'GET' :
+        session['certificate_to_swap'] = request.args['certificate_id']
+        if request.args['privacy'] == 'public' :
+            session['new_privacy'] = 'private'
+        else :
+            session['new_privacy'] = 'public'
+        return render_template('swap_privacy.html', **session['menu'], new_privacy=session['new_privacy'])
+
+    if request.method == 'POST' :
+        doc_id = int(session['certificate_to_swap'].split(':')[5])
+        new_doc_id, new_ipfs_hash, n =  Document('certificate').relay_update_privacy(session['workspace_contract'], doc_id, session['new_privacy'], mode)
+        if not new_doc_id :
+            flash('Transaction failed', 'danger')
+            logging.warning('transaction to swap credential privacy failed')
+        else :
+            if session['new_privacy'] == 'private' :
+                for counter, certificate in enumerate(session['certificate']) :
+                    if int(certificate['id'].split(':')[5]) == doc_id :
+                        new_certificate = copy.deepcopy(certificate)
+                        new_certificate['id'] = 'did:talao:talaonet' + session['workspace_contract'][2:] + ':document:' + str(new_doc_id)
+                        new_certificate['privacy'] = 'private'
+                        new_certificate['doc_id'] = new_doc_id
+                        new_certificate['data_location'] = 'https://gateway.pinata.cloud/ipfs/'+ new_ipfs_hash
+                        del session['certificate'][counter]
+                        session['private_certificate'].append(new_certificate)
+                        break
+            else :
+                for counter, certificate in enumerate(session['private_certificate']) :
+                    print('certificate(id) = ', certificate['id'], type(certificate['id']))
+                    if int(certificate['id'].split(':')[5]) == doc_id :
+                        new_certificate = copy.deepcopy(certificate)
+                        new_certificate['id'] = 'did:talao:talaonet:' + session['workspace_contract'][2:] + ':document:' + str(new_doc_id)
+                        new_certificate['privacy'] = session['new_privacy']
+                        new_certificate['doc_id'] = 'public'
+                        new_certificate['data_location'] = 'https://gateway.pinata.cloud/ipfs/'+ new_ipfs_hash
+                        del session['private_certificate'][counter]
+                        session['certificate'].append(new_certificate)
+                        break
+            session['all_certificate'] = session['certificate'] + session['private_certificate'] + session['secret_certificate']
+        del session['certificate_to_swap']
+        del session['new_privacy']
+        return redirect (mode.server +'user/')
 
 
 #@app.route('/user/remove_file/', methods=['GET', 'POST'])

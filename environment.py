@@ -74,24 +74,27 @@ class currentMode() :
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.myenv == 'airbox' :
-			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
+			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.server = 'http://127.0.0.1:3000/'
 			self.flaskserver = "127.0.0.1"
 			self.port = 3000
 
 		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.myenv == 'livebox' :
-			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
+			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.server = 'http://192.168.0.6:3000/'
 			self.flaskserver = "192.168.0.6"
 			self.port = 3000
 
 		# sur PC portable Houdan thierry avec acces internet par reseau (pour les test depuis un smartphone)
 		elif self.myenv == 'liveboxh' :
-			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
+			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.server = 'http://192.168.0.34:3000/'
 			self.flaskserver = "192.168.0.34"
 			self.port = 3000
@@ -130,7 +133,6 @@ class currentMode() :
 		""" unlock main account for IPC node only
 		Faire >>>personal.importRawKey(relay, "password") avec address sans '0x' et correct password
 		 """
-		self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
-		#self.w3.geth.personal.unlockAccount(self.foundation_address,self.password,0)
-		self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0)
+		#self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
+		#self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0)
 

@@ -327,6 +327,7 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     """ build the html list
     return the table list to display in dashboard in html
     """
+    print(host, issuer_username, reviewer_username, status)
     credential = company.Credential(host, mode)
     mylist = credential.get(issuer_username, reviewer_username, status)
     credential_list = ""
