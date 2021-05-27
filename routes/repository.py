@@ -1,15 +1,10 @@
 """ Création d'un repository pour un DID
 
 Creation d'un wallet pour le owner derivé du DID. Il est prévu de gerer l'authentifcation sur le repository par did_authn
-
 Creation des cle de cyryptage : 1 RSA dérivé de la clé privée Ethereum
-
 Création de 2 cle symetriques aléatoires
-
 L email est gardé uniquement pour l authentification
-
 une cle 1 (ERC725) est donnée au Web Relay pour la gestion du repository
-
 smart contract déployé sur talaonet
 
 """
@@ -100,11 +95,14 @@ class Repository() :
 
 	def get_credential(self, credential_id, mode) :
 		""" get a credential as a json_ld
+		credential id is our internal doc_id 
 		"""
 		credential = Claim()
 		credential.get_by_topic_name(mode.relay_workspace_contract, None, self.workspace_contract, credential_id, mode)
 		print(credential.__dict__)
 		return json.dumps(credential.claim_value, ensure_ascii=False)
+
+
 
 
 	def remove_credential(self, credential_id, mode) :

@@ -753,6 +753,7 @@ def update_company_settings(mode) :
             session['personal'][topicname] = personal[topicname]
         ns.update_personal(session['workspace_contract'], json.dumps(personal, ensure_ascii=False), mode)
         session['name'] = session['menu']['name'] = personal['name']['claim_value']
+        directory.update_siren(session['username'], request.form['siren'], mode)
         flash('Company settings have been updated', 'success')
         return redirect(mode.server + 'user/')
 

@@ -68,7 +68,7 @@ def user_list_search(query, mode) :
     conn = sqlite3.connect(path + 'directory.db')
     c = conn.cursor()
     data = {'query' : '%' + query + '%'}
-    c.execute("SELECT username, name FROM directory WHERE username LIKE :query OR name LIKE :query", data)
+    c.execute("SELECT username, name FROM directory WHERE username LIKE :query OR name LIKE :query " , data)
     select = c.fetchall()
     conn.close()
     my_list = []
@@ -78,6 +78,32 @@ def user_list_search(query, mode) :
         user['name'] = item[1]
         my_list.append(user)
     return my_list
+
+def search_siren(siren, mode) :
+    """ Return list of username, name """
+    path = mode.db_path
+    conn = sqlite3.connect(path + 'directory.db')
+    c = conn.cursor()
+    data = {'siren' : siren}
+    c.execute("SELECT username FROM directory WHERE siren = :siren" , data)
+    select = c.fetchone()
+    if not select :
+        result = None
+    else :
+        result = select[0]
+    conn.close()
+    return result
+
+
+def update_siren(username, new_siren, mode) :
+	path = mode.db_path
+	conn = sqlite3.connect(path + 'directory.db')
+	cur = conn.cursor()
+	data = { 'username' : username, 'siren' : new_siren}
+	cur.execute("update directory set siren = :siren where username = :username", data )
+	conn.commit()
+	conn.close()
+
 
 def add_user(mode, username, name, siren):
     """ Add user"""

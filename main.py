@@ -10,16 +10,17 @@ $ python main.py
 import os
 import time
 import json
-from flask import Flask, redirect, jsonify
+from flask import Flask, redirect, jsonify, request
 from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
 
 import logging
 logging.basicConfig(level=logging.INFO)
-
-from components import ns, privatekey
+import constante
+from components import ns, privatekey, directory
 from signaturesuite import helpers
+from protocol import Document
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
@@ -40,10 +41,10 @@ logging.info('end of init')
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore
-from routes import web_main, web_login, repository
+from routes import web_main, web_login, repository, cci_api
 
 # Release
-VERSION = "0.9.11"
+VERSION = "0.9.12"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -205,6 +206,13 @@ app.add_url_rule('/repository/create',  view_func=repository.create, methods = [
 app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
 
 
+
+# centralized route for CCI API
+app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, methods = ['GET'], defaults={'mode' : mode})
+app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
+
+
+# DID API
 @app.route('/.well-known/did-configuration.json', methods=['GET']) 
 def well_known_did_configuration () :
     document = {
@@ -260,15 +268,14 @@ def well_known_did (mode) :
     ec_public = json.loads(key)
     del ec_public['d']
     del ec_public['alg']
-    DidDocument = did_doc(address, ec_public, rsa_public, mode)
+    DidDocument = did_doc(ec_public, rsa_public)
     return jsonify(DidDocument)
 
-def did_doc(address, ec_public, rsa_public, mode) :
+def did_doc(ec_public, rsa_public) :
     """
         Build the DID document
     """
-    id = "did:web:talao.co"
-    document =  {
+    return  {
                 "@context":
                     [
                         "https://www.w3.org/ns/did/v1"
@@ -283,7 +290,7 @@ def did_doc(address, ec_public, rsa_public, mode) :
                         "publicKeyJwk": ec_public
                         },
                         {
-                        "id": id + "#key-2",
+                        "id": "did:web:talao.co#key-2",
                         "controller" : "did:web:talao.co",
                         "type": "RsaVerificationKey2018",
                         "publicKeyJwk": rsa_public
@@ -308,7 +315,9 @@ def did_doc(address, ec_public, rsa_public, mode) :
                         }
                     ]
             }
-    return document
+
+
+
 
 # MAIN entry point for test
 if __name__ == '__main__':

@@ -39,10 +39,8 @@ Welcome to Talao's documentation!
    :maxdepth: 2
    :caption: API Server :
    
-   api.rst
-   api_oidc
-   api_authorization
-   api_credentials
+   api_cci.rst
+  
    
  	
 .. toctree::
