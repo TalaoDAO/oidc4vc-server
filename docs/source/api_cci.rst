@@ -9,13 +9,13 @@ Credential link list
 
 .. code::
 
-  curl  -H "Content-Type: application/json" -X GET https://talao.co/api/v1/credential?siret=<siret_number>
+  curl  -GET "https://talao.co/api/v1/credential?siret=<siret_number>"
 
 example :
 
 .. code::
 
-  curl  -H "Content-Type: application/json" -X GET https://talao.co/api/v1/credential?siret=1234567890000
+  curl -X GET "https://talao.co/api/v1/credential?siret=1234567890000"
 
 
 Return is a JSON structure with all credential links in an JSON array :
@@ -33,6 +33,11 @@ Return is a JSON structure with all credential links in an JSON array :
     "status": 200
     }
 
+If you add data=true as an argument, return will provide content of all credentials :
+
+.. code::
+
+  curl -X GET "https://talao.co/api/v1/credential?siret=837674480&data=true"
 
 
 Resolver
@@ -42,7 +47,7 @@ The Resolver allows to get the comapany DID (Decentralized Ientifier) from the S
 
 .. code::
 
-  curl  -H "Content-Type: application/json" -X GET https://talao.co/api/v1/resolver?siret=123456789
+  curl  -X GET "https://talao.co/api/v1/resolver?siret=123456789"
 
 Return is a JSON structure :
 

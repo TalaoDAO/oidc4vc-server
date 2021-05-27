@@ -148,10 +148,13 @@ def issuer_explore(mode) :
 						with open(mode.uploads_path + logo, 'wb') as out_file:
 							shutil.copyfileobj(response.raw, out_file)
 							del response
-
+				
 				if i%3==0:
-					carousel_rows_experience += '<div class="carousel-item px-2 {a}"><div class="row" style="flex-direction: row;">'.format(a = "active" if (i == 0) else '')
-				carousel_rows_experience += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
+					
+					carousel_rows_experience += """<div class="carousel-item px-2 {a}">
+													<div class="row" style="flex-direction: row;">""".format(a = "active" if (i == 0) else '')
+
+				carousel_rows_experience += """<div class="col-md-4 mb-2" >	<figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
 					carousel_rows_experience +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
@@ -159,11 +162,22 @@ def issuer_explore(mode) :
 					carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
 				if experience.get('topic') != 'certificate':
-					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>"""
+					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
+														<div class="col bg-transparent px-2" style="max-width:60px;" >
+															<i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i>
+														</div>"""
 				else:
-					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
+					carousel_rows_experience += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
+														<div class="col bg-transparent px-2" style="max-width:60px;" >
+															<i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i>
+														</div>"""
 				#header
-				carousel_rows_experience += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div><hr class='my-1'>"
+				carousel_rows_experience += """
+											<div class='col px-0 my-auto'>
+												<h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4>
+											</div>
+											</div>
+											<hr class='my-1'>"""
 				#body
 				if experience.get('topic') == 'certificate':
 					carousel_rows_experience += """<p  style="font-size: 1em"><b>Issuer name : </b>""" + issuer_name + """<br>"""
@@ -573,21 +587,18 @@ def issuer_explore(mode) :
 		# reference credentials
 		references = []
 		for certificate in session['issuer_explore']['certificate']:
-			try :
-				if certificate['credentialSubject']['credentialCategory'] =='reference':
-					references.append(certificate)
-			except :
-				pass
+			if certificate['credentialSubject']['credentialCategory'] =='reference':
+				references.append(certificate)
+
 		carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""
 		carousel_rows_reference = ""
-		if not references :
-			pass
-		else:
+		if  references :
+
 			nbr_rows = (len(references)-1)//3
 			for i in range(nbr_rows):
 				carousel_indicators_reference += '<li data-target="#reference-carousel" data-slide-to="{}"></li>'.format(i+1)
-			for i, reference in enumerate(references):
 
+			for i, reference in enumerate(references):
 				logo = reference['credentialSubject']['companyLogo']
 				startDate = reference['credentialSubject']['offers']['startDate']
 				endDate = reference['credentialSubject']['offers']['endDate']
@@ -606,40 +617,49 @@ def issuer_explore(mode) :
 						shutil.copyfileobj(response.raw, out_file)
 						del response
 
-				if i%3==0:
-					carousel_rows_reference += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
-				carousel_rows_reference += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
-					carousel_rows_reference +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+					image ="""<img src="{}" style="height: 200px;" alt="Loading error">""".format("/uploads/"+ logo)
 				except:
-					carousel_rows_reference +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
-				#verified
-				carousel_rows_reference += """<div class="row overflow-hidden" style="flex-direction: row;height: 50px"><div class="col bg-transparent px-2" style="max-width:60px;" ><i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i></div>"""
-				#header
-				carousel_rows_reference += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4></div></div>"
-				#body
-				carousel_rows_reference += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + issuer_name + '<br>'
+					image = """<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error">"""
 
-				carousel_rows_reference += """<b>Start date</b> : """ + startDate + """<b>	End date</b> : """ + endDate + """<br> """
-				carousel_rows_reference += """<b>Project Budget</b> : """ + budget + """<br> """
+				if not i : # 0
+					carousel_rows_reference += """<div class="carousel-item active">
+													<div class="row">"""
+				if  i%3==0 and i : # 3, 6, 9, ...
+					carousel_rows_reference += """<div class="carousel-item ">
+													<div class="row">"""
 
-				carousel_rows_reference += """<b> Description: </b>""" + description[:150]
-				if len(description)>150:
-					carousel_rows_reference += "...<br>"
-				else:
-					carousel_rows_reference += "<br>"
-				carousel_rows_reference += "</p>"
-				#Footer
-				carousel_rows_reference += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + issuer_name + """</footer>"""
-				#Lien certificates
-				carousel_rows_reference += """<a href=  /certificate/?certificate_id="""+reference['id'] + """></a>"""
+				carousel_rows_reference += """<div class="col-md-4 mb-2" >
+												<figure class="snip1253 mw-100" style="height: 410px; ">
+													<div class="image text-center h-100" style="background-color: white;" >""" + image + """</div>
+													<figcaption >
+														<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
+															<div class="col bg-transparent px-2" style="max-width:60px;" >
+																<i class="material-icons my-auto" style="color: rgb(60,158,255);font-size: 50px;">verified_user</i>
+															</div>
+															<div class='col px-0 my-auto'>
+																<h4 class='align-center' style='color: black;font-size: 1.4em'>""" + title + """</h4>
+															</div>
+														</div>
+														<hr class="my-1">
+														<p class="my-0" style="font-size: 1em">
+															<b>Issuer Name: </b>""" + issuer_name + """<br>
+															<b>Start date</b> : """ + startDate + """<b>	End date</b> : """ + endDate + """<br> 
+															<b>Project Budget</b> : """ + budget + """<br>
+															<b> Description: </b>""" + description[:100] + """...<br>
+														</p>
+													</figcaption>
+													<footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + issuer_name + """</footer>
+													<a href= '/certificate/?certificate_id="""+ reference['id'] + """'></a>
+												</figure>
+											</div>"""
 
-				carousel_rows_reference += """</figure></div>"""
-				if (i+1)%3==0 and len(references)%3!=0:
+				if (i+1)%3 == 0  : # and len(references)%3 != 0: # 2, 5, 7, ...
 					carousel_rows_reference += '</div></div>'
-				if i == len(references)-1:
-					carousel_rows_reference += '</div></div>'
+
+				#if i == len(references)-1: # le dernier 
+				#	carousel_rows_reference += '</div></div></div></div>'
 		#Services
 		referent_list = False
 		partner_list = False

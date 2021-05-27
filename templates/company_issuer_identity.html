@@ -230,6 +230,7 @@
               </div>
 
               <!-- /.Agreement carousel  -->
+
               <!-- Reference carousel large screen  -->
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
@@ -240,30 +241,22 @@
                     {% if carousel_rows_reference != "" %}
                     <!--Carousel Wrapper-->
                     <div id="reference-carousel" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
-
                       <!--Controls-->
                       <div class="controls-top text-center">
                         <a class="btn-floating" href="#reference-carousel" data-slide="prev"><i class="fas fa-chevron-left"></i></a>
                         <a class="btn-floating" href="#reference-carousel" data-slide="next"><i class="fas fa-chevron-right"></i></a>
                       </div>
-
                       <!--/.Controls-->
-
                       <!--Indicators-->
                       <ol class="carousel-indicators " style="margin-bottom: 0;">
                         {{carousel_indicators_reference|safe}}
                       </ol>
-
                       <!--/.Indicators-->
-
                       <!--Slides-->
-
                       <div class="carousel-inner" role="listbox">
                         {{carousel_rows_reference|safe}}
                       </div>
-
                       <!--/.Slides-->
-
                     </div>
                     <!--/.Carousel Wrapper-->
                     {% else %}
@@ -272,8 +265,8 @@
                   </div>
                 </div>
               </div>
-
               <!-- /.Reference carousel  -->
+
               <!-- Row for stored files  -->
               <div class="row mb-3">
                 <div class="col pl-5">
