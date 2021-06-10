@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 import copy
 from eth_keys import keys
 from eth_utils import decode_hex
-import requests
 from Crypto.PublicKey import RSA
 import uuid
 import logging
@@ -31,7 +30,7 @@ FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' 
 PERSON_TOPIC = ['firstname','lastname', 'about', 'profil_title', 'birthdate', 'contact_email', 'contact_phone','postal_address', 'education']
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
-
+CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
 
 # Check if session is active and access is fine. To be used for all routes, excetp external call
@@ -146,6 +145,27 @@ def homepage() :
     if request.method == 'GET' :
         return render_template('homepage.html', **session['menu'])
 
+#@app.route('/company/add_credential_supported/', methods=['GET', 'POST'])
+def add_credential_supported(mode) :
+    check_login()
+    if request.method == 'GET' :
+        personal = ns.get_personal(session['workspace_contract'], mode)
+        credentials_supported = json.loads(personal).get('credentials_supported',[])
+        checkbox = dict()
+        for topic in CREDENTIAL_TOPIC :
+            checkbox['box_' + topic] = "checked" if topic in credentials_supported else ""
+        return render_template('add_credential_supported.html', **session['menu'], **checkbox)
+
+    if request.method == 'POST' :
+        credentials_supported = list()
+        for topic in  CREDENTIAL_TOPIC :
+            if request.form.get(str(topic)) :
+                credentials_supported.append(request.form.get(str(topic)))
+        personal = json.loads(ns.get_personal(session['workspace_contract'], mode))
+        personal['credentials_supported'] = credentials_supported
+        ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
+        return redirect(mode.server + 'user/')
+
 
 #@app.route('/verifier/', methods=['GET'])
 def verifier() :
@@ -185,7 +205,6 @@ def verifier() :
             domain_list = domain_list.split()
 
         # lookup issuer dids with  '.well-known/did-configuration.json'
-        linked_dids = ""
         breakloop = False
         message = "No issuer credential has been found."
         for domain in domain_list :

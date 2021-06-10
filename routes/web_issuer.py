@@ -1,16 +1,14 @@
 from flask import session, flash, request, redirect, render_template, abort
-from datetime import  date, datetime
+from datetime import  datetime
 import json
-import random
 import uuid
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, company
-from signaturesuite import RsaSignatureSuite2017, vc_signature, helpers
-import constante
-from protocol import ownersToContracts, contractsToOwners, token_balance, Document, read_profil
+from components import Talao_message, ns, company
+from signaturesuite import vc_signature
+from protocol import Document
 
 
 def check_login() :

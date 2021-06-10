@@ -4,6 +4,8 @@ from eth_keys import keys
 from eth_utils import decode_hex
 from jwcrypto import jwk
 import didkit
+from pytezos.crypto.encoding import base58_encode
+from pytezos.crypto.key import Key
 
 
 
@@ -43,6 +45,34 @@ def jwk_to_ethereum(jwk) :
     public_key = pub_key.to_hex()
     address = pub_key.to_checksum_address()
     return private_key, public_key, address
+
+
+def jwk_to_tezos(jwk) :
+    """
+    jwk is string
+    must be and ethereum address
+    """
+    if json.loads(jwk)['crv'] == 'secp256k1' :
+        eth_pvk = jwk_to_ethereum(jwk)[0]
+        tez_pvk = base58_encode(bytes.fromhex(eth_pvk[2:]), prefix = b'spsk')
+        sk = Key.from_encoded_key(tez_pvk.decode())
+        pbk = sk.public_key()
+        address = sk.public_key_hash()
+        return tez_pvk, pbk, address
+    else :
+        print('not implemented')
+        return None
+
+
+def ethereum_to_tezos(eth_pvk) :
+    """
+    @param : eth_pvk = "0X....."
+    """
+    tez_pvk = base58_encode(bytes.fromhex(eth_pvk[2:]), prefix = b'spsk')
+    sk = Key.from_encoded_key(tez_pvk.decode())
+    pbk = sk.public_key()
+    address = sk.public_key_hash()
+    return tez_pvk.decode(), pbk, address
 
 
 def ethereum_to_jwk256k(private_key) :

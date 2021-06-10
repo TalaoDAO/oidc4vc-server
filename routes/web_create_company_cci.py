@@ -7,9 +7,8 @@ app.add_url_rule('/register/',  view_func=web_create_identity.authentification, 
 app.add_url_rule('/register/code/', view_func=web_create_identity.POST_authentification_2, methods = ['POST'])
 """
 
-from flask import request, redirect, render_template, session, flash
+from flask import request, redirect, render_template, session
 import random
-import unidecode
 from datetime import timedelta, datetime
 
 # dependances

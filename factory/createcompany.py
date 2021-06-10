@@ -17,14 +17,8 @@ utiliser un JWT pour obtenir une signature correcte
 
 
 """
-from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
-from Crypto.Protocol.KDF import PBKDF2
-import json
-from Crypto.Cipher import AES
-from datetime import datetime
-import random
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -65,7 +59,7 @@ def create_company(email, username, did, mode, siren=None, name=None) :
 	bemail = bytes(email , 'utf-8')
 
 	try :
-		# Transaction pour le transfert des nethers depuis le portfeuille TalaoGen
+		# Transaction pour le transfert des ethers depuis le portfeuille TalaoGen
 		h1 = ether_transfer(address, mode.ether2transfer, mode)
 		logging.info('ether transfer done')
 		# Transaction pour le transfert des tokens Talao depuis le portfeuille TalaoGen
@@ -107,6 +101,9 @@ def create_company(email, username, did, mode, siren=None, name=None) :
 		return None, None, None
 
 	# update resolver and create local database for this company
+	if not did :
+		did = "did:ethr:" + address
+
 	if not ns.add_identity(username, workspace_contract, email, mode, did=did) :
 		logging.error('add identity in nameservice failed')
 		return None, None, None
@@ -128,6 +125,7 @@ def create_company(email, username, did, mode, siren=None, name=None) :
 
 	# send messages
 	Talao_message.messageLog("no lastname","no firstname", username, email, 'Company created by Talao', address, private_key, workspace_contract, "", email, "", "", mode)
+
 	# one sends an email by default
 	Talao_message.messageUser("no lastname", "no firstname", username, email, address, private_key, workspace_contract, mode)
 

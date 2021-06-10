@@ -1,10 +1,9 @@
 
-from flask import Flask, session, send_from_directory, flash
+from flask import session, flash
 from flask import request, redirect, render_template,abort
 import unidecode
 
 # dependances
-import constante
 from protocol import Document
 
 def check_login() :

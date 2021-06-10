@@ -31,6 +31,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 #dependances
+
 from components import Talao_ipfs, privatekey
 import constante
 
@@ -277,11 +278,6 @@ class Document() :
 		identity_address = contracts_to_owners(identity_workspace_contract, mode)
 		return _delete(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, doc_id, mode)
 
-	"""
-	def delete(self, identity_workspace_contract, identity_private_key, doc_id, mode) :
-		identity_address = contracts_to_owners(identity_workspace_contract, mode)
-		return _delete(identity_address, identity_workspace_contract, identity_address, identity_workspace_contract, identity_private_key, doc_id, mode)
-	"""
 
 	def relay_update_privacy(self, identity_workspace_contract, doc_id, new_privacy, mode) :
 		(issuer_address, identity_workspace_contract, data, ipfshash, privacy, id, sequence) = _get(mode.relay_workspace_contract, mode.relay_private_key, identity_workspace_contract, doc_id, mode)

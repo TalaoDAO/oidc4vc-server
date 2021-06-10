@@ -77,25 +77,6 @@
                                         </div>
                                         {% endif %} -->
 
-
-                                        {% if session['role'] == 'creator' %}
-                                        <div class="card">
-                                            <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="List of the core competencies or references of the company.">
-                                                <h5 class="mb-0"><i class="fa fa-language"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-6"href="#accordion-1 .item-6">&nbsp; Core Competencies</a></h5>
-                                            </div>
-                                            <div class="collapse item-6" role="tabpanel" data-parent="#accordion-1">
-                                                <div class="card-body">
-                                                    <div style="overflow:auto;overflow-x: hidden;">
-                                                        <p class="card-text">{{skills|safe}}</p>
-                                                        <a href="/user/update_skills/">
-                                                          <div class="form-group"><button class="btn btn-primary btn-sm pull-right" type="button">Update Competencies</button></div>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endif %}
-
                                         {% if session['role'] == 'creator' %}
  			                        	<div class="card">
                                             <div class="card-header" role="tab" title="List of all certificates issued by third parties." >

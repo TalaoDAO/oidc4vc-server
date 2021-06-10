@@ -12,10 +12,9 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
-from Crypto.Cipher import PKCS1_OAEP, AES
-from flask import redirect, jsonify, request, Response
+from Crypto.Cipher import PKCS1_OAEP
+from flask import jsonify, request, Response
 import json
-import uuid
 from authlib.jose import jwt
 
 from datetime import datetime
@@ -25,8 +24,8 @@ logging.basicConfig(level=logging.INFO)
 
 import didkit
 import constante
-from protocol import  ownersToContracts, contractsToOwners, token_transfer, createVaultAccess, ether_transfer, get_all_credentials
-from protocol import add_key, destroy_workspace, get_category, transfer_workspace, Claim
+from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer
+from protocol import add_key, destroy_workspace, get_category, Claim
 from components import privatekey
 from signaturesuite import helpers
 

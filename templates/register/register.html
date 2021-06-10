@@ -1,85 +1,61 @@
 <!DOCTYPE html>
-<!-- register.html-->
+<!-- register.html -->
 <html>
 
 <head>
     {% include 'head.html' %}
-
 </head>
-<body id="page-top">
+
+<body id="page-top" >
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				{% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-                <span>{{ message }}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
+               
                 {% include 'guest_nav_bar.html' %}
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-md-9 col-lg-12 col-xl-10">
-                            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
-                                <div class="card-body p-0">
-                                    <div class="row">
-                                        <div class="col-lg-6 d-none d-lg-flex">
-                                            <div class="flex-grow-1 bg-login-image">
-                                                <p class="text-center" style="margin: 75px 50px 0px;">
-                                                    <br><br>
-                                                    <br>Talao is a solution to manage professional verifiable credentials and Self Sovereign Identity.<br><br>
-                                                    * You own your data for your lifetime.</br>
-                                                    * No one can access your data without your permission.</br>
-                                                    * Credentials are verifiable, tamper proof and tracable.</br>
-                                                    * Credential issuers are identified.<br>
-                                                    <br>Enter your firstname, lastname, email and phone number for authentication.<br>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="p-5">
+                <div class="container-fluid ">
+                    <div class="col-lg-4 col-xl-2 offset-lg-4 offset-xl-5">
+                            <div class="card shadow my-auto">
+                                <div class="card-body">
+                                    <form id="form" name="form" action="/register/" method="POST"  >
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="choice" value="company">
+                                            <label class="form-check-label" for="flexRadioDefault1">
+                                                Register a company account
+                                            </label>
+                                          </div>
+                                          <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="choice" value="user" checked>
+                                            <label class="form-check-label" for="flexRadioDefault2">
+                                                Register a personal account
+                                            </label>
+                                          </div>
+                                        <br>
+                                        <div class="form-row">
+                                            <div class="col">
                                                 <div class="text-center">
-                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Create a new Professional Digital Identity</h4>
+                                                    <div  class="form-group"><button  class="btn btn-primary btn-sm" type="submit">Next</button></div>
+                                                    </div>
                                                 </div>
-                                            <div class="col" style="color: rgb(255,2,2);">
-									            <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
-								            </div>
-                                            <form id="form" class="user" action="/register/" method="POST">
-                                                <div class="form-group"><input class="form-control" type="text" placeholder="Firstname" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
-                                                <div class="form-group"><input class="form-control" type="text" placeholder="Lastname" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
-                                                <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
-                                                <div class="form-group"><input class="form-control" title="International phone numbers start with +, then country code and national phone number" 
-                                                    pattern="\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$"
-                                                     placeholder="Mobile phone number (ex : +336...)" value="{{phone}}" name="phone" required ></div>
-                                                <div class="form-group form-check">
-                                                    <input type="checkbox" class="form-check-input" name="CheckBox"  checked>
-                                                    <label style="color: rgb(133,135,150);" title="The name directory is used to provide suggestion in the search bar. It links your username with your firstname and lastname. " >I accept to have my name in the Name Directory</label>
-                                                </div>
-
-                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" id="in_progress_button" type="submit">Next</button>
-                                            </form>
-                                        <div class="text-center"><a class="small" href="/login/">Sign-In</a></div>
                                         </div>
+                                    </form>
                                     </div>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-                {% include 'user_footer.html' %}
+        </div>
+    </div>
+    </div>
+    </div>
+                                {% include 'user_footer.html' %}
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 
-        </div>
-    </div>
+
+  
+
+
 </body>
 </html>

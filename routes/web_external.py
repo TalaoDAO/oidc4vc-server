@@ -1,19 +1,14 @@
-import copy
 from os import path
-from flask import session, send_from_directory, flash
-from flask import request, redirect, render_template,abort
+from flask import request, render_template,abort
 import requests
 import shutil
 import json
-from sys import getsizeof
 import time
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from protocol import Document, read_profil, Identity
-import constante
-from components import ns
+from protocol import Identity
 
 #@app.route('/resume/', methods=['GET'])
 def resume(mode) :

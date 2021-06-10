@@ -6,9 +6,8 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import session, send_from_directory, flash, send_file
+from flask import session, flash
 from flask import request, redirect, render_template,abort
-import requests
 from datetime import timedelta, datetime
 import json
 import secrets
@@ -17,12 +16,10 @@ from authlib.jose import JsonWebEncryption
 import jwt
 from urllib.parse import urlencode
 import logging
-import didkit
 logging.basicConfig(level=logging.INFO)
 import uuid 
 # dependances
-from components import Talao_message, Talao_ipfs, hcode, ns, sms, directory, privatekey
-import constante
+from components import Talao_message, ns, sms, privatekey
 from signaturesuite import helpers
 
 def check_login() :

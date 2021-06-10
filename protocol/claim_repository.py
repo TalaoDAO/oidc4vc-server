@@ -4,7 +4,7 @@ logging.basicConfig(level=logging.INFO)
 #dependances
 import constante
 from components import Talao_ipfs
-from .Talao_token_transaction import contractsToOwners, ownersToContracts
+from .Talao_token_transaction import contractsToOwners
 
 SALT = 'repository_salt'
 

@@ -10,17 +10,16 @@ $ python main.py
 import os
 import time
 import json
-from flask import Flask, redirect, jsonify, request
+from flask import Flask, redirect, jsonify
 from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
 
 import logging
 logging.basicConfig(level=logging.INFO)
-import constante
-from components import ns, privatekey, directory
+
+from components import privatekey
 from signaturesuite import helpers
-from protocol import Document
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
 import environment
@@ -44,7 +43,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository, cci_api
 
 # Release
-VERSION = "0.9.12"
+VERSION = "0.1.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -73,6 +72,9 @@ def page_abort(e):
 # Centralized @route for create identity
 app.add_url_rule('/register/identity/',  view_func=web_register.register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/',  view_func=web_register.register, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/user/register/',  view_func=web_register.user_register, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/company/register/',  view_func=web_register.company_register, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 app.add_url_rule('/register/password/',  view_func=web_register.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/code/', view_func=web_register.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/register/post_code/', view_func=web_register.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
@@ -145,6 +147,8 @@ app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','
 app.add_url_rule('/user/select_identity/',  view_func=web_main.select_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_certificate/',  view_func=web_main.issue_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/issue_reference_credential/',  view_func=web_main.issue_reference_credential, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/add_credential_supported/',  view_func=web_main.add_credential_supported, methods = ['GET','POST'], defaults={'mode' : mode})
+
 app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_personal_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})

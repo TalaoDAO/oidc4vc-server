@@ -1,21 +1,18 @@
 """
 Identity init for users and companies
 """
-import os
 from flask import session, flash
 from flask import request, redirect, render_template, abort
 import time
 import json
 import requests
-import random
 import didkit
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_ipfs, ns, sms, directory, privatekey, company
-import constante
-from protocol import ownersToContracts, contractsToOwners, Identity, Document
+from components import ns,directory, company
+from protocol import Identity, Document
 from signaturesuite import helpers
 
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
@@ -542,7 +539,6 @@ def user(mode) :
 							manager=my_managers,
 							reviewer=my_reviewers,
 							personal=my_personal,
-							skills=my_skills,
 							issuer=my_issuer,
 							certificates=my_certificates,
 							company_campaign=my_campaign,

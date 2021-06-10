@@ -386,6 +386,9 @@ def update_method(workspace_contract, method, mode) :
 
 
 def update_personal(workspace_contract, personal, mode) :
+	"""
+	@param personal is json string
+	"""
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')
 	cur = conn.cursor()

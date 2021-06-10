@@ -2,29 +2,42 @@
 <html>
 
 <head>
-     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Talao Professional Identity</title>
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Login-Form-Clean.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='font-awesome.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='ionicons.min.css') }}">
-    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='Footer-Clean.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% include 'head.html' %}
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                                                                                          {% include 'user_nav_bar.html' %}
-
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    <div id="successMessage" class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                      <span>{{ message }}</span>
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+      
+              {% if session['type'] == "company" %}
+                {% if session['role'] == 'creator' %}
+                  {% include 'company_nav_bar.html' %}
+                {% else %}
+                  {% include 'manager_nav_bar.html' %}
+                {% endif %}
+              {% else %}
+                {% include 'user_nav_bar.html' %}
+              {% endif %}
         <div class="container-fluid mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+            {% if session['type'] == 'company' %}
+            <h6 class="text-dark mb-4">{{session['employee']}}, {{session['role']}} </h6>
+            {% else %}
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+            {% endif %}
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
@@ -41,7 +54,7 @@
 
                                 <div class="form-row">
                                     <div class="col">
-                                        <div class="form-group"><label>Memo</label><textarea required="" class="form-control" title="This memo will be added on top of the email." name="memo" rows="5"></textarea></div>
+                                        <div class="form-group"><textarea required="" class="form-control" placeholder="Enter a memo...." title="This memo will be added on top of the email." name="memo" rows="5"></textarea></div>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -65,14 +78,11 @@
 
     </div>
     	<script>function goBack() {  window.history.back();}</script>
-   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-       <script src="{{ url_for('static', filename='sending_button.js') }}"></script>
-    <script src="{{ url_for('static', filename='theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+        <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   
 </body>
 
 </html>

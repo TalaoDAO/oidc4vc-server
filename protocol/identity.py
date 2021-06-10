@@ -8,18 +8,12 @@ uniquemet utilisé en lecture.
 """
 
 import os.path
-from datetime import datetime
-from operator import itemgetter, attrgetter
-import random
 from eth_account import Account
 import os
-import shutil
 import json
 
 import constante
-from .Talao_token_transaction import contractsToOwners, ownersToContracts,token_balance, read_workspace_info, has_vault_access, get_category
-from .claim import Claim
-from .Talao_token_transaction import read_profil
+from .Talao_token_transaction import contractsToOwners, token_balance, read_workspace_info, has_vault_access, get_category
 from .document import Document
 from .file import File
 from components import ns, privatekey, Talao_ipfs

@@ -8,9 +8,7 @@ from cryptography.hazmat.primitives import hashes
 import os
 
 
-import environment
-from protocol import contractsToOwners, ownersToContracts, read_profil, Claim
-import constante
+from protocol import contractsToOwners
 from components import privatekey, ns
 from signaturesuite import helpers
 

@@ -148,9 +148,7 @@ def issuer_explore(mode) :
 						with open(mode.uploads_path + logo, 'wb') as out_file:
 							shutil.copyfileobj(response.raw, out_file)
 							del response
-				
 				if i%3==0:
-					
 					carousel_rows_experience += """<div class="carousel-item px-2 {a}">
 													<div class="row" style="flex-direction: row;">""".format(a = "active" if (i == 0) else '')
 
@@ -500,24 +498,6 @@ def issuer_explore(mode) :
 
 	if session['issuer_explore']['type'] == 'company' :
 
-		# file
-		if session['issuer_explore']['identity_file'] == []:
-			my_file = """<a class="text-info">No Files available</a>"""
-		else:
-			my_file = ""
-			for one_file in session['issuer_explore']['identity_file']:
-				if one_file.get('content') == 'Encrypted':
-					file_html = """
-					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + 'Not available - Encrypted ' + """ ) <br>
-					<b>Created</b> : """ + one_file['created'] + """<br>"""
-				else:
-					file_html = """
-					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + one_file['privacy'] + """ ) <br>
-					<b>Created</b> : """ + one_file['created'] + """<br>
-					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
-						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
-					</a>"""
-				my_file = my_file + file_html + """<br>"""
 
 		#aggrement credentials
 		agreements = []
@@ -658,8 +638,8 @@ def issuer_explore(mode) :
 				if (i+1)%3 == 0  : # and len(references)%3 != 0: # 2, 5, 7, ...
 					carousel_rows_reference += '</div></div>'
 
-				#if i == len(references)-1: # le dernier 
-				#	carousel_rows_reference += '</div></div></div></div>'
+				if i == len(references)-1: # le dernier 
+					carousel_rows_reference += '</div></div>'
 		#Services
 		referent_list = False
 		partner_list = False
@@ -677,7 +657,7 @@ def issuer_explore(mode) :
 			in_referent_list = is_username_in_list(session['issuer_explore']['issuer_keys'], host_name)
 			partner_list = is_username_in_list_for_partnership(session['partner'], issuer_username)
 
-		#kyc
+		# company details
 		user_type = session['type']
 		contact_name = session['issuer_explore']['personal']['contact_name']['claim_value']
 		contact_email = session['issuer_explore']['personal']['contact_email']['claim_value']
@@ -691,19 +671,7 @@ def issuer_explore(mode) :
 		except:
 			sales = session['issuer_explore']['personal']['sales']['claim_value']
 
-		if session['issuer_explore']['skills'] is None or session['issuer_explore']['skills'].get('id') is None :
-			my_competencies =  """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
-		else:
-			my_competencies = ""
-			for competencie in session['issuer_explore']['skills']['description'] :
-				competencie_html = competencie['skill_name'] + """<br>"""
-				my_competencies = my_competencies + competencie_html
-			my_competencies = my_competencies + """
-				<p>
-					<a class="text-secondary" href=/data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills>
-						<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i>
-					</a>
-				</p>"""
+		
 		return render_template('./company_issuer_identity.html',
 							**session['menu'],
 							issuer_name=session['issuer_explore']['name'],
@@ -712,11 +680,10 @@ def issuer_explore(mode) :
 							issuer_picturefile=session['issuer_explore']['picture'],
 							contact_name = contact_name, contact_email = contact_email, contact_phone = contact_phone,
 							website = website,about = about, staff = staff, sales = sales, siren = siren,
-							digitalvault=my_file, 
 							referent_list = referent_list, partner_list = partner_list,
 							in_referent_list = in_referent_list,
 							carousel_indicators_agreement=carousel_indicators_agreement,
 							carousel_rows_agreement=carousel_rows_agreement,
 							carousel_indicators_reference=carousel_indicators_reference,
 							carousel_rows_reference=carousel_rows_reference,
-							competencies = my_competencies)
+							)

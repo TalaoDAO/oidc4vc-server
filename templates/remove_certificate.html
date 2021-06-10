@@ -12,6 +12,12 @@
             <div id="content">
                                             {% include 'user_nav_bar.html' %}
         <div class="container-fluid mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+            {% if session['type'] == 'company' %}
+            <h6 class="text-dark mb-4">{{session['employee']}}, {{session['role']}} </h6>
+            {% else %}
+            <h6 class="text-dark mb-4">{{profil_title}}</h6>
+            {% endif %}
             <div class="row mb-3">
                 <div class="col-lg-8 col-xl-4 offset-xl-4">
                     <div class="card shadow mb-3">

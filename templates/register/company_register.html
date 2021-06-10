@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<!-- company-register.html -->
+<head>
+  {% include 'head.html' %}
+ 
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% include 'guest_nav_bar.html' %}
+
+        <div class="container-fluid mt-3">
+          <div class="row mb-3">
+            <div class="col-lg-8 col-xl-6 offset-lg-2 offset-xl-3">
+              <div class="card shadow mb-3">
+                <div class="card-header py-3">
+                  <p class="text-primary m-0 font-weight-bold">&nbsp;Création d'un compte entreprise</p>
+                </div>
+                <div class="card-body">
+                    <p></b>Après saisie des informations de ce formulaire, Talao va créer une Identité Numérique pour votre entreprise.
+                        Aucune donnée ne sera visible sur la blockchain.<br>
+                    10 attestations sont offertes à l'ouverture du compte.</p>
+                  <form id="form" action="/company/register/" method="post">
+
+                    <p><strong>Entreprise :</strong></p>
+
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Nom de l'entreprise&nbsp;<br></label>
+                          <input class="form-control" type="text" required name="name">
+                        </div>
+
+                        <div class="form-row">
+                            
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label >Site internet<br></label>
+                                    <input class="form-control" type="text" required name="website" placeholder="sous la forme https://talao.io">
+                                </div>
+                            </div>
+                       
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="siren texte">Siren (Optionel)<br></label>
+                                    <input class="form-control" type="text" pattern="(?=.*\d).{9,9}" name="siren">
+                                </div>
+                            </div>
+                            
+                        </div>
+
+
+                        <div class="form-row">
+                            
+                            <div class="col">
+                                <div class="form-group">
+                                    <label >Adresse postale<br></label>
+                                    <textarea class="form-control" rows="2"  type="text" required name="address" placeholder=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+                            <p><strong>Représentant de l'entreprise :</strong></p>
+
+
+                        <div class="form-row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Nom<br></label>
+                                    <input class="form-control" type="text"  required name="contact_lastname">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Prénom<br></label>
+                                    <input class="form-control" type="text"  required name="contact_firstname">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Email<br></label>
+                                    <input class="form-control" type="email"  required name="contact_email">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" required title="">Téléphone<br></label>
+                                    <input class="form-control" type="text"  name="contact_phone">
+                                </div>
+                            </div>
+                        </div>
+        
+                      </div>
+                    </div>
+
+                   <br>
+                            <p><strong>Attestation proposées à vos salariés :</strong></p>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="experience" id="flexCheckDefault" name="experience" >
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Attestation d'expérience professionelle (sur mission/projet)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="training" id="flexCheckDefault" name ="training" >
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Attestation de formation
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="recommendation" id="flexCheckDefault" name="recommendation" >
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Lettre de recommandation
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="hiring" id="flexCheckDefault" name="hiring" >
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Lettre d'embauche
+                        </label>
+                    </div>
+                    <hr>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="work" id="flexCheckDefault" name="work">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Attestation employeur
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="vacation" id="flexCheckDefault" disabled name="vacation">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Attestation de congés payés
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="internship" id="flexCheckDefault" name="internship">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Attestation de stage
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="relocation" id="flexCheckChecked" disabled name="relocation">
+                        <label class="form-check-label" for="flexCheckChecked">
+                            Attestation de mutation professionelle
+                        </label>
+                      </div>
+                      <hr>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="end_of_work" id="flexCheckCheckedDisabled" disabled name="end_of_work">
+                        <label class="form-check-label" for="flexCheckCheckedDisabled">
+                            Certificat de travail
+                        </label>
+                      </div>
+                      
+                    <hr>
+                    <br>
+
+                    <div class="form-row">
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label data-toggle="tooltip" data-bs-tooltip="" title="">Code promotionel<br></label>
+                            <input class="form-control" type="text"  name="promo">
+                        </div>
+                    </div>
+
+                    </div>
+
+                    <div class="form-row">
+                      <div class="col-6 col-xl-3">
+                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Confirmer</button></div>
+                      </div>
+                      <div class="col-6 col-xl-3">
+                            <div onclick="goBack()"  form-group"><button class="btn btn-primary btn-sm" type="button">Retour</button></div>
+                        </div>
+                       
+                      </div>
+                    </div>
+                  </form>
+                  <div class="text-center"><a class="small" href="/login/">Sign-In</a></div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'user_footer.html' %}
+  </div>
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
+   <script>
+
+
+    function goBack() {
+        window.history.back();
+        }
+    </script>
+
+</body>
+
+</html>

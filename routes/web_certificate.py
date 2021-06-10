@@ -1,25 +1,19 @@
 
-import copy
-import os.path
 from os import path
-from flask import session, send_from_directory, flash, jsonify
-from flask import request, redirect, render_template,abort, Response
+from flask import session, flash, jsonify
+from flask import request, redirect, render_template,Response
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512
 
 import requests
 import shutil
 import json
-from sys import getsizeof
-import random
-import didkit
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from protocol import Document, read_profil, Identity, Claim, ownersToContracts
-import constante
+from protocol import Document, Identity, Claim, ownersToContracts
 from components import ns
 from signaturesuite import helpers
 

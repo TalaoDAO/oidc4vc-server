@@ -4,14 +4,17 @@ Just a process to a centralized basic create user from password and username
 """
 from flask import request, redirect, render_template, session, flash, abort
 import random
-import requests
 import json
+import requests
 from datetime import timedelta, datetime
 import logging
 logging.basicConfig(level=logging.INFO)
 
-from factory import createidentity
-from components import sms,directory,ns
+from factory import createidentity, createcompany
+from components import sms, directory, ns
+
+
+CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -22,6 +25,7 @@ def check_login() :
 		return True
 
 
+
 # route /register/
 def register(mode) :
 	if request.method == 'GET' :
@@ -29,6 +33,55 @@ def register(mode) :
 		session['is_active'] = True
 		message = request.args.get('message', "")
 		return render_template("/register/register.html",message=message, )
+	if request.method == 'POST' :
+		if request.form['choice'] == 'user' :
+			return redirect(mode.server + 'user/register/')
+		else :
+			return redirect(mode.server + 'company/register/')
+
+# route /company/register/
+def company_register(mode) :
+    """ create company 
+    @app.route('/user/create_company/', methods=['GET', 'POST'])
+    """
+    if request.method == 'GET' :
+        return render_template('register/company_register.html')
+    if request.method == 'POST' :
+        session['credentials_supported'] = list()
+        for topic in CREDENTIAL_TOPIC :
+            if request.form.get(topic) :
+                session['credentials_supported'].append(request.form[topic])
+		email = request.form['contact_email']
+        username = request.form['company_name'].lower()
+        siren = request.form['siren']
+        if ns.username_exist(username, mode)   :
+            username = username + str(random.randint(1, 100))
+        if request.form['promo'] in ["TEST"] :
+            promo = 50
+        else :
+            promo = 10
+        workspace_contract =  createcompany.create_company(email, username, None, mode, siren=siren)[2]
+        if workspace_contract :
+            directory.add_user(mode, request.form['company_name'], username, siren)
+            personal = ns.get_personal(workspace_contract, mode)
+            personal = json.loads(personal)
+            personal['credentials_supported'] = session['credentials_supported']
+            personal['credential_counter'] = 0
+            personal['credential_acquired'] = promo
+            ns.update_personal(workspace_contract, json.dumps(personal), mode)
+            flash(username + ' has been registered as a company', 'success')
+        else :
+            flash('Company registration failed', 'danger')
+        return redirect(mode.server + 'user/')
+
+
+# route /user/register/
+def user_register(mode) :
+	if request.method == 'GET' :
+		session.clear()
+		session['is_active'] = True
+		message = request.args.get('message', "")
+		return render_template("/register/user_register.html",message=message, )
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
 		session['firstname'] = request.form['firstname']

@@ -52,7 +52,7 @@ def credential_list (mode) :
 
     result = []
 
-    if data  :
+    if data  :# content
         for doc_id in doc_list :
             if contract.functions.getDocument(doc_id).call()[0] == 20000 :
                 credential = Document('credential')
