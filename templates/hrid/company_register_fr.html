@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<!-- company-register.html -->
+<head>
+  {% include 'head.html' %}
+ 
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+          <span>{{ message }}</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% include 'guest_nav_bar.html' %}
+
+        <div class="container-fluid mt-3">
+          <div class="row mb-3">
+            <div class="col-lg-8 col-xl-6 offset-lg-2 offset-xl-3">
+              <div class="card shadow mb-3">
+                <div class="card-header py-3">
+                  <p class="text-primary m-0 font-weight-bold">&nbsp;Création de votre plateforme de gestion en ligne des attestations professionelles.</p>
+                </div>
+                <br>
+                <div class="col" style="color: rgb(255,2,2);">
+                    <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
+                </div>                 
+
+                <div class="card-body">
+                    <p></b>Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise ainsi qu'un coffre fort numérique crypté.
+                      Cette Identité, au format des identités auto-souveraines (Self Sovereign Identity), vous permettra de signer électroniqument les attestations demandées par vos salariés.
+                        Aucune donnée concernant votre entreprise et vos salariés ne sont sauvegardées sur la blockchain.</p>
+                  <form id="form" action="/hrid/register/company" method="post">
+
+                    <p><strong>Entreprise :</strong></p>
+
+                      <div class="form-row">
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                            <label>Nom de l'entreprise&nbsp;<br></label>
+                            <input class="form-control" type="text" value="{{company_name}}" required name="company_name">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-row">
+                            
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label >Site internet<br></label>
+                                    <input class="form-control" type="text" required value="{{website}}" name="website" placeholder="sous la forme https://talao.io">
+                                </div>
+                            </div>
+                       
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Siren (Optionel)<br></label>
+                                    <input class="form-control" type="text" value="{{siren}}" pattern="(?=.*\d).{9,9}" name="siren">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label >Adresse postale<br></label>
+                                    <textarea class="form-control" rows="2"  type="text" required  name="postal_address" placeholder="">{{postal_address}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+                            <p><strong>Représentant de l'entreprise :</strong></p>
+
+
+                        <div class="form-row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Nom et prénom<br></label>
+                                    <input class="form-control" type="text"  value="{{contact_name}}" required name="contact_name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Email<br></label>
+                                    <input class="form-control" type="email"  value="{{contact_email}}" required name="contact_email">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label data-toggle="tooltip" data-bs-tooltip="" required title="">Téléphone<br></label>
+                                    <input class="form-control" value="+33" type="text"  value="{{contact_phone}}" name="contact_phone">
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+                        <p><strong>Attestations proposées à vos salariés :</strong></p>
+
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="experience" id="flexCheckDefault" name="experience" >
+                          <label class="form-check-label" for="flexCheckDefault">
+                            Attestation d'expérience professionelle (sur mission/projet)
+                          </label>
+                        </div>
+
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="training" id="flexCheckDefault" name ="training" >
+                          <label class="form-check-label" for="flexCheckDefault">
+                            Attestation de formation
+                          </label>
+                        </div>
+                        
+                        <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="recommendation" id="flexCheckDefault" name="recommendation" >
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Lettre de recommandation
+                        </label>
+                        </div>
+                    
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="hiring" id="flexCheckDefault" disabled name="hiring" >
+                          <label class="form-check-label" for="flexCheckDefault">
+                              Lettre d'embauche
+                          </label>
+                        </div>
+                        <hr>
+                        
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="work" id="flexCheckDefault" disabled name="work">
+                          <label class="form-check-label" for="flexCheckDefault">
+                              Attestation employeur
+                          </label>
+                        </div>
+                        
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="vacation" id="flexCheckDefault" disabled name="vacation">
+                          <label class="form-check-label" for="flexCheckDefault">
+                            Attestation de congés payés
+                          </label>
+                        </div>
+                        
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="internship" id="flexCheckDefault" disabled name="internship">
+                          <label class="form-check-label" for="flexCheckDefault">
+                            Attestation de stage
+                          </label>
+                        </div>
+
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="relocation" id="flexCheckChecked" disabled name="relocation">
+                            <label class="form-check-label" for="flexCheckChecked">
+                            Attestation de mutation professionelle
+                            </label>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="end_of_work" id="flexCheckCheckedDisabled" disabled name="end_of_work">
+                          <label class="form-check-label" for="flexCheckCheckedDisabled">
+                              Certificat de travail
+                          </label>
+                        </div>
+                      
+                        <hr>
+                        <br>
+        
+                        <div class="form-row">
+                           <div class="col-lg-6">
+                              <div class="form-group">
+                                <label data-toggle="tooltip" data-bs-tooltip="" title="">Code promotionel<br></label>
+                                <input class="form-control" type="text"  name="promo">
+                              </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group form-check">
+                          <input type="checkbox" class="form-check-input" name="CheckBox" >
+                          <label style="color: rgb(133,135,150);"  >J'ai lu et j'accepte les conditions générales d'utilisation du service (CGU).</label>
+                          
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-6 col-xl-3">
+                              <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Confirmer</button></div>
+                            </div>
+                            <div class="col-6 col-xl-3">
+                              <div onclick="goBack()"  form-group"><button class="btn btn-primary btn-sm" type="button">Retour</button></div>
+                            </div>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="text-center"><a class="small" href="/login">Connexion</a></div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'user_footer.html' %}
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+   <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
+   <script>
+
+
+    function goBack() {
+        window.history.back();
+        }
+    </script>
+
+</body>
+
+</html>

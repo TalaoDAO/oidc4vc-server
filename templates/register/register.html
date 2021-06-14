@@ -16,24 +16,24 @@
                     <div class="col-lg-4 col-xl-2 offset-lg-4 offset-xl-5">
                             <div class="card shadow my-auto">
                                 <div class="card-body">
-                                    <form id="form" name="form" action="/register/" method="POST"  >
+                                    <form id="form" name="form" action="/register" method="POST"  >
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="choice" value="company">
                                             <label class="form-check-label" for="flexRadioDefault1">
-                                                Register a company account
+                                                {{_('Register a company account')}}
                                             </label>
                                           </div>
                                           <div class="form-check">
                                             <input class="form-check-input" type="radio" name="choice" value="user" checked>
                                             <label class="form-check-label" for="flexRadioDefault2">
-                                                Register a personal account
+                                                {{_('Register a personal account')}}
                                             </label>
                                           </div>
                                         <br>
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="text-center">
-                                                    <div  class="form-group"><button  class="btn btn-primary btn-sm" type="submit">Next</button></div>
+                                                    <div  class="form-group"><button  class="btn btn-primary btn-sm" type="submit">{{_('Next')}}</button></div>
                                                     </div>
                                                 </div>
                                         </div>

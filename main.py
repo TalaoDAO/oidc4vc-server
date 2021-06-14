@@ -10,7 +10,10 @@ $ python main.py
 import os
 import time
 import json
-from flask import Flask, redirect, jsonify
+from flask_babel import Babel
+from flask_babel import _
+from flask_babel import refresh
+from flask import Flask, redirect, jsonify, request, session
 from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
@@ -39,7 +42,7 @@ logging.info('end of init')
 
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
-from routes import web_data_user, web_skills, web_external, web_issuer_explore
+from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
 from routes import web_main, web_login, repository, cci_api
 
 # Release
@@ -57,6 +60,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifet
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
+babel = Babel(app)
 sess = Session()
 sess.init_app(app)
 
@@ -69,15 +73,39 @@ def page_abort(e):
     return redirect(mode.server + 'login/')
 
 
-# Centralized @route for create identity
-app.add_url_rule('/register/identity/',  view_func=web_register.register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/',  view_func=web_register.register, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/user/register/',  view_func=web_register.user_register, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/company/register/',  view_func=web_register.company_register, methods = ['GET', 'POST'], defaults={'mode': mode})
+LANGUAGES = ['en', 'fr']
+@babel.localeselector
+def get_locale():
+    print('session language = ', session.get('language'))
+    if not session.get('language') :
+        return request.accept_languages.best_match(LANGUAGES)
+    print('call localeselector')
+    refresh()
+    return session.get('language')
 
-app.add_url_rule('/register/password/',  view_func=web_register.register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/code/', view_func=web_register.register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/register/post_code/', view_func=web_register.register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
+"""
+https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-i18n-and-l10n
+
+pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d translations -l fr
+pybabel compile -d translations
+
+"""
+
+@app.route('/user/language', methods=['GET'], defaults={'mode': mode})
+def user_language(mode) :
+    session['language'] = request.args['lang']
+    refresh()
+    return redirect (mode.server + 'user/')
+
+# Centralized @route for register identity
+web_register.init_app(app, mode)
+
+# Centralized route for login 
+web_login.init_app(app,  mode)
+
+# Centralized @route for HRID solution
+web_hrid.init_app(app, mode)
 
 # Centralized @route for create company CCI
 app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -100,18 +128,7 @@ app.add_url_rule('/company/registry/', view_func=web_external.board, methods = [
 # Centralized route fo Issuer explore
 app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
 
-# Centralized route for login
-app.add_url_rule('/logout/',  view_func=web_login.logout, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_username/',  view_func=web_login.forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_password/',  view_func=web_login.forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/forgot_password_token/',  view_func=web_login.forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/login/authentification/',  view_func=web_login.login_authentification, methods = ['POST'], defaults={'mode': mode})
-app.add_url_rule('/login/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/',  view_func=web_login.login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
-app.add_url_rule('/user/two_factor/',  view_func=web_login.two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/user/update_wallet/',  view_func=web_login.update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
-#app.add_url_rule('/login_password/',  view_func=web_login.login_password, methods = ['GET', 'POST'])
-#app.add_url_rule('/did_auth/',  view_func=web_login.did_auth, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -125,7 +142,7 @@ app.add_url_rule('/user/import_identity_key2/',  view_func=web_data_user.import_
 
 
 # Centralized route issuer for skills
-app.add_url_rule('/user/update_skills/',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
+app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 
 # Centralized route for main features
@@ -152,20 +169,20 @@ app.add_url_rule('/company/add_credential_supported/',  view_func=web_main.add_c
 app.add_url_rule('/user/update_personal_settings/',  view_func=web_main.update_personal_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/update_company_settings/',  view_func=web_main.update_company_settings, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/store_file/',  view_func=web_main.store_file, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/add_experience/',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/add_activity/',  view_func=web_main.add_activity, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/add_experience',  view_func=web_main.add_experience, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/add_activity',  view_func=web_main.add_activity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/presentation/',  view_func=web_main.presentation, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/swap_privacy/',  view_func=web_main.swap_privacy, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_certificate/',  view_func=web_main.remove_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 
 app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_experience/',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_education/',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/remove_experience',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/remove_education',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/create_company/',  view_func=web_main.create_company, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/create_user/',  view_func=web_main.create_user, methods = ['GET','POST'], defaults={'mode' : mode})
 
 app.add_url_rule('/user/remove_file/',  view_func=web_main.remove_file, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/add_education/',  view_func=web_main.add_education, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/user/add_education',  view_func=web_main.add_education, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/invit/',  view_func=web_main.invit, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/send_memo/',  view_func=web_main.send_memo, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_partnership/',  view_func=web_main.request_partnership, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -173,7 +190,7 @@ app.add_url_rule('/user/remove_partner/',  view_func=web_main.remove_partner, me
 app.add_url_rule('/user/reject_partner/',  view_func=web_main.reject_partner, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/authorize_partner/',  view_func=web_main.authorize_partner, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/add_alias/',  view_func=web_main.add_alias, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/remove_access/',  view_func=web_main.remove_access, methods = ['GET','POST'], defaults={'mode' : mode})
+app.add_url_rule('/company/remove_access',  view_func=web_main.remove_access, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/import_private_key/',  view_func=web_main.import_private_key, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/import_rsa_key/',  view_func=web_main.import_rsa_key, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/request_proof_of_identity/',  view_func=web_main.request_proof_of_identity, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -329,4 +346,5 @@ if __name__ == '__main__':
 
     # info release
     logging.info('flask serveur init')
+
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)

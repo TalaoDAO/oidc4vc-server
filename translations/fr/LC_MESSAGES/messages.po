@@ -1,0 +1,975 @@
+# French translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-06-14 20:10+0200\n"
+"PO-Revision-Date: 2021-06-13 21:22+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: routes/web_data_user.py:106
+msgid "session aborted"
+msgstr "session terminée"
+
+#: routes/web_data_user.py:227 routes/web_data_user.py:668
+msgid "No Referents available"
+msgstr "Aucun référent disponible"
+
+#: routes/web_data_user.py:282
+msgid "No Experience available"
+msgstr "Aucune expérience disponible"
+
+#: routes/web_data_user.py:290 templates/add_activity.html:39
+#: templates/add_experience.html:39 templates/user_footer.html:28
+msgid "Company"
+msgstr "Entreprise"
+
+#: routes/web_data_user.py:291 routes/web_data_user.py:310
+#: routes/web_data_user.py:324 routes/web_data_user.py:518
+msgid "Title"
+msgstr "Titre"
+
+#: routes/web_data_user.py:292 routes/web_data_user.py:311
+#: templates/add_activity.html:47 templates/add_education.html:47
+#: templates/add_experience.html:47
+msgid "Start Date"
+msgstr "Date de début"
+
+#: routes/web_data_user.py:293 routes/web_data_user.py:312
+#: templates/add_education.html:50 templates/add_experience.html:50
+msgid "End Date"
+msgstr "Date de fin"
+
+#: routes/web_data_user.py:294 routes/web_data_user.py:519
+msgid "Description"
+msgstr "Description"
+
+#: routes/web_data_user.py:305
+msgid "No Education available"
+msgstr "Aucune formation disponible"
+
+#: routes/web_data_user.py:309 templates/add_education.html:39
+msgid "Organization"
+msgstr "Organisation"
+
+#: routes/web_data_user.py:321 templates/register/user_register.html:54
+#: templates/update_personal_settings.html:38
+msgid "Firstname"
+msgstr "Prénom"
+
+#: routes/web_data_user.py:322 templates/register/user_register.html:55
+#: templates/update_personal_settings.html:41
+msgid "Lastname"
+msgstr "Nom"
+
+#: routes/web_data_user.py:323 routes/web_data_user.py:492
+#: templates/update_personal_settings.html:49 templates/user_footer.html:26
+msgid "About"
+msgstr "A propos"
+
+#: routes/web_data_user.py:325 templates/update_personal_settings.html:72
+msgid "Birth Date"
+msgstr "Date de naissance"
+
+#: routes/web_data_user.py:326 routes/web_data_user.py:493
+#: templates/update_company_settings.html:61
+#: templates/update_personal_settings.html:57
+msgid "Contact Email"
+msgstr "Email"
+
+#: routes/web_data_user.py:327 routes/web_data_user.py:494
+#: templates/update_company_settings.html:69
+#: templates/update_personal_settings.html:85
+msgid "Contact Phone"
+msgstr "Téléphone"
+
+#: routes/web_data_user.py:328 routes/web_data_user.py:495
+#: templates/update_company_settings.html:85
+#: templates/update_personal_settings.html:99
+msgid "Postal Address"
+msgstr "Adresse postale"
+
+#: routes/web_data_user.py:329 templates/add_education.html:31
+#: templates/person_identity.html:110
+#: templates/update_personal_settings.html:54
+msgid "Education"
+msgstr "Formation"
+
+#: routes/web_data_user.py:361
+msgid "No Credential available"
+msgstr "Aucune attestation disponible"
+
+#: routes/web_data_user.py:366 routes/web_data_user.py:517
+msgid "Credential Type"
+msgstr "Type d'attestation"
+
+#: routes/web_data_user.py:367
+msgid "Credential Privacy"
+msgstr "Visibilité de l'attestation"
+
+#: routes/web_data_user.py:368
+msgid "Issuer name"
+msgstr "Nom de l'émetteur"
+
+#: routes/web_data_user.py:369
+msgid "Issuer DID"
+msgstr "Issuer dID"
+
+#: routes/web_data_user.py:370
+msgid "Issuance Date"
+msgstr "Date de l'emission"
+
+#: routes/web_data_user.py:418
+msgid "Add an Admin"
+msgstr "Ajouter un admin"
+
+#: routes/web_data_user.py:432
+msgid "Add an Issuer"
+msgstr "Ajouter un signataire"
+
+#: routes/web_data_user.py:446
+msgid "Add a Reviewer"
+msgstr "Ajouter un validateur"
+
+#: routes/web_data_user.py:461
+msgid "Add a Campaign"
+msgstr "Ajouter une campagne"
+
+#: routes/web_data_user.py:483
+msgid "Change Logo"
+msgstr "Modifier le logo"
+
+#: routes/web_data_user.py:484
+msgid "Change Signature"
+msgstr "Modifier la signature"
+
+#: routes/web_data_user.py:488
+msgid "Company name"
+msgstr "Dénomination entreprise"
+
+#: routes/web_data_user.py:489
+msgid "Contact name"
+msgstr "Nom du contact"
+
+#: routes/web_data_user.py:490
+msgid "website"
+msgstr "website"
+
+#: routes/web_data_user.py:491 templates/update_company_settings.html:99
+msgid "SIREN"
+msgstr "SIREN"
+
+#: routes/web_data_user.py:496
+msgid "Mother company"
+msgstr "Maison mère"
+
+#: routes/web_data_user.py:497 templates/update_company_settings.html:93
+msgid "Staff"
+msgstr "Nombre de salariés"
+
+#: routes/web_data_user.py:498
+msgid "Sales"
+msgstr "Chiffre d'Affaires"
+
+#: routes/web_data_user.py:509
+msgid "No Credentials available"
+msgstr "Aucune attestation disponible"
+
+#: routes/web_data_user.py:516
+msgid "Issuer Name"
+msgstr "Signataire"
+
+#: routes/web_data_user.py:608
+msgid "No DID available"
+msgstr "Identifiant indisponible"
+
+#: routes/web_data_user.py:639
+msgid "No Partners available"
+msgstr "Aucun partner disponible"
+
+#: routes/web_data_user.py:706
+msgid "Picture has been updated"
+msgstr "Photo mise à jour"
+
+#: routes/web_data_user.py:708
+msgid "Logo has been updated"
+msgstr "Logo mis à jour"
+
+#: routes/web_login.py:102
+msgid "No identity found"
+msgstr "Cette Identité n'existe pas"
+
+#: routes/web_login.py:106
+msgid "Wallet updated "
+msgstr "Wallet mis à jour"
+
+#: routes/web_login.py:108
+msgid "Wallet deleted"
+msgstr "Wallet effaçée"
+
+#: routes/web_login.py:110
+msgid "Update failed"
+msgstr "Echec de la mise à jour"
+
+#: routes/web_login.py:132 routes/web_login.py:250
+msgid "Secret code sent by "
+msgstr "Code secret envoyé par "
+
+#: routes/web_login.py:141 routes/web_login.py:285
+msgid "This code is incorrect, 2 trials left"
+msgstr "The code est incorrect, plus que 2 essais"
+
+#: routes/web_login.py:143 routes/web_login.py:287
+msgid "This code is incorrect, 1 trial left"
+msgstr "Ce code est icorrect plus que 1 seul essai"
+
+#: routes/web_login.py:150 routes/web_login.py:278
+msgid "Code expired"
+msgstr "Codé expiré"
+
+#: routes/web_login.py:153 routes/web_login.py:239 routes/web_login.py:281
+msgid "Too many trials (3 max)"
+msgstr "Nombre maximum d'essais atteint"
+
+#: routes/web_login.py:197
+msgid "User unknown"
+msgstr "Nom d'utilisateur inconnu"
+
+#: routes/web_login.py:223 routes/web_login.py:341
+msgid "Username not found"
+msgstr "Nom d'utilisateur non trouvé"
+
+#: routes/web_login.py:230
+msgid "This password is incorrect, 2 trials left"
+msgstr "Mot de passe incorrect"
+
+#: routes/web_login.py:235
+msgid "This password is incorrect, 1 trials left"
+msgstr "Mot de passe incorrect, plus que 1 essai"
+
+#: routes/web_login.py:253
+msgid "Connexion problem"
+msgstr "Connexion impossible"
+
+#: routes/web_login.py:264
+msgid "Authentification expired"
+msgstr "Authentification expiré"
+
+#: routes/web_login.py:310
+msgid "Thank you for your visit"
+msgstr "Merci pour votre visite"
+
+#: routes/web_login.py:324
+msgid "There is no Identity with this Email"
+msgstr "Il n'existe aucune identité pour cet email"
+
+#: routes/web_login.py:326
+msgid "This Email is already used by Identities : "
+msgstr "Cet email est déjà utilisé pour une identité"
+
+#: routes/web_login.py:357
+msgid "You are going to receive an email to renew your password."
+msgstr "Vous allez recevoir un email pour renouveller votre mote de passe."
+
+#: routes/web_login.py:373
+msgid "Incorrect data"
+msgstr "Données incorrectes"
+
+#: routes/web_login.py:378
+msgid "Delay expired (3 minutes maximum)"
+msgstr "Délais expiré"
+
+#: routes/web_login.py:385
+msgid "Incorrect email"
+msgstr "Email incorrect"
+
+#: routes/web_login.py:388
+msgid "Password updated"
+msgstr "Mot de passe mis à jour"
+
+#: routes/web_register.py:89
+msgid "Company registration failed"
+msgstr "Echec de la création de compte"
+
+#: routes/web_register.py:108
+msgid "Accept the service conditions to move next step."
+msgstr ""
+
+#: routes/web_register.py:111
+msgid "Incorrect phone number."
+msgstr "Numéro de téléphone incorrect."
+
+#: routes/web_register.py:135 routes/web_register.py:140
+msgid "DID resolution has been rejected by Universal Resolver."
+msgstr "Ce DID n'est pas résolu"
+
+#: routes/web_register.py:162
+msgid "SMS connexion problem."
+msgstr "Echec envoi SMS"
+
+#: routes/web_register.py:184
+msgid "Connexion problem."
+msgstr "Echec connexion"
+
+#: routes/web_register.py:191
+msgid "Code is incorrect. Too many trials."
+msgstr "Code incorrect. Maximum d'essais atteint."
+
+#: routes/web_register.py:194
+msgid "Code expired."
+msgstr "Code expiré."
+
+#: routes/web_register.py:197
+msgid "Code is incorrect, 2 trials left."
+msgstr "Code incorrrect, plusque 2 essais"
+
+#: routes/web_register.py:199
+msgid "Code is incorrect, last trial."
+msgstr "Code incorrect, dernier essai"
+
+#: templates/add_activity.html:31
+msgid "Current activity"
+msgstr "Activité actuelle"
+
+#: templates/add_activity.html:42 templates/add_experience.html:42
+msgid "Position"
+msgstr "Position"
+
+#: templates/add_activity.html:54 templates/add_experience.html:56
+msgid "Contact Name (optional)"
+msgstr "Nom de votre contact (optionnel)"
+
+#: templates/add_activity.html:58 templates/add_education.html:60
+#: templates/add_experience.html:60
+msgid "Contact Email (Optional)"
+msgstr "Email de votre contact (optionnel)"
+
+#: templates/add_activity.html:64 templates/add_experience.html:66
+msgid "Skills (Optional) with comma separator"
+msgstr "Compétences (optionnel)"
+
+#: templates/add_activity.html:67 templates/add_education.html:68
+#: templates/add_experience.html:69
+msgid "Contact Phone (Optional)"
+msgstr "Téléphone de votre contact (optionnel)"
+
+#: templates/add_activity.html:73 templates/add_experience.html:75
+msgid "Summary"
+msgstr "Résumé"
+
+#: templates/add_activity.html:80 templates/add_education.html:83
+#: templates/add_experience.html:82
+msgid "Add"
+msgstr "Ajouter"
+
+#: templates/add_activity.html:83 templates/add_education.html:85
+#: templates/add_experience.html:85 templates/login/logout.html:59
+#: templates/register/register_code.html:42
+#: templates/register/register_identity.html:90
+#: templates/register/register_password.html:50
+#: templates/register/registration_error.html:25
+#: templates/update_company_settings.html:106 templates/update_password.html:52
+#: templates/update_personal_settings.html:117
+msgid "Back"
+msgstr "Retour"
+
+#: templates/add_education.html:42
+msgid "Title or Degree"
+msgstr "Titre ou diplôme"
+
+#: templates/add_education.html:57
+msgid "Contact Name (Optional)"
+msgstr "Nom de votre contact (Optionnel)"
+
+#: templates/add_education.html:65
+msgid "Skills (Optional)"
+msgstr "Compétences acquises (Optionnel)"
+
+#: templates/add_education.html:76
+msgid "Summary (Optional)"
+msgstr "Résumé (Optionnel)"
+
+#: templates/add_education.html:77
+msgid "Diploma Link (Optional)"
+msgstr "Lien vers le diplome (Optionnel)"
+
+#: templates/add_experience.html:31
+msgid "Experience"
+msgstr "Expérience"
+
+#: templates/company_identity.html:57
+msgid "Company Details"
+msgstr "Données entreprise"
+
+#: templates/company_identity.html:83 templates/company_nav_bar.html:96
+#: templates/company_nav_bar.html:115
+msgid "Credentials"
+msgstr "Attestations"
+
+#: templates/company_identity.html:123
+msgid "Administrators"
+msgstr "Admin"
+
+#: templates/company_identity.html:134
+msgid "Issuers"
+msgstr "Signataires"
+
+#: templates/company_identity.html:145
+msgid "Reviewers"
+msgstr "Validateurs"
+
+#: templates/company_identity.html:156
+msgid "Campaigns"
+msgstr "Campagnes"
+
+#: templates/company_identity.html:167 templates/person_identity.html:64
+msgid "File Store"
+msgstr "Fichiers"
+
+#: templates/company_nav_bar.html:15 templates/user_nav_bar.html:16
+msgid "Settings"
+msgstr "Paramètres"
+
+#: templates/company_nav_bar.html:17 templates/company_nav_bar.html:132
+#: templates/user_nav_bar.html:18 templates/user_nav_bar.html:104
+msgid "Invit by email"
+msgstr "Inviter par email"
+
+#: templates/company_nav_bar.html:20 templates/company_nav_bar.html:113
+#: templates/user_nav_bar.html:21 templates/user_nav_bar.html:96
+msgid "Advanced"
+msgstr "Paramètres avançés"
+
+#: templates/company_nav_bar.html:21 templates/company_nav_bar.html:109
+#: templates/user_nav_bar.html:92
+msgid "Documentation"
+msgstr "Documentation"
+
+#: templates/company_nav_bar.html:23 templates/user_nav_bar.html:25
+#: templates/user_nav_bar.html:97
+msgid "Delete Identity"
+msgstr "Effacer votre identité"
+
+#: templates/company_nav_bar.html:26 templates/company_nav_bar.html:125
+msgid "Config API Server"
+msgstr "Configuraion API server"
+
+#: templates/company_nav_bar.html:34 templates/company_nav_bar.html:135
+#: templates/login/logout.html:49 templates/user_nav_bar.html:27
+#: templates/user_nav_bar.html:107
+msgid "Logout"
+msgstr "Déconnexion"
+
+#: templates/company_nav_bar.html:63 templates/user_nav_bar.html:55
+msgid "This search bar only works with usernames."
+msgstr "Recherche par nom d'utilisateur"
+
+#: templates/company_nav_bar.html:88
+msgid "Kyc"
+msgstr "KYC"
+
+#: templates/company_nav_bar.html:89
+msgid "Key"
+msgstr "Key"
+
+#: templates/company_nav_bar.html:90
+msgid "Wallet"
+msgstr "Wallet"
+
+#: templates/company_nav_bar.html:94 templates/user_nav_bar.html:81
+msgid "Identity"
+msgstr "Identité"
+
+#: templates/company_nav_bar.html:95
+msgid "Board"
+msgstr "Portfolio"
+
+#: templates/company_nav_bar.html:112 templates/user_nav_bar.html:94
+msgid "Account"
+msgstr "Paramètre du compte"
+
+#: templates/company_nav_bar.html:114
+msgid "Create employee"
+msgstr "Céer un compte employé"
+
+#: templates/company_nav_bar.html:119
+msgid "Select Identity"
+msgstr "Selectionner uen identité"
+
+#: templates/company_nav_bar.html:120
+msgid "Delete Repository"
+msgstr "Effacer portfolio"
+
+#: templates/company_nav_bar.html:121
+msgid "Remove Identity"
+msgstr "Effacer une identité"
+
+#: templates/company_nav_bar.html:126
+msgid "Create Company"
+msgstr "Créer un compte entreprise"
+
+#: templates/company_nav_bar.html:130 templates/user_nav_bar.html:103
+msgid "Verifier"
+msgstr "Verifier"
+
+#: templates/guest_nav_bar.html:10
+msgid "Professional Digital IDentity"
+msgstr "Identité Numérique Professionnelle"
+
+#: templates/guest_nav_bar.html:31
+msgid "Register"
+msgstr "Créer un compte"
+
+#: templates/guest_nav_bar.html:40 templates/user_footer.html:9
+msgid "What is Talao ?"
+msgstr "Que propose Talao ?"
+
+#: templates/guest_nav_bar.html:41
+msgid "Quick start"
+msgstr "Démarrage rapide"
+
+#: templates/person_identity.html:41
+msgid "My Resume"
+msgstr "Mon CV"
+
+#: templates/person_identity.html:46
+msgid "Personal Details"
+msgstr "Données personnelles"
+
+#: templates/login/update_password_external.html:49
+#: templates/person_identity.html:53 templates/update_company_settings.html:105
+#: templates/update_password.html:49
+#: templates/update_personal_settings.html:113
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: templates/person_identity.html:71
+msgid "Store file"
+msgstr "Sauvegarder un fichier"
+
+#: templates/person_identity.html:80
+msgid "Experience and current activities"
+msgstr "Expériences et activités actuelles"
+
+#: templates/person_identity.html:90
+msgid "Add Experience"
+msgstr "Ajouter une expérience"
+
+#: templates/person_identity.html:95
+msgid "Add Current"
+msgstr "Ajouter une activité actuelle"
+
+#: templates/person_identity.html:118
+msgid "Add Education"
+msgstr "Ajouter une formation"
+
+#: templates/person_identity.html:128
+msgid "Skills"
+msgstr "Compétences"
+
+#: templates/person_identity.html:135
+msgid "Update Skills"
+msgstr "Ajouter une compétence"
+
+#: templates/person_identity.html:148
+msgid "Credential(s)"
+msgstr "Attestation(s)"
+
+#: templates/person_identity.html:166
+msgid "QRCode to link your portfolio"
+msgstr "QRCode pour accéder à votre portfoliio"
+
+#: templates/person_identity.html:212
+msgid ""
+"Your local Identity keys are no more available. Update your browser with "
+"new Keys ?"
+msgstr ""
+"La clé privée de votre identité n'est pas disponible. Mettez à jour votre"
+" browser avece une nouvelle clé ?"
+
+#: templates/update_company_settings.html:36
+msgid "Company Settings"
+msgstr "Paramètre de l'entreprise"
+
+#: templates/update_company_settings.html:37
+msgid "Pre-fill info with SIREN"
+msgstr "Préremplir avec les données du SIREN"
+
+#: templates/update_company_settings.html:44
+msgid "Name"
+msgstr "Dénomination"
+
+#: templates/update_company_settings.html:47
+msgid "Website"
+msgstr "Site web"
+
+#: templates/update_company_settings.html:50
+msgid "Contact Name"
+msgstr "Nom du représentant"
+
+#: templates/update_company_settings.html:79
+msgid "About (Activity, ...)"
+msgstr "A propos"
+
+#: templates/update_company_settings.html:90
+msgid "Group"
+msgstr "Groupe"
+
+#: templates/update_company_settings.html:96
+msgid "Sales (€)"
+msgstr "Chiffre d'Affaires"
+
+#: templates/login/update_password_external.html:37
+#: templates/update_password.html:36
+msgid "Update your password"
+msgstr "Mettez à jour votre mot de passe"
+
+#: templates/update_personal_settings.html:29
+msgid "Personal settings"
+msgstr "Paramètres personnels"
+
+#: templates/update_personal_settings.html:44
+msgid "Profil Title"
+msgstr "Titre"
+
+#: templates/update_personal_settings.html:60
+#: templates/update_personal_settings.html:75
+#: templates/update_personal_settings.html:88
+#: templates/update_personal_settings.html:102
+msgid "Privacy setting"
+msgstr "Protection des données"
+
+#: templates/user_footer.html:8
+msgid "Video tutorial"
+msgstr "Tuto"
+
+#: templates/user_footer.html:10
+msgid "Report a bug"
+msgstr "Rapporter un bug"
+
+#: templates/user_footer.html:21
+msgid "Certification"
+msgstr "Certification"
+
+#: templates/user_footer.html:22
+msgid "Development"
+msgstr "Développement"
+
+#: templates/user_footer.html:29
+msgid "Privacy"
+msgstr "Vie privée"
+
+#: templates/user_nav_bar.html:82
+msgid "Portfolio"
+msgstr "Portfolio"
+
+#: templates/user_nav_bar.html:100
+msgid "Presentation"
+msgstr "Présentation"
+
+#: templates/login/authentification.html:39
+msgid "Enter the secret code you have just received for authentication."
+msgstr "Sasissez le code secret que vous avez reçu."
+
+#: templates/login/authentification.html:45
+msgid "Check your secret code."
+msgstr "Verifier votre code secret"
+
+#: templates/login/authentification.html:49
+#: templates/login/update_password_external.html:55
+msgid "Login"
+msgstr "Connexion"
+
+#: templates/login/authentification.html:51
+msgid "Forgot password ?"
+msgstr "Mot de passe oublié ?"
+
+#: templates/login/authentification.html:52
+msgid "Back to Login !"
+msgstr "Retour"
+
+#: templates/login/did_auth.html:30
+msgid "Sign In with your Identity"
+msgstr "Connectez vous avec votre Identité"
+
+#: templates/login/did_auth.html:38 templates/login/login_password.html:42
+#: templates/register/end_of_registration.html:32
+msgid "Sign In"
+msgstr "Connexion"
+
+#: templates/login/did_auth.html:40
+msgid "Sign In with password"
+msgstr "Connexion avec mot de passe"
+
+#: templates/login/did_auth.html:41 templates/login/login_password.html:46
+msgid "Forgot Username"
+msgstr "Nom utilisateur oublié"
+
+#: templates/login/did_auth.html:70 templates/login/did_auth.html:88
+msgid "Your Identity credential has been deleted, Sign In with password !"
+msgstr "Votre attestation d'identité a été éffaçée"
+
+#: templates/login/did_auth.html:76
+msgid ""
+"Your username is not correct, Sign In with password or clic on Forgot "
+"Username."
+msgstr "Votre nom utilisateur est incorrect"
+
+#: templates/login/forgot_password_init.html:32
+msgid "Reset your password"
+msgstr "Changer le mot de passe"
+
+#: templates/login/forgot_password_init.html:38
+msgid "Enter your username"
+msgstr "Entrez votre nom d'utilisateur"
+
+#: templates/login/forgot_password_init.html:41
+msgid "Send"
+msgstr "Envoyé"
+
+#: templates/login/forgot_password_init.html:43
+#: templates/login/forgot_username.html:39
+#: templates/login/login_password.html:31
+#: templates/register/register_code.html:46
+#: templates/register/register_identity.html:95
+#: templates/register/register_password.html:56
+#: templates/register/registration_error.html:27
+#: templates/register/user_register.html:67
+msgid "Sign-In"
+msgstr "Connexion"
+
+#: templates/login/forgot_username.html:23
+msgid "Request you username"
+msgstr "Obtenez votre nom d'utilisateur"
+
+#: templates/login/forgot_username.html:29
+msgid "Enter your email to get your username(s)."
+msgstr "Entrez votre email pour obtenir votre nom d'utilisatur"
+
+#: templates/login/forgot_username.html:37
+msgid "Request"
+msgstr "Demande"
+
+#: templates/login/login_password.html:34
+msgid "Username"
+msgstr "Nom utilisateur"
+
+#: templates/login/login_password.html:38
+msgid "Password"
+msgstr "Mot de passe"
+
+#: templates/login/login_password.html:45
+msgid "Forgot Password"
+msgstr "Mot de passe oublié"
+
+#: templates/login/logout.html:56
+msgid "Confirm"
+msgstr "Confirmez"
+
+#: templates/login/two_factor.html:38
+msgid "You are going to receive a secret code."
+msgstr "VOus allez recevoir un code secret."
+
+#: templates/login/two_factor.html:39
+msgid "Copy this secret code for authentification."
+msgstr "Copier ce code pour authentification"
+
+#: templates/login/two_factor.html:54 templates/register/register.html:36
+#: templates/register/register_code.html:39
+#: templates/register/register_identity.html:87
+#: templates/register/register_password.html:47
+#: templates/register/user_register.html:65
+msgid "Next"
+msgstr "Suivant"
+
+#: templates/register/end_of_registration.html:20
+msgid ""
+"Your Professional Digital Identity and your repository have been "
+"installed."
+msgstr ""
+"Votre Identité Numérique Professionnelle et votre portfoliio ont été "
+"installés"
+
+#: templates/register/end_of_registration.html:20
+msgid "You can now Sign In."
+msgstr "Vous pouvez maintenant vous connecter."
+
+#: templates/register/end_of_registration.html:26
+#: templates/register/registration_error.html:19
+msgid "Your professional Identity"
+msgstr "Votre Identité Numérique"
+
+#: templates/register/end_of_registration.html:31
+msgid "Your username is :"
+msgstr "Votre nom utilisateur est :"
+
+#: templates/register/register.html:23
+msgid "Register a company account"
+msgstr "Créer un compte entreprise"
+
+#: templates/register/register.html:29
+msgid "Register a personal account"
+msgstr "Créer un compte personnel"
+
+#: templates/register/register_code.html:21
+msgid "Check your phone."
+msgstr "Vérifiez votre téléphone."
+
+#: templates/register/register_code.html:26
+msgid "You are going to receive an SMS with a secret code."
+msgstr "Vous allez recevoir un SMS avec un code secret."
+
+#: templates/register/register_code.html:27
+msgid "Copy this secret code for authentication."
+msgstr "Saisissez ce code pour l'authentification"
+
+#: templates/register/register_code.html:72
+msgid "Your Identity is being deployed."
+msgstr "Votre Identité est actuellement en cours d'installation."
+
+#: templates/register/register_code.html:76
+msgid ""
+"Your Professional Identity and portfolio will be installed soon. This "
+"process can take up to 1 minute. Do not close this page."
+msgstr ""
+"Votre Identité Numérique Professionnelle et votre portfolio seront "
+"installés bientot. Cela peut durer 1 minute."
+
+#: templates/register/register_identity.html:33
+msgid "Select an Identity registry."
+msgstr "Choisissez une blockchain pour votre Identité Numérique."
+
+#: templates/register/register_identity.html:38
+msgid ""
+"If you do not have a Decentralized Identity (DID), you can choose the "
+"registry to support your future Decentralized Identity.\n"
+"                                    In case you don't have specific "
+"expectations, keep the registry selected by default."
+msgstr ""
+"Si vous n'avez pas déjà une Identité Décentralisée (DID), vous pouvez "
+"choisir la blockchain de support à votre future Identité Numérique."
+
+#: templates/register/register_identity.html:40
+msgid ""
+"Your cryptographic keys to manage your Identity, authenticate and sign "
+"verifiable credentials will be stored encrypted on this browser and on "
+"your computer.\n"
+"                                    If you lose this file "
+"(identity_key.text), there will be no solutions to get your keys back."
+msgstr ""
+"Votre clé privée pour gérer votre Identité, vous authentifier et signer "
+"des attestations et documents sera encryptée avec votre mot de passe et "
+"sauvergardée sur votre Desktop."
+
+#: templates/register/register_identity.html:48
+msgid "I have my own DID : "
+msgstr "J ai mon propre Identifiant Décentralisé (DID) : "
+
+#: templates/register/register_identity.html:58
+msgid "did:ethr.This Identity is supported by the Ethereum blockchain."
+msgstr "did:ethr. Cette Identité est supportée par la blockchain Ethereum."
+
+#: templates/register/register_identity.html:78
+msgid "did:tz. This Identity is supported by the Tezos blockchain."
+msgstr "did:tz. Cette Identité est supportée par la blockchain Tezos."
+
+#: templates/register/register_password.html:22
+msgid "Choose a password."
+msgstr "Choisissez un mot de passe."
+
+#: templates/register/register_password.html:27
+msgid ""
+"This password will be used to protect the cryptographic keys of your "
+"identity stored on your desktop.\n"
+"                                        It will be also used as your "
+"password to access your repository."
+msgstr ""
+"Ce mot de passe sera utilisé pour protéger votre clé privée sauvegardée "
+"sur votre desktop. \n"
+" Il sera aussi nécessaire pour vous connecter à votre portfolio."
+
+#: templates/register/register_password.html:29
+msgid ""
+"Password must contain a number, an uppercase letter and a lowercase "
+"letter.\n"
+"                                            It also must contain at least"
+" 8 characters."
+msgstr ""
+"Un mot de passe doit contenir un nombre, une lettre minuscule, une lettre"
+" majuscule et au minimum 8 caractères."
+
+#: templates/register/user_register.html:36
+msgid ""
+"Talao is a solution to manage professional verifiable credentials and "
+"Self Sovereign Identity."
+msgstr ""
+"Talao est une solution pour gérer les Identités Numériques auto-"
+"souveraines ainsi que les attestations vérifiables."
+
+#: templates/register/user_register.html:37
+msgid "* You own your data for your lifetime."
+msgstr "* Vous controlez vos données."
+
+#: templates/register/user_register.html:38
+msgid "* No one can access your data without your permission."
+msgstr "* Personne ne peut accéder à vos données sans votre autorisation."
+
+#: templates/register/user_register.html:39
+msgid "* Credentials are verifiable, tamper proof and tracable."
+msgstr "* Les attestations sont traçables et infalsifiables."
+
+#: templates/register/user_register.html:40
+msgid "* Credential issuers are identified."
+msgstr "* Les émetteurs d'attestations sont identifiables."
+
+#: templates/register/user_register.html:41
+msgid "Enter your firstname, lastname, email and phone number for authentication."
+msgstr "Saisissez votre prénom, nom, email et numéro de téléphone."
+
+#: templates/register/user_register.html:48
+msgid "Create a new Professional Digital Identity"
+msgstr "Créer une Identité Numérique Professionnelle"
+
+#: templates/register/user_register.html:56
+msgid "Email"
+msgstr "Email"
+
+#: templates/register/user_register.html:62
+msgid "I read and I accept the service conditions"
+msgstr "J'ai lu et j'accepte les Conditions Générales d'Utilisation"
+
+#~ msgid ""
+#~ "For a user to be suggested he "
+#~ "would have needed to accept to be"
+#~ " on our database"
+#~ msgstr ""
+
+#~ msgid "Mother comapny"
+#~ msgstr "Maison mère"
+
+#~ msgid "staff"
+#~ msgstr "Employés"
+
+#~ msgid "sales"
+#~ msgstr "Chiffre d'Affaire"
+
+#~ msgid "Your Professional Identity is now available."
+#~ msgstr "Votre Identité Numérique est maintenant disponible."
+
+#~ msgid "Your username is "
+#~ msgstr "Votre nom utilisateur est "
+
+#~ msgid "I accept to have my name in the Name Directory"
+#~ msgstr "J'accepte d'avoir un nom dans le répertoire"
+

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-
+<!-- end_of_registration_fr.html-->
 <head>
     {% include 'head.html' %}
 </head>
@@ -11,25 +11,27 @@
                 {% include 'guest_nav_bar.html' %}
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-9 col-lg-12 col-xl-10">
+            <div class="col-lg-8 col-offset-2">
+
                 <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
+
+                     
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-flex">
-                                <div class="flex-grow-1 bg-login-image">
-                                    <p class="text-center" style="margin: 75px 50px 0px;">{{_('Your Professional Digital Identity and your repository have been installed.')}}<br><br>{{_('You can now Sign In.')}}<br><br><br></p>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
+                            <div class="col">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">{{_('Your professional Identity')}}</h4>
+                                        <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Votre Identité Numérique Professionelle et votre portfolio ont été installés</h4>
+                                    </div>
+                                    <div class="flex-grow-1 bg-login-image">
+                                            <p class="text-center" ">
+                                            <br><br>Vous pouvez maintenant vous connecter à votre Identité et demander une attestation à votre employeur.<br><br></p>
                                     </div>
                                     <form class="user" action="/register/post_code" method="GET">
                                         <div class="form-group">
-                                            <div class="custom-control custom-checkbox small"><h6 class="text-info" >
-                                                <br><br>{{_('Your username is :')}}<b> {{username}}.</b></h6></div>
-                                        </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Sign In')}}</button>
+                                            <div class="custom-control text-center custom-checkbox small"><h6 class="text" >
+                                              <br>Votre login est <b>{{username}}.</b></h6></div>
+                                        </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">Connexion</button>
                                     </form>
                                 </div>
                             </div>

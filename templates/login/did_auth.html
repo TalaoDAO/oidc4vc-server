@@ -27,7 +27,7 @@
                         <div class="col-lg-4 offset-lg-4">
 				            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                                 <div class="card-body">
-                                    <div class="text-center"><h4 class="text-dark mb-4">Sign In with your Identity</h4></div>
+                                    <div class="text-center"><h4 class="text-dark mb-4">{{_('Sign In with your Identity')}}</h4></div>
                                     <form id="form" name="form" action="/did_auth/" method="POST"  >
                                         <div class="form-group">
                                             <label>Username</label>
@@ -35,10 +35,10 @@
                                             <input hidden id="response" class="form-control" type="text" name="response" >
                                         </div>
                                         <br>
-                                        <button  onclick="make_response()" class="btn btn-primary btn-block text-white btn-user"  type="button">Sign In</button>
+                                        <button  onclick="make_response()" class="btn btn-primary btn-block text-white btn-user"  type="button">{{_('Sign In')}}</button>
                                     </form>
-                                    <div class="text-center"><a class="small" href="/login/" >Sign In with password</a></div>  
-                                    <div class="text-center"><a class="small" href="/forgot_username/">Forgot Username</a></div>
+                                    <div class="text-center"><a class="small" href="/login/" >{{_('Sign In with password')}}</a></div>  
+                                    <div class="text-center"><a class="small" href="/forgot_username/">{{_('Forgot Username')}}</a></div>
 
                                 </div>
                             </div>
@@ -67,13 +67,13 @@ async function make_response(){
     const encrypted_key = localStorage.getItem('identity_key');
     var key;
     if (!encrypted_key) {
-        window.alert('Your Identity credential has been deleted, Sign In with password !')
+        window.alert({{_('Your Identity credential has been deleted, Sign In with password !')}})
         return ;
         }
     else {
         key = await Decode(encrypted_key, username);
         if (key == 'error') {
-        window.alert('Your username is not correct, Sign In with password or clic on Forgot Username.')
+        window.alert({{_('Your username is not correct, Sign In with password or clic on Forgot Username.')}})
         document.getElementById("username").value = ""
         return ;}
         }
@@ -85,7 +85,7 @@ async function make_response(){
         detached : false
         });
     if (!signed_challenge) {
-        window.alert('Your Identity credential has been deleted, Sign In with password !')
+        window.alert({{_('Your Identity credential has been deleted, Sign In with password !')}})
         return ;
         }
     const response = {

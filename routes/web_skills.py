@@ -2,9 +2,14 @@
 from flask import session, flash
 from flask import request, redirect, render_template,abort
 import unidecode
+from flask_babel import _
 
 # dependances
 from protocol import Document
+
+
+
+
 
 def check_login() :
 	if not session.get('username') and not session.get('workspace_contract') :
@@ -70,7 +75,7 @@ def update_skills(mode) :
 				session['skills']['version'] = 1
 			for one_skill in session['skills']['description'] :
 				if one_skill['skill_code'] == skill_code :
-					flash('Skill alreday added', 'warning')
+					flash(_('Skill already added', 'warning'))
 					return redirect(mode.server + 'user/update_skills/')
 			if not skill_code  :
 				return redirect(mode.server + 'user/update_skills/')
@@ -96,9 +101,9 @@ def update_skills(mode) :
 			doc_id = data[0]
 			session['skills']['id'] = 'did:talao:' + mode.BLOCKCHAIN + ':' + session['workspace_contract'][2:] +':document:' + str(doc_id)
 			if session['type'] == 'person' :
-				flash('Your skills have been updated', 'success')
+				flash(_('Your skills have been updated'), 'success')
 			else:
-				flash('Your competencies have been updated', 'success')
+				flash(_('Your competencies have been updated'), 'success')
 			return redirect( mode.server + 'user/')
 
 		# delete the skill

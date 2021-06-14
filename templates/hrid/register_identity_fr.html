@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- register_identity.html -->
+<!-- register_identity_fr.html -->
 <html>
 
 <head>
     {% include 'head.html' %}
 </head>
 
-<body id="page-top" onload="generateDIDs()"">
+<body id="page-top" onload="generateDIDs()">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -30,22 +30,22 @@
                                 <div class="card-header py-3">
                                     <div class="row">
                                         <div class="col-xl-12">
-                                            <p class="text-primary m-0 font-weight-bold">{{_('Select an Identity registry.')}}</p>
+                                            <p class="text-primary m-0 font-weight-bold">&nbsp;Selectionnez un registre d'identité.</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p>{{_("If you do not have a Decentralized Identity (DID), you can choose the registry to support your future Decentralized Identity.
-                                    In case you don't have specific expectations, keep the registry selected by default.")}}<br><br>
-                                    {{_('Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser and on your computer.
-                                    If you lose this file (identity_key.text), there will be no solutions to get your keys back.')}}</p>
+                                    <p>If you do not have a Decentralized Identity (DID), you can choose the registry to support your future Decentralized Identity.
+                                    In case you don't have specific expectations, keep the registry selected by default.<br><br>
+                                    Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser and on your computer.
+                                    If you lose this file (identity_key.text), there will be no solutions to get your keys back.</p>
                                     <br>
                                     <form id="form" name="form" action="/register/identity" method="POST"  >
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
                                                     <input id="own" type="radio" class="form-check-input" value="own" name="did">
-                                                    <label id="label_own" style="color: rgb(133,135,150);" title="" >{{_('I have my own DID : ')}}</label>
+                                                    <label id="label_own" style="color: rgb(133,135,150);" title="" >I have my own DID : </label>
                                                     <input id="did_input" type="text"  class="form-control" name="own_did" title="Enter your DID. Must start with 'did:'. Talao supports all DID method available on the Universal Resolver." placeholder="Ex : did:ether0x1245a23132ff13">
                                                 </div>
                                             </div>
@@ -55,7 +55,7 @@
                                             <div class="col">
                                                 <div class="form-group form-check">
                                                     <input id="ethr" type="radio" class="form-check-input" value="" name="did">
-                                                    <label id="label_ethr" style="color: rgb(133,135,150);" title="" >{{_('did:ethr.This Identity is supported by the Ethereum blockchain.')}}</label>
+                                                    <label id="label_ethr" style="color: rgb(133,135,150);" title="" >did:ethr.This Identity is supported by the Ethereum blockchain. </label>
                                                 </div>
                                             </div>
                                         </div>
@@ -75,7 +75,7 @@
                                             <div class="col">
                                                 <div class="form-group form-check">
                                                     <input id="tz" checked type="radio" class="form-check-input" value="" name="did">
-                                                    <label id="label_tz" style="color: rgb(133,135,150);" title="" >{{_('did:tz. This Identity is supported by the Tezos blockchain.')}}</label>
+                                                    <label id="label_tz" style="color: rgb(133,135,150);" title="" >did:tz. This Identity is supported by the Tezos blockchain.</label>
 
                                                 </div>
                                             </div>
@@ -84,15 +84,17 @@
                                         <br>
                                         <div class="form-row">
                                             <div class="col">
-                                                <div  class="form-group"><button onclick="storeKeyPair()" class="btn btn-primary btn-sm" type="button">{{_('Next')}}</button></div>
+                                                <div  class="form-group"><button onclick="storeKeyPair()" class="btn btn-primary btn-sm" type="button">Next</button></div>
                                             </div>
                                             <div class="col">
-											    <div onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
+											    <div onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">Back</button></div>
                                             </div>
-                                            
+                                            <div class="col">
+											    <div hidden onclick="" class="form-group"><button class="btn btn-primary btn-sm" type="button">test</button></div>
+                                            </div>
                                         </div>
                                     </form>
-                                    <div class="text-center"><a class="small" href="/login">{{_('Sign-In')}}</a></div>
+                                    <div class="text-center"><a class="small" href="/login">Connexion</a></div>
 
                                 </div>
                             </div>

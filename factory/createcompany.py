@@ -26,7 +26,6 @@ logging.basicConfig(level=logging.INFO)
 from protocol import ether_transfer, ownersToContracts, token_transfer, createVaultAccess, add_key
 from protocol import createWorkspace
 from components import Talao_message, ns, privatekey
-import constante
 
 relay_address = ""
 
@@ -108,7 +107,7 @@ def create_company(email, username, did, mode, siren=None, name=None) :
 		logging.error('add identity in nameservice failed')
 		return None, None, None
 
-	# create database for manager within the company
+	# create database for company 
 	if not ns.init_host(username, mode) :
 		logging.error('add company in nameservice failed')
 

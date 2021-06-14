@@ -20,13 +20,13 @@
 				<div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Request you username</p>
+                            <p class="text-primary m-0 font-weight-bold">{{_('Request you username')}}</p>
                         </div>
                         <div class="card-body">
                             <form action = "/forgot_username/" method="POST">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>Enter your email to get your username(s).</p>
+                                        <p>{{_('Enter your email to get your username(s).')}}</p>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -34,9 +34,9 @@
                                         <div class="form-group"><input required=""  class="form-control" placeholder="Your email" type="email" name="email"></div>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary btn-block text-white btn-user" type="submit">Request</button>
+                                <button class="btn btn-primary btn-block text-white btn-user" type="submit">{{_('Request')}}</button>
                             </form>
-                            <div class="text-center"><a class="small" href="/login/">Sign-In</a></div>
+                            <div class="text-center"><a class="small" href="/login/">{{_('Sign-In')}}</a></div>
 
                         </div>
                     </div>

@@ -5,9 +5,11 @@ from flask import session, flash
 from flask import request, redirect, render_template, abort
 import time
 import json
+from flask_babel import _
 import requests
 import didkit
 import logging
+from flask_babel import _
 logging.basicConfig(level=logging.INFO)
 
 # dependances
@@ -101,7 +103,7 @@ def user(mode) :
 				user = Identity(session['workspace_contract'], mode, authenticated=True)
 			except :
 				logging.error('cannot init Identity')
-				flash('session aborted', 'warning')
+				flash(_('session aborted'), 'warning')
 				return render_template('login.html')
 		logging.info('end of first intanciation')
 
@@ -222,7 +224,7 @@ def user(mode) :
 
 	# Issuer for document, they have an ERC725 key 20002
 	if not session['issuer']  :
-		my_issuer = """  <a class="text-info">No Referents available</a>"""
+		my_issuer = """  <a class="text-info">""" + _('No Referents available') + """</a>"""
 	else :
 		my_issuer = ""
 		for one_issuer in session['issuer'] :
@@ -241,7 +243,7 @@ def user(mode) :
 
 	# files
 	if not session['identity_file'] :
-		my_file = """<a class="text-info">No Files available</a>"""
+		my_file = """<a class="text-info">""" + _('No Files available') + """</a>"""
 	else :
 		my_file = ""
 		for one_file in session['identity_file'] :
@@ -261,7 +263,7 @@ def user(mode) :
 
 	# skills
 	if not session['skills'] or not session['skills'].get('id') :
-		my_skills =  """<a class="text-info">No data available</a>"""
+		my_skills =  """<a class="text-info">""" + _('No data available') + """</a>"""
 	else :
 		my_skills = ""
 		for skill in session['skills']['description'] :
@@ -277,7 +279,7 @@ def user(mode) :
 		# experience
 		my_experience = ""
 		if not session['experience'] :
-			my_experience = my_experience + """<a class="text-info">No Experience available</a>"""
+			my_experience = my_experience + """<a class="text-info">""" + _('No Experience available') + """</a>"""
 		else :
 			for experience in sorted(session['experience'], key= lambda d: time.strptime(d['start_date'], "%Y-%m-%d"), reverse=True) :
 				if not experience['end_date'] :
@@ -285,13 +287,13 @@ def user(mode) :
 				else :
 					end_date = experience['end_date']
 				exp_html = """
-				<b>Company</b> : """ + experience['company']['name'] + """<br>
-				<b>Title</b> : """ + experience['title'] + """<br>
-				<b>Start Date</b> : """ + experience['start_date'] + """<br>
-					<b>End Date</b> : """ + end_date + """<br>
-				<b>Description</b> : """ + experience['description'][:100] + """...<br>
+				<b>""" + _('Company') + """</b> : """ + experience['company']['name'] + """<br>
+				<b>""" + _('Title') + """</b> : """ + experience['title'] + """<br>
+				<b>""" + _('Start Date') + """</b> : """ + experience['start_date'] + """<br>
+					<b>""" + _('End Date') + """</b> : """ + end_date + """<br>
+				<b>""" + _('Description') + """</b> : """ + experience['description'][:100] + """...<br>
 				<p>
-					<a class="text-secondary" href="/user/remove_experience/?experience_id=""" + experience['id'] + """">
+					<a class="text-secondary" href="/user/remove_experience?experience_id=""" + experience['id'] + """">
 						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 				</p>"""
@@ -300,31 +302,31 @@ def user(mode) :
 		# education
 		my_education = ""
 		if not session['education'] :
-			my_education = my_education + """<a class="text-info">No Education available</a>"""
+			my_education = my_education + """<a class="text-info">""" + _('No Education available') + """</a>"""
 		else :
 			for education in session['education'] :
 				edu_html = """
-				<b>Organization</b> : """+education['organization']['name']+"""<br>
-				<b>Title</b> : """+education['title'] + """<br>
-				<b>Start Date</b> : """+education['start_date']+"""<br>
-				<b>End Date</b> : """+education['end_date']+"""<br>
+				<b>""" + _('Organization') + """</b> : """+education['organization']['name']+"""<br>
+				<b>""" + _('Title') + """</b> : """+education['title'] + """<br>
+				<b>""" + _('Start Date') + """</b> : """+education['start_date']+"""<br>
+				<b>""" + _('End Date') + """</b> : """+education['end_date']+"""<br>
 				<p>
-					<a class="text-secondary" href="/user/remove_education/?education_id=""" + education['id'] + """">
+					<a class="text-secondary" href="/user/remove_education?education_id=""" + education['id'] + """">
 						<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 				</p>"""
 				my_education = my_education + edu_html	+ "<hr>"
 
 		# personal
-		TOPIC = {'firstname' : 'Firstname',
-				'lastname' : 'Lastname',
-				'about' : 'About',
-				'profil_title' : 'Title',
-				'birthdate' : 'Birth Date',
-				'contact_email' : 'Contact Email',
-				'contact_phone' : 'Contact Phone',
-				'postal_address' : 'Postal Address',
-				'education' : 'Education'}
+		TOPIC = {'firstname' : _('Firstname'),
+				'lastname' : _('Lastname'),
+				'about' : _('About'),
+				'profil_title' : _('Title'),
+				'birthdate' : _('Birth Date'),
+				'contact_email' : _('Contact Email'),
+				'contact_phone' : _('Contact Phone'),
+				'postal_address' : _('Postal Address'),
+				'education' : _('Education')}
 		my_personal = ""
 		for topicname in TOPIC.keys() :
 			if session['personal'][topicname].get('claim_value') :
@@ -356,16 +358,16 @@ def user(mode) :
 		# credentials/certificates
 		my_certificates = ""
 		if not session['all_certificate'] :
-			my_certificates = my_certificates + """<a class="text-info">No Credential available</a>"""
+			my_certificates = my_certificates + """<a class="text-info">""" + _('No Credential available') + """</a>"""
 		else :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				try : 
 					cert_html = """<hr>
-					<b>Credential Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
-					<b>Privacy</b> : """ + certificate['privacy'].capitalize() + """ credential<br>
-					<b>Issuer name</b> : """ + certificate['credentialSubject'].get('companyName', 'None').capitalize() + """ <br>
-					<b>Issuer DID</b> : """ + certificate['issuer'] +"""<br>
-					<b>Issuance Date</b> : """ + certificate['proof']['created'] + """<br>"""
+					<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
+					<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """ credential<br>
+					<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('companyName', 'None').capitalize() + """ <br>
+					<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
+					<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
 				except :
 					cert_html = """<hr>
 					<b>#</b> : """ + str(counter) + "<br>"
@@ -413,13 +415,13 @@ def user(mode) :
 		employee = company.Employee(session['host'], mode)
 
 		# Admin list  and add admin
-		my_admin_start = """<a href="/company/add_employee/?role_to_add=admin">Add an Admin</a><hr> """
+		my_admin_start = """<a href="/company/add_employee/?role_to_add=admin">""" + _('Add an Admin') + """</a><hr> """
 		my_admins = ""
 		admin_list = employee.get_list('admin', 'all')
 		for admin in admin_list :
 			admin_html = """
 				<span>""" + admin['username'] + """ => """ +  admin['identity_name'] +"""
-				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ admin['username']+"""">
+				<a class="text-secondary" href="/company/remove_access?employee_to_remove="""+ admin['username']+"""">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				</span>"""
@@ -427,13 +429,13 @@ def user(mode) :
 		my_admins = my_admin_start + my_admins
 
 		# Issuer list and add issuer within a company
-		my_managers_start = """<a href="/company/add_employee/?role_to_add=issuer">Add an Issuer</a><hr> """
+		my_managers_start = """<a href="/company/add_employee/?role_to_add=issuer">""" + _('Add an Issuer') + """</a><hr> """
 		my_managers = ""
 		manager_list = employee.get_list('issuer', 'all')
 		for manager in manager_list :
 			manager_html = """
 				<span>""" + manager['username'] + """ => """ +  manager['identity_name'] +"""
-				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ manager['username']+"""">
+				<a class="text-secondary" href="/company/remove_access?employee_to_remove="""+ manager['username']+"""">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				</span>"""
@@ -441,13 +443,13 @@ def user(mode) :
 		my_managers = my_managers_start + my_managers
 
 		# Reviewer list and add reviewers
-		my_reviewers_start = """<a href="/company/add_employee/?role_to_add=reviewer">Add a Reviewer</a><hr> """
+		my_reviewers_start = """<a href="/company/add_employee/?role_to_add=reviewer">""" + _('Add a Reviewer') + """</a><hr> """
 		my_reviewers = ""
 		reviewer_list = employee.get_list('reviewer', 'all')
 		for reviewer in reviewer_list :
 			reviewer_html = """
 				<span>""" + reviewer['username'] + """ => """ +  reviewer['identity_name'] +"""
-				<a class="text-secondary" href="/user/remove_access/?employee_to_remove="""+ reviewer['username']+"""">
+				<a class="text-secondary" href="/company/remove_access?employee_to_remove="""+ reviewer['username']+"""">
 					<i data-toggle="tooltip" class="fas fa-trash-alt" title="Remove">	</i>
 				</a>
 				</span>"""
@@ -456,7 +458,7 @@ def user(mode) :
 
 		# Company campaigns
 		if session['role'] not in ['issuer', 'reviewer'] :
-			my_campaign = """<a href="/company/add_campaign/">Add a Campaign</a><hr> """
+			my_campaign = """<a href="/company/add_campaign/">""" + _('Add a Campaign') + """</a><hr> """
 		else :
 			my_campaign = ""
 		campaign = company.Campaign(session['host'], mode)
@@ -478,34 +480,43 @@ def user(mode) :
 
 		# company settings
 		if session['role'] in ['creator', 'admin'] :
-			my_personal = """<a href="/user/picture/">Change Logo</a><br>
-						<a href="/user/signature/">Change Signature</a><br>"""
+			my_personal = """<a href="/user/picture/">""" + _('Change Logo') + """</a><br>
+						<a href="/user/signature/">""" + _('Change Signature') + """</a><br>"""
 		else :
 			my_personal = ""
 
-		for topicname in COMPANY_TOPIC :
-			if session['personal'][topicname]['claim_value'] :
-				topicname_value = session['personal'][topicname]['claim_value']
-				topicname_privacy = ' (' + session['personal'][topicname]['privacy'] + ')'
-				my_personal = my_personal + """
-				<span><b>""" + topicname + """</b> : """+ topicname_value + topicname_privacy +"""
-				</span><br>"""
+		TOPIC = {'name' : _('Company name'),
+				'contact_name' : _('Contact name'),
+				'website' : _('website'),
+				'siren' : _('SIREN'),
+				'about' : _('About'),
+				'contact_email' : _('Contact Email'),
+				'contact_phone' : _('Contact Phone'),
+				'postal_address' : _('Postal Address'),
+				'mother_company' : _('Mother company'),
+				'staff' : _('Staff'),
+				'sales' : _('Sales')}
+		for topicname in TOPIC.keys() :
+			if session['personal'][topicname].get('claim_value') :
+				text = session['personal'][topicname]['claim_value'] + ' (' + session['personal'][topicname]['privacy'] + ')'
+				my_personal += """<b>""" + TOPIC[topicname] + """</b> : """+ text + """<br>"""
+
 		if session['role'] in ['creator', 'admin'] :
 			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
 
 		# credentials
 		if  not session['all_certificate'] :
-			my_certificates =  """<a class="text-info">No Credentials available</a>"""
+			my_certificates =  """<a class="text-info">""" + _('No Credentials available') + """</a>"""
 		else :
 			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				if '@context' in certificate :
 					if  certificate['credentialSubject']['credentialCategory'] ==  "reference" :
 						cert_html = """<hr>
-								<b>Issuer Name</b> : """ + certificate['credentialSubject']['companyName'] + """<br>
-								<b>Certificate Type</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
-								<b>Title</b> : """ + certificate['credentialSubject']['offers']['title'] + """<br>
-								<b>Description</b> : """ + certificate['credentialSubject']['offers']['description']+ """<br>
+								<b>""" + _('Issuer Name') + """</b> : """ + certificate['credentialSubject']['companyName'] + """<br>
+								<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
+								<b>""" + _('Title') + """</b> : """ + certificate['credentialSubject']['offers']['title'] + """<br>
+								<b>""" + _('Description') + """</b> : """ + certificate['credentialSubject']['offers']['description']+ """<br>
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
 								<p>
 								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
@@ -594,7 +605,7 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# DID and DID document
-	DID = DID_Document = "No DID available"
+	DID = DID_Document = _("No DID available")
 	DID = ns.get_did(session['workspace_contract'], mode)
 	if not DID :
 		logging.warning('No DID available in local database')
@@ -625,7 +636,7 @@ def user_advanced(mode) :
 
 	# Partners
 	if session['partner'] == [] :
-		my_partner = """<a class="text-info">No Partners available</a>"""
+		my_partner = """<a class="text-info">""" +  _('No Partners available') + """</a>"""
 	else :
 		my_partner = ""
 		for partner in session['partner'] :
@@ -654,7 +665,7 @@ def user_advanced(mode) :
 
 	# Issuer for document, they have an ERC725 key 20002
 	if session['issuer'] == [] :
-		my_issuer = """  <a class="text-info">No Referents available</a>"""
+		my_issuer = """  <a class="text-info">""" + _('No Referents available') + """</a>"""
 	else :
 		my_issuer = ""
 		for one_issuer in session['issuer'] :
@@ -692,9 +703,9 @@ def user_account(mode) :
 		checkBox = ""
 	if request.args.get('success') == 'true' :
 		if session['type'] == 'person' :
-			flash('Picture has been updated', 'success')
+			flash(_('Picture has been updated'), 'success')
 		else :
-			flash('Logo has been updated', 'success')
+			flash(_('Logo has been updated'), 'success')
 	return render_template('account.html',
 							**session['menu'],
 							checkBox = checkBox)

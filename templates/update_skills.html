@@ -2,22 +2,8 @@
 <html>
 
 <head>
+  {% include 'head.html' %}
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Talao Professional Identity</title>
-  <!--     <link href="https://getbootstrap.com/docs/4.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  -->
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Contact-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Login-Form-Clean.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body id="page-top">
@@ -58,15 +44,15 @@
                   <div class="row">
                     <div class="col-xl-6">
                       {% if session['type'] == 'person' %}
-                      <p class="text-primary m-0 font-weight-bold">&nbsp;Skills</p>
+                      <p class="text-primary m-0 font-weight-bold">{{_('Skills')}}</p>
                       {% else%}
-                      <p class="text-primary m-0 font-weight-bold">&nbsp;Core Competencies</p>
+                      <p class="text-primary m-0 font-weight-bold">{{_('Core Competencies')}}</p>
                       {% endif %}
                     </div>
                   </div>
                 </div>
                 <div class="card-body">
-                  <form name="form" action="/user/update_skills/" method="POST">
+                  <form name="form" action="/user/update_skills" method="POST">
                     <div class="form-row">
                       <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                         <div class="form-group">
@@ -104,36 +90,36 @@
                       <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                         <div class="form-group"><label><strong>&nbsp;
                               {% if session['type'] == 'person' %}
-                              Skills
+                              {{_('Skills')}}
                               {% else%}
-                              Core Competencies
+                              {{_('Core Competencies')}}
                               {% endif %}
                               &nbsp;</strong><br></label><input class="form-control" type="text" title="Your skill" name="skill_name"></div>
                       </div>
                       <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
-                        <div class="form-group"><label><strong>Level</strong><br></label>
+                        <div class="form-group"><label><strong>{{_('Level')}}</strong><br></label>
                           <select name="skill_level" class="form-control">
-                            <option value="Never heard">Never heard</option>
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate" selected="">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                            <option value="Expert">Expert</option>
+                            <option value="Never heard">{{_('Never heard')}}</option>
+                            <option value="Beginner">{{_('Beginner')}}</option>
+                            <option value="Intermediate" selected="">{{_('Intermediate')}}</option>
+                            <option value="Advanced">{{_('Advanced')}}</option>
+                            <option value="Expert">{{_('Expert')}}</option>
                           </select>
                         </div>
                       </div>
                       <div class="col-4 col-sm-4 col-lg-4 col-xl-4">
                         <div class="form-group"><label><br></label>
-                          <div class="text-center"><button class="btn btn-secondary btn-sm" name="choice" value="add" type="submit">Add</button></div>
+                          <div class="text-center"><button class="btn btn-secondary btn-sm" name="choice" value="add" type="submit">{{_('Add')}}</button></div>
                         </div>
                       </div>
                     </div>
                     <div class="form-row">
                       <div class="col">
-                        <div class="form-group"> <button type="submit" title=" Update at the end of the process only." id="loading_button" name="choice" value="update" class="btn btn-sm btn-primary">Update</button> </div>
+                        <div class="form-group"> <button type="submit" title=" Update at the end of the process only." id="in_progress_button" name="choice" value="update" class="btn btn-sm btn-primary">Update</button> </div>
                       </div>
                       <div class="col">
                         <a href="/user/">
-                          <div class="form-group"><button title="Update before leaving to save skills." class="btn btn-primary btn-sm" type="button">Back</button></div>
+                          <div class="form-group"><button title="Update before leaving to save skills." class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
                         </a>
                       </div>
                     </div>
@@ -146,14 +132,10 @@
       </div>
       {% include 'user_footer.html' %}
 
-
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-      <script src="{{ url_for('static', filename='loading_button.js') }}"></script>
-      <script src="{{ url_for('static', filename='theme.js') }}"></script>
-      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script>
         function copyToClipboard(element) {
           var $temp = $("<input>");

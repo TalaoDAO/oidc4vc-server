@@ -46,17 +46,17 @@
                 <div class="card-body p-0">
                   <div class="col">
                     <div  class="p-5">
-                        <div class='text-center'><h4 class='text-dark mb-4'>Logout</h4>
-                       <form class="user" action="." method="post">
+                        <div class='text-center'><h4 class='text-dark mb-4'>{{_('Logout')}}</h4>
+                       <form class="user" action="/logout" method="post">
                           <div>
                           
                           </div>
                           <div class="form-row">
                             <div class="col">
-                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
+                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">{{_('Confirm')}}</button></div>
                             </div>
                             <div class="col">
-                                <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+                                <div class="form-group"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
                             </div>
                         </div>
                         </form>

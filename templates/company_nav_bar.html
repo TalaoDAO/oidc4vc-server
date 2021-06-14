@@ -12,26 +12,26 @@
     <div class="nav-item d-block d-sm-none dropdown show" ><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href=""><span  style="color: white;"><i class="fas fa-bars"></i></span>
       </a>
       <div class="dropdown-menu shadow dropdown-menu-left animated--grow-in" style="position:absolute;" role="menu">
-        <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/account/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings&nbsp;</a>
+        <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/account/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Settings')}}</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit by email&nbsp;</a>
+        <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Invit by email')}}</a>
         <div class="dropdown-divider"></div>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
-        <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
+        <a class="dropdown-item" role="presentation" title="More data" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Advanced')}}</a>
+        <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Documentation')}}</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Identity</a>
+        <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Delete Identity')}}</a>
         {% if session['username'] == 'talao' %}
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
-          <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
-          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/issue_kyc/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Issue Kyc&nbsp;</a>
+          <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fa fa-id-card-o fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Config API Server')}}</a>
+          <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{('Create Company')}}</a>
+          <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/issue_kyc/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i> {{('Issue Kyc')}}</a>
           <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/issue_skill_certificate/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Skill Certificate&nbsp;</a>
           <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/add_key/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Add Key&nbsp;</a>
           <a class="dropdown-item " title="Invit" role="Update account parameters" href="/user/update_wallet/"><i class="fa fa-gears fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Update Wallet&nbsp;</a>
         {% endif %}
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+        <a class="dropdown-item" role="presentation" title="Exit" href="/logout/"><i class="fa fa-sign-out fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Logout')}}</a>
 
       </div>
     </div>
@@ -60,8 +60,8 @@
         <div class="nav-item dropdown show" >
           <a class="nav-link" title="" aria-haspopup="true" data-toggle="dropdown" id="dropdownSearch" href=""><i class="fa fa-info-circle" style="color: rgba(255,255,255,0.5);" title="Help"></i></a>
           <div class="dropdown-menu shadow  dropdown-menu-left animated--grow-in" role="menu" aria-labelledby="dropdownSearch">
-            <p class="m-3" style="min-width: 350px;">This search bar only works with usernames.<br><br>
-               For a user to be suggested he would have needed to accept to be on our database</p>
+            <p class="m-3" style="min-width: 350px;">{{_('This search bar only works with usernames.')}}<br><br>
+               </p>
           </div>
         </div>
       </div>
@@ -72,16 +72,28 @@
       <ul class="navbar-nav mr-2" style="flex-direction: row;">
       <div class="d-inline-flex justify-content-center">
         <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" id="id_wc" class="nav-link active"></a></li> 
+
+        <li class="nav-item dropdown no-arrow h-100" role="presentation">
+          <div class="nav-item dropdown show">
+            <a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#">
+              <span  style="color: white;"><i class="fas fa-globe fa-sm fa-fw mr-2 text-gray-400"></i></span>
+            </a>
+            <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
+              <a class="dropdown-item" role="presentation" href="/user/language?lang=en"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>English</a>
+              <a class="dropdown-item" role="presentation" href="/user/language?lang=fr"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>Français</a>
+            </div>
+        </li>
+        
         {% if session['username'] == 'talao' %}
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Issue KYC" style="color: white;" class="nav-link active" href="/user/issue_kyc/">Kyc</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Add Key" style="color: white;" class="nav-link active" href="/user/add_key/">Key</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="update Wallet address" style="color: white;" class="nav-link active" href="/user/update_wallet/">Wallet</a></li>
+          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Issue KYC" style="color: white;" class="nav-link active" href="/user/issue_kyc/">{{_('Kyc')}}</a></li>
+          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Add Key" style="color: white;" class="nav-link active" href="/user/add_key/">{{_('Key')}}</a></li>
+          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="update Wallet address" style="color: white;" class="nav-link active" href="/user/update_wallet/">{{_('Wallet')}}</a></li>
         {% endif %}
         <li class="nav-item d-none d-none d-md-block" role="presentation"><div id="connected"></div></li> 
 
-        <li class="nav-item mx-1"><a class="nav-link active" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>Identity</strong></h4></a></li>
-        <li class="nav-item mx-1"><a class="nav-link active" href="/user/issuer_explore/?issuer_username={{username}}" style="color: rgba(255,255,255,0.9);"><h4><strong>Board</strong></h4></a></li>
-        <li class="nav-item mx-1"><a class="nav-link active" href="/company/dashboard/" style="color: rgba(255,255,255,0.9);"><h4><strong>Credentials</strong></h4></a></li>
+        <li class="nav-item mx-1"><a class="nav-link active" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>{{_('Identity')}}</strong></h4></a></li>
+        <li class="nav-item mx-1"><a class="nav-link active" href="/user/issuer_explore/?issuer_username={{username}}" style="color: rgba(255,255,255,0.9);"><h4><strong>{{_('Board')}}</strong></h4></a></li>
+        <li class="nav-item mx-1"><a class="nav-link active" href="/company/dashboard/" style="color: rgba(255,255,255,0.9);"><h4><strong>{{_('Credentials')}}</strong></h4></a></li>
 
       </div>
 
@@ -94,33 +106,33 @@
           </a>
           <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
 
-            <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Documentation&nbsp;</a>
+            <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Documentation')}}</a>
             <div class="dropdown-divider"></div>
 
-            <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Account&nbsp;</a>
-            <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Advanced</a>
-            <a class="dropdown-item" role="presentation" title="Create new employee" href="/user/create_user/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create employee</a>
-            <a class="dropdown-item" role="presentation" title="Create new employee" href="/company/add_credential_supported/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Credentials</a>
+            <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Account')}}</a>
+            <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Advanced')}}</a>
+            <a class="dropdown-item" role="presentation" title="Create new employee" href="/user/create_user/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Create employee')}}</a>
+            <a class="dropdown-item" role="presentation" title="Create new employee" href="/company/add_credential_supported/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Credentials')}}</a>
 
 
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" role="presentation" title="Delete all data of you repository" href="/user/select_identity/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Select Identity</a>
-            <a class="dropdown-item" role="presentation" title="Delete all data of you repository" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Delete Repository</a>
-            <a class="dropdown-item" role="presentation" title="Delete all data of you repository" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Remove Identity</a>
+            <a class="dropdown-item" role="presentation" title="Delete all data of you repository" href="/user/select_identity/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Select Identity')}}</a>
+            <a class="dropdown-item" role="presentation" title="Delete all data of you repository" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Delete Repository')}}</a>
+            <a class="dropdown-item" role="presentation" title="Delete all data of you repository" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Remove Identity')}}</a>
 
             {% if session['username'] == 'talao' %}
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Config API Server&nbsp;</a>
-              <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Create Company&nbsp;</a>
+              <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Config API Server')}}</a>
+              <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Create Company')}}</a>
             {% endif %}
 
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" role="presentation" title="Verify a credential" href="/verifier/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Verifier</a>
+            <a class="dropdown-item" role="presentation" title="Verify a credential" href="/verifier/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Verifier')}}</a>
 
-            <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Invit by email&nbsp;</a>
+            <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Invit by email')}}</a>
 
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" role="presentation" title="Exit"  href="/logout/"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+            <a class="dropdown-item" role="presentation" title="Exit"  href="/logout/"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Logout')}}</a>
           </div>
 
         </div>

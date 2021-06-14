@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!-- user_register_fr.html
+support a l offre hrid
+-->
+<html>
+
+<head>
+    {% include 'head.html' %}
+
+</head>
+<body id="page-top" onload="generateDIDs()">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+                {% include 'guest_nav_bar.html' %}
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-9 col-lg-12 col-xl-10">
+                            <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
+                                <div class="card-body p-0">
+                                    <div class="row">
+                                        <div class="col-lg-6 d-none d-lg-flex">
+                                            <div class="flex-grow-1 bg-login-image">
+                                                <p class="text-center" style="margin: 75px 50px 0px;">
+                                                    <br><br>
+                                                    <br>Gérer vos attestations professionelles avec votre Identité Numérique.<br><br>
+                                                    Vous allez créer un identitifiant qui va etre rattaché à un registre blockchain. Cela va vous permettre de conserver le contrôle de vos données personelles.
+                                                    <br><br>Conformément aux recommandations de la CNIL et du RGPD aucune information personelle n'est conservée sur la blockchain.
+                                                     Les attestations signées numeriquemengt par votre employeurs vous seront envoyées par email ou déposées sur un coffre fort numérique.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="p-5">
+                                                <div class="text-center">
+                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Creation d'une Identité Numérique professionelle</h4>
+                                                </div>
+                                            <div class="col" style="color: rgb(255,2,2);">
+									            <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
+								            </div>
+
+
+                                            <form id="form" class="user" action="/hrid/register" method="POST">
+                                                <input id="did_id" hidden value="" name="did">
+
+                                                <div class="form-group"><input class="form-control" type="text" placeholder="Prénom" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
+                                                <div class="form-group"><input class="form-control" type="text" placeholder="Nom" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
+                                                <div class="form-group"><input class="form-control" type="email" placeholder="Email" value="{{email}}" name="email" required="" ></div>
+                                                <div class="form-group"><input class="form-control" title="International phone numbers start with +, then country code and national phone number" 
+                                                    pattern="\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$"
+                                                     placeholder="Téléphone mobile avec prefixe international (ex : +336...)" value="{{phone}}" name="phone" required ></div>
+                                                <div class="form-group form-check">
+                                                    <input type="checkbox" class="form-check-input" name="CheckBox" >
+                                                    <label style="color: rgb(133,135,150);" >J'ai lu et j'accepte les conditions générales d'utilisation du service (CGU).</label>
+                                                </div>
+
+                                                <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="storeKeyPair()" type="button">Suite</button>
+                                            </form>
+                                        <div class="text-center"><a class="small" href="/login">Connexion</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                {% include 'user_footer.html' %}
+ 
+<script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='encryption.js') }}"></script>
+<script src="{{ url_for('static', filename='bn.js') }}"></script>
+<script src="{{ url_for('static', filename='secp256k1.js') }}"></script>
+<script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
+
+
+<script>
+
+var KeyPair;
+var tzDID;
+
+function goBack() {
+    window.history.back();
+}
+
+
+async function generateDIDs() {
+// create a secp255k1 key pair for all. 
+//The private key is local to the browser and is not transfered to the server.
+// That key will be stored plain text client side on session storage and
+// as a file encrypted on the client desktop.
+
+// Generating private key
+// https://github.com/enumatech/secp256k1-js
+const privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32))
+const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
+// Generating public key
+const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
+const pubX = Secp256k1.uint256(publicKey.x, 16) 
+const pubY = Secp256k1.uint256(publicKey.y, 16)
+const x = base64ToUrlBase64(bnToB64(pubX))
+const y = base64ToUrlBase64(bnToB64(pubY))
+const d = base64ToUrlBase64(bnToB64(privateKey))
+
+KeyPair = {
+        "publicJwk": {
+            "crv": "secp256k1",
+            "kty": "EC",
+            "alg" : "ES256K-R",
+            "x": x,
+            "y": y
+            },
+        "privateJwk": {
+            "crv": "secp256k1",
+            "d": d,
+            "kty": "EC",
+            "alg" : "ES256K-R",
+            "x": x,
+            "y": y
+            }
+        }
+
+// did:tz build on server with didkit
+tzDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'tz');
+document.getElementById("did_id").value = tzDID;
+console.log('did tz = ', tzDID);
+
+}
+
+
+// get DID built on server with didkit
+async function fetchDID(key, method) {
+    const response = await fetch( '{{myenv}}' + "getDID/?key="+ key + "&method=" + method);
+    return response.json();
+}
+
+
+// store keypair on locastorage and desktop. kid(did) is added to the key pai
+async function storeKeyPair(){
+    KeyPair.publicJwk['kid'] = tzDID;
+    KeyPair.privateJwk['kid'] = tzDID;
+    sessionStorage.setItem("did", tzDID)
+    sessionStorage.setItem(tzDID, JSON.stringify(KeyPair) )
+    document.getElementById("form").submit();
+}
+
+
+
+// https://coolaj86.com/articles/bigints-and-base64-in-javascript/
+function bnToB64(bn) {
+    var hex = BigInt(bn).toString(16);
+    if (hex.length % 2) { hex = '0' + hex; }
+    var bin = [];
+    var i = 0;
+    var d;
+    var b;
+    while (i < hex.length) {
+        d = parseInt(hex.slice(i, i + 2), 16);
+        b = String.fromCharCode(d);
+        bin.push(b);
+        i += 2;
+    }
+    return btoa(bin.join(''));
+}
+
+
+function base64ToUrlBase64(str) {
+    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+</script>
+
+</body>
+</html>
+

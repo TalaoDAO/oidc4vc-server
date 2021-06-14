@@ -54,7 +54,7 @@
 
                                         <div class="card">
                                             <div class="card-header" role="tab" data-toggle="tooltip" data-bs-tooltip="" title="Update your company details.">
-                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1">&nbsp; Company Details</a></h5>
+                                                <h5 class="mb-0"><i class="fa fa-id-card"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1.item-1" href="#accordion-1 .item-1"> {{_('Company Details')}}</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -80,7 +80,7 @@
                                         {% if session['role'] == 'creator' %}
  			                        	<div class="card">
                                             <div class="card-header" role="tab" title="List of all certificates issued by third parties." >
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-certificate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7">&nbsp; Credentials</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" ><i class="fa fa-certificate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-7" href="#accordion-1 .item-7"> {{_('Credentials')}}</a></h5>
                                             </div>
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-1">
                                                 <div class="card-body">
@@ -120,7 +120,7 @@
                                         {% if session['role'] == "creator" %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fas fa-user-cog"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-12" href="#accordion-2 .item-12">&nbsp; Administrators</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fas fa-user-cog"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-12" href="#accordion-2 .item-12"> {{_('Administrators')}}</a></h5>
                                             </div>
                                             <div class="collapse item-12" role="tabpanel" data-parent="#accordion-2">
 													<div class="card-body"><p class="card-text">{{admin|safe}}</p></div>
@@ -131,7 +131,7 @@
                                         {% if session['role'] in ['creator', 'admin'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fas fa-pen"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">&nbsp; Issuers</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Managers are allowed to sign on behalf of the company."><i class="fas fa-pen"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1"> {{_('Issuers')}}</a></h5>
                                             </div>
                                             <div class="collapse item-1" role="tabpanel" data-parent="#accordion-2">
 													<div class="card-body"><p class="card-text">{{manager|safe}}</p></div>
@@ -142,7 +142,7 @@
                                         {% if session['role'] in ['creator', 'admin', 'issuer'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Reviewers are allowed to validate on behalf of the company."><i class="fas fa-user-graduate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-5">&nbsp; Reviewers</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Reviewers are allowed to validate on behalf of the company."><i class="fas fa-user-graduate"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-5"> {{_('Reviewers')}}</a></h5>
                                             </div>
                                             <div class="collapse item-5" role="tabpanel" data-parent="#accordion-2">
 													<div class="card-body"><p class="card-text">{{reviewer|safe}}</p></div>
@@ -153,7 +153,7 @@
                                         {% if session['role'] in ['creator', 'admin', 'reviewer', 'issuer'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Training campaigns,..."><i class="fas fa-chalkboard-teacher"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-7">&nbsp; Campaigns</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Training campaigns,..."><i class="fas fa-chalkboard-teacher"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-5" href="#accordion-2 .item-7"> {{_('Campaigns')}}</a></h5>
                                             </div>
                                             <div class="collapse item-7" role="tabpanel" data-parent="#accordion-2">
 													<div class="card-body"><p class="card-text">{{company_campaign|safe}}</p></div>
@@ -164,7 +164,7 @@
                                         {% if session['role'] in ['creator'] %}
                                         <div class="card">
                                             <div class="card-header" role="tab">
-                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Store company data (encrypted)."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4">&nbsp; File Store</a></h5>
+                                                <h5 data-toggle="tooltip" data-bs-tooltip="" class="mb-0" title="Store company data (encrypted)."><i class="fa fa-database"></i><a class="text-secondary" data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-4" href="#accordion-2 .item-4"> {{_('File Store')}}</a></h5>
                                             </div>
                                             <div class="collapse  item-4" role="tabpanel" data-parent="#accordion-2">
                                                 <div class="card-body"><p class="card-text">{{digitalvault|safe}}</p></div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- register_identity.html -->
+<!-- register_code_fr.html -->
 <html>
 
 <head>
@@ -12,39 +12,33 @@
             <div id="content">
                 {% include 'guest_nav_bar.html' %}
                 <div class="container-fluid mt-3">
-                <div class="row mb-3">
-                    <div class="col-lg-4 col-xl-4 offset-lg-4 offset-xl-4">
+                    <div class="row mb-3">
+                        <div class="col-lg-4 offset-lg-4 ">
                             <div class="card shadow mb-3">
                                 <div class="card-header py-3">
-                                    <div class="row">
-                                        <div id="id_page" class="col-xl-12">
-                                            <p class="text-primary m-0 font-weight-bold">{{_('Check your phone.')}}</p>
-                                        </div>
-                                    </div>
+                                            <p class="text-primary m-0 font-weight-bold">&nbsp;Confirmation de votre numéro de téléphone</p>
                                 </div>
                                 <div class="card-body">
-                                    <div id="id_text">{{_('You are going to receive an SMS with a secret code.')}}<br>
-                                        {{_('Copy this secret code for authentication.')}}</div>
-                                    <form id="form" class="user" action="/register/code" method="POST">
+                                    <div id="id_text">Vous allez reçevoir un code secret par SMS.</div>
+                                    <form id="form" class="user" action="/hrid/register/code" method="POST">
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
                                         </div>
                                         <div id="id_spinner" class="text-center"></div>
                                         <div id="id_code" class="form-group">
-                                            <input class="form-control" type="password" placeholder="Enter your secret code" name="mycode" style="color: rgb(133,135,150);">
+                                            <input class="form-control" type="password" placeholder="Code secret" name="mycode" style="color: rgb(133,135,150);">
                                         </div>
                                         <br>
                                         <div class="form-row">
                                             <div class="col-sm">
-                                                <div  id="id_create" class="form-group"><button onclick="on_click()"  class="btn btn-primary btn-sm" type="button">{{_('Next')}}</button></div>
+                                                <div  id="id_create" class="form-group"><button onclick="on_click()" class="btn btn-primary btn-sm" type="button">Suite</button></div>
                                             </div>
                                             <div  class="col-sm">
-											    <div id="id_back" onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
+											    <div id="id_back" onclick="goBack()" form-group"><button class="btn btn-primary btn-sm" type="button">Retour</button></div>
                                             </div>
                                         </div>
                                     </form>
-                                    <div class="text-center"><a class="small" href="/login">{{_('Sign-In')}}</a></div>
-
+                                    <div class="text-center"><a class="small" href="/login">Connexion</a></div>
                                 </div>
                             </div>
                         </div>
@@ -53,8 +47,7 @@
             </div>
         </div>
     </div>
-    </div>
-    </div>
+    
                                 {% include 'user_footer.html' %}
 
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
@@ -69,11 +62,11 @@
 
 
 <script>async function on_click() {
-    document.getElementById("id_page").innerHTML = ' <p class="text-primary m-0 font-weight-bold">' + "{{_('Your Identity is being deployed.')}}" + '</p>';
+    //document.getElementById("id_page").innerHTML = ' <p class="text-primary m-0 font-weight-bold">&nbsp;Votre Identité Numérique Professionelle.</p>';
     document.getElementById("id_create").innerHTML = "";
     document.getElementById("id_back").innerHTML = "";
     document.getElementById("id_code").style.visibility = "hidden";
-    document.getElementById("id_text").innerHTML = "{{_('Your Professional Identity and portfolio will be installed soon. This process can take up to 1 minute. Do not close this page.')}}";
+    //document.getElementById("id_text").innerHTML = "Votre Identité Numérique Professionelle ainsi qu'un portfolio (coffre-fort numérique) vont etre créés bientot. Cela peut prendre 1 minute. Ne pas fermer cette page.";
     document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
     document.getElementById("form").submit();
 

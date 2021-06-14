@@ -33,21 +33,21 @@
                   <div class="card shadow mb-3">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">&nbsp;Company Settings</p>
-                        <a href="/user/update_company_settings?siren=true"><button class="btn btn-primary btn-sm mr-0" type="button">Pre-fill info with SIREN</button></a>
+                        <p class="text-primary m-0 font-weight-bold">{{_('Company Settings')}}</p>
+                        <a href="/user/update_company_settings?siren=true"><button class="btn btn-primary btn-sm mr-0" type="button">{{_('Pre-fill info with SIREN')}}</button></a>
                       </div>
                     </div>
                     <div class="card-body">
                       <form action="/user/update_company_settings/" method="POST">
                         <div class="form-row">
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Name</strong></label><input class="form-control" type="text" name="name" required="" value="{{name}}"></div>
+                            <div class="form-group"><label><strong>{{_('Name')}}</strong></label><input class="form-control" type="text" name="name" required="" value="{{name}}"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Website</strong><br></label><input class="form-control" type="text" name="website" value="{{website}}"></div>
+                            <div class="form-group"><label><strong>{{_('Website')}}</strong><br></label><input class="form-control" type="text" name="website" value="{{website}}"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Contact Name</strong><br></label><input class="form-control" type="text" name="contact_name" value="{{contact_name}}"></div>
+                            <div class="form-group"><label><strong>{{_('Contact Name')}}</strong><br></label><input class="form-control" type="text" name="contact_name" value="{{contact_name}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label><br></label><select name="contact_name_select" class="form-control">
@@ -58,7 +58,7 @@
 
                         <div class="form-row">
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Contact Email</strong><br></label><input class="form-control" type="email" name="contact_email" value="{{contact_email}}"></div>
+                            <div class="form-group"><label><strong>{{_('Contact Email')}}</strong><br></label><input class="form-control" type="email" name="contact_email" value="{{contact_email}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label for="email"><br></label><select name="contact_email_select" class="form-control">
@@ -66,7 +66,7 @@
                               </select></div>
                           </div>
                           <div class="col-xl-3 offset-xl-0">
-                            <div class="form-group"><label><strong>Contact Phone</strong><br></label><input class="form-control" type="tel" name="contact_phone" value="{{contact_phone}}"></div>
+                            <div class="form-group"><label><strong>{{_('Contact Phone')}}</strong><br></label><input class="form-control" type="tel" name="contact_phone" value="{{contact_phone}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label><br></label><select name="contact_phone_select" class="form-control">
@@ -76,34 +76,34 @@
                         </div>
                         <div class="form-row">
                           <div class="col-xl-12">
-                            <div class="form-group"><label><strong>About (Activity, ...) </strong><br></label><textarea rows="5" class="form-control" value="{{about}}" name="about">{{about}}</textarea></div>
+                            <div class="form-group"><label><strong>{{_('About (Activity, ...)')}}' </strong><br></label><textarea rows="5" class="form-control" value="{{about}}" name="about">{{about}}</textarea></div>
                           </div>
                         </div>
 
                         <div class="form-row">
                           <div class="col-xl-12">
-                            <div class="form-group"><label><strong>Postal Address</strong><br></label><textarea rows="3" class="form-control" value="{{postal_address}}" name="postal_address">{{postal_address}}</textarea></div>
+                            <div class="form-group"><label><strong>{{_('Postal Address')}}</strong><br></label><textarea rows="3" class="form-control" value="{{postal_address}}" name="postal_address">{{postal_address}}</textarea></div>
                           </div>
                         </div>
                         <div class="form-row">
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Group</strong><br></label><input class="form-control" value="{{mother_company}}" name="mother_company"></div>
+                            <div class="form-group"><label><strong>{{_('Group')}}</strong><br></label><input class="form-control" value="{{mother_company}}" name="mother_company"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Staff</strong><br></label><input class="form-control" type="text" name="staff" value="{{staff}}"></div>
+                            <div class="form-group"><label><strong>{{_('Staff')}}</strong><br></label><input class="form-control" type="text" name="staff" value="{{staff}}"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>Sales (€)</strong><br></label><input class="form-control" type="text" name="sales" value="{{sales}}"></div>
+                            <div class="form-group"><label><strong>{{_('Sales (€)')}}</strong><br></label><input class="form-control" type="text" name="sales" value="{{sales}}"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>SIREN</strong><br></label><input class="form-control" type="text" name="siren" value="{{siren}}"></div>
+                            <div class="form-group"><label><strong>{{_('SIREN')}}</strong><br></label><input class="form-control" type="text" name="siren" value="{{siren}}"></div>
                           </div>
                         </div>
 
                         <div class="form-group">
                           <div class="form-row">
-                            <div class="col-xl-3"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Update</button></div>
-                            <div class="col-xl-3"><a href="/user/"><button class="btn btn-primary btn-sm" type="button" value="cancel">Back</button></a></div>
+                            <div class="col-xl-3"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">{{_('Update')}}</button></div>
+                            <div class="col-xl-3"><a href="/user/"><button class="btn btn-primary btn-sm" type="button" value="cancel">{{_('Back')}}</button></a></div>
                           </div>
                         </div>
                       </form>

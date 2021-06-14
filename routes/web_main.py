@@ -13,6 +13,8 @@ from eth_utils import decode_hex
 from Crypto.PublicKey import RSA
 import uuid
 import logging
+from flask_babel import _
+
 logging.basicConfig(level=logging.INFO)
 import didkit
 
@@ -979,6 +981,9 @@ def create_company(mode) :
         workspace_contract =  createcompany.create_company(email, username, did, mode, siren=siren)[2]
         if workspace_contract :
             directory.add_user(mode, request.form['name'], username, siren)
+            filename = mode.db_path + 'company.json'
+            personal = json.load(open(filename, 'r'))
+            ns.update_personal(workspace_contract, json.dumps(personal, ensure_ascii=False), mode)
             flash(username + ' has been created as company', 'success')
         else :
             flash('Company Creation failed', 'danger')

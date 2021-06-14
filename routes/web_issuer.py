@@ -567,7 +567,8 @@ def add_campaign(mode) :
         data = {'description' : request.form['description'],
                 'nb_subject' : 0,
                 'startDate' : '',
-                'endDate' : ''}
+                'endDate' : '',
+                'credentials_supported' : []}
         new_campaign.add(request.form['name'], json.dumps(data, ensure_ascii=False))
         flash('New campaign added', 'success')
         return redirect(mode.server + 'user/')
