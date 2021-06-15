@@ -206,13 +206,9 @@ def did_auth(mode) :
 		return redirect(mode.server + 'did_auth/')
 
 def login(mode) :
-	"""
-	@app.route('login/', methods = ['GET', 'POST'])
-	
-	"""
 	if request.method == 'GET' :
 		#session.clear()
-		return render_template('./login/login_password.html')
+		return render_template('./login/login_password.html', username=request.args.get('username', ''))
 
 	if request.method == 'POST' :
 		if not session.get('try_number')  :

@@ -19,7 +19,7 @@
                                             <p class="text-primary m-0 font-weight-bold">&nbsp;Confirmation de votre numéro de téléphone</p>
                                 </div>
                                 <div class="card-body">
-                                    <div id="id_text">Vous allez reçevoir un code secret par SMS.</div>
+                                    <div id="id_text">Vous allez reçevoir un code secret par SMS. Recopiez ce code ci dessous.</div>
                                     <form id="form" class="user" action="/hrid/register/code" method="POST">
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
@@ -62,11 +62,10 @@
 
 
 <script>async function on_click() {
-    //document.getElementById("id_page").innerHTML = ' <p class="text-primary m-0 font-weight-bold">&nbsp;Votre Identité Numérique Professionelle.</p>';
     document.getElementById("id_create").innerHTML = "";
     document.getElementById("id_back").innerHTML = "";
     document.getElementById("id_code").style.visibility = "hidden";
-    //document.getElementById("id_text").innerHTML = "Votre Identité Numérique Professionelle ainsi qu'un portfolio (coffre-fort numérique) vont etre créés bientot. Cela peut prendre 1 minute. Ne pas fermer cette page.";
+    //document.getElementById("id_text").innerHTML = "Votre Identité Numérique Professionelle ainsi qu'un portfolio (coffre-fort numérique) vont être créés bientot. Cette opération peut prendre 1 minute. Ne pas fermer cette page.";
     document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
     document.getElementById("form").submit();
 

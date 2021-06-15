@@ -39,7 +39,7 @@ def check_login() :
 
 def hrid_register_company(mode) :
 	if request.method == 'GET' :
-		return render_template('hrid/company_register_fr.html')
+		return render_template('hrid/hrid_company_register_fr.html')
 	if request.method == 'POST' :
 		credentials_supported = list()
 		credentials_supported_dict = dict()
@@ -47,17 +47,20 @@ def hrid_register_company(mode) :
 			if request.form.get(topic) :
 				credentials_supported.append(request.form[topic])
 				credentials_supported_dict[topic] = request.form[topic]
-		if not request.form.get('CheckBox') :
+		message = ''
+		if not request.form.get('CGU') :
 			message = "Acceptez les conditions générales d'utilisation (CGU) pour continuer."
+			contact_phone=request.form['contact_phone']
 		if not sms.check_phone(request.form['contact_phone'], mode) :
 			message = 'Numéro de téléphone incorrect.'
+			contact_phone = ''
 		if message :
-			return render_template("/hrid/company_register_fr.html",
+			return render_template("/hrid/hrid_company_register_fr.html",
 									company_name=request.form['company_name'],
 									contact_name=request.form['contact_name'],
 									contact_email=request.form['contact_email'],
 									siren=request.form['siren'],
-									contact_phone=request.form['contact_phone'],
+									contact_phone=contact_phone,
 									postal_address=request.form['postal_address'],
 									website=request.form['website'],
 									**credentials_supported_dict,
@@ -72,7 +75,7 @@ def hrid_register_company(mode) :
 			promo = 10
 		workspace_contract =  createcompany.create_company(request.form['contact_email'],username, None, mode)[2]
 		if workspace_contract :
-			directory.add_user(mode, request.form['company_name'], username, request.form['siren'])
+			directory.add_user(mode, username, request.form['company_name'], request.form['siren'])
 			filename = mode.db_path + 'company.json'
 			personal = json.load(open(filename, 'r'))
 			personal['contact_name']['claim_value'] = request.form['contact_name']
@@ -86,16 +89,19 @@ def hrid_register_company(mode) :
 			personal['credential_counter'] = 0
 			personal['credential_acquired'] = promo
 			ns.update_personal(workspace_contract, json.dumps(personal, ensure_ascii=False), mode)
+			#init phone
+			ns.update_phone(username, request.form['contact_phone'], mode) 
 			# init first campaign
-			new_campaign = company.Campaign(session['username'], mode)
-			data = {'description' : request.form['description'],
+			new_campaign = company.Campaign(username, mode)
+			data = {'description' : "Première campagne",
 					'nb_subject' : 0,
 					'startDate' : '',
 					'endDate' : '',
 					'credentials_supported' : credentials_supported}
 			campaign_code = "camp" +  str(random.randint(100, 999))
 			new_campaign.add(campaign_code  , json.dumps(data, ensure_ascii=False))
-			return render_template('hrid/company_end_of_registration_fr.html', campaign_code=campaign_code)
+			session['username'] = username
+			return render_template('hrid/company_end_of_registration_fr.html', campaign_code=campaign_code, username=username)
 		else :
 			flash('Echec de la création du compte', 'danger')
 			return redirect(mode.server + 'hrid/register/company')
@@ -106,7 +112,7 @@ def hrid_register_user(mode) :
 		session.clear()
 		session['is_active'] = True
 		message = request.args.get('message', "")
-		return render_template("/hrid/user_register_fr.html",message=message, myenv=mode.server)
+		return render_template("/hrid/hrid_user_register_fr.html",message=message, myenv=mode.server)
 
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
@@ -115,21 +121,22 @@ def hrid_register_user(mode) :
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['phone']
 		session['did'] = request.form['did']
-		if not request.form.get('CheckBox') :
-			return render_template("/hrid/user_register_fr.html",
-									message="Acceptez les conditions générales d'utilisation (CGU) pour continuer.",
+		message = ''
+		if not request.form.get('CGU') :
+			message = "Acceptez les conditions générales d'utilisation (CGU) pour continuer."
+			phone=session['phone']
+		if not sms.check_phone(session['phone'], mode) :
+			message='Numéro de téléphone incorrect.'
+			phone=""
+		if message :
+			return render_template("/hrid/hrid_user_register_fr.html",
+									message=message,
 									firstname=session['firstname'],
 									lastname=session['lastname'],
-									email=session['email'])
-		if sms.check_phone(session['phone'], mode) :
-			return redirect (mode.server + 'hrid/register/password')
-
-		else :
-			return render_template("/hrid/user_register_fr.html",
-									message='Numéro de téléphone incorrect.',
-									firstname=session['firstname'],
-									lastname=session['lastname'],
-									email=session['email'])
+									email=session['email'],
+									phone=phone,
+									myenv=mode.server)
+		return redirect (mode.server + 'hrid/register/password')
 
 
 def hrid_register_password(mode):
@@ -151,7 +158,6 @@ def hrid_register_password(mode):
 		return render_template("/hrid/register_code_fr.html")
 
 
-# route /register/code/
 def hrid_register_code(mode) :
 	if not session.get('is_active') or 'try_number' not in session :
 		return redirect(mode.server + 'register?message=Session+expirée.')
@@ -171,7 +177,7 @@ def hrid_register_code(mode) :
 
 		directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
 		ns.update_phone(session['username'], session['phone'], mode)
-		return render_template("/hrid/end_of_registration_fr.html", username=session['username'])
+		return render_template("/hrid/hrid_end_of_registration_fr.html", username=session['username'])
 
 	elif session['try_number'] == 3 :
 		session['is_active'] = False

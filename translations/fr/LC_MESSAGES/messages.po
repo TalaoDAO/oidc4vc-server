@@ -844,7 +844,7 @@ msgid ""
 "process can take up to 1 minute. Do not close this page."
 msgstr ""
 "Votre Identité Numérique Professionnelle et votre portfolio seront "
-"installés bientot. Cela peut durer 1 minute."
+"installés bientot. Cette opération peut prendre jusqu'à 1 minute."
 
 #: templates/register/register_identity.html:33
 msgid "Select an Identity registry."

@@ -35,17 +35,16 @@ support a l offre hrid
                                             <div class="flex-grow-1 bg-login-image">
                                                 <p class="text-center" style="margin: 75px 50px 0px;">
                                                     <br><br>
-                                                    <br>Gérer vos attestations professionelles avec votre Identité Numérique.<br><br>
-                                                    Vous allez créer un identitifiant qui va etre rattaché à un registre blockchain. Cela va vous permettre de conserver le contrôle de vos données personelles.
-                                                    <br><br>Conformément aux recommandations de la CNIL et du RGPD aucune information personelle n'est conservée sur la blockchain.
-                                                     Les attestations signées numeriquemengt par votre employeurs vous seront envoyées par email ou déposées sur un coffre fort numérique.
+                                                    <br>Gérer vos attestations professionelles avec votre Identité Numérique.
+                                                    <br><br>Conformément aux recommandations de la CNIL et du RGPD aucune information personnelle n'est conservée sur la blockchain.
+                                                     <br><br>Les attestations signées numériquemengt par votre employeur vous seront envoyées par email ou déposées dans un coffre fort numérique.
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="p-5">
                                                 <div class="text-center">
-                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Creation d'une Identité Numérique professionelle</h4>
+                                                    <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">Création d'une Identité Numérique professionelle</h4>
                                                 </div>
                                             <div class="col" style="color: rgb(255,2,2);">
 									            <div class="form-group"><div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
@@ -62,8 +61,8 @@ support a l offre hrid
                                                     pattern="\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$"
                                                      placeholder="Téléphone mobile avec prefixe international (ex : +336...)" value="{{phone}}" name="phone" required ></div>
                                                 <div class="form-group form-check">
-                                                    <input type="checkbox" class="form-check-input" name="CheckBox" >
-                                                    <label style="color: rgb(133,135,150);" >J'ai lu et j'accepte les conditions générales d'utilisation du service (CGU).</label>
+                                                    <input type="checkbox" class="form-check-input" name="CGU" >
+                                                    <label style="color: rgb(133,135,150);" >J'ai lu et j'accepte les conditions générales d'utilisation (CGU).</label>
                                                 </div>
 
                                                 <button class="btn btn-primary btn-block text-white border rounded btn-user" onclick="storeKeyPair()" type="button">Suite</button>
@@ -100,24 +99,23 @@ function goBack() {
 
 
 async function generateDIDs() {
-// create a secp255k1 key pair for all. 
-//The private key is local to the browser and is not transfered to the server.
-// That key will be stored plain text client side on session storage and
-// as a file encrypted on the client desktop.
+    // create a secp255k1 key pair for all. 
+    //The private key is local to the browser and is not transfered to the server.
+    // That key will be stored plain text client side on session storage and
+    // as a file encrypted on the client desktop.
+    // Generating private key
+    // https://github.com/enumatech/secp256k1-js
+    const privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32))
+    const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
+    // Generating public key
+    const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
+    const pubX = Secp256k1.uint256(publicKey.x, 16) 
+    const pubY = Secp256k1.uint256(publicKey.y, 16)
+    const x = base64ToUrlBase64(bnToB64(pubX))
+    const y = base64ToUrlBase64(bnToB64(pubY))
+    const d = base64ToUrlBase64(bnToB64(privateKey))
 
-// Generating private key
-// https://github.com/enumatech/secp256k1-js
-const privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32))
-const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
-// Generating public key
-const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
-const pubX = Secp256k1.uint256(publicKey.x, 16) 
-const pubY = Secp256k1.uint256(publicKey.y, 16)
-const x = base64ToUrlBase64(bnToB64(pubX))
-const y = base64ToUrlBase64(bnToB64(pubY))
-const d = base64ToUrlBase64(bnToB64(privateKey))
-
-KeyPair = {
+    KeyPair = {
         "publicJwk": {
             "crv": "secp256k1",
             "kty": "EC",
@@ -135,22 +133,20 @@ KeyPair = {
             }
         }
 
-// did:tz build on server with didkit
-tzDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'tz');
-document.getElementById("did_id").value = tzDID;
-console.log('did tz = ', tzDID);
-
+    // did:tz build on server with didkit
+    tzDID = await fetchDID(JSON.stringify(KeyPair.publicJwk), 'tz');
+    document.getElementById("did_id").value = tzDID;
+    console.log('did tz = ', tzDID);
 }
-
 
 // get DID built on server with didkit
 async function fetchDID(key, method) {
-    const response = await fetch( '{{myenv}}' + "getDID/?key="+ key + "&method=" + method);
+    const response = await fetch( '{{myenv}}' + "getDID?key="+ key + "&method=" + method);
     return response.json();
 }
 
 
-// store keypair on locastorage and desktop. kid(did) is added to the key pai
+// store keypair on session storage kid(did) is added to the key pair
 async function storeKeyPair(){
     KeyPair.publicJwk['kid'] = tzDID;
     KeyPair.privateJwk['kid'] = tzDID;

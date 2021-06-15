@@ -148,7 +148,7 @@ app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, met
 # Centralized route for main features
 
 app.add_url_rule('/verifier/',  view_func=web_main.verifier, methods = ['GET', 'POST'])
-app.add_url_rule('/getDID/',  view_func=web_main.getDID, methods = ['GET'])
+app.add_url_rule('/getDID',  view_func=web_main.getDID, methods = ['GET'])
 app.add_url_rule('/user/generate_identity/',  view_func=web_main.generate_identity, methods = ['GET', 'POST'],  defaults={'mode' : mode})
 app.add_url_rule('/homepage/',  view_func=web_main.homepage, methods = ['GET'])
 app.add_url_rule('/user/picture/',  view_func=web_main.picture, methods = ['GET', 'POST'], defaults={'mode' : mode})

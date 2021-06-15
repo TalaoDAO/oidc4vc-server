@@ -29,7 +29,7 @@
             <div class="col-lg-8 col-xl-6 offset-lg-2 offset-xl-3">
               <div class="card shadow mb-3">
                 <div class="card-header py-3">
-                  <p class="text-primary m-0 font-weight-bold">&nbsp;Création de votre plateforme de gestion en ligne des attestations professionelles.</p>
+                  <p class="text-primary m-0 font-weight-bold">Créer votre plateforme de gestion des attestations professionelles.</p>
                 </div>
                 <br>
                 <div class="col" style="color: rgb(255,2,2);">
@@ -37,9 +37,10 @@
                 </div>                 
 
                 <div class="card-body">
-                    <p></b>Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise ainsi qu'un coffre fort numérique crypté.
-                      Cette Identité, au format des identités auto-souveraines (Self Sovereign Identity), vous permettra de signer électroniqument les attestations demandées par vos salariés.
-                        Aucune donnée concernant votre entreprise et vos salariés ne sont sauvegardées sur la blockchain.</p>
+                    <p></b>Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise ainsi qu'un coffre fort numérique.
+                      Cette Identité vous permettra de signer électroniqument les attestations demandées par vos salariés.
+                        <br>
+                        <br>Conformément au RGPD et aux recommandations de la CNIL aucune donnée concernant votre entreprise et vos salariés ne sont sauvegardées sur la blockchain.</p>
                   <form id="form" action="/hrid/register/company" method="post">
 
                     <p><strong>Entreprise :</strong></p>
@@ -64,7 +65,7 @@
                        
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">Siren (Optionel)<br></label>
+                                    <label data-toggle="tooltip" data-bs-tooltip="" title="">SIREN (Optionel)<br></label>
                                     <input class="form-control" type="text" value="{{siren}}" pattern="(?=.*\d).{9,9}" name="siren">
                                 </div>
                             </div>
@@ -103,7 +104,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label data-toggle="tooltip" data-bs-tooltip="" required title="">Téléphone<br></label>
-                                    <input class="form-control" value="+33" type="text"  value="{{contact_phone}}" name="contact_phone">
+                                    <input class="form-control" placeholder="+33......" value="{{contact_phone}}" type="text"  value="{{contact_phone}}" name="contact_phone">
                                 </div>
                             </div>
                         </div>
@@ -190,7 +191,7 @@
                         </div>
 
                         <div class="form-group form-check">
-                          <input type="checkbox" class="form-check-input" name="CheckBox" >
+                          <input type="checkbox" class="form-check-input" name="CGU" >
                           <label style="color: rgb(133,135,150);"  >J'ai lu et j'accepte les conditions générales d'utilisation du service (CGU).</label>
                           
                         </div>
