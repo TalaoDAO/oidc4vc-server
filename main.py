@@ -126,8 +126,7 @@ app.add_url_rule('/board/', view_func=web_external.board, methods = ['GET', 'POS
 app.add_url_rule('/company/registry/', view_func=web_external.board, methods = ['GET', 'POST'], defaults={'mode': mode}) # same as previous
 
 # Centralized route fo Issuer explore
-app.add_url_rule('/user/issuer_explore/', view_func=web_issuer_explore.issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
-
+web_issuer_explore.init_app(app, mode)
 
 
 # Centralized route for user and data main view
@@ -209,17 +208,8 @@ app.add_url_rule('/user/download_QRCode/',  view_func=web_main.download_QRCode, 
 app.add_url_rule('/user/typehead/',  view_func=web_main.typehead, methods = ['GET','POST'])
 app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GET','POST'], defaults={'mode' : mode})
 
-
 # Centralized route for credential issuer
-app.add_url_rule('/company/add_employee/',  view_func=web_issuer.add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_certificate/',  view_func=web_issuer.request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_experience_credential/',  view_func=web_issuer.request_experience_credential, methods = ['POST'], defaults={'mode' : mode})
-app.add_url_rule('/user/request_reference_credential/',  view_func=web_issuer.request_reference_credential, methods = ['POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/dashboard/',  view_func=web_issuer.company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/issue_credential_workflow/',  view_func=web_issuer.issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/add_campaign/',  view_func=web_issuer.add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
-app.add_url_rule('/company/remove_campaign/',  view_func=web_issuer.remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
-
+web_issuer.init_app(app, mode)
 
 # Centralized route for repository
 app.add_url_rule('/repository/authn',  view_func=repository.authn, methods = ['POST'], defaults={'mode' : mode})

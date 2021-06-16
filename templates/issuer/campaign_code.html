@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<!-- request_certificate.html-->
+<!-- campaign_codehtml-->
 <head>
     {% include 'head.html' %}
 </head>
@@ -20,24 +20,27 @@
                 <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;{{_('Request a new Credential')}}</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;{{_('Campaign code')}}</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/request_certificate" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>{{company_name}} {{_(' will receive and treat soon your request. Your request will be reviewed then you will received a signed credential by email.')}}
-                                        <br><br>
+                                        <p>{{company_name}} {{_(' provided you with a Campaign Code. Enter this code to access to the available credentials.')}}
+                                        <br>
                                         </p>
-                                        <div class="form-group"><label data-toggle="tooltip" data-bs-tooltip="" title="Choose your certificate."><strong>{{_('Credential Type')}}</strong><br></label>
-											<select class="form-control" name="certificate_type">
-                                               {{credentials_list|safe}}
-											</select></div>
+                                    <div class="row">
+                                        <div class="col-6 offset-3">
+                                        <div class="form-group">
+                                            <input class="form-control" type="text" title="" data-bs-tooltip="" required  name="campaign_code" >
+                                        </div>
+                                        </div>
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="Go to the credential form." type="submit" name="choice" value="send">{{_('Next')}}</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="" type="submit" name="choice" value="campaign_code">{{_('Next')}}</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button onclick="goBack()" title="Back to previous view" class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>

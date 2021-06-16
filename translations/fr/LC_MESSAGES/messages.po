@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-14 20:10+0200\n"
+"POT-Creation-Date: 2021-06-16 19:48+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -26,6 +26,14 @@ msgstr "session terminée"
 msgid "No Referents available"
 msgstr "Aucun référent disponible"
 
+#: routes/web_data_user.py:246
+msgid "No Files available"
+msgstr "Aucun fichier"
+
+#: routes/web_data_user.py:266 routes/web_issuer_explore.py:73
+msgid "No data available"
+msgstr "Aucune donnée"
+
 #: routes/web_data_user.py:282
 msgid "No Experience available"
 msgstr "Aucune expérience disponible"
@@ -41,17 +49,22 @@ msgid "Title"
 msgstr "Titre"
 
 #: routes/web_data_user.py:292 routes/web_data_user.py:311
+#: routes/web_issuer_explore.py:186 routes/web_issuer_explore.py:327
 #: templates/add_activity.html:47 templates/add_education.html:47
 #: templates/add_experience.html:47
 msgid "Start Date"
 msgstr "Date de début"
 
 #: routes/web_data_user.py:293 routes/web_data_user.py:312
+#: routes/web_issuer_explore.py:187 routes/web_issuer_explore.py:328
 #: templates/add_education.html:50 templates/add_experience.html:50
 msgid "End Date"
 msgstr "Date de fin"
 
 #: routes/web_data_user.py:294 routes/web_data_user.py:519
+#: routes/web_issuer_explore.py:189 routes/web_issuer_explore.py:195
+#: routes/web_issuer_explore.py:267 routes/web_issuer_explore.py:551
+#: routes/web_issuer_explore.py:631
 msgid "Description"
 msgstr "Description"
 
@@ -74,6 +87,7 @@ msgid "Lastname"
 msgstr "Nom"
 
 #: routes/web_data_user.py:323 routes/web_data_user.py:492
+#: templates/company_issuer_identity.html:59
 #: templates/update_personal_settings.html:49 templates/user_footer.html:26
 msgid "About"
 msgstr "A propos"
@@ -111,6 +125,7 @@ msgid "No Credential available"
 msgstr "Aucune attestation disponible"
 
 #: routes/web_data_user.py:366 routes/web_data_user.py:517
+#: templates/issuer/request_certificate.html:32
 msgid "Credential Type"
 msgstr "Type d'attestation"
 
@@ -182,13 +197,21 @@ msgstr "Nombre de salariés"
 msgid "Sales"
 msgstr "Chiffre d'Affaires"
 
+#: routes/web_data_user.py:505
+msgid "Update Company Data"
+msgstr "Modifier les données entreprise"
+
 #: routes/web_data_user.py:509
 msgid "No Credentials available"
 msgstr "Aucune attestation disponible"
 
-#: routes/web_data_user.py:516
+#: routes/web_data_user.py:516 routes/web_issuer_explore.py:628
 msgid "Issuer Name"
 msgstr "Signataire"
+
+#: routes/web_data_user.py:520
+msgid "Display Certificate"
+msgstr "Afficher l'attestation"
 
 #: routes/web_data_user.py:608
 msgid "No DID available"
@@ -206,6 +229,101 @@ msgstr "Photo mise à jour"
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
+#: routes/web_issuer.py:14
+msgid "Experience credential"
+msgstr "Attestation d'expérience professionelle"
+
+#: routes/web_issuer.py:15
+msgid "Training certificate"
+msgstr "Attestation de formation"
+
+#: routes/web_issuer.py:16
+msgid "Recomendation letter"
+msgstr "Lettre de recommandation"
+
+#: routes/web_issuer.py:17
+msgid "Employer certificate"
+msgstr "Attestation employeur"
+
+#: routes/web_issuer.py:18
+msgid "Employee vacation time certificate"
+msgstr "Attestation de congès payés"
+
+#: routes/web_issuer.py:19
+msgid "Certificate of participation"
+msgstr "Attestation de stage"
+
+#: routes/web_issuer.py:20
+msgid "Transfer certificate"
+msgstr "Attestation de mutation"
+
+#: routes/web_issuer.py:21
+msgid "Labour certificate"
+msgstr "Certificat de travail"
+
+#: routes/web_issuer.py:22
+msgid "Promise to hire letter"
+msgstr "Lettre de promesse d'embauche"
+
+#: routes/web_issuer.py:105
+msgid "This company as no active campaign"
+msgstr "Cette entreprise n'a pas d'attestations en ligne"
+
+#: routes/web_issuer.py:114
+msgid "Campaign not found"
+msgstr "Aucune attestation pour cette campagne."
+
+#: routes/web_issuer_explore.py:81 routes/web_issuer_explore.py:85
+msgid "File Name"
+msgstr "Fichier"
+
+#: routes/web_issuer_explore.py:81
+msgid "Not available - Encrypted "
+msgstr "Crypté "
+
+#: routes/web_issuer_explore.py:82 routes/web_issuer_explore.py:86
+msgid "Created"
+msgstr "Créé"
+
+#: routes/web_issuer_explore.py:203 routes/web_issuer_explore.py:448
+msgid "Self claim"
+msgstr "Information déclarée"
+
+#: routes/web_issuer_explore.py:206 routes/web_issuer_explore.py:275
+#: routes/web_issuer_explore.py:417 routes/web_issuer_explore.py:419
+#: routes/web_issuer_explore.py:558 routes/web_issuer_explore.py:634
+msgid "Certified by "
+msgstr "Certifié par "
+
+#: routes/web_issuer_explore.py:266
+msgid "Relationship"
+msgstr "Relation"
+
+#: routes/web_issuer_explore.py:325 templates/company_issuer_identity.html:54
+#: templates/update_company_settings.html:44
+msgid "Name"
+msgstr "Nom"
+
+#: routes/web_issuer_explore.py:438
+msgid "Self claimed skills"
+msgstr "Compétence déclarée"
+
+#: routes/web_issuer_explore.py:548
+msgid "Issuance date"
+msgstr "Date d'émission"
+
+#: routes/web_issuer_explore.py:549
+msgid "End of validity date"
+msgstr "Validité"
+
+#: routes/web_issuer_explore.py:629
+msgid "Start date"
+msgstr "Date de début"
+
+#: routes/web_issuer_explore.py:630
+msgid "Project Budget"
+msgstr "Budget"
+
 #: routes/web_login.py:102
 msgid "No identity found"
 msgstr "Cette Identité n'existe pas"
@@ -222,23 +340,23 @@ msgstr "Wallet effaçée"
 msgid "Update failed"
 msgstr "Echec de la mise à jour"
 
-#: routes/web_login.py:132 routes/web_login.py:250
+#: routes/web_login.py:132 routes/web_login.py:246
 msgid "Secret code sent by "
 msgstr "Code secret envoyé par "
 
-#: routes/web_login.py:141 routes/web_login.py:285
+#: routes/web_login.py:141 routes/web_login.py:281
 msgid "This code is incorrect, 2 trials left"
 msgstr "The code est incorrect, plus que 2 essais"
 
-#: routes/web_login.py:143 routes/web_login.py:287
+#: routes/web_login.py:143 routes/web_login.py:283
 msgid "This code is incorrect, 1 trial left"
 msgstr "Ce code est icorrect plus que 1 seul essai"
 
-#: routes/web_login.py:150 routes/web_login.py:278
+#: routes/web_login.py:150 routes/web_login.py:274
 msgid "Code expired"
 msgstr "Codé expiré"
 
-#: routes/web_login.py:153 routes/web_login.py:239 routes/web_login.py:281
+#: routes/web_login.py:153 routes/web_login.py:235 routes/web_login.py:277
 msgid "Too many trials (3 max)"
 msgstr "Nombre maximum d'essais atteint"
 
@@ -246,55 +364,55 @@ msgstr "Nombre maximum d'essais atteint"
 msgid "User unknown"
 msgstr "Nom d'utilisateur inconnu"
 
-#: routes/web_login.py:223 routes/web_login.py:341
+#: routes/web_login.py:219 routes/web_login.py:337
 msgid "Username not found"
 msgstr "Nom d'utilisateur non trouvé"
 
-#: routes/web_login.py:230
+#: routes/web_login.py:226
 msgid "This password is incorrect, 2 trials left"
 msgstr "Mot de passe incorrect"
 
-#: routes/web_login.py:235
+#: routes/web_login.py:231
 msgid "This password is incorrect, 1 trials left"
 msgstr "Mot de passe incorrect, plus que 1 essai"
 
-#: routes/web_login.py:253
+#: routes/web_login.py:249
 msgid "Connexion problem"
 msgstr "Connexion impossible"
 
-#: routes/web_login.py:264
+#: routes/web_login.py:260
 msgid "Authentification expired"
 msgstr "Authentification expiré"
 
-#: routes/web_login.py:310
+#: routes/web_login.py:306
 msgid "Thank you for your visit"
 msgstr "Merci pour votre visite"
 
-#: routes/web_login.py:324
+#: routes/web_login.py:320
 msgid "There is no Identity with this Email"
 msgstr "Il n'existe aucune identité pour cet email"
 
-#: routes/web_login.py:326
+#: routes/web_login.py:322
 msgid "This Email is already used by Identities : "
 msgstr "Cet email est déjà utilisé pour une identité"
 
-#: routes/web_login.py:357
+#: routes/web_login.py:353
 msgid "You are going to receive an email to renew your password."
 msgstr "Vous allez recevoir un email pour renouveller votre mote de passe."
 
-#: routes/web_login.py:373
+#: routes/web_login.py:369
 msgid "Incorrect data"
 msgstr "Données incorrectes"
 
-#: routes/web_login.py:378
+#: routes/web_login.py:374
 msgid "Delay expired (3 minutes maximum)"
 msgstr "Délais expiré"
 
-#: routes/web_login.py:385
+#: routes/web_login.py:381
 msgid "Incorrect email"
 msgstr "Email incorrect"
 
-#: routes/web_login.py:388
+#: routes/web_login.py:384
 msgid "Password updated"
 msgstr "Mot de passe mis à jour"
 
@@ -304,7 +422,7 @@ msgstr "Echec de la création de compte"
 
 #: routes/web_register.py:108
 msgid "Accept the service conditions to move next step."
-msgstr ""
+msgstr "Acceptez les conditions d'utilisation pour passer à l'étape suivante."
 
 #: routes/web_register.py:111
 msgid "Incorrect phone number."
@@ -338,6 +456,79 @@ msgstr "Code incorrrect, plusque 2 essais"
 msgid "Code is incorrect, last trial."
 msgstr "Code incorrect, dernier essai"
 
+#: routes/web_skills.py:78
+msgid "Skill already added"
+msgstr "Compétence déja ajoutée"
+
+#: routes/web_skills.py:104
+msgid "Your skills have been updated"
+msgstr "Votre liste de compétences a été mise à jour"
+
+#: routes/web_skills.py:106
+msgid "Your competencies have been updated"
+msgstr "Vos compétences ont été mises à jour"
+
+#: templates/account.html:46
+msgid "Account settings"
+msgstr "Paramètres du compte"
+
+#: templates/account.html:55
+msgid "Update picture"
+msgstr "Changer la photo de profil"
+
+#: templates/account.html:57
+msgid "Update logo"
+msgstr "Modifier le logo"
+
+#: templates/account.html:68
+msgid "Update signature"
+msgstr "Modifier la signature"
+
+#: templates/account.html:78
+msgid "Update password"
+msgstr "Modifier le mot de passe"
+
+#: templates/account.html:86
+msgid "Update phone number"
+msgstr "Modifier le numéro de téléphone"
+
+#: templates/account.html:107
+msgid "Name directory settings"
+msgstr "Paramètre du répertoire"
+
+#: templates/account.html:112
+msgid "The name directory is used to provide suggestion in the search bar. "
+msgstr "Le répertoire permet de vous retourver avec la barre de recherche."
+
+#: templates/account.html:112
+msgid "It links your username with your firstname and lastname. "
+msgstr "Cela fait le lien entre votre nom utilisateur et votre nom."
+
+#: templates/account.html:115
+msgid "I would like to have my name in the Name Directory"
+msgstr "Je souhaitre avoir mon nom dans le répertoire"
+
+#: templates/account.html:116 templates/login/update_password_external.html:49
+#: templates/person_identity.html:53 templates/update_company_settings.html:105
+#: templates/update_password.html:49
+#: templates/update_personal_settings.html:113
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: templates/account.html:128 templates/add_activity.html:83
+#: templates/add_credential_supported.html:129 templates/add_education.html:85
+#: templates/add_experience.html:85 templates/advanced.html:209
+#: templates/issuer/campaign_code.html:46
+#: templates/issuer/request_certificate.html:43 templates/login/logout.html:59
+#: templates/register/register_code.html:42
+#: templates/register/register_identity.html:90
+#: templates/register/register_password.html:50
+#: templates/register/registration_error.html:25
+#: templates/update_company_settings.html:106 templates/update_password.html:52
+#: templates/update_personal_settings.html:117 templates/update_skills.html:122
+msgid "Back"
+msgstr "Retour"
+
 #: templates/add_activity.html:31
 msgid "Current activity"
 msgstr "Activité actuelle"
@@ -369,20 +560,17 @@ msgid "Summary"
 msgstr "Résumé"
 
 #: templates/add_activity.html:80 templates/add_education.html:83
-#: templates/add_experience.html:82
+#: templates/add_experience.html:82 templates/update_skills.html:112
 msgid "Add"
 msgstr "Ajouter"
 
-#: templates/add_activity.html:83 templates/add_education.html:85
-#: templates/add_experience.html:85 templates/login/logout.html:59
-#: templates/register/register_code.html:42
-#: templates/register/register_identity.html:90
-#: templates/register/register_password.html:50
-#: templates/register/registration_error.html:25
-#: templates/update_company_settings.html:106 templates/update_password.html:52
-#: templates/update_personal_settings.html:117
-msgid "Back"
-msgstr "Retour"
+#: templates/add_credential_supported.html:33
+msgid "Select credentials supported."
+msgstr "Choisissez les attestations"
+
+#: templates/add_credential_supported.html:126 templates/login/logout.html:56
+msgid "Confirm"
+msgstr "Confirmez"
 
 #: templates/add_education.html:42
 msgid "Title or Degree"
@@ -407,6 +595,38 @@ msgstr "Lien vers le diplome (Optionnel)"
 #: templates/add_experience.html:31
 msgid "Experience"
 msgstr "Expérience"
+
+#: templates/advanced.html:47
+msgid "Advanced parameters"
+msgstr "Paramètres avançés"
+
+#: templates/advanced.html:81
+msgid "Partner List"
+msgstr "Liste de vos partenaires"
+
+#: templates/advanced.html:93
+msgid "API Credentials"
+msgstr "APIS"
+
+#: templates/advanced.html:105
+msgid "DID document"
+msgstr "DID Document"
+
+#: templates/advanced.html:163
+msgid "Identity Key"
+msgstr "Clé privée"
+
+#: templates/advanced.html:167
+msgid "Copy your private key to clipboard"
+msgstr "Copier/coller votre clé privée"
+
+#: templates/advanced.html:175
+msgid "Import Identity"
+msgstr "Importer une Identité"
+
+#: templates/advanced.html:192
+msgid "Repository Information"
+msgstr "Données du Portfolio"
 
 #: templates/company_identity.html:57
 msgid "Company Details"
@@ -437,6 +657,44 @@ msgstr "Campagnes"
 msgid "File Store"
 msgstr "Fichiers"
 
+#: templates/company_issuer_identity.html:53
+msgid "Contact"
+msgstr "Contact"
+
+#: templates/company_issuer_identity.html:54
+msgid "Phone number"
+msgstr "Numéro de téléphone"
+
+#: templates/company_issuer_identity.html:54
+#: templates/update_company_settings.html:47
+msgid "Website"
+msgstr "Site web"
+
+#: templates/company_issuer_identity.html:56
+msgid "General Informations"
+msgstr "Informations générales"
+
+#: templates/company_issuer_identity.html:71
+msgid "Request a Credential"
+msgstr "Demander une attestation"
+
+#: templates/company_issuer_identity.html:80
+msgid "Issue a Credential"
+msgstr "Produire une attestation"
+
+#: templates/company_issuer_identity.html:112
+msgid "Agreements"
+msgstr "Agréments"
+
+#: templates/company_issuer_identity.html:144
+#: templates/company_issuer_identity.html:182
+msgid "No credential available"
+msgstr "Aucune attestation disponible"
+
+#: templates/company_issuer_identity.html:157
+msgid "References"
+msgstr "Références"
+
 #: templates/company_nav_bar.html:15 templates/user_nav_bar.html:16
 msgid "Settings"
 msgstr "Paramètres"
@@ -447,7 +705,8 @@ msgid "Invit by email"
 msgstr "Inviter par email"
 
 #: templates/company_nav_bar.html:20 templates/company_nav_bar.html:113
-#: templates/user_nav_bar.html:21 templates/user_nav_bar.html:96
+#: templates/update_skills.html:105 templates/user_nav_bar.html:21
+#: templates/user_nav_bar.html:96
 msgid "Advanced"
 msgstr "Paramètres avançés"
 
@@ -497,15 +756,15 @@ msgstr "Portfolio"
 
 #: templates/company_nav_bar.html:112 templates/user_nav_bar.html:94
 msgid "Account"
-msgstr "Paramètre du compte"
+msgstr "Compte"
 
 #: templates/company_nav_bar.html:114
 msgid "Create employee"
-msgstr "Céer un compte employé"
+msgstr "Créer un compte salarié"
 
 #: templates/company_nav_bar.html:119
 msgid "Select Identity"
-msgstr "Selectionner uen identité"
+msgstr "Choisir une identité"
 
 #: templates/company_nav_bar.html:120
 msgid "Delete Repository"
@@ -547,13 +806,6 @@ msgstr "Mon CV"
 msgid "Personal Details"
 msgstr "Données personnelles"
 
-#: templates/login/update_password_external.html:49
-#: templates/person_identity.html:53 templates/update_company_settings.html:105
-#: templates/update_password.html:49
-#: templates/update_personal_settings.html:113
-msgid "Update"
-msgstr "Mettre à jour"
-
 #: templates/person_identity.html:71
 msgid "Store file"
 msgstr "Sauvegarder un fichier"
@@ -574,7 +826,8 @@ msgstr "Ajouter une activité actuelle"
 msgid "Add Education"
 msgstr "Ajouter une formation"
 
-#: templates/person_identity.html:128
+#: templates/person_identity.html:128 templates/update_skills.html:47
+#: templates/update_skills.html:93
 msgid "Skills"
 msgstr "Compétences"
 
@@ -605,14 +858,6 @@ msgstr "Paramètre de l'entreprise"
 #: templates/update_company_settings.html:37
 msgid "Pre-fill info with SIREN"
 msgstr "Préremplir avec les données du SIREN"
-
-#: templates/update_company_settings.html:44
-msgid "Name"
-msgstr "Dénomination"
-
-#: templates/update_company_settings.html:47
-msgid "Website"
-msgstr "Site web"
 
 #: templates/update_company_settings.html:50
 msgid "Contact Name"
@@ -650,6 +895,30 @@ msgstr "Titre"
 msgid "Privacy setting"
 msgstr "Protection des données"
 
+#: templates/update_skills.html:49 templates/update_skills.html:95
+msgid "Core Competencies"
+msgstr ""
+
+#: templates/update_skills.html:100
+msgid "Level"
+msgstr "Niveau"
+
+#: templates/update_skills.html:102
+msgid "Never heard"
+msgstr "Aucune"
+
+#: templates/update_skills.html:103
+msgid "Beginner"
+msgstr "Débutant"
+
+#: templates/update_skills.html:104
+msgid "Intermediate"
+msgstr "Intermédiaire"
+
+#: templates/update_skills.html:106
+msgid "Expert"
+msgstr "Expert"
+
 #: templates/user_footer.html:8
 msgid "Video tutorial"
 msgstr "Tuto"
@@ -678,13 +947,43 @@ msgstr "Portfolio"
 msgid "Presentation"
 msgstr "Présentation"
 
+#: templates/issuer/campaign_code.html:23
+msgid "Campaign code"
+msgstr "Code de campagne"
+
+#: templates/issuer/campaign_code.html:29
+msgid ""
+" provided you with a Campaign Code. Enter this code to access to the "
+"available credentials."
+msgstr " vous a communiqué un code de campagne pour accéder à la liste des attestations disponibles"
+
+#: templates/issuer/campaign_code.html:43
+#: templates/issuer/request_certificate.html:40
+#: templates/login/two_factor.html:54 templates/register/register.html:36
+#: templates/register/register_code.html:39
+#: templates/register/register_identity.html:87
+#: templates/register/register_password.html:47
+#: templates/register/user_register.html:65
+msgid "Next"
+msgstr "Suivant"
+
+#: templates/issuer/request_certificate.html:23
+msgid "Request a new Credential"
+msgstr "Demander une nouvelle attestation"
+
+#: templates/issuer/request_certificate.html:29
+msgid ""
+" will receive and treat soon your request. Your request will be reviewed "
+"then you will received a signed credential by email."
+msgstr " traitera rapidement votre demande et après validation vous fera parvenir une attestation signée par email."
+
 #: templates/login/authentification.html:39
 msgid "Enter the secret code you have just received for authentication."
 msgstr "Sasissez le code secret que vous avez reçu."
 
 #: templates/login/authentification.html:45
 msgid "Check your secret code."
-msgstr "Verifier votre code secret"
+msgstr "Entrez votre code secret"
 
 #: templates/login/authentification.html:49
 #: templates/login/update_password_external.html:55
@@ -773,10 +1072,6 @@ msgstr "Mot de passe"
 msgid "Forgot Password"
 msgstr "Mot de passe oublié"
 
-#: templates/login/logout.html:56
-msgid "Confirm"
-msgstr "Confirmez"
-
 #: templates/login/two_factor.html:38
 msgid "You are going to receive a secret code."
 msgstr "VOus allez recevoir un code secret."
@@ -784,14 +1079,6 @@ msgstr "VOus allez recevoir un code secret."
 #: templates/login/two_factor.html:39
 msgid "Copy this secret code for authentification."
 msgstr "Copier ce code pour authentification"
-
-#: templates/login/two_factor.html:54 templates/register/register.html:36
-#: templates/register/register_code.html:39
-#: templates/register/register_identity.html:87
-#: templates/register/register_password.html:47
-#: templates/register/user_register.html:65
-msgid "Next"
-msgstr "Suivant"
 
 #: templates/register/end_of_registration.html:20
 msgid ""

@@ -32,7 +32,7 @@ def init_app(app, mode) :
 	app.add_url_rule('/forgot_password_token/',  view_func=forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/login/authentification/',  view_func=login_authentification, methods = ['POST'], defaults={'mode': mode})
 	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode})
-	#app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
+	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
 	app.add_url_rule('/user/two_factor/',  view_func=two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/user/update_wallet/',  view_func=update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})

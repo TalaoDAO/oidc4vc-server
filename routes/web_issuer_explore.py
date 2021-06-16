@@ -2,21 +2,22 @@
 
 from os import path
 import time
-from flask import session, send_from_directory, flash
+from flask import session, flash
 from flask import request, redirect, render_template,abort
-from datetime import timedelta, datetime
-import json
+from flask_babel import _
 import requests
 import shutil
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from components import Talao_message, Talao_message, hcode, ns, sms, company
-import constante
-from protocol import ownersToContracts, contractsToOwners, destroy_workspace, partnershiprequest, remove_partnership, token_balance
-from protocol import File, Identity, Document, read_profil
+from components import ns, company
+from protocol import Identity
 
+
+def init_app(app, mode) :
+	app.add_url_rule('/user/issuer_explore/', view_func=issuer_explore, methods = ['GET', 'POST'], defaults={'mode': mode})
+	return
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -69,7 +70,7 @@ def issuer_explore(mode) :
 	if session['issuer_explore']['type'] == 'person' :
 		# file
 		if session['issuer_explore']['identity_file'] == []:
-			my_file = """<p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>"""
+			my_file = """<p class="text-center text-muted m-0 " style="font-size: 20px;">""" + _('No data available') + """</p>"""
 		else:
 			my_file = ""
 			#is_encrypted = False
@@ -77,12 +78,12 @@ def issuer_explore(mode) :
 				if one_file.get('content') == 'Encrypted':
 					#is_encrypted = True
 					file_html = """
-					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + 'Not available - Encrypted ' + """ ) <br>
-					<b>Created</b> : """ + one_file['created'] + """<br>"""
+					<b>""" + _('File Name') + """</b> : """ + one_file['filename'] + """ ( """ + _('Not available - Encrypted ') + """ ) <br>
+					<b>""" + _('Created') + """</b> : """ + one_file['created'] + """<br>"""
 				else:
 					file_html = """
-					<b>File Name</b> : """ + one_file['filename'] + """ ( """ + one_file['privacy'] + """ ) <br>
-					<b>Created</b> : """ + one_file['created'] + """<br>
+					<b>""" + _('File Name') + """</b> : """ + one_file['filename'] + """ ( """ + one_file['privacy'] + """ ) <br>
+					<b>""" + _('Created') + """</b> : """ + one_file['created'] + """<br>
 					<a class="text-secondary" href=/user/download/?filename=""" + one_file['filename'] + """>
 						<i data-toggle="tooltip" class="fa fa-download" title="Download"></i>
 					</a>"""
@@ -182,16 +183,16 @@ def issuer_explore(mode) :
 				else : 
 					carousel_rows_experience += """<p  style="font-size: 1em"><b>Company name : </b>""" + experience['company']['name'] + """<br>"""
 
-				carousel_rows_experience += """<b>Start Date</b> : """ + startDate + """<br> """
-				carousel_rows_experience += """<b>End Date</b> : """ + endDate + """<br>"""
+				carousel_rows_experience += """<b>""" + _('Start Date') + """</b> : """ + startDate + """<br> """
+				carousel_rows_experience += """<b>""" + _('End Date') + """</b> : """ + endDate + """<br>"""
 				if experience.get('topic') != 'experience':
-					carousel_rows_experience += """<b>Description</b> : """ + description[:100:]
+					carousel_rows_experience += """<b>""" + _('Description') + """</b> : """ + description[:100:]
 					if len(description)>100:
 						carousel_rows_experience += "...<br>"
 					else:
 						carousel_rows_experience += "<br>"
 				else:
-					carousel_rows_experience += """<b>Description</b> : """ + description[:150:]
+					carousel_rows_experience += """<b>""" + _('Description') + """</b> : """ + description[:150:]
 					if len(description)>150:
 						carousel_rows_experience += "...<br>"
 					else:
@@ -199,10 +200,10 @@ def issuer_explore(mode) :
 				carousel_rows_experience += "</p>"
 				#Footer
 				if experience.get('topic') != 'certificate':
-					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">""" + _('Self claim') + """</footer>"""
 					#carousel_rows_experience += """<a href= /certificate/?certificate_id=""" + experience['id'] + """:experience> </a>"""
 				else:
-					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  issuer_name + """</footer>"""
+					carousel_rows_experience += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >""" + _('Certified by ') +  issuer_name + """</footer>"""
 					carousel_rows_experience += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(experience['doc_id']) + """></a>"""
 
 				carousel_rows_experience += """</figure></div>"""
@@ -262,8 +263,8 @@ def issuer_explore(mode) :
 				carousel_rows_recommendation += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + recommendation.get('title', "") + "</h4></div></div>"
 				#body
 				carousel_rows_recommendation += """<hr class="my-1"><p style="font-size: 1em"><b>Referent name: </b>""" + issuer_name + "<br>"
-				carousel_rows_recommendation += """<b> Relationship: </b>""" + recommendation['relationship'] + "<br>"
-				carousel_rows_recommendation += """<b> Description: </b>""" + recommendation['description'][:100]
+				carousel_rows_recommendation += """<b> """ + _('Relationship') + """: </b>""" + recommendation['relationship'] + "<br>"
+				carousel_rows_recommendation += """<b> """ + _('Description')+ """ : </b>""" + recommendation['description'][:100]
 				if len(recommendation['description'])>100:
 					carousel_rows_recommendation += "...<br>"
 				else:
@@ -271,7 +272,7 @@ def issuer_explore(mode) :
 
 				carousel_rows_recommendation += "</p>"
 				#Footer
-				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em; color:white;">Certified by """ + issuer_name + """</footer>"""
+				carousel_rows_recommendation += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em; color:white;">""" + _('Certified by ') + issuer_name + """</footer>"""
 				#Lien certificates
 				carousel_rows_recommendation += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(recommendation['doc_id']) + """></a>"""
 
@@ -321,10 +322,10 @@ def issuer_explore(mode) :
 				#header
 				carousel_rows_education += "<div class='col px-0 my-auto'><h4 class='align-center' style='color: black;font-size: 1.4em'>" + education['title'] + "</h4></div></div>"
 				#body
-				carousel_rows_education += """<hr class="my-1"><p style="font-size: 1em"><b>Name: </b>""" + education['organization']['name'] + '<br>'
+				carousel_rows_education += """<hr class="my-1"><p style="font-size: 1em"><b>""" + _('Name') +""" : </b>""" + education['organization']['name'] + '<br>'
 
-				carousel_rows_education += """<b>Start Date</b> : """ + education['start_date'] + """<br> """
-				carousel_rows_education += """<b>End Date</b> : """ + education['end_date'] + """<br>"""
+				carousel_rows_education += """<b>""" + _('Start Date') + """</b> : """ + education['start_date'] + """<br> """
+				carousel_rows_education += """<b>""" + _('End Date') + """</b> : """ + education['end_date'] + """<br>"""
 
 				carousel_rows_education += "</p>"
 				#Footer
@@ -413,9 +414,9 @@ def issuer_explore(mode) :
 				carousel_rows_skill += "</p>"
 				#Footer
 				if skill['issuer']['type'] == 'company':
-					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  skill['issuer']['name'] + """</footer>"""
+					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >""" + _('Certified by ') + skill['issuer']['name'] + """</footer>"""
 				else:
-					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
+					carousel_rows_skill += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >""" + _('Certified by ') + skill['issuer']['firstname'] + " " +  skill['issuer']['lastname'] + """</footer>"""
 				#Lien certificates
 				#carousel_rows_skill += """<a href=  """+ mode.server + """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['issuer_explore']['workspace_contract'][2:] + """:document:""" + str(skill['doc_id']) + """></a>"""
 
@@ -434,7 +435,7 @@ def issuer_explore(mode) :
 								<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
 								  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
 								  <div class='col px-0 my-auto'>
-									<h4 class='align-center' style='color: black;font-size: 1.4em'>Self claimed skills</h4>
+									<h4 class='align-center' style='color: black;font-size: 1.4em'>""" + _('Self claimed skills') + """</h4>
 								  </div>
 								</div>
 								<hr class="my-1">
@@ -444,7 +445,7 @@ def issuer_explore(mode) :
 							carousel_rows_skill += skill['skill_name'] + "<br>"
 						elif i==4:
 							carousel_rows_skill += "..."
-					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">Self claim</footer>"""
+					carousel_rows_skill += """</p></figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #c9c9c9; text-align:center;font-size: 1em; color:black;">""" + _('Self claim') + """</footer>"""
 					carousel_rows_skill += """<a href=  /data/?dataId="""+ session['issuer_explore']['skills']['id'] + """:skills></a>"""
 					carousel_rows_skill += """</figure></div>"""
 
@@ -544,17 +545,17 @@ def issuer_explore(mode) :
 				#body
 				carousel_rows_agreement += """<hr class="my-1"><p class="my-0" style="font-size: 1em"><b>Issuer Name: </b>""" + agreement['issuer']['name'] + '<br>'
 
-				carousel_rows_agreement += """<b>Issue date</b> : """ + agreement['date_of_issue'] + """<br> """
-				carousel_rows_agreement += """<b>End of validity date</b> : """ + agreement['valid_until'] + """<br>"""
+				carousel_rows_agreement += """<b>""" + _('Issuance date') + """</b> : """ + agreement['date_of_issue'] + """<br> """
+				carousel_rows_agreement += """<b>""" + _('End of validity date') + """</b> : """ + agreement['valid_until'] + """<br>"""
 
-				carousel_rows_agreement += """<b> Description: </b>""" + agreement['description'][:150]
+				carousel_rows_agreement += """<b> """ + _('Description') + """ : </b>""" + agreement['description'][:150]
 				if len(agreement['description'])>150:
 					carousel_rows_agreement += "...<br>"
 				else:
 					carousel_rows_agreement += "<br>"
 				carousel_rows_agreement += "</p>"
 				#Footer
-				carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ +  agreement['issuer']['name'] + """</footer>"""
+				carousel_rows_agreement += """</figcaption><footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >""" + _('Certified by ') +  agreement['issuer']['name'] + """</footer>"""
 				#Lien certificates
 				carousel_rows_agreement += """<a href=  /certificate/?certificate_id="""+agreement['id'] + """></a>"""
 
@@ -624,13 +625,13 @@ def issuer_explore(mode) :
 														</div>
 														<hr class="my-1">
 														<p class="my-0" style="font-size: 1em">
-															<b>Issuer Name: </b>""" + issuer_name + """<br>
-															<b>Start date</b> : """ + startDate + """<b>	End date</b> : """ + endDate + """<br> 
-															<b>Project Budget</b> : """ + budget + """<br>
-															<b> Description: </b>""" + description[:100] + """...<br>
+															<b>""" + _('Issuer Name') + """</b> : """ + issuer_name + """<br>
+															<b>""" + _('Start date') + """</b> : """ + startDate + """<b>	End date</b> : """ + endDate + """<br> 
+															<b>""" + _('Project Budget') + """</b> : """ + budget + """<br>
+															<b>""" + _('Description') + """ : </b>""" + description[:100] + """...<br>
 														</p>
 													</figcaption>
-													<footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >Certified by """ + issuer_name + """</footer>
+													<footer class="w-100" style="position: absolute; bottom:0; background-color: #3c9eff; text-align:center;font-size: 1em;" >""" + _('Certified by ') +  issuer_name + """</footer>
 													<a href= '/certificate/?certificate_id="""+ reference['id'] + """'></a>
 												</figure>
 											</div>"""

@@ -50,13 +50,13 @@
                   <h1 style="text-align: center;">{{issuer_name}}</h1>
                   <h5 style="text-align: center;">{{issuer_profil_title}}</h5>
                     <hr>
-                  <h5><i class="fa fa-phone-square"></i>&nbsp;Contact :</h5>
-                  <p>Name : {{contact_name}}<br>Phone number : {{contact_phone}}<br>Email : {{contact_email}}<br>Website : <a href="{{website}}">{{website}}</a></p>
+                  <h5><i class="fa fa-phone-square"></i>&nbsp;{{_('Contact')}} :</h5>
+                  <p>{{_('Name')}} : {{contact_name}}<br>{{_('Phone number')}} : {{contact_phone}}<br>Email : {{contact_email}}<br>{{_('Website')}} : <a href="{{website}}">{{website}}</a></p>
                   <hr>
-                  <h5><i class="fa fa-info-circle"></i>&nbsp;General Informations :&nbsp;</h5>
+                  <h5><i class="fa fa-info-circle"></i>&nbsp;{{_('General Informations')}} :&nbsp;</h5>
                   <p>Staff : {{staff}}<br>CA : {{sales}}<br>SIREN : {{siren}}</p>
                   <hr>
-                  <h5><i class="fa fa-bars"></i>&nbsp;About :</h5>
+                  <h5><i class="fa fa-bars"></i>&nbsp;{{_('About')}} :</h5>
                   <p class="text-justify">{{about}}</p>
                 </div>
               </div>
@@ -66,9 +66,9 @@
                   <div class="card-body">
                     <div class="row m-2">
                       <div class="col p-0 text-center">
-                        <a href="/user/request_certificate/?issuer_username={{issuer_username}}">
+                        <a href="/user/request_certificate?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
-                            Request a Credential</button>
+                            {{_('Request a Credential')}}</button>
                         </a>
                       </div> 
                     </div>
@@ -77,7 +77,7 @@
                       <div class="col p-0 text-center">
                         <a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username={{issuer_username}}" >
                           <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
-                            Issue a Credential</button>
+                            {{_('Issue a Credential')}}</button>
                         </a>
                       </div>
                     </div>
@@ -109,7 +109,7 @@
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
-                    <h4>Agreements</h4>
+                    <h4>{{_('Agreements')}}</h4>
                   </div>
                   <div class="card-body ">
                     {% if carousel_rows_agreement != "" %}
@@ -141,7 +141,7 @@
 
                     </div>
                     {% else %}
-                    <p class="text-center text-muted m-0 " style="font-size: 20px;">No credential available</p>
+                    <p class="text-center text-muted m-0 " style="font-size: 20px;">{{_('No credential available')}}</p>
                     {% endif %}
                     <!--/.Carousel Wrapper-->
                   </div>
@@ -154,7 +154,7 @@
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
-                    <h4>References</h4>
+                    <h4>{{_('References')}}</h4>
                   </div>
                   <div class="card-body ">
                     {% if carousel_rows_reference != "" %}
@@ -179,7 +179,7 @@
                     </div>
                     <!--/.Carousel Wrapper-->
                     {% else %}
-                    <p class="text-center text-muted m-0 " style="font-size: 20px;">No credential available</p>
+                    <p class="text-center text-muted m-0 " style="font-size: 20px;">{{_('No credential available')}}</p>
                     {% endif %}
                   </div>
                 </div>

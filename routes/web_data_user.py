@@ -502,7 +502,7 @@ def user(mode) :
 				my_personal += """<b>""" + TOPIC[topicname] + """</b> : """+ text + """<br>"""
 
 		if session['role'] in ['creator', 'admin'] :
-			my_personal = my_personal + """<a href="/user/update_company_settings/">Update Company Data</a>"""
+			my_personal = my_personal + """<a href="/user/update_company_settings/">""" + _('Update Company Data') + """</a>"""
 
 		# credentials
 		if  not session['all_certificate'] :
@@ -517,7 +517,7 @@ def user(mode) :
 								<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
 								<b>""" + _('Title') + """</b> : """ + certificate['credentialSubject']['offers']['title'] + """<br>
 								<b>""" + _('Description') + """</b> : """ + certificate['credentialSubject']['offers']['description']+ """<br>
-								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Certificate</a><br>
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Certificate') + """</a><br>
 								<p>
 								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
 								<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>

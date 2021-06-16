@@ -1,5 +1,6 @@
 from flask import session, flash, request, redirect, render_template, abort
 from datetime import  datetime
+from flask_babel import _
 import json
 import uuid
 import logging
@@ -10,6 +11,26 @@ from components import Talao_message, ns, company
 from signaturesuite import vc_signature
 from protocol import Document
 
+CREDENTIALS = {'experience' : _('Experience credential'),
+                     'training' : _('Training certificate'),
+                      'recommendation' : _('Recomendation letter'),
+                      'work' : _('Employer certificate'),
+                      'vacation' : _('Employee vacation time certificate'),
+                     'internship' : _('Certificate of participation'),
+                      'relocation' : _('Transfer certificate'),
+                       'end_of_work' :_('Labour certificate'),
+                      'hiring' : _('Promise to hire letter')}
+
+def init_app(app, mode) :
+    app.add_url_rule('/company/add_employee/',  view_func=add_employee, methods = ['GET','POST'], defaults={'mode' : mode})
+    app.add_url_rule('/user/request_certificate',  view_func=request_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+    app.add_url_rule('/user/request_experience_credential/',  view_func=request_experience_credential, methods = ['POST'], defaults={'mode' : mode})
+    app.add_url_rule('/user/request_reference_credential/',  view_func=request_reference_credential, methods = ['POST'], defaults={'mode' : mode})
+    app.add_url_rule('/company/dashboard/',  view_func=company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
+    app.add_url_rule('/company/issue_credential_workflow/',  view_func=issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+    app.add_url_rule('/company/add_campaign/',  view_func=add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
+    app.add_url_rule('/company/remove_campaign/',  view_func=remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
+    return
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -74,7 +95,6 @@ def add_employee(mode) :
 
 def request_certificate(mode) :
     """ The request call comes from the Search Bar or from the Identity page
-    #@app.route('/user/request_certificate/', methods=['GET', 'POST'])
     """
     check_login()
     if request.method == 'GET' :
@@ -82,11 +102,22 @@ def request_certificate(mode) :
          # check if campaign exist
         campaign = company.Campaign(session['credential_issuer_username'], mode)
         if not campaign.get_list() :
-            flash('This company as no active campaign', 'warning')
+            flash(_('This company as no active campaign'), 'warning')
             return redirect(mode.server + 'user/')
-        return render_template('./issuer/request_certificate.html', **session['menu'])
+        return render_template('./issuer/campaign_code.html', **session['menu'], company_name=session['issuer_explore']['name'])
 
     if request.method == 'POST' :
+        if request.form.get('choice') == 'campaign_code' :
+            campaign = company.Campaign(session['credential_issuer_username'], mode)
+            data = campaign.get(request.form['campaign_code'])
+            if not data :
+                flash(_('Campaign not found'), 'warning')
+                return redirect(mode.server + 'user/issuer_explore/?issuer_username='+ session['credential_issuer_username'])
+            credentials_list = ''
+            for credential in json.loads(data)['credentials_supported'] :
+                credentials_list += """<option value='""" + credential +"""'>""" + CREDENTIALS[credential] + """</option>"""
+            return render_template('./issuer/request_certificate.html', **session['menu'], company_name=session['issuer_explore']['name'], credentials_list=credentials_list)
+
         select = ""
         reviewer = company.Employee(session['credential_issuer_username'], mode) 
         reviewer_list = reviewer.get_list('reviewer', 'all')
