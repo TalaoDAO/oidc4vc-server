@@ -25,26 +25,32 @@
         {% include 'guest_nav_bar.html' %}
 
         <div class="container-fluid mt-3">
-          <div class="row mb-3">
-            <div class="col-lg-8 col-xl-6 offset-lg-2 offset-xl-3">
-              <div class="card shadow mb-3">
-                <div class="card-header py-3">
-                  <p class="text-primary m-0 font-weight-bold">Créer votre plateforme de gestion des attestations professionelles.</p>
-                </div>
+          <div class="row  mb-3 ">
+            <div class="col">
+              <div class="card shadow mb-3 ">
+              <br>
+              <h4 class="text-center">Créer votre plateforme de gestion des attestations professionelles.</h4>
+
                 <br>
                 <div class="col" style="color: rgb(255,2,2);">
                     <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
                 </div>                 
 
                 <div class="card-body">
-                    <p></b>Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise ainsi qu'un coffre fort numérique.
+                    <p class="text-center">Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise ainsi qu'un coffre fort numérique.
                       Cette Identité vous permettra de signer électroniqument les attestations demandées par vos salariés.
-                        <br>
-                        <br>Conformément au RGPD et aux recommandations de la CNIL aucune donnée concernant votre entreprise et vos salariés ne sont sauvegardées sur la blockchain.</p>
+                        </p><br>
                   <form id="form" action="/hrid/register/company" method="post">
 
-                    <p><strong>Entreprise :</strong></p>
+     <!-- row--> <div class="row mb-3">
+      <div class="col">
+        <div class="card shadow mb-3 h-100">
+          <div class="row">
+            <div class="col">
+              <div class="card-body">
 
+
+                      <p><strong>Entreprise :</strong></p>
                       <div class="form-row">
                         <div class="col-lg-6">
                           <div class="form-group">
@@ -110,33 +116,47 @@
                         </div>
 
                         <br>
-                        <p><strong>Attestations proposées à vos salariés :</strong></p>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+  <div class="col">
+    <div class="card shadow mb-3 h-100">
+      <div class="row">
+        <div class="col">
+          <br>
+
+
+                        <p class="text-center"><strong>Attestations proposées à vos salariés :</strong></p>
+<div class="card-body">
 
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="experience" id="flexCheckDefault" name="experience" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            Attestation d'expérience professionelle (sur mission/projet)
+                            {{experience}}
                           </label>
                         </div>
 
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="training" id="flexCheckDefault" name ="training" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            Attestation de formation
+                            {{training}}
                           </label>
                         </div>
                         
                         <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="recommendation" id="flexCheckDefault" name="recommendation" >
                         <label class="form-check-label" for="flexCheckDefault">
-                            Lettre de recommandation
+                            {{recommendation}}
                         </label>
                         </div>
                     
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="hiring" id="flexCheckDefault" disabled name="hiring" >
                           <label class="form-check-label" for="flexCheckDefault">
-                              Lettre d'embauche
+                              {{hiring}}
                           </label>
                         </div>
                         <hr>
@@ -144,28 +164,28 @@
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="work" id="flexCheckDefault" disabled name="work">
                           <label class="form-check-label" for="flexCheckDefault">
-                              Attestation employeur
+                              {{work}}
                           </label>
                         </div>
                         
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="vacation" id="flexCheckDefault" disabled name="vacation">
                           <label class="form-check-label" for="flexCheckDefault">
-                            Attestation de congés payés
+                            {{vacation}}
                           </label>
                         </div>
                         
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="internship" id="flexCheckDefault" disabled name="internship">
                           <label class="form-check-label" for="flexCheckDefault">
-                            Attestation de stage
+                            {{internship}}
                           </label>
                         </div>
 
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="relocation" id="flexCheckChecked" disabled name="relocation">
                             <label class="form-check-label" for="flexCheckChecked">
-                            Attestation de mutation professionelle
+                            {{relocation}}
                             </label>
                         </div>
                         
@@ -174,37 +194,50 @@
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="end_of_work" id="flexCheckCheckedDisabled" disabled name="end_of_work">
                           <label class="form-check-label" for="flexCheckCheckedDisabled">
-                              Certificat de travail
+                              {{end_of_work}}
                           </label>
                         </div>
                       
-                        <hr>
-                        <br>
-        
+</div>                       
+</div>
+</div>
+</div>
+</div>
+<!-- end of row--> </div>
+<div class="row mb-3">
+<div class='col'>
                         <div class="form-row">
-                           <div class="col-lg-6">
+                           <div class="col-lg-2 offset-lg-5">
                               <div class="form-group">
-                                <label data-toggle="tooltip" data-bs-tooltip="" title="">Code promotionel<br></label>
+                                <label data-toggle="tooltip" data-bs-tooltip="" title="">Code promotionel :<br></label>
                                 <input class="form-control" type="text"  name="promo">
                               </div>
                           </div>
                         </div>
 
-                        <div class="form-group form-check">
-                          <input type="checkbox" class="form-check-input" name="CGU" >
-                          <label style="color: rgb(133,135,150);"  >J'ai lu et j'accepte les conditions générales d'utilisation du service (CGU).</label>
-                          
+                        <div class="form-row">
+                            <div class="col-lg-4 offset-lg-4">
+                              <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" name="CGU" >
+                                <label style="color: rgb(133,135,150);"  >J'ai lu et j'accepte les conditions générales d'utilisation du service (CGU).Conformément au RGPD et aux recommandations de la CNIL aucune donnée concernant votre entreprise et vos salariés ne sont sauvegardées sur la blockchain.</label>
+                              </div>
+                            </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="col-6 col-xl-3">
+                            <div class="col-6 offset-3">
                               <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Confirmer</button></div>
                             </div>
-                            <div class="col-6 col-xl-3">
+                            <div class="col-3">
                               <div onclick="goBack()"  form-group"><button class="btn btn-primary btn-sm" type="button">Retour</button></div>
                             </div>
                       </div>
                     </div>
+</div>
+   </div>
+<!-- end of row--> </div>
+
+
                   </form>
                   <div class="text-center"><a class="small" href="/login">Connexion</a></div>
 

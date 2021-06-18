@@ -5,8 +5,7 @@ Just a process to a centralized basic create user from password and username
 from flask import request, redirect, render_template, session, flash, abort
 import random
 import json
-import didkit
-import requests
+from flask_babel import _
 from datetime import timedelta, datetime
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -15,8 +14,18 @@ from factory import createidentity, createcompany
 from components import sms, directory, ns, company
 
 
-CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
+CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work','vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
+def translate_credentials() :
+	return {'experience' : _('Experience credential'),
+                     'training' : _('Training certificate'),
+                      'recommendation' : _('Recomendation letter'),
+                      'work' : _('Employer certificate'),
+                      'vacation' : _('Employee vacation time certificate'),
+                     'internship' : _('Certificate of participation'),
+                      'relocation' : _('Transfer certificate'),
+                       'end_of_work' :_('Labour certificate'),
+                      'hiring' : _('Promise to hire letter')}
 
 def init_app(app, mode) :
 	app.add_url_rule('/hrid/register',  view_func=hrid_register_user, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
@@ -38,8 +47,9 @@ def check_login() :
 
 
 def hrid_register_company(mode) :
+	CREDENTIALS = translate_credentials()
 	if request.method == 'GET' :
-		return render_template('hrid/hrid_company_register_fr.html')
+		return render_template('hrid/hrid_company_register_fr.html', **CREDENTIALS)
 	if request.method == 'POST' :
 		credentials_supported = list()
 		credentials_supported_dict = dict()
@@ -64,7 +74,8 @@ def hrid_register_company(mode) :
 									postal_address=request.form['postal_address'],
 									website=request.form['website'],
 									**credentials_supported_dict,
-									message=message)
+									message=message
+									**CREDENTIALS)
 
 		username = request.form['company_name'].lower()
 		if ns.username_exist(username, mode)   :

@@ -11,6 +11,7 @@ from components import Talao_message, ns, company
 from signaturesuite import vc_signature
 from protocol import Document
 
+
 CREDENTIALS = {'experience' : _('Experience credential'),
                      'training' : _('Training certificate'),
                       'recommendation' : _('Recomendation letter'),
@@ -105,6 +106,7 @@ def request_certificate(mode) :
             flash(_('This company as no active campaign'), 'warning')
             return redirect(mode.server + 'user/')
         return render_template('./issuer/campaign_code.html', **session['menu'], company_name=session['issuer_explore']['name'])
+
 
     if request.method == 'POST' :
         if request.form.get('choice') == 'campaign_code' :

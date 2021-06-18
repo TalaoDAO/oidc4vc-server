@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-16 19:48+0200\n"
+"POT-Creation-Date: 2021-06-17 19:57+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -229,39 +229,39 @@ msgstr "Photo mise à jour"
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
-#: routes/web_issuer.py:14
+#: routes/web_hrid.py:18 routes/web_issuer.py:14
 msgid "Experience credential"
 msgstr "Attestation d'expérience professionelle"
 
-#: routes/web_issuer.py:15
+#: routes/web_hrid.py:19 routes/web_issuer.py:15
 msgid "Training certificate"
 msgstr "Attestation de formation"
 
-#: routes/web_issuer.py:16
+#: routes/web_hrid.py:20 routes/web_issuer.py:16
 msgid "Recomendation letter"
 msgstr "Lettre de recommandation"
 
-#: routes/web_issuer.py:17
+#: routes/web_hrid.py:21 routes/web_issuer.py:17
 msgid "Employer certificate"
 msgstr "Attestation employeur"
 
-#: routes/web_issuer.py:18
+#: routes/web_hrid.py:22 routes/web_issuer.py:18
 msgid "Employee vacation time certificate"
 msgstr "Attestation de congès payés"
 
-#: routes/web_issuer.py:19
+#: routes/web_hrid.py:23 routes/web_issuer.py:19
 msgid "Certificate of participation"
 msgstr "Attestation de stage"
 
-#: routes/web_issuer.py:20
+#: routes/web_hrid.py:24 routes/web_issuer.py:20
 msgid "Transfer certificate"
 msgstr "Attestation de mutation"
 
-#: routes/web_issuer.py:21
+#: routes/web_hrid.py:25 routes/web_issuer.py:21
 msgid "Labour certificate"
 msgstr "Certificat de travail"
 
-#: routes/web_issuer.py:22
+#: routes/web_hrid.py:26 routes/web_issuer.py:22
 msgid "Promise to hire letter"
 msgstr "Lettre de promesse d'embauche"
 
@@ -269,7 +269,7 @@ msgstr "Lettre de promesse d'embauche"
 msgid "This company as no active campaign"
 msgstr "Cette entreprise n'a pas d'attestations en ligne"
 
-#: routes/web_issuer.py:114
+#: routes/web_issuer.py:115
 msgid "Campaign not found"
 msgstr "Aucune attestation pour cette campagne."
 
@@ -955,7 +955,9 @@ msgstr "Code de campagne"
 msgid ""
 " provided you with a Campaign Code. Enter this code to access to the "
 "available credentials."
-msgstr " vous a communiqué un code de campagne pour accéder à la liste des attestations disponibles"
+msgstr ""
+" vous a communiqué un code de campagne pour accéder à la liste des "
+"attestations disponibles"
 
 #: templates/issuer/campaign_code.html:43
 #: templates/issuer/request_certificate.html:40
@@ -975,7 +977,9 @@ msgstr "Demander une nouvelle attestation"
 msgid ""
 " will receive and treat soon your request. Your request will be reviewed "
 "then you will received a signed credential by email."
-msgstr " traitera rapidement votre demande et après validation vous fera parvenir une attestation signée par email."
+msgstr ""
+" traitera rapidement votre demande et après validation vous fera parvenir"
+" une attestation signée par email."
 
 #: templates/login/authentification.html:39
 msgid "Enter the secret code you have just received for authentication."
