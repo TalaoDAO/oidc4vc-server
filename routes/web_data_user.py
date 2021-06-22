@@ -365,7 +365,7 @@ def user(mode) :
 					cert_html = """<hr>
 					<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
 					<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """ credential<br>
-					<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('companyName', 'None').capitalize() + """ <br>
+					<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('author', 'None')['name'].capitalize() + """ <br>
 					<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
 					<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
 				except :

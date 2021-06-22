@@ -30,6 +30,10 @@
                 "reviewDelivery":
                     {
                         "@type": "Review",
+                        "author" : {
+                          "name" : "",
+                          "logo" : ""
+                        }
                         "reviewBody": "How satisfied are you with the overall delivery ?",
                         "reviewRating": {
                           "@type": "Rating",

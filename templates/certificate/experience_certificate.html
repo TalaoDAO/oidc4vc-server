@@ -28,7 +28,7 @@
                                         <div class="card-header py-3">
                                             <div class="row">
                                                 <div class="col-xl-6">
-                                                    <p class="text-secondary m-0 font-weight-bold"><strong>{{subject_name}}&nbsp;</strong>Professional Credential
+                                                    <p class="text-secondary m-0 font-weight-bold"><strong>{{subject_name}}&nbsp;</strong>{{_('Professional Credential')}}
                                                     <a  class="text-secondary"  href="/certificate/verify/?certificate_id={{certificate_id}}"><i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check"></i></a></p>
                                                 </div>
 												<div class="col">
@@ -41,7 +41,7 @@
                                                 <div class="form-row">
                                                     <div class="col-xl-7">
                                                         <p class="text-center"><strong>{{title}}</strong><br></p>
-                                                        <p class="text-center" style="font-size: 16px;">From {{start_date}} to {{end_date}}</p><textarea class="form-control" rows="4" style="font-size: 16px;">{{description}}</textarea>
+                                                        <p class="text-center" style="font-size: 16px;">{{_('From')}} {{start_date}} {{_('to')}} {{end_date}}</p><textarea class="form-control" rows="4" style="font-size: 16px;">{{description}}</textarea>
                                                         <hr>
                                                         <div>
                                                             <div class="text-center">
@@ -52,7 +52,7 @@
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <p style="font-size: 16px;">How satisfied are you with the overall delivery ?</p>
+                                                                        <p style="font-size: 16px;">{{_('How satisfied are you with the overall delivery ?')}}</p>
                                                                     </div>
                                                                 </div>
                                                                  <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star00}}"></i><i class="fa fa-star" style="{{star01}}"></i><i class="fa fa-star" style="{{star02}}"></i><i class="fa fa-star" style="{{star03}}"></i><i class="fa fa-star" style="{{star04}}"></i></div>
@@ -61,7 +61,7 @@
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <p style="font-size: 16px;">How likely are you to recommend this talent to others ?</p>
+                                                                        <p style="font-size: 16px;">{{_('How likely are you to recommend this talent to others ?')}}</p>
                                                                     </div>
                                                                 </div>
                                                                  <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star10}}"></i><i class="fa fa-star" style="{{star11}}"></i><i class="fa fa-star" style="{{star12}}"></i><i class="fa fa-star" style="{{star13}}"></i><i class="fa fa-star" style="{{star14}}"></i></div>
@@ -70,7 +70,7 @@
                                                             <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <p style="font-size: 16px;">How would you rate his/her ability to deliver to schedule ?</p>
+                                                                        <p style="font-size: 16px;">{{_('How would you rate his/her ability to deliver to schedule ?')}}</p>
                                                                     </div>
                                                                 </div>
                                                                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star20}}"></i><i class="fa fa-star" style="{{star21}}"></i><i class="fa fa-star" style="{{star22}}"></i><i class="fa fa-star" style="{{star23}}"></i><i class="fa fa-star" style="{{star24}}"></i></div>
@@ -79,7 +79,7 @@
                                                            <div class="form-row">
                                                                 <div class="col">
                                                                     <div class="form-group">
-                                                                        <p style="font-size: 16px;">How would you rate his/her overall communication skills ?</p>
+                                                                        <p style="font-size: 16px;">{{_('How would you rate his/her overall communication skills ?')}}</p>
                                                                     </div>
                                                                 </div>
                                                                    <div class="col-md-12 col-xl-2 order-1" style="height: 60px;"><i class="fa fa-star" style="{{star30}}"></i><i class="fa fa-star" style="{{star31}}"></i><i class="fa fa-star" style="{{star32}}"></i><i class="fa fa-star" style="{{star33}}"></i><i class="fa fa-star" style="{{star34}}"></i></div>
@@ -89,11 +89,11 @@
 
                                                     <div class="col-xl-5">
                                                         <div>
-                                                            <p class="text-center"><strong>Issued by {{companyName}} </strong><br></p>
+                                                            <p class="text-center"><strong>{{_('Issued by')}} {{companyName}} </strong><br></p>
                                                             <img id="company" class="mx-auto d-block" src="{{ url_for('send_file', filename=logo) }}" height="200" width="200">
                                                         </div>
                                                         <div><br><br><br><br>
-                                                            <p class="text-center"><strong>Signed by {{managerName}}</strong><br></p>
+                                                            <p class="text-center"><strong>{{_('Signed by')}} {{managerName}}</strong><br></p>
                                                              <img id="signature" class="mx-auto d-block" src="{{ url_for('send_file', filename=signature) }}" height="150" width="200">
                                                         </div>
                                                      </div>
@@ -102,11 +102,11 @@
                                             </form>
                                             <div class="row">
                                                 {% if viewer == 'user'  %}
-												        <div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+												        <div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
                                                 {% endif %}
                                             </div>
                                             <br>
-                                            <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">This credential has been issued through the Talao plateform.&nbsp; </p>
+                                            <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">{{_('This credential has been issued through the Talao plateform')}}</p>
                       
                                    </div>
                             </div>

@@ -39,16 +39,16 @@
                     <br>
                     <div class="card shadow">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">Credential list</p>
+                            <p class="text-primary m-0 font-weight-bold">{{_('Credential list')}}</p>
                         </div>
                         <div class="card-body">
                         <form action="/company/dashboard/" method="post">
                             <div class="row">
                                 <div class="col-md-6 text-nowrap">
                                     <div class="text-justify dataTables_length" id="dataTable_length" aria-controls="dataTable">
-                                        <label class="checkbox-inline" style="margin-right: 5px;margin-left: 5px;">Drafted&nbsp;&nbsp;<input {{drafted}} name="draftedbox" value="drafted" type="checkbox"></label>
-                                        <label class="checkbox-inline"  style="margin: -1px;margin-left: 5px;margin-right: 5px;">Reviewed&nbsp;&nbsp;<input name="reviewedbox" value="reviewed" {{reviewed}} type="checkbox"></label>
-                                        <label class="checkbox-inline"  style="margin-right: 5px;margin-left: 5px;">Signed&nbsp;&nbsp;<input {{signed}} name="signedbox" value="signed" type="checkbox"></label></div>
+                                        <label class="checkbox-inline" style="margin-right: 5px;margin-left: 5px;">{{_('Drafted')}}&nbsp;&nbsp;<input {{drafted}} name="draftedbox" value="drafted" type="checkbox"></label>
+                                        <label class="checkbox-inline"  style="margin: -1px;margin-left: 5px;margin-right: 5px;">{{_('Reviewed')}}&nbsp;&nbsp;<input name="reviewedbox" value="reviewed" {{reviewed}} type="checkbox"></label>
+                                        <label class="checkbox-inline"  style="margin-right: 5px;margin-left: 5px;">{{_('Signed')}}&nbsp;&nbsp;<input {{signed}} name="signedbox" value="signed" type="checkbox"></label></div>
                                     </div>
 
                                     {% if session['role'] != 'reviewer' %}
@@ -56,7 +56,7 @@
                                     <div class="col-xl-2">
                                         <select name="reviewer">
                                             <optgroup label="Choose a reviewer">
-                                            <option value="all" selected="">All reviewers</option>
+                                            <option value="all" selected="">{{_('All reviewers')}}</option>
                                            {{reviewer_select|safe}}
                                             </optgroup>
                                         </select>
@@ -64,13 +64,13 @@
                                     <div class="col-md-6 col-xl-2">
                                         <select name="issuer" >
                                             <optgroup label="Choose an issuer">
-                                            <option value="all" selected="">All issuers</option>
+                                            <option value="all" selected="">{{_('All issuers')}}</option>
                                            {{manager_select|safe}}
                                             </optgroup>
                                         </select>
                                     </div>
                                     {% endif %}
-                                    <div class="col-xl-2 text-right"><button class="btn btn-primary btn-sm text-right" type="submit">Refresh</button></div>
+                                    <div class="col-xl-2 text-right"><button class="btn btn-primary btn-sm text-right" type="submit">{{_('Refresh')}}</button></div>
                                 </div>
                             </div>
                             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
@@ -79,15 +79,15 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 5%" >Id</th>
-                                            <th style="width: 10%" >Subject</th>
-                                            <th style="width: 5%">Reference</th>
-                                            <th style="width: 10%">Title</th>
-                                            <th style="width: 45%">Description</th>
-                                            <th style="width: 10%">Created</th>
-                                            <th style="width: 5%">Type</th>
-                                            <th style="width: 5%">Reviewer</th>
-                                            <th style="width: 5%">Issuer</th>
-                                            <th style="width: 5%">Status</th>
+                                            <th style="width: 10%" >{{_('Subject')}}</th>
+                                            <th style="width: 5%">{{_('Reference')}}</th>
+                                            <th style="width: 10%">{{_('Title')}}</th>
+                                            <th style="width: 45%">{{_('Description')}}</th>
+                                            <th style="width: 10%">{{_('Created')}}</th>
+                                            <th style="width: 5%">{{_('Type')}}</th>
+                                            <th style="width: 5%">{{_('Reviewer')}}</th>
+                                            <th style="width: 5%">{{_('Issuer')}}</th>
+                                            <th style="width: 5%">{{_('Status')}}</th>
                                         </tr>
                                     </thead>
                                     <tbody>

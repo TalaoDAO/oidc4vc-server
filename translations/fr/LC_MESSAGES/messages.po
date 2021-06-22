@@ -1,15 +1,15 @@
-# French translations for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# French translations for Issur Talao.
+# Copyright (C) 2021 Talao
+# This file is distributed under the same license as the project.
+# FIRST AUTHOR thierry.thevenet@talao.io, 2021.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-17 19:57+0200\n"
+"Project-Id-Version: Issuer Talao \n"
+"Report-Msgid-Bugs-To: Thierry Thevenet\n"
+"POT-Creation-Date: 2021-06-22 20:26+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -45,6 +45,9 @@ msgstr "Entreprise"
 
 #: routes/web_data_user.py:291 routes/web_data_user.py:310
 #: routes/web_data_user.py:324 routes/web_data_user.py:518
+#: templates/issuer/company_dashboard.html:84
+#: templates/issuer/issue_experience_credential_workflow.html:30
+#: templates/issuer/request_experience_credential.html:44
 msgid "Title"
 msgstr "Titre"
 
@@ -64,7 +67,7 @@ msgstr "Date de fin"
 #: routes/web_data_user.py:294 routes/web_data_user.py:519
 #: routes/web_issuer_explore.py:189 routes/web_issuer_explore.py:195
 #: routes/web_issuer_explore.py:267 routes/web_issuer_explore.py:551
-#: routes/web_issuer_explore.py:631
+#: routes/web_issuer_explore.py:631 templates/issuer/company_dashboard.html:85
 msgid "Description"
 msgstr "Description"
 
@@ -229,49 +232,91 @@ msgstr "Photo mise à jour"
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
-#: routes/web_hrid.py:18 routes/web_issuer.py:14
+#: routes/web_hrid.py:20 routes/web_issuer.py:15
 msgid "Experience credential"
 msgstr "Attestation d'expérience professionelle"
 
-#: routes/web_hrid.py:19 routes/web_issuer.py:15
+#: routes/web_hrid.py:21 routes/web_issuer.py:16
 msgid "Training certificate"
 msgstr "Attestation de formation"
 
-#: routes/web_hrid.py:20 routes/web_issuer.py:16
+#: routes/web_hrid.py:22 routes/web_issuer.py:17
 msgid "Recomendation letter"
 msgstr "Lettre de recommandation"
 
-#: routes/web_hrid.py:21 routes/web_issuer.py:17
+#: routes/web_hrid.py:23 routes/web_issuer.py:18
 msgid "Employer certificate"
 msgstr "Attestation employeur"
 
-#: routes/web_hrid.py:22 routes/web_issuer.py:18
+#: routes/web_hrid.py:24 routes/web_issuer.py:19
 msgid "Employee vacation time certificate"
 msgstr "Attestation de congès payés"
 
-#: routes/web_hrid.py:23 routes/web_issuer.py:19
+#: routes/web_hrid.py:25 routes/web_issuer.py:20
 msgid "Certificate of participation"
 msgstr "Attestation de stage"
 
-#: routes/web_hrid.py:24 routes/web_issuer.py:20
+#: routes/web_hrid.py:26 routes/web_issuer.py:21
 msgid "Transfer certificate"
 msgstr "Attestation de mutation"
 
-#: routes/web_hrid.py:25 routes/web_issuer.py:21
+#: routes/web_hrid.py:27 routes/web_issuer.py:22
 msgid "Labour certificate"
 msgstr "Certificat de travail"
 
-#: routes/web_hrid.py:26 routes/web_issuer.py:22
+#: routes/web_hrid.py:28 routes/web_issuer.py:23
 msgid "Promise to hire letter"
 msgstr "Lettre de promesse d'embauche"
 
-#: routes/web_issuer.py:105
+#: routes/web_issuer.py:106
 msgid "This company as no active campaign"
 msgstr "Cette entreprise n'a pas d'attestations en ligne"
 
-#: routes/web_issuer.py:115
+#: routes/web_issuer.py:116
 msgid "Campaign not found"
 msgstr "Aucune attestation pour cette campagne."
+
+#: routes/web_issuer.py:136
+msgid "credential not available"
+msgstr "attestation non disponible"
+
+#: routes/web_issuer.py:199
+msgid "Your request for a reference credential has been sent."
+msgstr "Votre demande pour une attestation de référence a été envoyée."
+
+#: routes/web_issuer.py:256 routes/web_issuer.py:541
+msgid "You have received a professional credential from "
+msgstr "Vous avez reçu une attestation de "
+
+#: routes/web_issuer.py:256
+msgid " to review"
+msgstr " pour revue"
+
+#: routes/web_issuer.py:263
+msgid "Your request for an experience credential has been registered for review."
+msgstr ""
+"Votre demande pour une attestation d'expérience professionnelle a été "
+"envoyée pour revue."
+
+#: routes/web_issuer.py:476
+msgid "Operation failed "
+msgstr "Echec de la transaction"
+
+#: routes/web_issuer.py:498
+msgid "Add credential to repository failed "
+msgstr ""
+
+#: routes/web_issuer.py:547
+msgid "Credential has been reviewed and validated"
+msgstr "L'attestation a été revue et validée."
+
+#: routes/web_issuer.py:595
+msgid "New campaign added"
+msgstr "Nouvelle campagne ajoutée."
+
+#: routes/web_issuer.py:605
+msgid "Campaign removed"
+msgstr "Campagne effaçée."
 
 #: routes/web_issuer_explore.py:81 routes/web_issuer_explore.py:85
 msgid "File Name"
@@ -282,6 +327,7 @@ msgid "Not available - Encrypted "
 msgstr "Crypté "
 
 #: routes/web_issuer_explore.py:82 routes/web_issuer_explore.py:86
+#: templates/issuer/company_dashboard.html:86
 msgid "Created"
 msgstr "Créé"
 
@@ -317,6 +363,7 @@ msgid "End of validity date"
 msgstr "Validité"
 
 #: routes/web_issuer_explore.py:629
+#: templates/issuer/request_experience_credential.html:58
 msgid "Start date"
 msgstr "Date de début"
 
@@ -508,7 +555,9 @@ msgstr "Cela fait le lien entre votre nom utilisateur et votre nom."
 msgid "I would like to have my name in the Name Directory"
 msgstr "Je souhaitre avoir mon nom dans le répertoire"
 
-#: templates/account.html:116 templates/login/update_password_external.html:49
+#: templates/account.html:116
+#: templates/issuer/issue_experience_credential_workflow.html:139
+#: templates/login/update_password_external.html:49
 #: templates/person_identity.html:53 templates/update_company_settings.html:105
 #: templates/update_password.html:49
 #: templates/update_personal_settings.html:113
@@ -518,9 +567,12 @@ msgstr "Mettre à jour"
 #: templates/account.html:128 templates/add_activity.html:83
 #: templates/add_credential_supported.html:129 templates/add_education.html:85
 #: templates/add_experience.html:85 templates/advanced.html:209
+#: templates/certificate/experience_certificate.html:105
 #: templates/issuer/campaign_code.html:46
-#: templates/issuer/request_certificate.html:43 templates/login/logout.html:59
-#: templates/register/register_code.html:42
+#: templates/issuer/issue_experience_credential_workflow.html:165
+#: templates/issuer/request_certificate.html:43
+#: templates/issuer/request_experience_credential.html:87
+#: templates/login/logout.html:59 templates/register/register_code.html:42
 #: templates/register/register_identity.html:90
 #: templates/register/register_password.html:50
 #: templates/register/registration_error.html:25
@@ -562,7 +614,7 @@ msgstr "Résumé"
 #: templates/add_activity.html:80 templates/add_education.html:83
 #: templates/add_experience.html:82 templates/update_skills.html:112
 msgid "Add"
-msgstr "Ajouter"
+msgstr "Ajoutez"
 
 #: templates/add_credential_supported.html:33
 msgid "Select credentials supported."
@@ -581,6 +633,7 @@ msgid "Contact Name (Optional)"
 msgstr "Nom de votre contact (Optionnel)"
 
 #: templates/add_education.html:65
+#: templates/issuer/request_experience_credential.html:47
 msgid "Skills (Optional)"
 msgstr "Compétences acquises (Optionnel)"
 
@@ -633,7 +686,7 @@ msgid "Company Details"
 msgstr "Données entreprise"
 
 #: templates/company_identity.html:83 templates/company_nav_bar.html:96
-#: templates/company_nav_bar.html:115
+#: templates/company_nav_bar.html:115 templates/manager_nav_bar.html:66
 msgid "Credentials"
 msgstr "Attestations"
 
@@ -695,23 +748,26 @@ msgstr "Aucune attestation disponible"
 msgid "References"
 msgstr "Références"
 
-#: templates/company_nav_bar.html:15 templates/user_nav_bar.html:16
+#: templates/company_nav_bar.html:15 templates/manager_nav_bar.html:14
+#: templates/user_nav_bar.html:16
 msgid "Settings"
 msgstr "Paramètres"
 
 #: templates/company_nav_bar.html:17 templates/company_nav_bar.html:132
+#: templates/manager_nav_bar.html:16 templates/manager_nav_bar.html:84
 #: templates/user_nav_bar.html:18 templates/user_nav_bar.html:104
 msgid "Invit by email"
 msgstr "Inviter par email"
 
 #: templates/company_nav_bar.html:20 templates/company_nav_bar.html:113
+#: templates/manager_nav_bar.html:19 templates/manager_nav_bar.html:80
 #: templates/update_skills.html:105 templates/user_nav_bar.html:21
 #: templates/user_nav_bar.html:96
 msgid "Advanced"
 msgstr "Paramètres avançés"
 
 #: templates/company_nav_bar.html:21 templates/company_nav_bar.html:109
-#: templates/user_nav_bar.html:92
+#: templates/manager_nav_bar.html:20 templates/user_nav_bar.html:92
 msgid "Documentation"
 msgstr "Documentation"
 
@@ -725,12 +781,14 @@ msgid "Config API Server"
 msgstr "Configuraion API server"
 
 #: templates/company_nav_bar.html:34 templates/company_nav_bar.html:135
-#: templates/login/logout.html:49 templates/user_nav_bar.html:27
+#: templates/login/logout.html:49 templates/manager_nav_bar.html:22
+#: templates/manager_nav_bar.html:86 templates/user_nav_bar.html:27
 #: templates/user_nav_bar.html:107
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: templates/company_nav_bar.html:63 templates/user_nav_bar.html:55
+#: templates/company_nav_bar.html:63 templates/manager_nav_bar.html:51
+#: templates/user_nav_bar.html:55
 msgid "This search bar only works with usernames."
 msgstr "Recherche par nom d'utilisateur"
 
@@ -778,7 +836,8 @@ msgstr "Effacer une identité"
 msgid "Create Company"
 msgstr "Créer un compte entreprise"
 
-#: templates/company_nav_bar.html:130 templates/user_nav_bar.html:103
+#: templates/company_nav_bar.html:130 templates/manager_nav_bar.html:83
+#: templates/user_nav_bar.html:103
 msgid "Verifier"
 msgstr "Verifier"
 
@@ -797,6 +856,14 @@ msgstr "Que propose Talao ?"
 #: templates/guest_nav_bar.html:41
 msgid "Quick start"
 msgstr "Démarrage rapide"
+
+#: templates/manager_nav_bar.html:65
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/manager_nav_bar.html:78
+msgid "My account"
+msgstr "Mon compte"
 
 #: templates/person_identity.html:41
 msgid "My Resume"
@@ -826,6 +893,7 @@ msgstr "Ajouter une activité actuelle"
 msgid "Add Education"
 msgstr "Ajouter une formation"
 
+#: templates/issuer/issue_experience_credential_workflow.html:43
 #: templates/person_identity.html:128 templates/update_skills.html:47
 #: templates/update_skills.html:93
 msgid "Skills"
@@ -947,6 +1015,48 @@ msgstr "Portfolio"
 msgid "Presentation"
 msgstr "Présentation"
 
+#: templates/certificate/experience_certificate.html:31
+msgid "Professional Credential"
+msgstr ""
+
+#: templates/certificate/experience_certificate.html:44
+#: templates/issuer/issue_experience_credential_workflow.html:49
+msgid "From"
+msgstr "De"
+
+#: templates/certificate/experience_certificate.html:44
+msgid "to"
+msgstr "A"
+
+#: templates/certificate/experience_certificate.html:55
+msgid "How satisfied are you with the overall delivery ?"
+msgstr "Etes vous satisfait de la production de ce Talent ?"
+
+#: templates/certificate/experience_certificate.html:64
+msgid "How likely are you to recommend this talent to others ?"
+msgstr "Recommanderiez vous ce Talent ?"
+
+#: templates/certificate/experience_certificate.html:73
+msgid "How would you rate his/her ability to deliver to schedule ?"
+msgstr "Etes vous satisfait des délais de livraison ?"
+
+#: templates/certificate/experience_certificate.html:82
+#: templates/issuer/issue_experience_credential_workflow.html:113
+msgid "How would you rate his/her overall communication skills ?"
+msgstr "Comment evalueriez vous sa commmunication ?"
+
+#: templates/certificate/experience_certificate.html:92
+msgid "Issued by"
+msgstr "Emis par"
+
+#: templates/certificate/experience_certificate.html:96
+msgid "Signed by"
+msgstr "Signé par"
+
+#: templates/certificate/experience_certificate.html:109
+msgid "This credential has been issued through the Talao plateform"
+msgstr "Cette attestations a été émise par Talao."
+
 #: templates/issuer/campaign_code.html:23
 msgid "Campaign code"
 msgstr "Code de campagne"
@@ -969,6 +1079,102 @@ msgstr ""
 msgid "Next"
 msgstr "Suivant"
 
+#: templates/issuer/company_dashboard.html:42
+msgid "Credential list"
+msgstr "Liste des attestations"
+
+#: templates/issuer/company_dashboard.html:49
+msgid "Drafted"
+msgstr "Brouillon"
+
+#: templates/issuer/company_dashboard.html:50
+msgid "Reviewed"
+msgstr "Revue"
+
+#: templates/issuer/company_dashboard.html:51
+msgid "Signed"
+msgstr "Signée"
+
+#: templates/issuer/company_dashboard.html:59
+msgid "All reviewers"
+msgstr "Tous les validateurs"
+
+#: templates/issuer/company_dashboard.html:67
+msgid "All issuers"
+msgstr "Tous les signataires"
+
+#: templates/issuer/company_dashboard.html:73
+msgid "Refresh"
+msgstr "Rafraichir"
+
+#: templates/issuer/company_dashboard.html:82
+msgid "Subject"
+msgstr "Sujet"
+
+#: templates/issuer/company_dashboard.html:83
+msgid "Reference"
+msgstr "Référence"
+
+#: templates/issuer/company_dashboard.html:87
+msgid "Type"
+msgstr "Type"
+
+#: templates/issuer/company_dashboard.html:88
+msgid "Reviewer"
+msgstr "Validateur"
+
+#: templates/issuer/company_dashboard.html:89
+msgid "Issuer"
+msgstr "Signataire"
+
+#: templates/issuer/company_dashboard.html:90
+msgid "Status"
+msgstr "Statut"
+
+#: templates/issuer/issue_experience_credential_workflow.html:22
+msgid "Professional Experience Credential"
+msgstr "Attestation d'expérience professionnelle"
+
+#: templates/issuer/issue_experience_credential_workflow.html:23
+msgid "This credential will be signed by"
+msgstr "Cette attestation sera signée par"
+
+#: templates/issuer/issue_experience_credential_workflow.html:23
+msgid "behalf of"
+msgstr "au nom de"
+
+#: templates/issuer/issue_experience_credential_workflow.html:33
+msgid "Talent Name"
+msgstr "Nom du Talent"
+
+#: templates/issuer/issue_experience_credential_workflow.html:38
+msgid "Project Description"
+msgstr "Description du projet"
+
+#: templates/issuer/issue_experience_credential_workflow.html:55
+msgid "To"
+msgstr "A"
+
+#: templates/issuer/issue_experience_credential_workflow.html:127
+msgid "Reviewer Name"
+msgstr "Nom du validateur"
+
+#: templates/issuer/issue_experience_credential_workflow.html:130
+msgid "Manager Name"
+msgstr "Nom du signataire"
+
+#: templates/issuer/issue_experience_credential_workflow.html:145
+msgid "Validate"
+msgstr "Valider"
+
+#: templates/issuer/issue_experience_credential_workflow.html:152
+msgid "Sign"
+msgstr "Signer"
+
+#: templates/issuer/issue_experience_credential_workflow.html:159
+msgid "Delete"
+msgstr "Effaçer"
+
 #: templates/issuer/request_certificate.html:23
 msgid "Request a new Credential"
 msgstr "Demander une nouvelle attestation"
@@ -980,6 +1186,38 @@ msgid ""
 msgstr ""
 " traitera rapidement votre demande et après validation vous fera parvenir"
 " une attestation signée par email."
+
+#: templates/issuer/request_experience_credential.html:32
+msgid "Request a professional experience credential"
+msgstr "Demandez une attestation d'expérience professionnelle"
+
+#: templates/issuer/request_experience_credential.html:38
+msgid ""
+"Complete this request form as precisely as possible to help your referent"
+" to draft the final credential. Your referent will receive an email with "
+"this draft."
+msgstr "Complétez cette demande aussi précisément que possible."
+
+#: templates/issuer/request_experience_credential.html:53
+msgid "Project description"
+msgstr "Description du projet/mission"
+
+#: templates/issuer/request_experience_credential.html:61
+msgid "End date"
+msgstr "Date de fin"
+
+#: templates/issuer/request_experience_credential.html:67
+msgid "Your reviewer"
+msgstr "Votre validateur"
+
+#: templates/issuer/request_experience_credential.html:76
+msgid "Reference (Optional) "
+msgstr "Référence (Optionnel)"
+
+#: templates/issuer/request_experience_credential.html:84
+#: templates/login/forgot_password_init.html:41
+msgid "Send"
+msgstr "Envoyé"
 
 #: templates/login/authentification.html:39
 msgid "Enter the secret code you have just received for authentication."
@@ -1037,10 +1275,6 @@ msgstr "Changer le mot de passe"
 msgid "Enter your username"
 msgstr "Entrez votre nom d'utilisateur"
 
-#: templates/login/forgot_password_init.html:41
-msgid "Send"
-msgstr "Envoyé"
-
 #: templates/login/forgot_password_init.html:43
 #: templates/login/forgot_username.html:39
 #: templates/login/login_password.html:31
@@ -1078,7 +1312,7 @@ msgstr "Mot de passe oublié"
 
 #: templates/login/two_factor.html:38
 msgid "You are going to receive a secret code."
-msgstr "VOus allez recevoir un code secret."
+msgstr "Vous allez recevoir un code secret."
 
 #: templates/login/two_factor.html:39
 msgid "Copy this secret code for authentification."

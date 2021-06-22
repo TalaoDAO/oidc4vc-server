@@ -155,10 +155,11 @@ def show_certificate(mode):
 		# Icon "fa-star" treatment
 		score = []
 		context = dict()
-		score.append(int(session['displayed_certificate']['credentialSubject']['reviewRecommendation']['reviewRating']['ratingValue']))
-		score.append(int(session['displayed_certificate']['credentialSubject']['reviewDelivery']['reviewRating']['ratingValue']))
-		score.append(int(session['displayed_certificate']['credentialSubject']['reviewSchedule']['reviewRating']['ratingValue']))
-		score.append(int(session['displayed_certificate']['credentialSubject']['reviewCommunication']['reviewRating']['ratingValue']))
+		reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewRecommendation]['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewDelivery]['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewSchedule]['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewCommunication]['reviewRating']['ratingValue']))
 		for q in range(0,4) :
 			for i in range(0,score[q]) :
 				context["star"+str(q)+str(i)] = yellow_star
@@ -175,12 +176,12 @@ def show_certificate(mode):
 			my_badge = ""
 
 		# if there is no signature one uses Picasso signature
-		signature = session['displayed_certificate']['credentialSubject']['managerSignature']
+		signature = session['displayed_certificate']['credentialSubject']['signer']['signature']
 		if not signature :
 			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
 
 		# if there is no logo one uses default logo
-		logo = session['displayed_certificate']['credentialSubject']['companyLogo']
+		logo = session['displayed_certificate']['credentialSubject']['author']['logo']
 		if not logo  :
 			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
 
@@ -201,11 +202,11 @@ def show_certificate(mode):
 
 		return render_template('./certificate/experience_certificate.html',
 							**menu,
-							managerName=session['displayed_certificate']['credentialSubject']['managerName'],
-							companyName=session['displayed_certificate']['credentialSubject']['companyName'],
+							managerName=session['displayed_certificate']['credentialSubject']['signer']['name'],
+							companyName=session['displayed_certificate']['credentialSubject']['author']['name'],
 							badge=my_badge,
 							title = session['displayed_certificate']['credentialSubject']['title'],
-							subject_name = session['displayed_certificate']['credentialSubject']['name'],
+							subject_name = session['displayed_certificate']['credentialSubject']['recipient']['name'],
 							description=session['displayed_certificate']['credentialSubject']['description'],
 							start_date=session['displayed_certificate']['credentialSubject']['startDate'],
 							end_date=session['displayed_certificate']['credentialSubject']['endDate'],
