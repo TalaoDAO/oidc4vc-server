@@ -32,7 +32,7 @@ FONTS_FOLDER='templates/assets/fonts'
 RSA_FOLDER = './RSA_key/' 
 PERSON_TOPIC = ['firstname','lastname', 'about', 'profil_title', 'birthdate', 'contact_email', 'contact_phone','postal_address', 'education']
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
-CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
+CREDENTIAL_TOPIC = ['experience', 'skill', 'training', 'recommendation', 'work',  'vacation', 'internship', 'relocation',  'hiring']
 
 
 # Check if session is active and access is fine. To be used for all routes, excetp external call
@@ -147,6 +147,19 @@ def homepage() :
     if request.method == 'GET' :
         return render_template('homepage.html', **session['menu'])
 
+
+def translate_credentials() :
+	return {'experience_txt' : _('Experience credential'),
+					'skill_txt' : _('Skill certificate'),
+                     'training_txt' : _('Training certificate'),
+                      'recommendation_txt' : _('Recomendation letter'),
+                      'work_txt' : _('Employer certificate'),
+                      'vacation_txt' : _('Employee vacation time certificate'),
+                     'internship_txt' : _('Certificate of participation'),
+                      'relocation_txt' : _('Transfer certificate'),
+                       'end_of_work_txt' :_('Labour certificate'),
+                      'hiring_txt' : _('Promise to hire letter')}
+
 #@app.route('/company/add_credential_supported/', methods=['GET', 'POST'])
 def add_credential_supported(mode) :
     check_login()
@@ -154,9 +167,10 @@ def add_credential_supported(mode) :
         personal = ns.get_personal(session['workspace_contract'], mode)
         credentials_supported = json.loads(personal).get('credentials_supported',[])
         checkbox = dict()
+        credentials = translate_credentials()
         for topic in CREDENTIAL_TOPIC :
             checkbox['box_' + topic] = "checked" if topic in credentials_supported else ""
-        return render_template('add_credential_supported.html', **session['menu'], **checkbox)
+        return render_template('add_credential_supported.html', **session['menu'], **checkbox, **credentials )
 
     if request.method == 'POST' :
         credentials_supported = list()

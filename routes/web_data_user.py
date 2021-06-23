@@ -609,12 +609,11 @@ def user_advanced(mode) :
 	DID = ns.get_did(session['workspace_contract'], mode)
 	if not DID :
 		logging.warning('No DID available in local database')
-	if DID.split(':')[1]  == 'tz' :
+	if DID.split(':')[1]  in ['tz', 'ethr', 'key'] :
 		# did:tz has no driver for Universal resolver
 		DID_Document = json.dumps(json.loads(didkit.resolveDID(DID,'{}')), indent=4)
 	else  :
 		resolver = 'https://resolver.identity.foundation/'
-		#resolver = 'https://dev.uniresolver.io/1.0/identifiers/'
 		r = requests.get( resolver + DID)
 		if r.status_code == 200 :
 			DID_Document = json.dumps(r.json(), indent=4)

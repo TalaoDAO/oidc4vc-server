@@ -92,7 +92,7 @@ def add_identity(identity_name, identity_workspace_contract, email, mode, phone=
 			 'identity_workspace_contract' : identity_workspace_contract,
 			 'date' : datetime.timestamp(now),
 			 'wallet' : wallet,
-			 'method' : method,
+			 'method' : did.split(':')[1],
 			 'did' : json.dumps(did.split()),
 			 'personal' : personal}
 		c.execute("INSERT INTO resolver VALUES (:identity_name, :identity_workspace_contract, :date, :wallet, :method, :did, :personal)", data)
