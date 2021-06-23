@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<!-- company-register.html -->
+<!-- hrid_company_register.html -->
 <head>
   {% include 'head.html' %}
  
@@ -29,16 +29,16 @@
             <div class="col">
               <div class="card shadow mb-3 ">
               <br>
-              <h4 class="text-center">Créer votre plateforme de gestion des attestations professionelles.</h4>
-
-                <br>
-                <div class="col" style="color: rgb(255,2,2);">
-                    <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
-                </div>                 
+              <h4 class="text-center">Créez vous même votre site web de gestion des attestations professionelles au format de l'Identité Numérique.</h4>
 
                 <div class="card-body">
-                    <p class="text-center">Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise ainsi qu'un coffre fort numérique.
-                      Cette Identité vous permettra de signer électroniqument les attestations demandées par vos salariés.
+                    <p class="text-center">L'Identité Numérique pour chacun d'entre nous se déploie rapidement. 
+                      <br>Bientôt nous disposerons d'une application sur smartphone dans laquelle nous conserverons nos documents d'identité, nos diplômes, nos certificats et qualifications professionnelles.
+                      <br>Ces attestations nous permettront d'accéder aux services en ligne publics et privés en toute sécurité et dans le respect de notre vie privée.
+                      <br>Talao propose dès à présent de mettre en place pour son entreprise et ses salariés une Identité Numérique pour produire les attestations nécessaires aux salariés dans leur vie professionnelle.
+                      <br>Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise.
+                      Cette Identité vous permettra de signer électroniquement les attestations demandées par vos salariés. 
+                      <br>Ces attestations seront disponibles pour vos salariés dans leur smartphone et dans un coffre fort numérique mis à leur disposition.
                         </p><br>
                   <form id="form" action="/hrid/register/company" method="post">
 
@@ -129,74 +129,79 @@
           <br>
 
 
-                        <p class="text-center"><strong>Attestations proposées à vos salariés :</strong></p>
+                        <p class="text-center"><strong>Choisissez les attestations à proposer à vos salariés :</strong></p>
 <div class="card-body">
 
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="experience" id="flexCheckDefault" name="experience" >
+                          <input class="form-check-input" type="checkbox" value="experience" {{experience_box}} id="flexCheckDefault" name="experience" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{experience}}
+                            {{experience_txt}}
                           </label>
                         </div>
 
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="training" id="flexCheckDefault" name ="training" >
+                          <input class="form-check-input" type="checkbox" value="skill" {{skill_box}} id="flexCheckDefault" name="skill" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{training}}
+                            {{skill_txt}}
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="training" {{training_box}} id="flexCheckDefault" name ="training" >
+                          <label class="form-check-label" for="flexCheckDefault">
+                            {{training_txt}}
                           </label>
                         </div>
                         
                         <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="recommendation" id="flexCheckDefault" name="recommendation" >
+                        <input class="form-check-input" type="checkbox" value="recommendation" {{recommendation_box}} id="flexCheckDefault" name="recommendation" >
                         <label class="form-check-label" for="flexCheckDefault">
-                            {{recommendation}}
+                            {{recommendation_txt}}
                         </label>
                         </div>
                     
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="hiring" id="flexCheckDefault" disabled name="hiring" >
+                          <input class="form-check-input" type="checkbox" value="hiring" {{hiring_box}} id="flexCheckDefault" name="hiring" >
                           <label class="form-check-label" for="flexCheckDefault">
-                              {{hiring}}
+                              {{hiring_txt}}
                           </label>
                         </div>
                         <hr>
                         
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="work" id="flexCheckDefault" disabled name="work">
+                          <input class="form-check-input" type="checkbox" value="work" {{work_box}} id="flexCheckDefault" name="work">
                           <label class="form-check-label" for="flexCheckDefault">
-                              {{work}}
+                              {{work_txt}}
                           </label>
                         </div>
                         
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="vacation" id="flexCheckDefault" disabled name="vacation">
+                          <input class="form-check-input" type="checkbox" value="vacation" {{vacation_box}} id="flexCheckDefault" name="vacation">
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{vacation}}
+                            {{vacation_txt}}
                           </label>
                         </div>
                         
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="internship" id="flexCheckDefault" disabled name="internship">
+                          <input class="form-check-input" type="checkbox" value="internship" {{intership_box}} id="flexCheckDefault" name="internship">
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{internship}}
+                            {{internship_txt}}
                           </label>
                         </div>
 
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="relocation" id="flexCheckChecked" disabled name="relocation">
+                          <input class="form-check-input" type="checkbox" value="relocation" {{relocation_box}} id="flexCheckChecked" name="relocation">
                             <label class="form-check-label" for="flexCheckChecked">
-                            {{relocation}}
+                            {{relocation_txt}}
                             </label>
                         </div>
-                        
-                        <hr>
-                        
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="end_of_work" id="flexCheckCheckedDisabled" disabled name="end_of_work">
+                                                
+                        <div hidden class="form-check">
+                          <input class="form-check-input" type="checkbox" value="end_of_work" {{end_of_work_box}} id="flexCheckCheckedDisabled" name="end_of_work">
                           <label class="form-check-label" for="flexCheckCheckedDisabled">
-                              {{end_of_work}}
+                              {{end_of_work_txt}}
                           </label>
                         </div>
+                        <hr>
                       
 </div>                       
 </div>
@@ -225,12 +230,11 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="col-6 offset-3">
-                              <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Confirmer</button></div>
+                            <div class="col text-center">
+                              <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">S'inscrire</button></div>
+                              10 attestations offertes à l'inscription.
                             </div>
-                            <div class="col-3">
-                              <div onclick="goBack()"  form-group"><button class="btn btn-primary btn-sm" type="button">Retour</button></div>
-                            </div>
+                           
                       </div>
                     </div>
 </div>
@@ -239,7 +243,7 @@
 
 
                   </form>
-                  <div class="text-center"><a class="small" href="/login">Connexion</a></div>
+                  <div class="text-center"><a class="small" href="/login">Se connecter</a></div>
 
                 </div>
               </div>

@@ -176,7 +176,7 @@ def show_certificate(mode):
 			my_badge = ""
 
 		# if there is no signature one uses Picasso signature
-		signature = session['displayed_certificate']['credentialSubject']['signer']['signature']
+		signature = session['displayed_certificate']['credentialSubject']['signatureLines']['signature']
 		if not signature :
 			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
 
@@ -202,7 +202,7 @@ def show_certificate(mode):
 
 		return render_template('./certificate/experience_certificate.html',
 							**menu,
-							managerName=session['displayed_certificate']['credentialSubject']['signer']['name'],
+							managerName=session['displayed_certificate']['credentialSubject']['signatureLines']['name'],
 							companyName=session['displayed_certificate']['credentialSubject']['author']['name'],
 							badge=my_badge,
 							title = session['displayed_certificate']['credentialSubject']['title'],

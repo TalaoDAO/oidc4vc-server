@@ -14,18 +14,19 @@ from factory import createidentity, createcompany
 from components import sms, directory, ns, company
 
 
-CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work','vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
+CREDENTIAL_TOPIC = ['experience', 'skill', 'training', 'recommendation', 'work','vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
 def translate_credentials() :
-	return {'experience' : _('Experience credential'),
-                     'training' : _('Training certificate'),
-                      'recommendation' : _('Recomendation letter'),
-                      'work' : _('Employer certificate'),
-                      'vacation' : _('Employee vacation time certificate'),
-                     'internship' : _('Certificate of participation'),
-                      'relocation' : _('Transfer certificate'),
-                       'end_of_work' :_('Labour certificate'),
-                      'hiring' : _('Promise to hire letter')}
+	return {'experience_txt' : _('Experience credential'),
+					'skill_txt' : _('Skill certificate'),
+                     'training_txt' : _('Training certificate'),
+                      'recommendation_txt' : _('Recomendation letter'),
+                      'work_txt' : _('Employer certificate'),
+                      'vacation_txt' : _('Employee vacation time certificate'),
+                     'internship_txt' : _('Certificate of participation'),
+                      'relocation_txt' : _('Transfer certificate'),
+                       'end_of_work_txt' :_('Labour certificate'),
+                      'hiring_txt' : _('Promise to hire letter')}
 
 def init_app(app, mode) :
 	app.add_url_rule('/hrid/register',  view_func=hrid_register_user, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
@@ -47,24 +48,28 @@ def check_login() :
 
 
 def hrid_register_company(mode) :
-	CREDENTIALS = translate_credentials()
+	credentials = translate_credentials()
 	if request.method == 'GET' :
-		return render_template('hrid/hrid_company_register_fr.html', **CREDENTIALS)
+		return render_template('hrid/hrid_company_register_fr.html', **credentials)
 	if request.method == 'POST' :
 		credentials_supported = list()
-		credentials_supported_dict = dict()
+		credentials_supported_box = dict()
 		for topic in CREDENTIAL_TOPIC :
 			if request.form.get(topic) :
 				credentials_supported.append(request.form[topic])
-				credentials_supported_dict[topic] = request.form[topic]
+				credentials_supported_box[topic + '_box'] = 'checked'
 		message = ''
+		if not credentials_supported_box :
+			message = "Choisissez les attestations à proposer à vos salariés."
+			contact_phone = request.form['contact_phone']
 		if not request.form.get('CGU') :
 			message = "Acceptez les conditions générales d'utilisation (CGU) pour continuer."
-			contact_phone=request.form['contact_phone']
+			contact_phone = request.form['contact_phone']
 		if not sms.check_phone(request.form['contact_phone'], mode) :
 			message = 'Numéro de téléphone incorrect.'
 			contact_phone = ''
 		if message :
+			flash(message, 'warning')
 			return render_template("/hrid/hrid_company_register_fr.html",
 									company_name=request.form['company_name'],
 									contact_name=request.form['contact_name'],
@@ -73,9 +78,8 @@ def hrid_register_company(mode) :
 									contact_phone=contact_phone,
 									postal_address=request.form['postal_address'],
 									website=request.form['website'],
-									**credentials_supported_dict,
-									message=message
-									**CREDENTIALS)
+									**credentials_supported_box,
+									**credentials)
 
 		username = request.form['company_name'].lower()
 		if ns.username_exist(username, mode)   :

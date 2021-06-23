@@ -19,32 +19,23 @@
             <h6 class="text-dark mb-4">{{profil_title}}</h6>
             {% endif %}
             <div class="row mb-3">
-                <div class="col-lg-8 col-xl-4 offset-xl-4">
+                <div class="col-lg-4 offset-lg-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;Remove a Credential</p>
+                            <p class="text-primary m-0 font-weight-bold text-center">{{_('Remove a Credential')}}</p>
                         </div>
                         <div class="card-body">
                             <form name="form" action="/user/remove_certificate/" method="post">
                                 <div class="form-row">
-                                    <div class="col">
-                                        <p>Confirm the removal of the credential</p>
-                                    </div>
-                                </div>
-
-                                    <div class="form-row">
-                                    <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">Confirm</button></div>
-                                    </div>
-                                    <div class="col-6 col-xl-3">
+                                        <div class="col-6 col-md-3 offset-md-3 ">
+                                            <div class="form-group"><button id="in_progress_button" class="btn btn-primary btn-sm" type="submit">{{_('Confirm')}}</button></div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
 										<a href="/user/?username={{username}}">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">{{_('Cancel')}}</button></div>
                                         </a>
                                     </div>
-                                </div>
-
-
-
+                                 </div>
                             </form>
                         </div>
                     </div>

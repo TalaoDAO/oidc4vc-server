@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-06-22 20:26+0200\n"
+"POT-Creation-Date: 2021-06-23 15:32+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -224,11 +224,11 @@ msgstr "Identifiant indisponible"
 msgid "No Partners available"
 msgstr "Aucun partner disponible"
 
-#: routes/web_data_user.py:706
+#: routes/web_data_user.py:706 routes/web_main.py:298
 msgid "Picture has been updated"
 msgstr "Photo mise à jour"
 
-#: routes/web_data_user.py:708
+#: routes/web_data_user.py:708 routes/web_main.py:300
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
@@ -236,35 +236,39 @@ msgstr "Logo mis à jour"
 msgid "Experience credential"
 msgstr "Attestation d'expérience professionelle"
 
-#: routes/web_hrid.py:21 routes/web_issuer.py:16
+#: routes/web_hrid.py:21
+msgid "Skill certificate"
+msgstr "Attestation de compétences"
+
+#: routes/web_hrid.py:22 routes/web_issuer.py:16
 msgid "Training certificate"
 msgstr "Attestation de formation"
 
-#: routes/web_hrid.py:22 routes/web_issuer.py:17
+#: routes/web_hrid.py:23 routes/web_issuer.py:17
 msgid "Recomendation letter"
 msgstr "Lettre de recommandation"
 
-#: routes/web_hrid.py:23 routes/web_issuer.py:18
+#: routes/web_hrid.py:24 routes/web_issuer.py:18
 msgid "Employer certificate"
 msgstr "Attestation employeur"
 
-#: routes/web_hrid.py:24 routes/web_issuer.py:19
+#: routes/web_hrid.py:25 routes/web_issuer.py:19
 msgid "Employee vacation time certificate"
 msgstr "Attestation de congès payés"
 
-#: routes/web_hrid.py:25 routes/web_issuer.py:20
+#: routes/web_hrid.py:26 routes/web_issuer.py:20
 msgid "Certificate of participation"
 msgstr "Attestation de stage"
 
-#: routes/web_hrid.py:26 routes/web_issuer.py:21
+#: routes/web_hrid.py:27 routes/web_issuer.py:21
 msgid "Transfer certificate"
 msgstr "Attestation de mutation"
 
-#: routes/web_hrid.py:27 routes/web_issuer.py:22
+#: routes/web_hrid.py:28 routes/web_issuer.py:22
 msgid "Labour certificate"
 msgstr "Certificat de travail"
 
-#: routes/web_hrid.py:28 routes/web_issuer.py:23
+#: routes/web_hrid.py:29 routes/web_issuer.py:23
 msgid "Promise to hire letter"
 msgstr "Lettre de promesse d'embauche"
 
@@ -459,9 +463,356 @@ msgstr "Délais expiré"
 msgid "Incorrect email"
 msgstr "Email incorrect"
 
-#: routes/web_login.py:384
+#: routes/web_login.py:384 routes/web_main.py:355
 msgid "Password updated"
 msgstr "Mot de passe mis à jour"
+
+#: routes/web_main.py:107
+msgid "No credential selected"
+msgstr ""
+
+#: routes/web_main.py:236 routes/web_main.py:270
+msgid "Only \"JPEG\", \"JPG\", \"PNG\" files accepted"
+msgstr "Fichiers acceptés : Only \"JPEG\", \"JPG\", \"PNG\" "
+
+#: routes/web_main.py:248
+msgid "Your picture has been updated"
+msgstr "Votre image de profil a été mise à jours."
+
+#: routes/web_main.py:289
+msgid "Your signature has been updated"
+msgstr "Votre signature a été mise à jour."
+
+#: routes/web_main.py:310
+msgid "Your Name was already in the search bar."
+msgstr "Votre nom est déjà dans la barre de recherche."
+
+#: routes/web_main.py:312
+msgid "Your Name has been added to the search bar."
+msgstr "Votre nom a été ajouté dans le répertoire."
+
+#: routes/web_main.py:314
+msgid "There has been an error, please contact support."
+msgstr "Erreur, contactez le support."
+
+#: routes/web_main.py:317
+msgid "Your Name has been removed from the search bar."
+msgstr "Votre nom a été effaçé du répertoire."
+
+#: routes/web_main.py:331
+msgid "Your phone number has been deleted."
+msgstr "Vote numéro de téléphone a été effaçé."
+
+#: routes/web_main.py:337
+msgid "Your phone number has been updated."
+msgstr "Votre numéro de téléphone a été mis à jour."
+
+#: routes/web_main.py:339 routes/web_register.py:111
+msgid "Incorrect phone number."
+msgstr "Numéro de téléphone incorrect."
+
+#: routes/web_main.py:352
+msgid "Wrong password"
+msgstr "Mot de pass incorect."
+
+#: routes/web_main.py:378
+msgid "The bug has been reported ! Thank you for your help ! "
+msgstr "Le problème a été remonté. Merci pour votre aide."
+
+#: routes/web_main.py:437
+msgid "You have succesfulllly applied to this job offer."
+msgstr "Vous avez candidaté a cette offre."
+
+#: routes/web_main.py:440
+msgid ""
+"Something went wrong please try again or report the bug with the question"
+" mark on the bottom right of your screen."
+msgstr "Erreur, re-essayez."
+
+#: routes/web_main.py:503
+msgid "Here you are !"
+msgstr "Vous y êtes !"
+
+#: routes/web_main.py:506
+msgid "Username not found."
+msgstr "Username inconnu."
+
+#: routes/web_main.py:522
+msgid "We do not have your Private Key to issue a Certificate."
+msgstr "Nous n'avons pas votre clé privée pour signer une attestation."
+
+#: routes/web_main.py:526
+msgid "Talent is required to make a formal request."
+msgstr ""
+
+#: routes/web_main.py:548
+msgid "This certificate is not implemented yet !"
+msgstr ""
+
+#: routes/web_main.py:581
+msgid "Credential is beeing issued."
+msgstr ""
+
+#: routes/web_main.py:679
+msgid "Personal has been updated"
+msgstr ""
+
+#: routes/web_main.py:723
+msgid "Company not found in SIREN database."
+msgstr ""
+
+#: routes/web_main.py:778
+msgid "Company settings have been updated"
+msgstr ""
+
+#: routes/web_main.py:803
+msgid "Transaction failed"
+msgstr "Echec de la transaction."
+
+#: routes/web_main.py:815
+msgid "File "
+msgstr "Fichier"
+
+#: routes/web_main.py:815
+msgid " has been uploaded."
+msgstr " a été sauvegardé."
+
+#: routes/web_main.py:845 routes/web_main.py:873
+msgid "New experience added"
+msgstr "Nouvelle expérience professionnelle ajoutée."
+
+#: routes/web_main.py:888
+msgid "feature not available."
+msgstr "fonctionnalité non disponible."
+
+#: routes/web_main.py:897
+msgid " does not exist "
+msgstr " n'existe pas "
+
+#: routes/web_main.py:919
+msgid "New verifiable ID has been added on repository for "
+msgstr ""
+
+#: routes/web_main.py:925 routes/web_main.py:940
+msgid "Email failed."
+msgstr "Echec d'envoi d'email."
+
+#: routes/web_main.py:987
+msgid " has been created as company."
+msgstr " a été créé en qualité d'entreprise."
+
+#: routes/web_main.py:989
+msgid "Company Creation failed."
+msgstr "Echec de la création du compte entreprise."
+
+#: routes/web_main.py:1010
+msgid " has been created as a new user of the company."
+msgstr " a été créé en qualité de nouvel utilisateur de l'entreprise."
+
+#: routes/web_main.py:1012
+msgid "Identity creation failed"
+msgstr "Echec de la création d'Identité."
+
+#: routes/web_main.py:1028 routes/web_main.py:1054 routes/web_main.py:1098
+#: routes/web_main.py:1620
+msgid "Transaction failed."
+msgstr "Echec de la transaction"
+
+#: routes/web_main.py:1031
+msgid "The certificate has been removed from your repository."
+msgstr "L'attestation a été effaçée de votre portfolio."
+
+#: routes/web_main.py:1102
+msgid "The file has been deleted."
+msgstr "Le fichier a été effaçé."
+
+#: routes/web_main.py:1132
+msgid "New Education added."
+msgstr "Nouvelle formation ajoutée."
+
+#: routes/web_main.py:1151
+msgid "Education has been removed"
+msgstr "Formation effaçée."
+
+#: routes/web_main.py:1165
+msgid "This email is already used by Identity(ies) : "
+msgstr "Cet email est déjà utilisé par les identitées : "
+
+#: routes/web_main.py:1172
+msgid "Your invit has been sent."
+msgstr "Votre invitation a été envoyée."
+
+#: routes/web_main.py:1174
+msgid "Your invit has not been sent."
+msgstr "Votre invitation n'a pas été envoyée."
+
+#: routes/web_main.py:1187
+msgid "You have received a memo from "
+msgstr "Vous avez reçu un message de "
+
+#: routes/web_main.py:1192
+msgid "Your memo has been sent to "
+msgstr "Votre message a été envoyé a "
+
+#: routes/web_main.py:1208
+msgid "Request Partnership to "
+msgstr ""
+
+#: routes/web_main.py:1208
+msgid " is not available (RSA key not found)"
+msgstr ""
+
+#: routes/web_main.py:1239
+msgid "transaction for add issuer failed."
+msgstr ""
+
+#: routes/web_main.py:1243
+msgid "You have send a Request for Partnership to "
+msgstr ""
+
+#: routes/web_main.py:1249
+msgid "Request to "
+msgstr ""
+
+#: routes/web_main.py:1249
+msgid " failed"
+msgstr ""
+
+#: routes/web_main.py:1264
+msgid "Partnership removal has failed."
+msgstr ""
+
+#: routes/web_main.py:1268 routes/web_main.py:1318
+msgid "The partnership with "
+msgstr ""
+
+#: routes/web_main.py:1268
+msgid "  has been removed"
+msgstr ""
+
+#: routes/web_main.py:1285
+msgid "Partnership rejection has failed."
+msgstr ""
+
+#: routes/web_main.py:1290
+msgid "The Partnership with "
+msgstr ""
+
+#: routes/web_main.py:1290
+msgid "  has been rejected."
+msgstr ""
+
+#: routes/web_main.py:1311
+msgid "Request a Partnership to "
+msgstr ""
+
+#: routes/web_main.py:1311
+msgid " is impossible (RSA key not found)"
+msgstr ""
+
+#: routes/web_main.py:1316
+msgid "Partnership authorization failed."
+msgstr ""
+
+#: routes/web_main.py:1318
+msgid "  has been authorized."
+msgstr ""
+
+#: routes/web_main.py:1408
+msgid "Username already used."
+msgstr ""
+
+#: routes/web_main.py:1412
+msgid "Alias added for "
+msgstr ""
+
+#: routes/web_main.py:1424 routes/web_main.py:1431
+msgid " has been removed"
+msgstr ""
+
+#: routes/web_main.py:1427
+msgid "Operation failed."
+msgstr "Echec de l'opération."
+
+#: routes/web_main.py:1433
+msgid "Operation failed"
+msgstr ""
+
+#: routes/web_main.py:1450
+msgid "Wrong Private Key."
+msgstr "Clé privée incorrecte."
+
+#: routes/web_main.py:1455
+msgid "Private Key has been imported."
+msgstr "La cé privée a été importée."
+
+#: routes/web_main.py:1467
+msgid "No file."
+msgstr "Aucun fichier."
+
+#: routes/web_main.py:1478
+msgid "RSA key is not found."
+msgstr "Clé RSA indisponible."
+
+#: routes/web_main.py:1485
+msgid "RSA Key has been uploaded."
+msgstr "La clé RSA a été sauvegardée"
+
+#: routes/web_main.py:1487
+msgid "RSA key default."
+msgstr "Défault de clé RSA."
+
+#: routes/web_main.py:1520
+msgid " Thank you, we will check your documents soon."
+msgstr " Merci nous allons étudier vos documents rapidements."
+
+#: routes/web_main.py:1531
+msgid "You cannot be the Referent of yourself."
+msgstr "Vous ne pouvez pas être le référent de vous même."
+
+#: routes/web_main.py:1538
+msgid "transaction failed"
+msgstr "Echec de transaction."
+
+#: routes/web_main.py:1550
+msgid " has been added as a Referent. An email has been sent too."
+msgstr ""
+
+#: routes/web_main.py:1575 routes/web_main.py:1592
+msgid "transaction failed."
+msgstr "echec de transaction."
+
+#: routes/web_main.py:1577
+msgid "Key added."
+msgstr "Clé ajoutée."
+
+#: routes/web_main.py:1595
+msgid "The Issuer "
+msgstr "Le signataire "
+
+#: routes/web_main.py:1595
+msgid "  has been removed."
+msgstr " a été effaçé."
+
+#: routes/web_main.py:1607
+msgid "Cannot delete Identity, no token locked."
+msgstr ""
+
+#: routes/web_main.py:1625
+msgid "Wrong password."
+msgstr "Mot de passe incorrect."
+
+#: routes/web_main.py:1630
+msgid "Your Identity has been deleted."
+msgstr "Votre compte et identité one été effacçés."
+
+#: routes/web_main.py:1679
+msgid "Certificate X.509 not available."
+msgstr "Certificat non disponible."
+
+#: routes/web_main.py:1693
+msgid "Certificate PKCS12 not available."
+msgstr "Certificat non disponible."
 
 #: routes/web_register.py:89
 msgid "Company registration failed"
@@ -470,10 +821,6 @@ msgstr "Echec de la création de compte"
 #: routes/web_register.py:108
 msgid "Accept the service conditions to move next step."
 msgstr "Acceptez les conditions d'utilisation pour passer à l'étape suivante."
-
-#: routes/web_register.py:111
-msgid "Incorrect phone number."
-msgstr "Numéro de téléphone incorrect."
 
 #: routes/web_register.py:135 routes/web_register.py:140
 msgid "DID resolution has been rejected by Universal Resolver."
@@ -621,6 +968,7 @@ msgid "Select credentials supported."
 msgstr "Choisissez les attestations"
 
 #: templates/add_credential_supported.html:126 templates/login/logout.html:56
+#: templates/remove_certificate.html:31
 msgid "Confirm"
 msgstr "Confirmez"
 
@@ -918,6 +1266,14 @@ msgid ""
 msgstr ""
 "La clé privée de votre identité n'est pas disponible. Mettez à jour votre"
 " browser avece une nouvelle clé ?"
+
+#: templates/remove_certificate.html:25
+msgid "Remove a Credential"
+msgstr ""
+
+#: templates/remove_certificate.html:35
+msgid "Cancel"
+msgstr ""
 
 #: templates/update_company_settings.html:36
 msgid "Company Settings"
@@ -1219,24 +1575,20 @@ msgstr "Référence (Optionnel)"
 msgid "Send"
 msgstr "Envoyé"
 
-#: templates/login/authentification.html:39
-msgid "Enter the secret code you have just received for authentication."
-msgstr "Sasissez le code secret que vous avez reçu."
-
-#: templates/login/authentification.html:45
+#: templates/login/authentification.html:37
 msgid "Check your secret code."
 msgstr "Entrez votre code secret"
 
-#: templates/login/authentification.html:49
+#: templates/login/authentification.html:41
 #: templates/login/update_password_external.html:55
 msgid "Login"
-msgstr "Connexion"
+msgstr "Se connecter"
 
-#: templates/login/authentification.html:51
+#: templates/login/authentification.html:43
 msgid "Forgot password ?"
 msgstr "Mot de passe oublié ?"
 
-#: templates/login/authentification.html:52
+#: templates/login/authentification.html:44
 msgid "Back to Login !"
 msgstr "Retour"
 
@@ -1247,11 +1599,11 @@ msgstr "Connectez vous avec votre Identité"
 #: templates/login/did_auth.html:38 templates/login/login_password.html:42
 #: templates/register/end_of_registration.html:32
 msgid "Sign In"
-msgstr "Connexion"
+msgstr "Se connecter"
 
 #: templates/login/did_auth.html:40
 msgid "Sign In with password"
-msgstr "Connexion avec mot de passe"
+msgstr "Se connecter avec un mot de passe"
 
 #: templates/login/did_auth.html:41 templates/login/login_password.html:46
 msgid "Forgot Username"
@@ -1284,7 +1636,7 @@ msgstr "Entrez votre nom d'utilisateur"
 #: templates/register/registration_error.html:27
 #: templates/register/user_register.html:67
 msgid "Sign-In"
-msgstr "Connexion"
+msgstr "Se connecter"
 
 #: templates/login/forgot_username.html:23
 msgid "Request you username"
@@ -1497,4 +1849,7 @@ msgstr "J'ai lu et j'accepte les Conditions Générales d'Utilisation"
 
 #~ msgid "I accept to have my name in the Name Directory"
 #~ msgstr "J'accepte d'avoir un nom dans le répertoire"
+
+#~ msgid "Enter the secret code you have just received for authentication."
+#~ msgstr "Sasissez le code secret que vous avez reçu."
 

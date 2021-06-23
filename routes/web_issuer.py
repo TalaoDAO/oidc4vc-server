@@ -173,7 +173,7 @@ def request_reference_credential(mode) :
             })
     unsigned_credential["credentialSubject"]["author"]["logo"] = session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]["author"]["name"] = session['issuer_explore']['name']
-    unsigned_credential["credentialSubject"]["signer"]["name"] = ""
+    unsigned_credential["credentialSubject"]["signatureLines"]["name"] = ""
     #unsigned_credential["credentialSubject"]["reviewerName"] = ""
 
     # update local issuer database
@@ -232,12 +232,12 @@ def request_experience_credential(mode) :
     for skill in request.form['skills'].split(',') :
         unsigned_credential["credentialSubject"]["skills"].append(
             {
-            "@type": "DefinedTerm",
+            "@type": "Skill",
             "description": skill
             })
     unsigned_credential["credentialSubject"]['author']["logo"] = session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
-    unsigned_credential["credentialSubject"]['signer']["name"] = ""
+    unsigned_credential["credentialSubject"]['signatureLines']["name"] = ""
     #unsigned_credential["credentialSubject"]["reviewerName"] = ""
 
     # update local issuer database
@@ -420,7 +420,7 @@ def issue_credential_workflow(mode) :
                         **my_credential,
                         recipient_name = my_credential["recipient"]["name"],
                         author_name = my_credential["author"]["name"],
-                        signer_name = my_credential["signer"]["name"],
+                        signer_name = my_credential["signatureLines"]["name"],
                         scoreRecommendation =  my_credential["review"][reviewRecommendation]["reviewRating"]["ratingValue"],
                         questionRecommendation = my_credential["review"][reviewRecommendation]["reviewBody"],
                         scoreSchedule =  my_credential["review"][reviewSchedule]["reviewRating"]["ratingValue"],
@@ -466,7 +466,7 @@ def issue_credential_workflow(mode) :
         elif request.form.get('exit') == 'sign' :
             # sign credential with company key
             manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
-            my_credential['credentialSubject']['signer']['signature'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
+            my_credential['credentialSubject']['signatureLines']['image'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
             signed_credential = vc_signature.sign(my_credential,
@@ -573,7 +573,7 @@ def get_form_data(my_credential, form) :
                             "@type": "DefinedTerm",
                             "description": skill
                             })
-    my_credential['credentialSubject']["signer"]['name'] = form.get('managerName', " ")
+    my_credential['credentialSubject']["signatureLines"]['name'] = form.get('managerName', " ")
     #my_credential['credentialSubject']['reviewerName'] = form['reviewerName']
     return
 

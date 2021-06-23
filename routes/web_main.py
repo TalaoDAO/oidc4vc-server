@@ -104,7 +104,7 @@ def presentation(mode) :
                 credential.relay_get_credential(session['workspace_contract'], int(request.form[str(counter)]), mode)
                 vc_list.append(credential.__dict__)
         if not vc_list :
-            flash("No credential selected", "warning")
+            flash(_("No credential selected"), "warning")
             return redirect(mode.server + 'user/presentation/')
         did = ns.get_did(session['workspace_contract'], mode)
         presentation = {
@@ -233,7 +233,7 @@ def picture(mode) :
     check_login()
     if request.method == 'GET' :
         if request.args.get('badtype') == 'true' :
-            flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
+            flash(_('Only "JPEG", "JPG", "PNG" files accepted'), 'warning')
         return render_template('picture.html',**session['menu'])
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
@@ -245,7 +245,7 @@ def picture(mode) :
         ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
         Talao_ipfs.get_picture(session['picture'], mode.uploads_path+ '/' + session['picture'])
         session['menu']['picturefile'] = session['picture']
-        flash('Your picture has been updated', 'success')
+        flash(_('Your picture has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -267,7 +267,7 @@ def signature(mode) :
         session['employee_signature'] = signature
     if request.method == 'GET' :
         if request.args.get('badtype') == 'true' :
-            flash('Only "JPEG", "JPG", "PNG" files accepted', 'warning')
+            flash(_('Only "JPEG", "JPG", "PNG" files accepted'), 'warning')
         return render_template('signature.html', **session['menu'], signaturefile=signature)
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
@@ -286,7 +286,7 @@ def signature(mode) :
             Talao_ipfs.get_picture(session['employee_signature'], mode.uploads_path + '/' + session['employee_signature'])
             del session['employee_workspace_contract']
             del session['employee_signature']
-        flash('Your signature has been updated', 'success')
+        flash(_('Your signature has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -295,9 +295,9 @@ def success(mode) :
     check_login()
     if request.method == 'GET' :
         if session['type'] == 'person' :
-            flash('Picture has been updated', 'success')
+            flash(_('Picture has been updated'), 'success')
         else :
-            flash('Logo has been updated', 'success')
+            flash(_('Logo has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -307,14 +307,14 @@ def update_search_setting(mode) :
     try:
         response = directory.update_user(mode, session, request.form["CheckBox"] == "on")
         if response == "User already in database":
-            flash('Your Name was already in the search bar', 'success')
+            flash(_('Your Name was already in the search bar.'), 'success')
         elif response:
-            flash('Your Name has been added to the search bar', 'success')
+            flash(_('Your Name has been added to the search bar.'), 'success')
         else:
-            flash('There has been an error, please contact support', 'warning')
+            flash(_('There has been an error, please contact support.'), 'warning')
     except:
         directory.update_user(mode, session, False)
-        flash('Your Name has been removed from the search bar', 'success')
+        flash(_('Your Name has been removed from the search bar.'), 'success')
     return redirect(mode.server + 'user/')
 
 
@@ -328,15 +328,15 @@ def update_phone(mode) :
         code = request.form['code']
         phone = code + _phone
         if _phone == "" :
-            flash('Your phone number has been deleted.', 'success')
+            flash(_('Your phone number has been deleted.'), 'success')
             ns.update_phone(session['username'], None, mode)
             session['phone'] = ""
         elif sms.check_phone(phone, mode) :
             ns.update_phone(session['username'], phone, mode)
             session['phone'] = phone
-            flash('Your phone number has been updated.', 'success')
+            flash(_('Your phone number has been updated.'), 'success')
         else :
-            flash('Incorrect phone number.', 'warning')
+            flash(_('Incorrect phone number.'), 'warning')
         return redirect(mode.server + 'user/')
 
 
@@ -349,10 +349,10 @@ def update_password(mode) :
         current_password = request.form['current_password']
         new_password = request.form['password']
         if not ns.check_password(session['username'],current_password, mode) :
-            flash ('Wrong password', 'warning')
+            flash (_('Wrong password'), 'warning')
             return render_template('update_password.html', **session['menu'])
         ns.update_password(session['username'], new_password, mode)
-        flash ('Password updated', 'success')
+        flash (_('Password updated'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -375,7 +375,7 @@ Description given by the user:
            email = ns.get_data_from_username(session['username'], mode)['email'],
            description = request.form['description'])
         Talao_message.message(subject, email, messagetext, mode)
-        flash('The bug has been reported ! Thank you for your help ! ', "success")
+        flash(_('The bug has been reported ! Thank you for your help ! '), "success")
         return redirect(mode.server + 'user/')
 
 
@@ -434,10 +434,10 @@ def view_job_offer(mode) :
             job = '"Web Developer at LearnCube"'
         link = session['menu']['clipboard']
         if Talao_message.messageHTML(subject, email, 'job_offer', {'job' : job, 'link': link, 'name' : session['name']}, mode):
-            flash('You have succesfulllly applied to this job offer', "success")
+            flash(_('You have succesfulllly applied to this job offer.'), "success")
             return redirect(mode.server + 'homepage/')
         else:
-            flash('Something went wrong please try again or report the bug with the question mark on the bottom right of your screen', 'error')
+            flash(_('Something went wrong please try again or report the bug with the question mark on the bottom right of your screen.'), 'error')
             return redirect(mode.server + 'user/')
 
 def select_identity (mode) :
@@ -500,10 +500,10 @@ def search(mode) :
     if request.method == 'POST' :
         username_to_search = request.form['username_to_search'].lower()
         if username_to_search == session['username'] :
-            flash('Here you are !', 'success')
+            flash(_('Here you are !'), 'success')
             return redirect(mode.server + 'user/')
         if not ns.username_exist(username_to_search, mode) :
-            flash('Username not found', "warning")
+            flash(_('Username not found.'), "warning")
             return redirect(mode.server + 'user/')
         else :
             return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + username_to_search)
@@ -519,11 +519,11 @@ def issue_certificate(mode):
     check_login()
 
     if not session['private_key'] :
-        flash('Relay does not have your Private Key to issue a Certificate', 'warning')
+        flash(_('We do not have your Private Key to issue a Certificate.'), 'warning')
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
     if session['type'] == 'company' and session['issuer_explore']['type'] == 'person' :
-        flash('Talent is required to make a formal request.', 'warning')
+        flash(_('Talent is required to make a formal request.'), 'warning')
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
     if request.method == 'GET' :
@@ -545,7 +545,7 @@ def issue_certificate(mode):
                                     issuer_name = session['issuer_explore']['name'])
 
         else :
-            flash('This certificate is not implemented yet !', 'warning')
+            flash(_('This certificate is not implemented yet !'), 'warning')
             return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
 
@@ -578,7 +578,7 @@ def issue_reference_credential(mode):
             ref = Document('certificate')
             ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode, synchronous=False)
             logging.info('transaction launched asynchronous')
-            flash('Credential is beeing issued', 'success')
+            flash(_('Credential is beeing issued.'), 'success')
 
         else :   # fail to check code
             logging.warning('incorrect code to issue experience certificate %s', request.args.get('two_factor'))
@@ -676,7 +676,7 @@ def update_personal_settings(mode) :
             session['personal'][topicname] = personal[topicname]
         ns.update_personal(session['workspace_contract'], json.dumps(personal, ensure_ascii=False), mode)
         session['name'] = session['menu']['name'] = personal['firstname']['claim_value'] + ' ' + personal['lastname']['claim_value']
-        flash('Personal has been updated', 'success')
+        flash(_('Personal has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -720,7 +720,7 @@ def update_company_settings(mode) :
         if 'siren' in request.args:
             settings = siren.company(session['personal']['siren']['claim_value'])
             if not settings:
-                flash('Company not found in SIREN database', 'warning')
+                flash(_('Company not found in SIREN database.'), 'warning')
             else:
                 return render_template('update_company_settings.html',
                                         **session['menu'],
@@ -775,7 +775,7 @@ def update_company_settings(mode) :
         ns.update_personal(session['workspace_contract'], json.dumps(personal, ensure_ascii=False), mode)
         session['name'] = session['menu']['name'] = personal['name']['claim_value']
         directory.update_siren(session['username'], request.form['siren'], mode)
-        flash('Company settings have been updated', 'success')
+        flash(_('Company settings have been updated'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -800,7 +800,7 @@ def store_file(mode) :
                              privacy,
                             mode)
         if not data[0] :
-            flash('Transaction failed', "danger")
+            flash(_('Transaction failed'), "danger")
         else :
             new_file = {'id' : 'did:talao:'+ mode.BLOCKCHAIN+':'+ session['workspace_contract'][2:]+':document:'+ str(data[0]),
                                     'filename' : filename,
@@ -812,7 +812,7 @@ def store_file(mode) :
                                     'transaction_hash' : data[2]
                                     }
             session['identity_file'].append(new_file)
-            flash('File ' + filename + ' has been uploaded.', "success")
+            flash(_('File ') + filename + _(' has been uploaded.'), "success")
         return redirect(mode.server + 'user/')
 
 
@@ -842,7 +842,7 @@ def add_experience(mode) :
         personal['experience_claims'].append(experience)
         ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
         session['experience'].append(experience)
-        flash('New experience added', 'success')
+        flash(_('New experience added'), 'success')
         return redirect(mode.server + 'user/')
 
 def add_activity(mode) :
@@ -870,7 +870,7 @@ def add_activity(mode) :
         personal['experience_claims'].append(experience)
         ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
         session['experience'].append(experience)
-        flash('New experience added', 'success')
+        flash(_('New experience added'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -885,7 +885,7 @@ def create_kyc(mode) :
     """
     check_login()
     if session['username'] != 'talao' :
-        flash('feature not available', 'danger')
+        flash(_('feature not available.'), 'danger')
         logging.warning('non authorised')
         return redirect(mode.server + 'user/')
     if request.method == 'GET' :
@@ -894,7 +894,7 @@ def create_kyc(mode) :
         kyc_username = request.form['username']
         kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode).get('workspace_contract')
         if not kyc_workspace_contract :
-            flash(kyc_username + ' does not exist ', 'danger')
+            flash(kyc_username + _(' does not exist '), 'danger')
             return redirect(mode.server + 'user/')
         id = str(uuid.uuid1())
         # load templates for verifibale credential and init with view form and session
@@ -916,13 +916,13 @@ def create_kyc(mode) :
         kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
         identity_credential = Document('credential')
         identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode, privacy="private", synchronous=False)
-        flash('New verifiable ID has been added on repository for '+ kyc_username, 'success')
+        flash(_('New verifiable ID has been added on repository for ')+ kyc_username, 'success')
         subject = 'Your proof of Identity'
         try :
             Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
         except :
             logging.warning('email failed')
-            flash('Email failed', 'warning')
+            flash(_('Email failed.'), 'warning')
 
         # store signed credential on server
         filename = unsigned_credential['id'] + '_credential.jsonld'
@@ -937,7 +937,7 @@ def create_kyc(mode) :
             Talao_message.message_file([kyc_email], text, "Your professional credential", [filename], path, mode)
         except :
             logging.error('credential to subject failed')
-            flash('Email with credential failed', 'warning')
+            flash(_('Email failed.'), 'warning')
 
         # TODO delete credential
         return redirect(mode.server + 'user/')
@@ -958,7 +958,7 @@ def remove_experience(mode) :
             break
     personal['experience_claims'] = experience
     ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
-    flash('The experience has been removed', 'success')
+    flash(__('The experience has been removed'), 'success')
     return redirect (mode.server +'user/')
 
 
@@ -984,9 +984,9 @@ def create_company(mode) :
             filename = mode.db_path + 'company.json'
             personal = json.load(open(filename, 'r'))
             ns.update_personal(workspace_contract, json.dumps(personal, ensure_ascii=False), mode)
-            flash(username + ' has been created as company', 'success')
+            flash(username + _(' has been created as company.'), 'success')
         else :
-            flash('Company Creation failed', 'danger')
+            flash(_('Company Creation failed.'), 'danger')
         return redirect(mode.server + 'user/')
 
 
@@ -1007,9 +1007,9 @@ def create_user(mode) :
         if createidentity.create_user(username, email, mode, firstname=firstname, lastname=lastname, silent=True)[2] :
             name = request.form['firstname'] + ' ' + request.form['lastname']
             directory.add_user(mode, username, name, '')
-            flash(username + ' has been created as a new user of the company', 'success')
+            flash(username + _(' has been created as a new user of the company.'), 'success')
         else :
-            flash('Identity creation failed', 'danger')
+            flash(_('Identity creation failed'), 'danger')
         return redirect(mode.server + 'user/')
 
 
@@ -1025,10 +1025,10 @@ def remove_certificate(mode) :
         session['all_certificate'] = [certificate for certificate in session['all_certificate'] if certificate['id'] != session['certificate_to_remove']]
         doc_id = session['certificate_to_remove'].split(':')[5]
         if not  Document('certificate').relay_delete(session['workspace_contract'], int(doc_id), mode) :
-            flash('Transaction failed', 'danger')
+            flash(_('Transaction failed.'), 'danger')
             logging.warning('transaction to delete credential failed')
         else :
-            flash('The certificate has been removed from your repository', 'success')
+            flash(_('The certificate has been removed from your repository.'), 'success')
             del session['certificate_to_remove']
             return redirect (mode.server +'user/')
 
@@ -1051,7 +1051,7 @@ def swap_privacy(mode) :
         doc_id = int(session['certificate_to_swap'].split(':')[5])
         new_doc_id, new_ipfs_hash, n =  Document('certificate').relay_update_privacy(session['workspace_contract'], doc_id, session['new_privacy'], mode)
         if not new_doc_id :
-            flash('Transaction failed', 'danger')
+            flash(_('Transaction failed.'), 'danger')
             logging.warning('transaction to swap credential privacy failed')
         else :
             if session['new_privacy'] == 'private' :
@@ -1095,11 +1095,11 @@ def remove_file(mode) :
         Id = session['file_id_to_remove'].split(':')[5]
         my_file = File()
         if not my_file.relay_delete(session['workspace_contract'], int(Id), mode) :
-            flash('Transaction failed', 'danger')
+            flash(_('Transaction failed.'), 'danger')
         else :
             del session['file_id_to_remove']
             del session['filename_to_remove']
-            flash('The file has been deleted', 'success')
+            flash(_('The file has been deleted.'), 'success')
         return redirect (mode.server +'user/')
 
 
@@ -1129,7 +1129,7 @@ def add_education(mode) :
         personal['education_claims'].append(education)
         ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
         session['education'].append(education)
-        flash('New Education added', 'success')
+        flash(_('New Education added.'), 'success')
         return redirect(mode.server + 'user/')
 
 
@@ -1148,7 +1148,7 @@ def remove_education(mode) :
             break
     personal['education_claims'] = education
     ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
-    flash('The Education has been removed', 'success')
+    flash(_('Education has been removed'), 'success')
     return redirect (mode.server +'user/')
 
 
@@ -1162,16 +1162,16 @@ def invit(mode) :
         talent_email = request.form['email']
         username_list = ns.get_username_list_from_email(talent_email, mode)
         if username_list != [] :
-            msg = 'This email is already used by Identity(ies) : ' + ", ".join(username_list) + ' . Use the Search Bar.'
+            msg = _('This email is already used by Identity(ies) : ') + ", ".join(username_list) + ' . Use the Search Bar.'
             flash(msg , 'warning')
             return redirect(mode.server + 'user/')
         subject = 'You have been invited to join Talao'
         name = session['personal']['firstname']['claim_value'] + session['personal']['lastname']['claim_value']
         execution = Talao_message.messageHTML(subject, talent_email, 'invite_to_join', {'name':name}, mode)
         if execution :
-            flash('Your invit has been sent', 'success')
+            flash(_('Your invit has been sent.'), 'success')
         else :
-            flash('Your invit has not been sent', 'danger')
+            flash(_('Your invit has not been sent.'), 'danger')
         return redirect(mode.server + 'user/')
 
 
@@ -1184,12 +1184,12 @@ def send_memo(mode) :
         return render_template('send_memo.html', **session['menu'], memo_username=session['memo_username'])
     if request.method == 'POST' :
         # email to issuer
-        subject = "You have received a memo from " + session['name'] +"."
+        subject = _("You have received a memo from ") + session['name'] +"."
         memo = request.form['memo']
         memo_email = ns.get_data_from_username(session['memo_username'], mode)['email']
         Talao_message.messageHTML(subject, memo_email, 'memo', {'name': session['name'], 'memo':memo}, mode)
         # message to user
-        flash("Your memo has been sent to " + session['memo_username'], 'success')
+        flash(_("Your memo has been sent to ") + session['memo_username'], 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['memo_username'])
 
 
@@ -1205,7 +1205,7 @@ def request_partnership(mode) :
         partner_address = contractsToOwners(partner_workspace_contract, mode)
         partner_publickey = mode.w3.solidityKeccak(['address'], [partner_address]).hex()
         if not session['rsa_key'] :
-            flash('Request Partnership to ' + session['partner_username'] + ' is not available (RSA key not found)', 'warning')
+            flash(_('Request Partnership to ') + session['partner_username'] + _(' is not available (RSA key not found)'), 'warning')
             return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['partner_username'])
         #relay signs the transaction"
         if  partnershiprequest(mode.relay_address,
@@ -1236,17 +1236,17 @@ def request_partnership(mode) :
                              20002,
                              mode,
                              synchronous=True) :
-                    flash('transaction for add issuer failed', 'danger')
+                    flash(_('transaction for add issuer failed.'), 'danger')
                 else :
                     session['issuer'].append(ns.get_data_from_username(session['partner_username'], mode))
             # user message
-            flash('You have send a Request for Partnership to ' + session['partner_username'], 'success')
+            flash(_('You have send a Request for Partnership to ') + session['partner_username'], 'success')
             # partner email
             subject = session['name'] + " souhaite accéder aux données privées de votre Identité Talao"
             partner_email = ns.get_data_from_username(session['partner_username'], mode)['email']
             Talao_message.messageHTML(subject, partner_email, 'request_partnership', {'name' : session['name']}, mode)
         else :
-            flash('Request to ' + session['partner_username'] + ' failed', 'danger')
+            flash(_('Request to ') + session['partner_username'] + _(' failed'), 'danger')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
 
@@ -1261,11 +1261,11 @@ def remove_partner(mode) :
     if request.method == 'POST' :
         res = remove_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_remove'], mode)
         if not res :
-            flash ('Partnership removal has failed')
+            flash (_('Partnership removal has failed.'))
         else :
             # remove partneship in current session
             session['partner'] = [ partner for partner in session['partner'] if partner['workspace_contract'] != session['partner_workspace_contract_to_remove']]
-            flash('The partnership with '+session['partner_username_to_remove']+ '  has been removed', 'success')
+            flash(_('The partnership with ') + session['partner_username_to_remove']+ _('  has been removed'), 'success')
         del session['partner_username_to_remove']
         del session['partner_workspace_contract_to_remove']
         return redirect (mode.server +'user/')
@@ -1282,12 +1282,12 @@ def reject_partner(mode) :
     if request.method == 'POST' :
         res = reject_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_reject'], mode)
         if not res :
-            flash ('Partnership rejection has failed')
+            flash (_('Partnership rejection has failed.'))
         else :
             # remove partnership in current session
             session['partner'] = [ partner for partner in session['partner'] if partner['workspace_contract'] != session['partner_workspace_contract_to_reject']]
             # message to user
-            flash('The Partnership with '+session['partner_username_to_reject']+ '  has been rejected', 'success')
+            flash(_('The Partnership with ') + session['partner_username_to_reject']+ _('  has been rejected.'), 'success')
             # email to partner
             subject = "Your Request for Partnership has been rejected by " + session['name']
             partner_email = ns.get_data_from_username(session['partner_username_to_reject'], mode)['email']
@@ -1308,14 +1308,14 @@ def authorize_partner(mode) :
         return render_template('authorize_partner.html', **session['menu'], partner_name=session['partner_username_to_authorize'])
     if request.method == 'POST' :
         if not session['rsa_key'] :
-            flash('Request a Partnership to ' + session['partner_username'] + ' is impossible (RSA key not found)', 'warning')
+            flash(_('Request a Partnership to ') + session['partner_username'] + _(' is impossible (RSA key not found)'), 'warning')
             del session['partner_username_to_authorize']
             del session['partner_workspace_contract_to_authorize']
             return redirect (mode.server +'user/')
         if not authorize_partnership(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['partner_workspace_contract_to_authorize'], session['rsa_key_value'], mode) :
-            flash ('Partnership authorize has failed', 'danger')
+            flash (_('Partnership authorization failed.'), 'danger')
         else :
-            flash('The partnership with '+session['partner_username_to_authorize']+ '  has been authorized', 'success')
+            flash(_('The partnership with ') + session['partner_username_to_authorize']+ _('  has been authorized.'), 'success')
             # update partnership in current session
             for partner in session['partner'] :
                 if partner['workspace_contract'] == session['partner_workspace_contract_to_authorize'] :
@@ -1405,11 +1405,11 @@ def add_alias(mode) :
         return render_template('add_alias.html', **session['menu'])
     if request.method == 'POST' :
         if ns.username_exist(request.form['access_username'],mode) :
-            flash('Username already used' , 'warning')
+            flash(_('Username already used.') , 'warning')
         else :
             alias_username = request.form['access_username']
             ns.add_alias(alias_username, session['username'], request.form['access_email'], mode)
-            flash('Alias added for '+ alias_username , 'success')
+            flash(_('Alias added for ')+ alias_username , 'success')
         return redirect (mode.server +'user/')
 
 
@@ -1421,16 +1421,16 @@ def remove_access(mode) :
     if 'alias_to_remove' in request.args :
         alias = request.args['alias_to_remove'].partition('.')[0]
         if ns.remove_alias(alias, mode) :
-            flash(alias + ' has been removed', 'success')
+            flash(alias + _(' has been removed'), 'success')
         else :
             logging.error('remove alias failed')
-            flash('Operation failed', 'danger')
+            flash(_('Operation failed.'), 'danger')
     else  :
         employee = company.Employee(session['host'], mode)
         if employee.delete(request.args['employee_to_remove'].split('.')[0]) :
-            flash(request.args['employee_to_remove'].split('.')[0] + ' has been removed', 'success')
+            flash(request.args['employee_to_remove'].split('.')[0] + _(' has been removed'), 'success')
         else :
-            flash('Operation failed', 'danger')
+            flash(_('Operation failed'), 'danger')
             logging.error('remove manager or reviewer failed = %s',request.args['employee_to_remove'] )
     return redirect (mode.server +'user/')
 
@@ -1447,12 +1447,12 @@ def import_private_key(mode) :
         pub_key = priv_key.public_key
         address = pub_key.to_checksum_address()
         if address != session['address'] :
-            flash('Wrong Private Key', 'warning')
+            flash(_('Wrong Private Key.'), 'warning')
             return redirect (mode.server +'user/')
         session['private_key'] = True
         session['private_key_value'] = request.form['private_key']
         privatekey.add_private_key(request.form['private_key'], mode)
-        flash('Private Key has been imported',  'success')
+        flash(_('Private Key has been imported.'),  'success')
         return redirect (mode.server +'user/')
 
 
@@ -1464,7 +1464,7 @@ def import_rsa_key(mode) :
         return render_template('import_rsa_key.html', **session['menu'])
     if request.method == 'POST' :
         if 'file' not in request.files :
-            flash('no file', "warning")
+            flash(_('No file.'), "warning")
             return redirect(mode.server + 'user/')
         myfile = request.files['file']
         filename = secure_filename(myfile.filename)
@@ -1475,16 +1475,16 @@ def import_rsa_key(mode) :
                 key = RSA.import_key(infile.read())
             RSA_public = key.publickey().exportKey('PEM')
         except :
-            flash('RSA key is not found', 'danger')
+            flash(_('RSA key is not found.'), 'danger')
             return redirect (mode.server +'user/')
         contract = mode.w3.eth.contract(session['workspace_contract'],abi=constante.workspace_ABI)
         identity_key = contract.functions.identityInformation().call()[4]
         if RSA_public == identity_key :
             session['rsa_key'] = True
             session['rsa_key_value'] = key.exportKey('PEM')
-            flash('RSA Key has been uploaded',  'success')
+            flash(_('RSA Key has been uploaded.'),  'success')
         else :
-            flash('RSA key is not correct', 'danger')
+            flash(_('RSA key default.'), 'danger')
         return redirect (mode.server +'user/')
 
 
@@ -1517,7 +1517,7 @@ def request_proof_of_identity(mode) :
         filename_list = [session['username'] + "_ID." + id_file_name, session['username'] + "_selfie." + selfie_file_name]
         Talao_message.message_file([mode.admin], message, 'files for proof of Identity', filename_list, '/home/thierry/Talao/uploads/proof_of_identity/', mode)
         # message to user
-        flash(' Thank you, we will check your documents soon.', 'success')
+        flash(_(' Thank you, we will check your documents soon.'), 'success')
         return redirect (mode.server +'user/')
 
 
@@ -1528,14 +1528,14 @@ def add_issuer(mode) :
     if request.method == 'GET' :
         session['referent_username'] = request.args['issuer_username']
         if session['referent_username'] == session['username' ] :
-            flash('You cannot be the Referent of yourself.', 'warning')
+            flash(_('You cannot be the Referent of yourself.'), 'warning')
             return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
         return render_template('add_referent.html', **session['menu'], referent_username=session['referent_username'])
     elif request.method == 'POST' :
         issuer_workspace_contract = ns.get_data_from_username(session['referent_username'],mode)['workspace_contract']
         issuer_address = contractsToOwners(issuer_workspace_contract, mode)
         if not add_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, issuer_address, 20002, mode, synchronous=True) :
-            flash('transaction failed', 'danger')
+            flash(_('transaction failed'), 'danger')
         else :
             issuer_workspace_contract = ownersToContracts(issuer_address, mode)
             session['issuer'].append(ns.get_data_from_username(session['referent_username'], mode))
@@ -1547,7 +1547,7 @@ def add_issuer(mode) :
             issuer_email = ns.get_data_from_username(session['referent_username'], mode)['email']
             Talao_message.messageHTML(subject, issuer_email, 'added_referent', {'name' : session['name']}, mode)
             # message to user
-            flash(session['referent_username'] + ' has been added as a Referent. An email has been sent too.', 'success')
+            flash(session['referent_username'] + _(' has been added as a Referent. An email has been sent too.'), 'success')
         return redirect (mode.server +'user/issuer_explore/?issuer_username=' + session['referent_username'])
 
 
@@ -1572,9 +1572,9 @@ def add_key_for_other(mode) :
             third_party_address = ns.get_data_from_username(request.form.get('third_party_username'),mode)['address']
         key = request.form.get('key')
     if not add_key(mode.relay_address, mode.relay_workspace_contract, identity_address, identity_workspace_contract, mode.relay_private_key, third_party_address, int(key), mode, synchronous=True) :
-        flash('transaction failed', 'danger')
+        flash(_('transaction failed.'), 'danger')
     else :
-        flash('Key added', 'success')
+        flash(_('Key added.'), 'success')
     return redirect (mode.server +'user/')
 
 
@@ -1589,10 +1589,10 @@ def remove_issuer(mode) :
     elif request.method == 'POST' :
         #address_partner = session['issuer_address_to_remove']
         if not delete_key(mode.relay_address, mode.relay_workspace_contract, session['address'], session['workspace_contract'], mode.relay_private_key, session['issuer_address_to_remove'], 20002, mode) :
-            flash ('transaction failed', 'danger')
+            flash (_('transaction failed.'), 'danger')
         else :
             session['issuer'] = [ issuer for issuer in session['issuer'] if issuer['address'] != session['issuer_address_to_remove']]
-            flash('The Issuer '+session['issuer_username_to_remove']+ '  has been removed', 'success')
+            flash(_('The Issuer ') + session['issuer_username_to_remove']+ _('  has been removed.'), 'success')
         del session['issuer_username_to_remove']
         del session['issuer_address_to_remove']
         return redirect (mode.server +'user/')
@@ -1604,7 +1604,7 @@ def delete_identity(mode) :
     check_login()
     if request.method == 'GET' :
         if not session['private_key'] and not session['has_vault_access']:
-            flash('Cannot delete Identity, no token locked.', 'danger')
+            flash(_('Cannot delete Identity, no token locked.'), 'danger')
             return redirect (mode.server +'user/')
         # decentralized
         elif not session['private_key'] :
@@ -1617,17 +1617,17 @@ def delete_identity(mode) :
         # decentralized mode, destroy workspace is made by wallet
         if not session['private_key'] :
             if request.form.get('status')== 'reject' :
-                flash('Transaction failed.', 'danger')
+                flash(_('Transaction failed.'), 'danger')
                 return redirect (mode.server +'user/')
         # centralized mode, destroy workspace is made by server
         else :
             if not ns.check_password(session['username'], request.form['password'], mode) :
-                flash('Wrong password', 'danger')
+                flash(_('Wrong password.'), 'danger')
                 return redirect (mode.server +'user/')
             destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
         # clean up nameservice
         ns.delete_identity(session['username'], mode, category = category)
-        flash('Your Identity has been deleted.', 'success')
+        flash(_('Your Identity has been deleted.'), 'success')
         return redirect (mode.server +'login/')
 
 
@@ -1676,7 +1676,7 @@ def download_x509(mode):
     filename = session['workspace_contract'] + '.pem'
     password = ns.get_data_from_username(session['username'], mode)['email']
     if not talao_x509.generate_X509(session['workspace_contract'],password, mode) :
-        flash('Certificate X.509 not available', 'danger')
+        flash(_('Certificate X.509 not available.'), 'danger')
         return redirect (mode.server +'login/')
     return send_from_directory(mode.uploads_path,filename, as_attachment=True, cache_timeout=1)
 
@@ -1690,7 +1690,7 @@ def download_pkcs12(mode):
         filename = session['workspace_contract'] + '.p12'
         password = request.form['password']
         if not talao_x509.generate_X509(session['workspace_contract'], password, mode) :
-            flash('Certificate PKCS12 not available', 'danger')
+            flash(_('Certificate PKCS12 not available.'), 'danger')
             return redirect (mode.server +'login/')
         return send_from_directory(mode.uploads_path,filename, as_attachment=True, cache_timeout=1)
 
