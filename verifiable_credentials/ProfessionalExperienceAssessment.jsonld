@@ -1,30 +1,20 @@
 {
-"@context": {
-    "@version": 1.1,
-    "@protected": true,
-    "id": "@id",
-    "type": "@type",
-    "schema" : "http://schema.org/",
-    "ProfessionalExperienceQualification":
-        {
-        "@id" : "https://talaodao.github.io/professional-credential/ProfessionalExperienceCredential.jsonld",
-        "@context" : {
+
+    "schema" : "https://schema.org/",
+
+    "ProfessionalExperienceAssessment" : "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+    "Skill" : {
+        "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+        "@context": {
             "@version": 1.1,
             "@protected": true,
-            "author" : "shema:author",
-            "recipient" : "schema:recipient",
-            "signatureLines": "schema:person",
-            "review" : "schema:review",
-            "credentialCategory" : "schema:credentialCategory",
-            "title" : "schema:title",
-            "description" : "schema:description",
-            "startDate" : "schema:startDate",
-            "endDate" : "schema:endDate",
-            "skills": "schema:skills"
-            }
-        },
-    "SignatureLine" : {
-        "@id": "schema:Person",
+            "description" :  "schema:name",
+            "jobTitle" :"schema:jobTitle",
+            "image" : "schema:image"
+        }
+    },
+    "SignatureLine": {
+        "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
         "@context": {
             "@version": 1.1,
             "@protected": true,
@@ -41,8 +31,8 @@
             "name" :  "schema:name",
             "jobTitle" :"schema:jobTitle",
             "image" : "schema:image"
-            }
-        },
+        }
+    },
     "Organization": {
         "@id": "schema:Organisation",
         "@context": {
@@ -50,8 +40,8 @@
             "@protected": true,
             "name" :  "schema:name",
             "logo" : "schema:image"
-            }
-        },
+        }
+    },
     "Review": {
         "@id": "schema:Review",
         "@context": {
@@ -60,8 +50,8 @@
             "name" :  "schema:name",
             "reviewBody" : "schema:reviewBody",
             "reviewRating" : "schema:reviewRating"
-            }
-        },
+        }
+    },
     "Rating": {
         "@id": "schema:Rating",
         "@context": {
@@ -70,7 +60,16 @@
             "worstRating" :  "schema:worstRating",
             "bestRating" : "schema:bestRating",
             "ratingValue" : "schema:ratingValue"
-            }
         }
-    }
+    },
+
+    "author" : "schema:author",
+    "recipient" : "schema:recipient",
+    "signatureLines" : "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+    "review" : "schema:review",
+    "title" : "schema:title",
+    "description" : "schema:description",
+    "startDate" : "schema:startDate",
+    "endDate" : "schema:endDate",
+    "skills": "schema:skills"
 }

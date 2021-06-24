@@ -2,8 +2,10 @@
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
+            "schema" : "https://schema.org/",
+
             "IdentityPass" : {
-                "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+                "@id": "https://w3id.org/citizenship#PermanentResidentCard",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
@@ -23,12 +25,12 @@
             }
         ],
         "id": "aaa:aaa",
-        "type": ["VerifiableCredential", "IdentityPass"],
+        "type": ["VerifiableCredential","IdentityPass"],
         "issuer": "",
         "issuanceDate": "2021-05-06T14:08:28-06:00",
         "credentialSubject" : {
             "id": "aa:aaa",
-            "type" : "IdentityPass",
+            "@type" : "IdentityPass",
             "email" : "kjlkjlkjl",
             "identifier" : "",
             "image" : "",

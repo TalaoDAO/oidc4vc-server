@@ -35,7 +35,7 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p>{{_("If you do not have a Decentralized Identity (DID), you can choose the registry to support your future Decentralized Identity.
+                                    <p>{{_("If you do not have a Decentralized Digital Identity (DID), you can choose the registry to support your future Identity.
                                     In case you don't have specific expectations, keep the registry selected by default.")}}<br><br>
                                     {{_('Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser and on your computer.
                                     If you lose this file (identity_key.text), there will be no solutions to get your keys back.')}}</p>
@@ -74,6 +74,9 @@
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
+
+                                                    <input id="id_did_selected" hidden type="text" class="form-check-input" value="" name="did_selected">
+
                                                     <input id="tz" checked type="radio" class="form-check-input" value="" name="did">
                                                     <label id="label_tz" style="color: rgb(133,135,150);" title="" >{{_('did:tz. This Identity is supported by the Tezos blockchain.')}}</label>
 
@@ -171,14 +174,15 @@ async function generateDIDs() {
 
 // get DID built on server with didkit
 async function fetchDID(key, method) {
-  const response = await fetch( '{{session["server"]}}' + "getDID/?key="+ key + "&method=" + method);
+  const response = await fetch( '{{session["server"]}}' + "getDID?key="+ key + "&method=" + method);
   return response.json();
 }
 
 
-// store keypair on locastorage and desktop. kid(did) is added to the key pai
+// store keypair on session storage and desktop. kid(did) is added to the key pai
 async function storeKeyPair(){
     const did = getradio();
+    document.getElementById("id_did_selected").value = did;
     KeyPair.publicJwk['kid'] = did;
     KeyPair.privateJwk['kid'] = did;
     if (did != "own"){

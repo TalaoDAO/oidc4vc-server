@@ -1,6 +1,7 @@
 from flask import session, flash, request, redirect, render_template, abort
 from datetime import  datetime
 from flask_babel import _
+
 import json
 import uuid
 import logging
@@ -103,7 +104,7 @@ def request_certificate(mode) :
          # check if campaign exist
         campaign = company.Campaign(session['credential_issuer_username'], mode)
         if not campaign.get_list() :
-            flash(_('This company as no active campaign'), 'warning')
+            flash(_('This company has no active campaign'), 'warning')
             return redirect(mode.server + 'user/')
         return render_template('./issuer/campaign_code.html', **session['menu'], company_name=session['issuer_explore']['name'])
 
@@ -208,16 +209,8 @@ def request_experience_credential(mode) :
     """ Basic request for experience credential
     """
     check_login()
-    # check if campaign exist
-    reference = request.form['reference']
-    #campaign = company.Campaign(session['credential_issuer_username'], mode)
-    #if not campaign.get(reference.split(':')[0]) :
-    #    flash(_('This reference does not exist.') , 'warning')
-    #    logging.warning('campaign does ot exist')
-    #    return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
-
-    # load templates for verifiable credential template
-    unsigned_credential = json.load(open('./verifiable_credentials/newexperience.jsonld', 'r'))
+    # load JSON-LD model for ProfessionalExperiencAssessment
+    unsigned_credential = json.load(open('./verifiable_credentials/experience_' + session['language'] + '.jsonld', 'r'))
 
     # update credential with form data
     id = str(uuid.uuid1())
@@ -238,7 +231,6 @@ def request_experience_credential(mode) :
     unsigned_credential["credentialSubject"]['author']["logo"] = session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]['signatureLines']["name"] = ""
-    #unsigned_credential["credentialSubject"]["reviewerName"] = ""
 
     # update local issuer database
     manager_username = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['referent']
@@ -249,7 +241,7 @@ def request_experience_credential(mode) :
                         "drafted",
                         id,
                         json.dumps(unsigned_credential, ensure_ascii=False),
-                        reference)
+                        request.form['reference'])
 
     # send an email to reviewer for workflow
     reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['email']
@@ -349,16 +341,21 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     """ build the html list
     return the table list to display in dashboard in html
     """
-    print(host, issuer_username, reviewer_username, status)
     credential = company.Credential(host, mode)
     mylist = credential.get(issuer_username, reviewer_username, status)
     credential_list = ""
     for mycredential in mylist :
-        if json.loads(mycredential[5])['credentialSubject']['credentialCategory'].lower() == "experience" :
+        if "ProfessionalExperienceAssessment" in json.loads(mycredential[5])['type'] :
             subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
             title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
             description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
-            type = json.loads(mycredential[5])['credentialSubject']['credentialCategory'].capitalize()
+            type = "ProfessionalExperienceAssessment"
+
+        elif "IdentityCredential" in json.loads(mycredential[5])['type'] :
+            subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+            title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
+            description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
+            type = "IdentityCredential"
 
         elif json.loads(mycredential[5])['credentialSubject']['credentialCategory'] == "reference" :
             subject_link = mode.server + 'board/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
@@ -390,7 +387,6 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
 
 def issue_credential_workflow(mode) :
     """
-    @route /company/issue_credential_workflow/?id=xxxx
     call = (created, user_name, reviewer_name, issuer_name, status, credential, id)
     update = update_verifiable_credential(id, host_name, reviewer_username, issuer_username, status, credential, mode)
     """
@@ -405,8 +401,9 @@ def issue_credential_workflow(mode) :
         # credential is loaded  as dict
         my_credential = json.loads(session['call'][5])['credentialSubject']
 
-        if my_credential["credentialCategory"] != 'experience' :
-            flash('view not yet available', 'warning')
+        # en attendant 
+        if not "ProfessionalExperienceAssessment" in json.loads(session['call'][5])['type'] :
+            flash(_('view not yet available'), 'warning')
             return redirect (mode.server +'company/dashboard/')
 
         skills_str = ""
@@ -493,7 +490,10 @@ def issue_credential_workflow(mode) :
             subject_username = session['call'][1]
             subject = ns.get_data_from_username(subject_username, mode)
             my_certificate = Document('certificate')
-            doc_id = my_certificate.relay_add(subject['workspace_contract'],json.loads(signed_credential), mode, privacy='public')[0]
+            try :
+                doc_id = my_certificate.relay_add(subject['workspace_contract'],json.loads(signed_credential), mode, privacy='public')[0]
+            except :
+                doc_id = None
             if not doc_id :
                 flash(_('Add credential to repository failed '), 'danger')
                 logging.error('certificate to repository failed')
@@ -574,7 +574,6 @@ def get_form_data(my_credential, form) :
                             "description": skill
                             })
     my_credential['credentialSubject']["signatureLines"]['name'] = form.get('managerName', " ")
-    #my_credential['credentialSubject']['reviewerName'] = form['reviewerName']
     return
 
 

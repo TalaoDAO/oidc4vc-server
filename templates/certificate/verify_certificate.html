@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- verify_certificate.html -->
     {% include 'head.html' %}
 
 </head>
@@ -35,7 +36,7 @@
                                         <div class="card-header py-3">
                                             <div class="row">
                                                 <div class="col-xl-6">
-                                                    <p class="text-secondary m-0 font-weight-bold">Credential Data</p>
+                                                    <p class="text-secondary m-0 font-weight-bold">{{_('Raw Credential Data')}}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -43,7 +44,7 @@
                             <form action="" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>All data are JSON-LD tamper proof, signed and traceable.&nbsp; </p>
+                                        <p>{{_('All data are JSON-LD tamper proof, signed and traceable.')}}</p>
                                            <div> <textarea id='myTextArea' class="form-control" rows="15">{{credential}}</textarea></div>
                                            <br>
                                            
@@ -54,7 +55,7 @@
                             </form>
                             <br>
                             <div class="row">
-												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">Back</button></div>
+												<div class="col text-right"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
 							</div>
                         </div>
                     </div>

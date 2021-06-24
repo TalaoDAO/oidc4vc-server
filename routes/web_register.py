@@ -94,8 +94,7 @@ def register_user(mode) :
 	if request.method == 'GET' :
 		session.clear()
 		session['is_active'] = True
-		message = request.args.get('message', "")
-		return render_template("/register/user_register.html",message=message, )
+		return render_template("/register/user_register.html")
 	if request.method == 'POST' :
 		session['email'] = request.form['email']
 		session['firstname'] = request.form['firstname']
@@ -103,7 +102,7 @@ def register_user(mode) :
 		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
 		session['phone'] = request.form['phone']
 		session['search_directory'] = request.form.get('CGU')
-
+		message = ""
 		if not request.form.get('CGU') :
 			message = _('Accept the service conditions to move next step.')
 			phone = session['phone']
@@ -111,8 +110,8 @@ def register_user(mode) :
 			message = _('Incorrect phone number.')
 			phone = ''
 		if message :
+			flash(message, 'warning')
 			return render_template("/register/user_register.html",
-									message=message,
 									firstname=session['firstname'],
 									lastname=session['lastname'],
 									email=session['email'],
@@ -140,34 +139,38 @@ def register_identity(mode) :
 					flash(_('DID resolution has been rejected by Universal Resolver.'), 'warning')
 					return render_template("/register/register_identity.html")
 		else :
-			session['did'] = request.form['did']
+			session['did'] = request.form['did_selected']
 		return redirect (mode.server + 'register/password')
 
 
 # route /register/password/
 def register_password(mode):
 	if not session.get('is_active') :
-		return redirect(mode.server + 'register?message=Session+expired.')
+		flash(_('Session expired'), 'warning')
+		return redirect(mode.server + 'register')
 	if request.method == 'GET' :
 		return render_template("/register/register_password.html")
 	if request.method == 'POST' :
 		session['password'] = request.form['password']
-		session['code'] = str(random.randint(100000, 999999))
-		session['code_delay'] = datetime.now() + timedelta(seconds= 180)
-		session['try_number'] = 0
-		try :
-			sms.send_code(session['phone'], session['code'], mode)
-		except :
-			logging.error('sms connexion probleme register_password')
-			return render_template("user_register.html",message=_('SMS connexion problem.'), )
-		logging.info('secret code = %s', session['code'])
+		if not session.get('code_sent') :
+			session['code'] = str(random.randint(100000, 999999))
+			session['code_sent'] = True
+			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+			session['try_number'] = 0
+			if sms.send_code(session['phone'], session['code'], mode) :
+				logging.info('secret code sent = %s', session['code'])
+			else :
+				logging.error('sms connexion probleme register_password')
+				flash(_('SMS failed.'), 'warning')
+				return render_template("user_register.html" )
 		return render_template("/register/register_code.html")
 
 
 # route /register/code/
 def register_code(mode) :
 	if not session.get('is_active') or 'try_number' not in session :
-		return redirect(mode.server + 'register/?message=Session+expired.')
+		flash(_('Session expired'), 'warning')
+		return redirect(mode.server + 'register')
 	session['try_number'] +=1
 	logging.info('code received = %s', request.form['mycode'])
 	if request.form['mycode'] == session['code'] and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
@@ -181,23 +184,27 @@ def register_code(mode) :
 										phone=session['phone'],
 										password=session['password'])[2] :
 			logging.error('createidentity failed')
-			return render_template("/register/user_register.html",message=_('Connexion problem.'), )
+			flash(_('Transaction failed.'), 'warning')
+			return render_template("/register/user_register.html" )
 
 		directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
 		# success exit
 		return render_template("/register/end_of_registration.html", username=session['username'])
 	elif session['try_number'] == 3 :
 		session['is_active'] = False
-		return render_template("/register/registration_error.html", message=_("Code is incorrect. Too many trials."))
+		flash(_("Code is incorrect. Too many trials."), 'warning')
+		return render_template("/register/registration_error.html")
 	elif datetime.now() > session['code_delay'] :
 		session['is_active'] = False
-		return render_template("/register/registration_error.html",  message=_("Code expired."))
+		flash(_('Code expired'), 'warning')
+		return render_template("/register/registration_error.html")
 	else :
 		if session['try_number'] == 1 :
 			message = _('Code is incorrect, 2 trials left.')
 		if session['try_number'] == 2 :
 			message = _('Code is incorrect, last trial.')
-		return render_template("/register/register_code.html", message=message)
+		flash(message, 'warning')
+		return render_template("/register/register_code.html")
 
 
 # route register/post_code

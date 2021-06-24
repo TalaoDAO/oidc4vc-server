@@ -1,0 +1,154 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {
+            "@language": "en",
+
+            "schema" : "https://schema.org/",
+
+            "ProfessionalExperienceAssessment" : "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+            "Skill" : {
+                "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "description" :  "schema:name",
+                    "jobTitle" :"schema:jobTitle",
+                    "image" : "schema:image"
+                }
+            },
+            "SignatureLine": {
+                "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "name" :  "schema:name",
+                    "jobTitle" :"schema:jobTitle",
+                    "image" : "schema:image"
+                    }
+                },
+            "Person": {
+                "@id": "schema:Person",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "name" :  "schema:name",
+                    "jobTitle" :"schema:jobTitle",
+                    "image" : "schema:image"
+                }
+            },
+            "Organization": {
+                "@id": "schema:Organisation",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "name" :  "schema:name",
+                    "logo" : "schema:image"
+                }
+            },
+            "Review": {
+                "@id": "schema:Review",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "name" :  "schema:name",
+                    "reviewBody" : "schema:reviewBody",
+                    "reviewRating" : "schema:reviewRating"
+                }
+            },
+            "Rating": {
+                "@id": "schema:Rating",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "worstRating" :  "schema:worstRating",
+                    "bestRating" : "schema:bestRating",
+                    "ratingValue" : "schema:ratingValue"
+                }
+            },
+
+            "author" : "schema:author",
+            "recipient" : "schema:recipient",
+            "signatureLines" : "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+            "review" : "schema:review",
+            "title" : "schema:title",
+            "description" : "schema:description",
+            "startDate" : "schema:startDate",
+            "endDate" : "schema:endDate",
+            "skills": "schema:skills"
+        }
+    ],
+    "id": "data:aaaa:aaa",
+    "type": ["VerifiableCredential", "ProfessionalExperienceAssessment"],
+    "issuer": "",
+    "issuanceDate": "2021-05-06T14:08:28-06:00",
+    "credentialSubject": {
+        "id": "did:web:talao.co",
+        "author" : {
+          "type" : "Organization",
+          "name" : "",
+          "logo" : "http://Talao_log"
+            },
+        "recipient" : {
+          "type" : "Person",
+            "name" : ""
+            },
+        "signatureLines" : {
+            "type" : "SignatureLine",
+            "name" : "",
+            "jobTitle" : "Director",
+            "image" : ""
+            },
+        "title" : "",
+        "description" : "",
+        "startDate" : "",
+        "endDate" : "",
+        "skills": [],
+        "review": [
+            {
+            "type" : "Review",
+            "name" : "reviewRecommendation",
+            "reviewBody": "How likely are you to recommend this talent to others ?",
+            "reviewRating": {
+                "type" : "Rating",
+                "bestRating": "5",
+                "ratingValue": "3",
+                "worstRating": "1"
+                }
+            },
+            {
+            "type" : "Review",
+            "name" : "reviewDelivery",
+            "reviewBody": "How satisfied are you with the overall delivery ?",
+            "reviewRating": {
+                "type" : "Rating",
+                "bestRating": "5",
+                "ratingValue": "3",
+                "worstRating": "1"
+                }
+            },
+            {
+            "type" : "Review",
+            "name" : "reviewSchedule",
+            "reviewBody": "How would you rate his or her ability to deliver to schedule ?",
+            "reviewRating": {
+                "type" : "Rating",
+                "bestRating": "5",
+                "ratingValue": "3",
+                "worstRating": "1"
+                }
+            },
+            {
+            "type" : "Review",
+            "name" : "reviewCommunication",
+            "reviewBody": "How would you rate his or her overall communication skills ?",
+            "reviewRating": {
+                "type" : "Rating",
+                "bestRating": "5",
+                "ratingValue": "3",
+                "worstRating": "1"
+                }
+            }
+            ]
+    }
+}

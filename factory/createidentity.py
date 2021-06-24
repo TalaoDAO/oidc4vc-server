@@ -104,6 +104,7 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 		personal = json.dumps(personal, ensure_ascii = False)
 	else :
 		personal = ''
+	print(email, phone, password, did, personal)
 	if not ns.add_identity(username,
 						workspace_contract,
 						email,

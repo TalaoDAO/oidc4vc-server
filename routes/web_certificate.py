@@ -4,6 +4,8 @@ from flask import session, flash, jsonify
 from flask import request, redirect, render_template,Response
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512
+from flask_babel import _
+
 
 import requests
 import shutil
@@ -18,6 +20,16 @@ from components import ns
 from signaturesuite import helpers
 
 SALT = 'repository_salt'
+
+
+def init_app(app, mode) :
+	app.add_url_rule('/certificate/',  view_func=show_certificate, defaults={'mode': mode})
+	app.add_url_rule('/guest/certificate/',  view_func=show_certificate, defaults={'mode': mode})  # idem previous
+	app.add_url_rule('/certificate/verify/',  view_func=certificate_verify, methods = ['GET'], defaults={'mode': mode})
+	app.add_url_rule('/certificate/issuer_explore/',  view_func=certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode})
+	app.add_url_rule('/guest/',  view_func=certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
+	return
+
 
 def convert(obj):
 	if type(obj) == list:
@@ -43,7 +55,6 @@ def show_certificate(mode):
 	try  :
 		certificate_id = request.args['certificate_id']
 		method = certificate_id.split(':')[1]
-
 		# translator for repository claim
 		if method in ['web', 'tz', 'ethr'] :
 			did = 'did:' + method + ':' + certificate_id.split(':')[2]
@@ -71,10 +82,6 @@ def show_certificate(mode):
 		content = json.dumps({'message' : 'request malformed'})
 		return Response(content, status=406, mimetype='application/json')
 
-	try :
-		self_claim = certificate_id.split(':')[6]
-	except:
-		self_claim = None
 
 	if session.get('certificate_id') != request.args['certificate_id'] :
 		certificate = Document('certificate')
@@ -86,69 +93,8 @@ def show_certificate(mode):
 			return Response(content, status=406, mimetype='application/json')
 		session['displayed_certificate'] = certificate.__dict__
 
-	if self_claim == "experience" :
-		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
-
-		my_badge = ''
-		for skill in session['displayed_certificate']['skills'] :
-			skill_to_display = skill.replace(" ", "").capitalize().strip(',')
-			my_badge +=  """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display + """</span>"""
-		return render_template('./certificate/self_claim.html',
-							**menu,
-							type = 'Experience',
-							certificate_id= certificate_id,
-							company = session['displayed_certificate']['company']['name'],
-							email = session['displayed_certificate']['company']['contact_email'],
-							tel = session['displayed_certificate']['company']['contact_phone'],
-							contact_name = session['displayed_certificate']['company']['contact_name'],
-							start_date = session['displayed_certificate']['start_date'],
-							end_date = session['displayed_certificate']['end_date'],
-							description = description,
-							badge = my_badge,
-							viewer=viewer,
-							title = session['displayed_certificate']['title'],
-							)
-
-	if self_claim == "skills" :
-		description = ""
-		print (session['displayed_certificate'])
-		for skill in session['displayed_certificate']['description'] :
-			description += skill["skill_name"] + " "
-		return render_template('./certificate/self_claim.html',
-							**menu,
-							type = 'Skill',
-							certificate_id= certificate_id,
-							description = description,
-							viewer=viewer,
-							)
-
-	if self_claim == "education" :
-		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
-
-		my_badge = ''
-		for skill in session['displayed_certificate']['skills'] :
-			skill_to_display = skill.replace(" ", "").strip(',')
-			if skill_to_display :
-				my_badge = my_badge + """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill_to_display.capitalize() + """</span>"""
-		return render_template('./certificate/self_claim.html',
-							**menu,
-							type = 'Education',
-							certificate_id= certificate_id,
-							company = session['displayed_certificate']['organization']['name'],
-							email = session['displayed_certificate']['organization']['contact_email'],
-							tel = session['displayed_certificate']['organization']['contact_phone'],
-							contact_name = session['displayed_certificate']['organization']['contact_name'],
-							start_date = session['displayed_certificate']['start_date'],
-							end_date = session['displayed_certificate']['end_date'],
-							description = description,
-							badge = my_badge,
-							viewer=viewer,
-							title = session['displayed_certificate']['title'],
-							link = session['displayed_certificate']['certificate_link']
-							)
-
-	# Experience Credential Display
-	if session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'experience' :
+	# ProfessionalExperienceAssessment Display
+	if "ProfessionalExperienceAssessment" in session['displayed_certificate']['type'] :
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 
@@ -176,7 +122,7 @@ def show_certificate(mode):
 			my_badge = ""
 
 		# if there is no signature one uses Picasso signature
-		signature = session['displayed_certificate']['credentialSubject']['signatureLines']['signature']
+		signature = session['displayed_certificate']['credentialSubject']['signatureLines']['image']
 		if not signature :
 			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
 
@@ -407,9 +353,6 @@ def show_certificate(mode):
 
 def certificate_verify(mode) :
 	"""		 verify credential data and did
-
-	app.route('/certificate/verify/, methods=['GET']
-
 	"""
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
@@ -419,19 +362,17 @@ def certificate_verify(mode) :
 		identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
 		credential = Document('certificate')
 		doc_id = int(certificate_id.split(':')[5])
-		credential.relay_get_credential(identity_workspace_contract, doc_id, mode, loading = 'full')
+		credential.relay_get_credential(identity_workspace_contract, doc_id, mode)
 		credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 	except :
 		logging.error('data not found')
 		return jsonify ({'result' : 'certificate not found'})
 
 	# Issuer , Referent
-	issuer = """<b>Issuer DID</b> : """ + credential.issuer
-	#print(json.dumps(json.loads(didkit.resolveDID(credential.issuer, '{}')), indent=4))
+	issuer = """<b>""" + _('Issuer DID') + """</b> : """ + credential.issuer
 
 	# User, holder
-	user = """<b>User DID</b> : """ + credential.credentialSubject['id']
-	#print(json.dumps(json.loads(didkit.resolveDID(credential.credentialSubject['id'], '{}')), indent=4))
+	user = """<b>""" + _('User DID') + """</b> : """ + credential.credentialSubject['id']
 
 	my_verif = "".join([issuer, "<br>", user, '<br>'])
 

@@ -8,6 +8,18 @@
         <div id="wrapper">
             <div class="d-flex flex-column" id="content-wrapper">
                 <div id="content">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                        <span>{{ message }}</span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 {% include 'guest_nav_bar.html' %}
                     <div class="container">
                         <div class="row justify-content-center">
@@ -16,12 +28,10 @@
                                     <div class="card-body p-0">
                                         <div class="p-5">
                                             <div class="text-center">
-                                            <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">{{_('Your professional Identity')}}</h4>
+                                            <h4 class="text-dark mb-4" style="font-family: Nunito, sans-serif;">{{_('Registration failed')}}</h4>
                                         </div>
                                         <form class="user" action="/register" method="GET">
-                                            <div class="form-group">
-                                                <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
-                                            </div>
+                                            
                                             <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Back')}}</button>
                                         </form>
                                         <div class="text-center"><a class="small" href="/login">{{_('Sign-In')}}</a></div>

@@ -363,8 +363,8 @@ def user(mode) :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				try : 
 					cert_html = """<hr>
-					<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
-					<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """ credential<br>
+					<b>""" + _('Credential Type') + """</b> : """ + certificate['type'][1] + """<br>
+					<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """<br>
 					<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('author', 'None')['name'].capitalize() + """ <br>
 					<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
 					<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""

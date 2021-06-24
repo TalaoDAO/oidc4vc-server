@@ -14,19 +14,20 @@ from factory import createidentity, createcompany
 from components import sms, directory, ns, company
 
 
-CREDENTIAL_TOPIC = ['experience', 'skill', 'training', 'recommendation', 'work','vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
+CREDENTIAL_TOPIC = ['pass', 'experience', 'skill', 'training', 'recommendation', 'work','vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
 def translate_credentials() :
-	return {'experience_txt' : _('Experience credential'),
-					'skill_txt' : _('Skill certificate'),
-                     'training_txt' : _('Training certificate'),
-                      'recommendation_txt' : _('Recomendation letter'),
-                      'work_txt' : _('Employer certificate'),
-                      'vacation_txt' : _('Employee vacation time certificate'),
-                     'internship_txt' : _('Certificate of participation'),
-                      'relocation_txt' : _('Transfer certificate'),
-                       'end_of_work_txt' :_('Labour certificate'),
-                      'hiring_txt' : _('Promise to hire letter')}
+	return {'pass_txt' : _('Identiy Pass'),
+		'experience_txt' : _('Experience credential'),
+		'skill_txt' : _('Skill certificate'),
+		'training_txt' : _('Training certificate'),
+		'recommendation_txt' : _('Recomendation letter'),
+		'work_txt' : _('Employer certificate'),
+		'vacation_txt' : _('Employee vacation time certificate'),
+		'internship_txt' : _('Certificate of participation'),
+		'relocation_txt' : _('Transfer certificate'),
+		'end_of_work_txt' :_('Labour certificate'),
+		'hiring_txt' : _('Promise to hire letter')}
 
 def init_app(app, mode) :
 	app.add_url_rule('/hrid/register',  view_func=hrid_register_user, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
@@ -45,7 +46,6 @@ def check_login() :
 		abort(403)
 	else :
 		return True
-
 
 def hrid_register_company(mode) :
 	credentials = translate_credentials()

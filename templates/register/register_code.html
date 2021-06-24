@@ -10,6 +10,18 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
                 {% include 'guest_nav_bar.html' %}
                 <div class="container-fluid mt-3">
                 <div class="row mb-3">
@@ -26,9 +38,7 @@
                                     <div id="id_text">{{_('You are going to receive an SMS with a secret code.')}}<br>
                                         {{_('Copy this secret code for authentication.')}}</div>
                                     <form id="form" class="user" action="/register/code" method="POST">
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small"><h6 class="text-danger" >{{message}}</h6></div>
-                                        </div>
+                                        <br>
                                         <div id="id_spinner" class="text-center"></div>
                                         <div id="id_code" class="form-group">
                                             <input class="form-control" type="password" placeholder="Enter your secret code" name="mycode" style="color: rgb(133,135,150);">

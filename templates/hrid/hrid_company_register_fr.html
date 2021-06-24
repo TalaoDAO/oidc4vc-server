@@ -129,9 +129,16 @@
           <br>
 
 
-                        <p class="text-center"><strong>Choisissez les attestations à proposer à vos salariés :</strong></p>
+                        <p class="text-center"><strong>{{_('Choisissez les attestations à proposer à vos salariés')}} :</strong></p>
 <div class="card-body">
 
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="pass" checked id="flexCheckDefault" name="pass" >
+                          <label class="form-check-label" for="flexCheckDefault">
+                            {{pass_txt}}
+                          </label>
+                        </div>
+                        <hr>
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="experience" {{experience_box}} id="flexCheckDefault" name="experience" >
                           <label class="form-check-label" for="flexCheckDefault">

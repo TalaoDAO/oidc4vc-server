@@ -46,7 +46,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api
 
 # Release
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -72,16 +72,25 @@ def page_abort(e):
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
+"""
+LANGUAGES = ['en', 'fr']
+@babel.localeselector
+def get_locale():
+    if not session.get('language') :
+        return request.accept_languages.best_match(LANGUAGES)
+    refresh()
+    return session.get('language')
+"""
 
 LANGUAGES = ['en', 'fr']
 @babel.localeselector
 def get_locale():
-    print('session language = ', session.get('language'))
     if not session.get('language') :
-        return request.accept_languages.best_match(LANGUAGES)
-    print('call localeselector')
-    refresh()
-    return session.get('language')
+        session['language'] = request.accept_languages.best_match(LANGUAGES)
+    else :
+        refresh()
+    return session['language']
+
 
 """
 https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-i18n-and-l10n
@@ -114,11 +123,7 @@ app.add_url_rule('/create_company_cci/code/', view_func=web_create_company_cci.c
 app.add_url_rule('/create_company_cci/post_code/', view_func=web_create_company_cci.cci_post_code, methods = ['GET','POST'], defaults={'mode': mode})
 
 # Centralized @route to display certificates
-app.add_url_rule('/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})
-app.add_url_rule('/guest/certificate/',  view_func=web_certificate.show_certificate, defaults={'mode': mode})  # idem previous
-app.add_url_rule('/certificate/verify/',  view_func=web_certificate.certificate_verify, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/certificate/issuer_explore/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/guest/',  view_func=web_certificate.certificate_issuer_explore, methods = ['GET'], defaults={'mode': mode}) # idem previous
+web_certificate.init_app(app, mode)
 
 # Centralized route for the Blockchain CV
 app.add_url_rule('/resume/', view_func=web_external.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
