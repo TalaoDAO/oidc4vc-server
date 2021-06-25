@@ -2,40 +2,64 @@
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
-            "schema" : "https://schema.org/",
-
             "IdentityPass" : {
-                "@id": "https://w3id.org/citizenship#PermanentResidentCard",
+                "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
-                    "email" : "schema:email",
-                    "identifier": "schema:identifier",
-                    "image": "schema:image",
-                    "givenName" : "schema:givenName",
-                    "familyName" : "schema:familyName",
-                    "gender" : "schema:gender",
-                    "address" : "schema:address",
-                    "birthDate" : "schema:birthDate"
+                    "expires" : "schema:expires",
+                    "recipient" : {
+                        "@id" : "schema:recipient",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "email" : "schema:email",
+                            "identifier": "schema:identifier",
+                            "image": "schema:image",
+                            "givenName" : "schema:givenName",
+                            "familyName" : "schema:familyName",
+                            "gender" : "schema:gender",
+                            "address" : "schema:address",
+                            "birthDate" : "schema:birthDate"
+                        }
+                    },
+                    "author": {
+                        "@id": "schema:author",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :  "schema:name",
+                            "logo" : "schema:image"
+                        }
+                    }
                 }
               }
             }
         ],
         "id": "aaa:aaa",
-        "type": ["VerifiableCredential","IdentityPass"],
+        "type": ["VerifiableCredential", "IdentityPass"],
         "issuer": "",
         "issuanceDate": "2021-05-06T14:08:28-06:00",
         "credentialSubject" : {
             "id": "aa:aaa",
-            "@type" : "IdentityPass",
-            "email" : "kjlkjlkjl",
-            "identifier" : "",
-            "image" : "",
-            "familyName" : "",
-            "givenName" : "",
-            "gender" : ""
+            "type" : "IdentityPass",
+            "recipient" : {
+                "email" : "kjlkjlkjl",
+                "identifier" : "",
+                "image" : "",
+                "familyName" : "",
+                "address" : "",
+                "birthDate" : "",
+                "givenName" : "",
+                "gender" :  ""
+                },
+            "expires" : "",
+            "author" : {
+                "name" : "",
+                "logo" : "http://Talao_log"
+                  }
         }
 }

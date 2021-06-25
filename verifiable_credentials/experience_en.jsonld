@@ -12,9 +12,7 @@
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
-                    "description" :  "schema:name",
-                    "jobTitle" :"schema:jobTitle",
-                    "image" : "schema:image"
+                    "description" :  "schema:description"
                 }
             },
             "SignatureLine": {

@@ -17,7 +17,7 @@ from components import sms, directory, ns, company
 CREDENTIAL_TOPIC = ['pass', 'experience', 'skill', 'training', 'recommendation', 'work','vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
 def translate_credentials() :
-	return {'pass_txt' : _('Identiy Pass'),
+	return {'pass_txt' : _('Identiy pass'),
 		'experience_txt' : _('Experience credential'),
 		'skill_txt' : _('Skill certificate'),
 		'training_txt' : _('Training certificate'),

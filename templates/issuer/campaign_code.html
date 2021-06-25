@@ -20,19 +20,19 @@
                 <div class="col-lg-8 col-xl-4 offset-lg-2 offset-xl-4">
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="text-primary m-0 font-weight-bold">&nbsp;{{_('Campaign code')}}</p>
+                            <p class="text-primary m-0 font-weight-bold">&nbsp;{{_('Reference code')}}</p>
                         </div>
                         <div class="card-body">
                             <form action="/user/request_certificate" method="post">
                                 <div class="form-row">
                                     <div class="col">
-                                        <p>{{company_name}} {{_(' provided you with a Campaign Code. Enter this code to access to the available credentials.')}}
+                                        <p>{{company_name}} {{_(' provided you with a Reference code. Enter this code to access to the available credentials.')}}
                                         <br>
                                         </p>
                                     <div class="row">
                                         <div class="col-6 offset-3">
                                         <div class="form-group">
-                                            <input class="form-control" type="text" title="" data-bs-tooltip="" required  name="campaign_code" >
+                                            <input class="form-control" type="text" title="" data-bs-tooltip="" required  name="reference_code" >
                                         </div>
                                         </div>
                                     </div>
@@ -40,7 +40,7 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="col-6 col-xl-3">
-                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="" type="submit" name="choice" value="campaign_code">{{_('Next')}}</button></div>
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" title="" type="submit" name="choice" value="reference_code">{{_('Next')}}</button></div>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <div class="form-group"><button onclick="goBack()" title="Back to previous view" class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>

@@ -10,14 +10,31 @@
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
-                    "email" : "schema:email",
-                    "identifier": "schema:identifier",
-                    "image": "schema:image",
-                    "givenName" : "schema:givenName",
-                    "familyName" : "schema:familyName",
-                    "gender" : "schema:gender",
-                    "address" : "schema:address",
-                    "birthDate" : "schema:birthDate"
+                    "expires" : "schema:expires",
+                    "recipient" : {
+                        "@id" : "schema:recipient",
+                        "#context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "email" : "schema:email",
+                            "identifier": "schema:identifier",
+                            "image": "schema:image",
+                            "givenName" : "schema:givenName",
+                            "familyName" : "schema:familyName",
+                            "gender" : "schema:gender",
+                            "address" : "schema:address",
+                            "birthDate" : "schema:birthDate"
+                        }
+                    },
+                    "author": {
+                        "@id": "schema:author",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :  "schema:name",
+                            "logo" : "schema:image"
+                        }
+                    }
                 }
               }
             }
@@ -29,11 +46,18 @@
         "credentialSubject" : {
             "id": "aa:aaa",
             "type" : "IdentityPass",
-            "email" : "kjlkjlkjl",
-            "identifier" : "",
-            "image" : "",
-            "familyName" : "",
-            "givenName" : "",
-            "gender" : ""
+            "recipient" : {
+                "email" : "kjlkjlkjl",
+                "identifier" : "",
+                "image" : "",
+                "familyName" : "",
+                "givenName" : "",
+                "gender" :  ""
+                },
+            "expires" : "",
+            "author" : {
+                "name" : "",
+                "logo" : "http://Talao_log"
+                  }
         }
 }
