@@ -7,13 +7,14 @@ $ export MYENV=livebox
 $ python main.py
 
 """
+
 import os
 import time
 import json
-from flask_babel import Babel
-from flask_babel import _
-from flask_babel import refresh
-from flask import Flask, redirect, jsonify, request, session
+from flask_qrcode import QRcode
+from flask.templating import render_template_string
+from flask_babel import Babel, _, refresh
+from flask import Flask, redirect, jsonify, request, session, render_template
 from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
@@ -32,7 +33,7 @@ if not mychain or not myenv :
     logging.error('environment variables missing')
     logging.error('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
     mychain='talaonet'
-    myenv='airbox'
+    myenv='liveboxh'
 if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
     logging.error('wrong chain')
     exit()
@@ -43,10 +44,10 @@ logging.info('end of init')
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api
+from routes import web_main, web_login, repository, cci_api, web_credible
 
 # Release
-VERSION = "0.10.2"
+VERSION = "0.10.3"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -63,7 +64,10 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 babel = Babel(app)
 sess = Session()
 sess.init_app(app)
+qrcode = QRcode(app)
 
+
+ 
 @app.errorhandler(403)
 def page_abort(e):
     """
@@ -72,15 +76,6 @@ def page_abort(e):
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
-"""
-LANGUAGES = ['en', 'fr']
-@babel.localeselector
-def get_locale():
-    if not session.get('language') :
-        return request.accept_languages.best_match(LANGUAGES)
-    refresh()
-    return session.get('language')
-"""
 
 LANGUAGES = ['en', 'fr']
 @babel.localeselector
@@ -101,6 +96,12 @@ pybabel compile -d translations
 
 """
 
+
+@app.route('/test', methods=['GET', 'POST'])
+def test() :
+    return render_template("test.html")
+
+
 @app.route('/user/language', methods=['GET'], defaults={'mode': mode})
 def user_language(mode) :
     session['language'] = request.args['lang']
@@ -109,6 +110,9 @@ def user_language(mode) :
 
 # Centralized @route for register identity
 web_register.init_app(app, mode)
+
+# Centralized @route for Credible interaction
+web_credible.init_app(app)
 
 # Centralized route for login 
 web_login.init_app(app,  mode)
@@ -232,38 +236,7 @@ app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GE
 # DID API
 @app.route('/.well-known/did-configuration.json', methods=['GET']) 
 def well_known_did_configuration () :
-    document = {
-        "@context": "https://identity.foundation/.well-known/did-configuration/v1",
-        "linked_dids": [{
-  "@context": [
-        "https://www.w3.org/2018/credentials/v1",
-        {
-            "origin": "https://identity.foundation/.well-known/resources/did-configuration/#origin",
-            "DomainLinkageCredential": "https://identity.foundation/.well-known/resources/did-configuration/#DomainLinkageCredential",
-            "LinkedDomains": "https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains",
-            "linked_dids": "https://identity.foundation/.well-known/resources/did-configuration/#linked_dids"
-        }
-    ],
-  "type": [
-    "VerifiableCredential",
-    "DomainLinkageCredential"
-  ],
-  "credentialSubject": {
-    "id": "did:web:talao.co",
-    "origin": "https://talao.co"
-  },
-  "issuer": "did:web:talao.co",
-  "issuanceDate": "2021-05-02T00:00:00Z",
-  "proof": {
-    "type": "EcdsaSecp256k1Signature2019",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": "did:web:talao.co#key-1",
-    "created": "2021-05-12T07:51:17.888Z",
-    "jws": "eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..Nq3lF-bFOCpZ-kSB8RufLDOwsqaHH77LNzUdTcOCnbJqRGGCqZ3MsnGlBFscl_8QNJ2PRFiAVi5hOHWe0dLjLg"
-  },
-  "expirationDate": "2026-05-01T00:00:00Z"
-    }]}
-
+    document = json.load(open('./verifiable_credentials/well_known_did_configuration.jsonld', 'r'))
     return jsonify(document)
 
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})

@@ -194,7 +194,7 @@ def verifier() :
         try :
             credential = json.loads(data['credential']) # dict
         except :
-            return jsonify("Credential is not a JSON-LD.")
+            return jsonify(_("Credential is not a JSON-LD."))
 
         # lookup DID Document
         if credential['issuer'].split(':')[1]  == 'tz' :
@@ -204,11 +204,11 @@ def verifier() :
             try :
                 r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + credential['issuer'])
             except :
-                return jsonify("Network connexion problem.")
+                return jsonify(_("Network connexion problem."))
             if r.status_code == 200 :
                 DID_Document = r.json()['didDocument']
             else :
-                return jsonify("Unknown issuer DID.")
+                return jsonify(_("Unknown issuer DID."))
 
         # lookup Domain list of the service linkedDomains endpoint
         service_list = DID_Document.get('service', [])
@@ -217,13 +217,13 @@ def verifier() :
             if service['type'] == 'LinkedDomains' :
                 domain_list = service['serviceEndpoint']
         if not domain_list :
-            return jsonify(vc_signature.verify(data['credential']) + "No issuer credential has been found (No LinkedDomains service Endpoint).")
+            return jsonify(vc_signature.verify(data['credential']) + _("No issuer credential has been found (No LinkedDomains service Endpoint)."))
         if isinstance(domain_list, str) :
             domain_list = domain_list.split()
 
         # lookup issuer dids with  '.well-known/did-configuration.json'
         breakloop = False
-        message = "No issuer credential has been found."
+        message = _(" No issuer credential has been found.")
         for domain in domain_list :
             r = requests.get(domain + '/.well-known/did-configuration.json')
             if r.status_code == 200 :
@@ -233,7 +233,7 @@ def verifier() :
                     if linked_did['proof']['verificationMethod'] == credential['proof']['verificationMethod'] :
                         result = didkit.verifyCredential(json.dumps(linked_did), '{}')
                         if not json.loads(result)['errors'] :
-                            message = "This Issuer owns the domain  " + domain +"."
+                            message = " This Issuer owns the domain  " + domain + "."
                             breakloop = True
                             break
                 if breakloop :

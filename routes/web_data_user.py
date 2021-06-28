@@ -73,11 +73,11 @@ def data(mode) :
 	# Display raw verifiable credential
 	credential = Document('certificate')
 	credential.relay_get_credential(session['workspace_contract'], doc_id, mode)
-	credential_text = json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 	return render_template('data_check.html',
 							**session['menu'],
 							verif=myadvanced,
-							credential=credential_text)
+							credential=json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False),
+							id=credential.__dict__['id'])
 
 
 def user(mode) :

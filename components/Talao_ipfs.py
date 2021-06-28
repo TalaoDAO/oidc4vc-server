@@ -97,7 +97,7 @@ def ipfs_get(ipfs_hash) :
 	except :
 		data = ipfs_get_pinata(ipfs_hash)
 		add_dict_to_local(data)
-		return data
+	return data
 
 def pin_to_pinata (my_hash, mode) :
 	api_key = mode.pinata_api_key
@@ -112,10 +112,10 @@ def pin_to_pinata (my_hash, mode) :
 	return response.json()['IpfsHash']
 
 def get_picture(ipfs_hash, filename) :
-	try :
-		response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, stream=True, timeout=5)
-	except :
-		response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
+	#try :
+	#	response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, stream=True, timeout=5)
+	#except :
+	response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
 	with open(filename, 'wb') as out_file:
 		shutil.copyfileobj(response.raw, out_file)
 		del response

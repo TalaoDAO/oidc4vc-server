@@ -47,7 +47,7 @@ def init_app(app, mode) :
     app.add_url_rule('/user/request_reference_credential',  view_func=request_reference_credential, methods = ['POST'], defaults={'mode' : mode})
     app.add_url_rule('/user/request_pass_credential',  view_func=request_pass_credential, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/company/dashboard/',  view_func=company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
-    app.add_url_rule('/company/issue_credential_workflow/',  view_func=issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
+    app.add_url_rule('/company/issue_credential_workflow',  view_func=issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
     app.add_url_rule('/company/add_campaign/',  view_func=add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
     app.add_url_rule('/company/remove_campaign/',  view_func=remove_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
     return
@@ -167,8 +167,7 @@ def request_reference_credential(mode) :
 
     # load templates for verifibale credential and init with view form and session
     unsigned_credential = json.load(open('./verifiable_credentials/reference.jsonld', 'r'))
-    id = str(uuid.uuid1())
-    unsigned_credential["id"] =  "data:" + id
+    unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['workspace_contract'], mode)
     unsigned_credential[ "credentialSubject"]["name"] = session["name"]
     unsigned_credential[ "credentialSubject"]["offers"]["title"] = request.form['title']
@@ -196,7 +195,7 @@ def request_reference_credential(mode) :
                         request.form['reviewer_username'],
                         manager_username,
                         "drafted",
-                        id,
+                        unsigned_credential["id"],
                         json.dumps(unsigned_credential),
                         session['reference'])
 
@@ -221,11 +220,10 @@ def request_pass_credential(mode) :
     """ Basic request for identity pass    """
     check_login()
     # load JSON-LD model for IdentityPass
-    unsigned_credential = json.load(open('./verifiable_credentials/identity.jsonld', 'r'))
+    unsigned_credential = json.load(open('./verifiable_credentials/IdentityPass.jsonld', 'r'))
 
     # update credential with form data
-    id = str(uuid.uuid1())
-    unsigned_credential["id"] = "data:" + id
+    unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
     unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
     unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
@@ -238,7 +236,7 @@ def request_pass_credential(mode) :
                         session['credential_issuer_username'],
                         session['credential_issuer_username'],
                         "drafted",
-                        id,
+                        unsigned_credential["id"],
                         json.dumps(unsigned_credential, ensure_ascii=False),
                         session['reference'])
 
@@ -264,13 +262,13 @@ def request_experience_credential(mode) :
     """
     check_login()
     # load JSON-LD model for ProfessionalExperiencAssessment
-    unsigned_credential = json.load(open('./verifiable_credentials/experience_' + session['language'] + '.jsonld', 'r'))
+    unsigned_credential = json.load(open('./verifiable_credentials/ProfessionalExperienceAssessment_' + session['language'] + '.jsonld', 'r'))
 
     # update credential with form data
-    id = str(uuid.uuid1())
-    unsigned_credential["id"] = "data:" + id
+    unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
-    unsigned_credential["credentialSubject"]["recipient"]["name"] = session['name']
+    unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
+    unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
     unsigned_credential["credentialSubject"]["startDate"] = request.form['start_date']
@@ -293,7 +291,7 @@ def request_experience_credential(mode) :
                         request.form['reviewer_username'],
                         manager_username,
                         "drafted",
-                        id,
+                        unsigned_credential["id"],
                         json.dumps(unsigned_credential, ensure_ascii=False),
                         session['reference'])
 
@@ -399,27 +397,28 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     mylist = credential.get(issuer_username, reviewer_username, status)
     credential_list = ""
     for mycredential in mylist :
-        print(mycredential)
+
         if "ProfessionalExperienceAssessment" in json.loads(mycredential[5])['type'] :
-            subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
-            title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
-            description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
-            type = "ProfessionalExperienceAssessment"
-            name = json.loads(mycredential[5])['credentialSubject']["recipient"]['name']
+                subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+                title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
+                description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
+                type = "ProfessionalExperienceAssessment"
+                name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
 
         elif "IdentityPass" in json.loads(mycredential[5])['type'] :
-            subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
-            type = "IdentityPass"
-            title = description = "N/A"
-            name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
+                subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
+                type = "IdentityPass"
+                title = description = "N/A"
+                name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
 
         else :
             subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
-            type = "Non Supported"
+            type = _("Not Supported")
             title = description = "N/A"
+            name = 'N/A'
         
         credential = """<tr>
-                <td><a href=/company/issue_credential_workflow/?id=""" + mycredential[6] + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
+                <td><a href=/company/issue_credential_workflow?id=""" + mycredential[6] + """> """ + mycredential[6][:2] + '...' + mycredential[6][-2:]  + """</a></td>
                 <!-- <td><a href=""" + subject_link + """>""" + name + """</a></td> -->
                 <td>""" + name + """</td>
                 <td>""" + mycredential[7] + """</td>
@@ -465,7 +464,7 @@ def issue_credential_workflow(mode) :
                         picturefile = session['picture'],
 						clipboard = mode.server  + "board/?did=" + session['did'],
                         **my_credential,
-                        recipient_name = my_credential["recipient"]["name"],
+                        recipient_name = my_credential["recipient"]["givenName"] + ' ' + my_credential["recipient"]["familyName"],
                         author_name = my_credential["author"]["name"],
                         signer_name = my_credential["signatureLines"]["name"],
                         scoreRecommendation =  my_credential["review"][reviewRecommendation]["reviewRating"]["ratingValue"],
@@ -516,6 +515,7 @@ def issue_credential_workflow(mode) :
             my_credential['credentialSubject']['signatureLines']['image'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
+            print(json.dumps(my_credential))
             signed_credential = vc_signature.sign(my_credential,
                                                 session['private_key_value'],
                                                 my_credential['issuer'])
@@ -548,7 +548,7 @@ def issue_credential_workflow(mode) :
                 flash(_('Add credential to repository failed '), 'danger')
                 logging.error('certificate to repository failed')
             else :
-                flash('The credential has been added to the user repository', 'success')
+                flash(_('The credential has been added to the user repository'), 'success')
 
             """
             # send an email to user
@@ -560,7 +560,7 @@ def issue_credential_workflow(mode) :
             """
             # store signed credential on server
             try :
-                filename = session['credential_id'] + '_credential.jsonld'
+                filename = session['credential_id'] + '.jsonld'
                 path = "./signed_credentials/"
                 with open(path + filename, 'w') as outfile :
                     json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
@@ -620,7 +620,7 @@ def get_form_data(my_credential, form) :
         if skill :
             my_credential["credentialSubject"]["skills"].append(
                             {
-                            "@type": "DefinedTerm",
+                            "@type": "Skill",
                             "description": skill
                             })
     my_credential['credentialSubject']["signatureLines"]['name'] = form.get('managerName', " ")

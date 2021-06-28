@@ -70,6 +70,6 @@ def verify (credential) :
         return "Failed : JSON-LD malformed"
 
     if not json.loads(result)['errors'] :
-        return "Signature verified : "
+        return "Signature verified"
     else :
         return "Signature rejected : " + result
