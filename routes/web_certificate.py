@@ -145,14 +145,19 @@ def show_certificate(mode):
 			with open(mode.uploads_path + logo, 'wb') as out_file:
 				shutil.copyfileobj(response.raw, out_file)
 			del response
-
+		try :
+			name = session['displayed_certificate']['credentialSubject']['recipient']['givenName'] + ' ' + \
+				session['displayed_certificate']['credentialSubject']['recipient']['familyName']
+		except :
+			name = session['displayed_certificate']['credentialSubject']['recipient']['name']
+			
 		return render_template('./certificate/experience_certificate.html',
 							**menu,
 							managerName=session['displayed_certificate']['credentialSubject']['signatureLines']['name'],
 							companyName=session['displayed_certificate']['credentialSubject']['author']['name'],
 							badge=my_badge,
 							title = session['displayed_certificate']['credentialSubject']['title'],
-							subject_name = session['displayed_certificate']['credentialSubject']['recipient']['name'],
+							subject_name = name,
 							description=session['displayed_certificate']['credentialSubject']['description'],
 							start_date=session['displayed_certificate']['credentialSubject']['startDate'],
 							end_date=session['displayed_certificate']['credentialSubject']['endDate'],

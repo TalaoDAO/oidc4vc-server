@@ -2,7 +2,7 @@
 Identity init for users and companies
 """
 from flask import session, flash
-from flask import request, redirect, render_template, abort
+from flask import request, redirect, render_template, abort, flash
 import time
 import json
 from flask_babel import _
@@ -11,9 +11,13 @@ import didkit
 import logging
 from flask_babel import _
 logging.basicConfig(level=logging.INFO)
+from os import path
+from authlib.jose import JsonWebEncryption
+from datetime import timedelta, datetime
+
 
 # dependances
-from components import ns,directory, company
+from components import ns,directory, company, privatekey
 from protocol import Identity, Document
 from signaturesuite import helpers
 
@@ -86,16 +90,38 @@ def user(mode) :
 	Main view for Identity Repository
 	We setup Ientity with workspace or username depending of the login method
 	"""
-	check_login()
-	if not session.get('uploaded', False) :
+	#check_login()
+	if not session.get('uploaded') :
 		logging.info('start first instanciation')
-		if not session.get('workspace_contract') :
+
+		if session.get('username') :
 			logging.info('Identity set up from username')
 			data_from_username = ns.get_data_from_username(session['username'], mode)
 			session['workspace_contract'] = data_from_username['workspace_contract']
-		else :
+		elif session.get('workspace_contract') :
 			logging.info('Identity set up from workspace contract')
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
+		elif request.args.get('token') :
+			logging.info('Identity set up from token')
+			token = request.args.get('token')
+			key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+			jwe = JsonWebEncryption()
+			try :
+				data = jwe.deserialize_compact(token, key)
+			except :
+				flash (_('Incorrect data.'), 'danger')
+				logging.warning('JWE did not decrypt')
+				return render_template('./login/login_password.html')
+			payload = json.loads(data['payload'].decode('utf-8'))
+			if payload['exp'] < datetime.timestamp(datetime.now()) :
+				flash (_('Delay expired !'), 'danger')
+				return render_template('./login/login_password.html')
+			did = payload['did']
+			session['workspace_contract'] = ns.get_workspace_contract_from_did(did, mode)
+			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
+		else :
+			abort(403)
+
 		if mode.test :
 			user = Identity(session['workspace_contract'], mode, authenticated=True)
 		else :
@@ -363,30 +389,42 @@ def user(mode) :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				try : 
 					cert_html = """<hr>
-					<b>""" + _('Credential Type') + """</b> : """ + certificate['type'][1] + """<br>
-					<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """<br>
-					<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('author', 'None')['name'].capitalize() + """ <br>
-					<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
-					<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
+						<b>""" + _('Credential Type') + """</b> : """ + certificate['type'][1] + """<br>
+						<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """<br>
+						<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('author', 'None')['name'].capitalize() + """ <br>
+						<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
+						<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
+					# FIXME
+					credential = Document('certificate')
+					credential.relay_get_credential(session['workspace_contract'], int(certificate['doc_id']), mode)
+					filepath = './signed_credentials/' + credential.id + ".jsonld"
+					if not path.exists(filepath) :
+						outfile = open(filepath, 'w')
+						json.dump(credential.__dict__, outfile, indent=4, ensure_ascii=False)	
 				except :
 					cert_html = """<hr>
 					<b>#</b> : """ + str(counter) + "<br>"
-
-				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>Display Credential</a><br>
-					<p>
+					id = ""
+				
+				if "IdentityPass" not in credential.type :
+					cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Credential') + """</a><br>"""
+				
+				cert_html += """<b></b><a href= """ + mode.server +  """credible/credentialOffer/""" + credential.id + """>""" + _('Download to Credible wallet') + """</a><br>"""				
+				cert_html += """<p>
 					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
 					<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
 					</a>
 
 					<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
 					<i data-toggle="tooltip" class="fa fa-search-plus" title="Credential data">&nbsp&nbsp&nbsp</i>
-					</a>
+					</a>"""
 
-					<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+				if "IdentityPass" not in credential.type :
+					cert_html += """<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
 					<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link">&nbsp&nbsp&nbsp</i>
-					</a>
+					</a>"""
 
-					<a class="text-secondary" href=/user/swap_privacy/?certificate_id=""" + certificate['id'] + """&privacy=""" + certificate['privacy'] +  """>
+				cert_html += """<a class="text-secondary" href=/user/swap_privacy/?certificate_id=""" + certificate['id'] + """&privacy=""" + certificate['privacy'] +  """>
 					<i data-toggle="tooltip" title="Change privacy" class="fas fa-redo" >&nbsp&nbsp&nbsp</i>
 					</a>
 

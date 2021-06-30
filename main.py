@@ -112,7 +112,7 @@ def user_language(mode) :
 web_register.init_app(app, mode)
 
 # Centralized @route for Credible interaction
-web_credible.init_app(app)
+web_credible.init_app(app, mode)
 
 # Centralized route for login 
 web_login.init_app(app,  mode)
@@ -315,4 +315,4 @@ if __name__ == '__main__':
     # info release
     logging.info('flask serveur init')
 
-    app.run(host = mode.flaskserver, port= mode.port, debug = mode.test)
+    app.run(host = mode.flaskserver, port= mode.port, debug = mode.test, threaded=True)

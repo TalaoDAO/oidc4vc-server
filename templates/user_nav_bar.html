@@ -98,9 +98,8 @@
             <div class="dropdown-divider"></div>
             {% if session['username']  == 'thierrythevenet' %}
             <a class="dropdown-item" role="presentation" title="Make a presentation" href="/user/presentation/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Presentation')}}</a>
-              {% endif %}
-
             <a class="dropdown-item" role="presentation" title="Verify a credential" href="/verifier/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Verifier')}}</a>
+            {% endif %}
             <a class="dropdown-item " title="Invit" role="presentation" href="/user/invit/"><i class="fa fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Invit by email')}}</a>
             <div class="dropdown-divider"></div>
 

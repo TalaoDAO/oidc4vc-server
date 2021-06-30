@@ -154,7 +154,6 @@ def _get(workspace_contract_from, private_key_from, workspace_contract_user, doc
 	contract = w3.eth.contract(workspace_contract_user,abi=constante.workspace_ABI)
 	try :
 		(doctype, doctypeversion, unused, issuer, unused, unused, ipfshash, unused, unused) = contract.functions.getDocument(documentId).call()
-		print('connexion ok')
 	except :
 		logging.error('connexion blockchain talaonet impossble, document.py')
 		return None, None, None, None, None, None, None

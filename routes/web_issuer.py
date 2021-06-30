@@ -398,14 +398,14 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     credential_list = ""
     for mycredential in mylist :
 
-        if "ProfessionalExperienceAssessment" in json.loads(mycredential[5])['type'] :
+        if json.loads(mycredential[5])['credentialSubject']['type'] == "ProfessionalExperienceAssessment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
                 description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
                 type = "ProfessionalExperienceAssessment"
                 name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
 
-        elif "IdentityPass" in json.loads(mycredential[5])['type'] :
+        elif json.loads(mycredential[5])['credentialSubject']['type'] == "IdentityPass" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "IdentityPass"
                 title = description = "N/A"
@@ -449,35 +449,51 @@ def issue_credential_workflow(mode) :
 
         # credential is loaded  as dict
         my_credential = json.loads(session['call'][5])['credentialSubject']
+        print('mycredential = ', my_credential)
 
-        # en attendant 
-        if not "ProfessionalExperienceAssessment" in json.loads(session['call'][5])['type'] :
+        # switch
+        if json.loads(session['call'][5])['credentialSubject']['type'] == "ProfessionalExperienceAssessment" :
+            skills_str = ""
+            for skill in my_credential['skills'] :
+                skills_str += skill['description'] + ','
+            reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+            return render_template ('./issuer/issue_experience_credential_workflow.html',
+                credential_id=request.args['id'],
+                picturefile = session['picture'],
+				clipboard = mode.server  + "board/?did=" + session['did'],
+                **my_credential,
+                recipient_name = my_credential["recipient"]["givenName"] + ' ' + my_credential["recipient"]["familyName"],
+                author_name = my_credential["author"]["name"],
+                signer_name = my_credential["signatureLines"]["name"],
+                scoreRecommendation =  my_credential["review"][reviewRecommendation]["reviewRating"]["ratingValue"],
+                questionRecommendation = my_credential["review"][reviewRecommendation]["reviewBody"],
+                scoreSchedule =  my_credential["review"][reviewSchedule]["reviewRating"]["ratingValue"],
+                questionSchedule = my_credential["review"][reviewSchedule]["reviewBody"],
+                scoreCommunication =  my_credential["review"][reviewCommunication]["reviewRating"]["ratingValue"],
+                questionCommunication = my_credential["review"][reviewCommunication]["reviewBody"],
+                scoreDelivery =  my_credential["review"][reviewDelivery]["reviewRating"]["ratingValue"],
+                questionDelivery = my_credential["review"][reviewDelivery]["reviewBody"],
+                skills_str= skills_str,
+                field= field,
+                )
+        elif json.loads(session['call'][5])['credentialSubject']['type'] == "IdentityPass" :
+            return render_template('./issuer/issue_identity_credential.html',
+                credential_id=request.args['id'],
+                picturefile = session['picture'],
+                reference= session['call'][6],
+				clipboard = mode.server  + "board/?did=" + session['did'],
+                givenName = my_credential["recipient"].get("givenName"),
+                familyName = my_credential["recipient"].get("familyName"),
+                address = my_credential["recipient"].get("address"),
+                birthDate = my_credential["recipient"].get("birthDate"),
+                email = my_credential["recipient"].get("email"),
+                telephone = my_credential["recipient"].get("telephone"),
+                gender = my_credential["recipient"].get("gender"),
+                field= field)
+
+        else : 
             flash(_('view not yet available'), 'warning')
             return redirect (mode.server +'company/dashboard/')
-
-        skills_str = ""
-        for skill in my_credential['skills'] :
-            skills_str += skill['description'] + ','
-        reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
-        return render_template ('./issuer/issue_experience_credential_workflow.html',
-                        credential_id=request.args['id'],
-                        picturefile = session['picture'],
-						clipboard = mode.server  + "board/?did=" + session['did'],
-                        **my_credential,
-                        recipient_name = my_credential["recipient"]["givenName"] + ' ' + my_credential["recipient"]["familyName"],
-                        author_name = my_credential["author"]["name"],
-                        signer_name = my_credential["signatureLines"]["name"],
-                        scoreRecommendation =  my_credential["review"][reviewRecommendation]["reviewRating"]["ratingValue"],
-                        questionRecommendation = my_credential["review"][reviewRecommendation]["reviewBody"],
-                        scoreSchedule =  my_credential["review"][reviewSchedule]["reviewRating"]["ratingValue"],
-                        questionSchedule = my_credential["review"][reviewSchedule]["reviewBody"],
-                        scoreCommunication =  my_credential["review"][reviewCommunication]["reviewRating"]["ratingValue"],
-                        questionCommunication = my_credential["review"][reviewCommunication]["reviewBody"],
-                        scoreDelivery =  my_credential["review"][reviewDelivery]["reviewRating"]["ratingValue"],
-                        questionDelivery = my_credential["review"][reviewDelivery]["reviewBody"],
-                        skills_str= skills_str,
-                        field= field,
-                        )
 
     if request.method == 'POST' :
         # credential is removed from database
@@ -510,12 +526,16 @@ def issue_credential_workflow(mode) :
 
         # credential has been signed by issuer
         elif request.form.get('exit') == 'sign' :
+            
+            # add signatuer Lines if needed
+            if json.loads(session['call'][5])['credentialSubject']['type'] != 'IdentityPass' :
+                manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
+                my_credential['credentialSubject']['signatureLines']['image'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
+            
             # sign credential with company key
-            manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
-            my_credential['credentialSubject']['signatureLines']['image'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
-            print(json.dumps(my_credential))
+            print('my credential  =', my_credential)
             signed_credential = vc_signature.sign(my_credential,
                                                 session['private_key_value'],
                                                 my_credential['issuer'])
@@ -605,25 +625,39 @@ def issue_credential_workflow(mode) :
 def get_form_data(my_credential, form) :
     """
     This function updates credential with form data
-    """
-    reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
-    my_credential['credentialSubject']["review"][reviewRecommendation]["reviewRating"]["ratingValue"] = form["scoreRecommendation"]
-    my_credential['credentialSubject']["review"][reviewSchedule]["reviewRating"]["ratingValue"] = form["scoreSchedule"]
-    my_credential['credentialSubject']["review"][reviewDelivery]["reviewRating"]["ratingValue"] = form["scoreDelivery"]
-    my_credential['credentialSubject']["review"][reviewCommunication]["reviewRating"]["ratingValue"] = form["scoreCommunication"]
-    my_credential['credentialSubject']['title'] = form['title']
-    my_credential['credentialSubject']['description'] = form['description']
-    my_credential['credentialSubject']['startDate'] = form['startDate']
-    my_credential['credentialSubject']['endDate'] = form['endDate']
-    my_credential['credentialSubject']['skills'] = list()
-    for skill in form['skills_str'].split(',') :
-        if skill :
-            my_credential["credentialSubject"]["skills"].append(
+    """ 
+    if json.loads(session['call'][5])['credentialSubject']['type'] == "ProfessionalExperienceAssessment" :
+        reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+        my_credential['credentialSubject']["review"][reviewRecommendation]["reviewRating"]["ratingValue"] = form["scoreRecommendation"]
+        my_credential['credentialSubject']["review"][reviewSchedule]["reviewRating"]["ratingValue"] = form["scoreSchedule"]
+        my_credential['credentialSubject']["review"][reviewDelivery]["reviewRating"]["ratingValue"] = form["scoreDelivery"]
+        my_credential['credentialSubject']["review"][reviewCommunication]["reviewRating"]["ratingValue"] = form["scoreCommunication"]
+        my_credential['credentialSubject']['title'] = form['title']
+        my_credential['credentialSubject']['description'] = form['description']
+        my_credential['credentialSubject']['startDate'] = form['startDate']
+        my_credential['credentialSubject']['endDate'] = form['endDate']
+        my_credential['credentialSubject']['skills'] = list()
+        for skill in form['skills_str'].split(',') :
+            if skill :
+                my_credential["credentialSubject"]["skills"].append(
                             {
                             "@type": "Skill",
                             "description": skill
                             })
-    my_credential['credentialSubject']["signatureLines"]['name'] = form.get('managerName', " ")
+        my_credential['credentialSubject']["signatureLines"]['name'] = form.get('managerName', " ")
+
+    elif json.loads(session['call'][5])['credentialSubject']['type'] == "IdentityPass" :
+        recipient = dict()
+        recipient["familyName"] = form['familyName']
+        recipient["givenName"] = form['givenName']
+        recipient["birthDate"] = form['birthDate']
+        recipient["gender"] = form['gender']
+        recipient["email"] = form['email']
+        recipient["telephone"] = form['telephone']
+        recipient["address"] = form['address']
+        recipient['image'] = ""
+        my_credential['credentialSubject']['recipient'] = recipient
+
     return
 
 

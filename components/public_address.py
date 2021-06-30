@@ -57,4 +57,3 @@ if __name__ == '__main__':
     myenv = os.getenv('MYENV')
     mode = environment.currentMode(mychain,myenv)
     a =get_key(test_workspace_1, address, 0, mode)
-    print('a = ', a, type(a))

@@ -16,9 +16,10 @@
                         "@context" : {
                             "@version": 1.1,
                             "@protected": true,
+                            "schema" : "https://schema.org/",
                             "email" : "schema:email",
-                            "identifier": "schema:identifier",
                             "image": "schema:image",
+                            "telephone" : "schema:telephone",
                             "givenName" : "schema:givenName",
                             "familyName" : "schema:familyName",
                             "gender" : "schema:gender",
@@ -31,25 +32,26 @@
                         "@context": {
                             "@version": 1.1,
                             "@protected": true,
+                            "schema" : "https://schema.org/",
                             "name" :  "schema:name",
-                            "logo" : "schema:image"
+                            "logo" : "schema:logo"
                         }
                     }
                 }
               }
             }
         ],
-        "id": "aaa:aaa",
+        "id": "",
         "type": ["VerifiableCredential", "IdentityPass"],
         "issuer": "",
-        "issuanceDate": "2021-05-06T14:08:28-06:00",
+        "issuanceDate": "",
         "credentialSubject" : {
-            "id": "aa:aaa",
+            "id": "",
             "type" : "IdentityPass",
             "recipient" : {
-                "email" : "kjlkjlkjl",
-                "identifier" : "",
+                "email" : "",
                 "image" : "",
+                "telephone" : "",
                 "familyName" : "",
                 "address" : "",
                 "birthDate" : "",
@@ -59,7 +61,7 @@
             "expires" : "",
             "author" : {
                 "name" : "",
-                "logo" : "http://Talao_log"
+                "logo" : ""
                   }
         }
 }

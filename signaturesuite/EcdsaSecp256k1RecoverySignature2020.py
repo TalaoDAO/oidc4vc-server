@@ -61,7 +61,6 @@ if __name__ == "__main__" :
     credential["issuanceDate"] = "2020-08-19T21:41:50Z"
 
     credential = sign(credential, pvk, method=method)
-    print(json.dumps(json.loads(credential), indent=4))
 
     key = ethereum_to_jwk256kr(pvk)
     verifmethod = didkit.keyToVerificationMethod(method, key)

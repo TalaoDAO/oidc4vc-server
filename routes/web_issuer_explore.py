@@ -89,26 +89,18 @@ def issuer_explore(mode) :
 					</a>"""
 				my_file = my_file + file_html + """<br>"""
 
-		# experience
-		experiences = []
+		# ProfessionalExperienceAssessment
+		experiences = list()
 		for experience in session['issuer_explore']['certificate']:
-			if experience['credentialSubject']['credentialCategory'] =='experience':
+			if experience['credentialSubject']['type'] =='ProfessionalExperienceAssessment':
 				experiences.append(experience)
-		for experience in session['issuer_explore']['experience']:
-			experiences.append(experience)
 
 		# tri par date
 		for i, experience in enumerate(experiences):
 			min = i
-			try :
-				DTmin = time.strptime(experience['start_date'], "%Y-%m-%d")
-			except :
-				DTmin = time.strptime(experience['credentialSubject']['startDate'], "%Y-%m-%d")
+			DTmin = time.strptime(experience['credentialSubject']['startDate'], "%Y-%m-%d")
 			for j, certi in enumerate(experiences[i::]):
-				try :
-					DTcerti = time.strptime(certi['start_date'], "%Y-%m-%d")
-				except :
-					DTcerti = time.strptime(certi['credentialSubject']['startDate'], "%Y-%m-%d")
+				DTcerti = time.strptime(certi['credentialSubject']['startDate'], "%Y-%m-%d")
 				if DTcerti < DTmin:
 					min = j + i
 					DTmin = DTcerti
@@ -123,26 +115,16 @@ def issuer_explore(mode) :
 			nbr_rows = (len(experiences)-1)//3
 			for i in range(nbr_rows):
 				carousel_indicators_experience += '<li data-target="#experience-carousel" data-slide-to="{}"></li>'.format(i+1)
+			
 			for i, experience in enumerate(experiences):
-				# for verifiable credentials
-				try:
-					logo = experience['credentialSubject']['companyLogo']
-					startDate = experience['credentialSubject']['startDate']
-					endDate = experience['credentialSubject']['endDate']
-					description = experience['credentialSubject']['description']
-					title = experience['credentialSubject']['title']
-					issuer_name = experience['credentialSubject']['companyName']
+				logo = experience['credentialSubject']['author']['logo']
+				startDate = experience['credentialSubject']['startDate']
+				endDate = experience['credentialSubject']['endDate']
+				description = experience['credentialSubject']['description']
+				title = experience['credentialSubject']['title']
+				issuer_name = experience['credentialSubject']['author']['name']
 
-				# for self claims
-				except:
-					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
-					startDate = experience['start_date']
-					endDate = experience['end_date'] if experience['end_date'] else 'Current'
-					description = experience['description']
-					title = experience['title']
-					issuer_name  = ""
-
-				if logo != None:
+				if logo :
 					if not path.exists(mode.uploads_path + logo) :
 						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
 						response = requests.get(url, stream=True)
@@ -173,7 +155,7 @@ def issuer_explore(mode) :
 				#header
 				carousel_rows_experience += """
 											<div class='col px-0 my-auto'>
-												<h4 class='align-center' style='color: black;font-size: 1.4em'>" + title + "</h4>
+												<h4 class='align-center' style='color: black;font-size: 1.4em'>""" + title + """</h4>
 											</div>
 											</div>
 											<hr class='my-1'>"""

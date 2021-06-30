@@ -7,6 +7,8 @@ import didkit
 from pytezos.crypto.encoding import base58_encode
 from pytezos.crypto.key import Key
 
+import logging
+logging.basicConfig(level=logging.INFO)
 
 
 """
@@ -60,7 +62,7 @@ def jwk_to_tezos(jwk) :
         address = sk.public_key_hash()
         return tez_pvk, pbk, address
     else :
-        print('not implemented')
+        logging.error('not implemented')
         return None
 
 
