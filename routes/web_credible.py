@@ -4,11 +4,28 @@ from components import privatekey
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime
-import redis
+import queue
 
 
 
-red = redis.StrictRedis()
+class MessageAnnouncer:
+
+    def __init__(self):
+        self.listeners = []
+
+    def listen(self):
+        q = queue.Queue(maxsize=5)
+        self.listeners.append(q)
+        return q
+
+    def announce(self, msg):
+        for i in reversed(range(len(self.listeners))):
+            try:
+                self.listeners[i].put_nowait(msg)
+            except queue.Full:
+                del self.listeners[i]
+
+announcer = MessageAnnouncer()
 
 def init_app(app,mode) :
     app.add_url_rule('/credible/credentialOffer/<id>',  view_func=credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -89,15 +106,15 @@ def wallet_presentation(mode):
             'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
             'domain' : 'example.com'
             }
-        """
+        
         return jsonify({
             "type": "VerifiablePresentationRequest",
             "query" : query,
             "challenge": "credential",
             "domain" : "https://talao.co"
         })
-        """
-        return jsonify(my_request)
+        
+        #return jsonify(my_request)
 
     elif request.method == 'POST':
         print('entree dans post')
@@ -106,26 +123,27 @@ def wallet_presentation(mode):
         #issuer = presentation['verifiableCredential']['issuer']
         #workspace_contract = ns.get_workspace_contract_from_did(holder, mode)
         data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
-        print('avant red.publish')
-        red.publish('credible', data)
-        print('apres red.publish')
+        announcer.announce(msg=data)
         return jsonify("ok")
 
 
 # server event push 
 
-
-def event_stream():
-    pubsub = red.pubsub()
-    pubsub.subscribe('credible')
-    for message in pubsub.listen():
-        print(message)
-        if message['type']=='message':
-            yield 'data: %s\n\n' % message['data'].decode('utf-8')
+def format_sse(data, event=None) :
+    msg = f'data: {data}\n\n'
+    if event is not None:
+        msg = f'event: {event}\n{msg}'
+    return msg
 
 
 def stream():
-    return Response(event_stream(), mimetype="text/event-stream")
+    def event_stream():
+        messages = announcer.listen()  # returns a queue.Queue
+        while True:
+            msg = messages.get()  # blocks until a new message arrives
+            print('message = ', msg)
+            yield format_sse(msg)
+    return Response(event_stream(), mimetype='text/event-stream')
 
 
 def callback() :
