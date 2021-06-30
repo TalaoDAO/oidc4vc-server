@@ -100,12 +100,15 @@ def wallet_presentation(mode):
         return jsonify(my_request)
 
     elif request.method == 'POST':
+        print('entree dans post')
         presentation = json.loads(request.form['presentation'])
         holder = presentation['holder']
         #issuer = presentation['verifiableCredential']['issuer']
         #workspace_contract = ns.get_workspace_contract_from_did(holder, mode)
         data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
+        print('avant red.publish')
         red.publish('credible', data)
+        print('apres red.publish')
         return jsonify("ok")
 
 
