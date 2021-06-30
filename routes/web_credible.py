@@ -1,10 +1,11 @@
 from flask import jsonify, request, render_template, Response, session, redirect, flash
 import json
-import redis
 from components import privatekey
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime
+import redis
+
 
 
 red = redis.StrictRedis()
@@ -65,15 +66,39 @@ def VerifiablePresentationRequest_qrcode(mode):
     return render_template('credible/login_qr.html', url=url, id='presentation')
 
 def wallet_presentation(mode):
-    """
-    request a presentation for authorization (login ?)
-    """
     if request.method == 'GET':
+        credential_query = [
+	        {'reason' : 'Sign in',
+            'required' : False,
+	        'example' : [
+		    {'@context' : [
+			    'https://www.w3.org/2018/credentials/v1'
+		    ],
+		    'type' : 'VerifiableCredential'
+            }]}
+            ]
+        
+        query = [
+		{'type' : 'QueryByExample',
+		'credentialQuery' : credential_query}
+        ]
+
+        my_request = {
+            "type": "VerifiablePresentationRequest",
+            'query' :  query,
+            'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
+            'domain' : 'example.com'
+            }
+        """
         return jsonify({
             "type": "VerifiablePresentationRequest",
+            "query" : query,
             "challenge": "credential",
             "domain" : "https://talao.co"
         })
+        """
+        return jsonify(my_request)
+
     elif request.method == 'POST':
         presentation = json.loads(request.form['presentation'])
         holder = presentation['holder']
@@ -86,10 +111,12 @@ def wallet_presentation(mode):
 
 # server event push 
 
+
 def event_stream():
     pubsub = red.pubsub()
     pubsub.subscribe('credible')
     for message in pubsub.listen():
+        print(message)
         if message['type']=='message':
             yield 'data: %s\n\n' % message['data'].decode('utf-8')
 
