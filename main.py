@@ -18,6 +18,7 @@ from flask import Flask, redirect, jsonify, request, session, render_template
 from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
+from flask_cors import CORS
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -65,7 +66,7 @@ babel = Babel(app)
 sess = Session()
 sess.init_app(app)
 qrcode = QRcode(app)
-
+CORS(app)
 
  
 @app.errorhandler(403)
