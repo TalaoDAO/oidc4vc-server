@@ -47,7 +47,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible
 
 # Release
-VERSION = "0.10.3"
+VERSION = "0.10.4"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -93,9 +93,6 @@ https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-i18n-and-
 pybabel extract -F babel.cfg -o messages.pot .
 pybabel update -i messages.pot -d translations -l fr
 pybabel compile -d translations
-
-
-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
 
 """
 

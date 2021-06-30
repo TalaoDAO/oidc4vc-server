@@ -141,20 +141,30 @@ def request_certificate(mode) :
                 credentials_list += """<option value='""" + credential +"""'>""" + CREDENTIALS[credential] + """</option>"""
             return render_template('./issuer/request_certificate.html', **session['menu'], company_name=session['issuer_explore']['name'], credentials_list=credentials_list)
 
-        # get reviewers available
-        select = ""
-        reviewer = company.Employee(session['credential_issuer_username'], mode) 
-        reviewer_list = reviewer.get_list('reviewer', 'all')
-        for reviewer in reviewer_list :
-            session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
+        
 
         # switch with credentiel type
-        if request.form['certificate_type'] == 'experience' :
+        if request.form['certificate_type'] == 'experience' : #ProfessionalExperienceAssessment
+            # get reviewers available
+            select = ""
+            reviewer = company.Employee(session['credential_issuer_username'], mode) 
+            reviewer_list = reviewer.get_list('reviewer', 'all')
+            for reviewer in reviewer_list :
+                session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
             return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
-        elif request.form['certificate_type'] == 'pass' :
+        
+        elif request.form['certificate_type'] == 'pass' : #IdentityPass
             return redirect (mode.server + 'user/request_pass_credential')
+        
         elif request.form['certificate_type'] == 'reference' :
+            # get reviewers available
+            select = ""
+            reviewer = company.Employee(session['credential_issuer_username'], mode) 
+            reviewer_list = reviewer.get_list('reviewer', 'all')
+            for reviewer in reviewer_list :
+                session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
             return render_template('./issuer/request_reference_credential.html', **session['menu'], select=session['select'])
+        
         else :
             flash(_('Credential not available.') , 'warning')
             return redirect(mode.server + 'user/')
@@ -253,7 +263,6 @@ def request_pass_credential(mode) :
 
     # clean up and return
     issuer_username = session['credential_issuer_username']
-    del session['select']
     return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
 
 
@@ -449,7 +458,6 @@ def issue_credential_workflow(mode) :
 
         # credential is loaded  as dict
         my_credential = json.loads(session['call'][5])['credentialSubject']
-        print('mycredential = ', my_credential)
 
         # switch
         if json.loads(session['call'][5])['credentialSubject']['type'] == "ProfessionalExperienceAssessment" :
@@ -535,7 +543,6 @@ def issue_credential_workflow(mode) :
             # sign credential with company key
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
-            print('my credential  =', my_credential)
             signed_credential = vc_signature.sign(my_credential,
                                                 session['private_key_value'],
                                                 my_credential['issuer'])
