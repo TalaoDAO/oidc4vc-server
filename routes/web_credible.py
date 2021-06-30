@@ -35,7 +35,7 @@ def init_app(app,mode) :
     app.add_url_rule('/credible/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/credible/wallet_presentation',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
     
-    app.add_url_rule('/stream',  view_func=stream, methods = ['GET', 'POST'])
+    app.add_url_rule('/credible_stream',  view_func=credible_stream, methods = ['GET', 'POST'])
     app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
     return
 
@@ -134,7 +134,7 @@ def format_sse(data, event=None) :
     return msg
 
 
-def stream():
+def credible_stream():
     print('call de stream')
     def event_stream():
         messages = announcer.listen()  # returns a queue.Queue
