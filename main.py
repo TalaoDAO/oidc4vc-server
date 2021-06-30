@@ -94,6 +94,9 @@ pybabel extract -F babel.cfg -o messages.pot .
 pybabel update -i messages.pot -d translations -l fr
 pybabel compile -d translations
 
+
+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
+
 """
 
 
