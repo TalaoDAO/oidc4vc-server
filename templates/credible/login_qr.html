@@ -37,6 +37,7 @@
       <script>
         var source = new EventSource('/stream');
         source.onmessage = function (event) {
+          console.log('event data = ', event.data);
         const result = JSON.parse(event.data)
         if (result.check == 'ok'){
           document.getElementById("id_button").style.visibility = "hidden";
