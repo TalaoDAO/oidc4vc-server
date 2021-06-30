@@ -109,7 +109,7 @@ def _get_claim(workspace_contract_from, private_key_from, identity_workspace_con
 		privacy = data
 	if to_be_decrypted :
 		# upload data encrypted from ipfs
-		data_encrypted = Talao_ipfs.ipfs_get(ipfs_hash)
+		data_encrypted = Talao_ipfs.ipfs_get(ipfs_hash, mode)
 		address_from = contracts_to_owners(workspace_contract_from, mode)
 		msg = privatekey.decrypt_data(identity_workspace_contract, data_encrypted, privacy, mode, address_caller=address_from)
 		if msg :

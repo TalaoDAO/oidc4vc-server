@@ -307,14 +307,12 @@ msgid "Identiy Pass"
 msgstr "Pass pour la connexion smartphone"
 
 #: routes/web_issuer.py:126
-#, fuzzy
 msgid "This company has no active campaign."
 msgstr "Cette entreprise n'a pas ouvert de campagne de signature."
 
 #: routes/web_issuer.py:136
-#, fuzzy
 msgid "Reference not found."
-msgstr "Username inconnu."
+msgstr "Référence inconnue."
 
 #: routes/web_issuer.py:159
 msgid "Credential not available."
@@ -333,7 +331,6 @@ msgid " to review"
 msgstr " pour revue"
 
 #: routes/web_issuer.py:252
-#, fuzzy
 msgid "Your request for an Identity pass has been registered for review."
 msgstr ""
 "Votre demande pour une attestation d'expérience professionnelle a été "
@@ -362,9 +359,8 @@ msgid "Add credential to repository failed "
 msgstr "Echec de l'ajout de l'attestation."
 
 #: routes/web_issuer.py:571
-#, fuzzy
 msgid "The credential has been added to the user repository"
-msgstr "L'attestation a été effaçée de votre portfolio."
+msgstr "L'attestation a été ejoutée à votre portfolio."
 
 #: routes/web_issuer.py:617
 msgid "Credential has been reviewed and validated"

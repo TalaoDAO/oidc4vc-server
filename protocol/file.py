@@ -129,7 +129,7 @@ def get_file(workspace_contract_from, private_key_from, workspace_contract_user,
 		return None
 
 	# recuperation du msg
-	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
+	data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'), mode)
 	filename = data['filename']
 
 	# calcul de la date

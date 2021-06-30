@@ -12,6 +12,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def ipfs_add(json_dict, mode, name='unknown') :
+	if mode.myenv != 'aws' :
+		return add_dict_to_pinata(json_dict, name, mode)
+	
 	ipfs_hash_pinata = add_dict_to_pinata(json_dict, name, mode)
 	ipfs_hash_local = add_dict_to_local(json_dict)
 	if ipfs_hash_pinata  != ipfs_hash_local :
@@ -90,14 +93,16 @@ def ipfs_get_local(ipfs_hash) :
 	response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5)
 	return(response.json())
 
-def ipfs_get(ipfs_hash) :
+def ipfs_get(ipfs_hash, mode) :
+	if mode.myenv != 'aws' :
+		return ipfs_get_pinata(ipfs_hash)
 	try :
-		data = ipfs_get_local(ipfs_hash)
+		data = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5).json()
 		return data
 	except :
 		data = ipfs_get_pinata(ipfs_hash)
 		add_dict_to_local(data)
-	return data
+		return data
 
 def pin_to_pinata (my_hash, mode) :
 	api_key = mode.pinata_api_key

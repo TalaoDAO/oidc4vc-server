@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template, Response, session, redirect, flash
 import json
 import redis
-from components import ns, privatekey
+from components import privatekey
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime

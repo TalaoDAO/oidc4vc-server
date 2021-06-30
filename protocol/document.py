@@ -167,7 +167,7 @@ def _get(workspace_contract_from, private_key_from, workspace_contract_user, doc
 	workspace_contract_identity = workspace_contract_user
 
 	# download from IPFS
-	ipfs_data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'))
+	ipfs_data = Talao_ipfs.ipfs_get(ipfshash.decode('utf-8'), mode)
 
 	# previous version (deprecated)
 	if privacy  == 'public' and doctypeversion == 2 :

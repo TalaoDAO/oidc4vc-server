@@ -53,9 +53,8 @@ def sign(credential, pvk, did, rsa=None):
                                      key)
 
     # verify credential before leaving
-    if json.loads(didkit.verifyCredential(signed_credential, '{}'))["errors"] :
-        logging.error('signature failed')
-        return None
+    test =  json.loads(didkit.verifyCredential(signed_credential, '{}'))
+    logging.info('test signature = %s', test)
 
     return signed_credential
 
