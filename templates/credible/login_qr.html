@@ -35,6 +35,8 @@
       <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
     
       <script>
+
+
         var source = new EventSource('/stream');
         source.onmessage = function (event) {
           console.log('event data = ', event.data);
@@ -45,6 +47,7 @@
           window.location.href="/user/?token=" + result.token;
           }
         };
-    </script>
+  
+  </script>
   </body>
 </html>

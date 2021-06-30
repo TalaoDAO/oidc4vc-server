@@ -120,10 +120,8 @@ def wallet_presentation(mode):
         print('entree dans post')
         presentation = json.loads(request.form['presentation'])
         holder = presentation['holder']
-        #issuer = presentation['verifiableCredential']['issuer']
-        #workspace_contract = ns.get_workspace_contract_from_did(holder, mode)
         data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
-        announcer.announce(msg=data)
+        announcer.announce(msg=format_sse(data))
         return jsonify("ok")
 
 
@@ -137,12 +135,13 @@ def format_sse(data, event=None) :
 
 
 def stream():
+    print('call de stream')
     def event_stream():
         messages = announcer.listen()  # returns a queue.Queue
         while True:
             msg = messages.get()  # blocks until a new message arrives
             print('message = ', msg)
-            yield format_sse(msg)
+            yield msg
     return Response(event_stream(), mimetype='text/event-stream')
 
 
