@@ -144,7 +144,10 @@ def stream():
             #msg= "test"
             print('message = ', msg)
             yield msg
-    return Response(event_stream(), mimetype='text/event-stream', headers={'X-Accel-Buffering': 'no'})
+    headers = { "Content-Type" : "text/event-stream",
+                "Cache-Control" : "no-cache",
+                "X-Accel-Buffering" : "no"}
+    return Response(event_stream(), mimetype='text/event-stream', headers=headers)
 
 
 def callback() :
