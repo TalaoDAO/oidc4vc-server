@@ -4,28 +4,9 @@ from components import privatekey
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime
-import queue
-import time
+import redis
 
-
-class MessageAnnouncer:
-
-    def __init__(self):
-        self.listeners = []
-
-    def listen(self):
-        q = queue.Queue(maxsize=5)
-        self.listeners.append(q)
-        return q
-
-    def announce(self, msg):
-        for i in reversed(range(len(self.listeners))):
-            try:
-                self.listeners[i].put_nowait(msg)
-            except queue.Full:
-                del self.listeners[i]
-
-announcer = MessageAnnouncer()
+red = redis.StrictRedis()
 
 def init_app(app,mode) :
     app.add_url_rule('/credible/credentialOffer/<id>',  view_func=credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -121,23 +102,22 @@ def wallet_presentation(mode):
         presentation = json.loads(request.form['presentation'])
         holder = presentation['holder']
         data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
-        announcer.announce(msg=format_sse(data))
+        red.publish('credible', data)
         return jsonify("ok")
 
 
 # server event push 
 
-def format_sse(data) :
-    return f'data: {data}\n\n'
+def event_stream():
+    pubsub = red.pubsub()
+    pubsub.subscribe('credible')
+    for message in pubsub.listen():
+        print(message)
+        if message['type']=='message':
+            yield 'data: %s\n\n' % message['data'].decode()
 
 def stream():
     print('call de stream')
-    def event_stream():
-        messages = announcer.listen()  # returns a queue.Queue
-        while True:
-            msg = messages.get()  # blocks until a new message arrives
-            print('message = ', msg)
-            yield msg
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
