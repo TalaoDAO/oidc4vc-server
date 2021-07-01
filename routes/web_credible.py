@@ -127,12 +127,8 @@ def wallet_presentation(mode):
 
 # server event push 
 
-def format_sse(data, event=None) :
-    msg = f'data: {data}\n\n'
-    if event is not None:
-        msg = f'event: {event}\n{msg}'
-    return msg
-
+def format_sse(data) :
+    return f'data: {data}\n\n'
 
 def stream():
     print('call de stream')
@@ -140,14 +136,12 @@ def stream():
         messages = announcer.listen()  # returns a queue.Queue
         while True:
             msg = messages.get()  # blocks until a new message arrives
-            #time.sleep(1)
-            #msg= "test"
             print('message = ', msg)
             yield msg
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), mimetype='text/event-stream', headers=headers)
+    return Response(event_stream(), headers=headers)
 
 
 def callback() :
