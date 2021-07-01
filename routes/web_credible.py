@@ -5,7 +5,7 @@ from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime
 import queue
-
+import time
 
 
 class MessageAnnouncer:
@@ -35,7 +35,7 @@ def init_app(app,mode) :
     app.add_url_rule('/credible/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/credible/wallet_presentation',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
     
-    app.add_url_rule('/credible_stream',  view_func=credible_stream, methods = ['GET', 'POST'])
+    app.add_url_rule('/stream',  view_func=stream)
     app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
     return
 
@@ -134,15 +134,17 @@ def format_sse(data, event=None) :
     return msg
 
 
-def credible_stream():
+def stream():
     print('call de stream')
     def event_stream():
         messages = announcer.listen()  # returns a queue.Queue
         while True:
             msg = messages.get()  # blocks until a new message arrives
+            #time.sleep(1)
+            #msg= "test"
             print('message = ', msg)
             yield msg
-    return Response(event_stream(), mimetype='text/event-stream')
+    return Response(event_stream(), mimetype='text/event-stream', headers={'X-Accel-Buffering': 'no'})
 
 
 def callback() :

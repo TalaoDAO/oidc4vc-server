@@ -37,7 +37,7 @@
       <script>
 
 
-        var source = new EventSource('/credible_stream');
+        var source = new EventSource('/stream');
         source.onmessage = function (event) {
           console.log('event data = ', event.data);
         const result = JSON.parse(event.data)
