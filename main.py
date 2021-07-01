@@ -11,7 +11,6 @@ $ python main.py
 import os
 import time
 import json
-from flask_qrcode import QRcode
 from flask.templating import render_template_string
 from flask_babel import Babel, _, refresh
 from flask import Flask, redirect, jsonify, request, session, render_template
@@ -19,6 +18,7 @@ from flask_session import Session
 from jwcrypto import jwk
 from datetime import timedelta
 from flask_cors import CORS
+from flask_qrcode import QRcode
 
 import logging
 logging.basicConfig(level=logging.INFO)
