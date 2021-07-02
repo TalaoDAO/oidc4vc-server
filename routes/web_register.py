@@ -2,11 +2,14 @@
 Just a process to a centralized basic create user from password and username
 
 """
-from flask import request, redirect, render_template, session, flash, abort
+from flask import request, redirect, render_template, session, flash, abort, jsonify, Response
 import random
 import json
 import didkit
 from flask_babel import _
+from datetime import  datetime
+import uuid
+import redis
 
 import requests
 from datetime import timedelta, datetime
@@ -14,7 +17,10 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 from factory import createidentity, createcompany
-from components import sms, directory, ns, company
+from components import sms, directory, ns, company, privatekey
+from signaturesuite import vc_signature
+
+red = redis.StrictRedis()
 
 
 CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
@@ -28,6 +34,8 @@ def init_app(app, mode) :
 	app.add_url_rule('/register/password',  view_func=register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/code', view_func=register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/post_code', view_func=register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
+	app.add_url_rule('/register/credible_endpoint', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode})
+	app.add_url_rule('/register/stream',  view_func=register_stream)
 	return
 
 
@@ -92,7 +100,7 @@ def register_company(mode) :
 
 def register_user(mode) :
 	if request.method == 'GET' :
-		session.clear()
+		#session.clear()
 		session['is_active'] = True
 		return render_template("/register/user_register.html")
 	if request.method == 'POST' :
@@ -125,6 +133,9 @@ def register_identity(mode) :
 		session['server'] = mode.server
 		return render_template("/register/register_identity.html")
 	if request.method == 'POST' :
+		if request.form['did'] == "credible" :
+			url = mode.server + "register/credible_endpoint"
+			return render_template("/register/register_credible_qrcode.html", url=url)
 		if request.form['did'] == "own" :
 			session['did'] = request.form['own_did']
 			if session['did'].split(':')[1]  == 'tz' :
@@ -143,12 +154,60 @@ def register_identity(mode) :
 		return redirect (mode.server + 'register/password')
 
 
+
+def register_credible_endpoint(mode):
+    credential = {
+    "@context": ["https://www.w3.org/2018/credentials/v1"],
+        "id": "",
+        "type": ["VerifiableCredential"],
+        "issuer": "",
+        "issuanceDate": "",
+        "credentialSubject" : {
+            "id": ""
+        }
+	}
+    if request.method == 'GET':   
+        return jsonify({
+            "type": "CredentialOffer",
+            "credentialPreview": credential
+        })
+    elif request.method == 'POST':
+        address = mode.owner_talao
+        pvk = privatekey.get_key(address, 'private_key', mode)
+        credential["issuer"] = 'did:web:talao.co'
+        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
+        credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        credential['credentialSubject']['id'] = request.form['subject_id']
+        signed_credential = vc_signature.sign(credential, pvk, 'did:web:talao.co')
+        data = json.dumps({ "did" : request.form['subject_id']})
+        red.publish('register_credible', data)
+        return jsonify(signed_credential)
+
+
+# event push to browser
+def register_stream():
+    def event_stream():
+        pubsub = red.pubsub()
+        pubsub.subscribe('register_credible')
+        for message in pubsub.listen():
+            if message['type']=='message':
+                yield 'data: %s\n\n' % message['data'].decode()
+    headers = { "Content-Type" : "text/event-stream",
+                "Cache-Control" : "no-cache",
+                "X-Accel-Buffering" : "no"}
+    return Response(event_stream(), headers=headers)
+
+
+
 # route /register/password/
 def register_password(mode):
 	if not session.get('is_active') :
 		flash(_('Session expired'), 'warning')
 		return redirect(mode.server + 'register')
 	if request.method == 'GET' :
+		if request.args.get('did') :
+			session['did'] = request.args['did']
+			return render_template("/register/register_password_credible.html")
 		return render_template("/register/register_password.html")
 	if request.method == 'POST' :
 		session['password'] = request.form['password']

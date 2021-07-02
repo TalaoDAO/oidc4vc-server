@@ -109,6 +109,7 @@ def user_language(mode) :
     refresh()
     return redirect (mode.server + 'user/')
 
+
 # Centralized @route for register identity
 web_register.init_app(app, mode)
 

@@ -30,17 +30,23 @@
                                 <div class="card-header py-3">
                                     <div class="row">
                                         <div class="col-xl-12">
-                                            <p class="text-primary m-0 font-weight-bold">{{_('Select an Identity registry.')}}</p>
+                                            <p class="text-primary m-0 font-weight-bold">{{_('Select your Digital Identity')}}</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <p>{{_("If you do not have a Decentralized Digital Identity (DID), you can choose the registry to support your future Identity.
-                                    In case you don't have specific expectations, keep the registry selected by default.")}}<br><br>
-                                    {{_('Your cryptographic keys to manage your Identity, authenticate and sign verifiable credentials will be stored encrypted on this browser and on your computer.
-                                    If you lose this file (identity_key.text), there will be no solutions to get your keys back.')}}</p>
+                                    <p>
                                     <br>
                                     <form id="form" name="form" action="/register/identity" method="POST"  >
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="form-group form-check">
+                                                    <input id="own" type="radio" class="form-check-input" value="credible" name="did">
+                                                    <label id="label_own" style="color: rgb(133,135,150);" title="" ></label><img  src="/static/img/credible.png" style="width: 120px;border-radius:0px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">
@@ -60,17 +66,7 @@
                                             </div>
                                         </div>
                                         <hr>
-                                        <!--
-                                        <div class="form-row">
-                                            <div class="col">
-                                                <div class="form-group form-check">
-                                                    <input id="ion" type="radio" class="form-check-input" value="" name="did">
-                                                    <label id="label_ion" style="color: rgb(133,135,150);" title="" >did:ion. This Identity is supported by the Bitcoin blockchain.</label>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr>  -->
+                                        
                                         <div class="form-row">
                                             <div class="col">
                                                 <div class="form-group form-check">

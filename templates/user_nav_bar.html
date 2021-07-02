@@ -64,8 +64,6 @@
     <ul class="navbar-nav mr-2" style="flex-direction: row;">
       <div class="d-inline-flex justify-content-center">
 
-
-
         <li class="nav-item dropdown no-arrow h-100" role="presentation">
           <div class="nav-item dropdown show">
             <a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#">
@@ -96,7 +94,7 @@
             <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Advanced')}}</a>
             <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Delete Identity')}}</a>
             <div class="dropdown-divider"></div>
-            {% if session['username']  == 'thierrythevenet' %}
+            {% if session['username']  in ['marcsimon',  'thierrythevenet'] %}
             <a class="dropdown-item" role="presentation" title="Make a presentation" href="/user/presentation/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Presentation')}}</a>
             <a class="dropdown-item" role="presentation" title="Verify a credential" href="/verifier/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Verifier')}}</a>
             {% endif %}

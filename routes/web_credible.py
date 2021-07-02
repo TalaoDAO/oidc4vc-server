@@ -1,10 +1,11 @@
 from flask import jsonify, request, render_template, Response, session, redirect, flash
 import json
-from components import privatekey
+from components import privatekey,ns
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime
 import redis
+import didkit
 
 red = redis.StrictRedis()
 
@@ -21,7 +22,7 @@ def init_app(app,mode) :
     return
 
 
-# credential 
+# credential offer
 
 def credentialOffer_qrcode(mode,id) :
     filename = id + ".jsonld"
@@ -44,9 +45,11 @@ def credential_display(id):
 
 
 def credentialOffer(id):
+    print('request values = ', request.values)
     filename = id + ".jsonld"
     credential = json.load(open('./signed_credentials/' + filename, 'r'))
     if request.method == 'GET':   
+        print('request form = ', request.form, request.data)
         return jsonify({
             "type": "CredentialOffer",
             "credentialPreview": credential
@@ -57,7 +60,7 @@ def credentialOffer(id):
         return jsonify(credential)
 
 
-# presentation for login
+# presentation for login with credible
 
 def VerifiablePresentationRequest_qrcode(mode):
     url = mode.server + "credible/wallet_presentation"
@@ -69,11 +72,12 @@ def wallet_presentation(mode):
 	        {'reason' : 'Sign in',
             'required' : False,
 	        'example' : [
-		    {'@context' : [
-			    'https://www.w3.org/2018/credentials/v1'
-		    ],
-		    'type' : 'VerifiableCredential'
-            }]}
+		        {'@context' : [
+			        'https://www.w3.org/2018/credentials/v1'
+		        ],
+		        'type' : 'VerifiableCredential'
+                }
+            ]}
             ]
         
         query = [
@@ -81,27 +85,33 @@ def wallet_presentation(mode):
 		'credentialQuery' : credential_query}
         ]
 
-        my_request = {
+        did_auth_request = {
             "type": "VerifiablePresentationRequest",
-            'query' :  query,
-            'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
-            'domain' : 'example.com'
+            "query": [{
+            "type": 'DIDAuth'
+            }],
+            "challenge": '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
+            "domain": 'example.com'
             }
-        
-        return jsonify({
+        base_request = {
             "type": "VerifiablePresentationRequest",
             "query" : query,
             "challenge": "credential",
             "domain" : "https://talao.co"
-        })
+            }
         
-        #return jsonify(my_request)
+        return jsonify(did_auth_request)
 
     elif request.method == 'POST':
-        print('entree dans post')
         presentation = json.loads(request.form['presentation'])
+        print('presentation = ', presentation)
+        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], '{}'))
         holder = presentation['holder']
-        data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
+        if not  ns.get_workspace_contract_from_did(holder, mode) :
+            # user has no account
+            data = json.dumps({"check" : "unknown account"})
+        else :
+            data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
         red.publish('credible', data)
         return jsonify("ok")
 
@@ -112,12 +122,10 @@ def event_stream():
     pubsub = red.pubsub()
     pubsub.subscribe('credible')
     for message in pubsub.listen():
-        print(message)
         if message['type']=='message':
             yield 'data: %s\n\n' % message['data'].decode()
 
 def stream():
-    print('call de stream')
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}

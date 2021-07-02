@@ -94,6 +94,7 @@ def ipfs_get_local(ipfs_hash) :
 	return(response.json())
 
 def ipfs_get(ipfs_hash, mode) :
+	print('myenv = ', mode.myenv)
 	if mode.myenv != 'aws' :
 		return ipfs_get_pinata(ipfs_hash)
 	try :

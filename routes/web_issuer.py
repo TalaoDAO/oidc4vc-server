@@ -271,7 +271,7 @@ def request_experience_credential(mode) :
     """
     check_login()
     # load JSON-LD model for ProfessionalExperiencAssessment
-    unsigned_credential = json.load(open('./verifiable_credentials/ProfessionalExperienceAssessment_' + session['language'] + '.jsonld', 'r'))
+    unsigned_credential = json.load(open('./verifiable_credentials/ProfessionalExperienceAssessment.jsonld', 'r'))
 
     # update credential with form data
     unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
