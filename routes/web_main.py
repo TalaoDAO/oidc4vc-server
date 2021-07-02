@@ -1649,6 +1649,7 @@ def delete_identity(mode) :
 # photos upload for certificates
 #@app.route('/uploads/<filename>')
 def send_file(filename, mode):
+    print ('send file = ', mode.uploads_path, filename)
     return send_from_directory(mode.uploads_path, filename)
 
 

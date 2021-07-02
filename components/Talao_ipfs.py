@@ -94,15 +94,17 @@ def ipfs_get_local(ipfs_hash) :
 	return(response.json())
 
 def ipfs_get(ipfs_hash, mode) :
-	print('myenv = ', mode.myenv)
+	print('call ipfs')
 	if mode.myenv != 'aws' :
 		return ipfs_get_pinata(ipfs_hash)
 	try :
-		data = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5).json()
+		data = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=2).json()
+		print('exit ipfs')
 		return data
 	except :
 		data = ipfs_get_pinata(ipfs_hash)
 		add_dict_to_local(data)
+		print('exit ipfs')
 		return data
 
 def pin_to_pinata (my_hash, mode) :

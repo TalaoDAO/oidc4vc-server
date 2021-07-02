@@ -245,8 +245,10 @@ def logout(mode) :
 	if request.method == 'GET' :
 		return render_template('./login/logout.html', **session['menu'])
 	try :
-		os.remove(mode.uploads_path + session['picture'])
-		os.remove(mode.uploads_path + session['signature'])
+		if session['picture'] != "unknown.png" :
+			os.remove(mode.uploads_path + session['picture'])
+		if session['signature'] != "macron.png" :
+			os.remove(mode.uploads_path + session['signature'])
 	except :
 		logging.warning('delete picture and signature failed')
 	for one_file in session['identity_file'] :

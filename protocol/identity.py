@@ -34,8 +34,11 @@ class Identity() :
 		self.authenticated = authenticated
 		self.did = 'did:talao:' + mode.BLOCKCHAIN + ':' + self.workspace_contract[2:]
 		self.address = contractsToOwners(self.workspace_contract,mode)
+		print('call get all documents')
 		self.get_all_documents(mode)
+		print('call get issuer keys')
 		self.get_issuer_keys(mode)
+		print('get identity skills')
 		self.get_identity_skills(mode)
 		self.get_identity_certificate(mode)
 		self.get_identity_private_certificate(mode)
@@ -43,8 +46,10 @@ class Identity() :
 		self.has_vault_access = has_vault_access(self.address, mode)
 
 		if self.authenticated :
+			print('call authenticated')
 			self.has_relay_private_key(mode)
 			if self.private_key :
+				print('call getr partners')
 				self.get_partners(mode)
 			else :
 				self.partners = []
@@ -55,10 +60,14 @@ class Identity() :
 			else :
 				self.secret = 'Encrypted'
 				self.aes = 'Encrypted'
+			print('call get eth balance')
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
+			print('call get token balance')
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated(mode)
+			print('call get personal')
 			self.get_identity_personal(self.workspace_contract, self.private_key_value,mode)
+			print('call get identity file')
 			self.get_identity_file(self.workspace_contract, self.private_key_value,mode)
 		else :
 			self.partners = []
@@ -72,26 +81,22 @@ class Identity() :
 		if self.type == "company" :
 			self.name = self.personal['name']['claim_value']
 		else : # self.type == "person" :
+			print('call get profile title')
 			self.profil_title = self.personal['profil_title']['claim_value']
 			self.name = self.personal['firstname']['claim_value'] + ' ' + self.personal['lastname']['claim_value']
+			print('call ns.get personal')
 			personal = json.loads(ns.get_personal(self.workspace_contract, mode))
 			self.experience = personal.get('experience_claims' , [])
 			self.education = personal.get('education_claims' , [])
 
-		#get image/logo and signature ipfs and download files to upload folder
-		#self.picture = get_image(self.workspace_contract, 'picture', mode)
+		#get image/logo and signature ipfs and download files to upload folder		
 		self.picture = self.personal['picture']
 		if not self.picture :
-			self.picture = 'QmRzXTCn5LyVpdUK9Mc5kTa3VH7qH4mqgFGaSZ3fncEFaq' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
-		if not os.path.exists(mode.uploads_path + self.picture) :
-			Talao_ipfs.get_picture(self.picture, mode.uploads_path + self.picture)
-
-		#self.signature = get_image(self.workspace_contract, 'signature', mode)
+			self.picture = 'unknown.png' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
 		self.signature = self.personal['signature']
 		if not self.signature  :
-			self.signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
-		if not os.path.exists(mode.uploads_path + self.signature) :
-			Talao_ipfs.get_picture(self.signature, mode.uploads_path + self.signature)
+			self.signature = 'macron.png'
+		
 
 
 	def get_secret(self,mode) :
