@@ -82,7 +82,6 @@ def send_secret_code (username, code, mode) :
 
 
 # update wallet in Talao Identity
-#@app.route('/user/update_wallet/', methods = ['GET', 'POST'])
 def update_wallet(mode) :
 	"""
 	DEPRECATED
@@ -155,58 +154,12 @@ def two_factor(mode) :
 		return redirect (mode.server + callback + "?two_factor=" + two_factor)
 
 
-def did_auth(mode) :
-	""" login with DID
-
-	DEPRECATED
-
-	@app.route('ssi/login/', methods = ['GET', 'POST'])
-	https://github.com/WebOfTrustInfo/rwot6-santabarbara/blob/master/final-documents/did-auth.md
-	only based on secp256k1 
-	we use webauth more than did auth : we pass the public key to the server to verify the signature of te challenge.
-	we do not have the lib to verfy te signatuer from the DID document (except for ion:did and did:web)
-
-	"""
-	if request.method == 'GET' :
-		session.clear()
-		session['challenge'] =  str(uuid.uuid1())
-		payload = {
-            "did" : "did:web:talao.co",
-			"challenge" : session['challenge']
-        	}
-		private_key = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-		key = helpers.ethereum_to_jwk256k(private_key)
-		key = jwt.algorithms.ECAlgorithm.from_jwk(key)
-		JWT = jwt.encode(payload, key=key, algorithm="ES256K")
-		return render_template('./login/did_auth.html',request=JWT)
-
-	if request.method == 'POST' :
-		response_dict = json.loads(request.form['response'])
-		publicJwk = response_dict['publicJwk']
-		did = publicJwk['kid']
-		signed_challenge = response_dict['signed_challenge']
-		publicKey = jwt.algorithms.ECAlgorithm.from_jwk(publicJwk)
-		try :
-			decoded = jwt.decode(signed_challenge, key=publicKey, algorithms=["ES256K"])
-			if decoded['challenge'] == session['challenge'] :
-				logging.info('Success, Identity logged !')
-				wc = ns.get_workspace_contract_from_did(did, mode)
-				if not wc :
-					logging.info('User unknown')
-					flash(_('User unknown'), 'warning')
-				else :
-					session['workspace_contract'] = wc
-				return redirect(mode.server + 'user/')
-			else :
-				logging.info('Key is correct but challenge failed, Identity rejected')
-				return redirect(mode.server + 'did_auth/')
-		except :
-			logging.info('Wrong key, Identity rejected')
-		return redirect(mode.server + 'did_auth/')
 
 def login(mode) :
 	if request.method == 'GET' :
-		#session.clear()
+		language = session.get('language')
+		session.clear()
+		session['language'] = language
 		return render_template('./login/login_password.html', username=request.args.get('username', ''))
 
 	if request.method == 'POST' :

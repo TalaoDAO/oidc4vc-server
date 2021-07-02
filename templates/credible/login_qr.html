@@ -4,35 +4,22 @@
     {% include 'head.html' %}
   
   </head>
-  <body class="flex flex-col h-100 items-center justify-center h-screen w-screen">
-  
-        <div class="d-flex flex-column">
-            <div id="content">       
-              {% include 'guest_nav_bar.html' %}
-              <br><br><br>
-             
+  <body>
+      <div id="content">    
+        {% include 'guest_nav_bar.html' %}
               <div class="text-center">  
-              <div id="id_text">  
-                <p>{{_('Scan the QRCode bellow with your wallet Credible')}}</p>
-              </div>  
-                <div id="id_qrcode" class="my-8"><img src={{ qrcode(url) }} class="w-20 h-20"></div>
-                <br><br>
-                <div id="id_loading"></div>
-                <br>
-                <div id="id_spinner"></div>
-                <div id="id_button">
-                  <div class="col text-center">
-                    <a href="/user/" ><button class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button></a>
-                  </div>
-                </div>
-           
+                <div id="id_text" class="m-5">{{_('Scan the QRCode bellow with your wallet Credible')}}</div>  
+                <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}"" class=" w-20 h-20"></div>
+                <div id="id_loading" class="m-5"></div>
+                <div id="id_spinner" class="m-5"></div>
               </div>
-            </div>
-          </div>
-      
+        
+              <div id="id_button" class="m-5">
+                <div class="col text-center">
+                <a href="/user/" ><button class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button></a>
+              </div>
       </div>
-    </div>
-    {% include 'user_footer.html' %}
+      {% include 'user_footer.html' %}
 
       <script>function goBack() { window.history.back();}</script>
       <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
@@ -51,10 +38,17 @@
           document.getElementById("id_button").style.visibility = "hidden";
           document.getElementById("id_text").innerHTML = "";
           document.getElementById("id_qrcode").innerHTML = "";
-          document.getElementById("id_loading").innerHTML = '<br><br><div class="col"><div>' + '{{_("Loading your portfolio...")}}' + '</div><br><br><br><br>';
-          document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div><br><br><br>';
+          document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Loading your portfolio...")}}' + '</div>';
+          document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
           window.location.href="/user/?token=" + result.token;
           }
+        else {
+          //document.getElementById("id_button").style.visibility = "hidden";
+          document.getElementById("id_text").innerHTML = "";
+          document.getElementById("id_qrcode").innerHTML = "";
+          document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Your Identity has not been registered yet.")}}' + '</div>';
+          
+        } 
         };
   
   </script>

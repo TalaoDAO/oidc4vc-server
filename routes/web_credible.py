@@ -104,7 +104,6 @@ def wallet_presentation(mode):
 
     elif request.method == 'POST':
         presentation = json.loads(request.form['presentation'])
-        print('presentation = ', presentation)
         print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], '{}'))
         holder = presentation['holder']
         if not  ns.get_workspace_contract_from_did(holder, mode) :
