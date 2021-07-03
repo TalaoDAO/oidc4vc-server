@@ -27,6 +27,8 @@ from signaturesuite import helpers
 def init_app(app, mode) :
 # Centralized route for login
 	app.add_url_rule('/logout',  view_func=logout, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/unregistered',  view_func=unregistered, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 	app.add_url_rule('/forgot_username',  view_func=forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password',  view_func=forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password_token/',  view_func=forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -259,6 +261,14 @@ def logout(mode) :
 	session.clear()
 	flash(_('Thank you for your visit'), 'success')
 	return redirect (mode.server + 'login')
+
+
+
+def unregistered(mode) :
+	if request.method == 'GET' :
+		return render_template('./login/unregistered.html')
+	if request.method == 'POST' :
+		return redirect (mode.server + 'login')
 
 
 def forgot_username(mode) :

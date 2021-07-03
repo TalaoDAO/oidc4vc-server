@@ -231,7 +231,7 @@ def register_code(mode) :
 		flash(_('Session expired'), 'warning')
 		return redirect(mode.server + 'register')
 	session['try_number'] +=1
-	logging.info('code received = %s', request.form['mycode'])
+	logging.info('code received = %s', request.form.get('mycode'))
 	if request.form['mycode'] == session['code'] and datetime.now() < session['code_delay'] and session['try_number'] < 4 :
 
 		if not createidentity.create_user(session['username'],

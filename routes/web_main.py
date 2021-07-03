@@ -1613,13 +1613,13 @@ def remove_issuer(mode) :
         return redirect (mode.server +'user/')
 
 
-# delete user identity, depending on centralized/decentralized
+# delete user portfolio, depending on centralized/decentralized
 #@app.route('/user/delete_identity/', methods=['GET','POST'])
 def delete_identity(mode) :
     check_login()
     if request.method == 'GET' :
         if not session['private_key'] and not session['has_vault_access']:
-            flash(_('Cannot delete Identity, no token locked.'), 'danger')
+            flash(_('Cannot delete portrfolio, no token locked.'), 'danger')
             return redirect (mode.server +'user/')
         # decentralized
         elif not session['private_key'] :
@@ -1642,7 +1642,7 @@ def delete_identity(mode) :
             destroy_workspace(session['workspace_contract'], session['private_key_value'], mode)
         # clean up nameservice
         ns.delete_identity(session['username'], mode, category = category)
-        flash(_('Your Identity has been deleted.'), 'success')
+        flash(_('Your portfolio has been deleted.'), 'success')
         return redirect (mode.server +'login/')
 
 

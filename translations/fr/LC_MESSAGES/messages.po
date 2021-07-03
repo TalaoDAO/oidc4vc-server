@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-07-02 13:15+0200\n"
+"POT-Creation-Date: 2021-07-03 11:02+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -97,14 +97,14 @@ msgstr "Organisation"
 
 #: routes/web_data_user.py:347
 #: templates/issuer/issue_identity_credential.html:39
-#: templates/register/user_register.html:52
+#: templates/register/user_register.html:51
 #: templates/update_personal_settings.html:38
 msgid "Firstname"
 msgstr "Prénom"
 
 #: routes/web_data_user.py:348
 #: templates/issuer/issue_identity_credential.html:42
-#: templates/register/user_register.html:53
+#: templates/register/user_register.html:52
 #: templates/update_personal_settings.html:41
 msgid "Lastname"
 msgstr "Nom"
@@ -310,7 +310,6 @@ msgid "Promise to hire letter"
 msgstr "Lettre de promesse d'embauche"
 
 #: routes/web_issuer.py:18
-#, fuzzy
 msgid "Identiy Pass"
 msgstr "Identity Pass"
 
@@ -435,95 +434,91 @@ msgstr "Date de début"
 msgid "Project Budget"
 msgstr "Budget"
 
-#: routes/web_login.py:101
+#: routes/web_login.py:102
 msgid "No identity found"
 msgstr "Cette Identité n'existe pas"
 
-#: routes/web_login.py:105
+#: routes/web_login.py:106
 msgid "Wallet updated "
 msgstr "Wallet mis à jour"
 
-#: routes/web_login.py:107
+#: routes/web_login.py:108
 msgid "Wallet deleted"
 msgstr "Wallet effaçée"
 
-#: routes/web_login.py:109
+#: routes/web_login.py:110
 msgid "Update failed"
 msgstr "Echec de la mise à jour"
 
-#: routes/web_login.py:131 routes/web_login.py:245
+#: routes/web_login.py:132 routes/web_login.py:200
 msgid "Secret code sent by "
 msgstr "Code secret envoyé par "
 
-#: routes/web_login.py:140 routes/web_login.py:280
+#: routes/web_login.py:141 routes/web_login.py:235
 msgid "This code is incorrect, 2 trials left"
 msgstr "The code est incorrect, plus que 2 essais"
 
-#: routes/web_login.py:142 routes/web_login.py:282
+#: routes/web_login.py:143 routes/web_login.py:237
 msgid "This code is incorrect, 1 trial left"
 msgstr "Ce code est icorrect plus que 1 seul essai"
 
-#: routes/web_login.py:149 routes/web_login.py:273 routes/web_register.py:258
+#: routes/web_login.py:150 routes/web_login.py:228 routes/web_register.py:258
 msgid "Code expired"
 msgstr "Code expiré"
 
-#: routes/web_login.py:152 routes/web_login.py:234 routes/web_login.py:276
+#: routes/web_login.py:153 routes/web_login.py:189 routes/web_login.py:231
 msgid "Too many trials (3 max)"
 msgstr "Nombre maximum d'essais atteint"
 
-#: routes/web_login.py:196
-msgid "User unknown"
-msgstr "Nom d'utilisateur inconnu"
-
-#: routes/web_login.py:218 routes/web_login.py:336
+#: routes/web_login.py:173 routes/web_login.py:301
 msgid "Username not found"
 msgstr "Nom d'utilisateur non trouvé"
 
-#: routes/web_login.py:225
+#: routes/web_login.py:180
 msgid "This password is incorrect, 2 trials left"
 msgstr "Mot de passe incorrect"
 
-#: routes/web_login.py:230
+#: routes/web_login.py:185
 msgid "This password is incorrect, 1 trials left"
 msgstr "Mot de passe incorrect, plus que 1 essai"
 
-#: routes/web_login.py:248
+#: routes/web_login.py:203
 msgid "Connexion problem"
 msgstr "Connexion impossible"
 
-#: routes/web_login.py:259
+#: routes/web_login.py:214
 msgid "Authentification expired"
 msgstr "Authentification expiré"
 
-#: routes/web_login.py:305
+#: routes/web_login.py:262
 msgid "Thank you for your visit"
 msgstr "Merci pour votre visite"
 
-#: routes/web_login.py:319
+#: routes/web_login.py:284
 msgid "There is no Identity with this Email"
 msgstr "Il n'existe aucune identité pour cet email"
 
-#: routes/web_login.py:321
+#: routes/web_login.py:286
 msgid "This Email is already used by Identities : "
 msgstr "Cet email est déjà utilisé pour une identité"
 
-#: routes/web_login.py:352
+#: routes/web_login.py:317
 msgid "You are going to receive an email to renew your password."
 msgstr "Vous allez recevoir un email pour renouveller votre mote de passe."
 
-#: routes/web_login.py:368
+#: routes/web_login.py:333
 msgid "Incorrect data"
 msgstr "Données incorrectes"
 
-#: routes/web_login.py:373
+#: routes/web_login.py:338
 msgid "Delay expired (3 minutes maximum)"
 msgstr "Délais expiré"
 
-#: routes/web_login.py:380
+#: routes/web_login.py:345
 msgid "Incorrect email"
 msgstr "Email incorrect"
 
-#: routes/web_login.py:383 routes/web_main.py:370
+#: routes/web_login.py:348 routes/web_main.py:370
 msgid "Password updated"
 msgstr "Mot de passe mis à jour"
 
@@ -875,22 +870,22 @@ msgid "  has been removed."
 msgstr " a été effaçé."
 
 #: routes/web_main.py:1622
-msgid "Cannot delete Identity, no token locked."
-msgstr ""
+msgid "Cannot delete portrfolio, no token locked."
+msgstr "Impossible d'effacer votre protfolio."
 
 #: routes/web_main.py:1640
 msgid "Wrong password."
 msgstr "Mot de passe incorrect."
 
 #: routes/web_main.py:1645
-msgid "Your Identity has been deleted."
-msgstr "Votre compte et identité one été effacçés."
+msgid "Your portfolio has been deleted."
+msgstr "Votre portfolio a été effaçé."
 
-#: routes/web_main.py:1694
+#: routes/web_main.py:1695
 msgid "Certificate X.509 not available."
 msgstr "Certificat non disponible."
 
-#: routes/web_main.py:1708
+#: routes/web_main.py:1709
 msgid "Certificate PKCS12 not available."
 msgstr "Certificat non disponible."
 
@@ -993,17 +988,18 @@ msgstr "Mettre à jour"
 #: templates/add_experience.html:85 templates/advanced.html:209
 #: templates/certificate/experience_certificate.html:105
 #: templates/certificate/verify_certificate.html:58
-#: templates/credible/credential_qr.html:24 templates/credible/login_qr.html:25
-#: templates/data_check.html:44 templates/issuer/add_campaign.html:124
+#: templates/credible/credential_qr.html:24 templates/credible/login_qr.html:19
+#: templates/data_check.html:44 templates/delete_identity.html:62
+#: templates/issuer/add_campaign.html:124
 #: templates/issuer/campaign_code.html:46
 #: templates/issuer/issue_experience_credential_workflow.html:164
 #: templates/issuer/issue_identity_credential.html:107
 #: templates/issuer/request_certificate.html:43
 #: templates/issuer/request_experience_credential.html:87
 #: templates/login/logout.html:59 templates/register/register_code.html:52
-#: templates/register/register_credible_qrcode.html:20
+#: templates/register/register_credible_qrcode.html:15
 #: templates/register/register_identity.html:89
-#: templates/register/register_password.html:50
+#: templates/register/register_password.html:62
 #: templates/register/register_password_credible.html:49
 #: templates/register/registration_error.html:35
 #: templates/update_company_settings.html:106 templates/update_password.html:52
@@ -1110,21 +1106,21 @@ msgid "Import Identity"
 msgstr "Importer une Identité"
 
 #: templates/advanced.html:192
-msgid "Repository Information"
-msgstr "Données du Portfolio"
+msgid "Portfolio data"
+msgstr "Portfolio data"
 
 #: templates/company_identity.html:57
 msgid "Company Details"
 msgstr "Données entreprise"
 
 #: templates/company_identity.html:83 templates/company_nav_bar.html:96
-#: templates/company_nav_bar.html:115 templates/manager_nav_bar.html:66
+#: templates/company_nav_bar.html:115 templates/manager_nav_bar.html:74
 msgid "Credentials"
 msgstr "Attestations"
 
 #: templates/company_identity.html:123
 msgid "Administrators"
-msgstr "Admin"
+msgstr "Administrateur"
 
 #: templates/company_identity.html:134
 msgid "Issuers"
@@ -1186,25 +1182,24 @@ msgid "Settings"
 msgstr "Paramètres"
 
 #: templates/company_nav_bar.html:17 templates/company_nav_bar.html:132
-#: templates/manager_nav_bar.html:16 templates/manager_nav_bar.html:84
-#: templates/user_nav_bar.html:18 templates/user_nav_bar.html:103
+#: templates/manager_nav_bar.html:16 templates/manager_nav_bar.html:92
+#: templates/user_nav_bar.html:18 templates/user_nav_bar.html:101
 msgid "Invit by email"
 msgstr "Inviter par email"
 
 #: templates/company_nav_bar.html:20 templates/company_nav_bar.html:113
-#: templates/manager_nav_bar.html:19 templates/manager_nav_bar.html:80
+#: templates/manager_nav_bar.html:19 templates/manager_nav_bar.html:88
 #: templates/update_skills.html:105 templates/user_nav_bar.html:21
-#: templates/user_nav_bar.html:96
+#: templates/user_nav_bar.html:94
 msgid "Advanced"
 msgstr "Paramètres avançés"
 
 #: templates/company_nav_bar.html:21 templates/company_nav_bar.html:109
-#: templates/manager_nav_bar.html:20 templates/user_nav_bar.html:92
+#: templates/manager_nav_bar.html:20 templates/user_nav_bar.html:90
 msgid "Documentation"
 msgstr "Documentation"
 
 #: templates/company_nav_bar.html:23 templates/user_nav_bar.html:25
-#: templates/user_nav_bar.html:97
 msgid "Delete Identity"
 msgstr "Effacer votre identité"
 
@@ -1214,8 +1209,8 @@ msgstr "Configuraion API server"
 
 #: templates/company_nav_bar.html:34 templates/company_nav_bar.html:135
 #: templates/login/logout.html:49 templates/manager_nav_bar.html:22
-#: templates/manager_nav_bar.html:86 templates/user_nav_bar.html:27
-#: templates/user_nav_bar.html:106
+#: templates/manager_nav_bar.html:94 templates/user_nav_bar.html:27
+#: templates/user_nav_bar.html:104
 msgid "Logout"
 msgstr "Déconnexion"
 
@@ -1236,7 +1231,7 @@ msgstr "Key"
 msgid "Wallet"
 msgstr "Wallet"
 
-#: templates/company_nav_bar.html:94 templates/user_nav_bar.html:81
+#: templates/company_nav_bar.html:94 templates/user_nav_bar.html:79
 msgid "Identity"
 msgstr "Identité"
 
@@ -1244,7 +1239,7 @@ msgstr "Identité"
 msgid "Board"
 msgstr "Portfolio"
 
-#: templates/company_nav_bar.html:112 templates/user_nav_bar.html:94
+#: templates/company_nav_bar.html:112 templates/user_nav_bar.html:92
 msgid "Account"
 msgstr "Compte"
 
@@ -1268,8 +1263,8 @@ msgstr "Effacer une identité"
 msgid "Create Company"
 msgstr "Créer un compte entreprise"
 
-#: templates/company_nav_bar.html:130 templates/manager_nav_bar.html:83
-#: templates/user_nav_bar.html:101
+#: templates/company_nav_bar.html:130 templates/manager_nav_bar.html:91
+#: templates/user_nav_bar.html:99
 msgid "Verifier"
 msgstr "Verifier"
 
@@ -1287,11 +1282,29 @@ msgstr "Toutes les données sont infalsifiables et traçables."
 msgid "Download Credential"
 msgstr "Sauvegarder l'attestation"
 
+#: templates/delete_identity.html:50
+msgid "Your potfolio will be definitly deleted with all your credentials."
+msgstr ""
+
+#: templates/delete_identity.html:51
+msgid "Confirm with your password to proceed."
+msgstr ""
+
+#: templates/delete_identity.html:56
+msgid "Enter your password"
+msgstr "Entrez votre mot de passe"
+
+#: templates/delete_identity.html:59
+#: templates/issuer/issue_experience_credential_workflow.html:158
+#: templates/issuer/issue_identity_credential.html:101
+msgid "Delete"
+msgstr "Effaçer"
+
 #: templates/guest_nav_bar.html:10
 msgid "Professional Digital IDentity"
 msgstr "Identité Numérique Professionnelle"
 
-#: templates/guest_nav_bar.html:31
+#: templates/guest_nav_bar.html:31 templates/login/unregistered.html:28
 msgid "Register"
 msgstr "Créer un compte"
 
@@ -1303,11 +1316,11 @@ msgstr "Que propose Talao ?"
 msgid "Quick start"
 msgstr "Démarrage rapide"
 
-#: templates/manager_nav_bar.html:65
+#: templates/manager_nav_bar.html:73
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/manager_nav_bar.html:78
+#: templates/manager_nav_bar.html:86
 msgid "My account"
 msgstr "Mon compte"
 
@@ -1367,7 +1380,7 @@ msgstr ""
 
 #: templates/remove_certificate.html:25
 msgid "Remove a Credential"
-msgstr "Effaçez une attestation"
+msgstr "Effacez une attestation"
 
 #: templates/remove_certificate.html:35
 msgid "Cancel"
@@ -1419,7 +1432,7 @@ msgstr "Protection des données"
 
 #: templates/update_skills.html:49 templates/update_skills.html:95
 msgid "Core Competencies"
-msgstr "Competences"
+msgstr "Compétences"
 
 #: templates/update_skills.html:100
 msgid "Level"
@@ -1461,11 +1474,15 @@ msgstr "Développement"
 msgid "Privacy"
 msgstr "Vie privée"
 
-#: templates/user_nav_bar.html:82
+#: templates/user_nav_bar.html:80
 msgid "Portfolio"
 msgstr "Portfolio"
 
-#: templates/user_nav_bar.html:100
+#: templates/user_nav_bar.html:95
+msgid "Delete portfolio"
+msgstr "Effacer le portfolio"
+
+#: templates/user_nav_bar.html:98
 msgid "Presentation"
 msgstr "Présentation"
 
@@ -1511,17 +1528,21 @@ msgid "This credential has been issued through the Talao plateform"
 msgstr "Cette attestations a été émise par Talao."
 
 #: templates/credible/credential_qr.html:18
-#: templates/register/register_credible_qrcode.html:14
+#: templates/register/register_credible_qrcode.html:11
 msgid "Scan the QRCode bellow with your Credible wallet"
 msgstr "Scannez le QR code avec votre wallet Credible"
 
-#: templates/credible/login_qr.html:16
+#: templates/credible/login_qr.html:11
 msgid "Scan the QRCode bellow with your wallet Credible"
 msgstr "Scannez le QR code avec votre wallet Credible"
 
-#: templates/credible/login_qr.html:54
+#: templates/credible/login_qr.html:40
 msgid "Loading your portfolio..."
 msgstr "Chargement de votre portfolio..."
+
+#: templates/credible/login_qr.html:49
+msgid "Your Identity has not been registered yet."
+msgstr "Votre invitation n'a pas été envoyée."
 
 #: templates/hrid/hrid_company_register_fr.html:132
 msgid "Choisissez les attestations à proposer à vos salariés"
@@ -1554,11 +1575,11 @@ msgstr ""
 #: templates/issuer/campaign_code.html:43
 #: templates/issuer/request_certificate.html:40
 #: templates/login/login_password.html:42 templates/login/two_factor.html:54
-#: templates/register/register.html:36 templates/register/register_code.html:49
+#: templates/register/register_code.html:49
 #: templates/register/register_identity.html:86
-#: templates/register/register_password.html:47
+#: templates/register/register_password.html:59
 #: templates/register/register_password_credible.html:46
-#: templates/register/user_register.html:63
+#: templates/register/user_register.html:62
 msgid "Next"
 msgstr "Suivant"
 
@@ -1648,11 +1669,6 @@ msgstr "Valider"
 msgid "Sign"
 msgstr "Signer"
 
-#: templates/issuer/issue_experience_credential_workflow.html:158
-#: templates/issuer/issue_identity_credential.html:101
-msgid "Delete"
-msgstr "Effaçer"
-
 #: templates/issuer/issue_identity_credential.html:24
 msgid "Issue verifiable ID"
 msgstr "Signez un Identity Pass"
@@ -1666,7 +1682,7 @@ msgid "Birthdate"
 msgstr "Date de naissance"
 
 #: templates/issuer/issue_identity_credential.html:57
-#: templates/register/user_register.html:54
+#: templates/register/user_register.html:53
 msgid "Email"
 msgstr "Email"
 
@@ -1715,7 +1731,7 @@ msgstr "Votre validateur"
 
 #: templates/issuer/request_experience_credential.html:69
 msgid "Select a reviewer in the list below"
-msgstr ""
+msgstr "Choisissez un validateur"
 
 #: templates/issuer/request_experience_credential.html:76
 msgid "Reference (Optional) "
@@ -1748,7 +1764,7 @@ msgid "Sign In with your Identity"
 msgstr "Connectez vous avec votre Identité"
 
 #: templates/login/did_auth.html:38
-#: templates/register/end_of_registration.html:33
+#: templates/register/end_of_registration.html:34
 msgid "Sign In"
 msgstr "Se connecter"
 
@@ -1780,13 +1796,13 @@ msgstr "Entrez votre nom d'utilisateur"
 
 #: templates/login/forgot_password_init.html:43
 #: templates/login/forgot_username.html:39
-#: templates/login/login_password.html:31
+#: templates/login/login_password.html:31 templates/login/unregistered.html:25
 #: templates/register/register_code.html:56
 #: templates/register/register_identity.html:94
-#: templates/register/register_password.html:56
+#: templates/register/register_password.html:68
 #: templates/register/register_password_credible.html:55
 #: templates/register/registration_error.html:37
-#: templates/register/user_register.html:65
+#: templates/register/user_register.html:64
 msgid "Sign-In"
 msgstr "Se connecter"
 
@@ -1819,8 +1835,8 @@ msgid "or"
 msgstr "ou"
 
 #: templates/login/login_password.html:48
-msgid "Log with your Digital Identity with"
-msgstr "Connectez vous avec votre Identité Numérique avec"
+msgid "Sign-In with your Digital Identity and"
+msgstr "Connectez vous avec votre Identité Numérique et"
 
 #: templates/login/two_factor.html:38
 msgid "You are going to receive a secret code."
@@ -1830,33 +1846,25 @@ msgstr "Vous allez recevoir un code secret."
 msgid "Copy this secret code for authentification."
 msgstr "Copier ce code pour authentification"
 
-#: templates/register/end_of_registration.html:20
-msgid ""
-"Your Professional Digital Identity and your repository have been "
-"installed."
-msgstr ""
-"Votre Identité Numérique Professionnelle et votre portfoliio ont été "
-"installés"
+#: templates/login/unregistered.html:21
+msgid "Your Digital Identity has not been registered."
+msgstr "Votre Identité Numérique n'est pas enregistrée."
 
-#: templates/register/end_of_registration.html:20
+#: templates/register/end_of_registration.html:21
+msgid "Your portfolio have been installed."
+msgstr "Votre portfolio a été installé."
+
+#: templates/register/end_of_registration.html:21
 msgid "You can now Sign In."
 msgstr "Vous pouvez maintenant vous connecter."
 
-#: templates/register/end_of_registration.html:26
-msgid "Your professional Identity"
+#: templates/register/end_of_registration.html:27
+msgid "Your professional Digital Identity"
 msgstr "Votre Identité Numérique"
 
-#: templates/register/end_of_registration.html:31
+#: templates/register/end_of_registration.html:32
 msgid "Your username is :"
 msgstr "Votre nom utilisateur est :"
-
-#: templates/register/register.html:23
-msgid "Register a company account"
-msgstr "Créer un compte entreprise"
-
-#: templates/register/register.html:29
-msgid "Register a personal account"
-msgstr "Créer un compte personnel"
 
 #: templates/register/register_code.html:33
 msgid "Check your phone."
@@ -1866,21 +1874,17 @@ msgstr "Vérifiez votre téléphone."
 msgid "You are going to receive an SMS with a secret code."
 msgstr "Vous allez recevoir un SMS avec un code secret."
 
-#: templates/register/register_code.html:39
-msgid "Copy this secret code for authentication."
-msgstr "Saisissez ce code pour l'authentification"
-
 #: templates/register/register_code.html:82
-msgid "Your Identity is being deployed."
-msgstr "Votre Identité est actuellement en cours d'installation."
+msgid "Your portfolio is being deployed."
+msgstr "Votre portfolio est actuellement en cours d'installation."
 
 #: templates/register/register_code.html:86
 msgid ""
-"Your Professional Identity and portfolio will be installed soon. This "
-"process can take up to 1 minute. Do not close this page."
+"Your portfolio will be installed soon. This process can take up to 1 "
+"minute. Do not close this page."
 msgstr ""
-"Votre Identité Numérique Professionnelle et votre portfolio seront "
-"installés bientot. Cette opération peut prendre jusqu'à 1 minute."
+"Votre portfolio sera installé bientot. Cette opération peut prendre "
+"jusqu'à 1 minute."
 
 #: templates/register/register_identity.html:33
 msgid "Select your Digital Identity"
@@ -1888,7 +1892,7 @@ msgstr "Choisissez votre Identité Numérique"
 
 #: templates/register/register_identity.html:54
 msgid "I have my own DID : "
-msgstr "J ai mon propre Identifiant Décentralisé (DID) : "
+msgstr "J'ai mon propre Identifiant Décentralisé (DID) : "
 
 #: templates/register/register_identity.html:64
 msgid "did:ethr.This Identity is supported by the Ethereum blockchain."
@@ -1898,12 +1902,12 @@ msgstr "did:ethr. Cette Identité est supportée par la blockchain Ethereum."
 msgid "did:tz. This Identity is supported by the Tezos blockchain."
 msgstr "did:tz. Cette Identité est supportée par la blockchain Tezos."
 
-#: templates/register/register_password.html:22
+#: templates/register/register_password.html:34
 #: templates/register/register_password_credible.html:22
 msgid "Choose a password."
 msgstr "Choisissez un mot de passe."
 
-#: templates/register/register_password.html:27
+#: templates/register/register_password.html:39
 msgid ""
 "This password will be used to protect the cryptographic keys of your "
 "identity stored on your desktop.\n"
@@ -1914,7 +1918,7 @@ msgstr ""
 "sur votre desktop. \n"
 " Il sera aussi nécessaire pour vous connecter à votre portfolio."
 
-#: templates/register/register_password.html:29
+#: templates/register/register_password.html:41
 #: templates/register/register_password_credible.html:28
 msgid ""
 "Password must contain a number, an uppercase letter and a lowercase "
@@ -1926,8 +1930,8 @@ msgstr ""
 " majuscule et au minimum 8 caractères."
 
 #: templates/register/register_password_credible.html:27
-msgid "This password will be used to access your repository."
-msgstr "Ce mot de passe sera utilisé pour accéder à votre portfolio"
+msgid "This password will be used to access your repository without Credible."
+msgstr "Ce mot de passe sera utilisé pour accéder à votre portfolio sans Credible."
 
 #: templates/register/registration_error.html:31
 msgid "Registration failed"
@@ -1935,37 +1939,49 @@ msgstr "Echec de la création de compte"
 
 #: templates/register/user_register.html:36
 msgid ""
-"Talao is a solution to manage professional verifiable credentials and "
-"Self Sovereign Identity."
+"Talao is a web solution to manage the professional verifiable credentials"
+" of your Self Sovereign Identity."
 msgstr ""
-"Talao est une solution pour gérer les Identités Numériques auto-"
-"souveraines ainsi que les attestations vérifiables."
+"Talao est un service web pour gérer les attestations professionnelles de "
+"votre Identité Numérique (SSI)."
 
 #: templates/register/user_register.html:37
-msgid "* You own your data for your lifetime."
-msgstr "* Vous controlez vos données."
+msgid "* You can generate a new Digital Identity or use the one you already have."
+msgstr ""
+"* Vous pouvez créer votre propre Identité Numérique ou utiliser celle que"
+" vous avez."
 
 #: templates/register/user_register.html:38
-msgid "* No one can access your data without your permission."
-msgstr "* Personne ne peut accéder à vos données sans votre autorisation."
+msgid "* You get your own repository to save your credentials."
+msgstr ""
+"* Vous disposez d'un coffre fort numérique (portfolio) pour sauvegarder "
+"vos attestations."
 
 #: templates/register/user_register.html:39
-msgid "* Credentials are verifiable, tamper proof and tracable."
-msgstr "* Les attestations sont traçables et infalsifiables."
+msgid "* You can expose publicly your credentials if needed."
+msgstr "* Vous pouvez publier vos attestations si vous le souhaitez."
 
 #: templates/register/user_register.html:40
-msgid "* Credential issuers are identified."
-msgstr "* Les émetteurs d'attestations sont identifiables."
+msgid ""
+"* You can request credentials to companies, organizations and public "
+"services."
+msgstr "* Vous pouvez demander de nouvelles attestations à votre entreprise."
 
-#: templates/register/user_register.html:41
-msgid "Enter your firstname, lastname, email and phone number for authentication."
-msgstr "Saisissez votre prénom, nom, email et numéro de téléphone."
-
-#: templates/register/user_register.html:48
+#: templates/register/user_register.html:47
 msgid "Create a new Professional Digital Identity"
 msgstr "Créer une Identité Numérique Professionnelle"
 
-#: templates/register/user_register.html:60
+#: templates/register/user_register.html:54
+msgid ""
+"International phone numbers start with +, then country code and national "
+"phone number"
+msgstr "Numéro de téléphone international avec préfixe (ex : +33...)"
+
+#: templates/register/user_register.html:56
+msgid "Mobile int. phone number (ex : +16...)"
+msgstr "Numéro de téléphone mobile int. (ex : +33-..)"
+
+#: templates/register/user_register.html:59
 msgid "I read and I accept the service conditions"
 msgstr "J'ai lu et j'accepte les Conditions Générales d'Utilisation"
 

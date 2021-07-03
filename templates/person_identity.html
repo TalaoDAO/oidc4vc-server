@@ -209,7 +209,7 @@ async function pageonload(){
   }
 
 function promptUser(){
-  var answer = window.confirm("{{_("Your local Identity keys are no more available. Update your browser with new keys ?")}}");  
+  var answer = window.confirm('{{_("Your local Identity keys are no more available. Update your browser with new keys ?")}}');  
   if (answer) {
       window.location.href = "/user/import_identity_key/";
       }

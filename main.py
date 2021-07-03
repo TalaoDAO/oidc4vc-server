@@ -48,7 +48,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible
 
 # Release
-VERSION = "0.11.0"
+VERSION = "0.11.2"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -103,11 +103,11 @@ def test() :
     return render_template("test.html")
 
 
-@app.route('/user/language', methods=['GET'], defaults={'mode': mode})
+@app.route('/language', methods=['GET'], defaults={'mode': mode})
 def user_language(mode) :
     session['language'] = request.args['lang']
     refresh()
-    return redirect (mode.server + 'user/')
+    return redirect (request.referrer)
 
 
 # Centralized @route for register identity

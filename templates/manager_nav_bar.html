@@ -60,8 +60,16 @@
       <ul class="navbar-nav mr-2" style="flex-direction: row;">
       <div class="d-inline-flex justify-content-center">
         <li class="nav-item d-none d-none d-md-block" role="presentation"><a style="color: white;" id="id_wc" class="nav-link active"></a></li> 
-        <li class="nav-item d-none d-none d-md-block" role="presentation"><div hidden id="connected"></div></li> 
-
+        <li class="nav-item dropdown no-arrow h-100" role="presentation">
+          <div class="nav-item dropdown show">
+            <a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#">
+              <span  style="color: white;"><i class="fas fa-globe fa-sm fa-fw mr-2 text-gray-400"></i></span>
+            </a>
+            <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
+              <a class="dropdown-item" role="presentation" href="/language?lang=en"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>English</a>
+              <a class="dropdown-item" role="presentation" href="/language?lang=fr"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>Français</a>
+            </div>
+        </li>
         <li class="nav-item mx-1"><a class="nav-link active" href="/user/" style="color: rgba(255,255,255,0.9);"><h4><strong>{{_('Home')}}</strong></h4></a></li>
         <li class="nav-item mx-1"><a class="nav-link active" href="/company/dashboard/" style="color: rgba(255,255,255,0.9);"><h4><strong>{{_('Credentials')}}</strong></h4></a></li>
 

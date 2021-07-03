@@ -32,13 +32,12 @@
                                         <div class="col-lg-6 d-none d-lg-flex">
                                             <div class="flex-grow-1 bg-login-image">
                                                 <p class="text-center" style="margin: 75px 50px 0px;">
-                                                    <br><br>
-                                                    <br>{{_('Talao is a solution to manage professional verifiable credentials and Self Sovereign Identity.')}}<br><br>
-                                                    {{_('* You own your data for your lifetime.')}}</br>
-                                                    {{_('* No one can access your data without your permission.')}}</br>
-                                                    {{_('* Credentials are verifiable, tamper proof and tracable.')}}</br>
-                                                    {{_('* Credential issuers are identified.')}}<br>
-                                                    <br>{{_('Enter your firstname, lastname, email and phone number for authentication.')}}<br>
+                                                    <br>
+                                                    <br>{{_('Talao is a web solution to manage the professional verifiable credentials of your Self Sovereign Identity.')}}<br><br>
+                                                    {{_('* You can generate a new Digital Identity or use the one you already have.')}}</br>
+                                                    {{_('* You get your own repository to save your credentials.')}}</br>
+                                                    {{_('* You can expose publicly your credentials if needed.')}}</br>
+                                                    {{_('* You can request credentials to companies, organizations and public services.')}}<br>
                                                 </p>
                                             </div>
                                         </div>
@@ -52,9 +51,9 @@
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="{{_('Firstname')}}" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="{{_('Lastname')}}" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="email" placeholder="{{_('Email')}}" value="{{email}}" name="email" required="" ></div>
-                                                <div class="form-group"><input class="form-control" title="International phone numbers start with +, then country code and national phone number" 
+                                                <div class="form-group"><input class="form-control" title='{{_("International phone numbers start with +, then country code and national phone number")}}' 
                                                     pattern="\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$"
-                                                     placeholder="Mobile phone number (ex : +336...)" value="{{phone}}" name="phone" required ></div>
+                                                     placeholder='{{_("Mobile int. phone number (ex : +16...)")}}'' value="{{phone}}" name="phone" required ></div>
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CGU">
                                                     <label style="color: rgb(133,135,150);" title="" >{{_('I read and I accept the service conditions')}}</label>

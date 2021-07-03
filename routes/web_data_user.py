@@ -662,8 +662,8 @@ def user_advanced(mode) :
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
 	my_advanced = """
-					<b>Repository smart contract</b> : """+ session['workspace_contract'] + """<br>
-					<b>Repository controller</b> : """+ session['address'] + """<br>
+					<b>Portfolio smart contract</b> : """+ session['workspace_contract'] + """<br>
+					<b>Portfolio controller</b> : """+ session['address'] + """<br>
 					<b>DID</b> : """ + DID + """<br>
 					<b>All DID attached</b> : """ + "<br>".join(ns.get_did_list(session['workspace_contract'], mode)) + """<br>
 					<hr>

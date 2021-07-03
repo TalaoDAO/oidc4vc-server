@@ -32,7 +32,6 @@
 
         var source = new EventSource('/stream');
         source.onmessage = function (event) {
-          console.log('event data = ', event.data);
         const result = JSON.parse(event.data)
         if (result.check == 'ok'){
           document.getElementById("id_button").style.visibility = "hidden";
@@ -43,10 +42,11 @@
           window.location.href="/user/?token=" + result.token;
           }
         else {
+          window.location.href='/unregistered';
           //document.getElementById("id_button").style.visibility = "hidden";
-          document.getElementById("id_text").innerHTML = "";
-          document.getElementById("id_qrcode").innerHTML = "";
-          document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Your Identity has not been registered yet.")}}' + '</div>';
+          //document.getElementById("id_text").innerHTML = "";
+          //document.getElementById("id_qrcode").innerHTML = "";
+          //document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Your Identity has not been registered yet.")}}' + '</div>';
           
         } 
         };

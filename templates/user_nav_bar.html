@@ -70,8 +70,8 @@
               <span  style="color: white;"><i class="fas fa-globe fa-sm fa-fw mr-2 text-gray-400"></i></span>
             </a>
             <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
-              <a class="dropdown-item" role="presentation" href="/user/language?lang=en"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>English</a>
-              <a class="dropdown-item" role="presentation" href="/user/language?lang=fr"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>Français</a>
+              <a class="dropdown-item" role="presentation" href="/language?lang=en"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>English</a>
+              <a class="dropdown-item" role="presentation" href="/language?lang=fr"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>Français</a>
             </div>
         </li>
 
@@ -92,7 +92,7 @@
             <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Account')}}</a>
 
             <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Advanced')}}</a>
-            <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Delete Identity')}}</a>
+            <a class="dropdown-item" role="presentation" title="Delete all data" href="/user/delete_identity/"><i class="fa fa-trash fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Delete portfolio')}}</a>
             <div class="dropdown-divider"></div>
             {% if session['username']  in ['marcsimon',  'thierrythevenet'] %}
             <a class="dropdown-item" role="presentation" title="Make a presentation" href="/user/presentation/"><i class="far fa-check-square fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Presentation')}}</a>

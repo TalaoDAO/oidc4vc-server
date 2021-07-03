@@ -92,7 +92,7 @@ class Identity() :
 		#get image/logo and signature ipfs and download files to upload folder		
 		self.picture = self.personal['picture']
 		if not self.picture :
-			self.picture = 'unknown.png' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+			self.picture = 'unknown.png' if self.type == "person" else 'mosaique.png'
 		self.signature = self.personal['signature']
 		if not self.signature  :
 			self.signature = 'macron.png'
