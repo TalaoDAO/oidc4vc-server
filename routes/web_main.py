@@ -289,16 +289,20 @@ def signature(mode) :
         path_to_file = mode.uploads_path + "signature.png"
         myfile.save(path_to_file)       
         signature_hash = Talao_ipfs.file_add(path_to_file, mode)
+        if not signature_hash :
+            flash(_('Fail to update signature.'), 'warning')
+            return redirect(mode.server + 'user/')
+        flash(_('Your signature has been updated.'), 'success')
         os.rename(path_to_file, mode.uploads_path + signature_hash)
         if session['role'] != 'issuer' :
-            session['personal']['signature'] = session['signature'] = signature_hash
+            session['personal']['signature'] = signature_hash
+            session['signature'] = signature_hash 
             ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
         else:
             personal = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))
             personal['signature'] = signature_hash
             ns.update_personal(session['employee_workspace_contract'], json.dumps(personal), mode)
             del session['employee_workspace_contract']
-        flash(_('Your signature has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
 

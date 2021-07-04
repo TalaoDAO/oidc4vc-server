@@ -46,10 +46,10 @@ class Identity() :
 
 		if self.authenticated :
 			self.has_relay_private_key(mode)
-			if self.private_key :
-				self.get_partners(mode)
-			else :
-				self.partners = []
+			#if self.private_key :
+			#	self.get_partners(mode)
+			#else :
+			self.partners = []
 
 			self.has_relay_rsa_key(mode)
 			if self.rsa_key :

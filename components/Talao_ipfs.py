@@ -39,12 +39,9 @@ def add_file_to_pinata (filename, mode) :
 	except IOError :
 		logging.error('IOEroor open file ')
 		return None
-	file_data = this_file.read()
-	api_key = mode.pinata_api_key
-	secret = mode.pinata_secret_api_key
-	headers = {	'pinata_api_key': api_key,
-              'pinata_secret_api_key': secret}
-	payload = { 'file' : file_data}
+	headers = {	'pinata_api_key': mode.pinata_api_key,
+              'pinata_secret_api_key':  mode.pinata_secret_api_key}
+	payload = { 'file' : this_file.read()}
 	try :
 		response = requests.post('https://api.pinata.cloud/pinning/pinFileToIPFS', files=payload, headers=headers)
 	except :
