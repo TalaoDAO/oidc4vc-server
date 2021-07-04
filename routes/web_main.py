@@ -1,5 +1,6 @@
 
 import os.path
+import os
 from flask import session, send_from_directory, flash, jsonify
 from flask import request, redirect, render_template,abort
 import random
@@ -253,12 +254,12 @@ def picture(mode) :
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
         filename = "profile_pic.jpg"
-        myfile.save(os.path.join(mode.uploads_path, filename))
-        picturefile = mode.uploads_path  + filename
-        picture_hash = Talao_ipfs.file_add(picturefile, mode)
+        path_to_file = mode.uploads_path  + filename
+        myfile.save(path_to_file)
+        picture_hash = Talao_ipfs.file_add(path_to_file, mode)
         session['personal']['picture'] = session['picture'] = picture_hash
         ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
-        Talao_ipfs.get_picture(session['picture'], mode.uploads_path+ '/' + session['picture'])
+        os.rename(path_to_file, mode.uploads_path + picture_hash)
         session['menu']['picturefile'] = session['picture']
         flash(_('Your picture has been updated'), 'success')
         return redirect(mode.server + 'user/')
@@ -286,19 +287,18 @@ def signature(mode) :
         return render_template('signature.html', **session['menu'], signaturefile=signature)
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
-        filename = "signature.png"
-        myfile.save(os.path.join(mode.uploads_path, filename))
-        signaturefile = mode.uploads_path + filename
-        signature_hash = Talao_ipfs.file_add(signaturefile, mode)
+        path_to_file = mode.uploads_path + "signature.png"
+        myfile.save(path_to_file)       
+        signature_hash = Talao_ipfs.file_add(path_to_file, mode)
+        os.rename(path_to_file, mode.uploads_path + signature_hash)
         if session['role'] != 'issuer' :
             session['personal']['signature'] = session['signature'] = signature_hash
             ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
-            Talao_ipfs.get_picture(session['signature'], mode.uploads_path + '/' + session['signature'])
         else:
             personal = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))
             personal['signature'] = signature_hash
             ns.update_personal(session['employee_workspace_contract'], json.dumps(personal), mode)
-            Talao_ipfs.get_picture(session['employee_signature'], mode.uploads_path + '/' + session['employee_signature'])
+            #Talao_ipfs.get_picture(session['employee_signature'], mode.uploads_path + '/' + session['employee_signature'])
             del session['employee_workspace_contract']
             del session['employee_signature']
         flash(_('Your signature has been updated'), 'success')

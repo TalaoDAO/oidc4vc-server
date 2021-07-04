@@ -55,9 +55,8 @@ def credentialOffer(id):
             "credentialPreview": credential
         })
     elif request.method == 'POST':
-        #data = json.dumps({"check" : "ok"})
-        #red.publish('credible', data)
         return jsonify(credential)
+     
 
 
 # presentation for login with credible
@@ -139,7 +138,7 @@ def generate_token(did,mode) :
     private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
     RSA_KEY = RSA.import_key(private_rsa_key)
     public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
-    expired = datetime.timestamp(datetime.now()) + 180 # 3 minutes live
+    expired = datetime.timestamp(datetime.now()) + 30 # 30s live
     # build JWE
     jwe = JsonWebEncryption()
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- regiqter_ctredible_qrcode.html-->
 <html>
   <head>
     {% include 'head.html' %}
@@ -8,8 +9,10 @@
       <div id="content">
       {% include 'guest_nav_bar.html' %}
         <div class="text-center">       
-          <div class="m-5">{{_('Scan the QRCode bellow with your Credible wallet')}}</div>
-          <div class="m-5"><img src="{{ qrcode(url) }}" class="w-20 h-20"></div>
+          <div id="id_text" class="m-5">{{_('Scan the QRCode bellow with your Credible wallet')}}</div>
+          <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class="w-20 h-20"></div>
+          <div id="id_loading" class="m-5"></div>
+          <div id="id_spinner" class="m-5"></div>
           </div>
             <div class="text-center m-5">
               <button class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
@@ -23,14 +26,22 @@
 <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-
+ 
 <script>
 
 var source = new EventSource('/register/stream');
 source.onmessage = function (event) {
     const result = JSON.parse(event.data)
-    window.location.href="/register/password?did=" + result.did;
+    if (result.did == 'registered'){
+      window.location.href="/register/error";
+    }
+    else {
+    document.getElementById("id_text").innerHTML = "";
+    document.getElementById("id_qrcode").innerHTML = "";
+    document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Installing your portfolio...")}}' + '</div>';
+    document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
+    window.location.href="/register/create_for_credible?did=" + result.did;
+    }
     }; 
 
 

@@ -2,22 +2,8 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-  <title>Talao Professional Identity</title>
-  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
-
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='font-awesome.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fontawesome5-overrides.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ionicons.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Footer-Clean.css') }}">
+  {% include 'head.html' %}
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cropperjs/dist/cropper.css') }}">
-  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 </head>
 
 <body id="page-top">
@@ -58,7 +44,7 @@
             <div class="col-lg-4 col-xl-4 offset-xl-4">
               <div class="card mb-3">
                 <div class="card-header py-3">
-                  <p class="text-primary m-0 font-weight-bold">Signature</p>
+                  <p class="text-primary m-0 font-weight-bold">{{_('Signature')}}</p>
                 </div>
                 <div class="card-body text-center shadow">
                   <div class="image_container">
@@ -69,13 +55,13 @@
 
                   <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                      <button class="btn btn-primary btn-sm"  id="loading_button">Save</button>
+                      <button class="btn btn-primary btn-sm"  id="loading_button">{{_('Save')}}</button>
                     </div>
                     <div class="custom-file">
                       <label class="custom-file-label" for="file" id="label"></label>
                       <input class="custom-file-input" type="file" name="image" id="file" onchange="readURL(this);" />
                     </div>
-                      <a href="/user/account/"> <button class="btn btn-primary text-left" type="button">Back</button></a>
+                      <a href="/user/account/"> <button class="btn btn-primary text-left" type="button">{{_('Back')}}</button></a>
                   </div>
                 </div>
               </div>

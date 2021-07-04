@@ -101,9 +101,10 @@ def user(mode) :
 		elif session.get('workspace_contract') :
 			logging.info('Identity set up from workspace contract')
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
-		elif request.args.get('token') :
+		elif request.form.get('token') :
 			logging.info('Identity set up from token')
-			token = request.args.get('token')
+			print("token = ",request.form.get('token'))
+			token = request.form.get('token')
 			key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 			jwe = JsonWebEncryption()
 			try :

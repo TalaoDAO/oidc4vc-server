@@ -48,7 +48,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible
 
 # Release
-VERSION = "0.11.2"
+VERSION = "0.11.3"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -138,7 +138,6 @@ app.add_url_rule('/company/registry/', view_func=web_external.board, methods = [
 
 # Centralized route fo Issuer explore
 web_issuer_explore.init_app(app, mode)
-
 
 # Centralized route for user and data main view
 app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})

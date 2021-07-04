@@ -41,9 +41,10 @@ def add_dict_to_local (data_dict) :
 
 def file_add(filename, mode) :
 	ipfs_hash_pinata = add_file_to_pinata(filename, mode)
-	ipfs_hash_local = add_file_to_local(filename)
-	if ipfs_hash_pinata  != ipfs_hash_local :
-		logging.warning('hash is different')
+	if mode.myenv == 'aws' :
+		ipfs_hash_local = add_file_to_local(filename)
+		if ipfs_hash_pinata  != ipfs_hash_local :
+			logging.warning('hash is different')
 	return ipfs_hash_pinata
 
 def add_file_to_pinata (filename, mode) :

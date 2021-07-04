@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-07-03 11:02+0200\n"
+"POT-Creation-Date: 2021-07-03 18:44+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -462,7 +462,7 @@ msgstr "The code est incorrect, plus que 2 essais"
 msgid "This code is incorrect, 1 trial left"
 msgstr "Ce code est icorrect plus que 1 seul essai"
 
-#: routes/web_login.py:150 routes/web_login.py:228 routes/web_register.py:258
+#: routes/web_login.py:150 routes/web_login.py:228 routes/web_register.py:263
 msgid "Code expired"
 msgstr "Code expiré"
 
@@ -582,7 +582,7 @@ msgstr "Vote numéro de téléphone a été effaçé."
 msgid "Your phone number has been updated."
 msgstr "Votre numéro de téléphone a été mis à jour."
 
-#: routes/web_main.py:354 routes/web_register.py:118
+#: routes/web_main.py:354 routes/web_register.py:121
 msgid "Incorrect phone number."
 msgstr "Numéro de téléphone incorrect."
 
@@ -689,7 +689,8 @@ msgid "Identity creation failed"
 msgstr "Echec de la création d'Identité."
 
 #: routes/web_main.py:1043 routes/web_main.py:1069 routes/web_main.py:1113
-#: routes/web_main.py:1635 routes/web_register.py:246
+#: routes/web_main.py:1635 routes/web_register.py:250
+#: routes/web_register.py:283
 msgid "Transaction failed."
 msgstr "Echec de la transaction"
 
@@ -775,7 +776,7 @@ msgstr ""
 
 #: routes/web_main.py:1305
 msgid "  has been rejected."
-msgstr ""
+msgstr " a été rejeté."
 
 #: routes/web_main.py:1326
 msgid "Request a Partnership to "
@@ -783,7 +784,7 @@ msgstr ""
 
 #: routes/web_main.py:1326
 msgid " is impossible (RSA key not found)"
-msgstr ""
+msgstr " est impossible"
 
 #: routes/web_main.py:1331
 msgid "Partnership authorization failed."
@@ -889,37 +890,45 @@ msgstr "Certificat non disponible."
 msgid "Certificate PKCS12 not available."
 msgstr "Certificat non disponible."
 
-#: routes/web_register.py:97
+#: routes/web_register.py:100
 msgid "Company registration failed"
 msgstr "Echec de la création de compte"
 
-#: routes/web_register.py:115
+#: routes/web_register.py:118
 msgid "Accept the service conditions to move next step."
 msgstr "Acceptez les conditions d'utilisation pour passer à l'étape suivante."
 
-#: routes/web_register.py:145 routes/web_register.py:150
+#: routes/web_register.py:148 routes/web_register.py:153
 msgid "DID resolution has been rejected by Universal Resolver."
 msgstr "Ce DID n'est pas résolu"
 
-#: routes/web_register.py:205 routes/web_register.py:231
+#: routes/web_register.py:209 routes/web_register.py:235
 msgid "Session expired"
 msgstr "Session terminée"
 
-#: routes/web_register.py:223
+#: routes/web_register.py:227
 msgid "SMS failed."
 msgstr " SMS echec."
 
-#: routes/web_register.py:254
+#: routes/web_register.py:258
 msgid "Code is incorrect. Too many trials."
 msgstr "Code incorrect. Maximum d'essais atteint."
 
-#: routes/web_register.py:262
+#: routes/web_register.py:259
+msgid "Registration failed"
+msgstr "Echec de la création de compte"
+
+#: routes/web_register.py:267
 msgid "Code is incorrect, 2 trials left."
 msgstr "Code incorrrect, plusque 2 essais"
 
-#: routes/web_register.py:264
+#: routes/web_register.py:269
 msgid "Code is incorrect, last trial."
 msgstr "Code incorrect, dernier essai"
+
+#: routes/web_register.py:291
+msgid "This Identity is already registered"
+msgstr "Cette Identité dispose déjà d'un portfolio"
 
 #: routes/web_skills.py:78
 msgid "Skill already added"
@@ -997,7 +1006,7 @@ msgstr "Mettre à jour"
 #: templates/issuer/request_certificate.html:43
 #: templates/issuer/request_experience_credential.html:87
 #: templates/login/logout.html:59 templates/register/register_code.html:52
-#: templates/register/register_credible_qrcode.html:15
+#: templates/register/register_credible_qrcode.html:18
 #: templates/register/register_identity.html:89
 #: templates/register/register_password.html:62
 #: templates/register/register_password_credible.html:49
@@ -1528,7 +1537,7 @@ msgid "This credential has been issued through the Talao plateform"
 msgstr "Cette attestations a été émise par Talao."
 
 #: templates/credible/credential_qr.html:18
-#: templates/register/register_credible_qrcode.html:11
+#: templates/register/register_credible_qrcode.html:12
 msgid "Scan the QRCode bellow with your Credible wallet"
 msgstr "Scannez le QR code avec votre wallet Credible"
 
@@ -1539,10 +1548,6 @@ msgstr "Scannez le QR code avec votre wallet Credible"
 #: templates/credible/login_qr.html:40
 msgid "Loading your portfolio..."
 msgstr "Chargement de votre portfolio..."
-
-#: templates/credible/login_qr.html:49
-msgid "Your Identity has not been registered yet."
-msgstr "Votre invitation n'a pas été envoyée."
 
 #: templates/hrid/hrid_company_register_fr.html:132
 msgid "Choisissez les attestations à proposer à vos salariés"
@@ -1886,6 +1891,10 @@ msgstr ""
 "Votre portfolio sera installé bientot. Cette opération peut prendre "
 "jusqu'à 1 minute."
 
+#: templates/register/register_credible_qrcode.html:41
+msgid "Installing your portfolio..."
+msgstr "Installation de votre portfolio..."
+
 #: templates/register/register_identity.html:33
 msgid "Select your Digital Identity"
 msgstr "Choisissez votre Identité Numérique"
@@ -1932,10 +1941,6 @@ msgstr ""
 #: templates/register/register_password_credible.html:27
 msgid "This password will be used to access your repository without Credible."
 msgstr "Ce mot de passe sera utilisé pour accéder à votre portfolio sans Credible."
-
-#: templates/register/registration_error.html:31
-msgid "Registration failed"
-msgstr "Echec de la création de compte"
 
 #: templates/register/user_register.html:36
 msgid ""

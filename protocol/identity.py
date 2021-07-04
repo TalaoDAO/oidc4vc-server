@@ -7,10 +7,12 @@ uniquemet utilisé en lecture.
 
 """
 
-import os.path
+from  os import path
+
+import requests
 from eth_account import Account
-import os
 import json
+import shutil
 
 import constante
 from .Talao_token_transaction import contractsToOwners, token_balance, read_workspace_info, has_vault_access, get_category
@@ -34,11 +36,8 @@ class Identity() :
 		self.authenticated = authenticated
 		self.did = 'did:talao:' + mode.BLOCKCHAIN + ':' + self.workspace_contract[2:]
 		self.address = contractsToOwners(self.workspace_contract,mode)
-		print('call get all documents')
 		self.get_all_documents(mode)
-		print('call get issuer keys')
 		self.get_issuer_keys(mode)
-		print('get identity skills')
 		self.get_identity_skills(mode)
 		self.get_identity_certificate(mode)
 		self.get_identity_private_certificate(mode)
@@ -46,10 +45,8 @@ class Identity() :
 		self.has_vault_access = has_vault_access(self.address, mode)
 
 		if self.authenticated :
-			print('call authenticated')
 			self.has_relay_private_key(mode)
 			if self.private_key :
-				print('call getr partners')
 				self.get_partners(mode)
 			else :
 				self.partners = []
@@ -60,14 +57,10 @@ class Identity() :
 			else :
 				self.secret = 'Encrypted'
 				self.aes = 'Encrypted'
-			print('call get eth balance')
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
-			print('call get token balance')
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated(mode)
-			print('call get personal')
 			self.get_identity_personal(self.workspace_contract, self.private_key_value,mode)
-			print('call get identity file')
 			self.get_identity_file(self.workspace_contract, self.private_key_value,mode)
 		else :
 			self.partners = []
@@ -81,21 +74,33 @@ class Identity() :
 		if self.type == "company" :
 			self.name = self.personal['name']['claim_value']
 		else : # self.type == "person" :
-			print('call get profile title')
 			self.profil_title = self.personal['profil_title']['claim_value']
 			self.name = self.personal['firstname']['claim_value'] + ' ' + self.personal['lastname']['claim_value']
-			print('call ns.get personal')
 			personal = json.loads(ns.get_personal(self.workspace_contract, mode))
 			self.experience = personal.get('experience_claims' , [])
 			self.education = personal.get('education_claims' , [])
 
-		#get image/logo and signature ipfs and download files to upload folder		
+		#get image/logo and signature from ipfs and download files to the "uploads" folder		
 		self.picture = self.personal['picture']
 		if not self.picture :
 			self.picture = 'unknown.png' if self.type == "person" else 'mosaique.png'
+		else :
+			if not path.exists(mode.uploads_path + self.picture) :
+				url = mode.ipfs_gateway + self.picture
+				response = requests.get(url, stream=True)
+				with open(mode.uploads_path + self.picture, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+
 		self.signature = self.personal['signature']
 		if not self.signature  :
 			self.signature = 'macron.png'
+		else :
+			if not path.exists(mode.uploads_path + self.signature) :
+				url = mode.ipfs_gateway + self.signature
+				response = requests.get(url, stream=True)
+				with open(mode.uploads_path + self.signature, 'wb') as out_file:
+					shutil.copyfileobj(response.raw, out_file)
+
 		
 
 

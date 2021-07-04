@@ -13,23 +13,26 @@
                 <div id="id_loading" class="m-5"></div>
                 <div id="id_spinner" class="m-5"></div>
               </div>
-        
+              
               <div id="id_button" class="m-5">
                 <div class="col text-center">
                 <a href="/user/" ><button class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button></a>
               </div>
+
+              
+              <form id="id_token" action="/user/" method="Post">
+              <input id="input_token" hidden name="token" >
+              </form>
+
+
       </div>
       {% include 'user_footer.html' %}
-
       <script>function goBack() { window.history.back();}</script>
       <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
       <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-    
       <script>
-
-
         var source = new EventSource('/stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
@@ -39,18 +42,13 @@
           document.getElementById("id_qrcode").innerHTML = "";
           document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Loading your portfolio...")}}' + '</div>';
           document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
-          window.location.href="/user/?token=" + result.token;
+          document.getElementById("input_token").value=result.token;
+          document.getElementById("id_token").submit()
           }
         else {
           window.location.href='/unregistered';
-          //document.getElementById("id_button").style.visibility = "hidden";
-          //document.getElementById("id_text").innerHTML = "";
-          //document.getElementById("id_qrcode").innerHTML = "";
-          //document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Your Identity has not been registered yet.")}}' + '</div>';
-          
         } 
         };
-  
-  </script>
+      </script>
   </body>
 </html>

@@ -2,12 +2,12 @@
 Just a process to a centralized basic create user from password and username
 
 """
-from flask import request, redirect, render_template, session, flash, abort, jsonify, Response
+from flask import request, redirect, render_template, session, flash, abort, jsonify, Response, flash
 import random
 import json
 import didkit
 from flask_babel import _
-from datetime import  datetime
+from datetime import  datetime, timedelta
 import uuid
 import redis
 
@@ -36,6 +36,9 @@ def init_app(app, mode) :
 	app.add_url_rule('/register/post_code', view_func=register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
 	app.add_url_rule('/register/credible_endpoint', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode})
 	app.add_url_rule('/register/stream',  view_func=register_stream)
+	app.add_url_rule('/register/error',  view_func=register_error)
+	app.add_url_rule('/register/create_for_credible',  view_func=register_create_for_credible, methods = ['POST', 'GET'], defaults={'mode': mode})
+
 	return
 
 
@@ -162,18 +165,20 @@ def register_credible_endpoint(mode):
         "type": ["VerifiableCredential"],
         "issuer": "",
         "issuanceDate": "",
-        "credentialSubject" : {
-            "id": ""
-        }
+        "credentialSubject" : {}
 	}
     if request.method == 'GET':   
         return jsonify({
             "type": "CredentialOffer",
-            "credentialPreview": credential
-        })
+            "credentialPreview": credential,
+			"expires" : (datetime.now() + timedelta(seconds= 10*60)).replace(microsecond=0).isoformat() + "Z"
+        	})
     elif request.method == 'POST':
-        address = mode.owner_talao
-        pvk = privatekey.get_key(address, 'private_key', mode)
+        if ns.get_workspace_contract_from_did(request.form['subject_id'], mode) :
+            data = json.dumps({ "did" : 'registered'})
+            red.publish('register_credible', data)
+            return jsonify('registered')
+        pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         credential["issuer"] = 'did:web:talao.co'
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
@@ -181,7 +186,7 @@ def register_credible_endpoint(mode):
         signed_credential = vc_signature.sign(credential, pvk, 'did:web:talao.co')
         data = json.dumps({ "did" : request.form['subject_id']})
         red.publish('register_credible', data)
-        return jsonify(signed_credential)
+        return Response(signed_credential, content_type = 'application/ld+json')
 
 
 # event push to browser
@@ -196,7 +201,6 @@ def register_stream():
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
     return Response(event_stream(), headers=headers)
-
 
 
 # route /register/password/
@@ -252,6 +256,7 @@ def register_code(mode) :
 	elif session['try_number'] == 3 :
 		session['is_active'] = False
 		flash(_("Code is incorrect. Too many trials."), 'warning')
+		message = _("Registration failed")
 		return render_template("/register/registration_error.html")
 	elif datetime.now() > session['code_delay'] :
 		session['is_active'] = False
@@ -264,6 +269,27 @@ def register_code(mode) :
 			message = _('Code is incorrect, last trial.')
 		flash(message, 'warning')
 		return render_template("/register/register_code.html")
+
+def register_create_for_credible(mode) :
+	if not createidentity.create_user(session['username'],
+										session['email'],
+										mode,
+										did=request.args['did'],
+										firstname=session['firstname'],
+										lastname=session['lastname'],
+										phone=session['phone'],
+										password='identity')[2] :
+		logging.error('createidentity failed')
+		flash(_('Transaction failed.'), 'warning')
+		return render_template("/register/user_register.html" )
+	directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
+	# success exit
+	return render_template("/register/end_of_registration.html", username=session['username'])
+
+
+def register_error() :
+	message = _("This Identity is already registered")
+	return render_template("/register/registration_error.html", message=message)
 
 
 # route register/post_code
