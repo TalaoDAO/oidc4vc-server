@@ -271,19 +271,18 @@ def signature(mode) :
     this function is also called for issuer within the company view
     """
     check_login()
-    if session['role'] != 'issuer' :
-        signature = session['signature']
-    else :
-        session['employee_workspace_contract'] = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
-        signature = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))['signature']
-        if not signature  :
-            signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
-        if not os.path.exists(mode.uploads_path + signature) :
-            Talao_ipfs.get_picture(signature, mode.uploads_path + signature)
-        session['employee_signature'] = signature
     if request.method == 'GET' :
         if request.args.get('badtype') == 'true' :
             flash(_('Only "JPEG", "JPG", "PNG" files accepted'), 'warning')
+        if session['role'] != 'issuer' :
+            signature = session['signature']
+        else :
+            session['employee_workspace_contract'] = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
+            signature = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))['signature']
+        if not signature  :
+            signature = 'macron.png'
+        if not os.path.exists(mode.uploads_path + signature) :
+            Talao_ipfs.get_picture(signature, mode.uploads_path + signature)
         return render_template('signature.html', **session['menu'], signaturefile=signature)
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
@@ -298,9 +297,7 @@ def signature(mode) :
             personal = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))
             personal['signature'] = signature_hash
             ns.update_personal(session['employee_workspace_contract'], json.dumps(personal), mode)
-            #Talao_ipfs.get_picture(session['employee_signature'], mode.uploads_path + '/' + session['employee_signature'])
             del session['employee_workspace_contract']
-            del session['employee_signature']
         flash(_('Your signature has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
