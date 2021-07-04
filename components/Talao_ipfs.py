@@ -12,13 +12,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def ipfs_add(json_dict, mode, name='unknown') :
-	if mode.myenv != 'aws' :
-		return add_dict_to_pinata(json_dict, name, mode)
-	
 	ipfs_hash_pinata = add_dict_to_pinata(json_dict, name, mode)
-	ipfs_hash_local = add_dict_to_local(json_dict)
-	if ipfs_hash_pinata  != ipfs_hash_local :
-		logging.warning('hash is different in ipfs add')
 	return ipfs_hash_pinata
 
 def add_dict_to_pinata (data_dict, name, mode) :
@@ -34,17 +28,9 @@ def add_dict_to_pinata (data_dict, name, mode) :
 		return None
 	return response.json()['IpfsHash']
 
-def add_dict_to_local (data_dict) :
-	data = {"json" : json.dumps(data_dict, separators=(',', ':'), ensure_ascii=False )}
-	response = requests.post('http://127.0.0.1:5001/api/v0/add', files=data)
-	return response.json()['Hash']
 
 def file_add(filename, mode) :
 	ipfs_hash_pinata = add_file_to_pinata(filename, mode)
-	if mode.myenv == 'aws' :
-		ipfs_hash_local = add_file_to_local(filename)
-		if ipfs_hash_pinata  != ipfs_hash_local :
-			logging.warning('hash is different')
 	return ipfs_hash_pinata
 
 def add_file_to_pinata (filename, mode) :
@@ -67,46 +53,14 @@ def add_file_to_pinata (filename, mode) :
 	this_file.close()
 	return response.json()['IpfsHash']
 
-def add_file_to_local (filename) :
-	try :
-		this_file = open(filename, mode='rb')  # b is important -> binary
-	except IOError :
-		logging.error('IOEroor open file ')
-		return None
-	file_data = this_file.read()
-	payload = { 'file' : file_data}
-	try :
-		response = requests.post('http://127.0.0.1:5001/api/v0/add', files=payload)
-	except :
-		logging.error('connexion problem ')
-		return None
-	this_file.close()
-	return response.json()['Hash']
-
 def ipfs_get_pinata(ipfs_hash) :
 	response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash)
 	return response.json()
 
-def ipfs_get_local(ipfs_hash) :
-	"""
-	return : json str
-	"""
-	response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=5)
-	return(response.json())
 
 def ipfs_get(ipfs_hash, mode) :
-	print('call ipfs')
-	if mode.myenv != 'aws' :
 		return ipfs_get_pinata(ipfs_hash)
-	try :
-		data = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, timeout=2).json()
-		print('exit ipfs')
-		return data
-	except :
-		data = ipfs_get_pinata(ipfs_hash)
-		add_dict_to_local(data)
-		print('exit ipfs')
-		return data
+
 
 def pin_to_pinata (my_hash, mode) :
 	api_key = mode.pinata_api_key
@@ -121,9 +75,6 @@ def pin_to_pinata (my_hash, mode) :
 	return response.json()['IpfsHash']
 
 def get_picture(ipfs_hash, filename) :
-	#try :
-	#	response = requests.get('http://127.0.0.1:8080/ipfs/'+ipfs_hash, stream=True, timeout=5)
-	#except :
 	response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
 	with open(filename, 'wb') as out_file:
 		shutil.copyfileobj(response.raw, out_file)
