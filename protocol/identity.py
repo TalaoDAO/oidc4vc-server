@@ -18,7 +18,7 @@ import constante
 from .Talao_token_transaction import contractsToOwners, token_balance, read_workspace_info, has_vault_access, get_category
 from .document import Document
 from .file import File
-from components import ns, privatekey, Talao_ipfs
+from components import ns, privatekey
 
 import logging
 logging.basicConfig(level=logging.INFO)

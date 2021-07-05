@@ -34,7 +34,7 @@ if not mychain or not myenv :
     logging.error('environment variables missing')
     logging.error('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
     mychain='talaonet'
-    myenv='liveboxh'
+    myenv='airbox'
 if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
     logging.error('wrong chain')
     exit()
@@ -48,7 +48,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible
 
 # Release
-VERSION = "0.11.3"
+VERSION = "0.12.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)

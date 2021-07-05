@@ -407,8 +407,7 @@ def user(mode) :
 					<b>#</b> : """ + str(counter) + "<br>"
 					id = ""
 				
-				if "IdentityPass" not in credential.type :
-					cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Credential') + """</a><br>"""
+				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Credential') + """</a><br>"""
 				
 				cert_html += """<b></b><a href= """ + mode.server +  """credible/credentialOffer/""" + credential.id + """>""" + _('Download to Credible wallet') + """</a><br>"""				
 				cert_html += """<p>
@@ -420,8 +419,8 @@ def user(mode) :
 					<i data-toggle="tooltip" class="fa fa-search-plus" title="Credential data">&nbsp&nbsp&nbsp</i>
 					</a>"""
 
-				if "IdentityPass" not in credential.type :
-					cert_html += """<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+			
+				cert_html += """<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
 					<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Credential Link">&nbsp&nbsp&nbsp</i>
 					</a>"""
 

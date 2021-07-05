@@ -194,7 +194,7 @@ def request_reference_credential(mode) :
             "@type": "DefinedTerm",
             "description": skill
             })
-    unsigned_credential["credentialSubject"]["author"]["logo"] = session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]["author"]["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]["author"]["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]["signatureLines"]["name"] = ""
 
@@ -237,7 +237,8 @@ def request_pass_credential(mode) :
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
     unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
     unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
-    unsigned_credential["credentialSubject"]['author']["logo"] = session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]['recipient']["image"] = mode.ipfs_gateway + session['personal']['picture']
+    unsigned_credential["credentialSubject"]['author']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
 
     # update local issuer database
@@ -278,6 +279,7 @@ def request_experience_credential(mode) :
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
     unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
     unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
+    unsigned_credential["credentialSubject"]['recipient']["image"] = mode.ipfs_gateway + session['personal']['picture']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
     unsigned_credential["credentialSubject"]["startDate"] = request.form['start_date']
@@ -289,7 +291,7 @@ def request_experience_credential(mode) :
             "@type": "Skill",
             "description": skill
             })
-    unsigned_credential["credentialSubject"]['author']["logo"] = session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]['author']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]['signatureLines']["name"] = ""
 
@@ -459,12 +461,35 @@ def issue_credential_workflow(mode) :
         # credential is loaded  as dict
         my_credential = json.loads(session['call'][5])['credentialSubject']
 
+
+       
+        
+        
         # switch
         if json.loads(session['call'][5])['credentialSubject']['type'] == "ProfessionalExperienceAssessment" :
             skills_str = ""
             for skill in my_credential['skills'] :
                 skills_str += skill['description'] + ','
+
             reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+
+            for i in [0,1] :
+                if my_credential["review"][reviewRecommendation]["reviewBody"][i]["@language"] == session['language'] :
+                    questionRecommendation = my_credential["review"][reviewRecommendation]["reviewBody"][i]['@value']
+                    break
+            for i in [0,1] :
+                if my_credential["review"][reviewDelivery]["reviewBody"][i]["@language"] == session['language'] :
+                    questionDelivery = my_credential["review"][reviewDelivery]["reviewBody"][i]['@value']
+                    break
+            for i in [0,1] :
+                if my_credential["review"][reviewSchedule]["reviewBody"][i]["@language"] == session['language'] :
+                    questionSchedule = my_credential["review"][reviewSchedule]["reviewBody"][i]['@value']
+                    break
+            for i in [0,1] :
+                if my_credential["review"][reviewCommunication]["reviewBody"][i]["@language"] == session['language'] :
+                    questionCommunication = my_credential["review"][reviewCommunication]["reviewBody"][i]['@value']
+                    break
+
             return render_template ('./issuer/issue_experience_credential_workflow.html',
                 credential_id=request.args['id'],
                 picturefile = session['picture'],
@@ -474,13 +499,13 @@ def issue_credential_workflow(mode) :
                 author_name = my_credential["author"]["name"],
                 signer_name = my_credential["signatureLines"]["name"],
                 scoreRecommendation =  my_credential["review"][reviewRecommendation]["reviewRating"]["ratingValue"],
-                questionRecommendation = my_credential["review"][reviewRecommendation]["reviewBody"],
+                questionRecommendation = questionRecommendation,
                 scoreSchedule =  my_credential["review"][reviewSchedule]["reviewRating"]["ratingValue"],
-                questionSchedule = my_credential["review"][reviewSchedule]["reviewBody"],
+                questionSchedule = questionSchedule,
                 scoreCommunication =  my_credential["review"][reviewCommunication]["reviewRating"]["ratingValue"],
-                questionCommunication = my_credential["review"][reviewCommunication]["reviewBody"],
+                questionCommunication = questionCommunication,
                 scoreDelivery =  my_credential["review"][reviewDelivery]["reviewRating"]["ratingValue"],
-                questionDelivery = my_credential["review"][reviewDelivery]["reviewBody"],
+                questionDelivery = questionDelivery,
                 skills_str= skills_str,
                 field= field,
                 )
@@ -490,6 +515,7 @@ def issue_credential_workflow(mode) :
                 picturefile = session['picture'],
                 reference= session['call'][6],
 				clipboard = mode.server  + "board/?did=" + session['did'],
+                jobTitle = my_credential["recipient"].get("jobTitle"),
                 givenName = my_credential["recipient"].get("givenName"),
                 familyName = my_credential["recipient"].get("familyName"),
                 address = my_credential["recipient"].get("address"),
@@ -497,6 +523,7 @@ def issue_credential_workflow(mode) :
                 email = my_credential["recipient"].get("email"),
                 telephone = my_credential["recipient"].get("telephone"),
                 gender = my_credential["recipient"].get("gender"),
+                image = my_credential["recipient"].get("image"),
                 field= field)
 
         else : 
@@ -538,7 +565,7 @@ def issue_credential_workflow(mode) :
             # add signatuer Lines if needed
             if json.loads(session['call'][5])['credentialSubject']['type'] != 'IdentityPass' :
                 manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
-                my_credential['credentialSubject']['signatureLines']['image'] = json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
+                my_credential['credentialSubject']['signatureLines']['image'] = mode.ipfs_gateway + json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             
             # sign credential with company key
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
@@ -655,14 +682,15 @@ def get_form_data(my_credential, form) :
 
     elif json.loads(session['call'][5])['credentialSubject']['type'] == "IdentityPass" :
         recipient = dict()
-        recipient["familyName"] = form['familyName']
-        recipient["givenName"] = form['givenName']
-        recipient["birthDate"] = form['birthDate']
-        recipient["gender"] = form['gender']
-        recipient["email"] = form['email']
-        recipient["telephone"] = form['telephone']
-        recipient["address"] = form['address']
-        recipient['image'] = ""
+        recipient['familyName'] = form['familyName']
+        recipient['jobTitle'] = form['jobTitle']
+        recipient['givenName'] = form['givenName']
+        recipient['birthDate'] = form['birthDate']
+        recipient['gender'] = form['gender']
+        recipient['email'] = form['email']
+        recipient['telephone'] = form['telephone']
+        recipient['address'] = form['address']
+        recipient['image'] = form['image']
         my_credential['credentialSubject']['recipient'] = recipient
 
     return

@@ -45,45 +45,24 @@ def convert(obj):
 
 def show_certificate(mode):
 	"""
-	# display experience certificate for anybody. Stand alone routine
-	# #route /guest/certificate
-	# @route /certificate/
+	# display verifiable credentials for anybody. Stand alone routine
 	"""
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 
-	try  :
-		certificate_id = request.args['certificate_id']
-		method = certificate_id.split(':')[1]
-		# translator for repository claim
-		if method in ['web', 'tz', 'ethr'] :
-			did = 'did:' + method + ':' + certificate_id.split(':')[2]
-			private_key = '0x' + PBKDF2(did.encode(), SALT, 32, count=1000000, hmac_hash_module=SHA512).hex()
-			address = helpers.ethereum_pvk_to_address(private_key)
-			workspace_contract = ownersToContracts(address, mode)
-			claim_id = certificate_id.split(':')[4]
-			credential = Claim()
-			credential.get_by_id( mode.relay_workspace_contract, None, workspace_contract, claim_id, mode)
-			return jsonify(credential.claim_value)
-
-		# standard
-		elif method == 'talao' :
-			try :
-				doc_id = int(certificate_id.split(':')[5])
-				identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
-			except :
-				content = json.dumps({'message' : 'request malformed'})
-				return Response(content, status=406, mimetype='application/json')
-		else :
-			content = json.dumps({'message' : 'method not supported'})
-			return Response(content, status=406, mimetype='application/json')
-
-	except :
+	certificate_id = request.args.get('certificate_id')
+	if not certificate_id :
 		content = json.dumps({'message' : 'request malformed'})
 		return Response(content, status=406, mimetype='application/json')
+	
+	try :
+		doc_id = int(certificate_id.split(':')[5])
+		identity_workspace_contract = '0x'+ certificate_id.split(':')[3]
+	except :
+		content = json.dumps({'message' : 'request malformed'})
+		return Response(content, status=406, mimetype='application/json')	
 
-
-	if session.get('certificate_id') != request.args['certificate_id'] :
+	if session.get('certificate_id') != certificate_id :
 		certificate = Document('certificate')
 		if not certificate.relay_get(identity_workspace_contract, doc_id, mode) :
 			content = json.dumps({'message' : 'This credential does not exist or it has been deleted'})
@@ -95,13 +74,30 @@ def show_certificate(mode):
 
 	# ProfessionalExperienceAssessment Display
 	if "ProfessionalExperienceAssessment" in session['displayed_certificate']['type'] :
+
+		reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+		for i in range(0,2) :
+			if session['displayed_certificate']['credentialSubject']['review'][reviewRecommendation]["reviewBody"][i]["@language"] == session['language'] :
+				questionRecommendation = session['displayed_certificate']['credentialSubject']['review'][reviewRecommendation]["reviewBody"][i]['@value']
+				break
+		for i in [0,1] :
+			if session['displayed_certificate']['credentialSubject']['review'][reviewDelivery]["reviewBody"][i]["@language"] == session['language'] :
+				questionDelivery = session['displayed_certificate']['credentialSubject']['review'][reviewDelivery]["reviewBody"][i]['@value']
+				break
+		for i in [0,1] :
+			if session['displayed_certificate']['credentialSubject']['review'][reviewSchedule]["reviewBody"][i]["@language"] == session['language'] :
+				questionSchedule = session['displayed_certificate']['credentialSubject']['review'][reviewSchedule]["reviewBody"][i]['@value']
+				break
+		for i in [0,1] :
+			if session['displayed_certificate']['credentialSubject']['review'][reviewCommunication]["reviewBody"][i]["@language"] == session['language'] :
+				questionCommunication = session['displayed_certificate']['credentialSubject']['review'][reviewCommunication]["reviewBody"][i]['@value']
+				break
+		
+		# Icon "fa-star" treatment
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
-
-		# Icon "fa-star" treatment
 		score = []
 		context = dict()
-		reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
 		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewRecommendation]['reviewRating']['ratingValue']))
 		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewDelivery]['reviewRating']['ratingValue']))
 		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewSchedule]['reviewRating']['ratingValue']))
@@ -120,55 +116,45 @@ def show_certificate(mode):
 					my_badge += """<span class="badge badge-pill badge-secondary" style="margin: 4px; padding: 8px;"> """+ skill['description'].strip(' ').capitalize() + """</span>"""
 		else :
 			my_badge = ""
-
-		# if there is no signature one uses Picasso signature
-		signature = session['displayed_certificate']['credentialSubject']['signatureLines']['image']
-		if not signature :
-			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
-
-		# if there is no logo one uses default logo
-		logo = session['displayed_certificate']['credentialSubject']['author']['logo']
-		if not logo  :
-			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
-
-		# upload signature and logo on server
-		if not path.exists(mode.uploads_path + signature) :
-			url = 'https://gateway.pinata.cloud/ipfs/'+ signature
-			response = requests.get(url, stream=True)
-			with open(mode.uploads_path + signature, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
-
-		if not path.exists(mode.uploads_path + logo) :
-			url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-			response = requests.get(url, stream=True)
-			with open(mode.uploads_path + logo, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
-		try :
-			name = session['displayed_certificate']['credentialSubject']['recipient']['givenName'] + ' ' + \
-				session['displayed_certificate']['credentialSubject']['recipient']['familyName']
-		except :
-			name = session['displayed_certificate']['credentialSubject']['recipient']['name']
-			
-		return render_template('./certificate/experience_certificate.html',
+	
+		return render_template('./certificate/professionalexperienceassessment_vc.html',
 							**menu,
 							managerName=session['displayed_certificate']['credentialSubject']['signatureLines']['name'],
 							companyName=session['displayed_certificate']['credentialSubject']['author']['name'],
 							badge=my_badge,
 							title = session['displayed_certificate']['credentialSubject']['title'],
-							subject_name = name,
+							familyName=session['displayed_certificate']['credentialSubject']['recipient']['familyName'],
+							givenName=session['displayed_certificate']['credentialSubject']['recipient']['givenName'],
 							description=session['displayed_certificate']['credentialSubject']['description'],
 							start_date=session['displayed_certificate']['credentialSubject']['startDate'],
 							end_date=session['displayed_certificate']['credentialSubject']['endDate'],
-							signature=signature,
-							logo=logo,
+							signature=session['displayed_certificate']['credentialSubject']['signatureLines']['image'],
+							questionRecommendation=questionRecommendation,
+							questionCommunication=questionCommunication,
+							questionSchedule=questionSchedule,
+							questionDelivery=questionDelivery,
+							logo=session['displayed_certificate']['credentialSubject']['author']['logo'],
 							certificate_id=certificate_id,
 							viewer=viewer,
 							**context)
 
+
+
+	# IdentityPass Display
+	if "IdentityPass" in session['displayed_certificate']['type'] :
+		return render_template('./certificate/identitypass_vc.html',
+			**menu,
+			givenName=session['displayed_certificate']['credentialSubject']['recipient'].get('givenName'),
+			familyName =session['displayed_certificate']['credentialSubject']['recipient'].get('familyName'),
+			jobTitle=session['displayed_certificate']['credentialSubject']['recipient'].get('JobTitle'),
+			image=session['displayed_certificate']['credentialSubject']['recipient'].get('image'),
+			telephone=session['displayed_certificate']['credentialSubject']['recipient'].get('telephone'),
+			email=session['displayed_certificate']['credentialSubject']['recipient'].get('email'))
+
+
+
 	# Recommendation Certificate Display
-	if session['displayed_certificate']['type'] == 'recommendation' :
+	elif session['displayed_certificate']['type'] == 'recommendation' :
 		issuer_picture = session['displayed_certificate'].get('logo')
 		if session['displayed_certificate']['issuer']['category'] == 1001 :
 			issuer_picture = session['displayed_certificate'].get('picture')
@@ -202,103 +188,8 @@ def show_certificate(mode):
 							viewer=viewer
 							)
 
-	# Skill Certificate Display
-	if session['displayed_certificate']['type'] == 'skill' :
-		issuer_picture = session['displayed_certificate'].get('picture')
-		issuer_title = "" if not session['displayed_certificate'].get('title') else session['displayed_certificate']['title']
-
-		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
-
-		signature = session['displayed_certificate']['signature']
-		logo = session['displayed_certificate']['logo']
-		# if there is no signature one uses Picasso signature
-		if not signature  :
-			signature = 'QmS9TTtjw1Fr5oHkbW8gcU7TnnmDvnFVUxYP9BF36kgV7u'
-		# if there is no logo one uses default logo
-		if not logo  :
-			logo = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
-
-		if not path.exists(mode.uploads_path + signature) :
-				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + signature, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-				del response
-
-		if not path.exists(mode.uploads_path + logo) :
-			url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-			response = requests.get(url, stream=True)
-			with open(mode.uploads_path + logo, 'wb') as out_file:
-				shutil.copyfileobj(response.raw, out_file)
-			del response
-
-		return render_template('./certificate/skill_certificate.html',
-							**menu,
-							manager= session['displayed_certificate']['manager'],
-							#identity_firstname=identity_profil['firstname'],
-							#identity_lastname=identity_profil['lastname'],
-							#identity_name =identity_profil['firstname'] + ' ' + identity_profil['lastname'],
-							description=description,
-							issuer_picture=issuer_picture,
-							signature=signature,
-							logo=logo,
-							certificate_id=certificate_id,
-							title=session['displayed_certificate']['title'],
-							#issuer_name=session['displayed_certificate']['issuer']['name'],
-							viewer=viewer
-							)
-	# agreement certificate display
-	if session['displayed_certificate']['type'] == 'agreement':
-		description = session['displayed_certificate']['description'].replace('\r\n','<br>')
-
-		signature = session['displayed_certificate']['issued_by'].get('signature')
-		logo = session['displayed_certificate']['issued_by'].get('logo')
-
-		# if there is no signature or no logo , view is reduced see html else we download file rom ipfs if needed
-		if signature and logo :
-			if not path.exists(mode.uploads_path + signature) :
-				url = 'https://gateway.pinata.cloud/ipfs/'+ signature
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + signature, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-				del response
-
-			if not path.exists(mode.uploads_path + logo) :
-				url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + logo, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-				del response
-
-		if session['displayed_certificate']['service_product_group'] :
-			products = session['displayed_certificate']['service_product_group'].replace(' ', '').split(",")
-			service_product_group = ""
-			for product in products:
-				service_product_group = service_product_group + """<li class="text-dark my-2 mx-5">""" + product.capitalize() + "</li>"
-		else :
-			service_product_group = None
-
-		return render_template('./certificate/agreement_certificate.html',
-							**menu,
-							date_of_issue = session['displayed_certificate']['date_of_issue'],
-							date_of_validity = session['displayed_certificate']['valid_until'],
-							location = session['displayed_certificate']['location'],
-							description=description,
-							logo=logo,
-							issued_to_name = session['displayed_certificate']['issued_to'].get('name', ''),
-							issuer_name = session['displayed_certificate']['issued_by'].get('name',''),
-							issuer_siret = session['displayed_certificate']['issued_by'].get('siret', ''),
-							title = session['displayed_certificate']['title'],
-							signature=signature,
-							viewer=viewer,
-							standard=session['displayed_certificate']['standard'],
-							registration_number = session['displayed_certificate']['registration_number'],
-							service_product_group = service_product_group,
-							certificate_id=certificate_id,
-							)
-
 	# if reference credential display
-	if session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'reference' :
+	elif session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'reference' :
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 
@@ -356,6 +247,8 @@ def show_certificate(mode):
 		del session['displayed_certificate']['privacy']
 		return jsonify(session['displayed_certificate'])
 
+
+
 def certificate_verify(mode) :
 	"""		 verify credential data and did
 	"""
@@ -372,21 +265,11 @@ def certificate_verify(mode) :
 	except :
 		logging.error('data not found')
 		return jsonify ({'result' : 'certificate not found'})
-
-	# Issuer , Referent
-	issuer = """<b>""" + _('Issuer DID') + """</b> : """ + credential.issuer
-
-	# User, holder
-	user = """<b>""" + _('User DID') + """</b> : """ + credential.credentialSubject['id']
-
-	my_verif = "".join([issuer, "<br>", user, '<br>'])
-
 	return render_template('./certificate/verify_certificate.html',
 							**menu,
 							certificate_id=certificate_id,
 							topic = "",
 							credential = credential_text,
-							verif=my_verif,
 							viewer=viewer,
 							)
 

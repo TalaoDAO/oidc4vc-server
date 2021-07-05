@@ -61,10 +61,10 @@
                 <div class="card-header py-3">
                   <p class="text-primary m-0 font-weight-bold">{{_('Image')}}</p>
                 </div>
+                <p class="text-center m-2">Image jpg, jpeg or png. 1024 pixels max</p>
                 <div class="card-body text-center shadow">
 
                   <div class="image_container">
-               <!--     <img id="input" src="#" class="d-none"/>    style="height: 300px; max-width:500"-->
                <img id="input" src="#" class="d-none">
                     <img id="old" src="{{ url_for('send_file', filename=picturefile) }}" style="height: 300px; max-width:500" >
                   </div>
