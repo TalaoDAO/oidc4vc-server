@@ -96,15 +96,15 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 		logging.error('RSA key not stored on disk')
 
 	# add username to register in local nameservice Database
+	
+	filename = mode.db_path + 'person.json'
+	personal = json.load(open(filename, 'r'))
+	personal['signature'] = 'macron.png'
+	personal['picture'] = 'unknown.png'
 	if firstname and lastname :
-		filename = mode.db_path + 'person.json'
-		personal = json.load(open(filename, 'r'))
 		personal['lastname']['claim_value'] = lastname
 		personal['firstname']['claim_value'] = firstname
-		personal = json.dumps(personal, ensure_ascii = False)
-	else :
-		personal = ''
-	print(email, phone, password, did, personal)
+	personal = json.dumps(personal, ensure_ascii = False)
 	if not ns.add_identity(username,
 						workspace_contract,
 						email,

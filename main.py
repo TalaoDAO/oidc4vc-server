@@ -11,7 +11,6 @@ $ python main.py
 import os
 import time
 import json
-from flask.templating import render_template_string
 from flask_babel import Babel, _, refresh
 from flask import Flask, redirect, jsonify, request, session, render_template
 from flask_session import Session
@@ -30,17 +29,13 @@ from signaturesuite import helpers
 import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
-if not mychain or not myenv :
-    logging.error('environment variables missing')
-    logging.error('export MYCHAIN=talaonet, export MYENV=livebox, export AUTHLIB_INSECURE_TRANSPORT=1')
-    mychain='talaonet'
-    myenv='airbox'
-if mychain not in ['mainet', 'ethereum', 'rinkeby', 'talaonet'] :
-    logging.error('wrong chain')
-    exit()
+if not myenv :
+   myenv='liveboxh'
+mychain = 'talaonet'
+
 logging.info('start to init environment')
 mode = environment.currentMode(mychain,myenv)
-logging.info('end of init')
+logging.info('end of init environment')
 
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer

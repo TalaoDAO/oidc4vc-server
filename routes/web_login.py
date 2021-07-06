@@ -37,7 +37,6 @@ def init_app(app, mode) :
 	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
 	app.add_url_rule('/user/two_factor/',  view_func=two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
-	app.add_url_rule('/user/update_wallet/',  view_func=update_wallet, methods = ['GET', 'POST'], defaults={'mode': mode})
 	return
 
 
@@ -81,35 +80,6 @@ def send_secret_code (username, code, mode) :
 		except :
 			logging.error('sms failed, email failed')
 			return None
-
-
-# update wallet in Talao Identity
-def update_wallet(mode) :
-	"""
-	DEPRECATED
-	"""
-	check_login()
-	if request.method == 'GET' :
-		return render_template('./login/update_wallet.html', **session['menu'])
-	if request.method == 'POST' :
-		username = request.form['username']
-		try :
-			wallet = mode.w3.toChecksumAddress(request.form['wallet'])
-		except :
-			wallet = None
-		workspace_contract = ns.get_data_from_username(username, mode).get('workspace_contract')
-		if not workspace_contract :
-			flash(_('No identity found'), 'danger')
-			return redirect (mode.server +'user/')
-		if ns.update_wallet(workspace_contract, wallet, mode) :
-			if wallet :
-				flash(_('Wallet updated '), 'success')
-			else :
-				flash(_('Wallet deleted'), 'warning')
-		else :
-			flash(_('Update failed'), 'danger')
-		return redirect (mode.server +'user/')
-
 
 
 def two_factor(mode) :

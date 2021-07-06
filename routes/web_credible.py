@@ -45,7 +45,6 @@ def credential_display(id):
 
 
 def credentialOffer(id):
-    print('request values = ', request.values)
     filename = id + ".jsonld"
     credential = json.load(open('./signed_credentials/' + filename, 'r'))
     if request.method == 'GET':   
@@ -58,25 +57,23 @@ def credentialOffer(id):
         return jsonify(credential)
      
 
-
 # presentation for login with credible
 
 def VerifiablePresentationRequest_qrcode(mode):
     url = mode.server + "credible/wallet_presentation"
+    print('url = ', url)
     return render_template('credible/login_qr.html', url=url, id='presentation')
 
 def wallet_presentation(mode):
     if request.method == 'GET':
         credential_query = [
 	        {'reason' : 'Sign in',
-            'required' : False,
 	        'example' : [
-		        {'@context' : [
-			        'https://www.w3.org/2018/credentials/v1'
-		        ],
-		        'type' : 'VerifiableCredential'
-                }
-            ]}
+		    {'@context' : [
+			    'https://www.w3.org/2018/credentials/v1'
+		    ],
+		    'type' : 'VerifiableCredential'
+            }]}
             ]
         
         query = [
@@ -84,31 +81,39 @@ def wallet_presentation(mode):
 		'credentialQuery' : credential_query}
         ]
 
+        myrequest = {
+            "type": "VerifiablePresentationRequest",
+            'query' :  query,
+            'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
+            'domain' : 'example.com'
+            }
+
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
             "query": [{
             "type": 'DIDAuth'
             }],
-            "challenge": '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
-            "domain": 'example.com'
+            "challenge": '99612b24-63d9-11ea-b99f-3e4f81a',
+            "domain" : "http://192.168.0.20:3000"
             }
-        base_request = {
-            "type": "VerifiablePresentationRequest",
-            "query" : query,
-            "challenge": "credential",
-            "domain" : "https://talao.co"
-            }
-        
         return jsonify(did_auth_request)
-
-    elif request.method == 'POST':
-        presentation = json.loads(request.form['presentation'])
-        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], '{}'))
-        holder = presentation['holder']
+    
+    elif request.method == 'POST' :
+        print('enter in POST')
+        try : 
+            presentation = json.loads(request.form['presentation'])
+            print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation']))
+        except :
+            data = json.dumps({"check" : "unknown account"})
+            print('error presentation')
+            red.publish('credible', data)
+            return jsonify("ko")
+        holder = presentation.get('holder')
         if not  ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             data = json.dumps({"check" : "unknown account"})
         else :
+            # we give a JWE token to user client to sign in
             data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
         red.publish('credible', data)
         return jsonify("ok")

@@ -1,0 +1,67 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1", 
+        {
+            "CertificateOfEmployment" : {
+                "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "id": "@id",
+                    "type": "@type",
+                    "expires" : "schema:expires",
+                    "familyName" : "schema:familyName",
+                    "givenName" : "schema:givenName",
+                    "startDate" : "schema:startDate",
+                    "baseSalary" : "schema:baseSalary",
+                    "employmentType" : "schema:employmentType",
+                    "workFor" : {
+                        "@id": "schema:workFor",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "schema" : "https://schema.org/",
+                            "type" : "schema:Organization",
+                            "name" :  "schema:name",
+                            "address" : "schema:address",
+                            "logo" : {"@id" : "schema:image", "@type" : "@id"}
+                        },
+                    "signatureLines": {
+                        "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "schema" : "https://schema.org/",
+                            "name" :  "schema:name",
+                            "jobTitle" :"schema:jobTitle",
+                            "image" : {"@id" : "schema:image", "@type" : "@id"}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+            "id": "",
+            "type" : "CertificateOfEmployment",
+            "familyName" : "",
+            "givenName" : "",
+            "baseSalary" : "",
+            "employmentType" : "",
+            "workFor" : {
+                "name" : "",
+                "address" : "",
+                "logo" : ""
+            },
+            "signatureLines" : {
+                "name" : "",
+                "jobTitle" : "",
+                "image" : ""}
+    }
+}

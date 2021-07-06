@@ -60,7 +60,7 @@ class Identity() :
 			self.eth = mode.w3.eth.getBalance(self.address)/1000000000000000000
 			self.token = token_balance(self.address,mode)
 			self.is_relay_activated(mode)
-			self.get_identity_personal(self.workspace_contract, self.private_key_value,mode)
+			self.get_identity_personal(mode)
 			self.get_identity_file(self.workspace_contract, self.private_key_value,mode)
 		else :
 			self.partners = []
@@ -103,7 +103,6 @@ class Identity() :
 
 		
 
-
 	def get_secret(self,mode) :
 		(c, self.secret, self.aes) = read_workspace_info(self.address, self.rsa_key_value, mode)
 
@@ -133,7 +132,6 @@ class Identity() :
 	def get_management_keys(self, mode) :
 		contract = mode.w3.eth.contract(self.workspace_contract,abi = constante.workspace_ABI)
 		keylist = contract.functions.getKeysByPurpose(1).call()
-		#mymanagementkeys = []
 		for i in keylist :
 			key = contract.functions.getKey(i).call()
 			if key[2] == mode.relay_publickeyhex :
@@ -195,7 +193,7 @@ class Identity() :
 		return True
 
 
-	def get_identity_personal(self,workspace_contract_from, private_key_from, mode) :
+	def get_identity_personal(self, mode) :
 		try :
 			self.personal = json.loads(ns.get_personal(self.workspace_contract, mode))
 		except :
@@ -237,6 +235,7 @@ class Identity() :
 		logging.warning('list of documents unreferenced = %s', self.other_list )
 		return True
 
+
 	def get_identity_certificate(self,mode) :
 		self.certificate = []
 		for doc_id in self.certificate_list  :
@@ -244,6 +243,7 @@ class Identity() :
 			certificate.relay_get(self.workspace_contract, doc_id, mode)
 			self.certificate.append(certificate.__dict__)
 		return True
+
 
 	def get_identity_private_certificate(self,mode) :
 		self.private_certificate = []
@@ -253,6 +253,7 @@ class Identity() :
 			self.private_certificate.append(certificate.__dict__)
 		return True
 
+
 	def get_identity_secret_certificate(self,mode) :
 		self.secret_certificate = []
 		for doc_id in self.secret_credential_list  :
@@ -260,6 +261,7 @@ class Identity() :
 			certificate.relay_get(self.workspace_contract, doc_id, mode)
 			self.secret_certificate.append(certificate.__dict__)
 		return True
+
 
 	def get_identity_skills(self,mode) :
 		if self.skills_list  != [] :
@@ -269,6 +271,7 @@ class Identity() :
 		else :
 			self.skills = None
 		return True
+
 
 	def get_identity_file(self, workspace_contract_from, private_key_from, mode) :
 		self.identity_file = []
