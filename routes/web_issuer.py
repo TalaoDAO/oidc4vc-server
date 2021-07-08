@@ -569,7 +569,9 @@ def issue_credential_workflow(mode) :
                 jobTitle = my_credential.get("jobTitle"),
                 givenName = my_credential.get("givenName"),
                 familyName = my_credential.get("familyName"),
-        
+                startDate = my_credential.get("startDate"),
+                employmentType = my_credential.get("employmentType"),
+                baseSalary = my_credential.get("baseSalary"),
                 field= field)
         else : 
             flash(_('view not yet available'), 'warning')

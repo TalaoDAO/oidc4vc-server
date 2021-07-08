@@ -89,18 +89,19 @@ def wallet_presentation(mode):
             'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
             'domain' : 'example.com'
             }
-        """
+        
         return jsonify({
             "type": "VerifiablePresentationRequest",
-            "query" : query,
+            "query" : [{
+                "type": 'DIDAuth'
+            }],
             "challenge": "credential",
             "domain" : "https://talao.co"
         })
-        """
-        return jsonify(my_request)
+        
+        #return jsonify(my_request)
 
     elif request.method == 'POST':
-        print('entree dans post')
         presentation = json.loads(request.form['presentation'])
         holder = presentation['holder']
         #issuer = presentation['verifiableCredential']['issuer']

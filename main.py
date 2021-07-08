@@ -40,10 +40,10 @@ logging.info('end of init environment')
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api, web_credible
+from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass
 
 # Release
-VERSION = "0.12.0"
+VERSION = "0.13.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -107,6 +107,10 @@ def user_language(mode) :
 
 # Centralized @route for register identity
 web_register.init_app(app, mode)
+
+
+# Centralized @route for Email Pass
+web_emailpass.init_app(app, mode)
 
 # Centralized @route for Credible interaction
 web_credible.init_app(app, mode)

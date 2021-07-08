@@ -14,14 +14,11 @@ import json
 import secrets
 from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
-import jwt
 from urllib.parse import urlencode
 import logging
 logging.basicConfig(level=logging.INFO)
-import uuid 
 # dependances
 from components import Talao_message, ns, sms, privatekey
-from signaturesuite import helpers
 
 
 def init_app(app, mode) :

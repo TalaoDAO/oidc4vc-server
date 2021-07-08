@@ -5,8 +5,8 @@ from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from datetime import datetime
 import redis
+import uuid
 import didkit
-
 red = redis.StrictRedis()
 
 def init_app(app,mode) :
@@ -15,7 +15,7 @@ def init_app(app,mode) :
     app.add_url_rule('/credible/wallet_credential/<id>',  view_func=credentialOffer, methods = ['GET', 'POST'])
 
     app.add_url_rule('/credible/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/credible/wallet_presentation',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
+    app.add_url_rule('/credible/wallet_presentation/<stream_id>',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
     
     app.add_url_rule('/stream',  view_func=stream)
     app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
@@ -60,11 +60,11 @@ def credentialOffer(id):
 # presentation for login with credible
 
 def VerifiablePresentationRequest_qrcode(mode):
-    url = mode.server + "credible/wallet_presentation"
-    print('url = ', url)
-    return render_template('credible/login_qr.html', url=url, id='presentation')
+    stream_id = str(uuid.uuid1())
+    url = mode.server + "credible/wallet_presentation/" + stream_id
+    return render_template('credible/login_qr.html', url=url, stream_id=stream_id)
 
-def wallet_presentation(mode):
+def wallet_presentation(stream_id, mode):
     if request.method == 'GET':
         credential_query = [
 	        {'reason' : 'Sign in',
@@ -93,28 +93,21 @@ def wallet_presentation(mode):
             "query": [{
             "type": 'DIDAuth'
             }],
-            "challenge": '99612b24-63d9-11ea-b99f-3e4f81a',
-            "domain" : "http://192.168.0.20:3000"
+            "challenge": 'challenge to test',
+            "domain" : mode.server
             }
         return jsonify(did_auth_request)
     
     elif request.method == 'POST' :
-        print('enter in POST')
-        try : 
-            presentation = json.loads(request.form['presentation'])
-            print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation']))
-        except :
-            data = json.dumps({"check" : "unknown account"})
-            print('error presentation')
-            red.publish('credible', data)
-            return jsonify("ko")
+        presentation = json.loads(request.form['presentation'])
+        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
         holder = presentation.get('holder')
-        if not  ns.get_workspace_contract_from_did(holder, mode) :
+        if not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
-            data = json.dumps({"check" : "unknown account"})
+            data = json.dumps({"stream_id" : stream_id, "check" : "unknown account"})
         else :
-            # we give a JWE token to user client to sign in
-            data = json.dumps({"check" : "ok", "token" : generate_token(holder, mode)})
+            # we pass a JWE token to user agent to sign in
+            data = json.dumps({"stream_id" : stream_id, "check" : "ok", "token" : generate_token(holder, mode)})
         red.publish('credible', data)
         return jsonify("ok")
 
@@ -143,7 +136,7 @@ def generate_token(did,mode) :
     private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
     RSA_KEY = RSA.import_key(private_rsa_key)
     public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
-    expired = datetime.timestamp(datetime.now()) + 30 # 30s live
+    expired = datetime.timestamp(datetime.now()) + 5 # 5s live
     # build JWE
     jwe = JsonWebEncryption()
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}

@@ -36,7 +36,7 @@
         var source = new EventSource('/stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
-        if (result.check == 'ok'){
+        if (result.check == 'ok' & result.stream_id == '{{stream_id}}' ){
           document.getElementById("id_button").style.visibility = "hidden";
           document.getElementById("id_text").innerHTML = "";
           document.getElementById("id_qrcode").innerHTML = "";
@@ -45,7 +45,7 @@
           document.getElementById("input_token").value=result.token;
           document.getElementById("id_token").submit()
           }
-        else {
+        if (result.check != 'ok' & result.stream_id == '{{stream_id}}' ) {
           window.location.href='/unregistered';
         } 
         };
