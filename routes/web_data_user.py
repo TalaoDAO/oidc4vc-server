@@ -399,25 +399,26 @@ def user(mode) :
 			my_certificates = my_certificates + """<a class="text-info">""" + _('No Credential available') + """</a>"""
 		else :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
-				#try : 
-				cert_html = """<hr>
+				try : 
+					cert_html = """<hr>
 						<b>""" + _('Credential Type') + """</b> : """ + credential_text.get(certificate['credentialSubject']['type'], "Not supported") + """<br>
 						<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'] + """<br>
 						<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
 						<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
 					# FIXME
-				credential = Document('certificate')
-				credential.relay_get_credential(session['workspace_contract'], int(certificate['doc_id']), mode)
-				filepath = './signed_credentials/' + credential.id + ".jsonld"
-				if not path.exists(filepath) :
-					outfile = open(filepath, 'w')
-					json.dump(credential.__dict__, outfile, indent=4, ensure_ascii=False)	
-				credential_id = credential.id
-				#except :
-				#	cert_html = """<hr>
-				#	<b>#</b> : """ + str(counter) + "<br>"
-				#	id = ""
-				#	credential_id = ""
+					credential = Document('certificate')
+					credential.relay_get_credential(session['workspace_contract'], int(certificate['doc_id']), mode)
+					filepath = './signed_credentials/' + credential.id + ".jsonld"
+					if not path.exists(filepath) :
+						outfile = open(filepath, 'w')
+						json.dump(credential.__dict__, outfile, indent=4, ensure_ascii=False)	
+					credential_id = credential.id
+				except :
+					print('certificat rejeté = ', certificate)
+					cert_html = """<hr>
+					<b>#</b> : """ + str(counter) + "<br>"
+					id = ""
+					credential_id = ""
 				
 				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Credential') + """</a><br>"""
 				

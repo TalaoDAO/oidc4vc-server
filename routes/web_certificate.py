@@ -190,7 +190,7 @@ def show_certificate(mode):
 							)
 
 	# if reference credential display
-	elif session['displayed_certificate']['credentialSubject']['credentialCategory'] == 'reference' :
+	elif session['displayed_certificate']['credentialSubject'].get('credentialCategory') == 'reference' :
 		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
 		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
 

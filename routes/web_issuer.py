@@ -279,14 +279,14 @@ def request_work_credential(mode) :
     unsigned_credential["credentialSubject"]['workFor']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]['workFor']["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]['workFor']["address"] = session['issuer_explore']['personal']['postal_address']['claim_value']
-    unsigned_credential["credentialSubject"]['signatureLines']["name"] = _("Director")
+    unsigned_credential["credentialSubject"]['signatureLines']["image"] = mode.ipfs_gateway + session['issuer_explore']['personal']['signature']
     # optional properties
-    if request.form['employmentType'] == 'on' :
-        unsigned_credential["credentialSubject"]['employmentType'] = ""
-    if request.form['baseSalary'] == 'on' :
-        unsigned_credential["credentialSubject"]['baseSalary'] = ""
-    if request.form['jobTitle'] == 'on' :
-        unsigned_credential["credentialSubject"]['jobTitle'] = ""
+    if request.form.get('employmentType') == 'on' :
+        unsigned_credential["credentialSubject"]['employmentType'] = "required"
+    if request.form.get('baseSalary') == 'on' :
+        unsigned_credential["credentialSubject"]['baseSalary'] = "required"
+    if request.form.get('jobTitle') == 'on' :
+        unsigned_credential["credentialSubject"]['jobTitle'] = "required"
 
     # update local issuer database
     credential = company.Credential(session['credential_issuer_username'], mode)
@@ -630,10 +630,15 @@ def issue_credential_workflow(mode) :
         elif request.form.get('exit') == 'sign' :
             
             # add signatuer Lines if needed
-            if json.loads(session['call'][5])['credentialSubject']['type'] != 'IdentityPass' :
+            if json.loads(session['call'][5])['credentialSubject']['type'] == 'ProfessionalExperienceAssessment' :
                 manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
                 my_credential['credentialSubject']['signatureLines']['image'] = mode.ipfs_gateway + json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
-            
+            elif json.loads(session['call'][5])['credentialSubject']['type'] == 'IdentityPass' :
+                pass
+            elif json.loads(session['call'][5])['credentialSubject']['type'] != 'CertificatOfEmployment' :
+               pass
+              
+
             # sign credential with company key
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
             my_credential['issuer'] = ns.get_did(session['workspace_contract'], mode)
@@ -765,11 +770,12 @@ def get_form_data(my_credential, form) :
     elif json.loads(session['call'][5])['credentialSubject']['type'] == "CertificateOfEmployment" :
         my_credential['credentialSubject']['familyName'] = form['familyName']
         my_credential['credentialSubject']['givenName'] = form['givenName']
-        if my_credential['credentialSubject']['startDate'] == 'on' :
-            my_credential['credentialSubject']['startDate'] = form['startDate'] 
-        if  my_credential['credentialSubject']['jobTitle'] == 'on' :
+        my_credential['credentialSubject']['startDate'] = form['startDate']
+        if my_credential['credentialSubject'].get('baseSalary')  :
+            my_credential['credentialSubject']['baseSalary'] = form['baseSalary'] 
+        if  my_credential['credentialSubject'].get('jobTitle') :
             my_credential['credentialSubject']['jobTitle'] = form['jobTitle'] 
-        if my_credential['credentialSubject']['employmentType'] == 'on' :
+        if my_credential['credentialSubject'].get('employmentType')  :
             my_credential['credentialSubject']['employmentType'] = form['employmentType']
     
     print("credential = ", my_credential)

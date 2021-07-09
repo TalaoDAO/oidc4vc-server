@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-07-09 10:15+0200\n"
+"POT-Creation-Date: 2021-07-09 11:18+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -55,8 +55,8 @@ msgstr "Entreprise"
 #: routes/web_data_user.py:351 routes/web_data_user.py:568
 #: templates/certificate/identitypass_vc.html:20
 #: templates/issuer/company_dashboard.html:84
-#: templates/issuer/issue_experience_credential_workflow.html:31
-#: templates/issuer/issue_identity_credential.html:39
+#: templates/issuer/issue_experience_credential_workflow.html:38
+#: templates/issuer/issue_identity_credential.html:37
 #: templates/issuer/request_experience_credential.html:31
 msgid "Title"
 msgstr "Titre"
@@ -90,16 +90,16 @@ msgid "Organization"
 msgstr "Organisation"
 
 #: routes/web_data_user.py:348
-#: templates/issuer/issue_identity_credential.html:44
-#: templates/issuer/issue_work_credential.html:42
+#: templates/issuer/issue_identity_credential.html:42
+#: templates/issuer/issue_work_credential.html:41
 #: templates/register/user_register.html:51
 #: templates/update_personal_settings.html:38
 msgid "Firstname"
 msgstr "Prénom"
 
 #: routes/web_data_user.py:349
-#: templates/issuer/issue_identity_credential.html:47
-#: templates/issuer/issue_work_credential.html:45
+#: templates/issuer/issue_identity_credential.html:45
+#: templates/issuer/issue_work_credential.html:44
 #: templates/register/user_register.html:52
 #: templates/update_personal_settings.html:41
 msgid "Lastname"
@@ -217,7 +217,7 @@ msgstr "Sauvegarder l'attestation dans votre wallet Credible"
 
 #: routes/web_data_user.py:468
 msgid "Add an Admin"
-msgstr "Ajouter un admin"
+msgstr "Ajouter un administrateur"
 
 #: routes/web_data_user.py:482
 msgid "Add an Issuer"
@@ -370,8 +370,7 @@ msgstr " pour revue"
 
 #: routes/web_issuer.py:259
 msgid "Your request for an identity pass has been registered for review."
-msgstr ""
-"Votre demande pour un pass d'identité été envoyée pour revue."
+msgstr "Votre demande pour un pass d'identité été envoyée pour revue."
 
 #: routes/web_issuer.py:282
 msgid "Director"
@@ -379,19 +378,19 @@ msgstr "Directeur"
 
 #: routes/web_issuer.py:303
 msgid "You have received a request for a certificate of employment from "
-msgstr ""
-"Vous avez reçu une demande pour une attestation employeur de "
+msgstr "Vous avez reçu une demande pour une attestation employeur de "
 
 #: routes/web_issuer.py:310
 msgid ""
 "Your request for a certificate of employment has been registered for "
 "review."
-msgstr ""
-"Votre demande pour une attestation employeur a été envoyée."
+msgstr "Votre demande pour une attestation employeur a été envoyée."
 
 #: routes/web_issuer.py:358
 msgid "You have received a request for professional experience assessment from "
-msgstr "Vous avez reçu une demandande d'attestation d'expérience professionnelle de "
+msgstr ""
+"Vous avez reçu une demandande d'attestation d'expérience professionnelle "
+"de "
 
 #: routes/web_issuer.py:365
 msgid ""
@@ -1007,9 +1006,9 @@ msgid "I would like to have my name in the Name Directory"
 msgstr "Je souhaitre avoir mon nom dans le répertoire"
 
 #: templates/account.html:116
-#: templates/issuer/issue_experience_credential_workflow.html:138
-#: templates/issuer/issue_identity_credential.html:87
-#: templates/issuer/issue_work_credential.html:87
+#: templates/issuer/issue_experience_credential_workflow.html:145
+#: templates/issuer/issue_identity_credential.html:85
+#: templates/issuer/issue_work_credential.html:86
 #: templates/login/update_password_external.html:49
 #: templates/person_identity.html:53 templates/update_company_settings.html:105
 #: templates/update_password.html:49
@@ -1030,9 +1029,9 @@ msgstr "Mettre à jour"
 #: templates/emailpass/emailpass_qrcode.html:20
 #: templates/issuer/add_campaign.html:124
 #: templates/issuer/campaign_code.html:46
-#: templates/issuer/issue_experience_credential_workflow.html:164
-#: templates/issuer/issue_identity_credential.html:113
-#: templates/issuer/issue_work_credential.html:113
+#: templates/issuer/issue_experience_credential_workflow.html:171
+#: templates/issuer/issue_identity_credential.html:111
+#: templates/issuer/issue_work_credential.html:112
 #: templates/issuer/request_certificate.html:43
 #: templates/issuer/request_experience_credential.html:74
 #: templates/issuer/request_work_credential.html:56
@@ -1092,7 +1091,7 @@ msgstr "Choisissez les attestations"
 #: templates/issuer/request_work_credential.html:53
 #: templates/login/logout.html:56 templates/remove_certificate.html:31
 msgid "Confirm"
-msgstr "Confirmez"
+msgstr "Confirmer"
 
 #: templates/add_education.html:42
 msgid "Title or Degree"
@@ -1325,16 +1324,16 @@ msgstr "Votre portfolio sera définitivement supprimé avec vos attestations."
 
 #: templates/delete_identity.html:51
 msgid "Confirm with your password to proceed."
-msgstr "Confirmez votr mode passe."
+msgstr "Confirmez votre mot de passe."
 
 #: templates/delete_identity.html:56
 msgid "Enter your password"
 msgstr "Entrez votre mot de passe"
 
 #: templates/delete_identity.html:59
-#: templates/issuer/issue_experience_credential_workflow.html:158
-#: templates/issuer/issue_identity_credential.html:107
-#: templates/issuer/issue_work_credential.html:107
+#: templates/issuer/issue_experience_credential_workflow.html:165
+#: templates/issuer/issue_identity_credential.html:105
+#: templates/issuer/issue_work_credential.html:106
 msgid "Delete"
 msgstr "Effacer"
 
@@ -1390,7 +1389,7 @@ msgstr "Ajouter une activité actuelle"
 msgid "Add Education"
 msgstr "Ajouter une formation"
 
-#: templates/issuer/issue_experience_credential_workflow.html:44
+#: templates/issuer/issue_experience_credential_workflow.html:51
 #: templates/person_identity.html:128 templates/update_skills.html:47
 #: templates/update_skills.html:93
 msgid "Skills"
@@ -1426,11 +1425,11 @@ msgstr "Sauvegarder"
 
 #: templates/remove_certificate.html:25
 msgid "Remove a Credential"
-msgstr "Effacez une attestation"
+msgstr "Effacer une attestation"
 
 #: templates/remove_certificate.html:35
 msgid "Cancel"
-msgstr "Annulez"
+msgstr "Annuler"
 
 #: templates/update_company_settings.html:36
 msgid "Company Settings"
@@ -1533,7 +1532,7 @@ msgid "Presentation"
 msgstr "Présentation"
 
 #: templates/certificate/identitypass_vc.html:21
-#: templates/issuer/issue_identity_credential.html:62
+#: templates/issuer/issue_identity_credential.html:60
 #: templates/register/user_register.html:53
 msgid "Email"
 msgstr "Email"
@@ -1552,7 +1551,7 @@ msgid "Professional Credential of "
 msgstr "Attestation professionnelle de "
 
 #: templates/certificate/professionalexperienceassessment_vc.html:32
-#: templates/issuer/issue_experience_credential_workflow.html:50
+#: templates/issuer/issue_experience_credential_workflow.html:57
 msgid "From"
 msgstr "Du"
 
@@ -1687,87 +1686,83 @@ msgstr "Signataire"
 msgid "Status"
 msgstr "Statut"
 
-#: templates/issuer/issue_experience_credential_workflow.html:23
+#: templates/issuer/issue_experience_credential_workflow.html:27
 msgid "Professional Experience Credential"
 msgstr "Attestation d'expérience professionnelle"
 
-#: templates/issuer/issue_experience_credential_workflow.html:24
-msgid "This credential will be signed on behalf of "
-msgstr "Cette attestation sera signée au nom de "
-
-#: templates/issuer/issue_experience_credential_workflow.html:34
+#: templates/issuer/issue_experience_credential_workflow.html:41
 msgid "Talent Name"
 msgstr "Nom du Talent"
 
-#: templates/issuer/issue_experience_credential_workflow.html:39
+#: templates/issuer/issue_experience_credential_workflow.html:46
 msgid "Project Description"
 msgstr "Description du projet"
 
-#: templates/issuer/issue_experience_credential_workflow.html:56
+#: templates/issuer/issue_experience_credential_workflow.html:63
 msgid "To"
 msgstr "A"
 
-#: templates/issuer/issue_experience_credential_workflow.html:129
+#: templates/issuer/issue_experience_credential_workflow.html:137
 msgid "Manager Name"
 msgstr "Nom du signataire"
 
-#: templates/issuer/issue_experience_credential_workflow.html:144
-#: templates/issuer/issue_identity_credential.html:93
-#: templates/issuer/issue_work_credential.html:93
+#: templates/issuer/issue_experience_credential_workflow.html:151
+#: templates/issuer/issue_identity_credential.html:91
+#: templates/issuer/issue_work_credential.html:92
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/issuer/issue_experience_credential_workflow.html:151
-#: templates/issuer/issue_identity_credential.html:100
-#: templates/issuer/issue_work_credential.html:100
+#: templates/issuer/issue_experience_credential_workflow.html:158
+#: templates/issuer/issue_identity_credential.html:98
+#: templates/issuer/issue_work_credential.html:99
 msgid "Sign"
 msgstr "Signer"
 
-#: templates/issuer/issue_identity_credential.html:24
+#: templates/issuer/issue_identity_credential.html:22
 msgid "Identity Pass"
 msgstr "Pass d'Identité"
 
-#: templates/issuer/issue_identity_credential.html:53
+#: templates/issuer/issue_identity_credential.html:51
 msgid "Address (optional)"
 msgstr "Adresse (optionnel)"
 
-#: templates/issuer/issue_identity_credential.html:59
+#: templates/issuer/issue_identity_credential.html:57
 msgid "Birthdate (optional)"
 msgstr "Date de naissance (optionnel)"
 
-#: templates/issuer/issue_identity_credential.html:68
+#: templates/issuer/issue_identity_credential.html:66
 msgid "Gender (optional)"
 msgstr "Sexe (optionnel)"
 
-#: templates/issuer/issue_identity_credential.html:77
+#: templates/issuer/issue_identity_credential.html:75
 msgid "Phone (optional)"
 msgstr "Téléphone (optionnel)"
 
-#: templates/issuer/issue_work_credential.html:24
-msgid "Issue a Certificate of Employment"
-msgstr "Signez une attestation employeur"
+#: templates/issuer/issue_work_credential.html:23
+msgid "Certificate of Employment"
+msgstr "Attestation employeur"
 
-#: templates/issuer/issue_work_credential.html:53
+#: templates/issuer/issue_work_credential.html:52
 msgid "Annual gross salary"
 msgstr "Salaire annuel brut"
 
-#: templates/issuer/issue_work_credential.html:58
+#: templates/issuer/issue_work_credential.html:57
 msgid "Job title"
 msgstr "Fonction"
 
-#: templates/issuer/issue_work_credential.html:65
+#: templates/issuer/issue_work_credential.html:64
 msgid "Contract type"
 msgstr "Nature du contact"
 
-#: templates/issuer/issue_work_credential.html:67
+#: templates/issuer/issue_work_credential.html:66
 msgid "Permanent contract"
 msgstr "Contrat à durée illimitée"
 
-#: templates/issuer/issue_work_credential.html:68
+#: templates/issuer/issue_work_credential.html:67
 msgid "Temporary contract"
 msgstr "Contrat à durée limitée"
 
-#: templates/issuer/issue_work_credential.html:75
+#: templates/issuer/issue_work_credential.html:74
 msgid "Contract start date"
 msgstr "Date de début du contrat"
 
@@ -1830,6 +1825,10 @@ msgstr "Le salaire doit être mentionné"
 #: templates/issuer/request_work_credential.html:40
 msgid "Job title to be included"
 msgstr "La fonction doit être mentionnée"
+
+#: templates/issuer/request_work_credential.html:46
+msgid "Contract type to be included"
+msgstr "Le type de contrat doit être mentionné"
 
 #: templates/login/authentification.html:37
 msgid "Check your code"
