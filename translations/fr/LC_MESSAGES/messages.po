@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-07-08 09:46+0200\n"
+"POT-Creation-Date: 2021-07-08 17:27+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -280,7 +280,7 @@ msgstr "Ce code est incorrect, plus que 2 essais."
 msgid "This code is incorrect, 1 trial left."
 msgstr "Ce code est incorrect plus que 1 seul essai."
 
-#: routes/web_hrid.py:20 routes/web_issuer.py:16 routes/web_main.py:153
+#: routes/web_hrid.py:20 routes/web_main.py:153
 msgid "Identiy pass"
 msgstr "Identity Pass"
 
@@ -296,7 +296,7 @@ msgstr "Attestation de compétences"
 msgid "Training certificate"
 msgstr "Attestation de formation"
 
-#: routes/web_hrid.py:24 routes/web_issuer.py:20 routes/web_main.py:157
+#: routes/web_hrid.py:24 routes/web_main.py:157
 msgid "Recomendation letter"
 msgstr "Lettre de recommandation"
 
@@ -324,48 +324,56 @@ msgstr "Certificat de travail"
 msgid "Promise to hire letter"
 msgstr "Lettre de promesse d'embauche"
 
+#: routes/web_issuer.py:16
+msgid "Identity pass"
+msgstr "Pass d'identité"
+
 #: routes/web_issuer.py:17
 msgid "Professional experience assessment"
 msgstr "Attestation d'expérience professionnelle"
 
-#: routes/web_issuer.py:21
+#: routes/web_issuer.py:20
+msgid "Recommendation letter"
+msgstr "Lettre de recommandation"
+
+#: routes/web_issuer.py:21 templates/issuer/request_work_credential.html:20
 msgid "Certificate of employment"
 msgstr "Attestation employeur"
 
-#: routes/web_issuer.py:113
+#: routes/web_issuer.py:114
 msgid "This company has no active campaign."
 msgstr "Cette entreprise n'a pas ouvert de campagne de signature."
 
-#: routes/web_issuer.py:123
+#: routes/web_issuer.py:124
 msgid "Reference not found."
 msgstr "Référence inconnue."
 
-#: routes/web_issuer.py:159
+#: routes/web_issuer.py:160
 msgid "Credential not available."
 msgstr "Attestation non disponible."
 
-#: routes/web_issuer.py:211
+#: routes/web_issuer.py:212
 msgid "Your request for a reference credential has been sent."
 msgstr "Votre demande pour une attestation de référence a été envoyée."
 
-#: routes/web_issuer.py:246 routes/web_issuer.py:289 routes/web_issuer.py:343
+#: routes/web_issuer.py:247 routes/web_issuer.py:289 routes/web_issuer.py:343
 #: routes/web_issuer.py:692
 msgid "You have received a professional credential from "
 msgstr "Vous avez reçu une attestation de "
 
-#: routes/web_issuer.py:246 routes/web_issuer.py:289 routes/web_issuer.py:343
+#: routes/web_issuer.py:247 routes/web_issuer.py:289 routes/web_issuer.py:343
 msgid " to review"
 msgstr " pour revue"
 
-#: routes/web_issuer.py:253
+#: routes/web_issuer.py:254
 msgid "Your request for an Identity pass has been registered for review."
 msgstr ""
 "Votre demande pour une attestation d'expérience professionnelle a été "
 "envoyée pour revue."
 
-#: routes/web_issuer.py:274
+#: routes/web_issuer.py:275
 msgid "Director"
-msgstr ""
+msgstr "Directeur"
 
 #: routes/web_issuer.py:296
 msgid ""
@@ -399,17 +407,17 @@ msgstr "Echec de l'ajout de l'attestation."
 
 #: routes/web_issuer.py:652
 msgid "The credential has been added to the user repository"
-msgstr "L'attestation a été ejoutée à votre portfolio."
+msgstr "L'attestation a été ejoutée au portfolio de l'utilisateur."
 
 #: routes/web_issuer.py:698
 msgid "Credential has been reviewed and validated"
 msgstr "L'attestation a été revue et validée."
 
-#: routes/web_issuer.py:771
+#: routes/web_issuer.py:779
 msgid "New campaign added"
 msgstr "Nouvelle campagne ajoutée."
 
-#: routes/web_issuer.py:781
+#: routes/web_issuer.py:789
 msgid "Campaign removed"
 msgstr "Campagne effaçée."
 
@@ -458,7 +466,6 @@ msgid "End of validity date"
 msgstr "Validité"
 
 #: routes/web_issuer_explore.py:611
-#: templates/issuer/issue_work_credential.html:63
 #: templates/issuer/request_experience_credential.html:45
 msgid "Start date"
 msgstr "Date de début"
@@ -1002,7 +1009,7 @@ msgstr "Je souhaitre avoir mon nom dans le répertoire"
 #: templates/account.html:116
 #: templates/issuer/issue_experience_credential_workflow.html:138
 #: templates/issuer/issue_identity_credential.html:86
-#: templates/issuer/issue_work_credential.html:75
+#: templates/issuer/issue_work_credential.html:87
 #: templates/login/update_password_external.html:49
 #: templates/person_identity.html:53 templates/update_company_settings.html:105
 #: templates/update_password.html:49
@@ -1025,7 +1032,7 @@ msgstr "Mettre à jour"
 #: templates/issuer/campaign_code.html:46
 #: templates/issuer/issue_experience_credential_workflow.html:164
 #: templates/issuer/issue_identity_credential.html:112
-#: templates/issuer/issue_work_credential.html:101
+#: templates/issuer/issue_work_credential.html:113
 #: templates/issuer/request_certificate.html:43
 #: templates/issuer/request_experience_credential.html:74
 #: templates/issuer/request_work_credential.html:56
@@ -1327,7 +1334,7 @@ msgstr "Entrez votre mot de passe"
 #: templates/delete_identity.html:59
 #: templates/issuer/issue_experience_credential_workflow.html:158
 #: templates/issuer/issue_identity_credential.html:106
-#: templates/issuer/issue_work_credential.html:95
+#: templates/issuer/issue_work_credential.html:107
 msgid "Delete"
 msgstr "Effacer"
 
@@ -1707,13 +1714,13 @@ msgstr "Nom du signataire"
 
 #: templates/issuer/issue_experience_credential_workflow.html:144
 #: templates/issuer/issue_identity_credential.html:92
-#: templates/issuer/issue_work_credential.html:81
+#: templates/issuer/issue_work_credential.html:93
 msgid "Validate"
 msgstr "Valider"
 
 #: templates/issuer/issue_experience_credential_workflow.html:151
 #: templates/issuer/issue_identity_credential.html:99
-#: templates/issuer/issue_work_credential.html:88
+#: templates/issuer/issue_work_credential.html:100
 msgid "Sign"
 msgstr "Signer"
 
@@ -1737,17 +1744,29 @@ msgstr "Genre"
 msgid "Issue a Certificate of Employment"
 msgstr "Signez une attestation employeur"
 
-#: templates/issuer/issue_work_credential.html:52
-msgid "Salary"
-msgstr "Salaire"
+#: templates/issuer/issue_work_credential.html:53
+msgid "Annual gross salary"
+msgstr "Salaire annuel brut"
 
-#: templates/issuer/issue_work_credential.html:55
+#: templates/issuer/issue_work_credential.html:58
 msgid "Job title"
 msgstr "Fonction"
 
-#: templates/issuer/issue_work_credential.html:60
+#: templates/issuer/issue_work_credential.html:65
 msgid "Contract type"
 msgstr "Nature du contact"
+
+#: templates/issuer/issue_work_credential.html:67
+msgid "Permanent contract"
+msgstr "Contrat à durée illimitée"
+
+#: templates/issuer/issue_work_credential.html:68
+msgid "Temporary contract"
+msgstr "Contrat à durée limitée"
+
+#: templates/issuer/issue_work_credential.html:75
+msgid "Contract start date"
+msgstr "Date de début du contrat"
 
 #: templates/issuer/request_certificate.html:23
 msgid "Request a new Credential"
@@ -1796,10 +1815,6 @@ msgstr "Référence (Optionnel)"
 #: templates/login/forgot_password_init.html:41
 msgid "Send"
 msgstr "Envoyé"
-
-#: templates/issuer/request_work_credential.html:20
-msgid "Request a certificate of employment"
-msgstr "Demandez une attestation employeur"
 
 #: templates/issuer/request_work_credential.html:26
 msgid "Select options for your certificate"
@@ -2052,4 +2067,3 @@ msgstr "Numéro de téléphone mobile int. (ex : +33-..)"
 msgid "I read and I accept the service conditions"
 msgstr "J'ai lu et j'accepte les Conditions Générales d'Utilisation"
 
-#

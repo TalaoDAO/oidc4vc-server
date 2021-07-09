@@ -146,7 +146,7 @@ def show_certificate(mode):
 			**menu,
 			givenName=session['displayed_certificate']['credentialSubject']['recipient'].get('givenName'),
 			familyName =session['displayed_certificate']['credentialSubject']['recipient'].get('familyName'),
-			jobTitle=session['displayed_certificate']['credentialSubject']['recipient'].get('JobTitle'),
+			jobTitle=session['displayed_certificate']['credentialSubject']['recipient'].get('jobTitle', ""),
 			image=session['displayed_certificate']['credentialSubject']['recipient'].get('image'),
 			telephone=session['displayed_certificate']['credentialSubject']['recipient'].get('telephone'),
 			email=session['displayed_certificate']['credentialSubject']['recipient'].get('email'),

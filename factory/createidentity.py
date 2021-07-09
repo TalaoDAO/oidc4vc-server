@@ -101,6 +101,7 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	personal = json.load(open(filename, 'r'))
 	personal['signature'] = 'macron.png'
 	personal['picture'] = 'unknown.png'
+	personal['contact_email']['claim_value'] = email
 	if firstname and lastname :
 		personal['lastname']['claim_value'] = lastname
 		personal['firstname']['claim_value'] = firstname

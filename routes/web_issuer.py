@@ -12,17 +12,18 @@ from components import Talao_message, ns, company
 from signaturesuite import vc_signature
 from protocol import Document
 
-
-CREDENTIALS = {'pass' : _('Identiy pass'),
+def translated_credentials () :
+    return {'pass' : _('Identity pass'),
                 'experience' : _('Professional experience assessment'),
                 'skill' : _('Skill certificate'),
                 'training' : _('Training certificate'),
-                'recommendation' : _('Recomendation letter'),
+                'recommendation' : _('Recommendation letter'),
                 'work' : _('Certificate of employment'),
                 'vacation' : _('Employee vacation time certificate'),
                 'internship' : _('Certificate of participation'),
                 'relocation' : _('Transfer certificate'),
                 'hiring' : _('Promise to hire letter')}
+
 
 
 def init_app(app, mode) :
@@ -32,7 +33,6 @@ def init_app(app, mode) :
     app.add_url_rule('/user/request_reference_credential',  view_func=request_reference_credential, methods = ['POST'], defaults={'mode' : mode})
     app.add_url_rule('/user/request_pass_credential',  view_func=request_pass_credential, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/user/request_work_credential',  view_func=request_work_credential, methods = ['POST'], defaults={'mode' : mode})
-
     app.add_url_rule('/company/dashboard/',  view_func=company_dashboard, methods = ['GET','POST'], defaults={'mode' : mode})
     app.add_url_rule('/company/issue_credential_workflow',  view_func=issue_credential_workflow, methods = ['GET','POST'], defaults={'mode' : mode})
     app.add_url_rule('/company/add_campaign/',  view_func=add_campaign, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -94,7 +94,7 @@ def add_employee(mode) :
 
             #add_employee(employee_name, identity_name, role, referent, host_name, email, mode, phone=None, password='identity') :
             if employee.add(employee_username, identity_username, session['role_to_add'], referent, request.form['employee_email']) :
-                flash(employee_username.lower() + " has been added as " + session['role_to_add'] , 'success')
+                flash(employee_username.lower() + " has been added as " + session['role_to_add'] + '.' , 'success')
 
         # clean up
         del session['role_to_add']
@@ -125,10 +125,8 @@ def request_certificate(mode) :
             # get credential selected
             credentials_list = ''
             for credential in json.loads(campaign_data)['credentials_supported'] :
-                credentials_list += """<option value='""" + credential +"""'>""" + CREDENTIALS[credential] + """</option>"""
+                credentials_list += """<option value='""" + credential +"""'>""" + translated_credentials()[credential] + """</option>"""
             return render_template('./issuer/request_certificate.html', **session['menu'], company_name=session['issuer_explore']['name'], credentials_list=credentials_list)
-
-        
 
         # switch with credentiel type
         if request.form['certificate_type'] == 'experience' : #ProfessionalExperienceAssessment
@@ -217,15 +215,23 @@ def request_reference_credential(mode) :
 
 
 def request_pass_credential(mode) :
-    """ Basic request for identity pass    """
+    """ Request for IdentityPass   
+    https://github.com/TalaoDAO/context/blob/main/vocab.md#identitypass
+
+    """
     check_login()
+    
     # load JSON-LD model for IdentityPass
     unsigned_credential = json.load(open('./verifiable_credentials/IdentityPass.jsonld', 'r'))
 
-    # update credential with form data
+    # update credential with form data, all those datat are required in the data model 
     unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
     unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
+    try :
+        unsigned_credential["credentialSubject"]['recipient']["email"] = session['personal']["contact_email"]['claim_value']
+    except :
+        unsigned_credential["credentialSubject"]['recipient']["email"] = "should_be_there"
     unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
     unsigned_credential["credentialSubject"]['recipient']["image"] = mode.ipfs_gateway + session['personal']['picture']
     unsigned_credential["credentialSubject"]['author']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
@@ -243,37 +249,45 @@ def request_pass_credential(mode) :
 
     # send an email to reviewer for workflow
     reviewer_email = ns.get_data_from_username(session['credential_issuer_username'], mode)['email']
-    subject = _('You have received a professional credential from ')+ session['name'] + _(' to review')
+    subject = _('You have received a request for an identity pass from ')+ session['name'] + _(' to review')
     try :
         Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
     except :
         logging.error('email failed')
 
     # send email to user
-    flash(_('Your request for an Identity pass has been registered for review.'), 'success')
+    flash(_('Your request for an identity pass has been registered for review.'), 'success')
 
-    # clean up and return
-    issuer_username = session['credential_issuer_username']
-    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['credential_issuer_username'])
+
 
 def request_work_credential(mode) :
+    """ Request for CertrificateOfEmployment   
+    https://github.com/TalaoDAO/context/blob/main/vocab.md#certificateofemployment
+
+    """
     check_login()
+    
     # load JSON-LD model for IdentityPass
     unsigned_credential = json.load(open('./verifiable_credentials/CertificateOfEmployment.jsonld', 'r'))
+    
     # update credential with form data
     unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
     unsigned_credential["credentialSubject"]["familyName"] = session['personal']["lastname"]['claim_value']
     unsigned_credential["credentialSubject"]["givenName"] = session['personal']['firstname']['claim_value']
-    unsigned_credential["credentialSubject"]['employmentType'] = request.form.get('employmentType')
-    unsigned_credential["credentialSubject"]['baseSalary'] = request.form.get('baseSalary')
-    unsigned_credential["credentialSubject"]['jobTitle'] = request.form.get('jobTitle')
     unsigned_credential["credentialSubject"]['workFor']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
     unsigned_credential["credentialSubject"]['workFor']["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]['workFor']["address"] = session['issuer_explore']['personal']['postal_address']['claim_value']
     unsigned_credential["credentialSubject"]['signatureLines']["name"] = _("Director")
+    # optional properties
+    if request.form['employmentType'] == 'on' :
+        unsigned_credential["credentialSubject"]['employmentType'] = ""
+    if request.form['baseSalary'] == 'on' :
+        unsigned_credential["credentialSubject"]['baseSalary'] = ""
+    if request.form['jobTitle'] == 'on' :
+        unsigned_credential["credentialSubject"]['jobTitle'] = ""
 
-    print(unsigned_credential)
     # update local issuer database
     credential = company.Credential(session['credential_issuer_username'], mode)
     credential.add(session['username'],
@@ -286,23 +300,24 @@ def request_work_credential(mode) :
 
     # send an email to reviewer for workflow
     reviewer_email = ns.get_data_from_username(session['credential_issuer_username'], mode)['email']
-    subject = _('You have received a professional credential from ')+ session['name'] + _(' to review')
+    subject = _('You have received a request for a certificate of employment from ')+ session['name'] + _(' to review')
     try :
         Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
     except :
         logging.error('email failed')
 
     # send email to user
-    flash(_('Your request for a Certificate of employment has been registered for review.'), 'success')
+    flash(_('Your request for a certificate of employment has been registered for review.'), 'success')
 
-    # clean up and return
-    issuer_username = session['credential_issuer_username']
-    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['credential_issuer_username'])
 
 def request_experience_credential(mode) :
     """ Basic request for experience credential
+
     """
+
     check_login()
+    
     # load JSON-LD model for ProfessionalExperiencAssessment
     unsigned_credential = json.load(open('./verifiable_credentials/ProfessionalExperienceAssessment.jsonld', 'r'))
 
@@ -340,39 +355,39 @@ def request_experience_credential(mode) :
 
     # send an email to reviewer for workflow
     reviewer_email = ns.get_data_from_username(request.form['reviewer_username'] + '.' + session['credential_issuer_username'], mode)['email']
-    subject = _('You have received a professional credential from ')+ session['name'] + _(' to review')
+    subject = _('You have received a request for professional experience assessment from ')+ session['name'] + _(' to review')
     try :
         Talao_message.messageHTML(subject, reviewer_email, 'request_certificate', {'name' : session['name'], 'link' : 'https://talao.co'}, mode)
     except :
         logging.error('email failed')
 
     # send email to user
-    flash(_('Your request for an experience credential has been registered for review.'), 'success')
+    flash(_('Your request for an experience professional assessment has been registered for review.'), 'success')
 
     # clean up and return
-    issuer_username = session['credential_issuer_username']
     del session['select']
-    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + ession['credential_issuer_username'])
 
 
 def company_dashboard(mode) :
     """
     # @route /company/dashboard/
     """
+
+    check_login()
+
     # created, user_name, reviewer_name, issuer_name, status, credential, id
     issuer_select = ""
     employee = company.Employee(session['host'], mode)
     issuer_list = employee.get_list('issuer', 'all')
     for issuer in issuer_list :
         issuer_select += """<option value=""" + issuer['username'].split('.')[0]  + """>""" + issuer['username'].split('.')[0] + """</option>"""
-
     reviewer_select = ""
     reviewer_list = employee.get_list('reviewer', 'all')
     for reviewer in reviewer_list :
         reviewer_select += """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 
     if request.method == 'GET' :
-
         # init of dashboard display / role
         if session['role'] == 'reviewer' :
             issuer_query = 'all'
@@ -421,6 +436,7 @@ def company_dashboard(mode) :
         else :
             issuer_query = request.form['issuer']
             reviewer_query = request.form['reviewer']
+        
         credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
         return render_template('./issuer/company_dashboard.html',
                                  **session['menu'],
@@ -436,6 +452,9 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     """ build the html list
     return the table list to display in dashboard in html
     """
+
+    check_login()
+
     credential = company.Credential(host, mode)
     mylist = credential.get(issuer_username, reviewer_username, status)
     credential_list = ""
@@ -447,19 +466,16 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
                 description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
                 type = "ProfessionalExperienceAssessment"
                 name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
-
         elif json.loads(mycredential[5])['credentialSubject']['type'] == "IdentityPass" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "IdentityPass"
                 title = description = "N/A"
                 name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
-        
         elif json.loads(mycredential[5])['credentialSubject']['type'] == "CertificateOfEmployment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "CertificateOfEmployment"
                 title = description = "N/A"
                 name = json.loads(mycredential[5])['credentialSubject']['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']['familyName']
-
         else :
             subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
             type = _("Not Supported")
@@ -480,6 +496,7 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
                 <td>""" + mycredential[4] + """</td>
                 </tr>"""
         credential_list += credential
+
     return credential_list
 
 
@@ -488,6 +505,9 @@ def issue_credential_workflow(mode) :
     call = (created, user_name, reviewer_name, issuer_name, status, credential, id)
     update = update_verifiable_credential(id, host_name, reviewer_username, issuer_username, status, credential, mode)
     """
+
+    check_login()
+
     if request.method == 'GET' :
         session['credential_id'] = request.args['id']
         credential = company.Credential(session['host'], mode)
@@ -541,8 +561,8 @@ def issue_credential_workflow(mode) :
                 scoreDelivery =  my_credential["review"][reviewDelivery]["reviewRating"]["ratingValue"],
                 questionDelivery = questionDelivery,
                 skills_str= skills_str,
-                field= field,
-                )
+                field= field)
+                
         elif json.loads(session['call'][5])['credentialSubject']['type'] == "IdentityPass" :
             return render_template('./issuer/issue_identity_credential.html',
                 credential_id=request.args['id'],
@@ -574,7 +594,7 @@ def issue_credential_workflow(mode) :
                 baseSalary = my_credential.get("baseSalary"),
                 field= field)
         else : 
-            flash(_('view not yet available'), 'warning')
+            flash(_('view not yet available.'), 'warning')
             return redirect (mode.server +'company/dashboard/')
 
     if request.method == 'POST' :
@@ -621,7 +641,7 @@ def issue_credential_workflow(mode) :
                                                 session['private_key_value'],
                                                 my_credential['issuer'])
             if not signed_credential :
-                flash(_('Operation failed '), 'danger')
+                flash(_('Operation failed.'), 'danger')
                 logging.error('credential signature failed')
                 del session['credential_id']
                 del session['call']
@@ -646,10 +666,10 @@ def issue_credential_workflow(mode) :
             except :
                 doc_id = None
             if not doc_id :
-                flash(_('Add credential to repository failed '), 'danger')
+                flash(_('Add credential to repository failed.'), 'danger')
                 logging.error('certificate to repository failed')
             else :
-                flash(_('The credential has been added to the user repository'), 'success')
+                flash(_('The credential has been added to the user repository.'), 'success')
 
             """
             # send an email to user
@@ -695,7 +715,7 @@ def issue_credential_workflow(mode) :
             except :
                 logging.error('email error')
 
-            flash(_('Credential has been reviewed and validated'), 'success')
+            flash(_('Credential has been reviewed and validated.'), 'success')
 
         # all exits except delete and back
         del session['credential_id']
@@ -728,18 +748,31 @@ def get_form_data(my_credential, form) :
         my_credential['credentialSubject']["signatureLines"]['name'] = form.get('managerName', " ")
 
     elif json.loads(session['call'][5])['credentialSubject']['type'] == "IdentityPass" :
-        recipient = dict()
-        recipient['familyName'] = form['familyName']
-        recipient['jobTitle'] = form['jobTitle']
-        recipient['givenName'] = form['givenName']
-        recipient['birthDate'] = form['birthDate']
-        recipient['gender'] = form['gender']
-        recipient['email'] = form['email']
-        recipient['telephone'] = form['telephone']
-        recipient['address'] = form['address']
-        recipient['image'] = form['image']
-        my_credential['credentialSubject']['recipient'] = recipient
-
+        my_credential['credentialSubject']['recipient']['familyName'] = form['familyName']
+        my_credential['credentialSubject']['recipient']['jobTitle'] = form['jobTitle']
+        my_credential['credentialSubject']['recipient']['givenName'] = form['givenName']
+        my_credential['credentialSubject']['recipient']['email'] = form['email']
+        my_credential['credentialSubject']['recipient']['image'] = form['image']
+        if form.get('birthDate') :
+            my_credential['credentialSubject']['recipient']['birthDate'] = form['birthDate']
+        if form.get('gender') :
+            my_credential['credentialSubject']['recipient']['gender'] = form['gender']
+        if form.get('telephone') :
+            my_credential['credentialSubject']['recipient']['telephone'] = form['telephone']
+        if form.get('address') and form.get('address') != 'None' :
+            my_credential['credentialSubject']['recipient']['address'] = form['address']
+    
+    elif json.loads(session['call'][5])['credentialSubject']['type'] == "CertificateOfEmployment" :
+        my_credential['credentialSubject']['familyName'] = form['familyName']
+        my_credential['credentialSubject']['givenName'] = form['givenName']
+        if my_credential['credentialSubject']['startDate'] == 'on' :
+            my_credential['credentialSubject']['startDate'] = form['startDate'] 
+        if  my_credential['credentialSubject']['jobTitle'] == 'on' :
+            my_credential['credentialSubject']['jobTitle'] = form['jobTitle'] 
+        if my_credential['credentialSubject']['employmentType'] == 'on' :
+            my_credential['credentialSubject']['employmentType'] = form['employmentType']
+    
+    print("credential = ", my_credential)
     return
 
 
@@ -768,7 +801,7 @@ def add_campaign(mode) :
                 credentials_supported.append(request.form.get(str(topic)))
         data['credentials_supported'] = credentials_supported
         new_campaign.add(request.form['name'], json.dumps(data, ensure_ascii=False))
-        flash(_('New campaign added'), 'success')
+        flash(_('New campaign added.'), 'success')
         return redirect(mode.server + 'user/')
 
 

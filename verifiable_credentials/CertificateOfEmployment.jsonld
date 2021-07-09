@@ -3,17 +3,17 @@
         "https://www.w3.org/2018/credentials/v1", 
         {
             "CertificateOfEmployment" : {
-                "@id": "https://credential-portfolio.readthedocs.io/en/latest/contents.html",
+                "@id": "https://github.com/TalaoDAO/context/blob/main/vocab.md",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
-                    "expires" : "schema:expires",
                     "familyName" : "schema:familyName",
                     "givenName" : "schema:givenName",
                     "startDate" : "schema:startDate",
+                    "jobTitle" : "schema:jobTitle",
                     "baseSalary" : "schema:baseSalary",
                     "employmentType" : "schema:employmentType",
                     "workFor" : {
@@ -22,11 +22,11 @@
                             "@version": 1.1,
                             "@protected": true,
                             "schema" : "https://schema.org/",
-                            "type" : "schema:Organization",
                             "name" :  "schema:name",
                             "address" : "schema:address",
-                            "logo" : {"@id" : "schema:image", "@type" : "@id"}
-                        },
+                            "logo" : {"@id" : "schema:logo", "@type" : "@id"}
+                        }
+                    },
                     "signatureLines": {
                         "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
                         "@context": {
@@ -38,13 +38,12 @@
                             "image" : {"@id" : "schema:image", "@type" : "@id"}
                             }
                         }
-                    }
                 }
             }
         }
     ],
     "id": "",
-    "type": ["VerifiableCredential"],
+    "type": ["VerifiableCredential", "CertificateOfEmployment"],
     "issuer": "",
     "issuanceDate": "",
     "credentialSubject" : {
@@ -53,6 +52,8 @@
             "familyName" : "",
             "givenName" : "",
             "baseSalary" : "",
+            "startDate" : "",
+            "jobTitle" : "",
             "employmentType" : "",
             "workFor" : {
                 "name" : "",
@@ -63,5 +64,6 @@
                 "name" : "",
                 "jobTitle" : "",
                 "image" : ""}
+            
     }
 }

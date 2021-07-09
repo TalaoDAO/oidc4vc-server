@@ -383,33 +383,45 @@ def user(mode) :
 				my_access +=  access_html + """<br>"""
 
 		# credentials/certificates
+		credential_text = {'IdentityPass' : _('Identity pass'),
+                'ProfessionalExperienceAssessment' : _('Professional experience assessment'),
+                'skill' : _('Skill certificate'),
+                'training' : _('Training certificate'),
+                'recommendation' : _('Recommendation letter'),
+                'CertificateOfEmployment' : _('Certificate of employment'),
+                'vacation' : _('Employee vacation time certificate'),
+                'internship' : _('Certificate of participation'),
+                'relocation' : _('Transfer certificate'),
+                'hiring' : _('Promise to hire letter')}
+		#privacy_visibility_text = {'public' : _('Public'), 'private' : _('Private'), 'secret' : _('Secret')}
 		my_certificates = ""
 		if not session['all_certificate'] :
 			my_certificates = my_certificates + """<a class="text-info">""" + _('No Credential available') + """</a>"""
 		else :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
-				try : 
-					cert_html = """<hr>
-						<b>""" + _('Credential Type') + """</b> : """ + certificate['type'][1] + """<br>
-						<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """<br>
-						<b>""" + _('Issuer name') + """</b> : """ + certificate['credentialSubject'].get('author', 'None')['name'].capitalize() + """ <br>
+				#try : 
+				cert_html = """<hr>
+						<b>""" + _('Credential Type') + """</b> : """ + credential_text.get(certificate['credentialSubject']['type'], "Not supported") + """<br>
+						<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'] + """<br>
 						<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
 						<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
 					# FIXME
-					credential = Document('certificate')
-					credential.relay_get_credential(session['workspace_contract'], int(certificate['doc_id']), mode)
-					filepath = './signed_credentials/' + credential.id + ".jsonld"
-					if not path.exists(filepath) :
-						outfile = open(filepath, 'w')
-						json.dump(credential.__dict__, outfile, indent=4, ensure_ascii=False)	
-				except :
-					cert_html = """<hr>
-					<b>#</b> : """ + str(counter) + "<br>"
-					id = ""
+				credential = Document('certificate')
+				credential.relay_get_credential(session['workspace_contract'], int(certificate['doc_id']), mode)
+				filepath = './signed_credentials/' + credential.id + ".jsonld"
+				if not path.exists(filepath) :
+					outfile = open(filepath, 'w')
+					json.dump(credential.__dict__, outfile, indent=4, ensure_ascii=False)	
+				credential_id = credential.id
+				#except :
+				#	cert_html = """<hr>
+				#	<b>#</b> : """ + str(counter) + "<br>"
+				#	id = ""
+				#	credential_id = ""
 				
 				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Credential') + """</a><br>"""
 				
-				cert_html += """<b></b><a href= """ + mode.server +  """credible/credentialOffer/""" + credential.id + """>""" + _('Download to Credible wallet') + """</a><br>"""				
+				cert_html += """<b></b><a href= """ + mode.server +  """credible/credentialOffer/""" + credential_id + """>""" + _('Download to Credible wallet') + """</a><br>"""				
 				cert_html += """<p>
 					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
 					<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
