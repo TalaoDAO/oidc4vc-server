@@ -47,6 +47,9 @@ def show_certificate(mode):
 	"""
 	# display verifiable credentials for anybody. Stand alone routine
 	"""
+
+	LANGUAGES = ['en', 'fr']
+	session['language'] = request.accept_languages.best_match(LANGUAGES)
 	menu = session.get('menu', dict())
 	viewer = 'guest' if not session.get('username') else 'user'
 
