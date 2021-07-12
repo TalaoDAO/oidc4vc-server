@@ -2,10 +2,41 @@
 <html>
   <head>
     {% include 'head.html' %}
-  
+   
   </head>
   <body>
-      <div id="content">    
+      
+    <div id="content_smartphone" class="d-block d-sm-none">
+      <style>
+        .container {
+          height: 500px;
+          position: relative;
+        }
+        
+        .vertical-center {
+          margin: 0;
+          position: absolute;
+          top: 50%;
+          -ms-transform: translateY(-50%);
+          transform: translateY(-50%);
+        }
+        </style>
+      <div class="container">  
+
+        <div class="vertical-center col text-center">  
+
+      <a href="myapp://credible">
+        <img  src="/static/img/credible.png" style="width: 120px;border-radius:0px;">
+    </a>
+    <br><br>
+    <div class="col text-center">
+      <a href="/user/" ><button class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button></a>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <div id="content_desktop" class="d-none d-sm-block">    
         {% include 'guest_nav_bar.html' %}
               <div class="text-center">  
                 <div id="id_text" class="m-5">{{_('Scan the QRCode bellow with your wallet Credible')}}</div>  

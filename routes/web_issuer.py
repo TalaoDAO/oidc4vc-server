@@ -400,16 +400,16 @@ def company_dashboard(mode) :
             reviewer_query = 'all'
 
         # init of dashboard display / credential status
-        signed = drafted = reviewed = ""
+        signed = drafted = reviewed = ''
         if session['role'] == 'issuer' :
-            reviewed = "checked"
-            status = ("reviewed","","")
+            reviewed = 'checked'
+            status = ('reviewed','','')
         elif session['role'] == 'reviewer' :
             drafted = 'checked'
-            status = ('drafted',"","")
+            status = ('drafted','','')
         else :
-            drafted =  reviewed = signed = "checked"
-            status = ('drafted', 'reviewed', 'signed')
+            drafted =  reviewed =  'checked'
+            status = ('drafted', 'reviewed', '')
 
         # display dashboard
         credential_list = credential_list_html(session['host'], issuer_query, reviewer_query, status, mode)
@@ -676,14 +676,14 @@ def issue_credential_workflow(mode) :
             else :
                 flash(_('The credential has been added to the user repository.'), 'success')
 
-            """
             # send an email to user
-            link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)
+            #link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)
+            link= mode.server
             try :
-                Talao_message.messageHTML('Your professional credential has been issued.', subject['email'], 'certificate_issued', {'username': session['name'], 'link': link}, mode)
+                Talao_message.messageHTML(_('Your professional credential has been issued.'), subject['email'], 'certificate_issued', {'username': session['name'], 'link': link}, mode)
             except :
                 logging.error('email to subject failed')
-            """
+            
             # store signed credential on server
             try :
                 filename = session['credential_id'] + '.jsonld'
@@ -693,13 +693,13 @@ def issue_credential_workflow(mode) :
             except :
                 logging.error('signed credential not stored')
 
-            # send email to user
-            try :
-                signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
-                text = "\r\nHello\r\nYou will find attached your professional credential signed by your issuer." + signature
-                Talao_message.message_file(subject['email'], text, "Your professional credential", [filename], path, mode)
-            except :
+            # send email to user with VC attached
+            """
+            signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
+            text = "\r\nHello\r\nYou will find attached your professional credential signed by your issuer." + signature
+            if not Talao_message.message_file(subject['email'], text, "Your professional credential", [filename], path, mode) :
                 logging.error('email credential to subject failed')
+            """
 
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
@@ -777,8 +777,6 @@ def get_form_data(my_credential, form) :
             my_credential['credentialSubject']['jobTitle'] = form['jobTitle'] 
         if my_credential['credentialSubject'].get('employmentType')  :
             my_credential['credentialSubject']['employmentType'] = form['employmentType']
-    
-    print("credential = ", my_credential)
     return
 
 
@@ -791,9 +789,9 @@ def add_campaign(mode) :
         personal = ns.get_personal(session['workspace_contract'], mode)
         credentials_supported = json.loads(personal).get('credentials_supported',[])
         checkbox = dict()
-        for topic in [*CREDENTIALS] :
+        for topic in [*translated_credentials()] :
             checkbox['box_' + topic] = "checked" if topic in credentials_supported else "disabled"
-        return render_template('./issuer/add_campaign.html', **session['menu'], **checkbox, **CREDENTIALS)
+        return render_template('./issuer/add_campaign.html', **session['menu'], **checkbox, **translated_credentials())
     if request.method == 'POST' :
         new_campaign = company.Campaign(session['username'], mode)
         data = {'description' : request.form['description'],
@@ -802,7 +800,7 @@ def add_campaign(mode) :
                 'endDate' : '',
                 'credentials_supported' : []}
         credentials_supported = list()
-        for topic in  [*CREDENTIALS] :
+        for topic in  [*translated_credentials()] :
             if request.form.get(str(topic)) :
                 credentials_supported.append(request.form.get(str(topic)))
         data['credentials_supported'] = credentials_supported

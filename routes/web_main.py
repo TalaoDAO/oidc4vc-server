@@ -260,7 +260,7 @@ def picture(mode) :
         session['personal']['picture'] = session['picture'] = picture_hash
         ns.update_personal(session['workspace_contract'], json.dumps(session['personal']), mode)
         os.rename(path_to_file, mode.uploads_path + picture_hash)
-        session['menu']['picturefile'] = session['picture']
+        session['menu']['picturefile'] = mode.ipfs_gateway + session['picture']
         flash(_('Your picture has been updated'), 'success')
         return redirect(mode.server + 'user/')
 
@@ -275,25 +275,20 @@ def signature(mode) :
         if request.args.get('badtype') == 'true' :
             flash(_('Only "JPEG", "JPG", "PNG" files accepted'), 'warning')
         if session['role'] != 'issuer' :
-            signature = session['signature']
+            signature = mode.ipfs_gateway + session['signature']
         else :
             session['employee_workspace_contract'] = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
-            signature = json.loads(ns.get_personal(session['employee_workspace_contract'], mode))['signature']
-        if not signature  :
-            signature = 'macron.png'
-        if not os.path.exists(mode.uploads_path + signature) :
-            Talao_ipfs.get_picture(signature, mode.uploads_path + signature)
+            signature = mode.ipfs_gateway + json.loads(ns.get_personal(session['employee_workspace_contract'], mode))['signature']
         return render_template('signature.html', **session['menu'], signaturefile=signature)
     if request.method == 'POST' :
         myfile = request.files['croppedImage']
         path_to_file = mode.uploads_path + "signature.png"
-        myfile.save(path_to_file)       
+        myfile.save(path_to_file)
         signature_hash = Talao_ipfs.file_add(path_to_file, mode)
         if not signature_hash :
             flash(_('Fail to update signature.'), 'warning')
             return redirect(mode.server + 'user/')
         flash(_('Your signature has been updated.'), 'success')
-        os.rename(path_to_file, mode.uploads_path + signature_hash)
         if session['role'] != 'issuer' :
             session['personal']['signature'] = signature_hash
             session['signature'] = signature_hash 
@@ -890,75 +885,6 @@ def add_activity(mode) :
         return redirect(mode.server + 'user/')
 
 
-def create_kyc(mode) :
-    """ This is the function to issue the verifiable ID
-
-    Talao only
-
-    kyc to did:ethr FIXME
-
-    @app.route('/user/issue_kyc/', methods=['GET', 'POST'])
-    """
-    check_login()
-    if session['username'] != 'talao' :
-        flash(_('feature not available.'), 'danger')
-        logging.warning('non authorised')
-        return redirect(mode.server + 'user/')
-    if request.method == 'GET' :
-        return render_template('issue_kyc.html', **session['menu'])
-    if request.method == 'POST' :
-        kyc_username = request.form['username']
-        kyc_workspace_contract = ns.get_data_from_username(kyc_username, mode).get('workspace_contract')
-        if not kyc_workspace_contract :
-            flash(kyc_username + _(' does not exist '), 'danger')
-            return redirect(mode.server + 'user/')
-        id = str(uuid.uuid1())
-        # load templates for verifibale credential and init with view form and session
-        unsigned_credential = json.load(open('./verifiable_credentials/identity.jsonld', 'r'))
-        unsigned_credential["id"] =  "data:" + id
-        unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
-        unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        unsigned_credential["credentialSubject"]["id"] = ns.get_did(kyc_workspace_contract, mode)
-        unsigned_credential["credentialSubject"]["familyName"] = request.form['family_name']
-        unsigned_credential["credentialSubject"]["givenName"] = request.form['given_name']
-        unsigned_credential["credentialSubject"]["birthDate"] = request.form['birthdate']
-        unsigned_credential["credentialSubject"]["address"] = request.form['address']
-        unsigned_credential["credentialSubject"]["telephone"] = request.form['phone']
-        unsigned_credential["credentialSubject"]["email"] = request.form['email']
-        unsigned_credential["credentialSubject"]["gender"] = request.form['gender']
-        signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], unsigned_credential["issuer"])
-
-        # signed verifiable identity is stored in repository as did_authn ERC735 Claim
-        kyc_email = ns.get_data_from_username(kyc_username, mode)['email']
-        identity_credential = Document('credential')
-        identity_credential.relay_add(kyc_workspace_contract,json.loads(signed_credential),mode, privacy="private", synchronous=False)
-        flash(_('New verifiable ID has been added on repository for ')+ kyc_username, 'success')
-        subject = 'Your proof of Identity'
-        try :
-            Talao_message.messageHTML(subject, kyc_email,'POI_issued', dict(), mode)
-        except :
-            logging.warning('email failed')
-            flash(_('Email failed.'), 'warning')
-
-        # store signed credential on server
-        filename = unsigned_credential['id'] + '_credential.jsonld'
-        path = "./signed_credentials/"
-        with open(path + filename, 'w') as outfile :
-            json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
-
-        # send credential by email
-        signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
-        text = "\r\nHello\r\nYou will find attached your ID credential signed by Talao." + signature
-        try :
-            Talao_message.message_file([kyc_email], text, "Your professional credential", [filename], path, mode)
-        except :
-            logging.error('credential to subject failed')
-            flash(_('Email failed.'), 'warning')
-
-        # TODO delete credential
-        return redirect(mode.server + 'user/')
-
-
 #@app.route('/user/remove_experience/', methods=['GET', 'POST'])
 def remove_experience(mode) :
     check_login()
@@ -976,7 +902,6 @@ def remove_experience(mode) :
     ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
     flash(__('The experience has been removed'), 'success')
     return redirect (mode.server +'user/')
-
 
 
 def create_company(mode) :

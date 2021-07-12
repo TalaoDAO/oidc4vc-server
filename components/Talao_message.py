@@ -43,10 +43,13 @@ def messageAuth (email_to, random, mode) :
 	# sending the mail
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
+		s.quit()
+		return True
 	except:
 		logging.error('sending mail')
-	s.quit()
-	return True
+		s.quit()
+		return False
+	
 
 """ email envoyé a la creation d'un workspace  """
 def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_contract_address, backend_Id, login, SECRET, AES_key,mode)  :
@@ -175,11 +178,14 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 		logging.info('email sent')
+		s.quit()
+		return True
 	except:
 		logging.error('sending mail')
-	s.quit()
-	return True
-
+		print('dans talao_message from = ', msg['from'], ' to = ', msg['to'])
+		s.quit()
+		return False
+	
 def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contract_address,mode)  :
 
 	password = mode.smtp_password
@@ -208,6 +214,7 @@ def messageUser(name, firstname, username, email,eth_a, eth_p, workspace_contrac
 		logging.info('email sent')
 	except:
 		logging.error('sending mail')
+		return False
 	s.quit()
 	return True
 
@@ -294,7 +301,10 @@ def message_file(to, text, subject, filename, path, mode)  :
 	try:
 		s.sendmail(msg['from'],  msg["To"].split(","), text)
 		logging.info('email sent')
+		s.quit()
+		return True
 	except:
 		logging.error('sending mail')
-	s.quit()
-	return True
+		print('dans talao_message from = ', msg['from'], ' to = ', msg['to'])
+		s.quit()
+		return False

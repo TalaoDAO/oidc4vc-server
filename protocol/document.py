@@ -141,6 +141,7 @@ def _create(address_from, workspace_contract_from, address_to, workspace_contrac
 		document_id = eventlist[-1]['args']['id']
 		return document_id, ipfs_hash, transaction_hash
 	else :
+		logging.error('get document id on last event failed')
 		return None, None, None
 
 def _get(workspace_contract_from, private_key_from, workspace_contract_user, documentId, mode) :

@@ -85,9 +85,7 @@
         </li>
         
         {% if session['username'] == 'talao' %}
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Issue KYC" style="color: white;" class="nav-link active" href="/user/issue_kyc/">{{_('Kyc')}}</a></li>
           <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="Add Key" style="color: white;" class="nav-link active" href="/user/add_key/">{{_('Key')}}</a></li>
-          <li class="nav-item d-none d-none d-md-block" role="presentation"><a title="update Wallet address" style="color: white;" class="nav-link active" href="/user/update_wallet/">{{_('Wallet')}}</a></li>
         {% endif %}
         <li class="nav-item d-none d-none d-md-block" role="presentation"><div id="connected"></div></li> 
 
@@ -102,7 +100,7 @@
       <!-- Name + Picture + menu  -->
       <li class="nav-item d-none d-sm-inline-block dropdown no-arrow" role="presentation">
         <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="">
-            <!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;">
+            <!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><img class="border rounded-circle img-profile" src="{{picturefile}}" style="width: 30px;height: 30px;">
           </a>
           <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
 

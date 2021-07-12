@@ -91,6 +91,10 @@ def user(mode) :
 	We setup Ientity with workspace or username depending of the login method
 	"""
 	#check_login()
+
+	if request.args.get('flash_message') == "credential_offered" :
+		flash('Your credential has been saved in your wallet', 'success')
+	
 	if not session.get('uploaded') :
 		logging.info('start first instanciation')
 
@@ -197,7 +201,7 @@ def user(mode) :
 			clipboard = mode.server  + "board/?did=" + session['did']
 
 		# for nav bar menu display
-		session['menu'] = {'picturefile' : session['picture'],
+		session['menu'] = {'picturefile' : mode.ipfs_gateway + session['picture'],
 							'username' : session.get('username', ""),
 							'name' : session['name'],
 							#'private_key_value' : user.private_key_value,
@@ -422,7 +426,7 @@ def user(mode) :
 				
 				cert_html += """<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Credential') + """</a><br>"""
 				
-				cert_html += """<b></b><a href= """ + mode.server +  """credible/credentialOffer/""" + credential_id + """>""" + _('Download to Credible wallet') + """</a><br>"""				
+				cert_html += """<b></b><a href= """ + mode.server +  """credible/credentialOffer/""" + credential_id + """>""" + _('Download to your smartphone wallet') + """</a><br>"""				
 				cert_html += """<p>
 					<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
 					<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>

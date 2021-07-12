@@ -325,15 +325,13 @@ def wallet_presentation(stream_id, mode):
             red.publish('credible', data)
             return jsonify("ko")
         if domain != mode.server or challenge != red.get(stream_id).decode() :
-            # issuer is not Talao
             logging.warning('challenge failed')
             data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
             red.publish('credible', data)
             return jsonify("ko")
-        if issuer != "did:web:talao.co" :
-            # issuer is not Talao
+        if issuer not in ['did:web:talao.co', 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'] :
             logging.warning('unknown issuer')
-            data = json.dumps({"stream_id" : stream_id, "message" : issuer + _(' is unknown.')})
+            data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
             red.publish('credible', data)
             return jsonify("ko")
         if not ns.get_workspace_contract_from_did(holder, mode) :

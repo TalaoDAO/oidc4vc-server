@@ -84,7 +84,7 @@
       <!-- Name + Picture + menu  -->
       <li class="nav-item d-none d-sm-inline-block dropdown no-arrow" role="presentation">
         <div class="nav-item dropdown show"><a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="">
-            <!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><img class="border rounded-circle img-profile" src="{{ url_for('send_file', filename=picturefile) }}" style="width: 30px;height: 30px;">
+            <!--<span class="d-none d-lg-inline mr-2 text-gray-600 small">{{name}}</span>--><img class="border rounded-circle img-profile" src="{{picturefile}}" style="width: 30px;height: 30px;">
             <!--retrer dropdown-toggle de la class du nav linkComment-->
           <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu">
             <a class="dropdown-item " title="Access to the full documentation" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/"><i class="fa fa-book fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Documentation')}}</a>

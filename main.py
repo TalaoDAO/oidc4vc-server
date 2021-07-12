@@ -43,7 +43,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass
 
 # Release
-VERSION = "0.14.0"
+VERSION = "0.14.2"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -131,9 +131,7 @@ app.add_url_rule('/create_company_cci/post_code/', view_func=web_create_company_
 web_certificate.init_app(app, mode)
 
 # Centralized route for the Blockchain CV
-app.add_url_rule('/resume/', view_func=web_external.resume, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/board/', view_func=web_external.board, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/company/registry/', view_func=web_external.board, methods = ['GET', 'POST'], defaults={'mode': mode}) # same as previous
+web_external.init_app(app, mode)
 
 # Centralized route fo Issuer explore
 web_issuer_explore.init_app(app, mode)
@@ -183,7 +181,6 @@ app.add_url_rule('/user/presentation/',  view_func=web_main.presentation, method
 app.add_url_rule('/user/swap_privacy/',  view_func=web_main.swap_privacy, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_certificate/',  view_func=web_main.remove_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
 
-app.add_url_rule('/user/issue_kyc/',  view_func=web_main.create_kyc, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_experience',  view_func=web_main.remove_experience, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/remove_education',  view_func=web_main.remove_education, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/create_company/',  view_func=web_main.create_company, methods = ['GET','POST'], defaults={'mode' : mode})
@@ -225,7 +222,6 @@ app.add_url_rule('/repository/authn',  view_func=repository.authn, methods = ['P
 app.add_url_rule('/repository/publish',  view_func=repository.publish, methods = ['POST'], defaults={'mode' : mode})
 app.add_url_rule('/repository/create',  view_func=repository.create, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'], defaults={'mode' : mode})
-
 
 
 # centralized route for CCI API

@@ -1,14 +1,18 @@
 from os import path
 from flask import request, render_template,abort
-import requests
-import shutil
-import json
 import time
 import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
 from protocol import Identity
+
+
+def init_app(app, mode) :
+	app.add_url_rule('/resume/', view_func=resume, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/board/', view_func=board, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/company/registry/', view_func=board, methods = ['GET', 'POST'], defaults={'mode': mode}) # same as previous
+	return
 
 #@app.route('/resume/', methods=['GET'])
 def resume(mode) :
