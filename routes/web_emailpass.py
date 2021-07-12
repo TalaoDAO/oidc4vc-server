@@ -1,7 +1,6 @@
 from flask import jsonify, request, render_template, session, redirect, flash, Response
 import json
 from components import privatekey, Talao_message
-from datetime import datetime
 import redis
 import uuid
 import secrets
@@ -10,10 +9,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 from signaturesuite import vc_signature
 from flask_babel import _
+import secrets
 
+OFFER_DELAY = timedelta(seconds= 10*60)
+DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 
-red = redis.StrictRedis()
-
+red = redis.Redis()
 
 def init_app(app,mode) :
     app.add_url_rule('/emailpass',  view_func=emailpass, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -72,41 +73,71 @@ def emailpass_authentication(mode) :
     		    flash(_('This code is incorrect, 2 trials left.'), 'warning')
     	    if session['try_number'] == 3 :
     		    flash(_('This code is incorrect, 1 trial left.'), 'warning')
-    	    return render_template("emailpass/email_authentication.html")
+    	    return render_template("emailpass/emailpass_authentication.html")
 
 
 def emailpass_qrcode(mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "emailpass/offer/" + id 
-        red.set(id, session['email'])
+        red.setex(id, OFFER_DELAY, value=session['email'])
+        logging.info('url = %s', url)
         return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
    
 
 def emailpass_offer(id, mode):
+    """ Endpoint for wallet
+    """
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
-    if request.method == 'GET':   
+    credential["issuer"] = DID
+    credential['id'] = "urn:uuid:" + str(uuid.uuid1())
+    credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    try :
+        credential['credentialSubject']['email'] = red.get(id).decode()
+    except :
+        logging.warning('QR code expired')
+        data = json.dumps({"url_id" : id, "check" : "expired"})
+        red.publish('credible', data)
+        return jsonify('ko')
+    credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"
+    if request.method == 'GET': 
+        # make an offer  
         return jsonify({
             "type": "CredentialOffer",
             "credentialPreview": credential,
-            "expires" : datetime.timestamp(datetime.now()) + 5*60 #5 minutes
+            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z"
         })
-    elif request.method == 'POST':
-        credential["issuer"] = "did:web:talao.co"
-        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
-        credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        credential['credentialSubject']['id'] = request.form['subject_id']
-        credential['credentialSubject']['email'] = red.get(id).decode()
+    elif request.method == 'POST':    
+        # sign credential
+        credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-        signed_credential = vc_signature.sign(credential, pvk, "did:web:talao.co")
-        print(json.dumps(signed_credential, indent=4))
-        data = json.dumps({"stream_id" : id, "check" : "ok"})
+        signed_credential = vc_signature.sign(credential, pvk, DID)
+        if not signed_credential :
+            logging.error('credential signature failed')
+
+         # store signed credential on server
+        try :
+            filename = credential['id'] + '.jsonld'
+            path = "./signed_credentials/"
+            with open(path + filename, 'w') as outfile :
+                json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
+        except :
+            logging.error('signed credential not stored')
+        
+        # send event to client agent to go forward
+        data = json.dumps({"url_id" : id, "check" : "success"})
         red.publish('credible', data)
+
+        # send signed credential to wallet
         return jsonify(signed_credential)
  
 
 def emailpass_end() :
-    return render_template('emailpass/emailpass_end.html')
+    if request.args['followup'] == "success" :
+        message = _('Great ! you have now an Email Pass')
+    elif request.args['followup'] == 'expired' :
+        message = _('Delay expired')
+    return render_template('emailpass/emailpass_end.html', message=message)
 
 
 # server event push 
@@ -116,6 +147,7 @@ def event_stream():
     for message in pubsub.listen():
         if message['type']=='message':
             yield 'data: %s\n\n' % message['data'].decode()
+
 
 def emailpass_stream():
     headers = { "Content-Type" : "text/event-stream",

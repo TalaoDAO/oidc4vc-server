@@ -50,13 +50,13 @@ def add_file_to_pinata (filename, mode) :
 	this_file.close()
 	return response.json()['IpfsHash']
 
-def ipfs_get_pinata(ipfs_hash) :
-	response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash)
+def ipfs_get_pinata(ipfs_hash, mode) :
+	response = requests.get(mode.ipfs_gateway + ipfs_hash)
 	return response.json()
 
 
 def ipfs_get(ipfs_hash, mode) :
-		return ipfs_get_pinata(ipfs_hash)
+		return ipfs_get_pinata(ipfs_hash,mode)
 
 
 def pin_to_pinata (my_hash, mode) :
@@ -71,14 +71,15 @@ def pin_to_pinata (my_hash, mode) :
 	response = requests.post('https://api.pinata.cloud/pinning/pinByHash', data=json.dumps(payload), headers=headers)
 	return response.json()['IpfsHash']
 
+"""
 def get_picture(ipfs_hash, filename) :
-	response = requests.get('https://gateway.pinata.cloud/ipfs/'+ipfs_hash, stream=True)
+	response = requests.get('https://talao.mypinata.cloud/ipfs/'+ipfs_hash, stream=True)
 	with open(filename, 'wb') as out_file:
 		shutil.copyfileobj(response.raw, out_file)
 		del response
 	out_file.close()
 	return True
-
+"""
 
 if __name__ == '__main__':
 	pass

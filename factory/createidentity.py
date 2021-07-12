@@ -99,8 +99,8 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	
 	filename = mode.db_path + 'person.json'
 	personal = json.load(open(filename, 'r'))
-	personal['signature'] = 'macron.png'
-	personal['picture'] = 'unknown.png'
+	personal['signature'] = 'QmPZxzrmh29sNcgrT7hyrrP6BWyahLwYUvzbuf5vUFxw91' #'macron.png'
+	personal['picture'] = 'QmRPGGnVSa6jpaDSYnfk1v2bRZ2kkTML2aapU9cqzVRqXN' # 'unknown.png'
 	personal['contact_email']['claim_value'] = email
 	if firstname and lastname :
 		personal['lastname']['claim_value'] = lastname

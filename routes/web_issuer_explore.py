@@ -56,7 +56,7 @@ def issuer_explore(mode) :
 	issuer_username = request.args['issuer_username']
 	if 'issuer_username' not in session or session['issuer_username'] != issuer_username :
 		if not ns.username_exist(issuer_username, mode) :
-			flash('Issuer data not available', 'danger')
+			flash('Issuer data not available.', 'danger')
 			return redirect(mode.server + 'user/')
 		issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 		logging.info(' , issuer = %s', issuer_workspace_contract)
@@ -124,13 +124,6 @@ def issuer_explore(mode) :
 				title = experience['credentialSubject']['title']
 				issuer_name = experience['credentialSubject']['author']['name']
 
-				if logo :
-					if not path.exists(mode.uploads_path + logo) :
-						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-						response = requests.get(url, stream=True)
-						with open(mode.uploads_path + logo, 'wb') as out_file:
-							shutil.copyfileobj(response.raw, out_file)
-							del response
 				if i%3==0:
 					carousel_rows_experience += """<div class="carousel-item px-2 {a}">
 													<div class="row" style="flex-direction: row;">""".format(a = "active" if (i == 0) else '')
@@ -138,7 +131,7 @@ def issuer_explore(mode) :
 				carousel_rows_experience += """<div class="col-md-4 mb-2" >	<figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
-					carousel_rows_experience +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+					carousel_rows_experience +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format(logo)
 				except:
 					carousel_rows_experience +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
@@ -216,27 +209,20 @@ def issuer_explore(mode) :
 					issuer_name = recommendation['issuer']['name']
 
 				try:
-					logo = recommendation['logo']
+					logo = mode.ipfs_gateway + recommendation['logo']
 				except:
 					try :
-						logo = recommendation['picture']
+						logo = mode.ipfs_gateway + recommendation['picture']
 					except:
-						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+						logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
-				if logo :
-					if not path.exists(mode.uploads_path + logo) :
-						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-						response = requests.get(url, stream=True)
-						with open(mode.uploads_path + logo, 'wb') as out_file:
-							shutil.copyfileobj(response.raw, out_file)
-							del response
 
 				if i%3==0:
 					carousel_rows_recommendation += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
 				carousel_rows_recommendation += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
-					carousel_rows_recommendation +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+					carousel_rows_recommendation +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format(logo)
 				except:
 					carousel_rows_recommendation +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
@@ -276,27 +262,16 @@ def issuer_explore(mode) :
 				carousel_indicators_education += '<li data-target="#education-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, education in enumerate(session['issuer_explore']['education']):
 				try:
-					logo = education['logo']
+					logo = mode.ipfs_gateway + education['logo']
 				except:
-					try :
-						logo = education['picture']
-					except:
-						logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
-
-				if logo != None:
-					if not path.exists(mode.uploads_path + logo) :
-						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-						response = requests.get(url, stream=True)
-						with open(mode.uploads_path + logo, 'wb') as out_file:
-							shutil.copyfileobj(response.raw, out_file)
-							del response
+					logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
 				if i%3==0:
 					carousel_rows_education += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
 				carousel_rows_education += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
-					carousel_rows_education +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+					carousel_rows_education +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format(logo)
 				except:
 					carousel_rows_education +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
@@ -334,10 +309,11 @@ def issuer_explore(mode) :
 				pass
 			else:
 				if session['issuer_explore']['skills']['description'] != None:
+					logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 					carousel_rows_skill += '<div class="carousel-item active"><div class="row">'
 					carousel_rows_skill += """<div class="col-md-4 mb-2">
 							<figure class="snip1253 mw-100" style="height: 410px; ">
-							  <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
+							  <div class="image text-center h-100" style="background-color: white;"><img src='""" + logo + """' style="height: 200px;" alt="Loading error" /></div>
 							  <figcaption class="p-0">
 								<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
 								  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
@@ -362,24 +338,15 @@ def issuer_explore(mode) :
 				carousel_indicators_skill += '<li data-target="#skill-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, skill in enumerate(skills):
 				try:
-					logo = skill['logo']
+					logo = mode.ipfs_gateway + skill['logo']
 				except:
-					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
-
-				if logo != None:
-					if not path.exists(mode.uploads_path + logo) :
-						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-						response = requests.get(url, stream=True)
-						with open(mode.uploads_path + logo, 'wb') as out_file:
-							shutil.copyfileobj(response.raw, out_file)
-							del response
-
+					logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 				if i%3==0:
 					carousel_rows_skill += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
 				carousel_rows_skill += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
-					carousel_rows_skill +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+					carousel_rows_skill +=""""{}" style="height: 200px;" alt="Loading error"/></div><figcaption class="p-0">""".format(logo)
 				except:
 					carousel_rows_skill +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
@@ -410,9 +377,10 @@ def issuer_explore(mode) :
 					if (i+1)%3==0:
 						carousel_rows_skill += '<div class="carousel-item"><div class="row">'
 						created_row = True
+					logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 					carousel_rows_skill += """<div class="col-md-4 mb-2">
 							<figure class="snip1253 mw-100" style="height: 410px; ">
-							  <div class="image text-center h-100" style="background-color: white;"><img src="/uploads/QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT" style="height: 200px;" alt="Loading error" /></div>
+							  <div class="image text-center h-100" style="background-color: white;"><img src='""" + logo + """' style="height: 200px;" alt="Loading error" /></div>
 							  <figcaption class="p-0">
 								<div class="row overflow-hidden" style="flex-direction: row;height: 50px">
 								  <div class="col bg-transparent px-2" style="max-width:60px;"><i class="fa fa-pencil-square-o" style="color: #747474;font-size: 50px;"></i></div>
@@ -500,24 +468,16 @@ def issuer_explore(mode) :
 				carousel_indicators_agreement += '<li data-target="#agreement-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, agreement in enumerate(agreements):
 				try:
-					logo = agreement['issued_by']['logo']
+					logo = mode.ipfs_gateway + agreement['issued_by']['logo']
 				except:
-					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
-
-				if logo != None:
-					if not path.exists(mode.uploads_path + logo) :
-						url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-						response = requests.get(url, stream=True)
-						with open(mode.uploads_path + logo, 'wb') as out_file:
-							shutil.copyfileobj(response.raw, out_file)
-							del response
+					logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
 
 				if i%3==0:
 					carousel_rows_agreement += '<div class="carousel-item {a}"><div class="row">'.format(a = "active" if (i == 0) else '')
 				carousel_rows_agreement += """<div class="col-md-4 mb-2" ><figure class="snip1253 mw-100" style="height: 410px; "><div class="image p-2 text-center h-100" style="background-color: white;" ><img src="""
 				#image
 				try:
-					carousel_rows_agreement +=""""{}" style="height: 180px;" alt="Loading error"/></div><figcaption class="p-0">""".format("/uploads/"+ logo)
+					carousel_rows_agreement +=""""{}" style="height: 180px;" alt="Loading error"/></div><figcaption class="p-0">""".format(logo)
 				except:
 					carousel_rows_agreement +=""""https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error"/></div><figcaption >"""
 				#verified
@@ -571,18 +531,14 @@ def issuer_explore(mode) :
 				budget = reference['credentialSubject']['offers']['price']
 
 				if not logo :
-					logo = 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+					logo = mode.ipfs_gateway + 'QmSbxr8xkucse2C1aGMeQ5Wt12VmXL96AUUpiBuMhCrrAT'
+				else :
+					logo = mode.ipfs_gateway + logo
 
-				if not path.exists(mode.uploads_path + logo) :
-					url = 'https://gateway.pinata.cloud/ipfs/'+ logo
-					response = requests.get(url, stream=True)
-					with open(mode.uploads_path + logo, 'wb') as out_file:
-						shutil.copyfileobj(response.raw, out_file)
-						del response
 
 				#image
 				try:
-					image ="""<img src="{}" style="height: 200px;" alt="Loading error">""".format("/uploads/"+ logo)
+					image ="""<img src="{}" style="height: 200px;" alt="Loading error">""".format(logo)
 				except:
 					image = """<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/331810/sample59.jpg" alt="Loading error">"""
 

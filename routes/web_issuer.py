@@ -366,7 +366,7 @@ def request_experience_credential(mode) :
 
     # clean up and return
     del session['select']
-    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + ession['credential_issuer_username'])
+    return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['credential_issuer_username'])
 
 
 def company_dashboard(mode) :

@@ -83,6 +83,8 @@ def register_company(mode) :
 			personal['siren']['claim_value'] = request.form['siren']
 			personal['postal_address']['claim_value'] = request.form['postal_address']
 			personal['credentials_supported'] = credentials_supported
+			personal['picture'] = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+			personal['signature'] = 'QmPZxzrmh29sNcgrT7hyrrP6BWyahLwYUvzbuf5vUFxw91'
 			personal['credential_counter'] = 0
 			personal['credential_acquired'] = promo
 			ns.update_personal(workspace_contract, json.dumps(personal, ensure_ascii=False), mode)

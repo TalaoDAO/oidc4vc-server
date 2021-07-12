@@ -18,11 +18,11 @@ CREDENTIAL_TOPIC = ['pass', 'experience', 'skill', 'training', 'recommendation',
 
 def translate_credentials() :
 	return {'pass_txt' : _('Identiy pass'),
-		'experience_txt' : _('Experience credential'),
+		'experience_txt' : _('Professional experience assessment'),
 		'skill_txt' : _('Skill certificate'),
 		'training_txt' : _('Training certificate'),
-		'recommendation_txt' : _('Recomendation letter'),
-		'work_txt' : _('Employer certificate'),
+		'recommendation_txt' : _('Recommendation letter'),
+		'work_txt' : _('Certificate of employment'),
 		'vacation_txt' : _('Employee vacation time certificate'),
 		'internship_txt' : _('Certificate of participation'),
 		'relocation_txt' : _('Transfer certificate'),
@@ -101,6 +101,8 @@ def hrid_register_company(mode) :
 			personal['siren']['claim_value'] = request.form['siren']
 			personal['postal_address']['claim_value'] = request.form['postal_address']
 			personal['credentials_supported'] = credentials_supported
+			personal['picture'] = 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5'
+			personal['signature'] = 'QmPZxzrmh29sNcgrT7hyrrP6BWyahLwYUvzbuf5vUFxw91'
 			personal['credential_counter'] = 0
 			personal['credential_acquired'] = promo
 			ns.update_personal(workspace_contract, json.dumps(personal, ensure_ascii=False), mode)

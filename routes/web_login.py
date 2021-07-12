@@ -6,8 +6,8 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
 import os
-from flask import session, flash
-from flask import request, redirect, render_template,abort
+from flask import session, flash, jsonify
+from flask import request, redirect, render_template,abort, Response
 from flask_babel import _
 from datetime import timedelta, datetime
 import json
@@ -19,13 +19,18 @@ import logging
 logging.basicConfig(level=logging.INFO)
 # dependances
 from components import Talao_message, ns, sms, privatekey
+import redis
+import didkit
+import uuid
 
+PRESENTATION_DELAY = timedelta(seconds= 10*60)
+
+red = redis.Redis()
 
 def init_app(app, mode) :
 # Centralized route for login
 	app.add_url_rule('/logout',  view_func=logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/unregistered',  view_func=unregistered, methods = ['GET', 'POST'], defaults={'mode': mode})
-
 	app.add_url_rule('/forgot_username',  view_func=forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password',  view_func=forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password_token/',  view_func=forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -33,7 +38,10 @@ def init_app(app, mode) :
 	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
-	app.add_url_rule('/user/two_factor/',  view_func=two_factor, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/credible/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
+	app.add_url_rule('/credible/wallet_presentation/<stream_id>',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
+	app.add_url_rule('/stream',  view_func=stream)
+	app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
 	return
 
 
@@ -77,51 +85,6 @@ def send_secret_code (username, code, mode) :
 		except :
 			logging.error('sms failed, email failed')
 			return None
-
-
-def two_factor(mode) :
-	"""
-	@app.route('/user/two_factor/', methods=['GET', 'POST'])
-	this route has to be used as a function to check code before signing a certificate
-	CF issue certificate in main.py to see how to use it with redirect and callback 
-	"""
-	check_login()
-	if request.method == 'GET' :
-		session['two_factor'] = {'callback' : request.args.get('callback'),
-								'code' : str(secrets.randbelow(99999)),
-								'code_delay' : datetime.now() + timedelta(seconds= 180),
-								'try_number': 1,
-								'consign' : None}
-		# send code by sms if phone exist else email
-		support = send_secret_code(session['username'], session['two_factor']['code'],mode)
-		session['two_factor']['consign'] = "Check your phone for SMS." if support == 'sms' else "Check your email."
-		logging.info('secret code sent = %s', session['two_factor']['code'])
-		flash(_("Secret code sent by ") + support + '.', 'success')
-		return render_template("./login/two_factor.html", **session['menu'], consign = session['two_factor']['consign'])
-	if request.method == 'POST' :
-		code = request.form['code']
-		session['two_factor']['try_number'] += 1
-		logging.info('code received = %s', code)
-		# loop for incorrect code
-		if code !=  session['two_factor']['code'] and datetime.now() < session['two_factor']['code_delay'] and session['two_factor']['try_number'] < 4 :
-			if session['two_factor']['try_number'] == 2 :
-				flash(_('This code is incorrect, 2 trials left.'), 'warning')
-			if session['two_factor']['try_number'] == 3 :
-				flash(_('This code is incorrect, 1 trial left.'), 'warning')
-			return render_template("./login/two_factor.html", **session['menu'], consign=session['two_factor']['consign'])
-		# exit to callback
-		if code == session['two_factor']['code'] and datetime.now() < session['two_factor']['code_delay'] :
-			two_factor = "True"
-		elif datetime.now() > session['two_factor']['code_delay']  :
-			two_factor = "False"
-			flash(_("Code expired."), "warning")
-		elif session['two_factor']['try_number'] > 3 :
-			two_factor = "False"
-			flash(_("Too many trials (3 max)."), "warning")
-		callback = session['two_factor']['callback']
-		del session['two_factor']
-		return redirect (mode.server + callback + "?two_factor=" + two_factor)
-
 
 
 def login(mode) :
@@ -212,28 +175,15 @@ def logout(mode) :
 	"""
 	check_login()
 	if request.method == 'GET' :
-		return render_template('./login/logout.html', **session['menu'])
-	try :
-		if session['picture'] != "unknown.png" :
-			os.remove(mode.uploads_path + session['picture'])
-		if session['signature'] != "macron.png" :
-			os.remove(mode.uploads_path + session['signature'])
-	except :
-		logging.warning('delete picture and signature failed')
-	for one_file in session['identity_file'] :
-		try :
-			os.remove(mode.uploads_path + one_file['filename'])
-		except :
-			logging.warning('delete file failed')
+		return render_template('login/logout.html', **session['menu'])
 	session.clear()
 	flash(_('Thank you for your visit.'), 'success')
 	return redirect (mode.server + 'login')
 
 
-
 def unregistered(mode) :
 	if request.method == 'GET' :
-		return render_template('./login/unregistered.html')
+		return render_template('login/unregistered.html', message=request.args.get('message', ""))
 	if request.method == 'POST' :
 		return redirect (mode.server + 'login')
 
@@ -244,14 +194,14 @@ def forgot_username(mode) :
 	This function is called from the login view.
 	"""
 	if request.method == 'GET' :
-		return render_template('./login/forgot_username.html')
+		return render_template('login/forgot_username.html')
 	if request.method == 'POST' :
 		username_list = ns.get_username_list_from_email(request.form['email'], mode)
 		if not username_list :
 			flash(_('There is no Identity with this Email.') , 'warning')
 		else :
 			flash(_('This Email is already used by Identities : ') + ", ".join(username_list) + '.', 'success')
-		return render_template('./login/login_password.html', name="")
+		return render_template('login/login_password.html', name="")
 
 
 def forgot_password(mode) :
@@ -261,12 +211,12 @@ def forgot_password(mode) :
 	build JWE to store timestamp, username and email, we use Talao RSA key
 	"""
 	if request.method == 'GET' :
-		return render_template('./login/forgot_password_init.html')
+		return render_template('login/forgot_password_init.html')
 	if request.method == 'POST' :
 		username = request.form.get('username')
 		if not ns.username_exist(username, mode) :
 			flash(_("Username not found."), "warning")
-			return render_template('./login/login_password.html')
+			return render_template('login/login_password.html')
 		email= ns.get_data_from_username(username, mode)['email']
 		private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 		RSA_KEY = RSA.import_key(private_rsa_key)
@@ -282,7 +232,7 @@ def forgot_password(mode) :
 		subject = "Renew your password"
 		if Talao_message.messageHTML(subject, email, 'forgot_password', {'link': link}, mode):
 			flash(_("You are going to receive an email to renew your password."), "success")
-		return render_template('./login/login_password.html')
+		return render_template('login/login_password.html')
 
 
 def forgot_password_token(mode) :
@@ -299,20 +249,134 @@ def forgot_password_token(mode) :
 		except :
 			flash (_('Incorrect data.'), 'danger')
 			logging.warning('JWE did not decrypt')
-			return render_template('./login/login_password.html')
+			return render_template('login/login_password.html')
 		payload = json.loads(data['payload'].decode('utf-8'))
 		if payload['expired'] < datetime.timestamp(datetime.now()) :
 			flash (_('Delay expired (3 minutes maximum).'), 'danger')
-			return render_template('./login/login_password.html')
+			return render_template('login/login_password.html')
 		session['email_password'] = payload['email']
 		session['username_password'] = payload['username']
-		return render_template('./login/update_password_external.html')
+		return render_template('login/update_password_external.html')
 	if request.method == 'POST' :
 		if session['email_password'] != request.form['email'] :
 			flash(_('Incorrect email.'), 'danger')
-			return render_template('./login/update_password_external.html')
+			return render_template('login/update_password_external.html')
 		ns.update_password(session['username_password'], request.form['password'], mode)
 		flash(_('Password updated.'), "success")
 		del session['email_password']
 		del session['username_password']
-		return render_template('./login/login_password.html')
+		return render_template('login/login_password.html')
+
+
+def VerifiablePresentationRequest_qrcode(mode):
+    stream_id = str(uuid.uuid1())
+    url = mode.server + "credible/wallet_presentation/" + stream_id
+    return render_template('login/login_qr.html', url=url, stream_id=stream_id)
+
+
+def wallet_presentation(stream_id, mode):
+    if request.method == 'GET':
+        credential_query = [
+	        {'reason' : 'Sign in',
+	        'example' : [
+		    {'@context' : [
+			    'https://www.w3.org/2018/credentials/v1'
+		    ],
+		    'type' : 'VerifiableCredential'
+            }]}
+            ]
+        
+        query = [
+		{'type' : 'QueryByExample',
+		'credentialQuery' : credential_query}
+        ]
+
+        myrequest = {
+            "type": "VerifiablePresentationRequest",
+            'query' :  query,
+            'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
+            'domain' : 'example.com'
+            }
+        challenge = str(uuid.uuid1())
+        red.setex(stream_id, PRESENTATION_DELAY, value=challenge)
+        did_auth_request = {
+            "type": "VerifiablePresentationRequest",
+            "query": [{
+            "type": 'DIDAuth'
+            }],
+            "challenge": challenge,
+            "domain" : mode.server
+            }
+        return jsonify(did_auth_request)
+    
+    elif request.method == 'POST' :
+        presentation = json.loads(request.form['presentation'])
+        print('presentation = ', presentation)
+		# FIXME no check done, pb de version et voir comment on gere le challenge
+        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
+        try : # FIXME
+            issuer = presentation['verifiableCredential']['issuer']
+            holder = presentation['holder']
+            challenge = presentation['proof']['challenge']
+            domain = presentation['proof']['domain']
+        except :
+            logging.warning('to be fixed, presentation is not correct')
+            data = json.dumps({"stream_id" : stream_id, "message" : _("Presentation check failed.")})
+            red.publish('credible', data)
+            return jsonify("ko")
+        if domain != mode.server or challenge != red.get(stream_id).decode() :
+            # issuer is not Talao
+            logging.warning('challenge failed')
+            data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
+            red.publish('credible', data)
+            return jsonify("ko")
+        if issuer != "did:web:talao.co" :
+            # issuer is not Talao
+            logging.warning('unknown issuer')
+            data = json.dumps({"stream_id" : stream_id, "message" : issuer + _(' is unknown.')})
+            red.publish('credible', data)
+            return jsonify("ko")
+        if not ns.get_workspace_contract_from_did(holder, mode) :
+            # user has no account
+            logging.warning('unknown account')
+            data = json.dumps({"stream_id" : stream_id, "message" : _('Your Digital Identity has not been registered yet.')})
+            red.publish('credible', data)
+            return jsonify("ko")
+        else :
+            # we pass a JWE token to user agent to sign in
+            data = json.dumps({"stream_id" : stream_id, "message" : "ok", "token" : generate_token(holder, mode)})
+            red.publish('credible', data)
+            return jsonify("ok")
+
+
+def event_stream():
+    pubsub = red.pubsub()
+    pubsub.subscribe('credible')
+    for message in pubsub.listen():
+        if message['type']=='message':
+            yield 'data: %s\n\n' % message['data'].decode()
+
+
+def stream():
+    headers = { "Content-Type" : "text/event-stream",
+                "Cache-Control" : "no-cache",
+                "X-Accel-Buffering" : "no"}
+    return Response(event_stream(), headers=headers)
+
+
+def callback() :
+    credential = 'holder : ' + request.args['holder'] + ' issuer : ' + request.args['issuer']
+    return render_template('credible/credential.html', credential=credential)
+
+
+def generate_token(did,mode) :
+    private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    RSA_KEY = RSA.import_key(private_rsa_key)
+    public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
+    expired = datetime.timestamp(datetime.now()) + 5 # 5s live
+    # build JWE
+    jwe = JsonWebEncryption()
+    header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
+    json_string = json.dumps({'did' : did, 'exp' : expired})
+    payload = bytes(json_string, 'utf-8')
+    return jwe.serialize_compact(header, payload, public_rsa_key).decode()

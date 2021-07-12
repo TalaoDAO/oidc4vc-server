@@ -47,6 +47,7 @@ def sign(credential, pvk, did, rsa=None):
         "proofPurpose": "assertionMethod",
         "verificationMethod": vm
     }
+    print('vm = ', vm)
 
     signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),

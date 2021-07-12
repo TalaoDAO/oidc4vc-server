@@ -69,14 +69,14 @@
                       <div class="col p-0 text-center">
                         <a href="/user/request_certificate/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
-                            Request a credential</button>
+                            {{_('Request a credential')}}</button>
                         </a>
                       </div>
                       {% else %}
                       <div class="col p-0 text-center">
                         <button class="btn btn-primary py-0 w-100" title="User need to be in your referent list to request a certificate" type="button"
                           style="background: rgba(0,123,255,0);color: #c9c9c9;font-size: 15px;border-color: #c9c9c9;height: 50px;">
-                          Request a credential</button>
+                          {{_('Request a credential')}}</button>
                       </div>
                       {% endif %}
                     </div>
@@ -86,13 +86,13 @@
                       <div class="col p-0 text-center">
                         <a href="/user/issue_certificate/?goback=/user/issuer_explore/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary py-0 w-100" title="" type="button" style="background: rgba(11,69,128,0.93);color: white;font-size: 16px;border-color: rgba(11,69,128,0.93);height: 50px;">
-                            Issue a Credential</button>
+                            {{_('Issue a Credential')}}</button>
                         </a>
                       </div>
                       {% else %}
                       <div class="col p-0 text-center">
                         <button class="btn btn-primary py-0 w-100" title="You are not in this Talent Referent list" type="button" style="background: rgba(0,123,255,0);color: #c9c9c9;font-size: 15px;border-color: #c9c9c9;height: 50px;">
-                          Issue a Credential</button>
+                          {{_('Issue a Credential')}}</button>
                       </div>
                       {% endif %}
                     </div>
@@ -142,7 +142,7 @@
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="{{issuer_name}} can issue certificate to you at anytime" type="button"
                           style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
-                          This user is in your <strong>Referent List</strong></button>
+                          {{_('This user is in your Referent List')}}</button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_issuer/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
@@ -155,8 +155,8 @@
                       <div class="col w-100 p-0">
                         <a href="/user/add_issuer/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Allow {{issuer_name}} to issue certificate to you at anytime" type="button"
-                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">Add this user to
-                            your <strong>Referent List</strong></button></a>
+                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">
+                            {{_('Add this user to your Referent List')}}</button></a>
                       </div>
                       {% endif %}
 
@@ -167,7 +167,7 @@
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="{{issuer_name}} can issue certificate in the name of {{name}} at anytime" type="button"
                           style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
-                          This user is a <strong>Manager</strong></button>
+                          {{_('This user is a Manager')}}</strong></button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_manager/?issuer_username={{issuer_username}}&issuer_address={{issuer_address}}">
@@ -180,7 +180,7 @@
                         <a href="/user/add_manager/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Allow {{issuer_name}} to issue certificate in the name of {{name}} at anytime" type="button"
                             style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">
-                            Make this user a <strong>Manager</strong></button></a>
+                            {{_('Make this user a Manager')}}</button></a>
                       </div>
                       {% endif %}
                     </div>
@@ -196,7 +196,7 @@
                       <div class="col-9 p-0 w-100">
                         <button class="btn btn-primary py-0" title="{{issuer_name}} has access to your private information and stored files" type="button"
                           style="background: rgba(0,193,0,0.8);color: white;font-size: 16px;border-color: rgba(0,193,0,0.8);height: 50px;">
-                          This user is in your <strong>Partner List</strong></button>
+                          {{_('This user is in your Partner List')}}</button>
                       </div>
                       <div class="col ml-2 p-0 text-right">
                         <a class="text-secondary" href="/user/remove_partner/?partner_username={{issuer_username}}&partner_workspace_contract={{issuer_address}}">
@@ -209,8 +209,8 @@
                       <div class="col w-100 p-0">
                         <a href="/user/request_partnership/?issuer_username={{issuer_username}}">
                           <button class="btn btn-primary w-100" title="Authorize {{issuer_name}} to have access to your private information and stored files" type="button"
-                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">Add this user to
-                            your <strong>Partner List</strong></button>
+                            style="background: rgba(11,69,128,0.93);border-color: rgba(11,69,128,0.93);color: white;font-size: 15px;height: 50px;">
+                            {{_('Add this user to yourr Partner List')}}</button>
                         </a>
                       </div>
                       {% endif %}
@@ -228,7 +228,7 @@
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100 ">
                   <div class="card-header">
-                    <h4>Experience</h4>
+                    <h4>{{_('Professional experience assessment')}}</h4>
                   </div>
                   <div class="card-body ">
                     <!--Carousel Wrapper-->
@@ -257,7 +257,7 @@
 
                       <!--/.Slides-->
                       {% else %}
-                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">{{_('No data available')}}</p>
                       {% endif %}
                     </div>
                     <!--/.Carousel Wrapper-->
@@ -271,7 +271,7 @@
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100">
                   <div class="card-header">
-                    <h4>Recommendation</h4>
+                    <h4>{{_('Recommendation letter')}}</h4>
                   </div>
                   <div class="card-body ">
                     <!--Carousel Wrapper-->
@@ -300,7 +300,7 @@
 
                       <!--/.Slides-->
                       {% else %}
-                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">{{_('No data available')}}</p>
                       {% endif %}
                     </div>
                     <!--/.Carousel Wrapper-->
@@ -315,7 +315,7 @@
               <div class="row mb-3">
                 <div class="card shadow mx-lg-5 mx-1 w-100">
                   <div class="card-header">
-                    <h4>Education</h4>
+                    <h4>{{_('Education')}}</h4>
                   </div>
                   <div class="card-body ">
                     <!--Carousel Wrapper-->
@@ -343,7 +343,7 @@
 
                       <!--/.Slides-->
                       {% else %}
-                      <p class="text-center text-muted m-0 " style="font-size: 20px;">No data available</p>
+                      <p class="text-center text-muted m-0 " style="font-size: 20px;">{{_('No data available')}}</p>
                       {% endif %}
                     </div>
                     <!--/.Carousel Wrapper-->
@@ -397,7 +397,7 @@
                 <div class="col px-5">
                   <div class="card shadow">
                     <div class="card-header">
-                      <h4 class="text-dark"> Stored file </h4>
+                      <h4 class="text-dark">{{_('Stored file')}}</h4>
                     </div>
                     <div class="card-body ">
                       <p class="card-text text-dark">{{digitalvault|safe}}</p>

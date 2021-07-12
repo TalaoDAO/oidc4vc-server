@@ -153,6 +153,7 @@ def show_certificate(mode):
 			image=session['displayed_certificate']['credentialSubject']['recipient'].get('image'),
 			telephone=session['displayed_certificate']['credentialSubject']['recipient'].get('telephone'),
 			email=session['displayed_certificate']['credentialSubject']['recipient'].get('email'),
+			company = session['displayed_certificate']['credentialSubject']['author']['name'],
 			viewer=viewer)
 
 

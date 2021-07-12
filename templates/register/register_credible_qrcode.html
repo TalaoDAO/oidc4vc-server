@@ -15,7 +15,7 @@
           <div id="id_spinner" class="m-5"></div>
           </div>
             <div class="text-center m-5">
-              <button class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
+              <button id="id_button" class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
             </div>
           </div>
         </div>
@@ -34,14 +34,18 @@ source.onmessage = function (event) {
     const result = JSON.parse(event.data)
     if (result.did == 'registered'){
       window.location.href="/register/error";
-    }
+      }
     else {
-    document.getElementById("id_text").innerHTML = "";
-    document.getElementById("id_qrcode").innerHTML = "";
-    document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Installing your portfolio...")}}' + '</div>';
-    document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
-    window.location.href="/register/create_for_credible?did=" + result.did;
-    }
+      document.getElementById("id_text").innerHTML = "";
+      document.getElementById("id_qrcode").innerHTML = "";
+      document.getElementById("id_button").style.visibility = "hidden";
+      const loading_message = '{{_("Installing your portfolio...")}}'
+      document.getElementById("id_loading").innerHTML = '<div class="col-lg-4 offset-lg-4"><div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">\
+                                                            <div class="card-body p-0"><div class="col">\
+                                                            <div  class="p-5"><div class="text-center"><h4 class="text-dark mb-4">' + loading_message + '</h4>\
+                                                            </div><div class="spinner-border"></div></div></div></div></div>' 
+      window.location.href="/register/create_for_credible?did=" + result.did;
+      }
     }; 
 
 

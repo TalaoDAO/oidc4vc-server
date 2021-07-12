@@ -36,17 +36,20 @@
         var source = new EventSource('/stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
-        if (result.check == 'ok' & result.stream_id == '{{stream_id}}' ){
+        if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
           document.getElementById("id_button").style.visibility = "hidden";
           document.getElementById("id_text").innerHTML = "";
           document.getElementById("id_qrcode").innerHTML = "";
-          document.getElementById("id_loading").innerHTML = '<div>' + '{{_("Loading your portfolio...")}}' + '</div>';
-          document.getElementById("id_spinner").innerHTML = '<div class="spinner-border"></div>';
+          const loading_message = '{{_("Your portfolio is loading ...")}}'
+          document.getElementById("id_loading").innerHTML = '<div class="col-lg-4 offset-lg-4"><div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">\
+                                                            <div class="card-body p-0"><div class="col">\
+                                                            <div  class="p-5"><div class="text-center"><h4 class="text-dark mb-4">' + loading_message + '</h4>\
+                                                            </div><div class="spinner-border"></div></div></div></div></div>' 
           document.getElementById("input_token").value=result.token;
           document.getElementById("id_token").submit()
           }
-        if (result.check != 'ok' & result.stream_id == '{{stream_id}}' ) {
-          window.location.href='/unregistered';
+        if (result.message != 'ok' & result.stream_id == '{{stream_id}}' ) {
+          window.location.href='/unregistered?message=' + result.message;
         } 
         };
       </script>

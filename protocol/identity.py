@@ -70,7 +70,7 @@ class Identity() :
 			address_from = contractsToOwners(workspace_contract_from, mode)
 			private_key_from = privatekey.get_key(address_from, 'private_key', mode)
 			self.get_identity_file(workspace_contract_from,private_key_from,mode)
-			self.get_identity_personal(workspace_contract_from, private_key_from,mode)
+			self.get_identity_personal(mode)
 		if self.type == "company" :
 			self.name = self.personal['name']['claim_value']
 		else : # self.type == "person" :
@@ -83,26 +83,12 @@ class Identity() :
 		#get image/logo and signature from ipfs and download files to the "uploads" folder		
 		self.picture = self.personal['picture']
 		if not self.picture :
-			self.picture = 'unknown.png' if self.type == "person" else 'mosaique.png'
-		else :
-			if not path.exists(mode.uploads_path + self.picture) :
-				url = mode.ipfs_gateway + self.picture
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + self.picture, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-
+			self.picture = 'QmRPGGnVSa6jpaDSYnfk1v2bRZ2kkTML2aapU9cqzVRqXN' if self.type == "person" else 'QmXKeAgNZhLibNjYJFHCiXFvGhqsqNV2sJCggzGxnxyhJ5' # unknwn.png or mosaique.png
+		
 		self.signature = self.personal['signature']
 		if not self.signature  :
-			self.signature = 'macron.png'
-		else :
-			if not path.exists(mode.uploads_path + self.signature) :
-				url = mode.ipfs_gateway + self.signature
-				response = requests.get(url, stream=True)
-				with open(mode.uploads_path + self.signature, 'wb') as out_file:
-					shutil.copyfileobj(response.raw, out_file)
-
-		
-
+			self.signature = 'QmPZxzrmh29sNcgrT7hyrrP6BWyahLwYUvzbuf5vUFxw91' #'macron.png'
+	
 	def get_secret(self,mode) :
 		(c, self.secret, self.aes) = read_workspace_info(self.address, self.rsa_key_value, mode)
 

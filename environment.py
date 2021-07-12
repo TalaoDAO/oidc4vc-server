@@ -28,7 +28,7 @@ class currentMode() :
 		self.port = 4000 #default value to avoid pb with aws
 		self.talao_to_transfer = 101  # Vault deposit see Token Talao
 		self.ether2transfer = 40	# Init user wallet -> 40/1000 eth
-		self.ipfs_gateway = 'https://gateway.pinata.cloud/ipfs/'
+		self.ipfs_gateway = 'https://talao.mypinata.cloud/ipfs/'
 
 		# upload of main private keys. This file (keys.json) is not in the  github repo. Ask admin to get it !!!!!
 		try :
