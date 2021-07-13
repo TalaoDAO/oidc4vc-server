@@ -10,7 +10,7 @@ those credential have been signed previously
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-red = redis.Redis()
+red = redis.StrictRedis()
 
 
 def init_app(app,mode) :

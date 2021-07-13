@@ -80,7 +80,7 @@ def emailpass_qrcode(mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "emailpass/offer/" + id 
-        red.setex(id, OFFER_DELAY, value=session['email'])
+        red.set(id,  session['email'])
         logging.info('url = %s', url)
         return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
    

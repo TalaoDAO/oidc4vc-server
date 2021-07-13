@@ -25,7 +25,7 @@ import uuid
 
 PRESENTATION_DELAY = timedelta(seconds= 10*60)
 
-red = redis.Redis()
+red = redis.StrictRedis()
 
 def init_app(app, mode) :
 # Centralized route for login
@@ -298,7 +298,7 @@ def wallet_presentation(stream_id, mode):
             'domain' : 'example.com'
             }
         challenge = str(uuid.uuid1())
-        red.setex(stream_id, PRESENTATION_DELAY, value=challenge)
+        red(stream_id,  challenge)
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
             "query": [{
