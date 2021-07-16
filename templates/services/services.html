@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='material-icons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Article-Cards.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='carousel.css') }}">
+
+  <style type="text/css">
+    body { background: rgba(11,69,128,0.93); important; } /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
+ </style>
+
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+      {% include 'guest_nav_bar2.html' %}
+
+          <div class="container-fluid justify-content-center">
+            <form class="d-flex">
+              <div class="input-group rounded">
+                <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+                <span class="input-group-text border-0" id="search-addon"> <i class="fas fa-search"></i> </span>
+              </div> 
+            </form>
+          </div>
+
+        <p  class="m-1 mt-2 text-center text-white">Companies & organizations</p>
+
+      <!-- debut de row de issuers--><div class="row my-3 mx-1">
+        <div style="height:350px; overflow:auto; overflow-x: hidden;"> 
+
+
+        <div class="row m-1">
+        <div class="col-4">
+          <div class="card shadow">
+            <img class="card-img-top" src="/static/img/talao_icon.png" >
+          </div>
+          <div class="text-center text-white">Talao</div>
+        </div>
+
+        <div class="col-8">
+          <div class="row">
+            <div class="col-6"> 
+              <div class="card shadow text-white bg-success h-100">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Register</h5>
+                </div>
+              </div>
+            </div>
+            <div class="col-6"> 
+              <div class="card shadow h-100 text-white bg-success">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Sign-In</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row my-1">
+            <div class="col-6 "> 
+              <div class="card shadow h-100 text-white bg-secondary">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Get your skill certificate</h5>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 "> 
+              <div class="card shadow h-100 text-white bg-secondary">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Get your professional experience certificate</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row my-1">
+            <div class="col-6"> 
+              <div class="card shadow h-100 text-white bg-secondary">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Get your certificate of employment</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="row m-1 mt-5">
+        <div class="col-4">
+          <div class="card shadow">
+            <img class="card-img-top" src="/static/img/expering_icon.jpeg" >
+          </div>
+          <div class="text-center text-white">Expering</div>
+
+        </div>
+
+        <div class="col-8">
+          <div class="row">
+            <div class="col-6"> 
+              <div class="card shadow text-white bg-success h-100">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">
+                  Register</h5>
+                </div>
+              </div>
+            </div>
+            <div class="col-6"> 
+              <div class="card shadow h-100 text-white bg-success">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Sign-In</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row my-1">
+            <div class="col-6 "> 
+              <div class="card shadow h-100 text-white bg-success">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Propose your resume</h5>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 "> 
+              <div class="card shadow h-100 text-white bg-secondary">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Get your professional experience certificate</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row my-1">
+            <div class="col-6"> 
+              <div class="card shadow h-100 text-white bg-secondary">
+                <div class="">
+                  <h5 style="font-size:3vw;" class="m-1">Get your certificate of employment</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      </div>
+      <!-- fin de row de issuers--></div>
+
+    
+
+        <div id="carouselExampleControls" class="carousel slide" data-interval="5000" data-ride="carousel">
+
+          <p  class="m-0 text-center text-white">Get the standard credentials</p>
+          
+          <div class="carousel-inner">
+
+            <div class="carousel-item active">
+              <div class="row my-3 mx-1">
+                <div class="col-4"> 
+                  <div class="card shadow bg-secondary text-white text-center">                        
+                          <i class="far fa-2x fa-address-card"></i>
+                          <p style="font-size:3vw;" class="m-1">Identity Card</p>
+                  </div>
+                </div>
+                <div class="col-4"> 
+                  <div class="card shadow text-center text-white bg-secondary">                        
+                          <i class="far fa-2x fa-envelope"></i>
+                          <p style="font-size:3vw;" class="m-1">Email Pass</p>
+                  </div>
+                </div>
+              
+                <div class="col-4"> 
+                  <div class="card shadow text-center text-white bg-secondary">
+                    <i class="fas fa-2x fa-phone"></i>
+                      <p style="font-size:3vw;" class="m-1">Phone Pass</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+           
+            <div class="carousel-item ">
+              <div class="row my-3 mx-1">
+                <div class="col-4"> 
+                  <div class="card shadow text-center text-white bg-secondary">                        
+                          <i class="far fa-2x fa-address-card"></i>
+                          <p style="font-size:3vw;" class="m-1">Identity Pass</p>
+                  </div>
+                </div>
+
+                <div class="col-4"> 
+                  <div class="card shadow text-center text-white bg-secondary">                        
+                          <i class="far fa-2x fa-envelope"></i>
+                          <p style="font-size:3vw;" class="m-1">Identity Pass</p>
+                  </div>
+                </div>
+
+                <div class="col-4"> 
+                  <div class="card shadow text-center text-white bg-secondary">
+                    <i class="far fa-2x fa-phone"></i>
+                      <p style="font-size:3vw;" class="m-1">Phone Pass</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+    {% include 'user_footer2.html' %}
+
+  <script>function goBack() {window.history.back();}</script>
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

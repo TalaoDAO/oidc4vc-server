@@ -9,13 +9,13 @@
       <div id="content">
       {% include 'guest_nav_bar.html' %}
         <div class="text-center">       
-          <div id="id_text" class="m-5">{{_('Scan the QRCode bellow with your Credible wallet')}}</div>
+          <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.<br><br>Present an Email Pass to go forward.')}}</div>
           <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class="w-20 h-20"></div>
           <div id="id_loading" class="m-5"></div>
           <div id="id_spinner" class="m-5"></div>
           </div>
             <div class="text-center m-5">
-              <button id="id_button" class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
+              <button id="id_button" class="btn btn-primary btn-sm" type="button" onclick="goBack()">{{_('Back')}}</button>
             </div>
           </div>
         </div>
@@ -32,20 +32,12 @@
 var source = new EventSource('/register/stream');
 source.onmessage = function (event) {
     const result = JSON.parse(event.data)
-    if (result.did == 'registered'){
-      window.location.href="/register/error";
+    if (result.id == '{{id}}' & result.data == 'ok'){
+      window.location.href='/register/credible/user?id=' + '{{id}}';
       }
     else {
-      document.getElementById("id_text").innerHTML = "";
-      document.getElementById("id_qrcode").innerHTML = "";
-      document.getElementById("id_button").style.visibility = "hidden";
-      const loading_message = '{{_("Installing your portfolio...")}}'
-      document.getElementById("id_loading").innerHTML = '<div class="col-lg-4 offset-lg-4"><div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">\
-                                                            <div class="card-body p-0"><div class="col">\
-                                                            <div  class="p-5"><div class="text-center"><h4 class="text-dark mb-4">' + loading_message + '</h4>\
-                                                            </div><div class="spinner-border"></div></div></div></div></div>' 
-      window.location.href="/register/create_for_credible?did=" + result.did;
-      }
+      window.location.href="/register/error?message=" + result.data;
+      } 
     }; 
 
 

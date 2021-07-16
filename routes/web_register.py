@@ -21,7 +21,9 @@ from components import sms, directory, ns, company, privatekey
 from signaturesuite import vc_signature
 
 red = redis.StrictRedis()
+PRESENTATION_DELAY = timedelta(seconds= 10*60)
 
+DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 
 CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
@@ -32,23 +34,18 @@ def init_app(app, mode) :
 	app.add_url_rule('/register/user',  view_func=register_user, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/company',  view_func=register_company, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/password',  view_func=register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/register/qrcode',  view_func=register_qrcode, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/register/credible/user',  view_func=register_credible_user, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+
 	app.add_url_rule('/register/code', view_func=register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/post_code', view_func=register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
-	app.add_url_rule('/register/credible_endpoint', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode})
+	app.add_url_rule('/register/credible_endpoint/<id>', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode})
 	app.add_url_rule('/register/stream',  view_func=register_stream)
 	app.add_url_rule('/register/error',  view_func=register_error)
 	app.add_url_rule('/register/create_for_credible',  view_func=register_create_for_credible, methods = ['POST', 'GET'], defaults={'mode': mode})
 
 	return
 
-
-def check_login() :
-	""" check if the user is correctly logged. This function is called everytime a user function is called """
-	if not session.get('workspace_contract') and not session.get('username') :
-		logging.warning('Check login failed, call abort 403')
-		abort(403)
-	else :
-		return True
 
 
 def register_company(mode) :
@@ -138,9 +135,6 @@ def register_identity(mode) :
 		session['server'] = mode.server
 		return render_template("/register/register_identity.html")
 	if request.method == 'POST' :
-		if request.form['did'] == "credible" :
-			url = mode.server + "register/credible_endpoint"
-			return render_template("/register/register_credible_qrcode.html", url=url)
 		if request.form['did'] == "own" :
 			session['did'] = request.form['own_did']
 			if session['did'].split(':')[1]  == 'tz' :
@@ -157,52 +151,6 @@ def register_identity(mode) :
 		else :
 			session['did'] = request.form['did_selected']
 		return redirect (mode.server + 'register/password')
-
-
-
-def register_credible_endpoint(mode):
-    credential = {
-    "@context": ["https://www.w3.org/2018/credentials/v1"],
-        "id": "",
-        "type": ["VerifiableCredential"],
-        "issuer": "",
-        "issuanceDate": "",
-        "credentialSubject" : {}
-	}
-    if request.method == 'GET':   
-        return jsonify({
-            "type": "CredentialOffer",
-            "credentialPreview": credential,
-			"expires" : (datetime.now() + timedelta(seconds= 10*60)).replace(microsecond=0).isoformat() + "Z"
-        	})
-    elif request.method == 'POST':
-        if ns.get_workspace_contract_from_did(request.form['subject_id'], mode) :
-            data = json.dumps({ "did" : 'registered'})
-            red.publish('register_credible', data)
-            return jsonify('registered')
-        pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-        credential["issuer"] = 'did:web:talao.co'
-        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
-        credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        credential['credentialSubject']['id'] = request.form['subject_id']
-        signed_credential = vc_signature.sign(credential, pvk, 'did:web:talao.co')
-        data = json.dumps({ "did" : request.form['subject_id']})
-        red.publish('register_credible', data)
-        return Response(signed_credential, content_type = 'application/ld+json')
-
-
-# event push to browser
-def register_stream():
-    def event_stream():
-        pubsub = red.pubsub()
-        pubsub.subscribe('register_credible')
-        for message in pubsub.listen():
-            if message['type']=='message':
-                yield 'data: %s\n\n' % message['data'].decode()
-    headers = { "Content-Type" : "text/event-stream",
-                "Cache-Control" : "no-cache",
-                "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), headers=headers)
 
 
 # route /register/password/
@@ -272,33 +220,120 @@ def register_code(mode) :
 		flash(message, 'warning')
 		return render_template("/register/register_code.html")
 
-def register_create_for_credible(mode) :
-	if not createidentity.create_user(session['username'],
-										session['email'],
-										mode,
-										did=request.args['did'],
-										firstname=session['firstname'],
-										lastname=session['lastname'],
-										phone=session['phone'],
-										password='identity')[2] :
-		logging.error('createidentity failed')
-		flash(_('Transaction failed.'), 'warning')
-		return render_template("/register/user_register.html" )
-	directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
-	# success exit
-	return render_template("/register/end_of_registration.html", username=session['username'])
-
-
-def register_error() :
-	message = _("This Identity is already registered")
-	return render_template("/register/registration_error.html", message=message)
-
 
 # route register/post_code
 def register_post_code(mode) :
+	if request.form.get('wallet') == 'ok' :
+		return redirect (mode.server + 'login/VerifiablePresentationRequest')
 	try :
 		username = session['username']
 		session.clear()
 		return redirect (mode.server + 'login?username=' + username)
 	except :
 		return redirect (mode.server + 'login')
+
+
+##############################################################################
+
+
+def register_qrcode(mode) :
+	if request.method == 'GET' :
+		id = str(uuid.uuid1())
+		url = mode.server + 'register/credible_endpoint/' + id
+		return render_template("/register/register_credible_qrcode.html", url=url, id=id)
+
+
+def register_credible_endpoint(id,mode):
+    if request.method == 'GET':  
+        challenge = str(uuid.uuid1())
+        did_auth_request = {
+            "type": "VerifiablePresentationRequest",
+            "query": [{"type": 'DIDAuth'}],
+            "challenge": challenge,
+            "domain" : mode.server}    
+        return jsonify(did_auth_request)
+    if request.method == 'POST':
+        presentation = json.loads(request.form['presentation'])
+        print('presentation = ',presentation)
+        # FIXME pb de version et voir comment on gere le challenge
+        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
+        # FIXME challenge = presentation['proof']['challenge']
+        # FIXME domain = presentation['proof']['domain']
+        try :
+            email = presentation['verifiableCredential']['credentialSubject']['email']   
+        except :
+            data = json.dumps({ "id" : id, "data" : 'wrong_vc'})
+            red.publish('register_credible', data)
+            return jsonify('wrong_vc')
+        if ns.get_workspace_contract_from_did(presentation['holder'], mode) :
+            data = json.dumps({ "id" : id, "data" : 'already_registered'})
+            red.publish('register_credible', data)
+            return jsonify('already_registered')
+        session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
+        red.setex(id,PRESENTATION_DELAY, session_data )
+        data = json.dumps({ "id" : id, "data" : 'ok'})
+        red.publish('register_credible', data)
+        return jsonify('ok')
+
+
+def register_credible_user(mode) :
+	if request.method == 'GET' :
+		id = request.args['id']
+		session_data = json.loads(red.get(id).decode())
+		session['did'] = session_data['did']
+		session['email'] = session_data['email']
+		session['is_active'] = True
+		return render_template("/register/register_credible_user.html")
+	if request.method == 'POST' :
+		session['firstname'] = request.form['firstname']
+		session['lastname'] = request.form['lastname']
+		session['username'] = ns.build_username(session['firstname'], session['lastname'], mode)
+		session['search_directory'] = request.form.get('CGU')
+		message = ""
+		if not request.form.get('CGU') :
+			message = _('Accept the service conditions to move next step.')
+		if message :
+			flash(message, 'warning')
+			return render_template("/register/register_credible_user.html",
+									firstname=session['firstname'],
+									lastname=session['lastname'],
+									email=session['email'])
+		return redirect (mode.server + 'register/create_for_credible')
+
+# event push to browser
+def register_stream():
+    def event_stream():
+        pubsub = red.pubsub()
+        pubsub.subscribe('register_credible')
+        for message in pubsub.listen():
+            if message['type']=='message':
+                yield 'data: %s\n\n' % message['data'].decode()
+    headers = { "Content-Type" : "text/event-stream",
+                "Cache-Control" : "no-cache",
+                "X-Accel-Buffering" : "no"}
+    return Response(event_stream(), headers=headers)
+
+
+def register_create_for_credible(mode) :
+	if not createidentity.create_user(session['username'],
+										session['email'],
+										mode,
+										did=session['did'],
+										firstname=session['firstname'],
+										lastname=session['lastname'],
+										password='identity')[2] :
+		logging.error('createidentity failed')
+		flash(_('Transaction failed.'), 'warning')
+		return render_template("/register/user_register.html" )
+	directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
+	# success exit
+	return render_template("/register/end_of_registration.html", username=session['username'], wallet="ok")
+
+
+def register_error() :
+	if request.args['message'] == 'already_registered' :
+		message = _("This identity is already registered.")
+	elif request.args['message'] == 'wrong_vc' :
+		message = _("This credential is not accepted.")
+	return render_template("/register/registration_error.html", message=message)
+

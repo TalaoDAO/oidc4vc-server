@@ -32,7 +32,7 @@
                                         </div>
                                         <form class="user" action="/register" method="GET">
                                             
-                                            <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Back')}}</button>
+                                            <button onclick="goBack()" class="btn btn-primary btn-block text-white border rounded btn-user" type="button">{{_('Back')}}</button>
                                         </form>
                                         <div class="text-center"><a class="small" href="/login">{{_('Sign-In')}}</a></div>
 
@@ -45,6 +45,7 @@
             </div>
             {% include 'user_footer.html' %}
         </div>
+        <script>function goBack() {  window.history.back();}</script>
         <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
         <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
         <script src="{{ url_for('static', filename='theme.js') }}"></script>

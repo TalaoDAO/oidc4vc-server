@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='material-icons.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Article-Cards.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='carousel.css') }}">
+
+  <style type="text/css">
+    body { background: rgb(156, 156, 196) !important; } /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
+ </style>
+
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+  <div class="d-flex flex-column" id="content-wrapper">
+  <div id="content">
+
+
+    <div id="carouselExampleControls" class="carousel slide" data-interval="1000" data-ride="carousel">
+      <div class="carousel-inner">
+
+        <div class="carousel-item active">
+
+          <div class="row m-4">
+            <div class="col-2 offset-2">
+              <div class="card shadow my-5">
+              <div class="card-header py-3">
+                <h2>Identity Pass</h2>
+              </div>
+                <div class="card-body text-center">
+                    <p class="card-text">An Identity Pass is an authentication pass</br></p>        
+                </div>  
+                <a href="http://192.168.0.20:3000/login" class="btn btn-primary stretched-link">Go somewhere</a>
+                <div class="card-footer text-center">
+
+                  <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">By <a href="https://talao.co" >Talao</a></p> 
+                </div>
+                </div>
+            </div>
+        
+            <div class="col-2">
+                <div class="card shadow my-5">
+                <img class="card-img-top" src="/static/img/logo.png" >
+                  <div class="card-body text-center">
+                      <h5 class="card-title">{{givenName}} {{familyName}}</h5>
+                      <p class="card-text">company<br>jobTitle<br>email</br></p>        
+                  </div>  
+                  <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">{{_('This credential has been issued with the ')}} <a href="https://talao.co" >Talao issuer platform</a></p> 
+                </div>
+              </div>
+          </div>
+
+        </div>
+      
+      </div>
+      <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+
+
+    <div id="carouselExampleControls_2" class="carousel slide" data-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+
+          <div class="row m-4">
+            <div class="col-2 offset-2">
+              <div class="card shadow my-5">
+              <img class="card-img-top" src="/static/img/logo.png" >
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{givenName}} {{familyName}}</h5>
+                    <p class="card-text">company<br>jobTitle<br>email</br></p>        
+                </div>  
+                <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">{{_('This credential has been issued with the ')}} <a href="https://talao.co" >Talao issuer platform</a></p> 
+              </div>
+            </div>
+        
+            <div class="col-2">
+                <div class="card shadow my-5">
+                <img class="card-img-top" src="/static/img/logo.png" >
+                  <div class="card-body text-center">
+                      <h5 class="card-title">{{givenName}} {{familyName}}</h5>
+                      <p class="card-text">company<br>jobTitle<br>email</br></p>        
+                  </div>  
+                  <p class="text-dark text-center m-0" style="font-family: Arimo, sans-serif;font-size: 14px;">{{_('This credential has been issued with the ')}} <a href="https://talao.co" >Talao issuer platform</a></p> 
+                </div>
+              </div>
+          </div>
+
+        </div>
+
+        
+      </div>
+      <a class="carousel-control-prev" href="#carouselExampleControls_2" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#carouselExampleControls_2" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+
+
+
+
+  </div></div></div>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

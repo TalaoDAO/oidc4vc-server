@@ -97,7 +97,9 @@ def user(mode) :
 	
 	if not session.get('uploaded') :
 		logging.info('start first instanciation')
-
+		# for wallet direct access
+		issuer_username = None
+		vc= None
 		if session.get('username') :
 			logging.info('Identity set up from username')
 			data_from_username = ns.get_data_from_username(session['username'], mode)
@@ -118,10 +120,14 @@ def user(mode) :
 				logging.warning('JWE did not decrypt')
 				return render_template('./login/login_password.html')
 			payload = json.loads(data['payload'].decode('utf-8'))
+			print('payload = ', payload)
 			if payload['exp'] < datetime.timestamp(datetime.now()) :
 				flash (_('Delay expired !'), 'danger')
 				return render_template('./login/login_password.html')
+			# wallet direct call to issuer explore
 			did = payload['did']
+			issuer_username = payload['issuer_username']
+			vc = payload['vc']
 			session['workspace_contract'] = ns.get_workspace_contract_from_did(did, mode)
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		else :
@@ -208,10 +214,29 @@ def user(mode) :
 							'rsa_filename': session['rsa_filename'],
 							'profil_title' : session['profil_title'],
 							'clipboard' : clipboard}
-
+		
 		# Dashboard start for employees
 		if session['role'] in ['issuer', 'reviewer'] :
 			return redirect (mode.server + 'company/dashboard/')
+
+		# wallet direct call redirect 
+		if issuer_username :
+			if vc == 'professionalexperienceassessment':
+				issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
+				session['issuer_explore'] = Identity(issuer_workspace_contract, mode, authenticated=True,).__dict__.copy()
+				session['issuer_username'] = issuer_username
+				session['issuer_explore']['method'] = ns.get_method(session['issuer_explore']['workspace_contract'], mode)
+				session['credential_issuer_username'] = issuer_username
+				session['reference'] = 'wallet'
+				# get reviewers available
+				select = ""
+				reviewer = company.Employee(issuer_username, mode) 
+				reviewer_list = reviewer.get_list('reviewer', 'all')
+				for reviewer in reviewer_list :
+					session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
+				return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
+			if not vc :
+				return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)	
 
 		# Homepage start for Talent
 		#if user.type == 'person' :

@@ -5,7 +5,6 @@ interace wsgi https://www.bortzmeyer.org/wsgi.html
 request : http://blog.luisrei.com/articles/flaskrest.html
 
 """
-import os
 from flask import session, flash, jsonify
 from flask import request, redirect, render_template,abort, Response
 from flask_babel import _
@@ -16,8 +15,6 @@ from Crypto.PublicKey import RSA
 from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 import logging
-logging.basicConfig(level=logging.INFO)
-# dependances
 from components import Talao_message, ns, sms, privatekey
 import redis
 import didkit
@@ -25,10 +22,10 @@ import uuid
 
 PRESENTATION_DELAY = timedelta(seconds= 10*60)
 
+logging.basicConfig(level=logging.INFO)
 red = redis.StrictRedis()
 
 def init_app(app, mode) :
-# Centralized route for login
 	app.add_url_rule('/logout',  view_func=logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/unregistered',  view_func=unregistered, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_username',  view_func=forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -38,9 +35,9 @@ def init_app(app, mode) :
 	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
-	app.add_url_rule('/credible/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
-	app.add_url_rule('/credible/wallet_presentation/<stream_id>',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
-	app.add_url_rule('/stream',  view_func=stream)
+	app.add_url_rule('/login/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
+	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
+	app.add_url_rule('/login/stream',  view_func=stream)
 	app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
 	return
 
@@ -185,7 +182,7 @@ def unregistered(mode) :
 	if request.method == 'GET' :
 		return render_template('login/unregistered.html', message=request.args.get('message', ""))
 	if request.method == 'POST' :
-		return redirect (mode.server + 'login')
+		return redirect (mode.server + 'login/VerifiablePresentationRequest')
 
 
 def forgot_username(mode) :
@@ -267,52 +264,44 @@ def forgot_password_token(mode) :
 		del session['username_password']
 		return render_template('login/login_password.html')
 
+##############################################################################################""
+
 
 def VerifiablePresentationRequest_qrcode(mode):
     stream_id = str(uuid.uuid1())
-    url = mode.server + "credible/wallet_presentation/" + stream_id
-    return render_template('login/login_qr.html', url=url, stream_id=stream_id)
+    session_data = json.dumps({'challenge' : str(uuid.uuid1()),
+							'issuer_username' : request.args.get('issuer_username'),
+							'vc' : request.args.get('vc')
+							})
+    red.setex(stream_id,  PRESENTATION_DELAY, session_data)
+    if request.args.get('vc') == 'certificateofemployment' : 
+        message = 'Get a Certificate of Employment'
+    elif request.args.get('vc') == 'professionalexperienceassessment' :
+        message = 'Request a Professional Experience Assessment'
+    else :
+        message = 'Sign-In'
+    return render_template('login/login_qr.html',
+							url=mode.server + 'login/wallet_presentation/' + stream_id,
+							stream_id=stream_id, message=message)
 
 
 def wallet_presentation(stream_id, mode):
+    session_data = json.loads(red.get(stream_id).decode())
     if request.method == 'GET':
-        credential_query = [
-	        {'reason' : 'Sign in',
-	        'example' : [
-		    {'@context' : [
-			    'https://www.w3.org/2018/credentials/v1'
-		    ],
-		    'type' : 'VerifiableCredential'
-            }]}
-            ]
-        
-        query = [
-		{'type' : 'QueryByExample',
-		'credentialQuery' : credential_query}
-        ]
-
-        myrequest = {
-            "type": "VerifiablePresentationRequest",
-            'query' :  query,
-            'challenge' : '99612b24-63d9-11ea-b99f-4f66f3e4f81a',
-            'domain' : 'example.com'
-            }
-        challenge = str(uuid.uuid1())
-        red(stream_id,  challenge)
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
             "query": [{
-            "type": 'DIDAuth'
-            }],
-            "challenge": challenge,
+            	"type": 'DIDAuth'
+            	}],
+            "challenge": session_data['challenge'],
             "domain" : mode.server
             }
         return jsonify(did_auth_request)
-    
+
     elif request.method == 'POST' :
         presentation = json.loads(request.form['presentation'])
-        print('presentation = ', presentation)
-		# FIXME no check done, pb de version et voir comment on gere le challenge
+        #print('presentation = ', presentation)
+		# FIXME pb de version et voir comment on gere le challenge
         print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
         try : # FIXME
             issuer = presentation['verifiableCredential']['issuer']
@@ -321,29 +310,31 @@ def wallet_presentation(stream_id, mode):
             domain = presentation['proof']['domain']
         except :
             logging.warning('to be fixed, presentation is not correct')
-            data = json.dumps({"stream_id" : stream_id, "message" : _("Presentation check failed.")})
-            red.publish('credible', data)
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _("Presentation check failed.")})
+            red.publish('credible', event_data)
             return jsonify("ko")
-        if domain != mode.server or challenge != red.get(stream_id).decode() :
+        if domain != mode.server or challenge != session_data['challenge'] :
             logging.warning('challenge failed')
-            data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
-            red.publish('credible', data)
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
+            red.publish('credible', event_data)
             return jsonify("ko")
-        if issuer not in ['did:web:talao.co', 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'] :
+        elif issuer not in ['did:web:talao.co', 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'] :
             logging.warning('unknown issuer')
-            data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
-            red.publish('credible', data)
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
+            red.publish('credible', event_data)
             return jsonify("ko")
-        if not ns.get_workspace_contract_from_did(holder, mode) :
+        elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             logging.warning('unknown account')
-            data = json.dumps({"stream_id" : stream_id, "message" : _('Your Digital Identity has not been registered yet.')})
-            red.publish('credible', data)
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _('Your Digital Identity has not been registered yet.')})
+            red.publish('credible', event_data)
             return jsonify("ko")
         else :
-            # we pass a JWE token to user agent to sign in
-            data = json.dumps({"stream_id" : stream_id, "message" : "ok", "token" : generate_token(holder, mode)})
-            red.publish('credible', data)
+            # we transfer a JWE token to user agent to sign in
+            event_data = json.dumps({"stream_id" : stream_id,
+			                        "message" : "ok",
+			                        "token" : generate_token(holder, session_data['issuer_username'], session_data['vc'],mode)})
+            red.publish('credible', event_data)
             return jsonify("ok")
 
 
@@ -353,7 +344,6 @@ def event_stream():
     for message in pubsub.listen():
         if message['type']=='message':
             yield 'data: %s\n\n' % message['data'].decode()
-
 
 def stream():
     headers = { "Content-Type" : "text/event-stream",
@@ -367,7 +357,7 @@ def callback() :
     return render_template('credible/credential.html', credential=credential)
 
 
-def generate_token(did,mode) :
+def generate_token(did,issuer_username, vc, mode) :
     private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
     RSA_KEY = RSA.import_key(private_rsa_key)
     public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
@@ -375,6 +365,6 @@ def generate_token(did,mode) :
     # build JWE
     jwe = JsonWebEncryption()
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
-    json_string = json.dumps({'did' : did, 'exp' : expired})
+    json_string = json.dumps({'did' : did, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
     payload = bytes(json_string, 'utf-8')
     return jwe.serialize_compact(header, payload, public_rsa_key).decode()

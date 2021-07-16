@@ -40,10 +40,10 @@ logging.info('end of init environment')
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass
+from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_ssi_directory
 
 # Release
-VERSION = "0.14.2"
+VERSION = "0.15.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -108,7 +108,6 @@ def user_language(mode) :
 # Centralized @route for register identity
 web_register.init_app(app, mode)
 
-
 # Centralized @route for Email Pass
 web_emailpass.init_app(app, mode)
 
@@ -133,6 +132,9 @@ web_certificate.init_app(app, mode)
 # Centralized route for the Blockchain CV
 web_external.init_app(app, mode)
 
+# Centralized route for services
+web_ssi_directory.init_app(app, mode)
+
 # Centralized route fo Issuer explore
 web_issuer_explore.init_app(app, mode)
 
@@ -146,10 +148,8 @@ app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET'
 app.add_url_rule('/user/import_identity_key/',  view_func=web_data_user.import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
 app.add_url_rule('/user/import_identity_key2/',  view_func=web_data_user.import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
 
-
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
-
 
 # Centralized route for main features
 

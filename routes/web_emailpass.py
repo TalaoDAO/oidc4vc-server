@@ -14,7 +14,7 @@ import secrets
 OFFER_DELAY = timedelta(seconds= 10*60)
 DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 
-red = redis.Redis()
+red = redis.StrictRedis()
 
 def init_app(app,mode) :
     app.add_url_rule('/emailpass',  view_func=emailpass, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -80,7 +80,7 @@ def emailpass_qrcode(mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "emailpass/offer/" + id 
-        red.set(id,  session['email'])
+        red.setex(id,  OFFER_DELAY, session['email'])
         logging.info('url = %s', url)
         return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
    

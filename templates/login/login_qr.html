@@ -39,7 +39,7 @@
     <div id="content_desktop" class="d-none d-sm-block">    
         {% include 'guest_nav_bar.html' %}
               <div class="text-center">  
-                <div id="id_text" class="m-5">{{_('Scan the QRCode bellow with your wallet Credible')}}</div>  
+                <div id="id_text" class="m-5"><strong>{{message}}</strong><br>{{_('<br> Scan the QRCode bellow with your  smartphone wallet. <br>You can present any credential.')}}</div>  
                 <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class=" w-30 h-30"></div>
                 <div id="id_loading" class="m-5"></div>
                 <div id="id_spinner" class="m-5"></div>
@@ -47,7 +47,7 @@
               
               <div id="id_button" class="m-5">
                 <div class="col text-center">
-                <a href="/user/" ><button class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button></a>
+                <button onclick="goBack()" class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button>
               </div>
 
               
@@ -64,7 +64,7 @@
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
       <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script>
-        var source = new EventSource('/stream');
+        var source = new EventSource('/login/stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
         if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
