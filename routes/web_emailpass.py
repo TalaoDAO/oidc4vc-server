@@ -102,11 +102,13 @@ def emailpass_offer(id, mode):
     credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"
     if request.method == 'GET': 
         # make an offer  
-        return jsonify({
+        credential_offer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z"
-        })
+        }
+        logging.info("credential offer = %s", json.dumps(credential_offer, indent=4))
+        return jsonify(credential_offer)
     elif request.method == 'POST':    
         # sign credential
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
@@ -134,9 +136,9 @@ def emailpass_offer(id, mode):
 
 def emailpass_end() :
     if request.args['followup'] == "success" :
-        message = _('Great ! you have now an Email Pass')
+        message = _('Great ! you have now an Email Pass.')
     elif request.args['followup'] == 'expired' :
-        message = _('Delay expired')
+        message = _('Delay expired.')
     return render_template('emailpass/emailpass_end.html', message=message)
 
 

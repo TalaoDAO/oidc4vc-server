@@ -221,13 +221,13 @@ def user(mode) :
 
 		# wallet direct call redirect 
 		if issuer_username :
-			if vc == 'professionalexperienceassessment':
-				issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
-				session['issuer_explore'] = Identity(issuer_workspace_contract, mode, authenticated=True,).__dict__.copy()
-				session['issuer_username'] = issuer_username
-				session['issuer_explore']['method'] = ns.get_method(session['issuer_explore']['workspace_contract'], mode)
-				session['credential_issuer_username'] = issuer_username
-				session['reference'] = 'wallet'
+			issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
+			session['issuer_explore'] = Identity(issuer_workspace_contract, mode, authenticated=True,).__dict__.copy()
+			session['issuer_username'] = issuer_username
+			session['issuer_explore']['method'] = ns.get_method(session['issuer_explore']['workspace_contract'], mode)
+			session['credential_issuer_username'] = issuer_username
+			session['reference'] = 'wallet'
+			if vc == 'professionalexperienceassessment':	
 				# get reviewers available
 				select = ""
 				reviewer = company.Employee(issuer_username, mode) 
@@ -235,6 +235,10 @@ def user(mode) :
 				for reviewer in reviewer_list :
 					session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 				return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
+			if vc == 'certificateofemployment' :
+				return render_template('./issuer/request_work_credential.html', **session['menu'])
+			if vc == 'identitypass' :
+				return redirect (mode.server + 'user/request_pass_credential')
 			if not vc :
 				return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)	
 

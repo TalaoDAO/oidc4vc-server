@@ -18,45 +18,11 @@
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content" >
 
-      <nav class="navbar navbar-expand-lg navbar-light background: rgba(11,69,128,0.93);">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
       
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active"><a class="nav-link text-white" href="#">Home <span class="sr-only">(current)</span></a></li>
-            <li class="nav-item"><a class="nav-link text-white" href="#">Jobs</a></li>
-            <li class="nav-item"><a class="nav-link text-white" href="#">Games</a></li>
-            <li class="nav-item"><a class="nav-link text-white" href="#">Crypto</a></li>
-            <li class="nav-item"><a class="nav-link text-white" href="#">Sports</a></li>
-
-          </ul>
-         
-          <ul class="navbar-nav mr-auto">
-          <li class="nav-item"> <h1  class="my-2 text-center text-white">Services directory for SSI wallets (demo)</h5></h1></li>
-        
-          <li class="nav-item dropdown no-arrow h-100" role="presentation">
-            <div class="nav-item dropdown show">
-              <a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#">
-                <span  style="color: white;"><i class="fas fa-globe fa-sm fa-fw mr-2 text-gray-400"></i></span>
-              </a>
-              <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
-                <a class="dropdown-item" role="presentation" href="/language?lang=en"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>English</a>
-                <a class="dropdown-item" role="presentation" href="/language?lang=fr"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>Français</a>
-              </div>
-          </li> 
-          </ul> 
-          <a class="nav-link text-white" href="#">Download</a>
-          <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
-        </div>
-      </nav>
 
 
-     
+        {% include 'services/directory_nav_bar.html' %}
+
 
 
           <!--------------------------------------------------------------------->
@@ -91,6 +57,8 @@
                     <li class="list-group-item"><a href="#" class="card-link">We are hiring ! send us your resume</a></li>
                     <li class="list-group-item"><a href='{{server}}login/VerifiablePresentationRequest?issuer_username=talao&vc=certificateofemployment' class="card-link text-secondary">HR services : Get a Certificate of Employment</a></li>
                     <li class="list-group-item"><a href='{{server}}login/VerifiablePresentationRequest?issuer_username=talao&vc=professionalexperienceassessment' class="card-link text-secondary">HR services : Request a Professional Experience Assessment</a></li>
+                    <li class="list-group-item"><a href='{{server}}login/VerifiablePresentationRequest?issuer_username=talao&vc=identitypass' class="card-link text-secondary">HR services : Request an Identity Pass</a></li>
+
                   </ul>
                 </div>
                 </div>
@@ -219,100 +187,10 @@
 
 
 
-  <h4  class="my-5 text-center text-white">Best of...</h4>
-
-  <div id="carouselExampleIndicators" class="carousel slide" data-interval="10000" data-ride="carousel">
-    
-    <ol class="carousel-indicators">
-      <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-      <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    </ol>
-
-    <div class="carousel-inner">
-      
-      <div class="carousel-item active">
-        <div class="row mb-5 justify-content-center">
-          <div class="col-1">
-              <a href = '{{server}}login/VerifiablePresentationRequest' ><img class="img-thumbnail" src="static/img/talao_icon.png" alt="..."></a>
-          </div>
-          <div class="col-1">
-               <img class="img-thumbnail" src="static/img/expering_icon.jpeg"  alt="...">
-          </div>
-
-          <div class="col-1">
-            <img class="img-thumbnail" src="static/directory/seloger.png"  alt="...">
-       </div>
-
-       <div class="col-1">
-        <img class="img-thumbnail" src="static/directory/temple.png"  alt="...">
-   </div>
-
-       <div class="col-1">
-        <img class="img-thumbnail" src="static/directory/sygnum.png"  alt="...">
-   </div>
-          <div class="col-1">
-                  <img class="img-thumbnail" src="static/directory/tezotopia.jpeg" alt="...">
-          </div>
-
-          <div class="col-1">
-            <img class="img-thumbnail" src="static/directory/spruce.jpeg" alt="...">
-    </div>
-
-          <div class="col-1">
-            <img class="img-thumbnail" src="static/directory/indeed.png" alt="...">
-    </div>
-        </div>      
-      </div>
-
-      <div class="carousel-item ">
-        <div class="row mb-5 justify-content-center">
-          
-          <div class="col-1">
-            <img class="img-thumbnail" src="static/directory/thanos.jpeg" alt="...">
-        </div>
-
-        <div class="col-1">
-          <img class="img-thumbnail" src="static/directory/avisclient.png" alt="...">
-      </div>
-          <div class="col-1">
-               <img class="img-thumbnail" src="static/directory/crypto.png"  alt="...">
-          </div>
-
-          <div class="col-1">
-            <img class="img-thumbnail" src="static/directory/padi.png"  alt="...">
-       </div>
-
-          <div class="col-1">
-               <img class="img-thumbnail" src="static/directory/cryptodeleguate.jpeg"  alt="...">
-          </div>
-
-          <div class="col-1">
-            <img class="img-thumbnail" src="static/directory/nomadics.jpeg"  alt="...">
-       </div>
-
-          <div class="col-1">
-                  <img class="img-thumbnail" src="static/directory/tezoscommons.png" alt="...">
-          </div>
-        </div>      
-      </div>
-
-    </div>
-
-
-    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>
-
-</div>
-
        
       </div>
     </div>
+    <br><br>
     {% include 'user_footer.html' %}
 
   <script>function goBack() {window.history.back();}</script>

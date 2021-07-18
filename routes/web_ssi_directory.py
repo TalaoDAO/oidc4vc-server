@@ -12,6 +12,5 @@ def init_app(app, mode) :
 	return
 
 def ssi_directory(mode) :
-	if mode.myenv == "aws" :
-		abort(403)
+	
 	return render_template('services/services_xl.html', server=mode.server)

@@ -40,10 +40,10 @@ logging.info('end of init environment')
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_ssi_directory
+from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass
 
 # Release
-VERSION = "0.15.0"
+VERSION = "0.16.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -131,9 +131,6 @@ web_certificate.init_app(app, mode)
 
 # Centralized route for the Blockchain CV
 web_external.init_app(app, mode)
-
-# Centralized route for services
-web_ssi_directory.init_app(app, mode)
 
 # Centralized route fo Issuer explore
 web_issuer_explore.init_app(app, mode)

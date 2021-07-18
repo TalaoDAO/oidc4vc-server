@@ -3,7 +3,7 @@
         "https://www.w3.org/2018/credentials/v1",
         {
             "IdentityPass" : {
-                "@id": "https://github.com/TalaoDAO/context/blob/main/vocab.md#identitypass",
+                "@id": "https://github.com/TalaoDAO/context#identitypass",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
