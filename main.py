@@ -40,7 +40,7 @@ logging.info('end of init environment')
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass
+from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_credible_test
 
 # Release
 VERSION = "0.16.0"
@@ -113,6 +113,10 @@ web_emailpass.init_app(app, mode)
 
 # Centralized @route for Credible interaction
 web_credible.init_app(app, mode)
+
+
+# Centralized @route for Credible interaction
+web_credible_test.init_app(app, mode)
 
 # Centralized route for login 
 web_login.init_app(app,  mode)
@@ -239,65 +243,48 @@ def well_known_did (mode) :
     https://identity.foundation/.well-known/resources/did-configuration/#LinkedDomains
     """
     address = mode.owner_talao 
-
-    # RSA
-    pvk = privatekey.get_key(address, 'rsa_key', mode)
-    key = jwk.JWK.from_pem(pvk.encode())
-    rsa_public = key.export_public(as_dict=True)
-    del rsa_public['kid']
     # secp256k
     pvk = privatekey.get_key(address, 'private_key', mode)
     key = helpers.ethereum_to_jwk256k(pvk)
     ec_public = json.loads(key)
     del ec_public['d']
     del ec_public['alg']
-    DidDocument = did_doc(ec_public, rsa_public)
+    DidDocument = did_doc(ec_public)
     return jsonify(DidDocument)
 
-def did_doc(ec_public, rsa_public) :
-    """
-        Build the DID document
-    """
+def did_doc(ec_public) :
     return  {
-                "@context":
-                    [
-                        "https://www.w3.org/ns/did/v1"
-                    ],
+                "@context": [
+                    "https://www.w3.org/ns/did/v1",
+                    {
+                        "@id": "https://w3id.org/security#publicKeyJwk",
+                        "@type": "@json"
+                    }
+                ],
                 "id": "did:web:talao.co",
-                "verificationMethod":
-                    [
-                        {
+                "verificationMethod": [
+                    {
                         "id": "did:web:talao.co#key-1",
                         "controller" : "did:web:talao.co",
                         "type": "EcdsaSecp256k1VerificationKey2019",
                         "publicKeyJwk": ec_public
-                        },
-                        {
-                        "id": "did:web:talao.co#key-2",
-                        "controller" : "did:web:talao.co",
-                        "type": "RsaVerificationKey2018",
-                        "publicKeyJwk": rsa_public
-                        }
-                    ],
-                "authentication" :
-                    [
-                    "did:web:talao.co#key-1",
-                    "did:web:talao.co#key-2"
-                    ],
-                "assertionMethod" :
-                    [
-                    "did:web:talao.co#key-1",
-                    "did:web:talao.co#key-2"
-                    ],
-                "service":
-                    [
-                        {
+                    }    
+                ],
+                "authentication" : [
+                    "did:web:talao.co#key-1"
+                ],
+                "assertionMethod" : [
+                    "did:web:talao.co#key-1"
+                ],
+                "service": [
+                    {
                         "id": 'did:web:talao.co#domain-1',
                         "type" : 'LinkedDomains',
                         "serviceEndpoint": "https://talao.co"
-                        }
-                    ]
+                    }
+                ]
             }
+
 
 
 

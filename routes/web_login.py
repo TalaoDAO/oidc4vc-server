@@ -300,7 +300,7 @@ def wallet_presentation(stream_id, mode):
 
     elif request.method == 'POST' :
         presentation = json.loads(request.form['presentation'])
-        #print('presentation = ', presentation)
+        print('presentation = ', presentation)
 		# FIXME pb de version et voir comment on gere le challenge
         print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
         try : # FIXME
