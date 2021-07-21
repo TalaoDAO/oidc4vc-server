@@ -629,7 +629,7 @@ def issue_credential_workflow(mode) :
         # credential has been signed by issuer
         elif request.form.get('exit') == 'sign' :
             
-            # add signatuer Lines if needed
+            # add signature Lines if needed
             if json.loads(session['call'][5])['credentialSubject']['type'] == 'ProfessionalExperienceAssessment' :
                 manager_workspace_contract = ns.get_data_from_username(session['username'], mode)['identity_workspace_contract']
                 my_credential['credentialSubject']['signatureLines']['image'] = mode.ipfs_gateway + json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']

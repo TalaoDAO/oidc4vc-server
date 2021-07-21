@@ -689,20 +689,23 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# DID and DID document
-	DID = DID_Document = _("No DID available")
-	DID = ns.get_did(session['workspace_contract'], mode)
-	if not DID :
+	print('did list = ', ns.get_did_list(session['workspace_contract'],mode))
+	did = ns.get_did(session['workspace_contract'], mode)
+	print('did = ', did)
+	if not did :
 		logging.warning('No DID available in local database')
-	if DID.split(':')[1]  in ['tz', 'ethr', 'key'] :
-		# did:tz has no driver for Universal resolver
-		DID_Document = json.dumps(json.loads(didkit.resolveDID(DID,'{}')), indent=4)
-	else  :
-		resolver = 'https://resolver.identity.foundation/'
-		r = requests.get( resolver + DID)
-		if r.status_code == 200 :
-			DID_Document = json.dumps(r.json(), indent=4)
-		else :
-			logging.warning('DID Document resolution has been rejected by Universal Resolver.')
+		did = DID_Document = _("No DID available")
+	else :
+		if did.split(':')[1]  in ['tz', 'ethr', 'key'] :
+			# did:tz has no driver for Universal resolver
+			DID_Document = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+		else  :
+			resolver = 'https://resolver.identity.foundation/'
+			r = requests.get( resolver + did)
+			if r.status_code == 200 :
+				DID_Document = json.dumps(r.json(), indent=4)
+			else :
+				logging.warning('DID Document resolution has been rejected by Universal Resolver.')
 
 	# Repository data
 	role = session['role'] if session.get("role") else 'None'
@@ -710,7 +713,7 @@ def user_advanced(mode) :
 	my_advanced = """
 					<b>Portfolio smart contract</b> : """+ session['workspace_contract'] + """<br>
 					<b>Portfolio controller</b> : """+ session['address'] + """<br>
-					<b>DID</b> : """ + DID + """<br>
+					<b>DID</b> : """ + did + """<br>
 					<b>All DID attached</b> : """ + "<br>".join(ns.get_did_list(session['workspace_contract'], mode)) + """<br>
 					<hr>
 					<b>Role</b> : """ + role + """<br>
@@ -772,7 +775,7 @@ def user_advanced(mode) :
 							partner=my_partner,
 							issuer=my_issuer,
 							did_doc=DID_Document,
-							did=DID,
+							did=did,
 							api=my_api,
 							advanced=my_advanced)
 

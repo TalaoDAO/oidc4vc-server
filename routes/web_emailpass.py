@@ -12,7 +12,10 @@ from flask_babel import _
 import secrets
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_WEB = 'did:web:talao.cp'
+DID_ETR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID = DID_TZ
 
 red = redis.StrictRedis()
 
@@ -24,7 +27,6 @@ def init_app(app,mode) :
     app.add_url_rule('/emailpass/stream',  view_func=emailpass_stream, methods = ['GET', 'POST'])
     app.add_url_rule('/emailpass/end',  view_func=emailpass_end, methods = ['GET', 'POST'])
     return
-
 
 """
 Email Pass : credential offer for a VC with email only

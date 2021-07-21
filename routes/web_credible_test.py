@@ -28,11 +28,14 @@ def test_credentialOffer_qrcode() :
         for filename in dir_list :
             print('filename = ', filename)
             credential = json.loads(open(VC_PATH + filename, 'r').read())
+            print(credential["id"])
+            print(credential['credentialSubject'].get('type'))
             html_string += """
                     <p> filename : <a href='/credible_test/display?filename=""" + filename + """'>""" + filename + """</a></p>
                     <p> id : """ + credential["id"] + """</p>
                     <p>credentialSubject.type : """ + credential['credentialSubject'].get('type') + """ </p>
                     <p> issuer : """ + credential['issuer'] + """ </p>
+                    <p> issuanceDate : """ + credential['issuanceDate'] + """</p>
                     <form action="/credible_test/credentialOffer" method="POST" >
                     <input hidden name="filename" value='""" + filename + """'></input>
                     <button  type"submit" >QR code for Offer</button></form>
@@ -42,7 +45,7 @@ def test_credentialOffer_qrcode() :
         return render_template_string (html_string) 
     filename = request.form['filename']
     credential = json.loads(open(VC_PATH + filename, 'r').read())
-    url = SERVER + "credible/wallet_credential/" + credential['id']
+    url = SERVER + "credible_test/wallet_credential/" + credential['id']
     red.setex(credential['id'],OFFER_DELAY, filename)
     return render_template('credible_test/credential_qr.html', url=url, id=credential['id'])
 
@@ -65,6 +68,7 @@ def test_credential_display():
 
 def test_credentialOffer_endpoint(id):
     filename = red.get(id).decode()
+    print('filename = ', filename)
     credential = json.loads(open(VC_PATH + filename, 'r').read())
     if request.method == 'GET':   
         return jsonify({

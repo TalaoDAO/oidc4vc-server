@@ -147,11 +147,14 @@ def get_did_list(workspace_contract,mode) :
 	data = { "workspace_contract" : workspace_contract}
 	c.execute("SELECT did FROM resolver WHERE identity_workspace_contract = :workspace_contract", data)
 	did = c.fetchone()
+	print('did list dans ns =', did)
 	conn.close()
 	try :
 		return json.loads(did[0])
 	except :
 		return[]
+
+
 
 
 def get_method(workspace_contract, mode) :

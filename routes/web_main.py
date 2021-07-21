@@ -477,8 +477,9 @@ def select_identity (mode) :
     if request.method == 'POST' :
         ns.update_method(session['workspace_contract'], request.form['method'], mode)
         session['method'] = request.form['method']
-        if session['method'] == 'ethr' :
+        if session['method'] in ['ethr', 'tz'] :
             did = helpers.ethereum_pvk_to_DID(session['private_key_value'], session['method'])
+            ns.add_did(session['workspace_contract'], did, mode)
         else :
             did = request.form.get('web_did')
             if not did :
@@ -487,6 +488,7 @@ def select_identity (mode) :
             ns.add_did(session['workspace_contract'], did, mode)
         return redirect(mode.server + 'user/')
 
+# ["did:web:talao.co", "did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250"]
 
 # Tutorial
 #@app.route('/user/tutorial/', methods=['GET'])
