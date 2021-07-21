@@ -43,7 +43,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_credible_test
 
 # Release
-VERSION = "0.16.1"
+VERSION = "0.16.3"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
