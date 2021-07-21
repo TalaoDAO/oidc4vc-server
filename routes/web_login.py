@@ -21,6 +21,9 @@ import didkit
 import uuid
 
 PRESENTATION_DELAY = timedelta(seconds= 10*60)
+DID_WEB = 'did:web:talao.cp'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 logging.basicConfig(level=logging.INFO)
 red = redis.StrictRedis()
@@ -318,7 +321,7 @@ def wallet_presentation(stream_id, mode):
             event_data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
             red.publish('credible', event_data)
             return jsonify("ko")
-        elif issuer not in ['did:web:talao.co', 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'] :
+        elif issuer not in [DID_WEB, DID_ETHR, DID_TZ] :
             logging.warning('unknown issuer')
             event_data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
             red.publish('credible', event_data)
