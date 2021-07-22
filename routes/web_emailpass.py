@@ -118,7 +118,9 @@ def emailpass_offer(id, mode):
         signed_credential = vc_signature.sign(credential, pvk, DID)
         if not signed_credential :
             logging.error('credential signature failed')
-
+            data = json.dumps({"url_id" : id, "check" : "failed"})
+            red.publish('credible', data)
+            return jsonify({})
          # store signed credential on server
         try :
             filename = credential['id'] + '.jsonld'
@@ -127,12 +129,9 @@ def emailpass_offer(id, mode):
                 json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
         except :
             logging.error('signed credential not stored')
-        
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
         red.publish('credible', data)
-
-        # send signed credential to wallet
         return jsonify(signed_credential)
  
 

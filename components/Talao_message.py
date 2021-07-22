@@ -4,11 +4,12 @@ from email.header import Header
 from email.utils import formataddr
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
-from email.mime.image import MIMEImage
 from email import encoders
 import codecs
 import logging
 logging.basicConfig(level=logging.INFO)
+from flask_babel import  _
+
 import constante
 
 signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
@@ -70,7 +71,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 	# storing the subject
 	msg['Subject'] = 'Workspace Log : New Identity '
 	# string to store the body of the mail
-	body = "".join(['A new Talao workspace has been deployed\r\nUsername : ',
+	body = "".join([_('A new Talao workspace has been deployed\r\nUsername : '),
 					username,
 					'\r\n\r\nEmail : ',
 					email,
@@ -120,6 +121,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 # dict of HTML templates with commented formating needed
 HTML_templates = {'register' : 'templates/emails/register.html', # username
  				  'certificate_issued' : 'templates/emails/certificate_issued.html', # username
+				   'certificate_issued_fer' : 'templates/emails/certificate_issued_fr.html', # username
 				  'certificate_issued_issuer': 'templates/emails/certificate_issued_issuer.html', # username link
 				  'request_partnership': 'templates/emails/request_partnership.html', # username link
 				  'request_partnership_rejected': 'templates/emails/request_partnership_rejected.html', # name text
@@ -131,6 +133,7 @@ HTML_templates = {'register' : 'templates/emails/register.html', # username
 				  'job_offer': 'templates/emails/job_offer.html', # name, link, job
 				  'memo' : 'templates/emails/memo.html', # name , memo
 				  'code_auth' : 'templates/emails/code_auth.html', # code
+				  	'code_auth_fr' : 'templates/emails/code_auth_fr.html', # code
 				  'request_certificate' : 'templates/emails/request_certificate.html'} #name link
 
 def messageHTML(subject, to, HTML_key, format_dict, mode)  :
@@ -182,7 +185,6 @@ def messageHTML(subject, to, HTML_key, format_dict, mode)  :
 		return True
 	except:
 		logging.error('sending mail')
-		print('dans talao_message from = ', msg['from'], ' to = ', msg['to'])
 		s.quit()
 		return False
 	
@@ -305,6 +307,5 @@ def message_file(to, text, subject, filename, path, mode)  :
 		return True
 	except:
 		logging.error('sending mail')
-		print('dans talao_message from = ', msg['from'], ' to = ', msg['to'])
 		s.quit()
 		return False

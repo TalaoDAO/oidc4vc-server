@@ -39,7 +39,7 @@ def init_app(app, mode) :
 	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
 	app.add_url_rule('/login/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
-	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_presentation, methods = ['GET', 'POST'],  defaults={'mode' : mode})
+	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_endpoint, methods = ['GET', 'POST'],  defaults={'mode' : mode})
 	app.add_url_rule('/login/stream',  view_func=stream)
 	app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
 	return
@@ -60,13 +60,14 @@ def send_secret_code (username, code, mode) :
 	return : 'sms' or 'email' or None
 	"""
 	data = ns.get_data_from_username(username, mode)
+	code_auth = 'code_auth_fr' if session['language'] == 'fr' else 'code_auth'
 	if not data :
 		logging.error('cannot send secret code')
 		return None
 	if not data['phone'] :
 		try :
-			subject = 'Talao : Email authentification  '
-			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
+			subject = _('Talao : Email authentication  ')
+			Talao_message.messageHTML(subject, data['email'], code_auth, {'code' : code}, mode)
 			logging.info('code sent by email')
 			return 'email'
 		except :
@@ -77,9 +78,9 @@ def send_secret_code (username, code, mode) :
 		logging.info('code sent by sms')
 		return 'sms'
 	except :
-		subject = 'Talao : Email authentification  '
+		subject = _('Talao : Email authentication  ')
 		try :
-			Talao_message.messageHTML(subject, data['email'], 'code_auth', {'code' : code}, mode)
+			Talao_message.messageHTML(subject, data['email'], code_auth, {'code' : code}, mode)
 			logging.info('sms failed, code sent by email')
 			return 'email'
 		except :
@@ -92,6 +93,8 @@ def login(mode) :
 		language = session.get('language')
 		session.clear()
 		session['language'] = language
+		#if not language :
+		#	session['language'] = request.accept_languages.best_match(['fr', 'en'])
 		return render_template('./login/login_password.html', username=request.args.get('username', ''))
 
 	if request.method == 'POST' :
@@ -288,7 +291,7 @@ def VerifiablePresentationRequest_qrcode(mode):
 							stream_id=stream_id, message=message)
 
 
-def wallet_presentation(stream_id, mode):
+def wallet_endpoint(stream_id, mode):
     session_data = json.loads(red.get(stream_id).decode())
     if request.method == 'GET':
         did_auth_request = {

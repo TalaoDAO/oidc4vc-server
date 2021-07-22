@@ -14,7 +14,6 @@ import json
 from flask_babel import Babel, _, refresh
 from flask import Flask, redirect, jsonify, request, session, render_template
 from flask_session import Session
-from jwcrypto import jwk
 from datetime import timedelta
 from flask_cors import CORS
 from flask_qrcode import QRcode
@@ -43,7 +42,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_credible_test
 
 # Release
-VERSION = "0.16.4"
+VERSION = "0.16.5"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -140,14 +139,7 @@ web_external.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
 
 # Centralized route for user and data main view
-app.add_url_rule('/user/',  view_func=web_data_user.user, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/data/',  view_func=web_data_user.data, methods = ['GET'], defaults={'mode': mode})
-app.add_url_rule('/user/advanced/',  view_func=web_data_user.user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/user/account/',  view_func=web_data_user.user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/company/',  view_func=web_data_user.the_company, methods = ['GET', 'POST'])
-app.add_url_rule('/privacy/',  view_func=web_data_user.privacy, methods = ['GET', 'POST'])
-app.add_url_rule('/user/import_identity_key/',  view_func=web_data_user.import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/user/import_identity_key2/',  view_func=web_data_user.import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
+web_data_user.init_app(app,mode)
 
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})

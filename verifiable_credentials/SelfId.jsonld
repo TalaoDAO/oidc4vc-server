@@ -1,0 +1,16 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        { "additionalName" : "https://schema.org/additionalName",
+        "description" : "https://schema.org/description"
+            } ],
+    "id": "",
+    "type": ["VerifiableCredential"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "type" : "SelfId",
+        "name" : "moi",
+        "description" : ""
+    }
+}

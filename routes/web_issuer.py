@@ -637,7 +637,6 @@ def issue_credential_workflow(mode) :
                 pass
             elif json.loads(session['call'][5])['credentialSubject']['type'] != 'CertificatOfEmployment' :
                pass
-              
 
             # sign credential with company key
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
@@ -679,8 +678,9 @@ def issue_credential_workflow(mode) :
             # send an email to user
             #link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)
             link= mode.server
+            certificate_issued = 'certificate_issued_fr' if session['language'] == 'fr' else 'certificate_issued'
             try :
-                Talao_message.messageHTML(_('Your professional credential has been issued.'), subject['email'], 'certificate_issued', {'username': session['name'], 'link': link}, mode)
+                Talao_message.messageHTML(_('Your professional credential has been issued.'), subject['email'], certificate_issued, {'username': session['name'], 'link': link}, mode)
             except :
                 logging.error('email to subject failed')
             
@@ -692,14 +692,6 @@ def issue_credential_workflow(mode) :
                     json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
             except :
                 logging.error('signed credential not stored')
-
-            # send email to user with VC attached
-            """
-            signature = '\r\n\r\n\r\n\r\nThe Talao team.\r\nhttps://talao.io/'
-            text = "\r\nHello\r\nYou will find attached your professional credential signed by your issuer." + signature
-            if not Talao_message.message_file(subject['email'], text, "Your professional credential", [filename], path, mode) :
-                logging.error('email credential to subject failed')
-            """
 
         # credential has been reviewed
         elif request.form['exit'] == 'validate' :
@@ -720,7 +712,7 @@ def issue_credential_workflow(mode) :
             except :
                 logging.error('email error')
 
-            flash(_('Credential has been reviewed and validated.'), 'success')
+            flash(_('Credential has been reviewed.'), 'success')
 
         # all exits except delete and back
         del session['credential_id']

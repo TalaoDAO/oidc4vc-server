@@ -2,6 +2,10 @@ from flask import jsonify, request, render_template, session, redirect, flash, R
 import json
 import redis
 from datetime import timedelta, datetime
+from flask_babel import _
+
+import logging
+logging.basicConfig(level=logging.INFO)
 
 """ download credential to wallet
 those credential have been signed previously
@@ -26,7 +30,7 @@ def credentialOffer_qrcode(mode,id) :
     try :
         json.load(open('./signed_credentials/' + filename, 'r'))
     except :
-        flash('no credential available on server', 'warning')
+        flash(_('This credential is not available.'), 'warning')
         return redirect("/user")
     url = mode.server + "credible/wallet_credential/" + id
     return render_template('credible/credential_qr.html', url=url, id=id, **session['menu'])
@@ -37,7 +41,7 @@ def credential_display(id):
         filename = id + ".jsonld"
         credential = open('./signed_credentials/' + filename, 'r').read()
     else :
-        credential = "No credential available"
+        credential = _('No credential available.')
     return render_template('credible/credential.html', credential=credential)
 
 
@@ -52,9 +56,15 @@ def credentialOffer(id):
         })
     elif request.method == 'POST':
         # send event to client agent to go forward
-        data = json.dumps({'id' : id, 'check' : 'success'})
-        red.publish('credible', data)
-        return jsonify(credential)
+        if request.form.get('subject_id') !=  credential['credentialSubject']['id'] :
+            data = json.dumps({'id' : id, 'check' : 'incorrect subject'})
+            logging.warning('incorrect subject')
+            red.publish('credible', data)
+            return jsonify({})
+        else :
+            data = json.dumps({'id' : id, 'check' : 'success'})
+            red.publish('credible', data)
+            return jsonify(credential)
      
 
 # server event push 

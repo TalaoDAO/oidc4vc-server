@@ -2,7 +2,7 @@
 Identity init for users and companies
 """
 from flask import session, flash
-from flask import request, redirect, render_template, abort, flash
+from flask import request, redirect, render_template, abort, flash, Response
 import time
 import json
 from flask_babel import _
@@ -24,6 +24,18 @@ from signaturesuite import helpers
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
 
 
+def init_app(app, mode) :
+	app.add_url_rule('/user/',  view_func=user, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/data/',  view_func=data, methods = ['GET'], defaults={'mode': mode})
+	app.add_url_rule('/user/advanced/',  view_func=user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/user/account/',  view_func=user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/company/',  view_func=the_company, methods = ['GET', 'POST'])
+	app.add_url_rule('/text_file',  view_func=text_file, methods = ['GET'])
+	app.add_url_rule('/user/import_identity_key/',  view_func=import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/user/import_identity_key2/',  view_func=import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
+	return
+
+
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
 	if not session.get('workspace_contract') and not session.get('username') :
@@ -39,11 +51,13 @@ def the_company() :
 	return render_template('company.html')
 
 
-def privacy() :
-	"""# Privacy documentaion
-	#@app.route('/privacy')
-	"""
-	return render_template('privacy.html')
+def text_file() :
+	if request.args['file'] == 'privacy' :
+		content = open('privacy_en.txt', 'r').read() if session['language'] == 'en' else open('privacy_fr.txt', 'r').read()
+	elif request.args['file'] == 'terms_and_conditions' :
+		content = open('cgu_en.txt', 'r').read() if session['language'] == 'en' else open('cgu_fr.txt', 'r').read()
+	return Response(content, mimetype='text/plain')
+
 
 def import_identity_key(mode) :
 	if request.method == 'GET' :
@@ -93,7 +107,9 @@ def user(mode) :
 	#check_login()
 
 	if request.args.get('flash_message') == "credential_offered" :
-		flash('Your credential has been saved in your wallet', 'success')
+		flash(_('Your credential has been saved in your wallet'), 'success')
+	if request.args.get('flash_message') == "credential_refused" :
+		flash(_('Your cannot download this credential'), 'warning')
 	
 	if not session.get('uploaded') :
 		logging.info('start first instanciation')
