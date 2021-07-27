@@ -9,7 +9,6 @@ import didkit
 from flask_babel import _
 from datetime import  datetime, timedelta
 import uuid
-import redis
 
 import requests
 from datetime import timedelta, datetime
@@ -19,7 +18,6 @@ logging.basicConfig(level=logging.INFO)
 from factory import createidentity, createcompany
 from components import sms, directory, ns, company
 
-red = redis.StrictRedis()
 PRESENTATION_DELAY = timedelta(seconds= 10*60)
 
 DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
@@ -27,19 +25,19 @@ DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']
 
 
-def init_app(app, mode) :
+def init_app(app, red, mode) :
 	app.add_url_rule('/register/identity',  view_func= register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register',  view_func=register_user, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
 	app.add_url_rule('/register/user',  view_func=register_user, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/company',  view_func=register_company, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/password',  view_func=register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/qrcode',  view_func=register_qrcode, methods = [ 'GET', 'POST'], defaults={'mode': mode})
-	app.add_url_rule('/register/credible/user',  view_func=register_credible_user, methods = [ 'GET', 'POST'], defaults={'mode': mode})
+	app.add_url_rule('/register/credible/user',  view_func=register_credible_user, methods = [ 'GET', 'POST'], defaults={'mode': mode, 'red' : red})
 
 	app.add_url_rule('/register/code', view_func=register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/post_code', view_func=register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
-	app.add_url_rule('/register/credible_endpoint/<id>', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode})
-	app.add_url_rule('/register/stream',  view_func=register_stream)
+	app.add_url_rule('/register/credible_endpoint/<id>', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode, 'red' : red})
+	app.add_url_rule('/register/stream',  view_func=register_stream,  defaults={'red' : red})
 	app.add_url_rule('/register/error',  view_func=register_error)
 	app.add_url_rule('/register/create_for_credible',  view_func=register_create_for_credible, methods = ['POST', 'GET'], defaults={'mode': mode})
 
@@ -242,7 +240,7 @@ def register_qrcode(mode) :
 		return render_template("/register/register_credible_qrcode.html", url=url, id=id)
 
 
-def register_credible_endpoint(id,mode):
+def register_credible_endpoint(id,red, mode):
     if request.method == 'GET':  
         challenge = str(uuid.uuid1())
         did_auth_request = {
@@ -253,9 +251,7 @@ def register_credible_endpoint(id,mode):
         return jsonify(did_auth_request)
     if request.method == 'POST':
         presentation = json.loads(request.form['presentation'])
-        print('presentation = ',presentation)
         # FIXME pb de version et voir comment on gere le challenge
-        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
         # FIXME challenge = presentation['proof']['challenge']
         # FIXME domain = presentation['proof']['domain']
         try :
@@ -269,13 +265,13 @@ def register_credible_endpoint(id,mode):
             red.publish('register_credible', data)
             return jsonify('already_registered')
         session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
-        #red.setex(id,PRESENTATION_DELAY, session_data )
+        red.setex(id,PRESENTATION_DELAY, session_data )
         data = json.dumps({ "id" : id, "data" : 'ok'})
         red.publish('register_credible', data)
         return jsonify('ok')
 
 
-def register_credible_user(mode) :
+def register_credible_user(red, mode) :
 	if request.method == 'GET' :
 		id = request.args['id']
 		session_data = json.loads(red.get(id).decode())
@@ -300,8 +296,8 @@ def register_credible_user(mode) :
 		return redirect (mode.server + 'register/create_for_credible')
 
 # event push to browser
-def register_stream():
-    def event_stream():
+def register_stream(red):
+    def event_stream(red):
         pubsub = red.pubsub()
         pubsub.subscribe('register_credible')
         for message in pubsub.listen():
@@ -310,7 +306,7 @@ def register_stream():
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), headers=headers)
+    return Response(event_stream(red), headers=headers)
 
 
 def register_create_for_credible(mode) :

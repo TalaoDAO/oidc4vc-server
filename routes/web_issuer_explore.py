@@ -1,12 +1,9 @@
 """ Issuer explore is used to display Ientity when search """
 
-from os import path
 import time
 from flask import session, flash
 from flask import request, redirect, render_template,abort
 from flask_babel import _
-import requests
-import shutil
 import logging
 logging.basicConfig(level=logging.INFO)
 

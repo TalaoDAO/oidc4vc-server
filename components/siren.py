@@ -1,5 +1,4 @@
 import requests
-import json
 
 def company(SIREN):
     r = requests.get('https://entreprise.data.gouv.fr/api/sirene/v2/siren/'+SIREN+'')

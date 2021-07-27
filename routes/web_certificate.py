@@ -2,8 +2,6 @@
 from os import path
 from flask import session, flash, jsonify
 from flask import request, redirect, render_template,Response
-from Crypto.Protocol.KDF import PBKDF2
-from Crypto.Hash import SHA512
 from flask_babel import _
 
 
@@ -15,9 +13,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # dependances
-from protocol import Document, Identity, Claim, ownersToContracts
+from protocol import Document, Identity
 from components import ns
-from signaturesuite import helpers
 
 SALT = 'repository_salt'
 

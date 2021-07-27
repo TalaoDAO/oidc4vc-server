@@ -16,7 +16,7 @@ def init_app(app, mode) :
 
 def ssi_directory() :
 	card = str()
-	if not session['language'] :
+	if not session.get('language') :
 		session['language'] = request.accept_languages.best_match(LANGUAGES)
 	for filename in os.listdir(PATH) :
 		provider = json.load(open(PATH + filename, 'r'))

@@ -16,7 +16,6 @@ from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 import logging
 from components import Talao_message, ns, sms, privatekey
-import redis
 import didkit
 import uuid
 
@@ -26,9 +25,8 @@ DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 logging.basicConfig(level=logging.INFO)
-red = redis.StrictRedis()
 
-def init_app(app, mode) :
+def init_app(app, red, mode) :
 	app.add_url_rule('/logout',  view_func=logout, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/unregistered',  view_func=unregistered, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_username',  view_func=forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -38,9 +36,9 @@ def init_app(app, mode) :
 	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
-	app.add_url_rule('/login/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
-	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_endpoint, methods = ['GET', 'POST'],  defaults={'mode' : mode})
-	app.add_url_rule('/login/stream',  view_func=stream)
+	app.add_url_rule('/login/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
+	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_endpoint, methods = ['GET', 'POST'],  defaults={'mode' : mode, 'red' :red})
+	app.add_url_rule('/login/stream',  view_func=stream, defaults={ 'red' : red})
 	app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
 	return
 
@@ -273,13 +271,13 @@ def forgot_password_token(mode) :
 ##############################################################################################""
 
 
-def VerifiablePresentationRequest_qrcode(mode):
+def VerifiablePresentationRequest_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
     session_data = json.dumps({'challenge' : str(uuid.uuid1()),
 							'issuer_username' : request.args.get('issuer_username'),
 							'vc' : request.args.get('vc')
 							})
-    #red.setex(stream_id,  PRESENTATION_DELAY, session_data)
+    red.setex(stream_id,  PRESENTATION_DELAY, session_data)
     if request.args.get('vc') == 'certificateofemployment' : 
         message = 'Get a Certificate of Employment'
     elif request.args.get('vc') == 'professionalexperienceassessment' :
@@ -291,7 +289,7 @@ def VerifiablePresentationRequest_qrcode(mode):
 							stream_id=stream_id, message=message)
 
 
-def wallet_endpoint(stream_id, mode):
+def wallet_endpoint(stream_id, red, mode):
     session_data = json.loads(red.get(stream_id).decode())
     if request.method == 'GET':
         did_auth_request = {
@@ -306,9 +304,7 @@ def wallet_endpoint(stream_id, mode):
 
     elif request.method == 'POST' :
         presentation = json.loads(request.form['presentation'])
-        print('presentation = ', presentation)
 		# FIXME pb de version et voir comment on gere le challenge
-        print('verifify presentation,  = ', didkit.verifyPresentation(request.form['presentation'], "{}"))
         try : # FIXME
             issuer = presentation['verifiableCredential']['issuer']
             holder = presentation['holder']
@@ -344,18 +340,18 @@ def wallet_endpoint(stream_id, mode):
             return jsonify("ok")
 
 
-def event_stream():
+def event_stream(red):
     pubsub = red.pubsub()
     pubsub.subscribe('credible')
     for message in pubsub.listen():
         if message['type']=='message':
             yield 'data: %s\n\n' % message['data'].decode()
 
-def stream():
+def stream(red):
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), headers=headers)
+    return Response(event_stream(red), headers=headers)
 
 
 def callback() :

@@ -1,6 +1,5 @@
 from flask import jsonify, request, render_template, session, redirect, flash, Response
 import json
-import redis
 from datetime import timedelta, datetime
 from flask_babel import _
 
@@ -14,14 +13,12 @@ those credential have been signed previously
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-red = redis.StrictRedis()
 
-
-def init_app(app,mode) :
+def init_app(app,red, mode) :
     app.add_url_rule('/credible/credentialOffer/<id>',  view_func=credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/credible/credential/<id>',  view_func=credential_display, methods = ['GET', 'POST'])
-    app.add_url_rule('/credible/wallet_credential/<id>',  view_func=credentialOffer, methods = ['GET', 'POST'])
-    app.add_url_rule('/save_stream',  view_func=save_stream, methods = ['GET', 'POST'])
+    app.add_url_rule('/credible/wallet_credential/<id>',  view_func=credentialOffer, methods = ['GET', 'POST'], defaults={'red' : red})
+    app.add_url_rule('/save_stream',  view_func=save_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     return
 
 
@@ -45,7 +42,7 @@ def credential_display(id):
     return render_template('credible/credential.html', credential=credential)
 
 
-def credentialOffer(id):
+def credentialOffer(id, red):
     filename = id + ".jsonld"
     credential = json.load(open('./signed_credentials/' + filename, 'r'))
     if request.method == 'GET':   
@@ -68,7 +65,7 @@ def credentialOffer(id):
      
 
 # server event push 
-def event_stream():
+def event_stream(red):
     pubsub = red.pubsub()
     pubsub.subscribe('credible')
     for message in pubsub.listen():
@@ -76,8 +73,8 @@ def event_stream():
             yield 'data: %s\n\n' % message['data'].decode()
 
 
-def save_stream():
+def save_stream(red):
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), headers=headers)
+    return Response(event_stream(red), headers=headers)

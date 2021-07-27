@@ -1,7 +1,6 @@
 from datetime import datetime
 from protocol import ownersToContracts, read_profil
 import constante
-from web3.contract import ContractEvent
 
 
 def history_html(workspace_contract, days, mode) :

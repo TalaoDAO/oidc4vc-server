@@ -1,4 +1,3 @@
-from web3.contract import ContractEvent
 import os
 from eth_account._utils.signing import extract_chain_id, to_standard_v
 from eth_account._utils.transactions import ALLOWED_TRANSACTION_KEYS

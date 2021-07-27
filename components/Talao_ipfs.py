@@ -7,7 +7,6 @@ Strategy : one first tries to load from local ipfs server (timeout = 5s) then on
 """
 import requests
 import json
-import shutil
 import logging
 logging.basicConfig(level=logging.INFO)
 

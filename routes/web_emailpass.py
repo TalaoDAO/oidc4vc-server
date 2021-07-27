@@ -1,7 +1,6 @@
 from flask import jsonify, request, render_template, session, redirect, flash, Response
 import json
 from components import privatekey, Talao_message
-import redis
 import uuid
 import secrets
 from datetime import timedelta, datetime
@@ -17,14 +16,13 @@ DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID = DID_TZ
 
-red = redis.StrictRedis()
 
-def init_app(app,mode) :
+def init_app(app,red, mode) :
     app.add_url_rule('/emailpass',  view_func=emailpass, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/emailpass/qrcode',  view_func=emailpass_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/emailpass/offer/<id>',  view_func=emailpass_offer, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/emailpass/qrcode',  view_func=emailpass_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
+    app.add_url_rule('/emailpass/offer/<id>',  view_func=emailpass_offer, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
     app.add_url_rule('/emailpass/authentication',  view_func=emailpass_authentication, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/emailpass/stream',  view_func=emailpass_stream, methods = ['GET', 'POST'])
+    app.add_url_rule('/emailpass/stream',  view_func=emailpass_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/emailpass/end',  view_func=emailpass_end, methods = ['GET', 'POST'])
     return
 
@@ -78,16 +76,16 @@ def emailpass_authentication(mode) :
     	    return render_template("emailpass/emailpass_authentication.html")
 
 
-def emailpass_qrcode(mode) :
+def emailpass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "emailpass/offer/" + id 
-        #red.setex(id,  OFFER_DELAY, session['email'])
+        red.setex(id,  OFFER_DELAY, session['email'])
         logging.info('url = %s', url)
         return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
    
 
-def emailpass_offer(id, mode):
+def emailpass_offer(id, red, mode):
     """ Endpoint for wallet
     """
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
@@ -144,7 +142,7 @@ def emailpass_end() :
 
 
 # server event push 
-def event_stream():
+def event_stream(red):
     pubsub = red.pubsub()
     pubsub.subscribe('credible')
     for message in pubsub.listen():
@@ -152,8 +150,8 @@ def event_stream():
             yield 'data: %s\n\n' % message['data'].decode()
 
 
-def emailpass_stream():
+def emailpass_stream(red):
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), headers=headers)
+    return Response(event_stream(red), headers=headers)

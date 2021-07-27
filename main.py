@@ -17,6 +17,7 @@ from flask_session import Session
 from datetime import timedelta
 from flask_cors import CORS
 from flask_qrcode import QRcode
+import redis
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +37,8 @@ logging.info('start to init environment')
 mode = environment.currentMode(mychain,myenv)
 logging.info('end of init environment')
 
+red = redis.StrictRedis()
+
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
@@ -52,7 +55,7 @@ app.jinja_env.globals['Chain'] = mychain.capitalize()
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
 app.config['SESSION_TYPE'] = 'redis' # Redis server side session
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=180) # cookie lifetime
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=360) # cookie lifetime
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
@@ -103,19 +106,19 @@ def user_language(mode) :
 
 
 # Centralized @route for register identity
-web_register.init_app(app, mode)
+web_register.init_app(app, red, mode)
 
 # Centralized @route for Email Pass
-web_emailpass.init_app(app, mode)
+web_emailpass.init_app(app, red, mode)
 
 # Centralized @route for Credible interaction
-web_credible.init_app(app, mode)
+web_credible.init_app(app, red, mode)
 
-# Centralized @route for Credible interaction
+# Centralized @route for Credible test
 web_credible_test.init_app(app, mode)
 
 # Centralized route for login 
-web_login.init_app(app,  mode)
+web_login.init_app(app, red,  mode)
 
 # Centralized @route for HRID solution
 web_hrid.init_app(app, mode)
@@ -132,7 +135,7 @@ web_certificate.init_app(app, mode)
 # Centralized route for the Blockchain CV
 web_external.init_app(app, mode)
 
-# Centralized route for the Blockchain CV
+# Centralized route for directory
 web_directory.init_app(app, mode)
 
 # Centralized route fo Issuer explore

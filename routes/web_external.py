@@ -1,4 +1,3 @@
-from os import path
 from flask import request, render_template,abort
 import time
 import logging
