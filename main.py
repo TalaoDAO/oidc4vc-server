@@ -37,7 +37,8 @@ logging.info('start to init environment')
 mode = environment.currentMode(mychain,myenv)
 logging.info('end of init environment')
 
-red = redis.StrictRedis()
+#red = redis.StrictRedis()
+red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory

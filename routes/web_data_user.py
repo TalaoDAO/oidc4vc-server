@@ -125,7 +125,6 @@ def user(mode) :
 			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		elif request.form.get('token') :
 			logging.info('Identity set up from token')
-			print("token = ",request.form.get('token'))
 			token = request.form.get('token')
 			key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
 			jwe = JsonWebEncryption()
@@ -136,7 +135,6 @@ def user(mode) :
 				logging.warning('JWE did not decrypt')
 				return render_template('./login/login_password.html')
 			payload = json.loads(data['payload'].decode('utf-8'))
-			print('payload = ', payload)
 			if payload['exp'] < datetime.timestamp(datetime.now()) :
 				flash (_('Delay expired !'), 'danger')
 				return render_template('./login/login_password.html')
@@ -463,7 +461,6 @@ def user(mode) :
 						json.dump(credential.__dict__, outfile, indent=4, ensure_ascii=False)	
 					credential_id = credential.id
 				except :
-					print('certificat rejeté = ', certificate)
 					cert_html = """<hr>
 					<b>#</b> : """ + str(counter) + "<br>"
 					id = ""
@@ -705,9 +702,7 @@ def user_advanced(mode) :
 			my_access = my_access + access_html + """<br>"""
 
 	# DID and DID document
-	print('did list = ', ns.get_did_list(session['workspace_contract'],mode))
 	did = ns.get_did(session['workspace_contract'], mode)
-	print('did = ', did)
 	if not did :
 		logging.warning('No DID available in local database')
 		did = DID_Document = _("No DID available")
