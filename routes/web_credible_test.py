@@ -45,7 +45,7 @@ def test_credentialOffer_qrcode() :
     filename = request.form['filename']
     credential = json.loads(open(VC_PATH + filename, 'r').read())
     url = SERVER + "credible_test/wallet_credential/" + credential['id']
-    red.setex(credential['id'],OFFER_DELAY, filename)
+    #red.setex(credential['id'],OFFER_DELAY, filename)
     return render_template('credible_test/credential_qr.html', url=url, id=credential['id'])
 
 

@@ -269,7 +269,7 @@ def register_credible_endpoint(id,mode):
             red.publish('register_credible', data)
             return jsonify('already_registered')
         session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
-        red.setex(id,PRESENTATION_DELAY, session_data )
+        #red.setex(id,PRESENTATION_DELAY, session_data )
         data = json.dumps({ "id" : id, "data" : 'ok'})
         red.publish('register_credible', data)
         return jsonify('ok')
