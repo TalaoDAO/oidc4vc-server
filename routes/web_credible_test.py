@@ -26,7 +26,6 @@ def test_credentialOffer_qrcode() :
         dir_list = os.listdir(VC_PATH)
         html_string = str()  
         for filename in dir_list :
-            print('filename = ', filename)
             credential = json.loads(open(VC_PATH + filename, 'r').read())
             print(credential["id"])
             print(credential['credentialSubject'].get('type'))

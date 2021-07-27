@@ -1,0 +1,54 @@
+        {
+            "name" : "Talao",
+            "website" : "https://talao.io",
+            "image" : "static/img/talao_icon.png",
+            "description" : [ 
+                {"@value": "Talao provides verifiable credentials issuance services for companies and public services.", "@language": "en"},
+                {"@value": "Talao propose des services d'émission d'attestations au format des Identités Numériques.", "@language": "fr"}
+            ],
+            "requirements" : [
+                {"@value": "For registration an Identity Pass is required.", "@language": "en"},
+                {"@value": "Pour créer un compte , un passe Email est nécessaire.", "@language": "fr"}
+            ],
+            "services" : [
+                { 
+                    "link" : "https://talao.co/login",
+                    "description" : [
+                        {
+                        "@value": "Sign-In",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Se connecter",
+                        "@language": "fr"
+                        }
+                    ]
+                },
+                { 
+                    "link" : "https://talao.co/register",
+                    "description" : [
+                        {
+                        "@value": "Register",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Créer un compte",
+                        "@language": "fr"
+                        }
+                    ]
+                },
+                { 
+                    "link" : "https://talao.co/hiring",
+                    "description" : [
+                        {
+                        "@value": "We are hiring !, send us your resume",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Nous recrutons !, envoyez nous votre CV.",
+                        "@language": "fr"
+                        }
+                    ]
+                }
+            ]   
+        }

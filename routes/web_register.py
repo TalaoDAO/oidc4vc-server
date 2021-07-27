@@ -17,8 +17,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 from factory import createidentity, createcompany
-from components import sms, directory, ns, company, privatekey
-from signaturesuite import vc_signature
+from components import sms, directory, ns, company
 
 red = redis.StrictRedis()
 PRESENTATION_DELAY = timedelta(seconds= 10*60)

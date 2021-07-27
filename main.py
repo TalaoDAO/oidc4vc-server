@@ -37,7 +37,7 @@ mode = environment.currentMode(mychain,myenv)
 logging.info('end of init environment')
 
 # Centralized  routes : modules in ./routes
-from routes import web_register, web_create_company_cci, web_certificate, web_issuer
+from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
 from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_credible_test
 
@@ -84,13 +84,11 @@ def get_locale():
 
 """
 https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-i18n-and-l10n
-
 pybabel extract -F babel.cfg -o messages.pot .
 pybabel update -i messages.pot -d translations -l fr
 pybabel compile -d translations
 
 """
-
 
 @app.route('/test', methods=['GET', 'POST'])
 def test() :
@@ -133,6 +131,9 @@ web_certificate.init_app(app, mode)
 
 # Centralized route for the Blockchain CV
 web_external.init_app(app, mode)
+
+# Centralized route for the Blockchain CV
+web_directory.init_app(app, mode)
 
 # Centralized route fo Issuer explore
 web_issuer_explore.init_app(app, mode)
@@ -243,6 +244,7 @@ def well_known_did (mode) :
     DidDocument = did_doc(ec_public)
     return jsonify(DidDocument)
 
+
 def did_doc(ec_public) :
     return  {
                 "@context": [
@@ -277,13 +279,8 @@ def did_doc(ec_public) :
             }
 
 
-
-
-
 # MAIN entry point for test
 if __name__ == '__main__':
-
     # info release
     logging.info('flask serveur init')
-
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test, threaded=True)

@@ -162,6 +162,7 @@ def translate_credentials() :
 		'end_of_work_txt' :_('Labour certificate'),
 		'hiring_txt' : _('Promise to hire letter')}
 
+
 #@app.route('/company/add_credential_supported/', methods=['GET', 'POST'])
 def add_credential_supported(mode) :
     check_login()
@@ -173,7 +174,6 @@ def add_credential_supported(mode) :
         for topic in CREDENTIAL_TOPIC :
             checkbox['box_' + topic] = "checked" if topic in credentials_supported else ""
         return render_template('add_credential_supported.html', **session['menu'], **checkbox, **credentials )
-
     if request.method == 'POST' :
         credentials_supported = list()
         for topic in  CREDENTIAL_TOPIC :
@@ -375,16 +375,15 @@ def report(mode):
         email = "thierry.thevenet@talao.io"
         subject = "Bug Report"
         messagetext = """Hello,
+        A bug has been reported by this identity: {link}
+        His email is : {email}
 
-A bug has been reported by this identity: {link}
-His email is : {email}
+        Description given by the user:
 
-Description given by the user:
-
-{description}
-""".format(link = session['menu']['clipboard'],
-           email = ns.get_data_from_username(session['username'], mode)['email'],
-           description = request.form['description'])
+        {description}
+        """.format(link = session['menu']['clipboard'],
+                    email = ns.get_data_from_username(session['username'], mode)['email'],
+                    description = request.form['description'])
         Talao_message.message(subject, email, messagetext, mode)
         flash(_('The bug has been reported ! Thank you for your help ! '), "success")
         return redirect(mode.server + 'user/')
@@ -392,10 +391,7 @@ Description given by the user:
 
 def select_identity (mode) :
     if request.method == 'GET' :
-
         """ Select Identity for companies only
-
-            On utilise uniquement did:web et did:ethr
         """
         # FIXME
         method = ns.get_method(session['workspace_contract'], mode)
@@ -463,13 +459,10 @@ def search(mode) :
 
 def issue_certificate(mode):
     """ main function to issue certificate wthout formal request and specific workflow
-
     FIXME signature management
-
     @app.route('/user/issue_certificate/', methods=['GET', 'POST'])
     """
     check_login()
-
     if not session['private_key'] :
         flash(_('We do not have your Private Key to issue a Certificate.'), 'warning')
         return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
@@ -503,39 +496,12 @@ def issue_certificate(mode):
 
 def issue_reference_credential(mode):
     """ issue a reference credential to company without review and no request
-    FIXME  rework the loading of credential
+    FIXME  rework the loading of credential and the credential data model (signatuer lines...)
     call within the "issuer_explore" context
     @app.route('/commpany/issue_reference_credential/', methods=['GET','POST'])
     The signature is the manager's signature except if the issuer is the company 
     """
     check_login()
-
-    # call from two factor checking function
-    if request.method == 'GET' :
-        if request.args.get('two_factor') == "True" :     # code is correct
-            workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
-
-            # sign credential
-            signed_credential = vc_signature.sign(session['unsigned_credential'], session['private_key_value'], session['unsigned_credential']['issuer'])
-            logging.info('credential signed')
-
-            # store signed credential on server
-            filename = session['unsigned_credential']['id'] + '_credential.jsonld'
-            path = "./signed_credentials/"
-            with open(path + filename, 'w') as outfile :
-                json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
-                logging.info('credential strored on server')
-
-            # upload to repository
-            ref = Document('certificate')
-            ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode, synchronous=False)
-            logging.info('transaction launched asynchronous')
-            flash(_('Credential is beeing issued.'), 'success')
-
-        else :   # fail to check code
-            logging.warning('incorrect code to issue experience certificate %s', request.args.get('two_factor'))
-        del session['unsigned_credential']
-        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
     # call from issue_reference_credential.html
     if request.method == 'POST' :
@@ -566,10 +532,25 @@ def issue_reference_credential(mode):
         unsigned_credential[ "credentialSubject"]["companyName"] = session['name']
         unsigned_credential[ "credentialSubject"]["managerName"] = "Director"
         unsigned_credential[ "credentialSubject"]["managerSignature"] = session['signature']
-        session['unsigned_credential'] = unsigned_credential
+         
+        # sign credential
+        signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], unsigned_credential['issuer'])
+        logging.info('credential signed')
 
-        # call the two factor checking function :
-        return redirect(mode.server + 'user/two_factor/?callback=company/issue_reference_credential/')
+        # store signed credential on server
+        filename = unsigned_credential['id'] + '_credential.jsonld'
+        path = "./signed_credentials/"
+        with open(path + filename, 'w') as outfile :
+            json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
+            logging.info('credential strored on server')
+
+        # upload to repository
+        ref = Document('certificate')
+        ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode, synchronous=False)
+        logging.info('transaction launched asynchronous')
+        flash(_('Credential is beeing issued.'), 'success')
+
+        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
 
 def update_personal_settings(mode) :
@@ -846,7 +827,7 @@ def remove_experience(mode) :
 
 
 def create_company(mode) :
-    """ create company with two factor checking function
+    """ 
     @app.route('/user/create_company/', methods=['GET', 'POST'])
     """
     check_login()
