@@ -265,7 +265,7 @@ def register_credible_endpoint(id,red, mode):
             red.publish('register_credible', data)
             return jsonify('already_registered')
         session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
-        red.setex(id,PRESENTATION_DELAY, session_data )
+        red.set(id, session_data )
         data = json.dumps({ "id" : id, "data" : 'ok'})
         red.publish('register_credible', data)
         return jsonify('ok')
@@ -275,6 +275,7 @@ def register_credible_user(red, mode) :
 	if request.method == 'GET' :
 		id = request.args['id']
 		session_data = json.loads(red.get(id).decode())
+		red.delete(id)
 		session['did'] = session_data['did']
 		session['email'] = session_data['email']
 		session['is_active'] = True

@@ -277,7 +277,7 @@ def VerifiablePresentationRequest_qrcode(red, mode):
 							'issuer_username' : request.args.get('issuer_username'),
 							'vc' : request.args.get('vc')
 							})
-    red.setex(stream_id,  PRESENTATION_DELAY, session_data)
+    red.set(stream_id,  session_data)
     if request.args.get('vc') == 'certificateofemployment' : 
         message = 'Get a Certificate of Employment'
     elif request.args.get('vc') == 'professionalexperienceassessment' :
@@ -303,6 +303,7 @@ def wallet_endpoint(stream_id, red, mode):
         return jsonify(did_auth_request)
 
     elif request.method == 'POST' :
+        red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
 		# FIXME pb de version et voir comment on gere le challenge
         try : # FIXME

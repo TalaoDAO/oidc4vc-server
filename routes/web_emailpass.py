@@ -80,7 +80,7 @@ def emailpass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "emailpass/offer/" + id 
-        red.setex(id,  OFFER_DELAY, session['email'])
+        red.set(id,  session['email'])
         logging.info('url = %s', url)
         return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
    
@@ -109,7 +109,8 @@ def emailpass_offer(id, red, mode):
         }
         logging.info("credential offer = %s", json.dumps(credential_offer, indent=4))
         return jsonify(credential_offer)
-    elif request.method == 'POST':    
+    elif request.method == 'POST': 
+        red.delete(id)   
         # sign credential
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
