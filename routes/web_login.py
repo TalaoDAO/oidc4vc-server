@@ -16,10 +16,9 @@ from authlib.jose import JsonWebEncryption
 from urllib.parse import urlencode
 import logging
 from components import Talao_message, ns, sms, privatekey
-import didkit
 import uuid
 
-PRESENTATION_DELAY = timedelta(seconds= 10*60)
+#PRESENTATION_DELAY = timedelta(seconds= 10*60)
 DID_WEB = 'did:web:talao.cp'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'

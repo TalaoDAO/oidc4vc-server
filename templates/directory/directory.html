@@ -7,15 +7,18 @@
 
 <body id="page-top">
   <div id="wrapper">
-    <div class="d-flex flex-column" id="content-wrapper">
+    <div class="text-center d-none d-lg-block m-5">This webpage is only available for smartphone wallet</div> <!-- hide on screen smaller than lg-->
+    <div class="d-flex flex-column d-lg-none">
       <div id="content">
 
         <!-- Nav Bar  -->
   <nav class="navbar navbar-light navbar-expand-md sticky-top shadow mb-3" style="filter: blur(0px);opacity: 1;background: rgba(11,69,128,0.93);">
     <div class="container-fluid">
+      
       <div class="">
         <a href="https://talao.io"><img  src="/static/img/logo.png" style="width: 120px;border-radius:0px;"></a>
       </div>
+      
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
         <li class="nav-item dropdown no-arrow h-100" role="presentation">
           <div class="nav-item dropdown show">
@@ -40,10 +43,10 @@
             </div>
         </li>
       </ul>
+      
     </div>
   
 
-  <!-- End of Nav Bar -->
 
       <!-- search bar-->
         <div class="mt-3 container-fluid justify-content-center">
@@ -56,6 +59,8 @@
         </div>
       <!-- search bar-->
       </nav>
+  <!-- End of Nav Bar -->
+
 
       <!-- issuer-->
           <div id="myscroll" style="height:600px; overflow:auto;  overflow-x: hidden;"> 
@@ -91,12 +96,38 @@
       </div>
     </div>
   </div>
-    {% include 'user_footer.html' %}
+
+  <div class="d-flex flex-column d-lg-none">
+    <div class="footer-clean">
+      <footer>
+        <div class="container">
+          <div class="row justify-content-center">      
+            <div class="col item">
+              <h3>{{_('About')}}</h3>
+              <ul>
+                <li><a href="/company">{{_('Company')}}</a></li>
+                <li><a href="/text_file?file=privacy">{{_('Privacy Policy')}}</a></li>
+                <li><a href="/text_file?file=terms_and_conditions">{{_('Terms & Conditions')}}</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="row justify-content-center">      
+            <div class="col item social">
+              <a href="https://wwww.facebook.com/TalaoDAO/"><i class="fab fa-facebook"></i></a>
+              <a href="https://twitter.com/Talao_io"><i class="fab fa-twitter"></i></a>
+              <a href="https://t.me/TalaoCommunity"><i class="fab fa-telegram"></i></a>
+              <a href="mailto:relay@talao.io"><i class="fas fa-envelope"></i></a>
+              <p class="copyright">© Talao 2021 Version : {{Version}}</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div> 
+
   <script>function goBack() {window.history.back();}</script>
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
   <script>

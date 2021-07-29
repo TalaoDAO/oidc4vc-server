@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 from factory import createidentity, createcompany
 from components import sms, directory, ns, company
 
-PRESENTATION_DELAY = timedelta(seconds= 10*60)
+#PRESENTATION_DELAY = timedelta(seconds= 10*60)
 
 DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 

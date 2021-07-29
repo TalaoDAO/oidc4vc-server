@@ -90,15 +90,8 @@ def emailpass_offer(id, red, mode):
     """
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
     credential["issuer"] = DID
-    credential['id'] = "urn:uuid:" + str(uuid.uuid1())
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    try :
-        credential['credentialSubject']['email'] = red.get(id).decode()
-    except :
-        logging.warning('QR code expired')
-        data = json.dumps({"url_id" : id, "check" : "expired"})
-        red.publish('credible', data)
-        return jsonify('ko')
+    credential['credentialSubject']['email'] = red.get(id).decode()
     credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"
     if request.method == 'GET': 
         # make an offer  
@@ -107,11 +100,11 @@ def emailpass_offer(id, red, mode):
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z"
         }
-        logging.info("credential offer = %s", json.dumps(credential_offer, indent=4))
         return jsonify(credential_offer)
     elif request.method == 'POST': 
         red.delete(id)   
         # sign credential
+        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         signed_credential = vc_signature.sign(credential, pvk, DID)

@@ -1,18 +1,16 @@
 from flask import jsonify, request, render_template, Response, render_template_string
 import json
-import redis
 from datetime import timedelta, datetime
 import os
 
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-red = redis.StrictRedis()
 
 
-def init_app(app,mode) :
-    app.add_url_rule('/credible_test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'])
-    app.add_url_rule('/credible_test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'])
-    app.add_url_rule('/test_save_stream',  view_func=test_save_stream, methods = ['GET', 'POST'])
+def init_app(app,red, mode) :
+    app.add_url_rule('/credible_test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/credible_test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/test_save_stream',  view_func=test_save_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/credible_test/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
     global VC_PATH, SERVER
     VC_PATH = mode.sys_path + '/Talao/signed_credentials/'
@@ -20,7 +18,7 @@ def init_app(app,mode) :
     return
 
 
-def test_credentialOffer_qrcode() :
+def test_credentialOffer_qrcode(red) :
     if request.method == 'GET' :
         # list all the files of directory 
         dir_list = os.listdir(VC_PATH)
@@ -45,7 +43,7 @@ def test_credentialOffer_qrcode() :
     filename = request.form['filename']
     credential = json.loads(open(VC_PATH + filename, 'r').read())
     url = SERVER + "credible_test/wallet_credential/" + credential['id']
-    #red.setex(credential['id'],OFFER_DELAY, filename)
+    red.set(credential['id'], filename)
     return render_template('credible_test/credential_qr.html', url=url, id=credential['id'])
 
 
@@ -65,7 +63,7 @@ def test_credential_display():
 
 
 
-def test_credentialOffer_endpoint(id):
+def test_credentialOffer_endpoint(id, red):
     filename = red.get(id).decode()
     print('filename = ', filename)
     credential = json.loads(open(VC_PATH + filename, 'r').read())
@@ -84,8 +82,8 @@ def test_credentialOffer_endpoint(id):
 
 
 # server event push for user agent EventSource
-def test_save_stream():
-    def event_stream():
+def test_save_stream(red):
+    def event_stream(red):
         pubsub = red.pubsub()
         pubsub.subscribe('credible')
         for message in pubsub.listen():
@@ -94,4 +92,4 @@ def test_save_stream():
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(event_stream(), headers=headers)
+    return Response(event_stream(red), headers=headers)

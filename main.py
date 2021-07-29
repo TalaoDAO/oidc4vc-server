@@ -46,7 +46,7 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_credible_test
 
 # Release
-VERSION = "0.16.6"
+VERSION = "0.16.7"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -116,7 +116,7 @@ web_emailpass.init_app(app, red, mode)
 web_credible.init_app(app, red, mode)
 
 # Centralized @route for Credible test
-web_credible_test.init_app(app, mode)
+web_credible_test.init_app(app, red, mode)
 
 # Centralized route for login 
 web_login.init_app(app, red,  mode)
