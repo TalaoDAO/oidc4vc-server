@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include 'head.html' %}
+   
+  </head>
+  <body class="flex flex-col items-center justify-center h-screen w-screen">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                 {% include 'guest_nav_bar.html' %}
+      <br><br><br>
+      <div class="text-center"       
+      <p>{{_('Scan the QRCode bellow with your Credible wallet')}}</p>
+      <div class="my-8"><img src="{{qrcode(url)}}" class="w-30 h-30"></div>
+     
+      <br><br><br>
+      </div>
+        <div class="col text-center">
+            <button class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
+        </div>
+    </div>
+
+        {% include 'user_footer.html' %}
+
+<script>function goBack() {  window.history.back();}</script>
+<script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
+<script>
+
+var source = new EventSource('/phonepass/stream');
+source.onmessage = function (event) {
+     const result = JSON.parse(event.data)
+     if (result.check == 'success' & result.url_id == '{{id}}' ){
+       window.location.href="/phonepass/end?followup=success";
+     }
+     if (result.check == 'expired' & result.url_id == '{{id}}' ){
+       window.location.href="/phonepass/end?followup=expired";
+     }
+};
+
+
+</script>
+  </body>
+</html>

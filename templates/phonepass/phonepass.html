@@ -33,16 +33,18 @@
                 <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                     <div class="card-body p-0">
                                 <div class="m-5">
-                                    <div class="text-center"><h4 class="text-dark mb-4" >{{_('Get an Email Pass')}}</h4></div>
+                                    <div class="text-center"><h4 class="text-dark mb-4" >{{_('Get a Phone Pass')}}</h4></div>
 
-                                    <p>{{_('Verify your email to get one-click access to your services with your Talao smartphone wallet.')}}</p>
+                                    <p>{{_('Verify your phone number to get one-click access to your services with your Talao smartphone wallet.')}}</p>
 
-                                    <form name="form" class="user" action="/emailpass" method="post">
-                                        <div class="form-group"><input required="" class="form-control" type="text" placeholder='{{_("Enter your email")}}'  name="email" style="color: rgb(133,135,150);"></div>
-                                        <button  class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Next')}}</button>
+                                    <form name="form" class="user" action="/phonepass" method="post">
+                                        <div class="form-group"><input required="" class="form-control" type="text" placeholder='{{_("Enter your int. phone number")}}'  name="phone" style="color: rgb(133,135,150);"></div>
+                                        <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Next')}}</button>
                                     </form>
                                     <div class="text-center"><a class="small" href="/directory">{{_('Directory')}}</a></div>  
+
                                 </div>
+
                     </div>
                 </div>
             </div>
@@ -53,7 +55,6 @@
 </div>
 
 {% include 'user_footer.html' %}
-
 
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

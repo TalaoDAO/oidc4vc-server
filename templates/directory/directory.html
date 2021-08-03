@@ -14,12 +14,19 @@
         <!-- Nav Bar  -->
   <nav class="navbar navbar-light navbar-expand-md sticky-top shadow mb-3" style="filter: blur(0px);opacity: 1;background: rgba(11,69,128,0.93);">
     <div class="container-fluid">
-      
-      <div class="">
-        <a href="https://talao.io"><img  src="/static/img/logo.png" style="width: 120px;border-radius:0px;"></a>
-      </div>
-      
+     
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
+
+        <li class="nav-item dropdown no-arrow h-100 mr-2" role="presentation">
+          <!-- search bar-->
+            <form id='form' class="d-flex" action="/directory" method=''>
+              <div class="input-group rounded">
+                <input id="searchBar" name="search" type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+                <button type="submit" class="input-group-text border-0" id="search-addon"> <i class="fas fa-search"></i> </button>
+              </div> 
+            </form>
+          <!-- search bar-->
+        </li>
         <li class="nav-item dropdown no-arrow h-100" role="presentation">
           <div class="nav-item dropdown show">
             <a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#">
@@ -36,29 +43,17 @@
               <span  style="color: white;"><i class="fas fa-bars fa-sm fa-fw mr-2 text-gray-400"></i></span>
             </a>
             <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
-              <a class="dropdown-item" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/contents.html"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>{{_('What is Talao ?')}}</a>
-              <a class="dropdown-item" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/quick.html"><i class="fa fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Quick start')}}</a>
-              <hr>
-              <a class="dropdown-item" role="presentation"  href="/login"><i class="far fa-question-circle-o fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Sign-In')}}</a>
+              <!--<a class="dropdown-item" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/contents.html"><i class="fas fa-book-reader fa-sm fa-fw mr-2 text-gray-400"></i>{{_('What is Talao')}}</a>
+              <a class="dropdown-item" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/quick.html"><i class="fa fa-question fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Quick start')}}</a>
+              <hr>-->
+              <a class="dropdown-item" role="presentation"  href="/login"><i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>{{_('My portfolio')}}</a>
             </div>
         </li>
       </ul>
       
+     
     </div>
-  
-
-
-      <!-- search bar-->
-        <div class="mt-3 container-fluid justify-content-center">
-            <form class="d-flex">
-              <div class="input-group rounded">
-                <input id="searchBar"  type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
-                <span class="input-group-text border-0" id="search-addon"> <i class="fas fa-search"></i> </span>
-              </div> 
-            </form>
-        </div>
-      <!-- search bar-->
-      </nav>
+  </nav>
   <!-- End of Nav Bar -->
 
 
@@ -68,26 +63,30 @@
           </div>
 
       <!-- strandard credentials-->
-          <p  class="mt-5 mb-2 text-center ">{{_('Get a standard Pass')}}</p>
+          <p  class="mt-5 mb-1 text-center ">{{_('Get Passes & Cards')}}</p>
 
               <div class="row my-3 mx-1">
                 <div class="col-4"> 
-                  <div class="card shadow bg-secondary text-white text-center">                        
-                          <i class="mt-2 far fa-2x fa-address-card"></i>
-                          <p style="font-size:3vw;" class="m-1">'Identity Pass'</p>
+                  <div class="card shadow bg-secondary text-white text-center" >                        
+                          <i class="mt-2 fas fa-2x fa-question"  ></i>
+                          <p style="font-size:3vw;" class="m-1">{{_('Loyalty Cards')}}</p>
+                          <a href="/loyaltycard" class="stretched-link" ></a>
+
                   </div>
                 </div>
                 <div class="col-4"> 
                   <div class="card shadow text-center text-white bg-secondary">                        
                           <i class=" mt-2 far fa-2x fa-envelope"></i>
-                          <p style="font-size:3vw;" class="m-1">Email Pass</p>
-                          <a href="/emailpass" class="stretched-link"></a>
+                          <p style="font-size:3vw;" class="m-1">{{_('Email Pass')}}</p>
+                          <a href="/emailpass" class="stretched-link" ></a>
                   </div>
                 </div>
                 <div class="col-4"> 
                   <div class="card shadow text-center text-white bg-secondary">                        
-                          <i class="mt-2 far fa-2x fa-address-card"></i>
-                          <p style="font-size:3vw;" class="m-1">Phone Pass</p>
+                          <i class="mt-2 fas fa-2x fa-phone"></i>
+                          <p style="font-size:3vw;" class="m-1">{{_('Phone Pass')}}</p>
+                          <a href="/phonepass" class="stretched-link" ></a>
+
                   </div>
                 </div>
               </div>
@@ -128,21 +127,12 @@
   <script>function goBack() {window.history.back();}</script>
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
 
   <script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})</script>
 
-//document.getElementById('myscroll').scrollBy(0, 0)
-const searchBar = document.getElementById("searchBar");
-searchBar.addEventListener("keyup", e => { 
-  const searchString = e.target.value; 
-  if (document.getElementById( searchString) != null){
-  var section = document.getElementById( searchString);
-  section.scrollIntoView( { behavior: 'smooth', block: 'start' } );
-  }
-});
-
-  </script>
 </body>
-
 </html>

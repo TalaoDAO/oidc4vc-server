@@ -33,9 +33,9 @@
 
                 <div class="card-body">
                     <p class="text-center">L'Identité Numérique pour chacun d'entre nous se déploie rapidement. 
-                      <br>Bientôt nous disposerons d'une application sur smartphone dans laquelle nous conserverons nos documents d'identité, nos diplômes, nos certificats et qualifications professionnelles.
-                      <br>Ces attestations nous permettront d'accéder aux services en ligne publics et privés en toute sécurité et dans le respect de notre vie privée.
-                      <br>Talao propose dès à présent de mettre en place pour son entreprise et ses salariés une Identité Numérique pour produire les attestations nécessaires aux salariés dans leur vie professionnelle.
+                      Bientôt nous disposerons d'une application sur smartphone dans laquelle nous conserverons nos documents d'identité, nos diplômes, nos certificats et qualifications professionnelles.
+                      Ces attestations nous permettront d'accéder aux services en ligne publics et privés en toute sécurité et dans le respect de notre vie privée.
+                      <br><br>Talao propose dès à présent de mettre en place pour son entreprise et ses salariés une Identité Numérique pour produire les attestations nécessaires aux salariés dans leur vie professionnelle.
                       <br>Après saisie des informations de ce formulaire, une Identité Numérique va être créée pour votre entreprise.
                       Cette Identité vous permettra de signer électroniquement les attestations demandées par vos salariés. 
                       <br>Ces attestations seront disponibles pour vos salariés dans leur smartphone et dans un coffre fort numérique mis à leur disposition.
@@ -135,80 +135,48 @@
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="pass" checked id="flexCheckDefault" name="pass" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{pass_txt}}
+                            {{pass_txt}} : Ce passe peut etre utilisé pour se connecter aux applications numériques de l'entreprise ou pour l'accès à des locaux sécurisés.
+                            Il peut etre également utile pour accéder à des services offerts par des partenaires de l'entreprise aux salariés 
+                            (restaurants collectifs, remise auprès d'une enseigne,...).
                           </label>
                         </div>
                         <hr>
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="experience" {{experience_box}} id="flexCheckDefault" name="experience" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{experience_txt}}
+                            {{experience_txt}} : C'est une attestation de fin de projet ou de fin de mission émise pat l'entreprise pour un salarié ou un prestataire extérieure. 
+                            Cette attestation permet au salarié de prouver son expérience et ses compétences dans l'accomplissement d'une tâche précise. Il est prévu une évaluation sur 4 thèmes : 
+                            qualité de la communication avec son manager, respect des délais, qualité de la production et une recommandation générale. 
                           </label>
                         </div>
-
+                        <hr>
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="skill" {{skill_box}} id="flexCheckDefault" name="skill" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{skill_txt}}
+                            {{skill_txt}} : L'attestation de compétences vise à expliciter, formaliser et valoriser l'expérience. 
+                            Elle constitue un cadre utile pour la construction d'un projet professionnel et l'accès aux dispositifs de validation d'acquis d'expérience. 
+                            Cette attestation permet par exemple à un employeur de préciser la compétence d'un salarié dans l'utisation d'un matériel ou d'une technologie.
                           </label>
                         </div>
+                        <hr>
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="training" {{training_box}} id="flexCheckDefault" name ="training" >
                           <label class="form-check-label" for="flexCheckDefault">
-                            {{training_txt}}
-                          </label>
-                        </div>
-                        
-                        <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="recommendation" {{recommendation_box}} id="flexCheckDefault" name="recommendation" >
-                        <label class="form-check-label" for="flexCheckDefault">
-                            {{recommendation_txt}}
-                        </label>
-                        </div>
-                    
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="hiring" {{hiring_box}} id="flexCheckDefault" name="hiring" >
-                          <label class="form-check-label" for="flexCheckDefault">
-                              {{hiring_txt}}
+                            {{training_txt}} : Cette attestation peut être émise à l'issue d'une formation organisée par l'entreprise. 
                           </label>
                         </div>
                         <hr>
-                        
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" value="work" {{work_box}} id="flexCheckDefault" name="work">
                           <label class="form-check-label" for="flexCheckDefault">
-                              {{work_txt}}
+                              {{work_txt}} : Une attestation employeur (appelée encore attestation d'emploi ou attestation de travail) est un document par lequel 
+                              un employeur atteste que son salarié est bien employé par son entreprise. Elle permet au salarié de prouver qu'il dispose d'un contrat
+                               de travail en cours.Cette attestation peut etre demandée par un salarié pour coimpléter un dossier pour l'obtention d'un pret bancaire, louer un logement, etc.
+                              Certaines options sont prévues pour y inclure éventuellement le montant du salaire annuel, la fonction du salarié ou la nature de son contrat de travail.
                           </label>
                         </div>
                         
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="vacation" {{vacation_box}} id="flexCheckDefault" name="vacation">
-                          <label class="form-check-label" for="flexCheckDefault">
-                            {{vacation_txt}}
-                          </label>
-                        </div>
-                        
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="internship" {{intership_box}} id="flexCheckDefault" name="internship">
-                          <label class="form-check-label" for="flexCheckDefault">
-                            {{internship_txt}}
-                          </label>
-                        </div>
-
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="relocation" {{relocation_box}} id="flexCheckChecked" name="relocation">
-                            <label class="form-check-label" for="flexCheckChecked">
-                            {{relocation_txt}}
-                            </label>
-                        </div>
-                                                
-                        <div hidden class="form-check">
-                          <input class="form-check-input" type="checkbox" value="end_of_work" {{end_of_work_box}} id="flexCheckCheckedDisabled" name="end_of_work">
-                          <label class="form-check-label" for="flexCheckCheckedDisabled">
-                              {{end_of_work_txt}}
-                          </label>
-                        </div>
-                        <hr>
+                       
                       
 </div>                       
 </div>

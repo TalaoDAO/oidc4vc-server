@@ -31,7 +31,7 @@ def init_app(app, red, mode) :
 	app.add_url_rule('/forgot_username',  view_func=forgot_username, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password',  view_func=forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password_token/',  view_func=forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
-	app.add_url_rule('/login/authentification/',  view_func=login_authentification, methods = ['POST'], defaults={'mode': mode})
+	app.add_url_rule('/login/authentification/',  view_func=login_authentication, methods = ['POST'], defaults={'mode': mode})
 	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
 	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
@@ -61,7 +61,7 @@ def send_secret_code (username, code, mode) :
 	if not data :
 		logging.error('cannot send secret code')
 		return None
-	if not data['phone'] :
+	if not data.get('phone') :
 		try :
 			subject = _('Talao : Email authentication  ')
 			Talao_message.messageHTML(subject, data['email'], code_auth, {'code' : code}, mode)
@@ -90,8 +90,6 @@ def login(mode) :
 		language = session.get('language')
 		session.clear()
 		session['language'] = language
-		#if not language :
-		#	session['language'] = request.accept_languages.best_match(['fr', 'en'])
 		return render_template('./login/login_password.html', username=request.args.get('username', ''))
 
 	if request.method == 'POST' :
@@ -120,10 +118,8 @@ def login(mode) :
 			session['try_number'] = 1
 			return render_template('./login/login_password.html', username="")
 		else :
-			# secret code to send by email or sms
 			session['code'] = str(secrets.randbelow(99999))
 			session['code_delay'] = datetime.now() + timedelta(seconds= 180)
-			# send code by sms if phone exist else email
 			try : 
 				session['support'] = send_secret_code(session['username_to_log'], session['code'],mode)
 				logging.info('secret code sent = %s', session['code'])
@@ -135,7 +131,7 @@ def login(mode) :
 			return render_template("./login/authentification.html", support=session['support'])
 
 
-def login_authentification(mode) :
+def login_authentication(mode) :
 	"""
 	verify code from user
 	@app.route('/login/authentification/', methods = ['POST'])
@@ -146,8 +142,8 @@ def login_authentification(mode) :
 	code = request.form['code']
 	session['try_number'] +=1
 	logging.info('code received = %s', code)
-	# success logn exit
 	if (code == session['code'] and datetime.now() < session['code_delay']) or (session['username_to_log'] == 'talao' and code == '123456') :
+		# success login, forward to user/
 		session['username'] = session['username_to_log']
 		del session['username_to_log']
 		del session['try_number']

@@ -27,18 +27,20 @@
 
                        {% include 'guest_nav_bar.html' %}
 
+
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-4">
                 <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                     <div class="card-body p-0">
                                 <div class="p-5">
-                                    <div class="text-center"><h4 class="text-dark mb-4" >{{message}}</h4></div>
+                                    <div class="text-center"><h4 class="text-dark mb-4" >{{_('Enter your code')}}</h4></div>
 
-                                    
-                                    <div class="text-center"><a class="small" href="/emailpass">{{_('Back')}}</a></div>
-                                    <div class="text-center"><a class="small" href="/login">{{_('Sign-In to Talao')}}</a></div>
-
+                                    <form name="form" class="user" action="/phonepass/authentication" method="post">
+                                        <div class="form-group"><input required="" class="form-control" type="password" placeholder="" name="code" style="color: rgb(133,135,150);"></div>
+                                        <button id="in_progress_button" class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Next')}}</button>
+                                    </form>
+                                    <div class="text-center"><a class="small" href="/phonepass">{{_('Back')}}</a></div>
                                 </div>
                     </div>
                 </div>
@@ -46,7 +48,6 @@
         </div>
                          {% include 'user_footer.html' %}
     </div>
-    <script>function goBack() {window.history.back();}</script>
 
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

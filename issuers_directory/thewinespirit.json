@@ -1,0 +1,42 @@
+        {
+            "name" : "The Wine Spirit",
+            "website" : "", 
+            "image" : "QmSM9ENbagqzuJg4WcznyoVaydsRFb5dCmr3kzwJzCNiLZ",
+            "description" : [ 
+                {"@value": "May the wine be with us", "@language": "en"},
+                {"@value": "Que le vin soit avec nous.", "@language": "fr"}
+            ],
+            "requirements" : [
+                {"@value": "For buying a Loyalty Card is required.", "@language": "en"},
+                {"@value": "Pour acheter en ligne une Carte de Fidélité est nécessaire.", "@language": "fr"}
+            ],
+            "services" : [
+                { 
+                    "link" : "",
+                    "description" : [
+                        {
+                        "@value": "Buy online",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Acheter en ligne",
+                        "@language": "fr"
+                        }
+                    ]
+                },
+                { 
+                    "link" : "/loyaltycard",
+                    "description" : [
+                        {
+                        "@value": "Get a Loyality Card",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Obtenir une Carte de Fidélité",
+                        "@language": "fr"
+                        }
+                    ]
+                }
+        
+            ]   
+        }

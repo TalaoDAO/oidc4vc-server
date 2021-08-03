@@ -1,0 +1,42 @@
+        {
+            "name" : "Padi",
+            "website" : "https://padi.com/", 
+            "image" : "padi.png",
+            "description" : [ 
+                {"@value": "Padi is an international diving agency.", "@language": "en"},
+                {"@value": "Padi est une école de plongée internationale.", "@language": "fr"}
+            ],
+            "requirements" : [
+                {"@value": "For booking an Identity Pass is required.", "@language": "en"},
+                {"@value": "Pour réserver une formation un Passe d'Identité est nécessaire.", "@language": "fr"}
+            ],
+            "services" : [
+                { 
+                    "link" : "",
+                    "description" : [
+                        {
+                        "@value": "Book an online course",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Réserver une formation en ligne",
+                        "@language": "fr"
+                        }
+                    ]
+                },
+                { 
+                    "link" : "",
+                    "description" : [
+                        {
+                        "@value": "Get an Identity Pass",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Obtenir un Passe d'Identité",
+                        "@language": "fr"
+                        }
+                    ]
+                }
+        
+            ]   
+        }

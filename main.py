@@ -43,10 +43,11 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api, web_credible, web_emailpass, web_credible_test
+from routes import web_main, web_login, repository, cci_api, web_credible, web_credible_test
+from routes import web_emailpass, web_phonepass, web_loyaltycard
 
 # Release
-VERSION = "0.16.7"
+VERSION = "0.17.0"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -111,6 +112,12 @@ web_register.init_app(app, red, mode)
 
 # Centralized @route for Email Pass
 web_emailpass.init_app(app, red, mode)
+
+# Centralized @route for Phone Pass
+web_phonepass.init_app(app, red, mode)
+
+# Centralized @route for Anonymous Id
+web_loyaltycard.init_app(app, red, mode)
 
 # Centralized @route for Credible interaction
 web_credible.init_app(app, red, mode)

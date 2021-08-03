@@ -1,0 +1,42 @@
+        {
+            "name" : "Running Center",
+            "website" : "https://runnning_center.com/", 
+            "image" : "QmS4xGPzNyBLtiiUgQ4w8rHrG55hT5iFcK1Y3RtT74b2Yg",
+            "description" : [ 
+                {"@value": "New Fitness Center for running.", "@language": "en"},
+                {"@value": "Le centre du running.", "@language": "fr"}
+            ],
+            "requirements" : [
+                {"@value": "For registration a Loyalty Card is required. 5% off with Loyalty Card.", "@language": "en"},
+                {"@value": "Pour créer un compte une Carte de Fidélité est nécessaire.", "@language": "fr"}
+            ],
+            "services" : [
+                { 
+                    "link" : "",
+                    "description" : [
+                        {
+                        "@value": "Book your course",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Réserver une séance",
+                        "@language": "fr"
+                        }
+                    ]
+                },
+                { 
+                    "link" : "",
+                    "description" : [
+                        {
+                        "@value": "Get a Loyalty Card",
+                        "@language": "en"
+                        },
+                        {
+                        "@value": "Obtenir une Carte de Fidélité",
+                        "@language": "fr"
+                        }
+                    ]
+                }
+        
+            ]   
+        }

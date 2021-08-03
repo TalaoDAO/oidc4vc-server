@@ -40,25 +40,25 @@
                     }
                 }
               }
-            }
-        ],
-        "id": "",
-        "type": ["VerifiableCredential", "IdentityPass"],
-        "issuer": "",
-        "issuanceDate": "",
-        "credentialSubject" : {
-            "id": "",
-            "type" : "IdentityPass",
-            "recipient" : {
-                "email" : "",
-                "image" : "",
-                "familyName" : "",
-                "givenName" : "",
-                "jobTitle" : ""
-                },
-            "author" : {
-                "name" : "",
-                "logo" : ""
-                  }
         }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "IdentityPass"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "id": "",
+        "type" : "IdentityPass",
+        "recipient" : {
+            "email" : "",
+            "image" : "",
+            "familyName" : "",
+            "givenName" : "",
+            "jobTitle" : ""
+            },
+        "author" : {
+            "name" : "",
+            "logo" : ""
+              }
+    }
 }
