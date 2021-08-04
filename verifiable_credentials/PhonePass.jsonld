@@ -1,0 +1,28 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {
+            "PhonePass" : {
+                "@id": "https://github.com/TalaoDAO/context#phonepass",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "id": "@id",
+                    "type": "@type",
+                    "phone" : "schema:phone",
+                    "expires" : "schema:expires"
+                }
+            }
+        }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "PhonePass"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "type" : "PhonePass",
+        "phone" : "+3360718229678",
+        "expires" : ""
+    }
+}

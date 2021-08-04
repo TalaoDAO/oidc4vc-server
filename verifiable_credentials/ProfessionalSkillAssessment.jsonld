@@ -1,0 +1,82 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {
+            "ProfessionalSkillAssessment" : {
+                "@id" : "https://github.com/TalaoDAO/context#certificateofemployment",
+                "@context" : {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "author": {
+                        "@id": "schema:author",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :   "schema:name",
+                            "logo" : {"@id" : "schema:image", "@type" : "@id"}
+                        }
+                    },
+                    "recipient" : {
+                        "@id" : "schema:recipient",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "image": {"@id" : "schema:image", "@type" : "@id"},
+                            "givenName" : "schema:givenName",
+                            "familyName" : "schema:familyName"
+                        }
+                    },
+                 
+                    "signatureLines": {
+                            "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+                            "@context": {
+                                "@version": 1.1,
+                                "@protected": true,
+                                "schema" : "https://schema.org/",
+                                "name" :  "schema:name",
+                                "jobTitle" :"schema:jobTitle",
+                                "image" : {"@id" : "schema:image", "@type" : "@id"}
+                                }
+                            },
+                    "datePublished" : "schema:datePublished",
+                    "skills": "schema:skills"
+                }     
+            },
+           
+            "Skill": {
+                "@id": "schema:Rating",
+                "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "schema": "https://schema.org/",
+                "description": "schema:description"
+                }
+            }
+        }
+    ],
+    "id": "data:aaaa:aaa",
+    "type": ["VerifiableCredential", "ProfessionalSkillAssessment"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject": {
+        "id": "",
+        "type" :  "ProfessionalSkillAssessment",
+        "author" : {
+          "name" : "",
+          "logo" : ""
+            },
+        "recipient" : {
+            "image" : "",
+            "givenName" : "",
+            "familyName" : ""
+            },
+        "signatureLines" : {
+            "name" : "",
+            "jobTitle" : "",
+            "image" : ""
+            },
+        "datePublished" : "",
+        "skills": []
+    }
+}

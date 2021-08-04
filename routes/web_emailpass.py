@@ -90,9 +90,11 @@ def emailpass_offer(id, red, mode):
     """
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
     credential["issuer"] = DID
+    credential['id'] = "urn:uuid:..."
+    credential['credentialSubject']['id'] = "did:..."
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['email'] = red.get(id).decode()
-    credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"
+    credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"  
     if request.method == 'GET': 
         # make an offer  
         credential_offer = {
@@ -124,6 +126,7 @@ def emailpass_offer(id, red, mode):
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
         red.publish('credible', data)
+        print(signed_credential)
         return jsonify(signed_credential)
  
 

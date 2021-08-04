@@ -52,8 +52,9 @@ def loyaltycard(mode) :
                 </div>"""                    
         return render_template('loyaltycard/loyaltycard.html', caroussel=caroussel)
     if request.method == 'POST' :
-        session['memberOf'] = loyalty_list[int(request.form['selected_image'])]['name']
-        session['programName'] = loyalty_list[int(request.form['selected_image'])].get('programName', "")
+        session['memberOf_name'] = loyalty_list[int(request.form['selected_issuer'])]['name']
+        session['memberOf_logo'] = mode.ipfs_gateway + loyalty_list[int(request.form['selected_issuer'])].get('image', "")
+        session['programName'] = loyalty_list[int(request.form['selected_issuer'])].get('programName', "")
     return redirect ('loyaltycard/qrcode')
 
 
@@ -61,10 +62,10 @@ def loyaltycard_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "loyaltycard/offer/" + id 
-        data = {'memberOf' : session['memberOf'],
-                'programName' : session['programName']
+        data = {'memberOf_name' : session['memberOf_name'],
+                'programName' : session['programName'],
+                'memberOf_logo' : session['memberOf_logo']
                 }
-        print('data = ', data)
         red.set(id,  json.dumps(data))
         logging.info('url = %s', url)
         return render_template('loyaltycard/loyaltycard_qrcode.html', url=url, id=id)
@@ -78,7 +79,8 @@ def loyaltycard_offer(id, red, mode):
     credential = json.loads(open('./verifiable_credentials/LoyaltyCard.jsonld', 'r').read())
     credential["issuer"] = DID
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    credential['credentialSubject']['memberOf'] = data['memberOf']
+    credential['credentialSubject']['memberOf'] = { "name" : data['memberOf_name'],
+                                                    "logo" : data['memberOf_logo']}
     if data['programName'] :
         credential['credentialSubject']['programName'] = data['programName']
     credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"
@@ -121,7 +123,6 @@ def loyaltycard_offer(id, red, mode):
                 json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
         except :
             logging.error('signed credential not stored')
-        print("credential = ", signed_credential)
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
         red.publish('loyaltycard', data)

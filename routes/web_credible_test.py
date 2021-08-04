@@ -24,10 +24,10 @@ def test_credentialOffer_qrcode(red) :
         dir_list = os.listdir(VC_PATH)
         html_string = str()  
         for filename in dir_list :
-            credential = json.loads(open(VC_PATH + filename, 'r').read())
-            print(credential["id"])
-            print(credential['credentialSubject'].get('type'))
-            html_string += """
+            try :
+                credential = json.loads(open(VC_PATH + filename, 'r').read())
+                print(credential["id"], "-->", credential['credentialSubject'].get('type'))
+                html_string += """
                     <p> filename : <a href='/credible_test/display?filename=""" + filename + """'>""" + filename + """</a></p>
                     <p> id : """ + credential["id"] + """</p>
                     <p>credentialSubject.type : """ + credential['credentialSubject'].get('type') + """ </p>
@@ -37,6 +37,8 @@ def test_credentialOffer_qrcode(red) :
                     <input hidden name="filename" value='""" + filename + """'></input>
                     <button  type"submit" >QR code for Offer</button></form>
                     ------------------"""
+            except :
+                print('filename pb = ', filename)
           
         html_string = "<html><body>" + html_string + "</body></html>"
         return render_template_string (html_string) 
@@ -51,12 +53,16 @@ def test_credentialOffer_qrcode(red) :
 def test_credential_display():  
     filename = request.args['filename']
     # mise en forme
-    credential = json.dumps(json.loads(open(VC_PATH + filename, 'r').read()), indent=4)
+    credential = json.loads(open(VC_PATH + filename, 'r').read())
+    del credential['proof']
+    credential['id'] = "urn:uuid:..."
+    credential['credentialSubject']['id'] = "did:..."
+    credential_txt = json.dumps(credential, indent=4)
     html_string = """
         <!DOCTYPE html>
         <html>
         <body class="h-screen w-screen flex">
-        <pre class="whitespace-pre-wrap m-auto">""" + credential + """</pre>
+        <pre class="whitespace-pre-wrap m-auto">""" + credential_txt + """</pre>
         </body>
         </html>"""
     return render_template_string(html_string)
@@ -65,9 +71,11 @@ def test_credential_display():
 
 def test_credentialOffer_endpoint(id, red):
     filename = red.get(id).decode()
-    print('filename = ', filename)
     credential = json.loads(open(VC_PATH + filename, 'r').read())
-    if request.method == 'GET':   
+    if request.method == 'GET':
+        del credential['proof']
+        credential['id'] = "urn:uuid:..."
+        credential['credentialSubject']['id'] = "did:..."
         return jsonify({
             "type": "CredentialOffer",
             "credentialPreview": credential,
