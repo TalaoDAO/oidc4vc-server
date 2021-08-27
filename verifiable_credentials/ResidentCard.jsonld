@@ -1,0 +1,79 @@
+{
+    "@context": ["https://www.w3.org/2018/credentials/v1", 
+        {"RevocationList2020Status": {
+                "@id":
+                  "https://w3id.org/vc-revocation-list-2020#RevocationList2020Status",
+                "@context": {
+                  "@protected": true,
+          
+                  "id": "@id",
+                  "type": "@type",
+          
+                  "revocationListCredential": {
+                    "@id":
+                      "https://w3id.org/vc-revocation-list-2020#revocationListCredential",
+                    "@type": "@id"
+                  },
+                  "revocationListIndex":
+                    "https://w3id.org/vc-revocation-list-2020#revocationListIndex"
+                }
+              }
+            },
+        {"ResidentCard" : {
+            "@id": "https://github.com/TalaoDAO/TrustMyData-proto/blob/main/vocab",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "schema" : "https://schema.org/",
+                "id": "@id",
+                "type": "@type",
+                "givenName": "schema:givenName",
+                "familyName" : "schema:familyName",
+                "address" : "schema:address",
+                "birthDate" : "schema:birthDate",
+                "birthPlace" : "schema:birthPlace",
+                "nationality" : "schema:nationality",
+                "identifier" : "schema:identifier",
+                "gender" : "schema:gender",
+                "maritalStatus" : "https://github.com/TalaoDAO/TrustMyData-proto/blob/main/vocab",
+                "author": {
+                  "@id": "schema:author",
+                  "@context": {
+                      "@version": 1.1,
+                      "@protected": true,
+                      "schema" : "https://schema.org/",
+                      "name" :  "schema:name",
+                      "logo" : { "@id" : "schema:logo", "@type" : "@id"}
+                  }
+                }
+              }
+            }
+          }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "ResidentCard"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialStatus": {
+        "id": "https://github.com/TalaoDAO/TrustMyData-proto/blob/main/credential/status/1#1234",
+        "type": "RevocationList2020Status",
+        "revocationListIndex": "1234",
+        "revocationListCredential": "https://github.com/TalaoDAO/TrustMyData-proto/blob/main/credential/status/1"
+      },
+    "credentialSubject" : {
+        "type" : "ResidentCard",
+        "givenName" : "John",
+        "familyName" : "Doe",
+        "address" : "16 av de Bellevue, 75009 Paris, France",
+        "birthDate" : "16/10/1995",
+        "birthPlace" : "Paris",
+        "nationality" : "Fr",
+        "identifier" : "566GFJHF67876",
+        "gender" : "male",
+        "maritalStatus" : "single",
+        "author" : {
+          "name" : "Ministère de la Digitalisation du Luxembourg",
+          "logo" : "https://talao.mypinata.cloud/ipfs/QmW2Ph9WixNSPKsQKJmniUEXBzhe2aXV93s88GYeX5FbZ9"
+            }
+    }
+}
