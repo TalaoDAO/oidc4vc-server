@@ -1,0 +1,45 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {"PaymentCard" : {
+            "@id": "https://github.com/TalaoDAO/context#paymentcard",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "schema" : "https://schema.org/",
+                "id": "@id",
+                "type": "@type",
+                "name" : "schema:name",
+                "category" : "schema:category",
+                "identifier" : "schema:identifier",
+                "expires" : "schema:expires",
+                "provider": {
+                  "@id": "schema:provider",
+                  "@context": {
+                      "@version": 1.1,
+                      "@protected": true,
+                      "schema" : "https://schema.org/",
+                      "name" :  "schema:name",
+                      "logo" : { "@id" : "schema:logo", "@type" : "@id"}
+                  }
+                }
+            }
+          }
+          }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "PaymentCard"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "type" : "PaymentCard",
+        "name": "John Doe",
+        "category": "Debit Card",
+        "expires" : "",
+        "identifier" : "jhgfjhgfkfkjhf",
+        "provider": {
+                "name":"Wells Fargo",
+                "logo" : "https//......."
+                }
+        }
+}
