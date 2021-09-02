@@ -18,6 +18,17 @@ DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID = DID_ETHR
 
+def translate(credential) : 
+    credential_name = ""
+    try : 
+        for name in credential['name'] :
+            if name['@language'] == 'fr' :
+                credential_name = name['@value']
+                break
+    except :
+        pass
+    return credential_name
+    
 
 def dir_list_calculate() :
     dir_list=list()
@@ -35,7 +46,8 @@ def credential_from_filename(filename) :
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/wallet/test/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
     app.add_url_rule('/wallet/test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
@@ -45,17 +57,49 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
-    global SERVER, PVK, repo
+    app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
+
+    global PVK, repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-    SERVER = mode.server
     g = Github(mode.github)
     repo = g.get_repo("TalaoDAO/context")
     return
 
+def tir_api(did) :
+    """
+    Issuer Registry public JSON API GET:
+    https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/1.3.2.4.+Trusted+Registries+ESSIF+v2#id-1.3.2.4.TrustedRegistriesESSIFv2-TrustedIssuerRegistryEntry-TIR(generic)
+    
+    Data model :
+    {
+    "issuer": {
+        "preferredName": "Great Company",
+        "did": ["did:ebsi:00003333", "did:ebsi:00005555"],
+        "eidasCertificatePem": [{}],
+        "serviceEndpoints": [{}, {}],
+        "organizationInfo": {
+            "id": "BE55555j",
+            "legalName": "Great Company",
+            "currentAddress": "Great Company Street 1, Brussels, Belgium",
+            "vatNumber": "BE05555555XX",
+            "domainName": "https://great.company.be"
+        }
+    }
+    }
+    https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
+
+    """
+    registry_file = repo.get_contents("test/registry/talao_issuer_registry.json")
+    b64encoded_registry = registry_file.__dict__['_rawData']['content']
+    issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
+    for item in issuer_registry :
+        if did in item['issuer']["did"] :
+            return jsonify(item)
+
+
 ######################### Credential Offer ###########
 
-
-def test_credentialOffer_qrcode(red) :
+def test_credentialOffer_qrcode(red, mode) :
     if request.method == 'GET' :
         # list all the files of github directory 
         html_string = str()  
@@ -63,25 +107,25 @@ def test_credentialOffer_qrcode(red) :
         for filename in dir_list :
             credential = credential_from_filename(filename)
             credential['issuer'] = DID
+            credential_name = translate(credential)
             html_string += """
                     <p> filename : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
                     <p> id : """ + credential.get("id", "") + """</p>
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
-                    <p>credentialSubject.type : """ + credential['credentialSubject'].get('type', "") + """ </p>
+                    <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
                     <p> issuer : """ + credential['issuer'] + """ </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     <input hidden name="filename" value='""" + filename + """'> 
-                    
-                    <p>Scopes :
+                    <p>Scope :
                     Subject_id<input type="checkbox" disabled checked  >
                     givenName<input type="checkbox" name="givenName"  value="on">
                     familyName<input type="checkbox" name="familyName" value="on">
                     email<input type="checkbox" name="email" value="on">
                     address<input type="checkbox" name="address"  value="on">
-                    phone<input type="checkbox" name="phone"  value="on"> </p>
+                    telephone<input type="checkbox" name="telephone"  value="on"> </p>
                     <br><br><button  type"submit" >QR code for Offer</button></form>
                     ------------------"""
-        html_string = "<html><body><br><h1><strong>Issuer Simulator</strong></h1><br>" + html_string + "</body></html>"
+        html_string = "<html><body><head>{% include 'head.html' %}</head><br><h1><strong>Talao Issuer Simulator</strong></h1><br>" + html_string + "</body></html>"
         return render_template_string (html_string) 
     else :
         filename = request.form['filename']
@@ -90,30 +134,32 @@ def test_credentialOffer_qrcode(red) :
         credential['credentialSubject']['id'] = "did:..."
         credential['proof'] =  {"@context": [],"type": "","proofPurpose": "","verificationMethod": "","created": "","jws": ""}
         credential['issuer'] = DID
-        scopes = ["subject_id"]
+        scope = ["subject_id"]
         if request.form.get("address") :
-            scopes.append("address")
-        if request.form.get("phone") :
-            scopes.append("phone")
+            scope.append("address")
+        if request.form.get("telephone") :
+            scope.append("telephone")
         if request.form.get("givenName") :
-            scopes.append("givenName")
+            scope.append("givenName")
         if request.form.get("familyName") :
-            scopes.append("familyName")
+            scope.append("familyName")
         if request.form.get("email") :
-            scopes.append("email")
+            scope.append("email")
         credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-            "scopes" : scopes
+            "scope" : scope,
+            "display" : {}
         }
-        url = SERVER + "wallet/test/wallet_credential/" + credential['id']
+        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + DID
         red.set(credential['id'], json.dumps(credentialOffer))
+        type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
                                 url=url,
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
-                                type = credentialOffer['credentialPreview']['type'][1]
+                                type = type + " - " + translate(credential)
                                 )
 
 
@@ -147,11 +193,34 @@ def test_credentialOffer_endpoint(id, red):
             logging.error("wallet error")
             return jsonify('ko')
         del credential['proof']
+        scope = {
+            "subject_id" : request.form['subject_id'],
+            "givenName" : request.form.get('givenName', "None"),
+            "familyName" : request.form.get('familyName', "None"),
+            "telephone" : request.form.get('telephone' , "None"),
+            "email" : request.form.get('email', "None"),
+            "address" : request.form.get('address', "None")
+            }
         signed_credential = vc_signature.sign(credential, PVK, DID)
         # send event to client agent to go forward
-        data = json.dumps({'id' : id, 'check' : 'success'})
+        data = json.dumps({'id' : id, 'check' : 'success', 'scope' : json.dumps(scope)})
         red.publish('credible', data)
         return jsonify(signed_credential)
+
+
+def test_credentialOffer_back():
+    scope = json.dumps(json.loads(request.args['scope']), indent=4)
+    html_string = """
+        <!DOCTYPE html>
+        <html>
+        <body class="h-screen w-screen flex">
+        <br>Scope items : """ + scope + """<br>
+        <br><br><br>
+        <form action="/wallet/test/credentialOffer" method="GET" >
+                    <button  type"submit" >Back</button></form>
+        </body>
+        </html>"""
+    return render_template_string(html_string)
 
 
 # server event push for user agent EventSource
@@ -217,8 +286,9 @@ def test_presentationRequest_qrcode(red, mode):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
+        url = mode.server + 'wallet/test/wallet_presentation/' + stream_id +'?issuer=' + DID
         return render_template('wallet/test/credential_presentation_qr.html',
-							url=mode.server + 'wallet/test/wallet_presentation/' + stream_id,
+							url=url,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4))
 

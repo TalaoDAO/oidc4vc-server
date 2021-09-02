@@ -88,24 +88,33 @@
         "id": "",
         "type" :  "ProfessionalExperienceAssessment",
         "author" : {
-          "name" : "",
-          "logo" : ""
+          "name" : "Talao",
+          "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             },
         "recipient" : {
-            "image" : "",
-            "givenName" : "",
-            "familyName" : ""
+            "image" : "https://talao.mypinata.cloud/ipfs/QmejpQ1ns8J1n8aBCRx16BcEKQ1Z66dEK2RnQV55ajkyJF",
+            "givenName" : "John",
+            "familyName" : "Doe"
             },
         "signatureLines" : {
-            "name" : "",
-            "jobTitle" : "",
-            "image" : ""
+            "name" : "Nicolas Muller",
+            "jobTitle" : "Director",
+            "image" : "https://talao.mypinata.cloud/ipfs/QmawHhhLZayZRoQqpuNxm6uJX2MFoPgqPTj57hgvmWCXxu"
             },
-        "title" : "",
-        "description" : "",
-        "startDate" : "",
-        "endDate" : "",
-        "skills": [],
+        "title" : "Lead Developper",
+        "description" : "Development of an SSI solution for the human sector.",
+        "startDate" : "2020-02-01T12:11:59Z",
+        "endDate" : "2021-05-15T12:11:59Z",
+        "skills": [
+            {
+                "@type": "Skill",
+                "description": "JSON-LD"
+            },
+            {
+                "@type": "Skill",
+                "description": " Verifiable Credential"
+            }
+        ],
         "review": [
             {
             "type" : "Review",
@@ -117,7 +126,7 @@
             "reviewRating": {
                 "type" : "Rating",
                 "bestRating": "5",
-                "ratingValue": "3",
+                "ratingValue": "5",
                 "worstRating": "1"
                 }
             },
@@ -131,7 +140,7 @@
             "reviewRating": {
                 "type" : "Rating",
                 "bestRating": "5",
-                "ratingValue": "3",
+                "ratingValue": "5",
                 "worstRating": "1"
                 }
             },
@@ -145,7 +154,7 @@
             "reviewRating": {
                 "type" : "Rating",
                 "bestRating": "5",
-                "ratingValue": "3",
+                "ratingValue": "4",
                 "worstRating": "1"
                 }
             },
@@ -159,7 +168,7 @@
             "reviewRating": {
                 "type" : "Rating",
                 "bestRating": "5",
-                "ratingValue": "3",
+                "ratingValue": "4",
                 "worstRating": "1"
                 }
             }

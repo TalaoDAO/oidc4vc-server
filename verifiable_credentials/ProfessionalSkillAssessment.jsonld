@@ -3,7 +3,7 @@
         "https://www.w3.org/2018/credentials/v1",
         {
             "ProfessionalSkillAssessment" : {
-                "@id" : "https://github.com/TalaoDAO/context#certificateofemployment",
+                "@id" : "https://github.com/TalaoDAO/context#professionalSkillAssessment",
                 "@context" : {
                     "@version": 1.1,
                     "@protected": true,
@@ -63,20 +63,33 @@
         "id": "",
         "type" :  "ProfessionalSkillAssessment",
         "author" : {
-          "name" : "",
-          "logo" : ""
+          "name" : "Talao",
+          "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             },
         "recipient" : {
-            "image" : "",
-            "givenName" : "",
-            "familyName" : ""
+            "image" : "https://talao.mypinata.cloud/ipfs/QmejpQ1ns8J1n8aBCRx16BcEKQ1Z66dEK2RnQV55ajkyJF",
+            "givenName" : "Albert",
+            "familyName" : "Doe"
             },
         "signatureLines" : {
-            "name" : "",
-            "jobTitle" : "",
-            "image" : ""
+            "name" : "Nicolas Muller",
+            "jobTitle" : "Director",
+            "image" : "https://talao.mypinata.cloud/ipfs/QmawHhhLZayZRoQqpuNxm6uJX2MFoPgqPTj57hgvmWCXxu"
             },
-        "datePublished" : "",
-        "skills": []
+        "datePublished" : "2020-09-01T10:11:59.393Z",
+        "skills": [
+            {
+                "@type": "Skill",
+                "description": "JSON-LD"
+            },
+            {
+                "@type": "Skill",
+                "description": "Verifiable Credential"
+            },
+            {
+                "@type": "Skill",
+                "description": "Flutter"
+            }
+        ]
     }
 }

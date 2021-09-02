@@ -1,0 +1,25 @@
+{
+    "type": "VerifiablePresentationRequest",
+    "query": [
+        {
+            "type": "QueryByExample",
+            "credentialQuery": [
+                {
+                    "reason": "Join a Residency certificate.",
+                    "example" : {
+                        "type" : "ResidentCard"
+                    }
+                },
+                {
+                    "reason": "Join a Driver License.",
+                    "example" : {
+                        "type" : "DriverLicense"
+                    }
+                }
+            ]
+        }
+    ],
+    "challenge": "9d0927c1-08cb-11ec-a6fa-8d5c53eaebfb",
+    "domain": "talao.co"
+}
+

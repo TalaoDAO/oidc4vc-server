@@ -30,7 +30,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='liveboxh'
+   myenv='livebox'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -47,7 +47,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard
 
 # Release
-VERSION = "0.18.6"
+VERSION = "0.18.7"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -107,29 +107,26 @@ def user_language(mode) :
     return redirect (request.referrer)
 
 
-# Centralized @route for register identity
+# Centralized @route
 web_register.init_app(app, red, mode)
-
-# Centralized @route for Email Pass
 web_emailpass.init_app(app, red, mode)
-
-# Centralized @route for Phone Pass
 web_phonepass.init_app(app, red, mode)
-
-# Centralized @route for Anonymous Id
 web_loyaltycard.init_app(app, red, mode)
-
-# Centralized @route for Credible interaction
 web_credible.init_app(app, red, mode)
-
-# Centralized @route for Credible test
 web_wallet_test.init_app(app, red, mode)
-
-# Centralized route for login 
 web_login.init_app(app, red,  mode)
-
-# Centralized @route for HRID solution
 web_hrid.init_app(app, mode)
+web_certificate.init_app(app, mode)
+web_external.init_app(app, mode)
+web_directory.init_app(app, mode)
+web_issuer_explore.init_app(app, mode)
+web_data_user.init_app(app,mode)
+web_issuer.init_app(app, mode)
+
+
+# Centralized route issuer for skills
+app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
+
 
 # Centralized @route for create company CCI
 app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -137,26 +134,8 @@ app.add_url_rule('/create_company_cci/password/',  view_func=web_create_company_
 app.add_url_rule('/create_company_cci/code/', view_func=web_create_company_cci.cci_code, methods = ['GET','POST'], defaults={'mode': mode})
 app.add_url_rule('/create_company_cci/post_code/', view_func=web_create_company_cci.cci_post_code, methods = ['GET','POST'], defaults={'mode': mode})
 
-# Centralized @route to display certificates
-web_certificate.init_app(app, mode)
-
-# Centralized route for the Blockchain CV
-web_external.init_app(app, mode)
-
-# Centralized route for directory
-web_directory.init_app(app, mode)
-
-# Centralized route fo Issuer explore
-web_issuer_explore.init_app(app, mode)
-
-# Centralized route for user and data main view
-web_data_user.init_app(app,mode)
-
-# Centralized route issuer for skills
-app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
 
 # Centralized route for main features
-
 app.add_url_rule('/verifier/',  view_func=web_main.verifier, methods = ['GET', 'POST'])
 app.add_url_rule('/getDID',  view_func=web_main.getDID, methods = ['GET'])
 app.add_url_rule('/user/generate_identity/',  view_func=web_main.generate_identity, methods = ['GET', 'POST'],  defaults={'mode' : mode})
@@ -218,8 +197,6 @@ app.add_url_rule('/user/download_QRCode/',  view_func=web_main.download_QRCode, 
 app.add_url_rule('/user/typehead/',  view_func=web_main.typehead, methods = ['GET','POST'])
 app.add_url_rule('/user/data/',  view_func=web_main.talao_search, methods = ['GET','POST'], defaults={'mode' : mode})
 
-# Centralized route for credential issuer
-web_issuer.init_app(app, mode)
 
 # Centralized route for repository
 app.add_url_rule('/repository/authn',  view_func=repository.authn, methods = ['POST'], defaults={'mode' : mode})
@@ -233,7 +210,7 @@ app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, metho
 app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
 
 
-# DID API
+# wELL-known DID API
 @app.route('/.well-known/did-configuration.json', methods=['GET']) 
 def well_known_did_configuration () :
     document = json.load(open('./verifiable_credentials/well_known_did_configuration.jsonld', 'r'))
