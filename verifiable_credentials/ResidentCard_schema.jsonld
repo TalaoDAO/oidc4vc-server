@@ -16,8 +16,8 @@
                 "identifier" : "schema:identifier",
                 "gender" : "schema:gender",
                 "maritalStatus" : "https://github.com/TalaoDAO/TrustMyData-proto/blob/main/vocab",
-                "author": {
-                  "@id": "schema:author",
+                "issuedBy": {
+                  "@id": "schema:issuedBy",
                   "@context": {
                       "@version": 1.1,
                       "@protected": true,

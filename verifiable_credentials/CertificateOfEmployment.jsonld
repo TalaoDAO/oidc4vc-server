@@ -1,7 +1,9 @@
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1", 
-        {
+        {       
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
             "CertificateOfEmployment" : {
                 "@id": "https://github.com/TalaoDAO/context#certificateofemployment",
                 "@context": {
@@ -21,42 +23,65 @@
                         "@context": {
                             "@version": 1.1,
                             "@protected": true,
-                            "schema" : "https://schema.org/",
                             "name" :  "schema:name",
                             "address" : "schema:address",
-                            "logo" : {"@id" : "schema:logo", "@type" : "@id"}
-                        }
-                    },
-                    "signatureLines": {
-                        "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
-                        "@context": {
-                            "@version": 1.1,
-                            "@protected": true,
-                            "schema" : "https://schema.org/",
-                            "image" : {"@id" : "schema:image", "@type" : "@id"}
+                            "logo" : {
+                                "@id" : "schema:image",
+                                "@type" : "@id"
                             }
                         }
+                    }
                 }
             }
         }
     ],
-    "id": "",
+    "id" : "",
     "type": ["VerifiableCredential", "CertificateOfEmployment"],
     "issuer": "",
     "issuanceDate": "",
+    "name" : [ 
+        {
+            "@value": "Certificate of employment",
+            "@language": "en"
+        },
+        {
+            "@value": "Arbeitsbescheinigung",
+            "@language": "de"
+        },
+        {
+            "@value": "Attestation employeur",
+            "@language": "fr"
+        }
+    ],
+    "description" : [
+        {
+            "@language": "en",
+            "@value": "A certificate of employment is a document by which an employer certifies that his employee is indeed employed by his company. It allows the employee to prove that he has a current employment contract."
+        },
+        {
+            "@language": "de",
+            "@value": "Eine Arbeitgeberbescheinigung ist ein Dokument, mit dem ein Arbeitgeber bescheinigt, dass sein Arbeitnehmer tatsächlich bei seinem Unternehmen beschäftigt ist. Damit kann der Arbeitnehmer nachweisen, dass er über einen laufenden Arbeitsvertrag verfügt."
+        },
+        {
+            "@language": "fr",
+            "@value": "Cette attestation employeur est un document par lequel un employeur atteste que son salarié est bien employé par son entreprise. Elle permet au salarié de prouver qu'il dispose d'un contrat de travail en cours."
+        }
+    ],
     "credentialSubject" : {
             "id": "",
             "type" : "CertificateOfEmployment",
-            "familyName" : "",
-            "givenName" : "",
-            "startDate" : "",
+            "familyName" : "Derangeot",
+            "givenName" : "Paul",
+            "startDate" : "2019-09-04T18:42:42Z",
+            "jobTitle" : "Directeur de département",
+            "employmentType" : "Contrat à durée illimitée",
+            "baseSalary" : "65000",
             "workFor" : {
-                "name" : "",
-                "address" : "",
-                "logo" : ""
-            },
-            "signatureLines" : {
-                "image" : ""}
-            
+                "name" : "Talao",
+                "address" : "16 rue de Wattignies, 75012 Paris, France",
+                "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+            }
     }
 }
+
+

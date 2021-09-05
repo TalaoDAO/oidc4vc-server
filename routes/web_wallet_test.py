@@ -1,4 +1,4 @@
-from flask import jsonify, request, render_template, Response, render_template_string
+from flask import jsonify, request, render_template, Response, render_template_string, redirect
 import json
 from datetime import timedelta, datetime
 from signaturesuite import vc_signature
@@ -9,8 +9,6 @@ import uuid
 import logging
 
 logging.basicConfig(level=logging.INFO)
-
-
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 DID_WEB = 'did:web:talao.cp'
@@ -104,31 +102,58 @@ def test_credentialOffer_qrcode(red, mode) :
         # list all the files of github directory 
         html_string = str()  
         dir_list = dir_list_calculate()
+        html_string = """
+                    <p> type : EmailPass</p>
+                    <p>  name : <strong>Proof of email / Preuve d"email (personalisée) </strong></p>
+                    <p> issuer : """ + DID + """ </p>
+                    <form action="/wallet/test/credentialOffer" method="POST" >
+                        <input hidden name="filename" value=""" + "talaoemailpass" + """> 
+                        <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
+                    </form>
+                    ------------------
+                      <p> type : PhonePass</p>
+                    <p>  name : <strong>Proof of telephone number / Preuve de numéro de téléphone (personalisée) </strong></p>
+                    <p> issuer : """ + DID + """ </p>
+                    <form action="/wallet/test/credentialOffer" method="POST" >
+                        <input hidden name="filename" value=""" + "talaophonepass" + """> 
+                        <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
+                    </form>
+                    ------------------"""
         for filename in dir_list :
             credential = credential_from_filename(filename)
             credential['issuer'] = DID
             credential_name = translate(credential)
             html_string += """
-                    <p> filename : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
+                    <p> Credential preview : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
                     <p> id : """ + credential.get("id", "") + """</p>
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
                     <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
                     <p> issuer : """ + credential['issuer'] + """ </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
-                    <input hidden name="filename" value='""" + filename + """'> 
-                    <p>Scope :
-                    Subject_id<input type="checkbox" disabled checked  >
-                    givenName<input type="checkbox" name="givenName"  value="on">
-                    familyName<input type="checkbox" name="familyName" value="on">
-                    email<input type="checkbox" name="email" value="on">
-                    address<input type="checkbox" name="address"  value="on">
-                    telephone<input type="checkbox" name="telephone"  value="on"> </p>
-                    <br><br><button  type"submit" >QR code for Offer</button></form>
-                    ------------------"""
+                        <input hidden name="filename" value='""" + filename + """'> 
+                        <p>Scope :
+                        Subject_id<input type="checkbox" disabled checked  >
+                        givenName<input type="checkbox" name="givenName"  value="on">
+                        familyName<input type="checkbox" name="familyName" value="on">
+                        email<input type="checkbox" name="email" value="on">
+                        address<input type="checkbox" name="address"  value="on">
+                        telephone<input type="checkbox" name="telephone"  value="on"> </p>
+                        <p>Display descriptor :
+                        backgroundColor : <input type="text" name="backgroundColor" >
+                        icon : <input type="text" name="icon">
+                        nameFallback : <input type="text" name="nameFallback" >
+                        descriptionFallback : <input type="text" name="descriptionFallback"></p>
+                        <br><button  type"submit" > Generate QR code for a Credential Offer</button>
+                    </form>
+                    -----------------------------------------------------------------------------<br>"""
         html_string = "<html><body><head>{% include 'head.html' %}</head><br><h1><strong>Talao Issuer Simulator</strong></h1><br>" + html_string + "</body></html>"
         return render_template_string (html_string) 
     else :
         filename = request.form['filename']
+        if filename == "talaoemailpass" :
+            return redirect('/emailpass')
+        if filename == "talaophonepass" :
+            return redirect('/phonepass')
         credential = credential_from_filename(filename)
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
@@ -145,12 +170,21 @@ def test_credentialOffer_qrcode(red, mode) :
             scope.append("familyName")
         if request.form.get("email") :
             scope.append("email")
+        display = dict()
+        if request.form.get('backgroundColor') :
+            display['backgroundColor'] = request.form['backgroundColor']
+        if request.form.get('icon') :
+            display['icon'] = request.form['icon']
+        if request.form.get('nameFallback') :
+            display['nameFallback'] = request.form['nameFallback']
+        if request.form.get('descriptionFallback') :
+            display['descriptionFallback'] = request.form['descriptionFallback']
         credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
             "scope" : scope,
-            "display" : {}
+            "display" : display
         }
         url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + DID
         red.set(credential['id'], json.dumps(credentialOffer))
@@ -240,20 +274,24 @@ def offer_stream(red):
 ######################### Presentation Request ###########
 
 DIDAuth = {
-            "type": "VerifiablePresentationRequest",
-            "query": {
-            	"type": 'DIDAuth'
-            },
-            "challenge": "",
-            "domain" : ""
+           "type": "VerifiablePresentationRequest",
+           "query": [
+               {
+                    "type" : "DIDAuth"
+                }
+            ],
+           "challenge": "",
+           "domain" : ""
             }
 
 QueryBYExample = {
             "type": "VerifiablePresentationRequest",
-            "query": {
-                "type": "QueryByExample",
-                "credentialQuery": ""
-            },
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": ""
+                }
+            ],
             "challenge": "",
             "domain" : ""
             }
@@ -270,19 +308,28 @@ def test_presentationRequest_qrcode(red, mode):
             pattern = DIDAuth
         else :
             pattern =  QueryBYExample
-            pattern['query']["credentialQuery"] = dict()
-            if request.form.get('reason') :
-                pattern['query']["credentialQuery"]['reason'] = [
-                                                                {"@value": "Text in English", "@language": "en"},
-                                                                {"@value" : request.form['reason'], "@language" : "fr"},
-                                                                {"@value" : "text in German", "@language": "De"}
-                                                                ]            
-            if request.form.get('type') :
-                pattern['query']["credentialQuery"]['type'] = [key.replace(" ", "") for key in request.form['type'].split(',') ]
-            if request.form.get('trustedIssuer') :
-                pattern['query']["credentialQuery"]['trustedIssuer'] = [key.replace(" ", "") for key in request.form['trustedIssuer'].split(',') ]
-            if request.form.get('credentialSchema') :
-                pattern['query']["credentialQuery"]['credentialSchema'] = [key.replace(" ", "") for key in request.form['credentialSchema'].split(',') ]
+            pattern['query'][0]["credentialQuery"] = list()
+            for q in ["1","2","3"] :
+                if request.form.get('trustedIssuer' + q) or request.form.get('type' + q) or request.form.get('credentialSchema' + q) : 
+                    MycredentialQuery = dict()
+                    if request.form.get('reason' + q) :
+                        MycredentialQuery['reason'] = [
+                                                {"@value": "Text in English", "@language": "en"},
+                                                {"@value" : request.form['reason' + q], "@language" : "fr"},
+                                                {"@value" : "text in German", "@language": "De"}
+                                            ]            
+          
+                    MycredentialQuery['example'] = dict()
+                    if request.form.get('type' + q) :
+                        MycredentialQuery['example']['type'] =  request.form['type' + q]
+                    if request.form.get('trustedIssuer' + q) :
+                        MycredentialQuery['example']['trustedIssuer' + q] = list()
+                        for issuer in [key.replace(" ", "") for key in request.form['trustedIssuer' + q].split(',')] :
+                            MycredentialQuery['example']['trustedIssuer'].append({"issuer" : issuer})   
+                    if request.form.get('credentialSchema' + q) :
+                        MycredentialQuery['example']['credentialSchema'] = {'type' : request.form['credentialSchema' + q]}
+                    pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
+        
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))

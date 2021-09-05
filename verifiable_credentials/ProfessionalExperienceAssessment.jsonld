@@ -1,15 +1,17 @@
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        {
+        {   
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
             "ProfessionalExperienceAssessment" : {
                 "@id" : "https://github.com/TalaoDAO/context#certificateofemployment",
                 "@context" : {
                     "@version": 1.1,
                     "@protected": true,
                     "schema" : "https://schema.org/",
-                    "author": {
-                        "@id": "schema:author",
+                    "issuedBy": {
+                        "@id": "schema:issuedBy",
                         "@context": {
                             "@version": 1.1,
                             "@protected": true,
@@ -84,10 +86,38 @@
     "type": ["VerifiableCredential", "ProfessionalExperienceAssessment"],
     "issuer": "",
     "issuanceDate": "",
+    "name" : [ 
+        {
+            "@value": "Professional experience assessment",
+            "@language": "en"
+        },
+        {
+            "@value": "Bescheinigung über die Berufserfahrung",
+            "@language": "de"
+        },
+        {
+            "@value": "Attestation d'expérience professionnelle",
+            "@language": "fr"
+        }
+    ],
+    "description" : [
+        {
+            "@language": "en",
+            "@value": "It is a credential issued by a company to its employees, service providers or freelancers. This certificate is produced at the request of a Talent to prove the skills and know-how implemented during a project or a mission. "
+        },
+        {
+            "@language": "de",
+            "@value": "Es ist ein Ausweis, der von einem Unternehmen an seine Mitarbeiter, Dienstleister oder Freiberufler ausgestellt wird. Dieses Zertifikat wird auf Antrag eines Talents ausgestellt, um die Fähigkeiten und das Know-how nachzuweisen, die während eines Projekts oder einer Mission eingesetzt werden."
+        },
+        {
+            "@language": "fr",
+            "@value": "Il s'agit d'un justificatif délivré par une entreprise à ses salariés, prestataires ou indépendants. Cette attestation est produite à la demande d'un Talent pour justifier des compétences et savoir-faire mis en œuvre lors d'un projet ou d'une mission."
+        }
+    ],
     "credentialSubject": {
         "id": "",
         "type" :  "ProfessionalExperienceAssessment",
-        "author" : {
+        "issuedBy" : {
           "name" : "Talao",
           "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             },

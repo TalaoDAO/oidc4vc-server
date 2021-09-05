@@ -2,6 +2,8 @@
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
             "PhonePass" : {
                 "@id": "https://github.com/TalaoDAO/context#phonepass",
                 "@context": {
@@ -11,7 +13,16 @@
                     "id": "@id",
                     "type": "@type",
                     "phone" : "schema:phone",
-                    "expires" : "schema:expires"
+                    "expires" : "schema:expires",
+                    "issuedBy" : {
+                        "@id" : "schema:issuedBy",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "logo": {"@id" : "schema:image", "@type" : "@id"},
+                            "name" : "schema:name"
+                        }
+                    }
                 }
             }
         }
@@ -19,10 +30,44 @@
     "id": "",
     "type": ["VerifiableCredential", "PhonePass"],
     "issuer": "",
+    "name" : [ 
+        {
+            "@value": "Phone Proof",
+            "@language": "en"
+        },
+        {
+            "@value": "Telefonnachweis",
+            "@language": "de"
+        },
+        {
+            "@value": "Preuve de téléphone",
+            "@language": "fr"
+        }
+    ],
+    "description" : [
+        {
+            "@language": "en",
+            "@value": "This signed electronic certificate is proof that you are the owner of this telephone number."
+        },
+        {
+            "@language": "de",
+            "@value": "Dieses signierte elektronische Zertifikat ist der Nachweis, dass Sie der Inhaber dieser Telefonnummer sind."
+        },
+        {
+            "@language": "fr",
+            "@value": "Cette attestation électronique signée est la preuve que vous êtes le propriétaire de ce numéro de téléphone."
+        }
+    ],
+
     "issuanceDate": "",
     "credentialSubject" : {
         "type" : "PhonePass",
         "phone" : "+3360718229678",
-        "expires" : ""
+        "expires" : "2022-09-04T15:12:15.372Z",
+        "issuedBy" : {
+            "name" : "Talao",
+            "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+        }
+      
     }
 }

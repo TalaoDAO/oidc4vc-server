@@ -2,6 +2,8 @@
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
             "LoyaltyCard" : {
                 "@id": "https://github.com/TalaoDAO/context#loyaltycard",
                 "@context": {
@@ -34,9 +36,26 @@
     "type": ["VerifiableCredential", "LoyaltyCard"],
     "issuer": "",
     "issuanceDate": "",
+    "name" : [ 
+        {
+            "@value": "Loyalty card",
+            "@language": "en"
+        },
+        {
+            "@value": "Kundenkarte",
+            "@language": "de"
+        },
+        {
+            "@value": "Carte de fidélité",
+            "@language": "fr"
+        }
+    ],
+    "description" : "",
     "credentialSubject" : {
         "type" : "LoyaltyCard",
+        "expires" : "2022-09-04T15:12:15.372Z",
         "givenName" : "Thierry",
+        "familyName" :"Thevenet",
         "memberOf" : {
             "name" : "The Wine Spririt",
             "logo" : "https://thewinespirit.co"

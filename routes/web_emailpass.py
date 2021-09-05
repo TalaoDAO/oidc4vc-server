@@ -14,7 +14,7 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 DID_WEB = 'did:web:talao.cp'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID = DID_TZ
+DID = DID_ETHR
 
 
 def init_app(app,red, mode) :
@@ -94,6 +94,7 @@ def emailpass_offer(id, red, mode):
     credential['credentialSubject']['id'] = "did:..."
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['email'] = red.get(id).decode()
+    credential['proof'] =  {"@context": [],"type": "","proofPurpose": "","verificationMethod": "","created": "","jws": ""}
     credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"  
     if request.method == 'GET': 
         # make an offer  
@@ -108,6 +109,7 @@ def emailpass_offer(id, red, mode):
         # sign credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
+        del credential['proof']
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         signed_credential = vc_signature.sign(credential, pvk, DID)
         if not signed_credential :

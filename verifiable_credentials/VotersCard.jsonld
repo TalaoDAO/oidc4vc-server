@@ -4,7 +4,7 @@
         {
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
-            "IdentityPass" : {
+            "VotersCard" : {
                 "@id": "https://github.com/TalaoDAO/context#identitypass",
                 "@context": {
                     "@version": 1.1,
@@ -45,40 +45,40 @@
         }
     ],
     "id": "",
-    "type": ["VerifiableCredential", "IdentityPass"],
+    "type": ["VerifiableCredential", "VotersCard"],
     "issuer": "",
     "name" : [ 
         {
-            "@value": "Identity pass",
+            "@value": "Voter's card",
             "@language": "en"
         },
         {
-            "@value": "Firmenpass",
+            "@value": "",
             "@language": "de"
         },
         {
-            "@value": "Pass entreprise",
+            "@value": "Carte d'électeur",
             "@language": "fr"
         }
     ],
     "description" : [
         {
             "@language": "en",
-            "@value": "It is a credential issued by a company or an organization. It can be used to authenticate with company services (access badge, information system) or with third parties who offer services for company employees."
+            "@value": ""
         },
         {
             "@language": "de",
-            "@value": "Es ist ein von einem Unternehmen oder einer Organisation ausgestellter Berechtigungsnachweis. Es kann zur Authentifizierung bei Firmendiensten (Zugangsausweis, Informationssystem) oder bei Dritten, die Dienstleistungen für Firmenmitarbeiter anbieten, verwendet werden."
+            "@value": ""
         },
         {
             "@language": "fr",
-            "@value": "Il s'agit d'un titre délivré par une entreprise ou une organisation. Il permet de s'authentifier auprès des services de l'entreprise (badge d'accès, système d'information) ou auprès de tiers proposant des services aux salariés de l'entreprise."
+            "@value": ""
         }
     ],
     "issuanceDate": "",
     "credentialSubject" : {
         "id": "",
-        "type" : "IdentityPass",
+        "type" : "VotersCard",
         "recipient" : {
             "email" : "john.doe@talao.io",
             "image" : "",
