@@ -1,11 +1,11 @@
-# Conditions Générales d'Utilisation
+# Conditions Générales d'Utilisation (CGU)
 
-Ce document a été mis à jour le Jeudi 22 juillet 2021
+Ce document a été mis à jour le mardi 7 septembre 2021
 
 ## Préambule
 
 
-L'Identité Numérique Professionnelle Talao est accessible au travers d’une interface web depuis un navigateur et nécessite également une application sur smartphone appelées wallet..
+L'Identité Numérique Professionnelle Talao est accessible au travers d'une application sur smartphone appelée wallet et dispose également d’une interface web vers un portfolio accessible depuis un navigateur.
 
 Le présent document vise à présenter les conditions dans lesquelles l’utilisateur peut utiliser le service de l’Identité Numérique Professionnelle Talao.
 
@@ -52,7 +52,7 @@ Utilisateur : désigne une personne qui dispose de l’application smartphone de
 
 ## Objet
 
-Les présentes Conditions Générales d’Utilisation (CGU) ont pour objet de définir les relations contractuelles entre Talao et l’utilisateur concernant l’accès et l’utilisation du service d’Identité Numérique Professionnelle constityué d’une application web nommée portfolio à l’addresse https://talao.co et d’une l’application sur smartphone nommée wallet
+Les présentes Conditions Générales d’Utilisation (CGU) ont pour objet de définir les relations contractuelles entre Talao et l’utilisateur concernant l’accès et l’utilisation du service d’Identité Numérique Professionnelle constityué d’une application web nommée portfolio à l’addresse https://talao.co et d’une l’application sur smartphone nommée wallet dospoonib le sur les stores Google et Apple.
 
 À tout moment, Talao se réserve le droit d’apporter des modifications au Service Identité Numérique Professionnelle et par conséquent aux présentes CGU. Toute modification entre en vigueur à compter de leur publication ou, le cas échéant, à toute autre date qui serait indiquée. Talao fera en sorte de porter à la connaissance des utilisateurs toute modification des CGU, il appartient toutefois à l’utilisateur avant toute utilisation du service d'Identité Numérique  de se référer à la dernière version des CGU accessible à tout moment sur le site https://talao.co.
 
@@ -64,7 +64,7 @@ L’Identité Numérique Professionnelle est un service de Talao qui permet de c
 
 Le service est construit sur de 2 applications numériques: le portfolio et le wallet. Le wallet permet de générer son identifiant,  de collecter des attestations auprès de tiers, de les conserver et de les transférer vers d’autres  tiers. Le portfolio permet à un utilisateur de demander à des entreprises tiers de lui émettre des attestations mais également de conserver ces attestations sur un serveur extérieur pour éventuellement être en mesure de les récupérer en cas de perte de son smartphone ou de les exposer à un public choisi. Le portfolio est une sorte de coffre fort numérique dont les données sont accessible sous le controle exclusif de l'utilisateur.
 
-Le service de Talao est construit sur la base d’une technologie innovante (Blockchain) et des concepts de l’identité auto-souveraine et des attestations vérifiables. Le service de talao permet à un utilisateur de disposer d’une Identité Numérique et d’attestations certifiées par des tiers  sans devoir sauvegarder ses données personnelles sur les serveurs d’un Fournisseur d’Identité. Les données sont conservées dans le wallet (application smartphone) de l’utilisateur ou éventuellement cryptées sur un réseau décentralisé. L’utilisateur conserve seul un accès à son identité avec son smartphone ou sont conservées des clés cryptographiques. Il peut autoriser une application d’un partenaire (un fournisseur de services) à y accéder.
+Le service de Talao est construit sur la base d’une technologie innovante (Blockchain) et des concepts de l’identité auto-souveraine (SSI) et des attestations vérifiables. Le service de talao permet à un utilisateur de disposer d’une Identité Numérique et d’attestations certifiées par des tiers  sans devoir sauvegarder ses données personnelles sur les serveurs d’un Fournisseur d’Identité. Les données sont conservées dans le wallet (application smartphone) de l’utilisateur ou éventuellement cryptées sur un réseau décentralisé. L’utilisateur conserve seul un accès à son identité avec son smartphone ou sont conservées des clés cryptographiques. Il peut autoriser une application d’un partenaire (un fournisseur de services) à y accéder.
 
 Dans le cadre du service Identité Numérique Professionnelle Talao, l’utilisateur bénéficie de diverses fonctionnalités concernant son parcours professionnel. Certaines de ces fonctionnalités ne sont accessibles qu’au travers de son wallet sur smartphone.
 
@@ -307,7 +307,7 @@ Talao et l’utilisateur acceptent qu’en cas de litige, soient admissibles en 
 * les signatures électroniques utilisées et les conventions conclues grâce à ces signatures dans le cadre du Site ainsi que des stipulations acceptées entre les parties ;
 * les données de connexion relatives à des actions effectuées à partir du Service Identité Numérique Professionnelle de l’utilisateur;
 
-## La preuve contraire peut être rapportée.
+La preuve contraire peut être rapportée.
 
 ## Dispositions diverses
 
