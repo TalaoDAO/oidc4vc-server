@@ -29,30 +29,25 @@
                             "familyName" : "schema:familyName"
                         }
                     },
-                 
                     "signatureLines": {
-                            "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
-                            "@context": {
-                                "@version": 1.1,
-                                "@protected": true,
-                                "schema" : "https://schema.org/",
-                                "name" :  "schema:name",
-                                "jobTitle" :"schema:jobTitle",
-                                "image" : {"@id" : "schema:image", "@type" : "@id"}
-                                }
-                            },
+                        "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :  "schema:name",
+                            "jobTitle" :"schema:jobTitle",
+                            "image" : {"@id" : "schema:image", "@type" : "@id"}
+                        }
+                    },
                     "datePublished" : "schema:datePublished",
-                    "skills": "schema:skills"
-                }     
-            },
-           
-            "Skill": {
-                "@id": "schema:Rating",
-                "@context": {
-                "@version": 1.1,
-                "@protected": true,
-                "schema": "https://schema.org/",
-                "description": "schema:description"
+                    "skills": {
+                        "@id": "schema:skills",
+                        "@context": {
+                        "@version": 1.1,
+                        "@protected": true,
+                        "description": "schema:description"
+                        }
+                    }
                 }
             }
         }
@@ -109,15 +104,12 @@
         "datePublished" : "2020-09-01T10:11:59.393Z",
         "skills": [
             {
-                "@type": "Skill",
                 "description": "JSON-LD"
             },
             {
-                "@type": "Skill",
                 "description": "Verifiable Credential"
             },
             {
-                "@type": "Skill",
                 "description": "Flutter"
             }
         ]

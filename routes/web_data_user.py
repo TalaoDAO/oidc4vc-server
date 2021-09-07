@@ -59,6 +59,14 @@ def text_file() :
 	return Response(content, mimetype='text/plain')
 
 
+def md_file() :
+	if request.args['file'] == 'privacy' :
+		content = open('privacy_en.txt', 'r').read() if session['language'] == 'en' else open('privacy_fr.txt', 'r').read()
+	elif request.args['file'] == 'terms_and_conditions' :
+		content = open('cgu_en.txt', 'r').read() if session['language'] == 'en' else open('cgu_fr.txt', 'r').read()
+	return Response(content, mimetype='text/plain')
+
+
 def import_identity_key(mode) :
 	if request.method == 'GET' :
 		return render_template ('import_identity_key.html', **session['menu'])

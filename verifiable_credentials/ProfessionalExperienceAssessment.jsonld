@@ -29,55 +29,47 @@
                             "familyName" : "schema:familyName"
                         }
                     },
-                 
                     "signatureLines": {
                             "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
                             "@context": {
                                 "@version": 1.1,
                                 "@protected": true,
-                                "schema" : "https://schema.org/",
                                 "name" :  "schema:name",
                                 "jobTitle" :"schema:jobTitle",
                                 "image" : {"@id" : "schema:image", "@type" : "@id"}
                                 }
                             },
-                    "review" : "schema:review",
                     "title" : "schema:title",
                     "description" : "schema:description",
                     "startDate" : "schema:startDate",
                     "endDate" : "schema:endDate",
-                    "skills": "schema:skills"
-                }     
-            },
-            "Review": {
-                "@id": "schema:Review",
-                "@context": {
-                    "@version": 1.1,
-                    "@protected": true,
-                    "schema" : "https://schema.org/",
-                    "name" :  "schema:name",
-                    "reviewBody" : "schema:reviewBody",
-                    "reviewRating" : "schema:reviewRating"
-                }
-            },
-            "Rating": {
-                "@id": "schema:Rating",
-                "@context": {
-                    "@version": 1.1,
-                    "@protected": true,
-                    "schema" : "https://schema.org/",
-                    "worstRating" :  "schema:worstRating",
-                    "bestRating" : "schema:bestRating",
-                    "ratingValue" : "schema:ratingValue"
-                }
-            },
-            "Skill": {
-                "@id": "schema:Rating",
-                "@context": {
-                "@version": 1.1,
-                "@protected": true,
-                "schema": "https://schema.org/",
-                "description": "schema:description"
+                    "skills": {
+                        "@id": "schema:skills",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "description" :  "schema:description"
+                        }
+                    },         
+                    "review": {
+                        "@id": "schema:review",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :  "schema:name",
+                            "reviewBody" : "schema:reviewBody",
+                            "reviewRating" : {
+                                "@id": "schema:ratingValue",
+                                "@context": {
+                                    "@version": 1.1,
+                                    "@protected": true,
+                                    "worstRating" :  "schema:worstRating",
+                                    "bestRating" : "schema:bestRating",
+                                    "ratingValue" : "schema:ratingValue"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -85,7 +77,6 @@
     "id": "data:aaaa:aaa",
     "type": ["VerifiableCredential", "ProfessionalExperienceAssessment"],
     "issuer": "",
-    "issuanceDate": "",
     "name" : [ 
         {
             "@value": "Professional experience assessment",
@@ -137,45 +128,38 @@
         "endDate" : "2021-05-15T12:11:59Z",
         "skills": [
             {
-                "@type": "Skill",
                 "description": "JSON-LD"
             },
             {
-                "@type": "Skill",
                 "description": " Verifiable Credential"
             }
         ],
         "review": [
             {
-            "type" : "Review",
             "name" : "reviewRecommendation",
             "reviewBody": [ 
                 {"@value": "How likely are you to recommend this Talent to others ?", "@language": "en"},
                 {"@value": "Recommanderiez vous ce Talent ?", "@language": "fr"}],
             
             "reviewRating": {
-                "type" : "Rating",
                 "bestRating": "5",
                 "ratingValue": "5",
                 "worstRating": "1"
                 }
             },
             {
-            "type" : "Review",
             "name" : "reviewDelivery",
             "reviewBody": [
                 {"@value" : "How satisfied are you with the overall delivery ?", "@language": "en"},
                 {"@value" : "Etes vous satisfait du travail produit ?", "@language": "fr"}
             ],
             "reviewRating": {
-                "type" : "Rating",
                 "bestRating": "5",
                 "ratingValue": "5",
                 "worstRating": "1"
                 }
             },
             {
-            "type" : "Review",
             "name" : "reviewSchedule",
             "reviewBody": [
                 {"@value" : "How would you rate his or her ability to deliver to schedule ?", "@language" : "en"},
@@ -189,14 +173,12 @@
                 }
             },
             {
-            "type" : "Review",
             "name" : "reviewCommunication",
             "reviewBody": [
                 {"@value" : "How would you rate his or her overall communication skills ?", "@language" : "en"},
                 {"@value" : "Etes vous satisfait de la communication de ce Talent ?", "@language" : "fr"}
             ],
             "reviewRating": {
-                "type" : "Rating",
                 "bestRating": "5",
                 "ratingValue": "4",
                 "worstRating": "1"
