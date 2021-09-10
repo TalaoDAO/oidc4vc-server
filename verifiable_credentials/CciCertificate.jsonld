@@ -1,0 +1,169 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {   
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
+            "CciCertificate" : {
+                "@id" : "https://github.com/TalaoDAO/context#ccicertificate",
+                "@context" : {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "issuedBy": {
+                        "@id": "schema:issuedBy",
+                        "@type" : "schema:organization",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "legalName" :   "schema:legalName",
+                            "logo" : {"@id" : "schema:logo", "@type" : "@id"}
+                        }
+                    },
+                    "provider" : {
+                        "@id" : "schema:provider",
+                        "@type" : "schema:organization",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "logo": {"@id" : "schema:logo", "@type" : "@id"},
+                            "legalName" : "schema:legalName",
+                            "siren" : "schema:identifier",
+                            "rcs" : "schema:identifier",
+                            "briquesAIF" : "schema:identifier"
+                        }
+                    },
+                    "customer" : {
+                        "@id" : "schema:customer",
+                        "@type" : "schema:organization",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "logo": {"@id" : "schema:logo", "@type" : "@id"},
+                            "legalName" : "schema:legalName",
+                            "siren" : "https://github.com/TalaoDAO/context/ccicertificate.md",
+                            "rcs" : "https://github.com/TalaoDAO/context/ccicertificate.md"
+                        }
+                    },
+                    "signatureLines": {
+                            "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+                            "@context": {
+                                "@version": 1.1,
+                                "@protected": true,
+                                "responsableMission" : "schema:contactPoint",
+                                "jobTitle" :"schema:jobTitle",
+                                "signature" : {"@id" : "schema:image", "@type" : "@id"}
+                                }
+                            },
+                    "title" : "schema:title",
+                    "description" : "schema:description",
+                    "deliveryTime" : {
+                        "@id": "schema:deliveryTime",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "duration" :  "schema:duration",
+                            "unitCode" : "schema:unitCode"
+                        }
+                    },
+                    "review": {
+                        "@id": "schema:review",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :  "schema:name",
+                            "reviewBody" : "schema:reviewBody",
+                            "reviewRating" : {
+                                "@id": "schema:ratingValue",
+                                "@context": {
+                                    "@version": 1.1,
+                                    "@protected": true,
+                                    "worstRating" :  "schema:worstRating",
+                                    "bestRating" : "schema:bestRating",
+                                    "ratingValue" : "schema:ratingValue"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "id": "data:aaaa:aaa",
+    "type": ["VerifiableCredential", "CciCertificate"],
+    "issuer": "",
+    "name" :  "Attestation de compétence",
+    "description" :  "Il s'agit d'un justificatif délivré par un client à son prestataire sur la Plateforme Régionale d'Accélération de l'Udf de Nouvelle Aquitaine.",
+    "credentialSubject": {
+        "id": "",
+        "type" :  "CciCertificate",
+        "customer" : {
+          "legalName" : "Talao",
+          "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu",
+          "rcs" : "Paris B 837 674 480",
+          "siren" : "837674480"
+        },
+        "issuedBy": {
+            "legalName" :   "Plateforme Regionale d'Accéleration de Nouvelle Aquitaine",
+            "logo" :   "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+        },
+        "provider" : {
+            "logo" : "https://talao.mypinata.cloud/ipfs/QmejpQ1ns8J1n8aBCRx16BcEKQ1Z66dEK2RnQV55ajkyJF",
+            "legalName" : "Société d'Etude et de Conseil de Nouvelle Aquitaine",
+            "rcs" : "Bordeaux B 457 304 501",
+            "siren" : "835678432",
+            "briquesAIF" : "QNF-NA-12345"
+
+        },
+        "signatureLines" : {
+            "responsableMission" : "André Cotton",
+            "jobTitle" : "Directeur",
+            "signature" : "https://talao.mypinata.cloud/ipfs/QmawHhhLZayZRoQqpuNxm6uJX2MFoPgqPTj57hgvmWCXxu"
+        },
+        "title" : "Réalisation d’un POC RA application formation nouvelle entrant",
+        "deliveryTime" : {
+            "duration" :"3",
+            "unitCode" : "m"
+        },
+        "review": [
+            {
+            "name" : "reviewRecommendation",
+            "reviewBody":  "Recommanderiez vous cet offreur ?",
+            
+            "reviewRating": {
+                "bestRating": "5",
+                "ratingValue": "5",
+                "worstRating": "1"
+                }
+            },
+            {
+            "name" : "reviewDelivery",
+            "reviewBody":  "Etes vous satisfait de la qualité de la prestation ?",
+            "reviewRating": {
+                "bestRating": "5",
+                "ratingValue": "5",
+                "worstRating": "1"
+                }
+            },
+            {
+            "name" : "reviewSchedule",
+            "reviewBody": "Etes vous satisfait du respect des engagements (qualité, prix, délais) ?",
+            "reviewRating": {
+                "type" : "Rating",
+                "bestRating": "5",
+                "ratingValue": "4",
+                "worstRating": "1"
+                }
+            },
+            {
+            "name" : "reviewCommunication",
+            "reviewBody":  "Etes vous satisfait des compétences mises en oeuvre ?",
+            "reviewRating": {
+                "bestRating": "5",
+                "ratingValue": "4",
+                "worstRating": "1"
+                }
+            }
+            ]
+    }
+}

@@ -1,0 +1,59 @@
+{
+    "name" : {
+        "claim_value" : "",
+        "privacy" : "public"
+        },
+	"contact_name" : {
+        "claim_value" : "",
+        "privacy" : "public"
+        },
+	"contact_email" : {
+        "claim_value" : "",
+        "privacy" : "public"
+        },
+	"contact_phone" : {
+        "claim_value" : "",
+        "privacy" : "public"
+        },
+	"website" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+	"about" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+	"staff" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+	"sales" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+        "mother_company" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+	"siren" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+        "rcs" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+        "briquesAIF" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+	"postal_address" : {
+                "claim_value" : "",
+                "privacy" : "public"
+        },
+	"signature" : "",
+	"picture" : "",
+        "credential_acquired" : 0,
+        "credential_counter" : 0,
+        "credentials_supported" : []
+}

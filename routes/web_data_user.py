@@ -616,12 +616,34 @@ def user(mode) :
 			my_certificates = """<div  style="height:300px;overflow:auto;overflow-x: hidden;">"""
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				if '@context' in certificate :
-					if  certificate['credentialSubject']['credentialCategory'] ==  "reference" :
+					if  certificate['credentialSubject'].get('credentialCategory') ==  "reference" :
 						cert_html = """<hr>
 								<b>""" + _('Issuer Name') + """</b> : """ + certificate['credentialSubject']['companyName'] + """<br>
 								<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['credentialCategory'].capitalize() + """<br>
 								<b>""" + _('Title') + """</b> : """ + certificate['credentialSubject']['offers']['title'] + """<br>
 								<b>""" + _('Description') + """</b> : """ + certificate['credentialSubject']['offers']['description']+ """<br>
+								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Certificate') + """</a><br>
+								<p>
+								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">
+								<i data-toggle="tooltip" class="far fa-trash-alt" title="Remove">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" href=/data/?dataId=""" + certificate['id'] + """:certificate>
+								<i data-toggle="tooltip" class="fa fa-search-plus" title="Data Check">&nbsp&nbsp&nbsp</i>
+								</a>
+
+								<a class="text-secondary" onclick="copyToClipboard('#p"""+ str(counter) + """')">
+								<i data-toggle="tooltip" class="fa fa-clipboard" title="Copy Certificate Link"></i>
+								</a>
+								</p>
+								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
+				
+					elif  certificate['credentialSubject'].get('type') ==  "CciCertificate" :
+						cert_html = """<hr>
+								<b>""" + _('Issuer Name') + """</b> : """ + certificate['credentialSubject']['customer']['legalName'] + """<br>
+								<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['type'].capitalize() + """<br>
+								<b>""" + _('Title') + """</b> : """ + certificate['credentialSubject']['title'] + """<br>
+								<b>""" + _('Description') + """</b> : """ + certificate['credentialSubject']['description']+ """<br>
 								<b></b><a href= """ + mode.server +  """certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """>""" + _('Display Certificate') + """</a><br>
 								<p>
 								<a class="text-secondary" href="/user/remove_certificate/?certificate_id=""" + certificate['id'] + """">

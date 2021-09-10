@@ -47,7 +47,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard
 
 # Release
-VERSION = "0.18.9"
+VERSION = "0.18.10"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -152,6 +152,8 @@ app.add_url_rule('/prefetch',  view_func=web_main.prefetch, methods = ['GET','PO
 app.add_url_rule('/user/search/',  view_func=web_main.search, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/select_identity/',  view_func=web_main.select_identity, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/user/issue_certificate/',  view_func=web_main.issue_certificate, methods = ['GET','POST'], defaults={'mode' : mode})
+
+app.add_url_rule('/company/issue_cci_certificate/', view_func=web_main.issue_cci_certificate, methods=['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/issue_reference_credential/',  view_func=web_main.issue_reference_credential, methods = ['GET','POST'], defaults={'mode' : mode})
 app.add_url_rule('/company/add_credential_supported/',  view_func=web_main.add_credential_supported, methods = ['GET','POST'], defaults={'mode' : mode})
 

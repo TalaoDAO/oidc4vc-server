@@ -507,7 +507,7 @@ def issuer_explore(mode) :
 		# reference credentials
 		references = []
 		for certificate in session['issuer_explore']['certificate']:
-			if certificate['credentialSubject']['credentialCategory'] =='reference':
+			if certificate['credentialSubject'].get('credentialCategory') =='reference':
 				references.append(certificate)
 
 		carousel_indicators_reference = """<li data-target="#reference-carousel" data-slide-to="0" class="active" style="margin-bottom: 0;"></li>"""

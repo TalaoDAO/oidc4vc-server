@@ -138,6 +138,50 @@ def show_certificate(mode):
 							viewer=viewer,
 							**context)
 
+# CciCertificate Display
+	if "CciCertificate" in session['displayed_certificate']['type'] :
+
+		reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+		questionRecommendation = session['displayed_certificate']['credentialSubject']['review'][reviewRecommendation]["reviewBody"]
+		questionDelivery = session['displayed_certificate']['credentialSubject']['review'][reviewDelivery]["reviewBody"]
+		questionSchedule = session['displayed_certificate']['credentialSubject']['review'][reviewSchedule]["reviewBody"]
+		questionCommunication = session['displayed_certificate']['credentialSubject']['review'][reviewCommunication]["reviewBody"]
+		
+		# Icon "fa-star" treatment
+		yellow_star = "color: rgb(251,211,5); font-size: 12px;" # yellow
+		black_star = "color: rgb(0,0,0);font-size: 12px;" # black
+		score = []
+		context = dict()
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewRecommendation]['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewDelivery]['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewSchedule]['reviewRating']['ratingValue']))
+		score.append(int(session['displayed_certificate']['credentialSubject']['review'][reviewCommunication]['reviewRating']['ratingValue']))
+		for q in range(0,4) :
+			for i in range(0,score[q]) :
+				context["star"+str(q)+str(i)] = yellow_star
+			for i in range(score[q],5) :
+				context ["star"+str(q)+str(i)] = black_star
+	
+		return render_template('./certificate/ccicertificate_vc.html',
+							**menu,
+							responsableMission=session['displayed_certificate']['credentialSubject']['signatureLines']['responsableMission'],
+							
+							customer_name=session['displayed_certificate']['credentialSubject']['customer']['legalName'],
+							customer_logo=session['displayed_certificate']['credentialSubject']['customer']['logo'],
+							provider_name= session['displayed_certificate']['credentialSubject']['provider']['legalName'],
+
+							title = session['displayed_certificate']['credentialSubject']['title'],
+							
+							description=session['displayed_certificate']['credentialSubject']['description'],
+							duration=session['displayed_certificate']['credentialSubject']['deliveryTime']['duration'],
+							signature=session['displayed_certificate']['credentialSubject']['signatureLines']['signature'],
+							questionRecommendation=questionRecommendation,
+							questionCommunication=questionCommunication,
+							questionSchedule=questionSchedule,
+							questionDelivery=questionDelivery,
+							certificate_id=certificate_id,
+							viewer=viewer,
+							**context)
 
 
 	# IdentityPass Display

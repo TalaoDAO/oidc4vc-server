@@ -3,7 +3,7 @@
 
 Dernière mise à jour le Mardi 7 Septembre 2021 
 
-## Préalmbule
+## Préambule
 
 La protection de votre vie privée est importante pour nous. Talao s'engage à protéger la confidentialité, la sécurité et l'exactitude des informations personnelles qu'ils collectent, utilisent ou divulguent conformément à la loi applicable. Cette politique de protection de la vie privée (la « Politique de confidentialité ») est une déclaration de principes et de directives concernant la vie privée des personnes utilisant les services offerts par Talao (à l'exception de notre personnel, dont les informations personnelles sont collectées, utilisées et divulguées conformément à notre politique de protection de la confidentialité du personnel).
 

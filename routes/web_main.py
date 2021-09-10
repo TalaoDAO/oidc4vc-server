@@ -488,10 +488,78 @@ def issue_certificate(mode):
                                     **session['menu'],
                                     issuer_username=session['issuer_username'],
                                     issuer_name = session['issuer_explore']['name'])
+        
+        elif request.form['certificate_type'] == 'ccicertificate'  :
+            return render_template('issue_cci_certificate.html',
+                                    **session['menu'],
+                                    issuer_username=session['issuer_username'],
+                                    issuer_name = session['issuer_explore']['name'])
 
         else :
             flash(_('This certificate is not implemented yet !'), 'warning')
             return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
+
+def issue_cci_certificate(mode):
+    """ issue a reference credential to company without review and no request   
+    @app.route('/commpany/issue_cci_certificate/', methods=['GET','POST'])
+    """
+    check_login()
+
+    # call from issue_reference_credential.html
+    if request.method == 'POST' :
+        workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
+
+        # load templates for verifiable credential and init with view form and session
+        unsigned_credential = json.load(open('./verifiable_credentials/CciCertificate.jsonld', 'r'))
+        unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
+        unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
+        unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['issuer_explore']['workspace_contract'], mode)
+
+        unsigned_credential[ "credentialSubject"]['provider']["legalName"] = session['issuer_explore']['name']
+        unsigned_credential[ "credentialSubject"]['provider']["logo"] = mode.ipfs_gateway +  session['issuer_explore']["picture"]
+        unsigned_credential[ "credentialSubject"]['provider']["rcs"] = session['issuer_explore']['personal']['rcs'].get('claim_value', "unknown rcs")
+        unsigned_credential[ "credentialSubject"]['provider']["siren"] = session['issuer_explore']['personal']['siren'].get('claim_value', "unknown siren")
+        unsigned_credential[ "credentialSubject"]['provider']["briquesAIF"] = session['issuer_explore']['personal']['briquesAIF'].get('claim_value', "unknown briquesAIF")
+
+        unsigned_credential['credentialSubject']['title'] = request.form['title']
+        unsigned_credential['credentialSubject']['description'] = request.form['description']
+        unsigned_credential['credentialSubject']['deliveryTime']['duration'] = request.form['duration']
+
+        reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+        unsigned_credential['credentialSubject']['review'][reviewRecommendation]['reviewRating']['ratingValue'] = request.form['score_recommendation']
+        unsigned_credential['credentialSubject']['review'][reviewSchedule]['reviewRating']['ratingValue'] = request.form['score_schedule']
+        unsigned_credential['credentialSubject']['review'][reviewDelivery]['reviewRating']['ratingValue'] = request.form['score_delivery']
+        unsigned_credential['credentialSubject']['review'][reviewCommunication]['reviewRating']['ratingValue'] = request.form['score_communication']
+
+        unsigned_credential['credentialSubject']['customer']["logo"] =  mode.ipfs_gateway + session['picture']
+        unsigned_credential['credentialSubject']['customer']["legalName"] = session['name']
+        unsigned_credential['credentialSubject']['customer']["siren"] = session['personal']['siren'].get('claim_value', "unknown siren")
+        unsigned_credential['credentialSubject']['customer']["rcs"] = session['personal']['rcs'].get('claim_value', "unknown rcs")
+
+        
+        unsigned_credential['credentialSubject']['signatureLines']["signature"] = mode.ipfs_gateway + session['signature']
+        unsigned_credential['credentialSubject']['signatureLines']["jobTitle"] = "Directeur"
+        unsigned_credential['credentialSubject']['signatureLines']["responsableMission"] = request.form['responsableMission']
+
+        # sign credential
+        signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], unsigned_credential['issuer'])
+        logging.info('credential signed')
+
+        # store signed credential on server
+        filename = unsigned_credential['id'] + '.jsonld'
+        path = "./signed_credentials/"
+        with open(path + filename, 'w') as outfile :
+            json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
+            logging.info('credential strored on server')
+
+        # upload to repository
+        ref = Document('certificate')
+        ref.relay_add(workspace_contract_to, json.loads(signed_credential), mode, synchronous=False)
+        logging.info('transaction launched asynchronous')
+        flash(_('Credential is beeing issued.'), 'success')
+
+        return redirect(mode.server + 'user/issuer_explore/?issuer_username=' + session['issuer_username'])
 
 
 def issue_reference_credential(mode):
@@ -822,7 +890,7 @@ def remove_experience(mode) :
             break
     personal['experience_claims'] = experience
     ns.update_personal(session['workspace_contract'], json.dumps(personal), mode)
-    flash(__('The experience has been removed'), 'success')
+    flash(_('The experience has been removed'), 'success')
     return redirect (mode.server +'user/')
 
 

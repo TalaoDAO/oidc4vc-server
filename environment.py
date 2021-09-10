@@ -67,6 +67,7 @@ class currentMode() :
 		self.db_path = self.sys_path + '/db/talaonet/'
 		self.help_path = self.sys_path + '/Talao/templates/'
 		self.uploads_path = self.sys_path + '/Talao/uploads/'
+		self.verifiable_credentials = self.sys_path + '/Talao/verifiable_credentials/'
 
 		# En Prod chez AWS avec Talaonet
 		if self.myenv == 'aws':

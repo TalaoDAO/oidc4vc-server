@@ -8,7 +8,7 @@ from .helpers import ethereum_to_jwk256kr, ethereum_pvk_to_address, ethereum_to_
 
 
 
-def sign(credential, pvk, did, rsa=None):
+def sign(credential, pvk, did, rsa=None, options=None):
     """ sign credential for did:ethr, did:tz, did:web
 
     @method is str
@@ -43,10 +43,13 @@ def sign(credential, pvk, did, rsa=None):
         logging.error('method not supported')
         return None
 
-    didkit_options = {
+    if not options :
+        didkit_options = {
         "proofPurpose": "assertionMethod",
         "verificationMethod": vm
-    }
+        }
+    else :
+        didkit_options = options
 
     signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),

@@ -7,12 +7,9 @@ uniquemet utilisé en lecture.
 
 """
 
-from  os import path
 
-import requests
 from eth_account import Account
 import json
-import shutil
 
 import constante
 from .Talao_token_transaction import contractsToOwners, token_balance, read_workspace_info, has_vault_access, get_category
@@ -178,17 +175,30 @@ class Identity() :
 			logging.warning('status des partnerships impossible a obtenir, private key  not found')
 		return True
 
-
+	# on met a jour le fichie personal ici
 	def get_identity_personal(self, mode) :
 		try :
 			self.personal = json.loads(ns.get_personal(self.workspace_contract, mode))
 		except :
 			if self.type == 'person' :
-				filename = mode.db_path + 'person.json'
+				filename = mode.verifiable_credentials + 'person.json'
 			else :
-				filename = mode.db_path + 'company.json'
+				filename = mode.verifiable_credentials + 'company.json'
 			self.personal = json.load(open(filename, 'r'))
 			ns.update_personal(self.workspace_contract, json.dumps(self.personal), mode)
+		if not self.personal.get('rcs') and self.type != 'person' :
+			self.personal['rcs'] =  {
+        				"claim_value" : "",
+        				"privacy" : "public"
+        				}
+			ns.update_personal(self.workspace_contract, json.dumps(self.personal), mode)
+		if not self.personal.get('briquesAIF') and self.type != 'person' :
+			self.personal['briquesAIF'] =  {
+        				"claim_value" : "",
+        				"privacy" : "public"
+        				}
+			ns.update_personal(self.workspace_contract, json.dumps(self.personal), mode)
+		
 
 
 	def get_all_documents(self, mode) :

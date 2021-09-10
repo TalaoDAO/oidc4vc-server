@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!-- issue_cci_certificate.html-->
+<html>
+
+<head>
+    {% include 'head.html' %}
+   
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                {% if session['type'] == "company" %}
+                {% if session['role'] == 'creator' %}
+                    {% include 'company_nav_bar.html' %}
+                {% else %}
+                    {% include 'manager_nav_bar.html' %}
+                {% endif %}
+            {% else %}
+                {% include 'user_nav_bar.html' %}
+            {% endif %}
+       
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-6 offset-xl-3">
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">Signez un Certificat de Compétence (UdF) pour {{issuer_name}}</p>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">Completez ce document aussi précisément que possible.</p>
+                        </div>
+                        <form method="post" action="/company/issue_cci_certificate/" >
+                            <div class="container shadow-sm" style="background-color: #ffffff;">
+                                <div class="form-row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group"><label>Titre de la mission</label><input class="form-control" placeholder="" type="text" name="title" required ></div>
+                                    </div>
+                                   
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-lg-8">
+                                        <div class="form-group"><label>Responsable de la mission</label><input class="form-control" type="text" required name="responsableMission" ></div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group"><label>Durée de la mission (mois)</label><input class="form-control" type="number" min="1" max="48"  required name="duration" ></div>
+                                    </div>
+                                  
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group"><label>Description de la mission</label><textarea rows="4" class="form-control" required title="" name="description" >{{description}}</textarea></div>
+                                    </div>
+                                </div>
+                                
+                               
+                                <div class="form-row">
+                                    <div class="col">
+                                        <hr>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+                                            <p>Recommanderiez vous cet offreur ?</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+										<div class="form-group">    
+											<input  class="form-control-range" type="range" name="score_delivery" id="score_delivery" value="3" min="0" max="5" step="1" oninput="score_delivery_disp.value = score_delivery.value">
+											<output  id="score_delivery_disp"></output>	
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+ 
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+                                            <p>Etes vous satisfait de la qualité de la prestation ?</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+										<div class="form-group">    
+											<input  class="form-control-range" type="range" name="score_recommendation" id="score_recommendation" value="3" min="0" max="5" step="1" oninput="score_recommendation_disp.value = score_recommendation.value">
+											<output  id="score_recommendation_disp"></output>	
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+  
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">
+                                            <p>Etes vous satisfait du respect des engagemnents (qualité, prix, délais) ?</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1">
+										<div class="form-group">    
+											<input  class="form-control-range" type="range" name="score_schedule" id="score_schedule" value="3" min="0" max="5" step="1" oninput="score_schedule_disp.value = score_schedule.value">
+											<output  id="score_schedule_disp"></output>	
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+ 
+                                <div class="form-row">
+                                    <div class="col-md-12 col-lg-7 col-xl-6 offset-xl-0 order-1">
+                                        <div class="form-group">
+                                            <p>Etes vous satisfait des compétences mises en oeuvre ?</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-5 col-xl-6 order-1" style="height: 60px;">
+                                        <div class="form-group">    
+											<input  class="form-control-range" type="range" name="score_communication" id="score_communication" value="3" min="0" max="5" step="1" oninput="score_communication_disp.value = score_communication.value">
+											<output  id="score_communication_disp"></output>	
+											<output  <i style ="color: rgb(251,211,5);" class="fas fa-star"></i></output>
+										</div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-6 col-xl-3">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Next</button></div>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+										<a href="/issue/logout/">
+                                        <div class="form-group"><button class="btn btn-primary btn-sm" type="button">Cancel</button></div>
+                                        </a> 
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+                                                                {% include 'user_footer.html' %}    
+
+    </div>
+      <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
+ 
+</body>
+
+</html>
