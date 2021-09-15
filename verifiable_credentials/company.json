@@ -1,19 +1,19 @@
 {
     "name" : {
-        "claim_value" : "",
-        "privacy" : "public"
+                "claim_value" : "",
+                "privacy" : "public"
         },
 	"contact_name" : {
-        "claim_value" : "",
-        "privacy" : "public"
+                "claim_value" : "",
+                "privacy" : "public"
         },
 	"contact_email" : {
-        "claim_value" : "",
-        "privacy" : "public"
+                "claim_value" : "",
+                "privacy" : "public"
         },
 	"contact_phone" : {
-        "claim_value" : "",
-        "privacy" : "public"
+                "claim_value" : "",
+                "privacy" : "public"
         },
 	"website" : {
                 "claim_value" : "",

@@ -27,7 +27,7 @@
             <h3 class="text-dark mb-4">{{name}}</h3>
           </div>
           <div class="row mb-3">
-            <div class="col-lg-8 col-xl-6 offset-lg-2 offset-xl-3">
+            <div class="col-lg-8 offset-lg-2">
               <div class="row">
                 <div class="col-xl-10 offset-xl-1">
                   <div class="card shadow mb-3">
@@ -41,10 +41,10 @@
                       <form action="/user/update_company_settings/" method="POST">
                         <div class="form-row">
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>{{_('Name')}}</strong></label><input class="form-control" type="text" name="name" required="" value="{{name}}"></div>
+                            <div class="form-group"><label><strong>{{_('Company Name')}}</strong></label><input class="form-control" type="text" name="name" required="" value="{{name}}"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>{{_('Website')}}</strong><br></label><input class="form-control" type="text" name="website" value="{{website}}"></div>
+                            <div class="form-group"><label><strong>{{_('Website')}}</strong><br></label><input class="form-control" type="text" placeholder="https://..." name="website" value="{{website}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label><strong>{{_('Contact Name')}}</strong><br></label><input class="form-control" type="text" name="contact_name" value="{{contact_name}}"></div>
@@ -58,7 +58,7 @@
 
                         <div class="form-row">
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>{{_('Contact Email')}}</strong><br></label><input class="form-control" type="email" name="contact_email" value="{{contact_email}}"></div>
+                            <div class="form-group"><label><strong>{{_('Contact  Email')}}</strong><br></label><input class="form-control" type="email" name="contact_email" value="{{contact_email}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label for="email"><br></label><select name="contact_email_select" class="form-control">
@@ -66,7 +66,7 @@
                               </select></div>
                           </div>
                           <div class="col-xl-3 offset-xl-0">
-                            <div class="form-group"><label><strong>{{_('Contact Phone')}}</strong><br></label><input class="form-control" type="tel" name="contact_phone" value="{{contact_phone}}"></div>
+                            <div class="form-group"><label><strong>{{_('Contact  Phone')}}</strong><br></label><input class="form-control" type="tel" name="contact_phone" value="{{contact_phone}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label><br></label><select name="contact_phone_select" class="form-control">
@@ -93,7 +93,7 @@
                             <div class="form-group"><label><strong>{{_('Staff')}}</strong><br></label><input class="form-control" type="text" name="staff" value="{{staff}}"></div>
                           </div>
                           <div class="col-xl-3">
-                            <div class="form-group"><label><strong>{{_('Sales (€)')}}</strong><br></label><input class="form-control" type="text" name="sales" value="{{sales}}"></div>
+                            <div class="form-group"><label><strong>{{_('Sales(€)')}}</strong><br></label><input class="form-control" type="text" name="sales" value="{{sales}}"></div>
                           </div>
                           <div class="col-xl-3">
                             <div class="form-group"><label><strong>{{_('SIREN')}}</strong><br></label><input class="form-control" type="text" name="siren" value="{{siren}}"></div>

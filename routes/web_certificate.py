@@ -167,14 +167,19 @@ def show_certificate(mode):
 							responsableMission=session['displayed_certificate']['credentialSubject']['signatureLines']['responsableMission'],
 							
 							customer_name=session['displayed_certificate']['credentialSubject']['customer']['legalName'],
-							customer_logo=session['displayed_certificate']['credentialSubject']['customer']['logo'],
-							provider_name= session['displayed_certificate']['credentialSubject']['provider']['legalName'],
-
-							title = session['displayed_certificate']['credentialSubject']['title'],
+							customer_siren=session['displayed_certificate']['credentialSubject']['customer']['siren'],
+							customer_address=session['displayed_certificate']['credentialSubject']['customer']['address'],
 							
+							provider_name= session['displayed_certificate']['credentialSubject']['provider']['legalName'],
+							provider_address= session['displayed_certificate']['credentialSubject']['provider']['address'],
+							provider_contact_email= session['displayed_certificate']['credentialSubject']['provider']['contactEmail'],
+							
+							title = session['displayed_certificate']['credentialSubject']['title'],
+							briquesAIF= session['displayed_certificate']['credentialSubject']['briquesAIF'],
+							domaineIntervention= session['displayed_certificate']['credentialSubject']['domaineIntervention'],
 							description=session['displayed_certificate']['credentialSubject']['description'],
 							duration=session['displayed_certificate']['credentialSubject']['deliveryTime']['duration'],
-							signature=session['displayed_certificate']['credentialSubject']['signatureLines']['signature'],
+							issuanceDate=session['displayed_certificate']['issuanceDate'][:10],
 							questionRecommendation=questionRecommendation,
 							questionCommunication=questionCommunication,
 							questionSchedule=questionSchedule,
@@ -183,6 +188,32 @@ def show_certificate(mode):
 							viewer=viewer,
 							**context)
 
+# CciCertificate V2 Display
+	if "CciCertificate_v2" in session['displayed_certificate']['type'] :
+
+		review = session['displayed_certificate']['credentialSubject']['review']["reviewBody"]
+		
+	
+	
+		return render_template('./certificate/ccicertificate_vc_v2.html',
+							**menu,
+							responsableMission=session['displayed_certificate']['credentialSubject']['signatureLines']['responsableMission'],
+							customer_name=session['displayed_certificate']['credentialSubject']['customer']['legalName'],
+							customer_siren=session['displayed_certificate']['credentialSubject']['customer']['siren'],
+							customer_address=session['displayed_certificate']['credentialSubject']['customer']['address'],
+							provider_name= session['displayed_certificate']['credentialSubject']['provider']['legalName'],
+							provider_address= session['displayed_certificate']['credentialSubject']['provider']['address'],
+							provider_contact_email= session['displayed_certificate']['credentialSubject']['provider']['contactEmail'],
+							title = session['displayed_certificate']['credentialSubject']['title'],
+							briquesAIF= session['displayed_certificate']['credentialSubject']['briquesAIF'],
+							domaineIntervention= session['displayed_certificate']['credentialSubject']['domaineIntervention'],
+							description=session['displayed_certificate']['credentialSubject']['description'],
+							duration=session['displayed_certificate']['credentialSubject']['deliveryTime']['duration'],
+							issuanceDate=session['displayed_certificate']['issuanceDate'][:10],
+							review = review,
+							certificate_id=certificate_id,
+							viewer=viewer,
+							)
 
 	# IdentityPass Display
 	if "IdentityPass" in session['displayed_certificate']['type'] :

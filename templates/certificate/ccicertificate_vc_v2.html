@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+   
+<head>
+  
+    {% include 'head.html' %}
+
+   
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <div class="container-fluid">
+                    <div class="row my-5">
+                        <div class="col-lg-8 offset-lg-2">
+                                    <div class="card shadow my-5">
+
+                                        <div class="card-header py-3">
+                                            <div class="row">
+                                                <div class="col text-center">
+                                                    <h3 class="m-0 font-weight-bold">Certificat de compétences
+                                                    </h3>   
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="card-body">
+
+                                            <form action="/user/user_settings/" method="POST">
+                                                <div class="form-row">
+                                                    <div class="col">
+                                                        <h2 class="text-center"><strong>{{provider_name}}<br></h2>
+                                                        <h5 class="text-center">{{provider_address}}<br>
+                                                        {{provider_contact_email}}</strong><br></h5>
+                                                            
+                                                        <br>
+
+                                                        <p class="text-center">Mission réalisée : <strong>{{title}}</strong><br>
+                                                        Durée de la mission : <strong>{{duration}} mois</strong><br>
+                                                        Domaine d'Intervention : <strong>{{domaineIntervention}}</strong><br>
+                                                        Briques AIF : <strong>{{briquesAIF}}</strong><br></p>
+                                                        <br>
+                                                        
+
+                                                     
+                                                       <div class="card border-secondary m-2">
+                                                       <div class="m-2"> Description de la mission :  {{description}}</div>
+                                                        </div>
+                                                        <br>
+
+                                                        <div class="card border-secondary m-2">
+                                                           <div class="m-2">{{responsableMission}} : "...<i>{{review}}</i>..."</div>
+                                                            </div>
+                                                            <br>
+
+                                                        <br>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-6 mt-3">   
+                                                        <div >
+                                                            <p class="text-center ">Certifié par : <strong>{{customer_name}} </strong><br>
+                                                        {{customer_address}}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6  mt-3">   
+                                                            <div class="text-center">Signé par : <strong>{{responsableMission}}</strong><br>
+                                                            Date : {{issuanceDate}}</div>
+                                                            <br>
+                                                            <h3 class="text-dark text-center m-0" style="font-family: Halimun;">{{responsableMission}}</h3>
+                                                           
+                                                        </div>
+                                                     </div>
+                                                </div>
+
+                                            </form>
+                                            {% if viewer != 'user'  %}
+                                            <br><br>
+												        <div class="col text-center"><button onclick="goBack()" class="btn btn-primary btn-sm" type="button">{{_('Back')}}</button></div>
+                                              
+                                            {% endif %}
+                                            
+                                            <p class="text-dark text-center mt-5" style="font-family: Arimo, sans-serif;font-size: 14px;"">Cette attestation a été émise sur la plateforme <a href="https://talao.co" >Talao</a></p>
+
+                      
+                                   </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+	<script>function goBack() {  window.history.back();}</script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+    <script type="text/javascript">
+    //    https://stackoverflow.com/questions/18191893/generate-pdf-from-html-in-div-using-javascript
+
+        $("#btnPrint").live("click", function () {
+            var divContents = $("#dvContainer").html();
+            var printWindow = window.open('', '', 'height=400,width=800');
+            printWindow.document.write('<html><head><title>DIV Contents</title>');
+            printWindow.document.write('</head><body >');
+            printWindow.document.write(divContents);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        });
+    </script>
+</body>
+
+</html>

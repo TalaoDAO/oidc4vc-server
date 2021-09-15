@@ -109,7 +109,6 @@
 
             <a class="dropdown-item " title="Change account parameters" role="presentation" href="/user/account"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Account')}}</a>
             <a class="dropdown-item" role="presentation" title="Manage Referent, Partnership, White List and more information about your Identity" href="/user/advanced/"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Advanced')}}</a>
-            <a class="dropdown-item" role="presentation" title="Create new employee" href="/user/create_user/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Create employee')}}</a>
             <a class="dropdown-item" role="presentation" title="Create new employee" href="/company/add_credential_supported/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Credentials')}}</a>
 
 
@@ -119,6 +118,7 @@
 
             {% if session['username'] == 'talao' %}
               <div class="dropdown-divider"></div>
+              <a class="dropdown-item" role="presentation" title="Create new employee" href="/user/create_user/"><i class="fas fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Create employee')}}</a>
               <a class="dropdown-item" role="presentation" href="/api/v1"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Config API Server')}}</a>
               <a class="dropdown-item" role="presentation" href="/user/create_company/"><i class="fa fa-plus fa-sm fa-fw mr-2 text-gray-400"></i> {{_('Create Company')}}</a>
             {% endif %}

@@ -94,7 +94,7 @@ def phonepass_offer(id, red, mode):
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['phone'] = red.get(id).decode()
     credential['proof'] =  {"@context": [],"type": "","proofPurpose": "","verificationMethod": "","created": "","jws": ""}
-    credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).replace(microsecond=0).isoformat() + "Z"
+    credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).isoformat()[:10]  
     print('credential = ', credential)
     if request.method == 'GET': 
         # make an offer  

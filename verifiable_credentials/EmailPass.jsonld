@@ -62,7 +62,7 @@
     "credentialSubject" : {
         "type" : "EmailPass",
         "email" : "",
-        "expires" : "2022-09-04T15:12:15.372Z",
+        "expires" : "",
         "issuedBy" : {
             "name" : "Talao",
             "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"

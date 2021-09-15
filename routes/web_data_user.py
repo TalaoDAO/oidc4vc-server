@@ -638,7 +638,7 @@ def user(mode) :
 								</p>
 								<p hidden id="p""" + str(counter) +"""" >""" + mode.server  + """guest/certificate/?certificate_id=did:talao:""" + mode.BLOCKCHAIN + """:""" + session['workspace_contract'][2:] + """:document:""" + str(certificate['doc_id']) + """</p>"""
 				
-					elif  certificate['credentialSubject'].get('type') ==  "CciCertificate" :
+					elif  certificate['credentialSubject'].get('type') in ["CciCertificate", "CciCertificate_v2"] :
 						cert_html = """<hr>
 								<b>""" + _('Issuer Name') + """</b> : """ + certificate['credentialSubject']['customer']['legalName'] + """<br>
 								<b>""" + _('Credential Type') + """</b> : """ + certificate['credentialSubject']['type'].capitalize() + """<br>

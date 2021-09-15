@@ -492,6 +492,14 @@ def issue_certificate(mode):
         elif request.form['certificate_type'] == 'ccicertificate'  :
             return render_template('issue_cci_certificate.html',
                                     **session['menu'],
+                                    certificate_type="CciCertificate",
+                                    issuer_username=session['issuer_username'],
+                                    issuer_name = session['issuer_explore']['name'])
+        
+        elif request.form['certificate_type'] == 'ccicertificate_v2'  :
+            return render_template('issue_cci_certificate_v2.html',
+                                    certificate_type="CciCertificate_v2",
+                                    **session['menu'],
                                     issuer_username=session['issuer_username'],
                                     issuer_name = session['issuer_explore']['name'])
 
@@ -502,6 +510,8 @@ def issue_certificate(mode):
 def issue_cci_certificate(mode):
     """ issue a reference credential to company without review and no request   
     @app.route('/commpany/issue_cci_certificate/', methods=['GET','POST'])
+
+    foncitonne pour  les 2 versions des certiofiocats UdF avec evaluation ou avec avis
     """
     check_login()
 
@@ -510,38 +520,50 @@ def issue_cci_certificate(mode):
         workspace_contract_to = ns.get_data_from_username(session['issuer_username'], mode)['workspace_contract']
 
         # load templates for verifiable credential and init with view form and session
-        unsigned_credential = json.load(open('./verifiable_credentials/CciCertificate.jsonld', 'r'))
+        if request.form['certificate_type'] == "CciCertificate_v2" :
+            unsigned_credential = json.load(open('./verifiable_credentials/CciCertificate_v2.jsonld', 'r'))
+        elif request.form['certificate_type'] == "CciCertificate" :
+            unsigned_credential = json.load(open('./verifiable_credentials/CciCertificate.jsonld', 'r'))
+        else :
+            print('(errerur certificat type', request.form['certificate_type'])
+
         unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
         unsigned_credential["issuer"] = ns.get_did(session['workspace_contract'], mode)
         unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         unsigned_credential[ "credentialSubject"]["id"] = ns.get_did(session['issuer_explore']['workspace_contract'], mode)
 
         unsigned_credential[ "credentialSubject"]['provider']["legalName"] = session['issuer_explore']['name']
-        unsigned_credential[ "credentialSubject"]['provider']["logo"] = mode.ipfs_gateway +  session['issuer_explore']["picture"]
         unsigned_credential[ "credentialSubject"]['provider']["rcs"] = session['issuer_explore']['personal']['rcs'].get('claim_value', "unknown rcs")
         unsigned_credential[ "credentialSubject"]['provider']["siren"] = session['issuer_explore']['personal']['siren'].get('claim_value', "unknown siren")
-        unsigned_credential[ "credentialSubject"]['provider']["briquesAIF"] = session['issuer_explore']['personal']['briquesAIF'].get('claim_value', "unknown briquesAIF")
+        unsigned_credential[ "credentialSubject"]['provider']["contactEmail"] = session['issuer_explore']['personal']['contact_email'].get('claim_value', "unknown email")
+        unsigned_credential[ "credentialSubject"]['provider']["address"] = session['issuer_explore']['personal']['postal_address'].get('claim_value', "unknown address")
 
         unsigned_credential['credentialSubject']['title'] = request.form['title']
         unsigned_credential['credentialSubject']['description'] = request.form['description']
         unsigned_credential['credentialSubject']['deliveryTime']['duration'] = request.form['duration']
+        unsigned_credential[ "credentialSubject"]["briquesAIF"] = request.form['briquesAIF']
+        unsigned_credential[ "credentialSubject"]["domaineIntervention"] = request.form["domaineIntervention"]
 
-        reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
-        unsigned_credential['credentialSubject']['review'][reviewRecommendation]['reviewRating']['ratingValue'] = request.form['score_recommendation']
-        unsigned_credential['credentialSubject']['review'][reviewSchedule]['reviewRating']['ratingValue'] = request.form['score_schedule']
-        unsigned_credential['credentialSubject']['review'][reviewDelivery]['reviewRating']['ratingValue'] = request.form['score_delivery']
-        unsigned_credential['credentialSubject']['review'][reviewCommunication]['reviewRating']['ratingValue'] = request.form['score_communication']
+        if request.form['certificate_type'] == "CciCertificate" :
+            reviewRecommendation, reviewDelivery, reviewSchedule, reviewCommunication = 0,1,2,3
+            unsigned_credential['credentialSubject']['review'][reviewRecommendation]['reviewRating']['ratingValue'] = request.form['score_recommendation']
+            unsigned_credential['credentialSubject']['review'][reviewSchedule]['reviewRating']['ratingValue'] = request.form['score_schedule']
+            unsigned_credential['credentialSubject']['review'][reviewDelivery]['reviewRating']['ratingValue'] = request.form['score_delivery']
+            unsigned_credential['credentialSubject']['review'][reviewCommunication]['reviewRating']['ratingValue'] = request.form['score_communication']
+        
+        elif request.form['certificate_type'] == "CciCertificate_v2" :
+            unsigned_credential['credentialSubject']['review']["reviewBody"] = request.form['review']
 
-        unsigned_credential['credentialSubject']['customer']["logo"] =  mode.ipfs_gateway + session['picture']
         unsigned_credential['credentialSubject']['customer']["legalName"] = session['name']
         unsigned_credential['credentialSubject']['customer']["siren"] = session['personal']['siren'].get('claim_value', "unknown siren")
         unsigned_credential['credentialSubject']['customer']["rcs"] = session['personal']['rcs'].get('claim_value', "unknown rcs")
-
+        unsigned_credential['credentialSubject']['customer']["address"] = session['personal']['postal_address'].get('claim_value', "unknown address")
         
-        unsigned_credential['credentialSubject']['signatureLines']["signature"] = mode.ipfs_gateway + session['signature']
         unsigned_credential['credentialSubject']['signatureLines']["jobTitle"] = "Directeur"
         unsigned_credential['credentialSubject']['signatureLines']["responsableMission"] = request.form['responsableMission']
 
+        print('unsigned_credential = ', unsigned_credential)
+        
         # sign credential
         signed_credential = vc_signature.sign(unsigned_credential, session['private_key_value'], unsigned_credential['issuer'])
         logging.info('credential signed')
@@ -903,8 +925,7 @@ def create_company(mode) :
         return render_template('create_company.html', **session['menu'])
     if request.method == 'POST' :
         email = request.form['email']
-        name = request.form['name']
-        did = request.form['did']
+        did = request.form.get('did', "")
         username = request.form['name'].lower()
         siren = request.form['siren']
         if ns.username_exist(username, mode)   :
