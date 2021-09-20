@@ -2,7 +2,6 @@ import json
 import base64
 from eth_keys import keys
 from eth_utils import decode_hex
-from jwcrypto import jwk
 import didkit
 from pytezos.crypto.encoding import base58_encode
 from pytezos.crypto.key import Key
@@ -78,6 +77,7 @@ def ethereum_to_tezos(eth_pvk) :
 
 
 def ethereum_to_jwk256k(private_key) :
+    """ pour did:key """
     return _ethereum_to_jwk256k(private_key, "ES256K")
 
 

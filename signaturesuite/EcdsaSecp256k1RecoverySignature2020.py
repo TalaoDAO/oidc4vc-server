@@ -8,12 +8,8 @@ import pytz
 
 import didkit
 import json
-import base64
-from eth_keys import keys
-from eth_utils import decode_hex
-from jwcrypto import jwk
 from datetime import datetime
-from .helpers import jwk_to_ethereum, ethereum_to_jwk256kr
+from .helpers import ethereum_to_jwk256kr
 
 
 def sign(credential, pvk, method="ethr"):
@@ -28,7 +24,7 @@ def sign(credential, pvk, method="ethr"):
     if not method :
         method = 'ethr'
     key = ethereum_to_jwk256kr(pvk)
-    did = didkit.keyToDID(method,key )
+    did = didkit.key_to_did(method,key )
     vm = didkit.keyToVerificationMethod(method, key)
 
     credential["issuer"] = did
@@ -51,7 +47,7 @@ if __name__ == "__main__" :
 
     pvk = "0x7f1116bdb705f3e51a299a1fe04b619e0e2516258ef187946076b04151ece8a5"
     key = ethereum_to_jwk256kr(pvk)
-    did = didkit.keyToDID(method,key)
+    did = didkit.key_to_did(method,key)
 
     credential= json.load(open('/home/thierry/Talao/verifiable_credentials/experience.jsonld', 'r'))
 
@@ -70,6 +66,6 @@ if __name__ == "__main__" :
         "verificationMethod": verifmethod
         }
 
-    print(didkit.verifyCredential(credential, didkit_options.__str__().replace("'", '"')))
+    print(didkit.verify_credential(credential, didkit_options.__str__().replace("'", '"')))
 
 

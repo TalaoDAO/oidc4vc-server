@@ -3,7 +3,7 @@ import json
 from jwcrypto import jwk
 import logging
 logging.basicConfig(level=logging.INFO)
-from .helpers import ethereum_to_jwk256kr, ethereum_pvk_to_address, ethereum_to_jwk256k
+from .helpers import ethereum_to_jwk256kr, ethereum_to_jwk256k
 
 
 
@@ -50,13 +50,14 @@ def sign(credential, pvk, did, rsa=None, options=None):
         }
     else :
         didkit_options = options
-
-    signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
+    print('key = ', key)
+    print('vm = ', vm)
+    signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
 
     # verify credential before leaving
-    test =  json.loads(didkit.verifyCredential(signed_credential, '{}'))
+    test =  json.loads(didkit.verify_credential(signed_credential, '{}'))
     logging.info('test signature = %s', test)
 
     return signed_credential
@@ -67,7 +68,7 @@ def verify (credential) :
     return list
     """
     try :
-        result = didkit.verifyCredential(credential, '{}')
+        result = didkit.verify_credential(credential, '{}')
     except:
         return "Failed : JSON-LD malformed"
 

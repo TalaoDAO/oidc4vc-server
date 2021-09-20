@@ -11,10 +11,10 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-DID_WEB = 'did:web:talao.cp'
+DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID = DID_ETHR
+DID = DID_WEB
 
 def translate(credential) : 
     credential_name = ""
@@ -143,6 +143,8 @@ def test_credentialOffer_qrcode(red, mode) :
                         icon : <input type="text" name="icon">
                         nameFallback : <input type="text" name="nameFallback" >
                         descriptionFallback : <input type="text" name="descriptionFallback"></p>
+                        <p>shareLink :
+                        shareLink : <input type="text" name="shareLink" ></p>
                         <br><button  type"submit" > Generate QR code for a Credential Offer</button>
                     </form>
                     -----------------------------------------------------------------------------<br>"""
@@ -186,6 +188,8 @@ def test_credentialOffer_qrcode(red, mode) :
             "scope" : scope,
             "display" : display
         }
+        if request.form.get('shareLink') :
+            credentialOffer['shareLink'] = request.form['shareLink']
         url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + DID
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]

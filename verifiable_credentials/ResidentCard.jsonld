@@ -1,24 +1,7 @@
 {
     "@context": ["https://www.w3.org/2018/credentials/v1", 
-        {"RevocationList2020Status": {
-                "@id":
-                  "https://w3id.org/vc-revocation-list-2020#RevocationList2020Status",
-                "@context": {
-                  "@protected": true,
-          
-                  "id": "@id",
-                  "type": "@type",
-          
-                  "revocationListCredential": {
-                    "@id":
-                      "https://w3id.org/vc-revocation-list-2020#revocationListCredential",
-                    "@type": "@id"
-                  },
-                  "revocationListIndex":
-                    "https://w3id.org/vc-revocation-list-2020#revocationListIndex"
-                }
-              }
-            },
+                "https://w3id.org/vc-revocation-list-2020/v1",
+        
         {
           "name" : "https://schema.org/name",
           "description" : "hhtps://chema.org/description",
@@ -85,16 +68,7 @@
           "@value": "Certificat de résidence"
       }
     ],
-    "credentialStatus": {
-        "id": "https://....../TrustMyData-proto/blob/main/credential/status/1#1234",
-        "type": "RevocationList2020Status",
-        "revocationListIndex": "1234",
-        "revocationListCredential": "https://...../TrustMyData-proto/blob/main/credential/status/1"
-      },
-    "credentialSchema": {
-        "id": "https://...../tsr-vid/residentcard.jsonld",
-        "type": "JsonSchemaValidator2021"
-    },
+   
     "credentialSubject" : {
         "type" : "ResidentCard",
         "givenName" : "John",

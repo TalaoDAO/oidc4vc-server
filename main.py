@@ -47,7 +47,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard
 
 # Release
-VERSION = "0.18.11"
+VERSION = "0.18.12"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -94,6 +94,43 @@ pybabel update -i messages.pot -d translations -l fr
 pybabel compile -d translations
 
 """
+
+
+@app.route('/credentiallist')
+def credentiallist () :
+    list = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/vc-revocation-list-2020/v1"
+    ],
+    "id": "http://192.168.0.8:3000/credentiallist",
+    "type": [
+        "VerifiableCredential",
+        "RevocationList2020Credential"
+    ],
+    "credentialSubject": {
+        "id": "https://github.com/TalaoDAO/TrustMyData-proto/blob/main/credential/status/1#list",
+        "encodedList": "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA",
+        "type": "RevocationList2020"
+    },
+    "issuer": "did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250",
+    "issuanceDate": "2021-09-20T09:16:22Z",
+    "proof": {
+        "@context": [
+            "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld",
+            "https://demo.spruceid.com/EcdsaSecp256k1RecoverySignature2020/esrs2020-extra-0.0.jsonld"
+        ],
+        "type": "EcdsaSecp256k1RecoverySignature2020",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250#controller",
+        "created": "2021-09-20T07:16:22.539Z",
+        "jws": "eyJhbGciOiJFUzI1NkstUiIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..v6w3id8CQ796TlRbW19bl2U-IvHniO8gs5IBLyCCZy4JgXyuqV17QveTB3_ztX-90-2lpkUoyrrV0q-0KDIkzwA"
+    }
+}
+    
+    
+    return jsonify(list)
+
 
 @app.route('/test', methods=['GET', 'POST'])
 def test() :
