@@ -28,10 +28,11 @@
                                     </div>
                                     <form class="user" action="/register/post_code" method="GET">
                                         <div class="form-group">
-                                            <div class="custom-control text-center custom-checkbox small"><h6 class="text" >
-                                                {{_('Your username is :')}}<b> {{username}}.</b></h6>
+                                            <div class="custom-control text-center custom-checkbox small">
+                                                <h6 class="text" >
+                                                    {{_('Your username is :')}}<b> {{username}}.</b>
+                                                </h6>
                                             </div>
-                                        <input name="wallet" type="text" value={{wallet}} hidden>
                                     
                                         </div><button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Sign In')}}</button>
                                     </form>

@@ -11,6 +11,8 @@ La cle privée de l identité est sauvergaée dans private.key.db
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 import json
+import didkit
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -18,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 import constante
 from protocol import  ownersToContracts, token_transfer, createVaultAccess, ether_transfer, add_key
 from components import privatekey, ns, Talao_message
-
+from signaturesuite import helpers
 
 # main function called by external modules
 def create_user(username, email, mode, did='', password='', firstname=None,  lastname=None, phone='', silent=False):
@@ -30,6 +32,12 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	address = account.address
 	private_key = account.key.hex()
 	logging.info('user repository talaonet address setup')
+
+	if did in ['tz', 'ethr'] :
+		this_key = helpers.ethereum_to_jwk256kr(private_key)
+		did = didkit.key_to_did(did, this_key)
+	else :
+		print('probleme choix du did')
 
 	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)

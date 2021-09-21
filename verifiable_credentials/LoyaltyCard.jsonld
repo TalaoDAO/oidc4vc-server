@@ -1,11 +1,12 @@
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/vc-revocation-list-2020/v1",
         {
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
             "LoyaltyCard" : {
-                "@id": "https://github.com/TalaoDAO/context#loyaltycard",
+                "@id": "https://github.com/TalaoDAO/context/blob/main/README.md#loyaltycard",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
@@ -16,14 +17,15 @@
                     "familyName" : "schema:familyName",
                     "telephone" : "schema:telephone",
                     "address" : "schema:address", 
+                    "birthDate" : "schema:birthDate",
                     "email" : "schema:email",
-                    "expires" : "schema:expires",
-                    "memberOf" : {
+                    "issuedBy" : {
                         "@id" : "schema:memberOf",
                         "@context" : {
                             "@version": 1.1,
                             "@protected": true,
                             "logo": {"@id" : "schema:image", "@type" : "@id"},
+                            "address" : "schema:address",
                             "name" : "schema:name"
                         }
                     },
@@ -53,12 +55,12 @@
     "description" : "",
     "credentialSubject" : {
         "type" : "LoyaltyCard",
-        "expires" : "2022-09-04T15:12:15.372Z",
         "givenName" : "Thierry",
         "familyName" :"Thevenet",
-        "memberOf" : {
+        "issuedBy" : {
             "name" : "The Wine Spririt",
-            "logo" : "https://thewinespirit.co"
+            "logo" : "https://thewinespirit.co",
+            "address" : "29 rue du Saint Esprit, 31000 Toulouse, France"
         }
 
     }

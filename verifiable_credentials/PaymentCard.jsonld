@@ -15,7 +15,6 @@
                 "name" : "schema:name",
                 "category" : "schema:category",
                 "identifier" : "schema:identifier",
-                "expires" : "schema:expires",
                 "provider": {
                   "@id": "schema:provider",
                   "@context": {
@@ -66,7 +65,6 @@
         "type" : "PaymentCard",
         "name": "John Doe",
         "category": "Debit Card",
-        "expires" : "2025-09-04T15:12:15.372Z",
         "identifier" : "jhgfjhgfkfkjhf",
         "provider": {
                 "name":"SSI Bank",

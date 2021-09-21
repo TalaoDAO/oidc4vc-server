@@ -5,7 +5,7 @@
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
             "ProfessionalExperienceAssessment" : {
-                "@id" : "https://github.com/TalaoDAO/context#certificateofemployment",
+                "@id" : "https://github.com/TalaoDAO/context/blob/main/README.md#professionalexperienceassessment",
                 "@context" : {
                     "@version": 1.1,
                     "@protected": true,
@@ -16,19 +16,12 @@
                             "@version": 1.1,
                             "@protected": true,
                             "name" :   "schema:name",
+                            "address" : "schema:address",
                             "logo" : {"@id" : "schema:image", "@type" : "@id"}
                         }
                     },
-                    "recipient" : {
-                        "@id" : "schema:recipient",
-                        "@context" : {
-                            "@version": 1.1,
-                            "@protected": true,
-                            "image": {"@id" : "schema:image", "@type" : "@id"},
-                            "givenName" : "schema:givenName",
-                            "familyName" : "schema:familyName"
-                        }
-                    },
+                    "givenName" : "schema:givenName",
+                    "familyName" : "schema:familyName",
                     "signatureLines": {
                             "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
                             "@context": {
@@ -112,11 +105,8 @@
           "name" : "Talao",
           "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             },
-        "recipient" : {
-            "image" : "https://talao.mypinata.cloud/ipfs/QmejpQ1ns8J1n8aBCRx16BcEKQ1Z66dEK2RnQV55ajkyJF",
-            "givenName" : "John",
-            "familyName" : "Doe"
-            },
+        "givenName" : "John",
+        "familyName" : "Doe",
         "signatureLines" : {
             "name" : "Nicolas Muller",
             "jobTitle" : "Director",

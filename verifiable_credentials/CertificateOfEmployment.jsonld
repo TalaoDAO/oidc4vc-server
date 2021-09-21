@@ -5,7 +5,7 @@
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
             "CertificateOfEmployment" : {
-                "@id": "https://github.com/TalaoDAO/context#certificateofemployment",
+                "@id": "https://github.com/TalaoDAO/context/blob/main/README.md#certificateofemployment",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
@@ -18,6 +18,16 @@
                     "jobTitle" : "schema:jobTitle",
                     "baseSalary" : "schema:baseSalary",
                     "employmentType" : "schema:employmentType",
+                    "issuedBy": {
+                        "@id": "schema:issuedBy",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "name" :   "schema:name",
+                            "address" : "schema:address",
+                            "logo" : {"@id" : "schema:image", "@type" : "@id"}
+                        }
+                    },
                     "workFor" : {
                         "@id": "schema:workFor",
                         "@context": {
@@ -77,6 +87,11 @@
             "employmentType" : "Contrat à durée illimitée",
             "baseSalary" : "65000",
             "workFor" : {
+                "name" : "Talao",
+                "address" : "16 rue de Wattignies, 75012 Paris, France",
+                "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+            },
+            "issuedBy" : {
                 "name" : "Talao",
                 "address" : "16 rue de Wattignies, 75012 Paris, France",
                 "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"

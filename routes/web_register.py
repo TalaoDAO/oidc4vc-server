@@ -5,12 +5,10 @@ Just a process to a centralized basic create user from password and username
 from flask import request, redirect, render_template, session, flash, abort, jsonify, Response, flash
 import random
 import json
-import didkit
 from flask_babel import _
 from datetime import  datetime, timedelta
 import uuid
 
-import requests
 from datetime import timedelta, datetime
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -32,14 +30,14 @@ def init_app(app, red, mode) :
 	app.add_url_rule('/register/company',  view_func=register_company, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/password',  view_func=register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/qrcode',  view_func=register_qrcode, methods = [ 'GET', 'POST'], defaults={'mode': mode})
-	app.add_url_rule('/register/credible/user',  view_func=register_credible_user, methods = [ 'GET', 'POST'], defaults={'mode': mode, 'red' : red})
+	app.add_url_rule('/register/wallet/user',  view_func=register_wallet_user, methods = [ 'GET', 'POST'], defaults={'mode': mode, 'red' : red})
 
 	app.add_url_rule('/register/code', view_func=register_code, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/post_code', view_func=register_post_code, methods = ['POST', 'GET'], defaults={'mode': mode})
-	app.add_url_rule('/register/credible_endpoint/<id>', view_func=register_credible_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode, 'red' : red})
+	app.add_url_rule('/register/wallet_endpoint/<id>', view_func=register_wallet_endpoint, methods = ['POST', 'GET'], defaults={'mode': mode, 'red' : red})
 	app.add_url_rule('/register/stream',  view_func=register_stream,  defaults={'red' : red})
 	app.add_url_rule('/register/error',  view_func=register_error)
-	app.add_url_rule('/register/create_for_credible',  view_func=register_create_for_credible, methods = ['POST', 'GET'], defaults={'mode': mode})
+	app.add_url_rule('/register/create_for_wallet',  view_func=register_create_for_wallet, methods = ['POST', 'GET'], defaults={'mode': mode})
 
 	return
 
@@ -100,6 +98,8 @@ def register_company(mode) :
 def register_user(mode) :
 	if request.method == 'GET' :
 		#session.clear()
+		if session.get('code_sent') :
+			del session['code_sent']
 		session['is_active'] = True
 		return render_template("/register/user_register.html")
 	if request.method == 'POST' :
@@ -126,28 +126,8 @@ def register_user(mode) :
 		return redirect (mode.server + 'register/identity')
 
 def register_identity(mode) :
-	""" FIXME si le did est perso, voir ce que l'on fait de la cle qui est en  localstorage
-	"""
-	if request.method == 'GET' :
-		session['server'] = mode.server
-		return render_template("/register/register_identity.html")
-	if request.method == 'POST' :
-		if request.form['did'] == "own" :
-			session['did'] = request.form['own_did']
-			if session['did'].split(':')[1]  == 'tz' :
-				try :
-					didkit.resolveDID(session['did'],'{}')
-				except :
-					flash(_('DID resolution has been rejected by Universal Resolver.'), 'warning')
-					return render_template("/register/register_identity.html")
-			else  :
-				r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + session['did'])
-				if r.status_code != 200 :
-					flash(_('DID resolution has been rejected by Universal Resolver.'), 'warning')
-					return render_template("/register/register_identity.html")
-		else :
-			session['did'] = request.form['did_selected']
-		return redirect (mode.server + 'register/password')
+	session['did'] = 'tz'
+	return redirect (mode.server + 'register/password')
 
 
 # route /register/password/
@@ -156,9 +136,6 @@ def register_password(mode):
 		flash(_('Session expired'), 'warning')
 		return redirect(mode.server + 'register')
 	if request.method == 'GET' :
-		if request.args.get('did') :
-			session['did'] = request.args['did']
-			return render_template("/register/register_password_credible.html")
 		return render_template("/register/register_password.html")
 	if request.method == 'POST' :
 		session['password'] = request.form['password']
@@ -220,7 +197,7 @@ def register_code(mode) :
 
 # route register/post_code
 def register_post_code(mode) :
-	if request.form.get('wallet') == 'ok' :
+	if session.get('wallet') == 'ok' :
 		return redirect (mode.server + 'login/VerifiablePresentationRequest')
 	try :
 		username = session['username']
@@ -236,11 +213,11 @@ def register_post_code(mode) :
 def register_qrcode(mode) :
 	if request.method == 'GET' :
 		id = str(uuid.uuid1())
-		url = mode.server + 'register/credible_endpoint/' + id
-		return render_template("/register/register_credible_qrcode.html", url=url, id=id)
+		url = mode.server + 'register/wallet_endpoint/' + id
+		return render_template("/register/register_wallet_qrcode.html", url=url, id=id)
 
 
-def register_credible_endpoint(id,red, mode):
+def register_wallet_endpoint(id,red, mode):
     if request.method == 'GET':  
         challenge = str(uuid.uuid1())
         did_auth_request = {
@@ -258,20 +235,20 @@ def register_credible_endpoint(id,red, mode):
             email = presentation['verifiableCredential']['credentialSubject']['email']   
         except :
             data = json.dumps({ "id" : id, "data" : 'wrong_vc'})
-            red.publish('register_credible', data)
+            red.publish('register_wallet', data)
             return jsonify('wrong_vc')
         if ns.get_workspace_contract_from_did(presentation['holder'], mode) :
             data = json.dumps({ "id" : id, "data" : 'already_registered'})
-            red.publish('register_credible', data)
+            red.publish('register_wallet', data)
             return jsonify('already_registered')
         session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
         red.set(id, session_data )
         data = json.dumps({ "id" : id, "data" : 'ok'})
-        red.publish('register_credible', data)
+        red.publish('register_wallet', data)
         return jsonify('ok')
 
 
-def register_credible_user(red, mode) :
+def register_wallet_user(red, mode) :
 	if request.method == 'GET' :
 		id = request.args['id']
 		session_data = json.loads(red.get(id).decode())
@@ -279,7 +256,7 @@ def register_credible_user(red, mode) :
 		session['did'] = session_data['did']
 		session['email'] = session_data['email']
 		session['is_active'] = True
-		return render_template("/register/register_credible_user.html")
+		return render_template("/register/register_wallet_user.html")
 	if request.method == 'POST' :
 		session['firstname'] = request.form['firstname']
 		session['lastname'] = request.form['lastname']
@@ -290,17 +267,17 @@ def register_credible_user(red, mode) :
 			message = _('Accept the service conditions to move next step.')
 		if message :
 			flash(message, 'warning')
-			return render_template("/register/register_credible_user.html",
+			return render_template("/register/register_wallet_user.html",
 									firstname=session['firstname'],
 									lastname=session['lastname'],
 									email=session['email'])
-		return redirect (mode.server + 'register/create_for_credible')
+		return redirect (mode.server + 'register/create_for_wallet')
 
 # event push to browser
 def register_stream(red):
     def event_stream(red):
         pubsub = red.pubsub()
-        pubsub.subscribe('register_credible')
+        pubsub.subscribe('register_wallet')
         for message in pubsub.listen():
             if message['type']=='message':
                 yield 'data: %s\n\n' % message['data'].decode()
@@ -310,7 +287,7 @@ def register_stream(red):
     return Response(event_stream(red), headers=headers)
 
 
-def register_create_for_credible(mode) :
+def register_create_for_wallet(mode) :
 	if not createidentity.create_user(session['username'],
 										session['email'],
 										mode,
@@ -323,6 +300,7 @@ def register_create_for_credible(mode) :
 		return render_template("/register/user_register.html" )
 	directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
 	# success exit
+	session['wallet'] = "ok"
 	return render_template("/register/end_of_registration.html", username=session['username'], wallet="ok")
 
 

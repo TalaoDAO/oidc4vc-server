@@ -23,8 +23,8 @@
           </style>
         <div class="newcontainer">  
           <div class="vertical-center col text-center">      
-            <a href="myapp://credible">lien vers deeplink
-              <img  src="/static/img/credible.png" style="width: 120px;border-radius:0px;">
+            <a href="myapp://wallet">lien vers deeplink
+              <img  src="" alt="icon de wallet" style="width: 120px;border-radius:0px;">
             </a>
             <br><br>
             <div class="col text-center">
@@ -63,7 +63,7 @@ var source = new EventSource('/register/stream');
 source.onmessage = function (event) {
     const result = JSON.parse(event.data)
     if (result.id == '{{id}}' & result.data == 'ok'){
-      window.location.href='/register/credible/user?id=' + '{{id}}';
+      window.location.href='/register/wallet/user?id=' + '{{id}}';
       }
     else {
       window.location.href="/register/error?message=" + result.data;

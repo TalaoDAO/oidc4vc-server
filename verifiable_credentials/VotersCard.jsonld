@@ -12,7 +12,6 @@
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
-                    "expires" : "schema:expires",
                     "recipient" : {
                         "@id" : "schema:recipient",
                         "@context" : {

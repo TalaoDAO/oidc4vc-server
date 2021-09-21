@@ -274,11 +274,11 @@ def VerifiablePresentationRequest_qrcode(red, mode):
 							})
     red.set(stream_id,  session_data)
     if request.args.get('vc') == 'certificateofemployment' : 
-        message = 'Get a Certificate of Employment'
+        message = _('Get a Certificate of Employment')
     elif request.args.get('vc') == 'professionalexperienceassessment' :
-        message = 'Request a Professional Experience Assessment'
+        message = _('Request a Professional Experience Assessment')
     else :
-        message = 'Sign-In'
+        message = _('Sign-In')
     return render_template('login/login_qr.html',
 							url=mode.server + 'login/wallet_presentation/' + stream_id,
 							stream_id=stream_id, message=message)

@@ -739,7 +739,7 @@ def user_advanced(mode) :
 	else :
 		if did.split(':')[1]  in ['tz', 'ethr', 'key'] :
 			# did:tz has no driver for Universal resolver
-			DID_Document = json.dumps(json.loads(didkit.resolveDID(did,'{}')), indent=4)
+			DID_Document = json.dumps(json.loads(didkit.resolve_did(did,'{}')), indent=4)
 		else  :
 			resolver = 'https://resolver.identity.foundation/'
 			r = requests.get( resolver + did)
@@ -808,11 +808,11 @@ def user_advanced(mode) :
 					</a>
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
-
+	print('private key = ', helpers.ethereum_to_jwk256k(session['private_key_value']))
 	return render_template('advanced.html',
 							**session['menu'],
 							access=my_access,
-							private_key_value = helpers. ethereum_to_jwk256k(session['private_key_value']),
+							private_key_value = helpers.ethereum_to_jwk256k(session['private_key_value']),
 							partner=my_partner,
 							issuer=my_issuer,
 							did_doc=DID_Document,

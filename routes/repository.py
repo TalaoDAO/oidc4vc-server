@@ -258,7 +258,7 @@ def authn(mode) :
 			"verificationMethod": request.json['proof']['verificationMethod'],
 			"domain" :  request.json['proof']['domain']
 			}
-		verifyResult = didkit.verifyPresentation(
+		verifyResult = didkit.verify_presentation(
 			request.data.decode(),
 			verificationPurpose.__str__().replace("'", '"'))
 	except :

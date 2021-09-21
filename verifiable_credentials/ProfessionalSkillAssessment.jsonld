@@ -5,7 +5,7 @@
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
             "ProfessionalSkillAssessment" : {
-                "@id" : "https://github.com/TalaoDAO/context#professionalSkillAssessment",
+                "@id" : "https://github.com/TalaoDAO/context/blob/main/README.md#professionalSkillAssessment",
                 "@context" : {
                     "@version": 1.1,
                     "@protected": true,
@@ -19,16 +19,8 @@
                             "logo" : {"@id" : "schema:image", "@type" : "@id"}
                         }
                     },
-                    "recipient" : {
-                        "@id" : "schema:recipient",
-                        "@context" : {
-                            "@version": 1.1,
-                            "@protected": true,
-                            "image": {"@id" : "schema:image", "@type" : "@id"},
-                            "givenName" : "schema:givenName",
-                            "familyName" : "schema:familyName"
-                        }
-                    },
+                    "givenName" : "schema:givenName",
+                    "familyName" : "schema:familyName",
                     "signatureLines": {
                         "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
                         "@context": {
@@ -39,7 +31,6 @@
                             "image" : {"@id" : "schema:image", "@type" : "@id"}
                         }
                     },
-                    "datePublished" : "schema:datePublished",
                     "skills": {
                         "@id": "schema:skills",
                         "@context": {
@@ -91,17 +82,13 @@
           "name" : "Talao",
           "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             },
-        "recipient" : {
-            "image" : "https://talao.mypinata.cloud/ipfs/QmejpQ1ns8J1n8aBCRx16BcEKQ1Z66dEK2RnQV55ajkyJF",
-            "givenName" : "Albert",
-            "familyName" : "Doe"
-            },
+        "givenName" : "Albert",
+        "familyName" : "Doe",
         "signatureLines" : {
             "name" : "Nicolas Muller",
             "jobTitle" : "Director",
             "image" : "https://talao.mypinata.cloud/ipfs/QmawHhhLZayZRoQqpuNxm6uJX2MFoPgqPTj57hgvmWCXxu"
             },
-        "datePublished" : "2020-09-01T10:11:59.393Z",
         "skills": [
             {
                 "description": "JSON-LD"

@@ -8,18 +8,21 @@ from .helpers import ethereum_to_jwk256kr, ethereum_to_jwk256k
 
 
 
-def sign(credential, pvk, did, rsa=None, options=None):
+def sign(credential, pvk, did, rsa=None, didkit_options=None):
     """ sign credential for did:ethr, did:tz, did:web
 
-    @method is str
+    @did is str
         ethr (default method) -> curve secp256k1 and "alg" :"ES256K-R"
         tz (tz2) -> curve  secp256k1 with "alg" :"ES256K-R"
         web  -> curve secp256k1 with "alg" :"ES256K" or RSA
+    
+    @didkit_options is dict
 
     @credential is dict
     return is str
 
     """
+    
     method = did.split(':')[1]
 
     if method == 'web' and not rsa :
@@ -38,27 +41,28 @@ def sign(credential, pvk, did, rsa=None, options=None):
     elif method == 'tz' :
         key = ethereum_to_jwk256kr(pvk)
         vm = did + "#blockchainAccountId"
+    
+    elif method == 'key' :
+        key = ethereum_to_jwk256k(pvk)
+        vm = didkit.key_to_verification_method('key', key)
 
     else :
-        logging.error('method not supported')
+        logging.error('method not supported by Talao')
         return None
-
-    if not options :
+  
+    if not didkit_options :
         didkit_options = {
-        "proofPurpose": "assertionMethod",
-        "verificationMethod": vm
+            "proofPurpose": "assertionMethod",
+            "verificationMethod": vm
         }
-    else :
-        didkit_options = options
-    print('key = ', key)
-    print('vm = ', vm)
+
     signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
 
     # verify credential before leaving
-    test =  json.loads(didkit.verify_credential(signed_credential, '{}'))
-    logging.info('test signature = %s', test)
+    result =  json.loads(didkit.verify_credential(signed_credential, '{}'))
+    print('test signature = %s', result)
 
     return signed_credential
 

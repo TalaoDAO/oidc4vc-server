@@ -47,7 +47,7 @@ def check_login() :
 def getDID() :
     key = request.args['key']
     method = request.args['method']
-    return jsonify (didkit.keyToDID(method, key))
+    return jsonify (didkit.key_to_did(method, key))
 
 
 def generate_identity(mode) :
@@ -200,7 +200,7 @@ def verifier() :
         # lookup DID Document
         if credential['issuer'].split(':')[1]  == 'tz' :
             # did:tz has no driver for Universal resolver
-            DID_Document = json.loads(didkit.resolveDID(credential['issuer'],'{}'))
+            DID_Document = json.loads(didkit.resolve_did(credential['issuer'],'{}'))
         else :
             try :
                 r = requests.get('https://dev.uniresolver.io/1.0/identifiers/' + credential['issuer'])
@@ -232,7 +232,7 @@ def verifier() :
                 linked_did_list = did_configuration['linked_dids'] 
                 for linked_did in linked_did_list :
                     if linked_did['proof']['verificationMethod'] == credential['proof']['verificationMethod'] :
-                        result = didkit.verifyCredential(json.dumps(linked_did), '{}')
+                        result = didkit.verify_credential(json.dumps(linked_did), '{}')
                         if not json.loads(result)['errors'] :
                             message = " This Issuer owns the domain  " + domain + "."
                             breakloop = True

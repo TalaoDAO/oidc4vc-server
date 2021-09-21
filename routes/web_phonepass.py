@@ -93,9 +93,7 @@ def phonepass_offer(id, red, mode):
     credential['credentialSubject']['id'] = "did:..."
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['phone'] = red.get(id).decode()
-    credential['proof'] =  {"@context": [],"type": "","proofPurpose": "","verificationMethod": "","created": "","jws": ""}
-    credential['credentialSubject']['expires'] = (datetime.now() + timedelta(days= 365)).isoformat()[:10]  
-    print('credential = ', credential)
+    credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     if request.method == 'GET': 
         # make an offer  
         credential_offer = {
@@ -109,7 +107,6 @@ def phonepass_offer(id, red, mode):
         # sign credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
-        del credential['proof']
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         signed_credential = vc_signature.sign(credential, pvk, DID)
         if not signed_credential :

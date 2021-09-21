@@ -82,7 +82,9 @@ def ethereum_to_jwk256k(private_key) :
 
 
 def ethereum_to_jwk256kr(private_key) :
-    """ pour did:ethr et did:tz2  """
+    """ pour did:ethr et did:tz2  
+    return string 
+    """
     return _ethereum_to_jwk256k(private_key, "ES256K-R")
 
 
