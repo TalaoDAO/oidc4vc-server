@@ -188,40 +188,5 @@
   <script src="{{ url_for('static', filename='encryption.js') }}"></script>
 
 
-<script>
-
-var KeyPair;
-
-async function pageonload(){
-  if ("{{session['check_identity_key']}}" != "False")
-    {return ;}
-  const encrypted_key = localStorage.getItem('identity_key');
-  var key;
-  if (!encrypted_key) {
-      promptUser();
-      }
-  else {
-      key = await Decode(encrypted_key, "{{session['username']}}");
-      if (key == 'error') {
-        promptUser();
-        }
-    return ;
-  }
-
-function promptUser(){
-  const message = "{{ _('Your local Identity keys are no more available. Update your browser with new keys ?') }}"
-  var answer = window.confirm(message);  
-  if (answer) {
-      window.location.href = "/user/import_identity_key/";
-      }
-  else {
-    window.location.href = "/user/";
-    }
-  }
-
-}
-
-
-</script>
 </body>
 </html>

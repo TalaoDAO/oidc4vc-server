@@ -11,6 +11,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
+TEST_REPO = "TalaoDAO/wallet-tools"
+REGISTRY_REPO = "TalaoDAO/context"
+
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
@@ -30,7 +33,7 @@ def translate(credential) :
 
 def dir_list_calculate() :
     dir_list=list()
-    contents = repo.get_contents("test/CredentialOffer")
+    contents = test_repo.get_contents("test/CredentialOffer")
     for content_file in contents :
         if content_file.name.split('.')[1] =='jsonld' :
             dir_list.append(content_file.name)
@@ -38,7 +41,7 @@ def dir_list_calculate() :
 
 
 def credential_from_filename(filename) :
-    file = repo.get_contents("test/CredentialOffer/" + filename)
+    file = test_repo.get_contents("test/CredentialOffer/" + filename)
     encoded_content = file.__dict__['_rawData']['content']
     return json.loads(base64.b64decode(encoded_content).decode())
 
@@ -57,10 +60,11 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
 
-    global PVK, repo
+    global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
-    repo = g.get_repo("TalaoDAO/context")
+    test_repo = g.get_repo(TEST_REPO)
+    registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
 def tir_api(did) :
@@ -87,7 +91,7 @@ def tir_api(did) :
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
 
     """
-    registry_file = repo.get_contents("test/registry/talao_issuer_registry.json")
+    registry_file = registry_repo.get_contents("test/registry/talao_issuer_registry.json")
     b64encoded_registry = registry_file.__dict__['_rawData']['content']
     issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
     for item in issuer_registry :
@@ -283,7 +287,7 @@ DIDAuth = {
                {
                     "type" : "DIDAuth"
                 }
-            ],
+           ],
            "challenge": "",
            "domain" : ""
             }
@@ -348,6 +352,7 @@ def test_presentationRequest_endpoint(stream_id, red):
     challenge = pattern['challenge']
     domain = pattern['domain']
     if request.method == 'GET':
+        print('pattern = ', pattern)
         return jsonify(pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)

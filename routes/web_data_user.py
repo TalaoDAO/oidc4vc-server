@@ -2,7 +2,7 @@
 Identity init for users and companies
 """
 from flask import session, flash
-from flask import request, redirect, render_template, abort, flash, Response
+from flask import request, redirect, render_template, abort, flash, Response, render_template_string
 import time
 import json
 from flask_babel import _
@@ -13,8 +13,9 @@ from flask_babel import _
 logging.basicConfig(level=logging.INFO)
 from os import path
 from authlib.jose import JsonWebEncryption
-from datetime import timedelta, datetime
-
+from datetime import datetime
+import markdown
+import markdown.extensions.fenced_code
 
 # dependances
 from components import ns,directory, company, privatekey
@@ -30,7 +31,8 @@ def init_app(app, mode) :
 	app.add_url_rule('/user/advanced/',  view_func=user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/user/account/',  view_func=user_account, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/company/',  view_func=the_company, methods = ['GET', 'POST'])
-	app.add_url_rule('/text_file',  view_func=text_file, methods = ['GET'])
+	app.add_url_rule('/md_file',  view_func=md_file, methods = ['GET'])
+
 	app.add_url_rule('/user/import_identity_key/',  view_func=import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/user/import_identity_key2/',  view_func=import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
 	return
@@ -51,20 +53,26 @@ def the_company() :
 	return render_template('company.html')
 
 
-def text_file() :
-	if request.args['file'] == 'privacy' :
-		content = open('privacy_en.txt', 'r').read() if session['language'] == 'en' else open('privacy_fr.txt', 'r').read()
-	elif request.args['file'] == 'terms_and_conditions' :
-		content = open('cgu_en.txt', 'r').read() if session['language'] == 'en' else open('cgu_fr.txt', 'r').read()
-	return Response(content, mimetype='text/plain')
-
-
 def md_file() :
+	"""
+	Display markdown files for CGU and Privacy
+
+	https://dev.to/mrprofessor/rendering-markdown-from-flask-1l41
+	
+	"""
 	if request.args['file'] == 'privacy' :
-		content = open('privacy_en.txt', 'r').read() if session['language'] == 'en' else open('privacy_fr.txt', 'r').read()
+		try :
+			content = open('privacy_'+ session['language'] + '.md', 'r').read()
+		except :
+			content = open('privacy_en.md', 'r').read()
+	
 	elif request.args['file'] == 'terms_and_conditions' :
-		content = open('cgu_en.txt', 'r').read() if session['language'] == 'en' else open('cgu_fr.txt', 'r').read()
-	return Response(content, mimetype='text/plain')
+		try :
+			content = open('cgu_'+ session['language'] + '.md', 'r').read()
+		except :
+			content = open('cgu_en.md', 'r').read()
+
+	return render_template_string( markdown.markdown(content, extensions=["fenced_code"]))
 
 
 def import_identity_key(mode) :
