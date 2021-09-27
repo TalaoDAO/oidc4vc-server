@@ -15,6 +15,7 @@ def sign(credential, pvk, did, rsa=None, didkit_options=None):
         ethr (default method) -> curve secp256k1 and "alg" :"ES256K-R"
         tz (tz2) -> curve  secp256k1 with "alg" :"ES256K-R"
         web  -> curve secp256k1 with "alg" :"ES256K" or RSA
+        key
     
     @didkit_options is dict
 
@@ -22,7 +23,7 @@ def sign(credential, pvk, did, rsa=None, didkit_options=None):
     return is str
 
     """
-    
+  
     method = did.split(':')[1]
 
     if method == 'web' and not rsa :
@@ -36,11 +37,11 @@ def sign(credential, pvk, did, rsa=None, didkit_options=None):
 
     elif method == 'ethr' :
         key = ethereum_to_jwk256kr(pvk)
-        vm = did + "#controller"
+        vm = didkit.key_to_verification_method('ethr', key)
 
-    elif method == 'tz' :
+    elif method == 'tz'  :
         key = ethereum_to_jwk256kr(pvk)
-        vm = did + "#blockchainAccountId"
+        vm = didkit.key_to_verification_method('tz', key)
     
     elif method == 'key' :
         key = ethereum_to_jwk256k(pvk)

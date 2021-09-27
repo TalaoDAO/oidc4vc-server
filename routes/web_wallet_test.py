@@ -7,6 +7,7 @@ from github import Github
 import base64
 import uuid
 import logging
+import didkit
 
 logging.basicConfig(level=logging.INFO)
 
@@ -14,10 +15,18 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
 
+
+key_tz1 = didkit.generateEd25519Key()
+DID_TZ1 = didkit.key_to_did('tz', key_tz1)
+
+
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID = DID_WEB
+DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID = DID_TZ2
+
+
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
 def translate(credential) : 
     credential_name = ""
@@ -163,7 +172,6 @@ def test_credentialOffer_qrcode(red, mode) :
         credential = credential_from_filename(filename)
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
-        credential['proof'] =  {"@context": [],"type": "","proofPurpose": "","verificationMethod": "","created": "","jws": ""}
         credential['issuer'] = DID
         scope = ["subject_id"]
         if request.form.get("address") :
@@ -234,7 +242,6 @@ def test_credentialOffer_endpoint(id, red):
         except :
             logging.error("wallet error")
             return jsonify('ko')
-        del credential['proof']
         scope = {
             "subject_id" : request.form['subject_id'],
             "givenName" : request.form.get('givenName', "None"),
