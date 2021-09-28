@@ -2,7 +2,7 @@ from flask import jsonify, request, render_template, Response, render_template_s
 import json
 from datetime import timedelta, datetime
 from signaturesuite import vc_signature
-from components import privatekey,ns
+from components import privatekey
 from github import Github
 import base64
 import uuid
@@ -14,11 +14,6 @@ logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
-
-
-key_tz1 = didkit.generateEd25519Key()
-DID_TZ1 = didkit.key_to_did('tz', key_tz1)
-
 
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
@@ -118,20 +113,16 @@ def test_credentialOffer_qrcode(red, mode) :
         html_string = """
                     <p> type : EmailPass</p>
                     <p>  name : <strong>Proof of email / Preuve d"email (personalisée) </strong></p>
-                    <p> issuer : """ + DID + """ </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
                         <input hidden name="filename" value=""" + "talaoemailpass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
-                    </form>
-                    ------------------
+                    </form><hr>
                       <p> type : PhonePass</p>
                     <p>  name : <strong>Proof of telephone number / Preuve de numéro de téléphone (personalisée) </strong></p>
-                    <p> issuer : """ + DID + """ </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
                         <input hidden name="filename" value=""" + "talaophonepass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
-                    </form>
-                    ------------------"""
+                    </form><hr>"""
         for filename in dir_list :
             credential = credential_from_filename(filename)
             credential['issuer'] = DID
@@ -141,7 +132,6 @@ def test_credentialOffer_qrcode(red, mode) :
                     <p> id : """ + credential.get("id", "") + """</p>
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
                     <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
-                    <p> issuer : """ + credential['issuer'] + """ </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
                         <input hidden name="filename" value='""" + filename + """'> 
                         <p>Scope :
@@ -151,18 +141,27 @@ def test_credentialOffer_qrcode(red, mode) :
                         email<input type="checkbox" name="email" value="on">
                         address<input type="checkbox" name="address"  value="on">
                         telephone<input type="checkbox" name="telephone"  value="on"> </p>
-                        <p>Display descriptor :
-                        backgroundColor : <input type="text" name="backgroundColor" >
-                        icon : <input type="text" name="icon">
-                        nameFallback : <input type="text" name="nameFallback" >
-                        descriptionFallback : <input type="text" name="descriptionFallback"></p>
-                        <p>shareLink :
-                        shareLink : <input type="text" name="shareLink" ></p>
+                        <p>backgroundColor : <input type="text" name="backgroundColor" ></p>
+                        <p>icon : <input type="text" name="icon"></p>
+                        <p>nameFallback : <input type="text" name="nameFallback" ></p>
+                        <p>descriptionFallback : <input type="text" name="descriptionFallback"></p>
+                        <p>shareLink : <input type="text" name="shareLink" ></p>
+                        
                         <br><button  type"submit" > Generate QR code for a Credential Offer</button>
                     </form>
-                    -----------------------------------------------------------------------------<br>"""
-        html_string = "<html><body><head>{% include 'head.html' %}</head><br><h1><strong>Talao Issuer Simulator</strong></h1><br>" + html_string + "</body></html>"
-        return render_template_string (html_string) 
+                    <hr>"""
+        html_string = """<html><head>{% include 'head.html' %}</head>
+                        <body> {% include '/wallet/test/simulator_nav_bar.html' %}
+                            <div class="m-5">
+                                <br><br>""" + html_string + """
+                            </div>
+                            <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+                            <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+                            <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+                            <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+                        </body></html>"""
+
+        return render_template_string (html_string, simulator="Issuer Simulator : " + DID) 
     else :
         filename = request.form['filename']
         if filename == "talaoemailpass" :
@@ -209,7 +208,8 @@ def test_credentialOffer_qrcode(red, mode) :
                                 url=url,
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
-                                type = type + " - " + translate(credential)
+                                type = type + " - " + translate(credential),
+                                simulator="Issuer Simulator : " + DID
                                 )
 
 
@@ -315,7 +315,7 @@ pattern = QueryBYExample
 
 def test_presentationRequest_qrcode(red, mode):
     if request.method == 'GET' :
-        return render_template('wallet/test/credential_presentation.html')
+        return render_template('wallet/test/credential_presentation.html', simulator="Verifier Simulator : " + DID)
 							
     else :
         stream_id = str(uuid.uuid1())
@@ -352,7 +352,8 @@ def test_presentationRequest_qrcode(red, mode):
         return render_template('wallet/test/credential_presentation_qr.html',
 							url=url,
 							stream_id=stream_id, 
-                            pattern=json.dumps(pattern, indent=4))
+                            pattern=json.dumps(pattern, indent=4),
+                            simulator="Verifier Simulator : " + DID)
 
 def test_presentationRequest_endpoint(stream_id, red):
     pattern = json.loads(red.get(stream_id).decode())

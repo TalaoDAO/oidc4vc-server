@@ -11,11 +11,12 @@ from flask_babel import _
 import secrets
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-DID_WEB = 'did:web:talao.cp'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID = DID_ETHR
 
+DID_WEB = 'did:web:talao.co'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID = DID_TZ2
 
 def init_app(app,red, mode) :
     app.add_url_rule('/phonepass',  view_func=phonepass, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -95,6 +96,7 @@ def phonepass_offer(id, red, mode):
     credential['credentialSubject']['phone'] = red.get(id).decode()
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     if request.method == 'GET': 
+        print("credential offer = ", credential)
         # make an offer  
         credential_offer = {
             "type": "CredentialOffer",

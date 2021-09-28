@@ -11,11 +11,12 @@ from flask_babel import _
 import secrets
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-DID_WEB = 'did:web:talao.cp'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID = DID_ETHR
 
+DID_WEB = 'did:web:talao.co'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID = DID_TZ2
 
 def init_app(app,red, mode) :
     app.add_url_rule('/emailpass',  view_func=emailpass, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -95,8 +96,6 @@ def emailpass_offer(id, red, mode):
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['email'] = red.get(id).decode()
-    # to be removed with delete 
-    credential['proof'] =  {"@context": [],"type": "","proofPurpose": "","verificationMethod": "","created": "","jws": ""}
     if request.method == 'GET': 
         # make an offer  
         credential_offer = {
@@ -110,7 +109,6 @@ def emailpass_offer(id, red, mode):
         # sign credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
-        del credential['proof']
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         signed_credential = vc_signature.sign(credential, pvk, DID)
         if not signed_credential :
