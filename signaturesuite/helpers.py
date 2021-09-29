@@ -58,11 +58,17 @@ def jwk_to_tezos(jwk) :
         tez_pvk = base58_encode(bytes.fromhex(eth_pvk[2:]), prefix = b'spsk')
         sk = Key.from_encoded_key(tez_pvk.decode())
         pbk = sk.public_key()
+        address = sk.public_key_hash()   
+    elif json.loads(jwk)['crv'] == "Ed25519" :
+        private_key = base64.urlsafe_b64decode(json.loads(jwk)["d"] + '=' * (4 - len(json.loads(jwk)["d"]) % 4)).hex()
+        tez_pvk = base58_encode(bytes.fromhex(private_key), prefix = b'edsk')
+        sk = Key.from_encoded_key(tez_pvk)
+        pbk = sk.public_key()
         address = sk.public_key_hash()
-        return tez_pvk, pbk, address
     else :
         logging.error('not implemented')
         return None
+    return tez_pvk, pbk, address
 
 
 def ethereum_to_tezos(eth_pvk) :

@@ -231,7 +231,11 @@ def test_credential_display():
 
 
 def test_credentialOffer_endpoint(id, red):
-    credentialOffer = json.loads(red.get(id).decode())
+    try : 
+        credentialOffer = json.loads(red.get(id).decode())
+    except :
+        logging.error("red get id error")
+        return ('ko')
     if request.method == 'GET':
         return jsonify(credentialOffer)
     else :
@@ -356,11 +360,14 @@ def test_presentationRequest_qrcode(red, mode):
                             simulator="Verifier Simulator : " + DID)
 
 def test_presentationRequest_endpoint(stream_id, red):
-    pattern = json.loads(red.get(stream_id).decode())
+    try : 
+        pattern = json.loads(red.get(stream_id).decode())
+    except :
+        logging.error("red get id error")
+        return ('ko')
     challenge = pattern['challenge']
     domain = pattern['domain']
     if request.method == 'GET':
-        print('pattern = ', pattern)
         return jsonify(pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
