@@ -1,5 +1,11 @@
-Privacy policy
-﻿Last Updated: July 21, 2021
+﻿
+# Privacy policy
+
+
+Last Updated: September 21, 2021
+
+
+## Preamble
 
 
 Protecting your privacy is important to us. Talao is committed to protecting the privacy, security and accuracy of personal information they collect, use or disclose in accordance with applicable law. This privacy protection policy (the « Policy of privacy ») is a statement of principles and guidelines concerning the privacy of individuals using the services offered by Talao (except our personnel, whose personal information is collected, used and disclosed in accordance with our policy of protection of confidentiality for staff.
@@ -9,12 +15,10 @@ CONSENT
 BY SUBMITTING PERSONAL INFORMATION TO TALAO OR ITS AGENTS, YOU AGREE THAT WE MAY COLLECT, USE AND DISCLOSE SUCH PERSONAL INFORMATION IN ACCORDANCE WITH THIS PRIVACY POLICY OF PRIVACY PREFERENCE REGARDING THE PROTECTION OF THAT CONFIDENTIALITY YOU WE HAVE INDICATED AND AS PERMITTED OR REQUIRED BY LAW. Subject to legal and contractual requirements, you may refuse or withdraw your consent to certain of the identified purposes at any time by contacting us. If you refuse or withdraw your consent, it may be that we are unable to provide or continue to provide certain services or information that may be helpful.
 
 
+## 1. Talao
 
 
-1. Talao
-
-
-Talao is an French company registered in Paris.
+Talao is a French company registered in Paris.
 
 
 Talao provides a self sovereign identity based on decentralized ledgers as a Blockchain public and private network.
@@ -33,14 +37,14 @@ Identities with their credentials can be displayed, if needed, anywhere on digit
 This policy of privacy applies to the collection, use and disclosure of any personal information about users of our services.
 
 
-2. The type of personal information collected
+## 2. The type of personal information collected
 
 
 Legislation on privacy defines personal information very broadly as information about an « identifiable individual » or as information that identifies an individual. The types of personal information we may collect from you from time to time include: your name, your address, your email address, your phone number, your service preferences,
 information about your education, your professional experience, your previous and current employers, your skills and information about the content you post to Talao.
 
 
-3. The reasons for the collection of personal information
+## 3. The reasons for the collection of personal information
 
 
 We collect your personal information for the purposes to provide the product, service or information you requested. If you are a user of our services.
@@ -49,7 +53,7 @@ We use your email address and phone number for authentication.
 We use your email address to send you the credentials you requested.
 
 
-4. The communication of your personal information
+## 4. The communication of your personal information
 
 
 Law enforcement and communication under legislation
@@ -59,7 +63,7 @@ Talao may disclose your personal information to a government agency that has ass
 Talao may also disclose your personal information to legal counsel.
 
 
-5. Control of your personal information
+## 5. Control of your personal information
 
 
 Talao wants you to be able to maintain control over how we use your personal information. In particular:
@@ -74,20 +78,20 @@ You always have the choice to ask us not to use your e-mail address, etc. and to
 See « How to Contact Us » below
 
 
-6. The storage of your personal information
+## 6. The storage of your personal information
 
 
-Your personal information is stored on private blockchain and decentralized file system as IPFS. Your personal information is always encrypted.
+Your personal information is stored on a private blockchain and decentralized file system as IPFS. Your personal information is always encrypted.
 
 
-There are 3 different levels of data encryption. If you chose to let your data 'public', your data will be encrypted with a public key which can be found in the open code.
+There are 3 different levels of data encryption. If you choose to let your data 'public', your data will be encrypted with a public key which can be found in the open code.
 
 
 If you chose to let your data 'private', your data will be encrypted with a special key you could communicate to "partners" you have chosen.
 If you chose to let your data 'secret', your data will be encrypted with a special key we cannot communicate through the platform. For your information, please contact our responsible for the protection of confidentiality as identified in the section « Contact us » below) orgo to our online documentation  https://talao.readthedocs.io/en/latest/privacy/
 
 
-7. The consultation of your personal information
+## 7. The consultation of your personal information
 
 
 Upon written request, subject to certain exceptions, Talao informs you of the existence, use and disclosure of your personal information and you will see them.
@@ -96,7 +100,7 @@ Upon written request, subject to certain exceptions, Talao informs you of the ex
 You must send your request for our responsibility for protecting the confidentiality, details of which are classified « Contact us » (below).
 
 
-8. The protection of your personal information
+## 8. The protection of your personal information
 
 
 We make every reasonable effort to protect the loss,misuse and alteration of personal information under our control.
@@ -112,7 +116,7 @@ When personal information is sent to a third party for processing, we make sure,
 We operate secure servers protected by firewall systems and password protection consistent with industry standards.
 
 
-9. The protection of confidentiality and websites
+## 9. The protection of confidentiality and websites
 
 
 Talao sometimes collects personal information through its various websites. This clause provides additional information regarding the collection of personal information.
@@ -124,17 +128,19 @@ Cookies : When an individual visitor accesses the website Talao, we may use a br
 However, when visitors refuse cookies, it may be unable to use some of the features available on our websites.
 
 
-10. Changes to the privacy protection policy
+## 10. Changes to the privacy protection policy
 
 
 Talao reserves the right to modify or supplement this privacy protection policy at any time.
 
 
 If we make changes to this policy of privacy, we will post those changes on our websites and the amended policy available upon request to the responsible for the Talao privacy protection.
+
+
 However, Talao will obtain the necessary consents required under the law on the protection of applicable personal information if it seeks to collect, use or disclose personal information about an individual for purposes other than those for which the consent was given, unless it is otherwise required or permitted by law.
 
 
-11. How to Contact us
+## 11. How to Contact us
 
 
 Talao has appointed an official of privacy which oversees compliance with this privacy protection policy and applicable laws for the protection of personal information.
@@ -147,13 +153,13 @@ Responsible for protecting the confidentiality of Talao
 Email: contact@talao.io.
 
 
-Appendix 1
+## Appendix 1
 
 
 Personal data protection - Your data on Talao
 
 
-What personal data collected about me ?
+### What personal data collected about me ?
 
 
 When you create a Talao identity, you provide us with personal information that includes your given name, family name, your decentralized identifier(DID), username and a password. You can also choose to add a phone number to your account for a better authentication process.Those data are stored on Talao servers.
@@ -168,7 +174,7 @@ When you store data files, you also provide us with the file content.
 Depending on the decentralized network, Talao might eventually own some of those servers for persistence.
 
 
-When ?
+### When ?
 
 
 We collect the information you provide us including when :
@@ -178,7 +184,7 @@ We collect the information you provide us including when :
 * you create your identity and fill your resume
 
 
-On what legal basis and what times are my personal data processed ?
+## On what legal basis and what times are my personal data processed ?
 
 
 The processing of your personal data is justified by various foundations (legal basis) depending on the use we make of personal data. You will find below the legal basis that we apply to our main treatments.
@@ -188,7 +194,7 @@ The processing of your personal data is justified by various foundations (legal 
 • When we’re providing a service. We process your data to provide a service you’ve asked for under a contract. For example we can process your information to request a professional experience assessment to a former employer. Without exception, you can at any time object to processing based on the legitimate interest by notifying Talao.
 
 
-1. The data you provide us : Legal Basis Contract
+### 1. The data you provide us : Legal Basis Contract
 
 
 • given name, family name, E-mail address, phone number, identifier (DID)
@@ -197,7 +203,7 @@ The processing of your personal data is justified by various foundations (legal 
 We have this data to process authentication, improve our product, create services and generate reports.
 
 
-2. The information we collect : Legal basis: Legitimate interest
+### 2. The information we collect : Legal basis: Legitimate interest
 
 
 • IP Addresses
@@ -208,14 +214,14 @@ We have this data to process authentication, improve our product, create service
 We store this data to improve our product, create services and generate reports.
 
 
-How do we use the information we collect ?
+## How do we use the information we collect ?
 
 
 * To provide, improve and develop our services
 * To create and maintain a reliable and secure environment.
 
 
-My rights as users ?
+## My rights as users ?
 
 
 • Manage your information
@@ -225,25 +231,19 @@ You can access and update your information through your Account Settings Talao o
 
 
 • Correction of inaccurate or incomplete. You can correct inaccurate or incomplete personal information directly via your profile or sending us a contact request.
-
-
 • Objection and deletion of data.After closing the account, the data is permanently deleted except for those that can afford to Talao justifying the execution of its legal or contractual obligations.
 The data retained are for a limited period of one month and subject to no use during this time.You may terminate your account at any time by going directly to your Talao account to "delete your Identity".When you delete your identity, data collected by us (username, wallet address, password, email, phone) are deleted and all links to your data stored on Blockchain servers are deleted. Data on Blockchain Network cannot be deleted but are no longer accessible.
-
-
 • Data protection and security infrastructure. We attach great importance to the protection of customer information and privacy of their users. We have established high safety standards. Talao is committed to take all reasonable measures to avoid any unwanted event (illegitimate access, modification or unwanted and disappearance of personal data).We collect navigational data to allow us to ensure the safety of our services and to detect, prevent or track any attempt of malice or computer intrusion or violation of the conditions of use of our services. Data is stored using the security concepts as: Firewall, Load balancers, Data encryption,Data replication in different geographical areas.
-
-
 • Delegate for Data Protection. Thierry Thevenet, Role: Data protection Officer (DPO), Email: thierry.thevenet@talao.io
 
 
-Appendix 2
+## Appendix 2
 
 
 Talao collects, uses and discloses your personal information using fair practices regarding information that correspond to the 10 principles of protection of the following personal information :
 
 
-Principle 1 : Responsibility
+### Principle 1 : Responsibility
 
 
 Talao is responsible for personal information.
@@ -255,55 +255,55 @@ Under its control and has designated an official of privacy that must ensure com
 The contact information of the privacy protection are classified in « Contact us » of this policy of privacy. Furthermore, our liability for the personal information we collect continues even if we communicate such information to other organizations. For example, when we disclose your information to another organization (eg. Ex., One of our service providers)
 
 
-Principle 2 : Identifying Purposes for Collection of Personal Information
+### Principle 2 : Identifying Purposes for Collection of Personal Information
 
 
 Talao will determine the purposes for which personal information is collected prior to collection or during it. Some of the purposes for which Talao collects, uses and discloses usually personal information are described in Section 3 of this privacy policy. If we intend to collect, use or disclose your personal information for additional purposes, we will amend this privacy protection policy (and we will notify you) or we will seek to obtain your consent.
 
 
-Principle 3 : Obtaining consent to the collection, use or disclosure of personal information
+### Principle 3 : Obtaining consent to the collection, use or disclosure of personal information
 
 
 We will obtain your consent to the collection, use or disclosure of your personal information, except as permitted by law. For example, we ask for your consent to the collection, use and disclosure of your personal information for the purposes described in clause 3 of this policy of privacy. You may withdraw your consent at any time with regard to some or all of the stated purposes, subject to legal or contractual restrictions and reasonable notice. However, please note that in certain circumstances, we may not be able to provide our services if you withdraw your consent with respect to our use of your personal information.
 
 
-Principle 4 : Limiting Collection of Personal Information
+### Principle 4 : Limiting Collection of Personal Information
 
 
 Talao will limit the collection of personal information, both in terms of quantity and type of information to what is necessary for the purposes identified by Talao. In addition, Talao will collect your personal information in a fair and lawful way, without deceiving you or misleading you about the purpose for which the information is collected.
 
 
-Principle 5 : Limiting Use, Disclosure, and Retention of Personal Information
+### Principle 5 : Limiting Use, Disclosure, and Retention of Personal Information
 
 
 Talao does not use or disclose personal information for purposes other than those for which it was collected unless you do there consent or that the law requires. Talao will keep your personal information as long as necessary for the fulfillment of those purposes.
 
 
-Principle 6 : Accuracy of Personal Information
+### Principle 6 : Accuracy of Personal Information
 
 
 Talao will endeavor to ensure that your personal information is as accurate, complete and current as necessary for the purposes for which they are intended. Talao will update personal information when necessary to achieve the purposes or upon notice of the individual concerned. Point Contact.ne does not routinely update personal information, unless such a process is necessary to fulfill the purposes identified. If your contact information and / or other personal information changes, please contact us so we can update our records.
 
 
-Principle 7 : Safeguards
+### Principle 7 : Safeguards
 
 
 Talao will protect your personal information by security safeguards appropriate to the degree of sensitivity of the information. For example, computer servers in which we store your personal information are protected by firewalls and other security devices corresponding to industry standards. In addition, your personal information is made available to our employees and our service providers as a function of selective access to offer our services or otherwise fulfill the purposes specified in clause 3 above.
 
 
-Principle 8 : Openness concerning policies and practices
+### Principle 8 : Openness concerning policies and practices
 
 
 Talao will ensure that specific information about its policies and practices regarding the management of your personal information is readily accessible. For example, the latest version of this policy of privacy will always be available on the Talao website at  https://talao.co/privacy/ and request protection officer confidentiality as identified in clause « contact us ».
 
 
-Principle 9 : Individual Access to Personal Information
+### Principle 9 : Individual Access to Personal Information
 
 
-Upon written request, subject to certain exceptions, Talao inform you of the existence of personal information about you, the use made of it and the fact that they have been disclosed to third parties, and you will see them. If we do not allow you to consult, Talao will notify you in writing, give reasons for the refusal and inform you of possible remedies. If access is granted, Talao will give you a reasonable opportunity to review your personal information. You can challenge the accuracy and completeness of the information and have it amended as appropriate.
+Upon written request, subject to certain exceptions, Talao informs you of the existence of personal information about you, the use made of it and the fact that they have been disclosed to third parties, and you will see them. If we do not allow you to consult, Talao will notify you in writing, give reasons for the refusal and inform you of possible remedies. If access is granted, Talao will give you a reasonable opportunity to review your personal information. You can challenge the accuracy and completeness of the information and have it amended as appropriate.
 
 
-Principle 10 : Challenging complaint regarding non-compliance of the principles
+### Principle 10 : Challenging complaint regarding non-compliance of the principles
 
 
 you have the right to complain of non-compliance with this privacy protection policy by contacting the responsible for the Talao protection of privacy.

@@ -6,22 +6,21 @@ import didkit
 from pytezos.crypto.encoding import base58_encode
 from pytezos.crypto.key import Key
 
+import pytest
 import logging
 logging.basicConfig(level=logging.INFO)
 
 
 """
 Pour did:ethr et did:tz(2) utilser ES256K-R pour avoir la suite de signature "EcdsaSecp256k1RecoverySignature2020"
-
 pour did:web utiliser ES256K et la suite de signature EcdsaSecp256k1VerificationKey2019 with  "publicKeyJwk" : {}
-
-
 """
 
 def ethereum_pvk_to_DID(pvk, method) :
     if method in ['ethr', 'tz'] :
-        return didkit.keyToDID(method, ethereum_to_jwk256kr(pvk))
+        return didkit.key_to_did(method, ethereum_to_jwk256kr(pvk))
     else :
+        logging.error('DID method not supported')
         return None
 
 def ethereum_pvk_to_address(pvk) :
@@ -38,7 +37,8 @@ def ethereum_pvk_to_pub(pvk) :
 
 
 def jwk_to_ethereum(jwk) :
-    jwk = json.loads(jwk)
+    if isinstance(jwk, str) :
+        jwk = json.loads(jwk)
     private_key = "0x" + base64.urlsafe_b64decode(jwk["d"] + '=' * (4 - len(jwk["d"]) % 4)).hex()
     priv_key_bytes = decode_hex(private_key)
     priv_key = keys.PrivateKey(priv_key_bytes)
@@ -49,26 +49,21 @@ def jwk_to_ethereum(jwk) :
 
 
 def jwk_to_tezos(jwk) :
-    """
-    jwk is string
-    must be and ethereum address
-    """
-    if json.loads(jwk)['crv'] == 'secp256k1' :
-        eth_pvk = jwk_to_ethereum(jwk)[0]
-        tez_pvk = base58_encode(bytes.fromhex(eth_pvk[2:]), prefix = b'spsk')
-        sk = Key.from_encoded_key(tez_pvk.decode())
-        pbk = sk.public_key()
-        address = sk.public_key_hash()   
-    elif json.loads(jwk)['crv'] == "Ed25519" :
-        private_key = base64.urlsafe_b64decode(json.loads(jwk)["d"] + '=' * (4 - len(json.loads(jwk)["d"]) % 4)).hex()
-        tez_pvk = base58_encode(bytes.fromhex(private_key), prefix = b'edsk')
-        sk = Key.from_encoded_key(tez_pvk)
-        pbk = sk.public_key()
-        address = sk.public_key_hash()
+    if isinstance(jwk, str) :
+        jwk = json.loads(jwk)
+    if jwk['crv'] == 'secp256k1' :
+        prefix = b'spsk'
+    elif jwk['crv'] == "Ed25519" :
+        prefix = b'edsk'
     else :
-        logging.error('not implemented')
+        logging.error('curve not implemented')
         return None
-    return tez_pvk, pbk, address
+    private_key = base64.urlsafe_b64decode(jwk["d"] + '=' * (4 - len(jwk["d"]) % 4)).hex()
+    tez_pvk = base58_encode(bytes.fromhex(private_key), prefix = prefix)
+    sk = Key.from_encoded_key(tez_pvk.decode())
+    pbk = sk.public_key()
+    pkh = sk.public_key_hash()
+    return tez_pvk, pbk, pkh
 
 
 def ethereum_to_tezos(eth_pvk) :
@@ -78,8 +73,8 @@ def ethereum_to_tezos(eth_pvk) :
     tez_pvk = base58_encode(bytes.fromhex(eth_pvk[2:]), prefix = b'spsk')
     sk = Key.from_encoded_key(tez_pvk.decode())
     pbk = sk.public_key()
-    address = sk.public_key_hash()
-    return tez_pvk.decode(), pbk, address
+    pkh = sk.public_key_hash()
+    return tez_pvk.decode(), pbk, pkh
 
 
 def ethereum_to_jwk256k(private_key) :
@@ -122,3 +117,4 @@ def _ethereum_to_jwk256k(private_key, alg) :
     y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
 
     return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :alg})
+
