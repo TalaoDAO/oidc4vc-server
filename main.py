@@ -47,7 +47,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard
 
 # Release
-VERSION = "0.27"
+VERSION = "0.30"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -271,7 +271,20 @@ def well_known_did (mode) :
     DidDocument = did_doc(ec_public)
     return jsonify(DidDocument)
 
+"""
+{
+    "id": "did:web:did:web:talao.co#key-2",
+    "type": "JwsVerificationKey2020",
+    "controller": "did:web:talao.co",
+    "publicKeyJwk": {
+        "e":"AQAB",
+        "kid":"K3X7qOtK1O4-sJHM1NYJVKGFS2rr0JTYFjxoo5Oz1v8",
+        "kty":"RSA",
+        "n":"mIPHiLUlfIwj9udZARJg5FlyXuqMsyGHucbA-CqpJh98_17Qvd51SAdg83UzuCihB7LNYXEujnzEP5J5mAWsrTi0G3CRFk-pU_TmuY8p57M_NXvB1EJsOrjuki5HmcybzfkJMtHydD7gVotPoe-W4f8TxWqB54ve4YiFczG6A43yB3lLCYZN2wEWfwKD_FcaC3wKWdHFxqLkrulD4pVZQ_DwMNuf2XdCvEzpC33ZsU3DB6IxtcSbVejGCyq5EXroIh1-rp6ZPuCGExg8CjiLehsWvOmBac9wO74yfo1IF6PIrQQNkFA3vL2YWjp3k8SO0PAaUMF44orcUI_OOHXYLw"}
+}
 
+
+"""
 def did_doc(ec_public) :
     return  {
                 "@context": [
@@ -288,13 +301,24 @@ def did_doc(ec_public) :
                         "controller" : "did:web:talao.co",
                         "type": "EcdsaSecp256k1VerificationKey2019",
                         "publicKeyJwk": ec_public
-                    }    
+                    },
+                    {
+                        "id": "did:web:talao.co#key-2",
+                        "type": "JwsVerificationKey2020",
+                        "controller": "did:web:talao.co",
+                        "publicKeyJwk": {
+                            "e":"AQAB",
+                            "kid":"K3X7qOtK1O4-sJHM1NYJVKGFS2rr0JTYFjxoo5Oz1v8",
+                            "kty":"RSA",
+                            "n":"mIPHiLUlfIwj9udZARJg5FlyXuqMsyGHucbA-CqpJh98_17Qvd51SAdg83UzuCihB7LNYXEujnzEP5J5mAWsrTi0G3CRFk-pU_TmuY8p57M_NXvB1EJsOrjuki5HmcybzfkJMtHydD7gVotPoe-W4f8TxWqB54ve4YiFczG6A43yB3lLCYZN2wEWfwKD_FcaC3wKWdHFxqLkrulD4pVZQ_DwMNuf2XdCvEzpC33ZsU3DB6IxtcSbVejGCyq5EXroIh1-rp6ZPuCGExg8CjiLehsWvOmBac9wO74yfo1IF6PIrQQNkFA3vL2YWjp3k8SO0PAaUMF44orcUI_OOHXYLw"}
+                        }
                 ],
                 "authentication" : [
-                    "did:web:talao.co#key-1"
+                    "did:web:talao.co#key-1",
                 ],
                 "assertionMethod" : [
-                    "did:web:talao.co#key-1"
+                    "did:web:talao.co#key-1",
+                    "did:web:talao.co#key-2"
                 ],
                 "service": [
                     {

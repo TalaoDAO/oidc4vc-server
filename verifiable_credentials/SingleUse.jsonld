@@ -1,0 +1,69 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
+            "SingleUse" : {
+                "@id": "https://github.com/TalaoDAO/context/blob/main/README.md#phonepass",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "id": "@id",
+                    "type": "@type",
+                    "issuedBy" : {
+                        "@id" : "schema:issuedBy",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "logo": {"@id" : "schema:image", "@type" : "@id"},
+                            "name" : "schema:name"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "SingleUse"],
+    "issuer": "",
+    "name" : [ 
+        {
+            "@value": "Single Use VC",
+            "@language": "en"
+        },
+        {
+            "@value": "",
+            "@language": "de"
+        },
+        {
+            "@value": "Ticket (Usage unique)",
+            "@language": "fr"
+        }
+    ],
+    "description" : [
+        {
+            "@language": "en",
+            "@value": "This VC represents a bearer token (ticket, ...)."
+        },
+        {
+            "@language": "de",
+            "@value": "Dieses signierte elektronische Zertifikat ist der Nachweis, dass Sie der Inhaber dieser Telefonnummer sind."
+        },
+        {
+            "@language": "fr",
+            "@value": "Cette attestation est un droit anonyme à usage unique (ticket d'entrée, ..)."
+        }
+    ],
+
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "type" : "SingleUse",
+        "issuedBy" : {
+            "name" : "Talao",
+            "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+        }
+      
+    }
+}

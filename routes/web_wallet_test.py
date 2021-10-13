@@ -7,7 +7,6 @@ from github import Github
 import base64
 import uuid
 import logging
-import didkit
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,11 +14,17 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
 
+try :
+    RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
+except :
+    RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
+
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
-DID = DID_TZ2
+
+DID = DID_SELECTED = DID_TZ2
 
 
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
@@ -106,26 +111,43 @@ def tir_api(did) :
 ######################### Credential Offer ###########
 
 def test_credentialOffer_qrcode(red, mode) :
+    global DID_SELECTED
     if request.method == 'GET' :
         # list all the files of github directory 
-        html_string = str()  
+        #html_string = str()  
         dir_list = dir_list_calculate()
         html_string = """
                     <p> type : EmailPass</p>
                     <p>  name : <strong>Proof of email / Preuve d"email (personalisée) </strong></p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
+                    
+                    Issuer : <select name="did_select">
+                        <option selected value="DID_TZ2">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                        <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
+                        <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
+                        <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        </select><br>
                         <input hidden name="filename" value=""" + "talaoemailpass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>
                       <p> type : PhonePass</p>
                     <p>  name : <strong>Proof of telephone number / Preuve de numéro de téléphone (personalisée) </strong></p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
+                    
+                      Issuer : <select name="did_select">
+                        <option selected value="DID_TZ2">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                        <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
+                        <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
+                        <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        </select><br>
                         <input hidden name="filename" value=""" + "talaophonepass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>"""
         for filename in dir_list :
             credential = credential_from_filename(filename)
-            credential['issuer'] = DID
+            credential['issuer'] = DID_SELECTED
             credential_name = translate(credential)
             html_string += """
                     <p> Credential preview : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
@@ -133,6 +155,14 @@ def test_credentialOffer_qrcode(red, mode) :
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
                     <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
+                    
+                    Issuer : <select name="did_select">
+                        <option selected value="DID_TZ2">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                        <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
+                        <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
+                        <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        </select><br><br>
                         <input hidden name="filename" value='""" + filename + """'> 
                         <p>Scope :
                         Subject_id<input type="checkbox" disabled checked  >
@@ -161,8 +191,13 @@ def test_credentialOffer_qrcode(red, mode) :
                             <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
                         </body></html>"""
 
-        return render_template_string (html_string, simulator="Issuer Simulator : " + DID) 
+        return render_template_string (html_string) 
     else :
+        DID_SELECTED = request.form['did_select']
+        if DID_SELECTED == 'DID_WEB_2' :
+            DID_ISSUER = DID_WEB
+        else :
+            DID_ISSUER =eval(DID_SELECTED)
         filename = request.form['filename']
         if filename == "talaoemailpass" :
             return redirect('/emailpass')
@@ -171,7 +206,7 @@ def test_credentialOffer_qrcode(red, mode) :
         credential = credential_from_filename(filename)
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
-        credential['issuer'] = DID
+        credential['issuer'] = DID_ISSUER
         scope = ["subject_id"]
         if request.form.get("address") :
             scope.append("address")
@@ -201,7 +236,7 @@ def test_credentialOffer_qrcode(red, mode) :
         }
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
-        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + DID
+        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + DID_ISSUER
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
@@ -209,16 +244,21 @@ def test_credentialOffer_qrcode(red, mode) :
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 type = type + " - " + translate(credential),
-                                simulator="Issuer Simulator : " + DID
+                                #simulator="Issuer Simulator : " + DID
                                 )
 
 
 def test_credential_display():  
+    global DID_SELECTED
+    if DID_SELECTED == 'DID_WEB_2' :
+        DID_ISSUER = "did:web:talao.co"
+    else :
+        DID_ISSUER =eval(DID_SELECTED)
     filename = request.args['filename']
     # mise en forem
     credential = credential_from_filename(filename)
     credential['credentialSubject']['id'] = "did:..."
-    credential['issuer'] = DID
+    credential['issuer'] = DID_ISSUER
     credential_txt = json.dumps(credential, indent=4)
     html_string = """
         <!DOCTYPE html>
@@ -231,6 +271,11 @@ def test_credential_display():
 
 
 def test_credentialOffer_endpoint(id, red):
+    global DID_SELECTED
+    if DID_SELECTED == 'DID_WEB_2' :
+        DID_ISSUER = "did:web:talao.co"
+    else :
+        DID_ISSUER =eval(DID_SELECTED)
     try : 
         credentialOffer = json.loads(red.get(id).decode())
     except :
@@ -254,7 +299,13 @@ def test_credentialOffer_endpoint(id, red):
             "email" : request.form.get('email', "None"),
             "address" : request.form.get('address', "None")
             }
-        signed_credential = vc_signature.sign(credential, PVK, DID)
+        # to keep the possibility to use an RSA key with did:web
+        if DID_SELECTED == 'DID_WEB_2' :
+            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
+        else :
+            signed_credential = vc_signature.sign(credential, PVK, eval(DID_SELECTED))
+        signed_credential = vc_signature.sign(credential, PVK, DID_ISSUER, rsa=RSA)
+        print('signed credential = ', signed_credential)
         # send event to client agent to go forward
         data = json.dumps({'id' : id, 'check' : 'success', 'scope' : json.dumps(scope)})
         red.publish('credible', data)
