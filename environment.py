@@ -41,6 +41,8 @@ class currentMode() :
 		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
 		self.owner_talao_private_key = keys[mychain]['talao_private_key']
 		self.foundation_private_key = keys[mychain].get('foundation_private_key')
+		self.talao_P256_private_key = keys[mychain].get('P256_private_key')
+		self.talao_Ed25519_private_key = keys[mychain].get('Ed25519_private_key')
 
 		# upload of main private passwords. This file (passwords.json) is not in the  github repo.
 		try :

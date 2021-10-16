@@ -1,4 +1,4 @@
-from flask import jsonify, request, render_template, Response, render_template_string, redirect
+from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
 from signaturesuite import vc_signature
@@ -16,8 +16,16 @@ REGISTRY_REPO = "TalaoDAO/context"
 
 try :
     RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
+    P256 = json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key')
+    Ed25519 = json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key')
+
 except :
     RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
+    P256 = json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key')
+    Ed25519 = json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key')
+
+print('P256 = ',P256)
+print('Ed25519 = ', Ed25519)
 
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
@@ -39,24 +47,26 @@ def translate(credential) :
         pass
     return credential_name
     
+path = "test/CredentialOffer"
 
-def dir_list_calculate() :
+def dir_list_calculate(path) :
     dir_list=list()
-    contents = test_repo.get_contents("test/CredentialOffer")
+    contents = test_repo.get_contents(path)
     for content_file in contents :
         if content_file.name.split('.')[1] =='jsonld' :
             dir_list.append(content_file.name)
     return dir_list
 
 
-def credential_from_filename(filename) :
-    file = test_repo.get_contents("test/CredentialOffer/" + filename)
+def credential_from_filename(path, filename) :
+    file = test_repo.get_contents(path + "/" + filename)
     encoded_content = file.__dict__['_rawData']['content']
     return json.loads(base64.b64decode(encoded_content).decode())
 
 
 def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/wallet/test/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
     app.add_url_rule('/wallet/test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -110,12 +120,17 @@ def tir_api(did) :
 
 ######################### Credential Offer ###########
 
+def test_credentialOffer2_qrcode(red, mode) :
+    global path
+    path = "test/CredentialOffer2"
+    return redirect(url_for("test_credentialOffer_qrcode"))
+
 def test_credentialOffer_qrcode(red, mode) :
     global DID_SELECTED
-    if request.method == 'GET' :
+    global path
+    if request.method == 'GET' :   
         # list all the files of github directory 
-        #html_string = str()  
-        dir_list = dir_list_calculate()
+        dir_list = dir_list_calculate(path)
         html_string = """
                     <p> type : EmailPass</p>
                     <p>  name : <strong>Proof of email / Preuve d"email (personalisée) </strong></p>
@@ -126,6 +141,8 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
                         <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
+                         <option value="DID_WEB_3">did:web:talao.co#key-3 (Ed25519)</option>
+                          <option value="DID_WEB_4">did:web:talao.co#key-4 (P-256)</option>
                         <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
                         </select><br>
                         <input hidden name="filename" value=""" + "talaoemailpass" + """> 
@@ -140,13 +157,15 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
                         <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
+                         <option value="DID_WEB_3">did:web:talao.co#key-3 (Ed25519)</option>
+                          <option value="DID_WEB_4">did:web:talao.co#key-4 (P-256)</option>
                         <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
                         </select><br>
                         <input hidden name="filename" value=""" + "talaophonepass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>"""
         for filename in dir_list :
-            credential = credential_from_filename(filename)
+            credential = credential_from_filename(path, filename)
             credential['issuer'] = DID_SELECTED
             credential_name = translate(credential)
             html_string += """
@@ -161,6 +180,8 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
                         <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
+                         <option value="DID_WEB_3">did:web:talao.co#key-3 (Ed25519)</option>
+                          <option value="DID_WEB_4">did:web:talao.co#key-4 (P-256)</option>
                         <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
                         </select><br><br>
                         <input hidden name="filename" value='""" + filename + """'> 
@@ -203,7 +224,7 @@ def test_credentialOffer_qrcode(red, mode) :
             return redirect('/emailpass')
         if filename == "talaophonepass" :
             return redirect('/phonepass')
-        credential = credential_from_filename(filename)
+        credential = credential_from_filename(path, filename)
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
         credential['issuer'] = DID_ISSUER
@@ -250,7 +271,7 @@ def test_credentialOffer_qrcode(red, mode) :
 
 def test_credential_display():  
     global DID_SELECTED
-    if DID_SELECTED == 'DID_WEB_2' :
+    if DID_SELECTED in ['DID_WEB_2', "DID_WEB_3", "DID_WEB_4"] :
         DID_ISSUER = "did:web:talao.co"
     else :
         DID_ISSUER =eval(DID_SELECTED)
@@ -272,7 +293,7 @@ def test_credential_display():
 
 def test_credentialOffer_endpoint(id, red):
     global DID_SELECTED
-    if DID_SELECTED == 'DID_WEB_2' :
+    if DID_SELECTED in ['DID_WEB_2', "DID_WEB_3", "DID_WEB_4"] :
         DID_ISSUER = "did:web:talao.co"
     else :
         DID_ISSUER =eval(DID_SELECTED)
@@ -302,9 +323,13 @@ def test_credentialOffer_endpoint(id, red):
         # to keep the possibility to use an RSA key with did:web
         if DID_SELECTED == 'DID_WEB_2' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
+        elif DID_SELECTED == 'DID_WEB_3' :
+            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
+        elif DID_SELECTED == 'DID_WEB_4' :
+            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
         else :
             signed_credential = vc_signature.sign(credential, PVK, eval(DID_SELECTED))
-        signed_credential = vc_signature.sign(credential, PVK, DID_ISSUER, rsa=RSA)
+        #signed_credential = vc_signature.sign(credential, PVK, DID_ISSUER, rsa=RSA)
         print('signed credential = ', signed_credential)
         # send event to client agent to go forward
         data = json.dumps({'id' : id, 'check' : 'success', 'scope' : json.dumps(scope)})
