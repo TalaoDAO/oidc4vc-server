@@ -16,16 +16,14 @@ REGISTRY_REPO = "TalaoDAO/context"
 
 try :
     RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key')
-    Ed25519 = json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key')
+    P256 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
+    Ed25519 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
 
 except :
     RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key')
-    Ed25519 = json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key')
+    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
+    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
 
-print('P256 = ',P256)
-print('Ed25519 = ', Ed25519)
 
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
@@ -215,7 +213,7 @@ def test_credentialOffer_qrcode(red, mode) :
         return render_template_string (html_string) 
     else :
         DID_SELECTED = request.form['did_select']
-        if DID_SELECTED == 'DID_WEB_2' :
+        if DID_SELECTED in ['DID_WEB_2', "DID_WEB_3", "DID_WEB_4"] :
             DID_ISSUER = DID_WEB
         else :
             DID_ISSUER =eval(DID_SELECTED)
@@ -293,10 +291,6 @@ def test_credential_display():
 
 def test_credentialOffer_endpoint(id, red):
     global DID_SELECTED
-    if DID_SELECTED in ['DID_WEB_2', "DID_WEB_3", "DID_WEB_4"] :
-        DID_ISSUER = "did:web:talao.co"
-    else :
-        DID_ISSUER =eval(DID_SELECTED)
     try : 
         credentialOffer = json.loads(red.get(id).decode())
     except :
@@ -329,21 +323,24 @@ def test_credentialOffer_endpoint(id, red):
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
         else :
             signed_credential = vc_signature.sign(credential, PVK, eval(DID_SELECTED))
-        #signed_credential = vc_signature.sign(credential, PVK, DID_ISSUER, rsa=RSA)
-        print('signed credential = ', signed_credential)
+        print(signed_credential)
         # send event to client agent to go forward
-        data = json.dumps({'id' : id, 'check' : 'success', 'scope' : json.dumps(scope)})
+        data = json.dumps({
+                            'id' : id,
+                            'check' : 'success',
+                            'scope' : json.dumps(scope),
+                            'signed_credential' : signed_credential
+                            })
         red.publish('credible', data)
         return jsonify(signed_credential)
 
 
 def test_credentialOffer_back():
-    scope = json.dumps(json.loads(request.args['scope']), indent=4)
     html_string = """
         <!DOCTYPE html>
         <html>
         <body class="h-screen w-screen flex">
-        <br>Scope items : """ + scope + """<br>
+        <h2>Verifiable Credential has been signed and transferd to wallet"</h2<
         <br><br><br>
         <form action="/wallet/test/credentialOffer" method="GET" >
                     <button  type"submit" >Back</button></form>

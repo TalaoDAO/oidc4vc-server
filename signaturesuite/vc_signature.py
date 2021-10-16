@@ -28,7 +28,7 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
   
     method = did.split(':')[1]
 
-    if method == 'web' and not rsa :
+    if method == 'web' and not rsa and not P256 and not Ed25519:
         key = ethereum_to_jwk256k(pvk)
         vm = did + "#key-1"
 
@@ -60,7 +60,7 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
     else :
         logging.error('method not supported by Talao')
         return None
-  
+    print('vm = ', vm)
     if not didkit_options :
         didkit_options = {
             "proofPurpose": "assertionMethod",
