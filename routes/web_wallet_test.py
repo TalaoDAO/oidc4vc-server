@@ -25,12 +25,13 @@ except :
     Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
 
 
-DID_WEB = 'did:web:talao.co'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 
-DID = DID_SELECTED = DID_TZ2
+#DID_WEB = 'did:web:talao.co'
+#DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+#DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+#DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+
+did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
@@ -124,7 +125,7 @@ def test_credentialOffer2_qrcode(red, mode) :
     return redirect(url_for("test_credentialOffer_qrcode"))
 
 def test_credentialOffer_qrcode(red, mode) :
-    global DID_SELECTED
+    global did_selected
     global path
     if request.method == 'GET' :   
         # list all the files of github directory 
@@ -135,13 +136,13 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                        <option selected value="DID_TZ2">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
-                        <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
-                         <option value="DID_WEB_3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="DID_WEB_4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
+                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
+                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
+                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
+                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
                         </select><br>
                         <input hidden name="filename" value=""" + "talaoemailpass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
@@ -151,20 +152,21 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                       Issuer : <select name="did_select">
-                        <option selected value="DID_TZ2">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
-                        <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
-                         <option value="DID_WEB_3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="DID_WEB_4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                      <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
+                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
+                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
+                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
+                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        
                         </select><br>
                         <input hidden name="filename" value=""" + "talaophonepass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>"""
         for filename in dir_list :
             credential = credential_from_filename(path, filename)
-            credential['issuer'] = DID_SELECTED
+            credential['issuer'] = did_selected
             credential_name = translate(credential)
             html_string += """
                     <p> Credential preview : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
@@ -174,13 +176,13 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                        <option selected value="DID_TZ2">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="DID_ETHR">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
-                        <option value="DID_WEB">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="DID_WEB_2">did:web:talao.co#key-2 (RSA)</option>
-                         <option value="DID_WEB_3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="DID_WEB_4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="DID_KEY">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                    <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
+                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
+                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
+                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
+                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
                         </select><br><br>
                         <input hidden name="filename" value='""" + filename + """'> 
                         <p>Scope :
@@ -212,11 +214,13 @@ def test_credentialOffer_qrcode(red, mode) :
 
         return render_template_string (html_string) 
     else :
-        DID_SELECTED = request.form['did_select']
-        if DID_SELECTED in ['DID_WEB_2', "DID_WEB_3", "DID_WEB_4"] :
-            DID_ISSUER = DID_WEB
+      
+        did_selected = request.form['did_select']
+        print('did selected = ', did_selected)
+        if did_selected.split(':')[1] == 'web' :
+            did_issuer = 'did:web:talao.co'
         else :
-            DID_ISSUER =eval(DID_SELECTED)
+            did_issuer = did_selected
         filename = request.form['filename']
         if filename == "talaoemailpass" :
             return redirect('/emailpass')
@@ -225,7 +229,7 @@ def test_credentialOffer_qrcode(red, mode) :
         credential = credential_from_filename(path, filename)
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
-        credential['issuer'] = DID_ISSUER
+        credential['issuer'] = did_issuer
         scope = ["subject_id"]
         if request.form.get("address") :
             scope.append("address")
@@ -255,7 +259,7 @@ def test_credentialOffer_qrcode(red, mode) :
         }
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
-        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + DID_ISSUER
+        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + did_issuer
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
@@ -263,21 +267,20 @@ def test_credentialOffer_qrcode(red, mode) :
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 type = type + " - " + translate(credential),
-                                #simulator="Issuer Simulator : " + DID
                                 )
 
 
 def test_credential_display():  
-    global DID_SELECTED
-    if DID_SELECTED in ['DID_WEB_2', "DID_WEB_3", "DID_WEB_4"] :
-        DID_ISSUER = "did:web:talao.co"
+    global did_selected
+    if did_selected.split(':')[1] == 'web' :
+        did_issuer = 'did:web:talao.co'
     else :
-        DID_ISSUER =eval(DID_SELECTED)
+        did_issuer = did_selected
     filename = request.args['filename']
     # mise en forem
     credential = credential_from_filename(filename)
     credential['credentialSubject']['id'] = "did:..."
-    credential['issuer'] = DID_ISSUER
+    credential['issuer'] = did_issuer
     credential_txt = json.dumps(credential, indent=4)
     html_string = """
         <!DOCTYPE html>
@@ -290,7 +293,7 @@ def test_credential_display():
 
 
 def test_credentialOffer_endpoint(id, red):
-    global DID_SELECTED
+    global did_selected
     try : 
         credentialOffer = json.loads(red.get(id).decode())
     except :
@@ -315,14 +318,14 @@ def test_credentialOffer_endpoint(id, red):
             "address" : request.form.get('address', "None")
             }
         # to keep the possibility to use an RSA key with did:web
-        if DID_SELECTED == 'DID_WEB_2' :
+        if did_selected == 'did:web:talao.co#key-2' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
-        elif DID_SELECTED == 'DID_WEB_3' :
+        elif did_selected == 'did:web:talao.co#key-3' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
-        elif DID_SELECTED == 'DID_WEB_4' :
+        elif did_selected == 'did:web:talao.co#key-4' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
         else :
-            signed_credential = vc_signature.sign(credential, PVK, eval(DID_SELECTED))
+            signed_credential = vc_signature.sign(credential, PVK, did_selected)
         print(signed_credential)
         # send event to client agent to go forward
         data = json.dumps({
