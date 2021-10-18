@@ -1,93 +1,219 @@
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        {   
-            "name" : "https://schema.org/name",
-            "description" : "https://schema.org/description",
-            "ProfessionalExperienceAssessment" : {
-                "@id" : "https://github.com/TalaoDAO/context/blob/main/README.md#professionalexperienceassessment",
-                "@context" : {
-                    "@version": 1.1,
+        {
+            "name": "https://schema.org/name",
+            "ProfessionalExperienceAssessment": {
+                "@context": {
                     "@protected": true,
-                    "schema" : "https://schema.org/",
+                    "@version": 1.1,
+                    "description": "schema:description",
+                    "endDate": "schema:endDate",
                     "issuedBy": {
-                        "@id": "schema:issuedBy",
                         "@context": {
-                            "@version": 1.1,
                             "@protected": true,
-                            "name" :   "schema:name",
-                            "address" : "schema:address",
-                            "logo" : {"@id" : "schema:image", "@type" : "@id"}
-                        }
-                    },
-                    "givenName" : "schema:givenName",
-                    "familyName" : "schema:familyName",
-                    "signatureLines": {
-                            "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
-                            "@context": {
-                                "@version": 1.1,
-                                "@protected": true,
-                                "name" :  "schema:name",
-                                "jobTitle" :"schema:jobTitle",
-                                "image" : {"@id" : "schema:image", "@type" : "@id"}
-                                }
+                            "@version": 1.1,
+                            "logo": {
+                                "@id": "schema:image",
+                                "@type": "@id"
                             },
-                    "title" : "schema:title",
-                    "description" : "schema:description",
-                    "startDate" : "schema:startDate",
-                    "endDate" : "schema:endDate",
-                    "skills": {
-                        "@id": "schema:skills",
+                            "name": "schema:name"
+                        },
+                        "@id": "schema:issuedBy"
+                    },
+                    "familyName": "schema:familyName",
+                    "givenName": "schema:givenName",
+                    "review": "schema:review",
+                    "schema": "https://schema.org/",
+                    "signatureLines": {
                         "@context": {
-                            "@version": 1.1,
                             "@protected": true,
-                            "description" :  "schema:description"
-                        }
-                    },         
-                    "review": {
-                        "@id": "schema:review",
-                        "@context": {
                             "@version": 1.1,
-                            "@protected": true,
-                            "name" :  "schema:name",
-                            "reviewBody" : "schema:reviewBody",
-                            "reviewRating" : {
-                                "@id": "schema:ratingValue",
-                                "@context": {
-                                    "@version": 1.1,
-                                    "@protected": true,
-                                    "worstRating" :  "schema:worstRating",
-                                    "bestRating" : "schema:bestRating",
-                                    "ratingValue" : "schema:ratingValue"
-                                }
-                            }
-                        }
-                    }
-                }
+                            "image": {
+                                "@id": "schema:image",
+                                "@type": "@id"
+                            },
+                            "jobTitle": "schema:jobTitle",
+                            "name": "schema:name",
+                            "schema": "https://schema.org/"
+                        },
+                        "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md"
+                    },
+                    "skills": "schema:skills",
+                    "startDate": "schema:startDate",
+                    "title": "schema:title"
+                },
+                "@id": "https://github.com/TalaoDAO/context#certificateofemployment"
+            },
+            "description": "https://schema.org/description",
+            "Rating": {
+                "@context": {
+                    "@protected": true,
+                    "@version": 1.1,
+                    "bestRating": "schema:bestRating",
+                    "ratingValue": "schema:ratingValue",
+                    "schema": "https://schema.org/",
+                    "worstRating": "schema:worstRating"
+                },
+                "@id": "schema:Rating"
+            },
+            "Review": {
+                "@context": {
+                    "@protected": true,
+                    "@version": 1.1,
+                    "name": "schema:name",
+                    "reviewBody": "schema:reviewBody",
+                    "reviewRating": "schema:reviewRating",
+                    "schema": "https://schema.org/"
+                },
+                "@id": "schema:Review"
+            },
+            "Skill": {
+                "@context": {
+                    "@protected": true,
+                    "@version": 1.1,
+                    "description": "schema:description",
+                    "schema": "https://schema.org/"
+                },
+                "@id": "schema:Rating"
             }
         }
     ],
-    "id": "data:aaaa:aaa",
-    "type": ["VerifiableCredential", "ProfessionalExperienceAssessment"],
-    "issuer": "",
-    "name" : [ 
-        {
-            "@value": "Professional experience assessment",
-            "@language": "en"
-        },
-        {
-            "@value": "Bescheinigung über die Berufserfahrung",
-            "@language": "de"
-        },
-        {
-            "@value": "Attestation d'expérience professionnelle",
-            "@language": "fr"
-        }
+    "id": "urn:uuid:192cc5ca-0da7-11ec-9ef1-f37fc4c32c40",
+    "type": [
+        "VerifiableCredential",
+        "ProfessionalExperienceAssessment"
     ],
-    "description" : [
+    "credentialSubject": {
+        "id": "",
+        "endDate": "2021-05-15T12:11:59Z",
+        "familyName": "Doe",
+        "givenName": "John",
+        "title": "Lead Developper",
+        "skills": [
+            {
+                "@type": "Skill",
+                "description": "JSON-LD"
+            },
+            {
+                "@type": "Skill",
+                "description": " Verifiable Credential"
+            }
+        ],
+        "description": "Development of an SSI solution for the human sector.",
+        "startDate": "2020-02-01T12:11:59Z",
+        "type": "ProfessionalExperienceAssessment",
+        "issuedBy": {
+            "logo": "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu",
+            "name": "Talao"
+        },
+        "review": [
+            {
+                "name": "reviewRecommendation",
+                "reviewBody": [
+                    {
+                        "@language": "en",
+                        "@value": "How likely are you to recommend this Talent to others ?"
+                    },
+                    {
+                        "@language": "fr",
+                        "@value": "Recommanderiez vous ce Talent ?"
+                    }
+                ],
+                "reviewRating": {
+                    "bestRating": "5",
+                    "ratingValue": "3",
+                    "type": "Rating",
+                    "worstRating": "1"
+                },
+                "type": "Review"
+            },
+            {
+                "name": "reviewDelivery",
+                "reviewBody": [
+                    {
+                        "@language": "en",
+                        "@value": "How satisfied are you with the overall delivery ?"
+                    },
+                    {
+                        "@language": "fr",
+                        "@value": "Etes vous satisfait du travail produit ?"
+                    }
+                ],
+                "reviewRating": {
+                    "bestRating": "5",
+                    "ratingValue": "3",
+                    "type": "Rating",
+                    "worstRating": "1"
+                },
+                "type": "Review"
+            },
+            {
+                "name": "reviewSchedule",
+                "reviewBody": [
+                    {
+                        "@language": "en",
+                        "@value": "How would you rate his or her ability to deliver to schedule ?"
+                    },
+                    {
+                        "@language": "fr",
+                        "@value": "Etes vous satisfait des délais de livraison ?"
+                    }
+                ],
+                "reviewRating": {
+                    "bestRating": "5",
+                    "ratingValue": "3",
+                    "type": "Rating",
+                    "worstRating": "1"
+                },
+                "type": "Review"
+            },
+            {
+                "name": "reviewCommunication",
+                "reviewBody": [
+                    {
+                        "@language": "en",
+                        "@value": "How would you rate his or her overall communication skills ?"
+                    },
+                    {
+                        "@language": "fr",
+                        "@value": "Etes vous satisfait de la communication de ce Talent ?"
+                    }
+                ],
+                "reviewRating": {
+                    "bestRating": "5",
+                    "ratingValue": "3",
+                    "type": "Rating",
+                    "worstRating": "1"
+                },
+                "type": "Review"
+            }
+        ],
+        "signatureLines": {
+            "image": "https://gateway.pinata.cloud/ipfs/Qmac6K4suXyYaouFXxeBzDTr7XivTiq6cLWPh1puS6L7Kt",
+            "jobTitle": "Director",
+            "name": "Nicolas Muller"
+        }
+    },
+    "issuer": "",
+    "name": [
         {
             "@language": "en",
-            "@value": "It is a credential issued by a company to its employees, service providers or freelancers. This certificate is produced at the request of a Talent to prove the skills and know-how implemented during a project or a mission. "
+            "@value": "Experience assessment"
+        },
+        {
+            "@language": "de",
+            "@value": "Bescheinigung über die Berufserfahrung"
+        },
+        {
+            "@language": "fr",
+            "@value": "Attestation d'expérience"
+        }
+    ],
+    "description": [
+        {
+            "@language": "en",
+            "@value": "This credential is produced at the request of a Talent to prove the know-how implemented during a project or a mission. "
         },
         {
             "@language": "de",
@@ -95,85 +221,7 @@
         },
         {
             "@language": "fr",
-            "@value": "Il s'agit d'un justificatif délivré par une entreprise à ses salariés, prestataires ou indépendants. Cette attestation est produite à la demande d'un Talent pour justifier des compétences et savoir-faire mis en œuvre lors d'un projet ou d'une mission."
+            "@value": "Cette attestation est produite à la demande d'un Talent pour justifier des compétences et savoir-faire mis en œuvre lors d'un projet ou d'une mission."
         }
-    ],
-    "credentialSubject": {
-        "id": "",
-        "type" :  "ProfessionalExperienceAssessment",
-        "issuedBy" : {
-          "name" : "Talao",
-          "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
-            },
-        "givenName" : "John",
-        "familyName" : "Doe",
-        "signatureLines" : {
-            "name" : "Nicolas Muller",
-            "jobTitle" : "Director",
-            "image" : "https://talao.mypinata.cloud/ipfs/QmawHhhLZayZRoQqpuNxm6uJX2MFoPgqPTj57hgvmWCXxu"
-            },
-        "title" : "Lead Developper",
-        "description" : "Development of an SSI solution for the human sector.",
-        "startDate" : "2020-02-01T12:11:59Z",
-        "endDate" : "2021-05-15T12:11:59Z",
-        "skills": [
-            {
-                "description": "JSON-LD"
-            },
-            {
-                "description": " Verifiable Credential"
-            }
-        ],
-        "review": [
-            {
-            "name" : "reviewRecommendation",
-            "reviewBody": [ 
-                {"@value": "How likely are you to recommend this Talent to others ?", "@language": "en"},
-                {"@value": "Recommanderiez vous ce Talent ?", "@language": "fr"}],
-            
-            "reviewRating": {
-                "bestRating": "5",
-                "ratingValue": "5",
-                "worstRating": "1"
-                }
-            },
-            {
-            "name" : "reviewDelivery",
-            "reviewBody": [
-                {"@value" : "How satisfied are you with the overall delivery ?", "@language": "en"},
-                {"@value" : "Etes vous satisfait du travail produit ?", "@language": "fr"}
-            ],
-            "reviewRating": {
-                "bestRating": "5",
-                "ratingValue": "5",
-                "worstRating": "1"
-                }
-            },
-            {
-            "name" : "reviewSchedule",
-            "reviewBody": [
-                {"@value" : "How would you rate his or her ability to deliver to schedule ?", "@language" : "en"},
-                {"@value" : "Etes vous satisfait des délais de livraison ?", "@language" : "fr"}
-            ],
-            "reviewRating": {
-                "type" : "Rating",
-                "bestRating": "5",
-                "ratingValue": "4",
-                "worstRating": "1"
-                }
-            },
-            {
-            "name" : "reviewCommunication",
-            "reviewBody": [
-                {"@value" : "How would you rate his or her overall communication skills ?", "@language" : "en"},
-                {"@value" : "Etes vous satisfait de la communication de ce Talent ?", "@language" : "fr"}
-            ],
-            "reviewRating": {
-                "bestRating": "5",
-                "ratingValue": "4",
-                "worstRating": "1"
-                }
-            }
-            ]
-    }
+    ]
 }

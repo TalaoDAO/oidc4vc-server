@@ -121,7 +121,7 @@ def messageLog(name, firstname, username, email,status,eth_a, eth_p, workspace_c
 # dict of HTML templates with commented formating needed
 HTML_templates = {'register' : 'templates/emails/register.html', # username
  				  'certificate_issued' : 'templates/emails/certificate_issued.html', # username
-				   'certificate_issued_fer' : 'templates/emails/certificate_issued_fr.html', # username
+				   'certificate_issued_fr' : 'templates/emails/certificate_issued_fr.html', # username
 				  'certificate_issued_issuer': 'templates/emails/certificate_issued_issuer.html', # username link
 				  'request_partnership': 'templates/emails/request_partnership.html', # username link
 				  'request_partnership_rejected': 'templates/emails/request_partnership_rejected.html', # name text

@@ -135,9 +135,10 @@ def request_certificate(mode) :
             select = ""
             reviewer = company.Employee(session['credential_issuer_username'], mode) 
             reviewer_list = reviewer.get_list('reviewer', 'all')
+            # TODO check what to do if there is no reviewer
             for reviewer in reviewer_list :
                 session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
-            return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
+            return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session.get('select', ""))
         
         elif request.form['certificate_type'] == 'skill' : #ProfessionalSkillAssessment
             # get reviewers available
@@ -146,7 +147,7 @@ def request_certificate(mode) :
             reviewer_list = reviewer.get_list('reviewer', 'all')
             for reviewer in reviewer_list :
                 session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
-            return render_template('./issuer/request_skill_credential.html', **session['menu'], select=session['select'])
+            return render_template('./issuer/request_skill_credential.html', **session['menu'], select=session.get('select', ""))
 
         elif request.form['certificate_type'] == 'work' : #CertificateOfEmployment
             return render_template('./issuer/request_work_credential.html', **session['menu'])
@@ -244,8 +245,8 @@ def request_pass_credential(mode) :
         unsigned_credential["credentialSubject"]['recipient']["email"] = "should_be_there"
     unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
     unsigned_credential["credentialSubject"]['recipient']["image"] = mode.ipfs_gateway + session['personal']['picture']
-    unsigned_credential["credentialSubject"]['author']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
-    unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
+    unsigned_credential["credentialSubject"]['issuedBy']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]['issuedBy']["name"] = session['issuer_explore']['name']
 
     # update local issuer database
     credential = company.Credential(session['credential_issuer_username'], mode)
@@ -322,7 +323,7 @@ def request_work_credential(mode) :
     return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + session['credential_issuer_username'])
 
 def request_experience_credential(mode) :
-    """ Basic request for experience credential
+    """ Basic request for professional experience assessment VC
 
     """
     check_login()
@@ -333,9 +334,8 @@ def request_experience_credential(mode) :
     # update credential with form data
     unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
-    unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
-    unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
-    unsigned_credential["credentialSubject"]['recipient']["image"] = mode.ipfs_gateway + session['personal']['picture']
+    unsigned_credential["credentialSubject"]["familyName"] = session['personal']["lastname"]['claim_value']
+    unsigned_credential["credentialSubject"]["givenName"] = session['personal']['firstname']['claim_value']
     unsigned_credential["credentialSubject"]["title"] = request.form['title']
     unsigned_credential["credentialSubject"]["description"] = request.form['description']
     unsigned_credential["credentialSubject"]["startDate"] = request.form['start_date']
@@ -347,8 +347,8 @@ def request_experience_credential(mode) :
             "@type": "Skill",
             "description": skill
             })
-    unsigned_credential["credentialSubject"]['author']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
-    unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
+    unsigned_credential["credentialSubject"]['issuedBy']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]['issuedBy']["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]['signatureLines']["name"] = ""
 
     # update local issuer database
@@ -390,9 +390,8 @@ def request_skill_credential(mode) :
     # update credential with form data
     unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
     unsigned_credential["credentialSubject"]["id"] = ns.get_did(session['workspace_contract'],mode)
-    unsigned_credential["credentialSubject"]['recipient']["familyName"] = session['personal']["lastname"]['claim_value']
-    unsigned_credential["credentialSubject"]['recipient']["givenName"] = session['personal']['firstname']['claim_value']
-    unsigned_credential["credentialSubject"]['recipient']["image"] = mode.ipfs_gateway + session['personal']['picture']
+    unsigned_credential["credentialSubject"]["familyName"] = session['personal']["lastname"]['claim_value']
+    unsigned_credential["credentialSubject"]["givenName"] = session['personal']['firstname']['claim_value']
     unsigned_credential["credentialSubject"]["skills"] = list()
     for skill in request.form['skills'].split(',') :
         unsigned_credential["credentialSubject"]["skills"].append(
@@ -400,8 +399,8 @@ def request_skill_credential(mode) :
             "@type": "Skill",
             "description": skill
             })
-    unsigned_credential["credentialSubject"]['author']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
-    unsigned_credential["credentialSubject"]['author']["name"] = session['issuer_explore']['name']
+    unsigned_credential["credentialSubject"]['issuedBy']["logo"] = mode.ipfs_gateway + session['issuer_explore']['picture']
+    unsigned_credential["credentialSubject"]['issuedBy']["name"] = session['issuer_explore']['name']
     unsigned_credential["credentialSubject"]['signatureLines']["name"] = ""
 
     # update local issuer database
@@ -525,18 +524,18 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
                 title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
                 description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
                 type = "ProfessionalExperienceAssessment"
-                name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
+                name = json.loads(mycredential[5])['credentialSubject'].get('givenName', "deprecated") + ' ' + json.loads(mycredential[5])['credentialSubject'].get('familyName', "deprecated")
         elif json.loads(mycredential[5])['credentialSubject']['type'] == "ProfessionalSkillAssessment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 title = "N/A"
                 description = "N/A"
                 type = "ProfessionalSkillAssessment"
-                name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
+                name = json.loads(mycredential[5])['credentialSubject'].get('givenName', "deprecated") + ' ' + json.loads(mycredential[5])['credentialSubject'].get('familyName', "deprecated")
         elif json.loads(mycredential[5])['credentialSubject']['type'] == "IdentityPass" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "IdentityPass"
                 title = description = "N/A"
-                name = json.loads(mycredential[5])['credentialSubject']["recipient"]['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']["recipient"]['familyName']
+                name = json.loads(mycredential[5])['credentialSubject']['recipient']['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']['recipient']['familyName']
         elif json.loads(mycredential[5])['credentialSubject']['type'] == "CertificateOfEmployment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "CertificateOfEmployment"
@@ -614,8 +613,8 @@ def issue_credential_workflow(mode) :
                 picturefile = mode.ipfs_gateway + session['picture'],
 				clipboard = mode.server  + "board/?did=" + session['did'],
                 **my_credential,
-                recipient_name = my_credential["recipient"]["givenName"] + ' ' + my_credential["recipient"]["familyName"],
-                author_name = my_credential["author"]["name"],
+                recipient_name = my_credential["givenName"] + ' ' + my_credential["familyName"],
+                author_name = my_credential["issuedBy"]["name"],
                 signer_name = my_credential["signatureLines"]["name"],
                 scoreRecommendation =  my_credential["review"][reviewRecommendation]["reviewRating"]["ratingValue"],
                 questionRecommendation = questionRecommendation,
@@ -648,10 +647,10 @@ def issue_credential_workflow(mode) :
                 reference= session['call'][6],
 				skill_html = skill_html,
                 signer_name = my_credential["signatureLines"]["name"],
-                givenName = my_credential["recipient"].get("givenName"),
-                familyName = my_credential["recipient"].get("familyName"),
+                givenName = my_credential.get("givenName"),
+                familyName = my_credential.get("familyName"),
                 clipboard = mode.server  + "board/?did=" + session['did'],
-                image = my_credential["recipient"].get("image"),
+                #image = my_credential["recipient"].get("image"),
                 field= field)
                 
         elif my_credential['type'] == "IdentityPass" :
@@ -727,6 +726,12 @@ def issue_credential_workflow(mode) :
                 my_credential['credentialSubject']['signatureLines']['image'] = mode.ipfs_gateway + json.loads(ns.get_personal(manager_workspace_contract, mode))['signature']
             elif my_credential['credentialSubject']['type'] in ['IdentityPass', 'CertificateOfEmployment'] :
                 pass
+            
+            #format Date
+            if my_credential['credentialSubject']['type'] == 'ProfessionalExperienceAssessment' :
+                my_credential['credentialSubject']['startDate'] += "T00:00:00Z"
+                my_credential['credentialSubject']['endDate'] += "T00:00:00Z"
+
 
             # sign credential with company key
             my_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
@@ -771,6 +776,7 @@ def issue_credential_workflow(mode) :
             certificate_issued = 'certificate_issued_fr' if session['language'] == 'fr' else 'certificate_issued'
             try :
                 Talao_message.messageHTML(_('Your professional credential has been issued.'), subject['email'], certificate_issued, {'username': session['name'], 'link': link}, mode)
+                print('email envoyé')
             except :
                 logging.error('email to subject failed')
             
