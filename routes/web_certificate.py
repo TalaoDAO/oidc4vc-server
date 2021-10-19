@@ -216,20 +216,19 @@ def show_certificate(mode):
 							)
 
 	# IdentityPass Display
-	if "IdentityPass" in session['displayed_certificate']['type'] :
-		return render_template('./certificate/identitypass_vc.html',
-			**menu,
-			givenName=session['displayed_certificate']['credentialSubject']['recipient'].get('givenName'),
-			familyName =session['displayed_certificate']['credentialSubject']['recipient'].get('familyName'),
-			jobTitle=session['displayed_certificate']['credentialSubject']['recipient'].get('jobTitle', ""),
-			image=session['displayed_certificate']['credentialSubject']['recipient'].get('image'),
-			telephone=session['displayed_certificate']['credentialSubject']['recipient'].get('telephone'),
-			email=session['displayed_certificate']['credentialSubject']['recipient'].get('email'),
-			company = session['displayed_certificate']['credentialSubject']['author']['name'],
-			viewer=viewer)
-
-
-
+	
+	#if "IdentityPass" in session['displayed_certificate']['type'] :
+	#	return render_template('./certificate/identitypass_vc.html',
+	#		**menu,
+	#		givenName=session['displayed_certificate']['credentialSubject']['recipient'].get('givenName'),
+	#		familyName =session['displayed_certificate']['credentialSubject']['recipient'].get('familyName'),
+	#		jobTitle=session['displayed_certificate']['credentialSubject']['recipient'].get('jobTitle', ""),
+	#		image=session['displayed_certificate']['credentialSubject']['recipient'].get('image'),
+	#		telephone=session['displayed_certificate']['credentialSubject']['recipient'].get('telephone'),
+	#		email=session['displayed_certificate']['credentialSubject']['recipient'].get('email'),
+	#		company = session['displayed_certificate']['credentialSubject']['issuedBy']['name'],
+	#		viewer=viewer)
+	
 	# Recommendation Certificate Display
 	elif session['displayed_certificate']['type'] == 'recommendation' :
 		issuer_picture = session['displayed_certificate'].get('logo')

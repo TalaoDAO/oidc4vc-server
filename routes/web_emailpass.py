@@ -101,8 +101,12 @@ def emailpass_offer(id, red, mode):
         credential_offer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
-            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat()
+            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat(),
+            "display": {
+                "backgroundColor": "ffffff"
+            }
         }
+        print(credential_offer)
         return jsonify(credential_offer)
     elif request.method == 'POST': 
         red.delete(id)   

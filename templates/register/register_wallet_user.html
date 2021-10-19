@@ -37,8 +37,10 @@
                                                 </div>
                                             
                                             <form id="form" class="user" action="/register/wallet/user" method="POST">
+                                                {% if session['display'] %}
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="{{_('Firstname')}}" value="{{firstname}}" name="firstname"  style="color: rgb(133,135,150);" required="" ></div>
                                                 <div class="form-group"><input class="form-control" type="text" placeholder="{{_('Lastname')}}" value="{{lastname}}" name="lastname"  style="color: rgb(133,135,150);" required="" ></div>
+                                                {% endif %}
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input" name="CGU">
                                                     <label style="color: rgb(133,135,150);" title="" >{{_('I read and I accept the service conditions')}}</label>

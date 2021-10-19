@@ -44,29 +44,24 @@ def credential_display(id):
 
 def credentialOffer(id, red):
     filename = id + ".jsonld"
-    credential = json.loads(open('./signed_credentials/' + filename, 'r').read())
-    del credential['proof']
-    credential2 = json.loads(open('./verifiable_credentials/ProfessionalExperienceAssessment.jsonld', 'r').read())
+    # Attention c est déja signé !!!!
     if request.method == 'GET':
-              
-        #credential['credentialSubject']['signatureLines'] = credential2['credentialSubject']['signatureLines']
-        #credential['credentialSubject']['description'] = credential2['credentialSubject']['description']
-        #credential['credentialSubject']['skills'] = credential2['credentialSubject']['skills']
-        #credential['credentialSubject']['issuedBy'] = credential2['credentialSubject']['issuedBy']
-
-        credential['credentialSubject']['id'] = "did:"
-        credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        credential['issuer'] = "did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"
-        credential['credentialSubject']['startDate'] = "2021-05-13T12:11:59Z"
-        credential['credentialSubject']['endDate'] = "2021-05-15T12:11:59Z"
+        credential = json.loads(open('./signed_credentials/' + filename, 'r').read())
+        del credential['proof']
+        #credential['credentialSubject']['id'] = "did:"
+        #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        #credential['issuer'] = "did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"
+        #credential['credentialSubject']['startDate'] = "2021-05-13T12:11:59Z"
+        #credential['credentialSubject']['endDate'] = "2021-05-15T12:11:59Z"
         return jsonify({
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z", 
             "scope" : [],
-            "display" : {}
+            "display" : {"backgroundColor" : "ffffff"}
         })
     elif request.method == 'POST':
+        credential = json.loads(open('./signed_credentials/' + filename, 'r').read())
         # send event to client agent to go forward
         if request.form.get('subject_id') !=  credential['credentialSubject']['id'] :
             data = json.dumps({'id' : id, 'check' : 'incorrect subject'})

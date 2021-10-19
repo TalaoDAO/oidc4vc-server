@@ -47,10 +47,10 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test
-from routes import web_emailpass, web_phonepass, web_loyaltycard
+from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard
 
 # Release
-VERSION = "0.36"
+VERSION = "0.37"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -162,6 +162,8 @@ web_directory.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
 web_data_user.init_app(app,mode)
 web_issuer.init_app(app, mode)
+web_wallet_create_residentcard.init_app(app, red, mode)
+
 
 
 # Centralized route issuer for skills
