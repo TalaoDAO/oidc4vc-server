@@ -80,9 +80,9 @@
     "credentialSubject" : {
             "id": "",
             "type" : "CertificateOfEmployment",
-            "familyName" : "Derangeot",
-            "givenName" : "Paul",
-            "startDate" : "2019-09-04T18:42:42Z",
+            "familyName" : "",
+            "givenName" : "",
+            "startDate" : "",
             "jobTitle" : "Directeur de département",
             "employmentType" : "Contrat à durée illimitée",
             "baseSalary" : "65000 Euros",
@@ -92,7 +92,7 @@
                 "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             },
             "issuedBy" : {
-                "name" : "Talao",
+                "name" : "Talao SAS",
                 "address" : "16 rue de Wattignies, 75012 Paris, France",
                 "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
             }

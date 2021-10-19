@@ -98,7 +98,11 @@ def test_create_residentcard(red, mode) :
                         <p>Nom : <input type="text" name="familyName" required></p>
                         <p>Adresse : <input type="text" name="address" requitred></p>
                         <p>Date de naissance : <input type="date" name="birthDate"  required> </p>
-                        <p>Sexe : <input type="text" name="gender"  required> </p>
+                        <p>Sexe : 
+                        <select name="gender">
+                            <option value="male">male</option>
+                            <option value="female">female</option>
+                        </select><br>
                         <p>Statut marital : <input type="text" name="maritalStatus"  required> </p>
                         <p>Nationalité : <input type="text" name="nationality"  required> </p>
                         <p>Lieu de naissance : <input type="text" name="birthPlace"  required> </p>

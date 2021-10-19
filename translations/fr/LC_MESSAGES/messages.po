@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-09-22 17:35+0200\n"
+"POT-Creation-Date: 2021-10-19 18:44+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -121,7 +121,7 @@ msgstr "Organisation"
 #: templates/issuer/issue_identity_credential.html:42
 #: templates/issuer/issue_skill_credential.html:40
 #: templates/issuer/issue_work_credential.html:41
-#: templates/register/register_wallet_user.html:40
+#: templates/register/register_wallet_user.html:41
 #: templates/register/user_register.html:51
 #: templates/update_personal_settings.html:38
 msgid "Firstname"
@@ -131,7 +131,7 @@ msgstr "Prénom"
 #: templates/issuer/issue_identity_credential.html:45
 #: templates/issuer/issue_skill_credential.html:43
 #: templates/issuer/issue_work_credential.html:44
-#: templates/register/register_wallet_user.html:41
+#: templates/register/register_wallet_user.html:42
 #: templates/register/user_register.html:52
 #: templates/update_personal_settings.html:41
 msgid "Lastname"
@@ -333,40 +333,40 @@ msgstr "Photo mise à jour"
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
-#: routes/web_emailpass.py:47
+#: routes/web_emailpass.py:48
 msgid "Secret code sent to your email."
 msgstr "Code secret envoyé par email."
 
-#: routes/web_emailpass.py:50
+#: routes/web_emailpass.py:51
 msgid "Email failed."
 msgstr "Echec d'envoi d'email."
 
-#: routes/web_emailpass.py:66 routes/web_login.py:154
-#: routes/web_phonepass.py:65
+#: routes/web_emailpass.py:67 routes/web_login.py:154
+#: routes/web_phonepass.py:66
 msgid "Code expired."
 msgstr "Code expiré."
 
-#: routes/web_emailpass.py:69 routes/web_login.py:117 routes/web_login.py:157
-#: routes/web_phonepass.py:68
+#: routes/web_emailpass.py:70 routes/web_login.py:117 routes/web_login.py:157
+#: routes/web_phonepass.py:69
 msgid "Too many trials (3 max)."
 msgstr "Nombre maximum d'essais atteint."
 
-#: routes/web_emailpass.py:73 routes/web_login.py:161
-#: routes/web_phonepass.py:72
+#: routes/web_emailpass.py:74 routes/web_login.py:161
+#: routes/web_phonepass.py:73
 msgid "This code is incorrect, 2 trials left."
 msgstr "Ce code est incorrect, plus que 2 essais."
 
-#: routes/web_emailpass.py:75 routes/web_login.py:163
-#: routes/web_phonepass.py:74
+#: routes/web_emailpass.py:76 routes/web_login.py:163
+#: routes/web_phonepass.py:75
 msgid "This code is incorrect, 1 trial left."
 msgstr "Ce code est incorrect plus que 1 seul essai."
 
-#: routes/web_emailpass.py:138
+#: routes/web_emailpass.py:140
 msgid "Great ! you have now an Email Pass."
 msgstr "Bravo ! vous avez maintenant votre passe Email."
 
-#: routes/web_emailpass.py:140 routes/web_loyaltycard.py:136
-#: routes/web_phonepass.py:135
+#: routes/web_emailpass.py:142 routes/web_loyaltycard.py:136
+#: routes/web_phonepass.py:137
 msgid "Delay expired."
 msgstr "Délais expiré."
 
@@ -386,32 +386,32 @@ msgstr "Cette entreprise n'a pas ouvert de campagne."
 msgid "Reference not found."
 msgstr "Référence inconnue."
 
-#: routes/web_issuer.py:167
+#: routes/web_issuer.py:168
 msgid "Credential not available."
 msgstr "Attestation non disponible."
 
-#: routes/web_issuer.py:219
+#: routes/web_issuer.py:220
 msgid "Your request for a reference credential has been sent."
 msgstr "Votre demande pour une attestation de référence a été envoyée."
 
-#: routes/web_issuer.py:262
+#: routes/web_issuer.py:263
 msgid "You have received a request for an identity pass from "
 msgstr "Vous avez reçu une demande pour un pass d'identité de "
 
-#: routes/web_issuer.py:262 routes/web_issuer.py:313 routes/web_issuer.py:367
-#: routes/web_issuer.py:420
+#: routes/web_issuer.py:263 routes/web_issuer.py:314 routes/web_issuer.py:367
+#: routes/web_issuer.py:419
 msgid " to review"
 msgstr " pour revue"
 
-#: routes/web_issuer.py:269
+#: routes/web_issuer.py:270
 msgid "Your request for an identity pass has been registered for review."
 msgstr "Votre demande pour un passe d'identité été envoyée pour revue."
 
-#: routes/web_issuer.py:313
+#: routes/web_issuer.py:314
 msgid "You have received a request for a certificate of employment from "
 msgstr "Vous avez reçu une demande pour une attestation employeur de "
 
-#: routes/web_issuer.py:320
+#: routes/web_issuer.py:321
 msgid ""
 "Your request for a certificate of employment has been registered for "
 "review."
@@ -429,11 +429,11 @@ msgstr ""
 "Votre demande pour une attestation d'expérience professionnelle a été "
 "envoyée pour revue."
 
-#: routes/web_issuer.py:420
+#: routes/web_issuer.py:419
 msgid "You have received a request for a professional skill assessment from "
 msgstr "Vous avez reçu une demande d'attestation de compétences de "
 
-#: routes/web_issuer.py:427
+#: routes/web_issuer.py:426
 msgid ""
 "Your request for a skill professional assessment has been registered for "
 "review."
@@ -441,51 +441,54 @@ msgstr ""
 "Votre demande pour une attestation de compétences a été envoyée pour "
 "revue."
 
-#: routes/web_issuer.py:547
+#: routes/web_issuer.py:546
 msgid "Not Supported"
 msgstr "Non supporté"
 
-#: routes/web_issuer.py:639
+#: routes/web_issuer.py:638
 msgid "Skill"
 msgstr "Compétences"
 
-#: routes/web_issuer.py:640
+#: routes/web_issuer.py:639
 msgid "Draft an assessment of this skill"
 msgstr "Rédiger un bilan de cette compétence"
 
-#: routes/web_issuer.py:688
+#: routes/web_issuer.py:687
 msgid "view not yet available."
 msgstr "Vue non disponible."
 
-#: routes/web_issuer.py:738 routes/web_main.py:1379
+#: routes/web_issuer.py:743 routes/web_main.py:1379 routes/web_register.py:360
+#: routes/web_register.py:393
 msgid "Operation failed."
 msgstr "Echec de l'opération."
 
-#: routes/web_issuer.py:763
+#: routes/web_issuer.py:768 routes/web_register.py:367
+#: routes/web_register.py:400
 msgid "Add credential to repository failed."
 msgstr "Echec de l'ajout de l'attestation."
 
-#: routes/web_issuer.py:766
+#: routes/web_issuer.py:771 routes/web_register.py:371
+#: routes/web_register.py:404
 msgid "The credential has been added to the user repository."
 msgstr "L'attestation a été ejoutée au portfolio de l'utilisateur."
 
-#: routes/web_issuer.py:773
+#: routes/web_issuer.py:778
 msgid "Your professional credential has been issued."
 msgstr "Votre attestation a été émise."
 
-#: routes/web_issuer.py:799
+#: routes/web_issuer.py:805
 msgid "You have received a professional credential from "
 msgstr "Vous avez reçu une attestation de "
 
-#: routes/web_issuer.py:805
+#: routes/web_issuer.py:811
 msgid "Credential has been reviewed."
 msgstr "L'attestation a été revue et validée."
 
-#: routes/web_issuer.py:906
+#: routes/web_issuer.py:912
 msgid "New campaign added."
 msgstr "Nouvelle campagne ajoutée."
 
-#: routes/web_issuer.py:916
+#: routes/web_issuer.py:922
 msgid "Campaign removed"
 msgstr "Campagne effaçée."
 
@@ -615,7 +618,7 @@ msgstr "Demander une Attestation d'expérience professionnelle"
 #: templates/login/login_password.html:31 templates/login/unregistered.html:25
 #: templates/register/register_code.html:56
 #: templates/register/register_password.html:69
-#: templates/register/register_wallet_user.html:49
+#: templates/register/register_wallet_user.html:51
 #: templates/register/registration_error.html:37
 #: templates/register/user_register.html:66
 msgid "Sign-In"
@@ -721,7 +724,7 @@ msgstr "Votre numéro de téléphone a été effaçé."
 msgid "Your phone number has been updated."
 msgstr "Votre numéro de téléphone a été mis à jour."
 
-#: routes/web_main.py:350 routes/web_register.py:117
+#: routes/web_main.py:350 routes/web_register.py:118
 msgid "Incorrect phone number."
 msgstr "Numéro de téléphone incorrect."
 
@@ -806,8 +809,8 @@ msgid "Identity creation failed"
 msgstr "Echec de la création d'Identité."
 
 #: routes/web_main.py:980 routes/web_main.py:1006 routes/web_main.py:1050
-#: routes/web_main.py:1572 routes/web_register.py:174
-#: routes/web_register.py:299
+#: routes/web_main.py:1572 routes/web_register.py:175
+#: routes/web_register.py:320
 msgid "Transaction failed."
 msgstr "Echec de la transaction."
 
@@ -1003,61 +1006,61 @@ msgstr "Certificat non disponible."
 msgid "Certificate PKCS12 not available."
 msgstr "Certificat non disponible."
 
-#: routes/web_phonepass.py:46
+#: routes/web_phonepass.py:47
 msgid "Secret code sent to your phone."
 msgstr "Code secret envoyé par sms."
 
-#: routes/web_phonepass.py:49
+#: routes/web_phonepass.py:50
 msgid "phone failed."
 msgstr "Echec de l'opération."
 
-#: routes/web_phonepass.py:133
+#: routes/web_phonepass.py:135
 msgid "Great ! you have now a Phone Pass."
 msgstr "Bravo ! vous avez maintenant votre Passe Téléphone."
 
-#: routes/web_register.py:94
+#: routes/web_register.py:95
 msgid "Company registration failed"
 msgstr "Echec de la création de compte"
 
-#: routes/web_register.py:114 routes/web_register.py:267
+#: routes/web_register.py:115 routes/web_register.py:287
 msgid "Accept the service conditions to move next step."
 msgstr ""
 "Acceptez les conditions d'utilisation (CGU) pour passer à l'étape "
 "suivante."
 
-#: routes/web_register.py:136 routes/web_register.py:159
+#: routes/web_register.py:137 routes/web_register.py:160
 msgid "Session expired"
 msgstr "Session terminée."
 
-#: routes/web_register.py:151
+#: routes/web_register.py:152
 msgid "SMS failed."
 msgstr "Echec d'envoi SMS."
 
-#: routes/web_register.py:182
+#: routes/web_register.py:183
 msgid "Code is incorrect. Too many trials."
 msgstr "Code incorrect. Maximum d'essais atteint."
 
-#: routes/web_register.py:183
+#: routes/web_register.py:184
 msgid "Registration failed"
 msgstr "Echec de la création de compte."
 
-#: routes/web_register.py:187
+#: routes/web_register.py:188
 msgid "Code expired"
 msgstr "Code expiré."
 
-#: routes/web_register.py:191
+#: routes/web_register.py:192
 msgid "Code is incorrect, 2 trials left."
 msgstr "Code incorrrect, plus que 2 essais."
 
-#: routes/web_register.py:193
+#: routes/web_register.py:194
 msgid "Code is incorrect, last trial."
 msgstr "Code incorrect, dernier essai."
 
-#: routes/web_register.py:309
+#: routes/web_register.py:338
 msgid "This identity is already registered."
 msgstr "Cette Identité dispose déjà d'un portfolio."
 
-#: routes/web_register.py:311
+#: routes/web_register.py:340
 msgid "This credential is not accepted."
 msgstr "Cette attestation n'est pas acceptée."
 
@@ -1156,7 +1159,7 @@ msgstr "Mettre à jour"
 #: templates/register/register_code.html:52
 #: templates/register/register_password.html:61
 #: templates/register/register_wallet_qrcode.html:31
-#: templates/register/register_wallet_qrcode.html:46
+#: templates/register/register_wallet_qrcode.html:48
 #: templates/register/registration_error.html:35 templates/signature.html:65
 #: templates/update_company_settings.html:106 templates/update_password.html:52
 #: templates/update_personal_settings.html:117 templates/update_skills.html:122
@@ -1461,7 +1464,7 @@ msgid "Quick start"
 msgstr "Démarrage rapide"
 
 #: templates/emailpass/emailpass.html:36 templates/guest_nav_bar.html:43
-#: templates/register/register_wallet_qrcode.html:48
+#: templates/register/register_wallet_qrcode.html:50
 msgid "Get an Email Pass"
 msgstr "Obtenir une preuve d'email"
 
@@ -1764,7 +1767,7 @@ msgstr "Saisissez votre email"
 #: templates/phonepass/phonepass_authentication.html:41
 #: templates/register/register_code.html:49
 #: templates/register/register_password.html:58
-#: templates/register/register_wallet_user.html:47
+#: templates/register/register_wallet_user.html:49
 #: templates/register/user_register.html:62
 msgid "Next"
 msgstr "Suivant"
@@ -2195,16 +2198,24 @@ msgstr ""
 #: templates/register/register_wallet_qrcode.html:40
 msgid ""
 "<strong>Register</strong><br><br>Scan the QRCode bellow with your "
-"smartpĥone wallet.<br><br>Present an Email Pass to go forward."
+"smartpĥone wallet."
 msgstr ""
 "<strong>Créer un portfolio</strong><br><br>Scanner le QR code avec votre "
-"wallet.<br><br>Presentez un passe Email."
+"wallet."
+
+#: templates/register/register_wallet_qrcode.html:41
+msgid "Present an Email Pass and fill the form with your firstname and lastname"
+msgstr "Présentez une preuve d'Email et complétez avec votre nom et prénom."
+
+#: templates/register/register_wallet_qrcode.html:42
+msgid "or present a Resident Card"
+msgstr "ou présentez une Carte de Résidence."
 
 #: templates/register/register_wallet_user.html:36
 msgid "Create a portfolio"
 msgstr "Créer un portfolio"
 
-#: templates/register/register_wallet_user.html:44
+#: templates/register/register_wallet_user.html:46
 #: templates/register/user_register.html:59
 msgid "I read and I accept the service conditions"
 msgstr "J'ai lu et j'accepte les Conditions Générales d'Utilisation"
@@ -2259,4 +2270,11 @@ msgstr "Numéro de téléphone mobile int. (ex : +33-..)"
 msgid "Register with your SSI wallet"
 msgstr "Créer un portfolio avec un wallet sur smartphone"
 
+#: templates/wallet/test/simulator_nav_bar.html:40
+msgid "Issuer Simulator"
+msgstr ""
+
+#: templates/wallet/test/simulator_nav_bar.html:41
+msgid "Verifier Simulator"
+msgstr ""
 
