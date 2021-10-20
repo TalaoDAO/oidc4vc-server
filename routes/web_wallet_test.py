@@ -193,7 +193,7 @@ def test_credentialOffer_qrcode(red, mode) :
                         email<input type="checkbox" name="email" value="on">
                         address<input type="checkbox" name="address"  value="on">
                         telephone<input type="checkbox" name="telephone"  value="on"> </p>
-                        <p>backgroundColor : <input type="text" name="backgroundColor" ></p>
+                        <p>backgroundColor : <input value="ffffff" type="text" name="backgroundColor" ></p>
                         <p>icon : <input type="text" name="icon"></p>
                         <p>nameFallback : <input type="text" name="nameFallback" ></p>
                         <p>descriptionFallback : <input type="text" name="descriptionFallback"></p>
@@ -267,7 +267,7 @@ def test_credentialOffer_qrcode(red, mode) :
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 type = type + " - " + translate(credential),
-                                simulator={{_('Verifier Simulator')}} 
+                                simulator='Verifier Simulator' 
                                 )
 
 
