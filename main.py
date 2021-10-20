@@ -50,7 +50,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard
 
 # Release
-VERSION = "0.41"
+VERSION = "0.42"
 
 # Framework Flask and Session setup
 app = Flask(__name__)

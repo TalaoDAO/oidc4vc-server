@@ -433,7 +433,7 @@ def test_presentationRequest_qrcode(red, mode):
 							url=url,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
-                            simulator="Verifier Simulator : " + did_selected)
+                            simulator="Verifier Simulator")
 
 def test_presentationRequest_endpoint(stream_id, red):
     try : 

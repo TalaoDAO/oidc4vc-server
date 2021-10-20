@@ -114,7 +114,7 @@ def test_create_residentcard(red, mode) :
         return render_template('wallet/test/credential_residentcard_offer_qr.html',
                                 url=url,
                                 id=credential['id'],
-                                simulator={{_('Create Resident Card simulator')}} 
+                                simulator='Create Resident Card (fake)' 
                                 #credentialOffer=json.dumps(credentialOffer, indent=4),
                                 #type = type + " - " + translate(credential),
                                 )
@@ -164,8 +164,8 @@ def test_residentcard_credentialOffer_back():
         <!DOCTYPE html>
         <html>
         <body class="h-screen w-screen flex">
-        <h2>Congrats !<br>
-        Your Resident Card has been signed and transferd to your wallet"</h2<
+        <h2>Congrats !<br><br>
+        Your Resident Card has been signed and transfered to your wallet"</h2<
         <br><br><br>
         <form action="/wallet/test/credentialOffer" method="GET" >
                     <button  type"submit" >Back</button></form>
