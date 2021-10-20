@@ -7,6 +7,7 @@ from github import Github
 import base64
 import uuid
 import logging
+from flask_babel import Babel, _
 
 logging.basicConfig(level=logging.INFO)
 
@@ -212,11 +213,10 @@ def test_credentialOffer_qrcode(red, mode) :
                             <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
                         </body></html>"""
 
-        return render_template_string (html_string) 
+        return render_template_string (html_string, simulator="Issuer simulator") 
     else :
       
         did_selected = request.form['did_select']
-        print('did selected = ', did_selected)
         if did_selected.split(':')[1] == 'web' :
             did_issuer = 'did:web:talao.co'
         else :
@@ -267,6 +267,7 @@ def test_credentialOffer_qrcode(red, mode) :
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 type = type + " - " + translate(credential),
+                                simulator={{_('Verifier Simulator')}} 
                                 )
 
 
@@ -326,7 +327,6 @@ def test_credentialOffer_endpoint(id, red):
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
         else :
             signed_credential = vc_signature.sign(credential, PVK, did_selected)
-        print(signed_credential)
         # send event to client agent to go forward
         data = json.dumps({
                             'id' : id,
@@ -395,7 +395,7 @@ pattern = QueryBYExample
 
 def test_presentationRequest_qrcode(red, mode):
     if request.method == 'GET' :
-        return render_template('wallet/test/credential_presentation.html', simulator="Verifier Simulator : " + DID)
+        return render_template('wallet/test/credential_presentation.html', simulator='Verifier Simulator' )
 							
     else :
         stream_id = str(uuid.uuid1())
@@ -428,12 +428,12 @@ def test_presentationRequest_qrcode(red, mode):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
-        url = mode.server + 'wallet/test/wallet_presentation/' + stream_id +'?issuer=' + DID
+        url = mode.server + 'wallet/test/wallet_presentation/' + stream_id +'?issuer=' + did_selected
         return render_template('wallet/test/credential_presentation_qr.html',
 							url=url,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
-                            simulator="Verifier Simulator : " + DID)
+                            simulator="Verifier Simulator : " + did_selected)
 
 def test_presentationRequest_endpoint(stream_id, red):
     try : 

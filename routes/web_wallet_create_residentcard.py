@@ -1,4 +1,4 @@
-from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
+from flask import jsonify, request, render_template, Response, render_template_string
 import json
 from datetime import timedelta, datetime
 from signaturesuite import vc_signature
@@ -7,6 +7,7 @@ from github import Github
 import base64
 import uuid
 import logging
+from flask_babel import Babel, _
 
 logging.basicConfig(level=logging.INFO)
 
@@ -77,7 +78,8 @@ def test_create_residentcard(red, mode) :
     global did_selected
     global path
     if request.method == 'GET' :   
-        return render_template("./wallet/test/create_residentcard.html") 
+        return render_template("./wallet/test/create_residentcard.html",
+                        simulator="Create Resident Card (fake)" ) 
     else :
       
         did_selected = request.form['did_select']
@@ -112,8 +114,9 @@ def test_create_residentcard(red, mode) :
         return render_template('wallet/test/credential_residentcard_offer_qr.html',
                                 url=url,
                                 id=credential['id'],
-                                credentialOffer=json.dumps(credentialOffer, indent=4),
-                                type = type + " - " + translate(credential),
+                                simulator={{_('Create Resident Card simulator')}} 
+                                #credentialOffer=json.dumps(credentialOffer, indent=4),
+                                #type = type + " - " + translate(credential),
                                 )
 
 
@@ -135,7 +138,6 @@ def test_credentialOffer_residentcard_endpoint(id, red):
             logging.error("wallet error")
             return jsonify('ko')
 
-        print("unsigned credential = ", credential)
         # to keep the possibility to use an RSA key with did:web
         if did_selected == 'did:web:talao.co#key-2' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
@@ -162,7 +164,8 @@ def test_residentcard_credentialOffer_back():
         <!DOCTYPE html>
         <html>
         <body class="h-screen w-screen flex">
-        <h2>Verifiable Credential has been signed and transferd to wallet"</h2<
+        <h2>Congrats !<br>
+        Your Resident Card has been signed and transferd to your wallet"</h2<
         <br><br><br>
         <form action="/wallet/test/credentialOffer" method="GET" >
                     <button  type"submit" >Back</button></form>
