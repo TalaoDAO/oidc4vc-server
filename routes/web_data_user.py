@@ -2,7 +2,7 @@
 Identity init for users and companies
 """
 from flask import session, flash
-from flask import request, redirect, render_template, abort, flash, Response, render_template_string
+from flask import request, redirect, render_template, abort, flash, render_template_string
 import time
 import json
 from flask_babel import _
@@ -118,7 +118,7 @@ def user(mode) :
 	"""
 	#@app.route('/user/', methods = ['GET'])
 	Main view for Identity Repository
-	We setup Ientity with workspace or username depending of the login method
+	We setup portfolio with workspace or username depending of the login method
 	"""
 	#check_login()
 
@@ -132,6 +132,9 @@ def user(mode) :
 		# for wallet direct access
 		issuer_username = None
 		vc= None
+		print('token = ', request.form.get('token'))
+		print('username = ', session.get('username'))
+		print('workspace_contract = ', session.get('workspace_contract'))
 		if session.get('username') :
 			logging.info('Identity set up from username')
 			data_from_username = ns.get_data_from_username(session['username'], mode)

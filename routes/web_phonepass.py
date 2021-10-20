@@ -96,12 +96,13 @@ def phonepass_offer(id, red, mode):
     credential['credentialSubject']['phone'] = red.get(id).decode()
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     if request.method == 'GET': 
-        print("credential offer = ", credential)
         # make an offer  
         credential_offer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
-            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z"
+            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
+            "display" : {"backgroundColor" : "ffffff"},
+            "shareLink" : json.dumps(credential, separators=(',', ':'))
         }
         return jsonify(credential_offer)
     elif request.method == 'POST': 

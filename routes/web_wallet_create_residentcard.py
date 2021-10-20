@@ -77,55 +77,7 @@ def test_create_residentcard(red, mode) :
     global did_selected
     global path
     if request.method == 'GET' :   
-        html_string_payload = """
-               
-                    <form action="/wallet/test/create_residentcard" method="POST" >
-                    
-                        Issuer : <select name="did_select">
-                        <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
-                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
-                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
-                        </select><br><br>
-
-                        <h3 class="mb-5"> Saisissez les informations de la carte d'identité ou du passeport</h3>
-
-
-                        <p>Prénom : <input type="text" name="givenName"  required></p>
-                        <p>Nom : <input type="text" name="familyName" required></p>
-                        <p>Adresse : <input type="text" name="address" requitred></p>
-                        <p>Date de naissance : <input type="date" name="birthDate"  required> </p>
-                        <p>Sexe : 
-                        <select name="gender">
-                            <option value="male">male</option>
-                            <option value="female">female</option>
-                        </select><br>
-                        <p>Statut marital : <input type="text" name="maritalStatus"  required> </p>
-                        <p>Nationalité : <input type="text" name="nationality"  required> </p>
-                        <p>Lieu de naissance : <input type="text" name="birthPlace"  required> </p>
-                        <p>Email : <input type="text" name="email"  required> </p>
-
-
-
-          
-                        <br><button  type"submit" > Generate QR code for a Resident Card</button>
-                    </form>
-                    """
-        html_string = """<html><head>{% include 'head.html' %}</head>
-                        <body> {% include '/wallet/test/simulator_nav_bar.html' %}
-                            <div class="m-3">
-                                <br><br>""" + html_string_payload + """
-                            </div>
-                            <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
-                            <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-                            <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-                            <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-                        </body></html>"""
-
-        return render_template_string (html_string) 
+        return render_template("./wallet/test/create_residentcard.html") 
     else :
       
         did_selected = request.form['did_select']
@@ -134,6 +86,7 @@ def test_create_residentcard(red, mode) :
         else :
             did_issuer = did_selected
         credential = json.loads(open("./verifiable_credentials/ResidentCard_demo.jsonld", 'r').read())
+
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['id'] =  "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = "did:..."

@@ -102,11 +102,9 @@ def emailpass_offer(id, red, mode):
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat(),
-            "display": {
-                "backgroundColor": "ffffff"
-            }
+            "display": {"backgroundColor": "ffffff"},
+             "shareLink" : json.dumps(credential, separators=(',', ':'))
         }
-        print(credential_offer)
         return jsonify(credential_offer)
     elif request.method == 'POST': 
         red.delete(id)   
@@ -131,7 +129,6 @@ def emailpass_offer(id, red, mode):
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
         red.publish('credible', data)
-        print(signed_credential)
         return jsonify(signed_credential)
  
 

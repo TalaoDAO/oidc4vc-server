@@ -66,23 +66,23 @@
         "familyName": "Doe",
         "email" : "",
         "givenName": "John",
-        "address": "5 rue de Beaumont, 1219 Luxembourg",
-        "birthPlace": "Luxembourg",
-        "nationality": "Lu",
+        "address": "5 rue de Beaumont, 75017 Paris",
+        "birthPlace": "Paris",
+        "nationality": "Fr",
         "type": "ResidentCard",
         "birthDate": "16/10/1995",
         "maritalStatus": "single",
         "issuedBy": {
-            "logo": "https://talao.mypinata.cloud/ipfs/QmW2Ph9WixNSPKsQKJmniUEXBzhe2aXV93s88GYeX5FbZ9",
-            "name": "CTIE"
+            "logo": "https://talao.mypinata.cloud/ipfs/QmSzEWZaEVpnSDtscjvCQbY5mczJrt4VTBhPu3VwwWCua7",
+            "name": "Ville de Paris"
         }
     },
     "issuer": "",
     "credentialStatus": {
-        "id": "https://....../TrustMyData-proto/blob/main/credential/status/1#1234",
+        "id": "https://....../residentcard-proto/blob/main/credential/status/1#1234",
         "type": "RevocationList2020Status",
         "revocationListIndex": "1234",
-        "revocationListCredential": "https://...../TrustMyData-proto/blob/main/credential/status/1"
+        "revocationListCredential": "https://...../residentcard-proto/blob/main/credential/status/1"
     },
     "credentialSchema": {
         "id": "https://...../tsr-vid/residentcard.jsonld",
@@ -91,15 +91,15 @@
     "description": [
         {
             "@language": "en",
-            "@value": "This certificate proves the reality of your residence in Luxembourg."
+            "@value": "For demo only. This certificate proves the reality of your residence in Paris."
         },
         {
             "@language": "de",
-            "@value": "Diese Bescheinigung belegt die Realität Ihres Wohnsitzes in Luxemburg."
+            "@value": "Diese Bescheinigung belegt die Realität Ihres Wohnsitzes in Paris."
         },
         {
             "@language": "fr",
-            "@value": "Démonstration. Cette attestation prouve la réalité de votre résidence au Luxembourg."
+            "@value": "Démonstration. Cette attestation prouve la réalité de votre résidence dans la Ville de Paris."
         }
     ],
     "name": [

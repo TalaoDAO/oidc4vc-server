@@ -1,0 +1,59 @@
+<html>
+<head>{% include 'head.html' %}</head>
+
+
+
+<body> {% include '/wallet/test/simulator_nav_bar.html' %}
+                            <div class="m-3">
+                                <br><br>
+                                
+                                
+                                <form action="/wallet/test/create_residentcard" method="POST" >
+                    
+                                    Issuer : <select name="did_select">
+                                    <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
+                                    <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                                    <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
+                                    <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
+                                     <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
+                                      <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
+                                    <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                                    </select><br><br>
+            
+                                    <h3 class="mb-5">
+                                    {{_('1. Check the person identity')}}<br>
+                                    {{_('2. Fill the form with ID Card or Passport data')}}<br>
+                                    {{_('3. Ask for the Talao wallet download')}}<br>
+                                    {{_('4. Check the Biometric or PIN protection of the smartphone')}}
+                                    
+                                    </h3>
+            
+            
+                                    <p>{{_('Firstname')}} : <input type="text" name="givenName"  required></p>
+                                    <p>{{_('Lastname')}} : <input type="text" name="familyName" required></p>
+                                    <p>{{_('Address')}} : <input type="text" name="address" requitred></p>
+                                    <p>{{_('Birthdate')}} : <input type="date" name="birthDate"  required> </p>
+                                    <p>{{_('Gender')}} : 
+                                    <select name="gender">
+                                        <option value="male">M</option>
+                                        <option value="female">F</option>
+                                    </select><br>
+                                    <p>{{_('Marital status')}} : <input type="text" name="maritalStatus"  required> </p>
+                                    <p>{{_('Nationality')}} : <input type="text" name="nationality"  required> </p>
+                                    <p>{{_('Birth place')}} : <input type="text" name="birthPlace"  required> </p>
+                                    <p>{{_('Email')}} : <input type="text" name="email"  required> </p>
+            
+            
+            
+                      
+                                    <br><button  type"submit" >{{_('Generate a QR code for a Resident Card')}}</button>
+                                </form>
+ 
+ 
+ 
+                            </div>
+                            <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+                            <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+                            <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+                            <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+</body></html>
