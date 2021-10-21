@@ -2275,7 +2275,7 @@ msgstr "Créer un portfolio avec un wallet sur smartphone"
 
 #: templates/wallet/test/create_residentcard.html:24
 msgid "1. Check the person identity"
-msgstr "1. Verifiez l'identité de la persone qui souhaite obtenir un certificat (Photographie)"
+msgstr "1. Verifiez l'identité de la personne qui souhaite obtenir un certificat (Photographie)"
 
 #: templates/wallet/test/create_residentcard.html:25
 msgid "2. Fill the form with ID Card or Passport data"
