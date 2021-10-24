@@ -18,7 +18,8 @@ import logging
 from components import Talao_message, ns, sms, privatekey
 import uuid
 
-#PRESENTATION_DELAY = timedelta(seconds= 10*60)
+PRESENTATION_DELAY = 600 # seconds
+
 DID_WEB = 'did:web:talao.cp'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
@@ -97,7 +98,7 @@ def login(red, mode) :
 							'issuer_username' : request.args.get('issuer_username'),
 							'vc' : request.args.get('vc')
 							})
-		red.set(stream_id,  session_data)
+		red.set(stream_id,  session_data, PRESENTATION_DELAY)
 		if request.args.get('vc') == 'certificateofemployment' : 
 			message = _('Get a Certificate of Employment')
 		elif request.args.get('vc') == 'professionalexperienceassessment' :
@@ -305,7 +306,15 @@ def VerifiablePresentationRequest_qrcode(red, mode):
 
 
 def wallet_endpoint(stream_id, red, mode):
-    session_data = json.loads(red.get(stream_id).decode())
+    try :
+        session_data = json.loads(red.get(stream_id).decode())
+    except :
+        logging.warning('time expired')
+        event_data = json.dumps({"stream_id" : stream_id,
+								"code" : "ko",
+								 "message" : _('Delay has expired.')})
+        red.publish('credible', event_data)
+        abort (400, "Delay has expired")
     if request.method == 'GET':
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
@@ -318,7 +327,7 @@ def wallet_endpoint(stream_id, red, mode):
         return jsonify(did_auth_request)
 
     elif request.method == 'POST' :
-        red.delete(stream_id)
+        #red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
        
 		# FIXME pb de version et voir comment on gere le challenge
@@ -329,19 +338,25 @@ def wallet_endpoint(stream_id, red, mode):
             domain = presentation['proof']['domain']
         except :
             logging.warning('to be fixed, presentation is not correct')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : _("Presentation check failed.")})
+            event_data = json.dumps({"stream_id" : stream_id,
+									"code" : "ko",
+									 "message" : _("Presentation check failed.")})
             red.publish('credible', event_data)
-            return jsonify("ko")
+            abort(400, "Presentation malformed")
         if domain != mode.server or challenge != session_data['challenge'] :
             logging.warning('challenge failed')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
+            event_data = json.dumps({"stream_id" : stream_id,
+									"code" : "ko",
+									 "message" : _("The presentation challenge failed.")})
             red.publish('credible', event_data)
-            return jsonify("ko")
+            abort(400, "Challenge failed")
         elif issuer not in [DID_WEB, DID_ETHR, DID_TZ] :
             logging.warning('unknown issuer')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
+            event_data = json.dumps({"stream_id" : stream_id,
+									"code" : "ko",
+									 "message" : _("This issuer is unknown.")})
             red.publish('credible', event_data)
-            return jsonify("ko")
+            abort(400, "Issuer unknown")
 		# Successfull login  with email
         elif presentation['verifiableCredential']['credentialSubject']['type'] == "EmailPass" and ns.get_username_list_from_email(presentation['verifiableCredential']['credentialSubject']['email'], mode) :
             username_list = ns.get_username_list_from_email(presentation['verifiableCredential']['credentialSubject']['email'], mode)
@@ -349,21 +364,26 @@ def wallet_endpoint(stream_id, red, mode):
                 if username not in ['relay', 'talao'] :
                     break
             event_data = json.dumps({"stream_id" : stream_id,
+									"code" : 'ok',
 			                        "message" : "ok",
 			                        "token" : generate_token2(username, session_data['issuer_username'], session_data['vc'],mode)})
             red.publish('credible', event_data)
-            print('log with email')
+            logging.info('log with email')
             return jsonify("ok")
         elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             logging.warning('unknown account')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : _('Your Digital Identity has not been registered yet.')})
+            event_data = json.dumps({"stream_id" : stream_id,
+									"code" : "ko",
+									 "message" : _('Your Digital Identity has not been registered yet.')})
             red.publish('credible', event_data)
-            return jsonify("ko")
+            abort (400, "Unknown account for this DID")
         # Successfull login with DID 
         else :
             # we transfer a JWE token to user agent to sign in
+            logging.info('log with DID')
             event_data = json.dumps({"stream_id" : stream_id,
+									"code" : "ok",
 			                        "message" : "ok",
 			                        "token" : generate_token(holder, session_data['issuer_username'], session_data['vc'],mode)})
             red.publish('credible', event_data)
