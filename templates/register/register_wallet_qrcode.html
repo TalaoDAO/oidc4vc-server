@@ -63,14 +63,14 @@
 
 var source = new EventSource('/register/stream');
 source.onmessage = function (event) {
-    const result = JSON.parse(event.data)
-    if (result.id == '{{id}}' & result.data == 'ok'){
-      window.location.href='/register/wallet/user?id=' + '{{id}}';
-      }
-    else {
-      window.location.href="/register/error?message=" + result.data;
-      } 
-    }; 
+  const result = JSON.parse(event.data)
+  if (result.id == '{{id}}' & result.data == 'ok'){
+    window.location.href='/register/wallet/user?id=' + '{{id}}';
+    }
+  else {
+    window.location.href="/register/error?message=" + result.data;
+  } 
+}; 
 
 
 </script>

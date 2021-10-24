@@ -46,15 +46,15 @@
     "description" : [
         {
             "@language": "en",
-            "@value": "This signed electronic certificate is proof that you are the owner of this telephone number."
+            "@value": "This signed electronic certificate is proof that you are the owner of this telephone number.\n"
         },
         {
             "@language": "de",
-            "@value": "Dieses signierte elektronische Zertifikat ist der Nachweis, dass Sie der Inhaber dieser Telefonnummer sind."
+            "@value": "Dieses signierte elektronische Zertifikat ist der Nachweis, dass Sie der Inhaber dieser Telefonnummer sind.\n"
         },
         {
             "@language": "fr",
-            "@value": "Cette attestation électronique signée est la preuve que vous êtes le propriétaire de ce numéro de téléphone."
+            "@value": "Cette attestation électronique signée est la preuve que vous êtes le propriétaire de ce numéro de téléphone.\n"
         }
     ],
 

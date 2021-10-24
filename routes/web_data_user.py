@@ -1,7 +1,7 @@
 """
 Identity init for users and companies
 """
-from flask import session, flash
+from flask import session, flash, Response, jsonify
 from flask import request, redirect, render_template, abort, flash, render_template_string
 import time
 import json
@@ -16,6 +16,7 @@ from authlib.jose import JsonWebEncryption
 from datetime import datetime
 import markdown
 import markdown.extensions.fenced_code
+import uuid
 
 # dependances
 from components import ns,directory, company, privatekey
@@ -23,9 +24,11 @@ from protocol import Identity, Document
 from signaturesuite import helpers
 
 COMPANY_TOPIC = ['name','contact_name','contact_email', 'contact_phone', 'website', 'about', 'staff', 'sales', 'mother_company', 'siren', 'postal_address']
+DID_WEB = 'did:web:talao.cp'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
-
-def init_app(app, mode) :
+def init_app(app, red, mode) :
 	app.add_url_rule('/user/',  view_func=user, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/data/',  view_func=data, methods = ['GET'], defaults={'mode': mode})
 	app.add_url_rule('/user/advanced/',  view_func=user_advanced, methods = ['GET', 'POST'], defaults={'mode': mode})
@@ -35,7 +38,101 @@ def init_app(app, mode) :
 
 	app.add_url_rule('/user/import_identity_key/',  view_func=import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/user/import_identity_key2/',  view_func=import_identity_key, methods = ['GET', 'POST'], defaults={'mode': mode})
+
+	app.add_url_rule('/user/add_did',  view_func=add_did_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
+	app.add_url_rule('/user/add_did_presentation/<stream_id>',  view_func=add_did_endpoint, methods = ['GET', 'POST'],  defaults={'mode' : mode, 'red' :red})
+	app.add_url_rule('/user/add_did_stream',  view_func=add_did_stream, defaults={ 'red' : red})
+	app.add_url_rule('/user/add_did_callback',  view_func=add_did_callback, methods = ['GET', 'POST'])
 	return
+
+
+def add_did_qrcode(red, mode):
+    check_login()
+    stream_id = str(uuid.uuid1())
+    session_data = json.dumps({'challenge' : str(uuid.uuid1()),
+								'stream_id' : stream_id,
+								'workspace_contract' : session['workspace_contract']
+							})
+    red.set(stream_id,  session_data)
+    return render_template('add_did_qr.html',
+							url=mode.server + 'user/add_did_presentation/' + stream_id,
+							stream_id=stream_id)
+
+
+def add_did_endpoint(stream_id, red, mode):
+    session_data = json.loads(red.get(stream_id).decode())
+    if request.method == 'GET':
+        did_auth_request = {
+            "type": "VerifiablePresentationRequest",
+            "query": [{
+            	"type": 'DIDAuth'
+            	}],
+            "challenge": session_data['challenge'],
+            "domain" : mode.server
+            }
+        return jsonify(did_auth_request)
+
+    elif request.method == 'POST' :
+        red.delete(stream_id)
+        presentation = json.loads(request.form['presentation'])
+		# FIXME pb de version et voir comment on gere le challenge
+        try : # FIXME
+            issuer = presentation['verifiableCredential']['issuer']
+            holder = presentation['holder']
+            challenge = presentation['proof']['challenge']
+            domain = presentation['proof']['domain']
+        except :
+            logging.warning('to be fixed, presentation is not correct')
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _("Presentation check failed.")})
+            red.publish('credible', event_data)
+            return jsonify("ko")
+        if domain != mode.server or challenge != session_data['challenge'] :
+            logging.warning('challenge failed')
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _("The presentation challenge failed.")})
+            red.publish('credible', event_data)
+            return jsonify("ko")
+        elif issuer not in [DID_WEB, DID_ETHR, DID_TZ] :
+            logging.warning('unknown issuer')
+            event_data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
+            red.publish('credible', event_data)
+            return jsonify("ko")
+        else :
+            if holder not in ns.get_did_list(session_data['workspace_contract'],mode) :
+                ns.add_did(session_data['workspace_contract'], holder, mode)
+                event_data = json.dumps({
+											"stream_id" : stream_id,
+											"message" : "ok",
+											"text" : _('Your DID has been registered')
+										})
+            else :
+                logging.info('DID deja dans la liste')
+                event_data = json.dumps({
+											"stream_id" : stream_id,
+											"message" : "ok",
+											'text' : _('Your DID is already registered')
+											})
+            red.publish('add_did', event_data)
+            return jsonify("ok")
+
+
+def add_did_event_stream(red):
+    pubsub = red.pubsub()
+    pubsub.subscribe('add_did')
+    for message in pubsub.listen():
+        if message['type']=='message':
+            yield 'data: %s\n\n' % message['data'].decode()
+
+def add_did_stream(red):
+    headers = { "Content-Type" : "text/event-stream",
+                "Cache-Control" : "no-cache",
+                "X-Accel-Buffering" : "no"}
+    return Response(add_did_event_stream(red), headers=headers)
+
+
+def add_did_callback() :
+    credential = 'holder : ' + request.args['holder'] + ' issuer : ' + request.args['issuer']
+    return render_template('credible/credential.html', credential=credential)
+
 
 
 def check_login() :
@@ -132,9 +229,6 @@ def user(mode) :
 		# for wallet direct access
 		issuer_username = None
 		vc= None
-		print('token = ', request.form.get('token'))
-		print('username = ', session.get('username'))
-		print('workspace_contract = ', session.get('workspace_contract'))
 		if session.get('username') :
 			logging.info('Identity set up from username')
 			data_from_username = ns.get_data_from_username(session['username'], mode)
@@ -158,11 +252,20 @@ def user(mode) :
 				flash (_('Delay expired !'), 'danger')
 				return render_template('./login/login_password.html')
 			# wallet direct call to issuer explore
-			did = payload['did']
-			issuer_username = payload['issuer_username']
-			vc = payload['vc']
-			session['workspace_contract'] = ns.get_workspace_contract_from_did(did, mode)
-			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
+			did = payload.get('did')
+			username = payload.get('username')
+			if did :
+				issuer_username = payload['issuer_username']
+				vc = payload['vc']
+				session['workspace_contract'] = ns.get_workspace_contract_from_did(did, mode)
+				session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
+			elif username :
+				issuer_username = payload['issuer_username']
+				vc = payload['vc']
+				session['workspace_contract'] = ns.get_data_from_username(username, mode)['workspace_contract']
+				session['username'] = username
+			else :
+				pass
 		else :
 			abort(403)
 
@@ -759,14 +862,20 @@ def user_advanced(mode) :
 			else :
 				logging.warning('DID Document resolution has been rejected by Universal Resolver.')
 
-	# Repository data
+	# portfolio data
 	role = session['role'] if session.get("role") else 'None'
 	referent = session['referent'] if session.get('referent') else 'None'
+	text = _('Add new DID')
 	my_advanced = """
 					<b>Portfolio smart contract</b> : """+ session['workspace_contract'] + """<br>
 					<b>Portfolio controller</b> : """+ session['address'] + """<br>
 					<b>DID</b> : """ + did + """<br>
 					<b>All DID attached</b> : """ + "<br>".join(ns.get_did_list(session['workspace_contract'], mode)) + """<br>
+					<div class="col text-center">
+						<a href="/user/add_did">
+            			<button class="btn btn-primary btn-sm" type="button" > """ + text + """</button>
+						</a>
+          			</div>
 					<hr>
 					<b>Role</b> : """ + role + """<br>
 					<b>Referent</b> : """ + referent + """<br>"""
@@ -819,7 +928,6 @@ def user_advanced(mode) :
 					</a>
 				</span>"""
 			my_issuer = my_issuer + issuer_html + """<br>"""
-	print('private key = ', helpers.ethereum_to_jwk256k(session['private_key_value']))
 	return render_template('advanced.html',
 							**session['menu'],
 							access=my_access,

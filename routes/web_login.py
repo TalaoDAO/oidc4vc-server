@@ -32,9 +32,9 @@ def init_app(app, red, mode) :
 	app.add_url_rule('/forgot_password',  view_func=forgot_password, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/forgot_password_token/',  view_func=forgot_password_token, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/login/authentification/',  view_func=login_authentication, methods = ['POST'], defaults={'mode': mode})
-	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode})
-	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) #FIXME
-	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem previous
+	app.add_url_rule('/login',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode, 'red' : red})
+	app.add_url_rule('/login/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode, 'red' : red}) #FIXME
+	app.add_url_rule('/',  view_func=login, methods = ['GET', 'POST'], defaults={'mode': mode, 'red' : red}) # idem previous
 	app.add_url_rule('/login/VerifiablePresentationRequest',  view_func=VerifiablePresentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
 	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_endpoint, methods = ['GET', 'POST'],  defaults={'mode' : mode, 'red' :red})
 	app.add_url_rule('/login/stream',  view_func=stream, defaults={ 'red' : red})
@@ -85,12 +85,32 @@ def send_secret_code (username, code, mode) :
 			return None
 
 
-def login(mode) :
+def login(red, mode) :
 	if request.method == 'GET' :
 		language = session.get('language')
 		session.clear()
 		session['language'] = language
-		return render_template('./login/login_password.html', username=request.args.get('username', ''))
+
+		# code qrcode inside the page
+		stream_id = str(uuid.uuid1())
+		session_data = json.dumps({'challenge' : str(uuid.uuid1()),
+							'issuer_username' : request.args.get('issuer_username'),
+							'vc' : request.args.get('vc')
+							})
+		red.set(stream_id,  session_data)
+		if request.args.get('vc') == 'certificateofemployment' : 
+			message = _('Get a Certificate of Employment')
+		elif request.args.get('vc') == 'professionalexperienceassessment' :
+			message = _('Request a Professional Experience Assessment')
+		else :
+			message = _('Sign-In')
+		# end code for qrcode
+
+		return render_template('./login/login_password.html',
+								url=mode.server + 'login/wallet_presentation/' + stream_id,
+								stream_id=stream_id,
+								message=message,
+								username=request.args.get('username', ''))
 
 	if request.method == 'POST' :
 		if not session.get('try_number')  :
@@ -300,6 +320,7 @@ def wallet_endpoint(stream_id, red, mode):
     elif request.method == 'POST' :
         red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
+       
 		# FIXME pb de version et voir comment on gere le challenge
         try : # FIXME
             issuer = presentation['verifiableCredential']['issuer']
@@ -321,12 +342,25 @@ def wallet_endpoint(stream_id, red, mode):
             event_data = json.dumps({"stream_id" : stream_id, "message" : _("This issuer is unknown.")})
             red.publish('credible', event_data)
             return jsonify("ko")
+		# Successfull login  with email
+        elif presentation['verifiableCredential']['credentialSubject']['type'] == "EmailPass" and ns.get_username_list_from_email(presentation['verifiableCredential']['credentialSubject']['email'], mode) :
+            username_list = ns.get_username_list_from_email(presentation['verifiableCredential']['credentialSubject']['email'], mode)
+            for username in username_list :
+                if username not in ['relay', 'talao'] :
+                    break
+            event_data = json.dumps({"stream_id" : stream_id,
+			                        "message" : "ok",
+			                        "token" : generate_token2(username, session_data['issuer_username'], session_data['vc'],mode)})
+            red.publish('credible', event_data)
+            print('log with email')
+            return jsonify("ok")
         elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             logging.warning('unknown account')
             event_data = json.dumps({"stream_id" : stream_id, "message" : _('Your Digital Identity has not been registered yet.')})
             red.publish('credible', event_data)
             return jsonify("ko")
+        # Successfull login with DID 
         else :
             # we transfer a JWE token to user agent to sign in
             event_data = json.dumps({"stream_id" : stream_id,
@@ -365,5 +399,19 @@ def generate_token(did,issuer_username, vc, mode) :
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
     print('issuer_username = ', issuer_username)
     json_string = json.dumps({'did' : did, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
+    payload = bytes(json_string, 'utf-8')
+    return jwe.serialize_compact(header, payload, public_rsa_key).decode()
+
+
+def generate_token2(username,issuer_username, vc, mode) :
+    private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
+    RSA_KEY = RSA.import_key(private_rsa_key)
+    public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
+    expired = datetime.timestamp(datetime.now()) + 5 # 5s live
+    # build JWE
+    jwe = JsonWebEncryption()
+    header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
+    print('issuer_username = ', issuer_username)
+    json_string = json.dumps({'username' : username, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
     payload = bytes(json_string, 'utf-8')
     return jwe.serialize_compact(header, payload, public_rsa_key).decode()

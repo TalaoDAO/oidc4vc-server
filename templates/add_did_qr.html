@@ -34,13 +34,10 @@
       </div>
     </div>
 
-     <div id="content_desktop" class="d-none d-sm-block">    
-    <!--
-      <div id="content" class="d-none d-sm-block" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
-      -->
-        {% include 'guest_nav_bar_2.html' %}
+    <div id="content_desktop" class="d-none d-sm-block">    
+        {% include 'user_nav_bar.html' %}
               <div class="text-center">  
-                <div id="id_text" class="m-5"><strong></strong><br>{{_('<br> Scan the QRCode bellow with your  smartphone wallet. <br>You can present any credential.')}}</div>  
+                <div id="id_text" class="m-5"><strong>{{message}}</strong><br>{{_('<br> Scan the QRCode bellow with your  smartphone wallet. <br>You can present any credential.')}}</div>  
                 <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class=" w-30 h-30"></div>
                 <div id="id_loading" class="m-5"></div>
                 <div id="id_spinner" class="m-5"></div>
@@ -52,7 +49,7 @@
               </div>
 
 
-              <form id="id_token" action="/user/" method="POST">
+              <form id="id_add_did" action="/user/" method="POST">
               <input id="input_token" hidden name="token" >
               </form>
 
@@ -65,25 +62,17 @@
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
       <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script>
-        var source = new EventSource('/login/stream');
+        var source = new EventSource('/user/add_did_stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
-        console.log(result);
         if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
-          document.getElementById("id_button").style.visibility = "hidden";
-          document.getElementById("id_text").innerHTML = "";
-          document.getElementById("id_qrcode").innerHTML = "";
-          const loading_message = '{{_("Your portfolio is loading ...")}}'
-          document.getElementById("id_loading").innerHTML = '<div class="col-lg-4 offset-lg-4"><div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">\
-                                                            <div class="card-body p-0"><div class="col">\
-                                                            <div  class="p-5"><div class="text-center"><h4 class="text-dark mb-4">' + loading_message + '</h4>\
-                                                            </div><div class="spinner-border"></div></div></div></div></div>' 
-          document.getElementById("input_token").value=result.token;
-          document.getElementById("id_token").submit()
-          }
-        if (result.message != 'ok' & result.stream_id == '{{stream_id}}' ) {
-          window.location.href='/unregistered?message=' + result.message;
-        } 
+          window.alert(result.text);
+          document.getElementById("id_add_did").submit()
+        }
+        else {
+          window.alert(result.message);
+          document.getElementById("id_add_did").submit()
+        }
         };
       </script>
   </body>

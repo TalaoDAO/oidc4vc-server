@@ -154,8 +154,6 @@ def get_did_list(workspace_contract,mode) :
 		return[]
 
 
-
-
 def get_method(workspace_contract, mode) :
 	path = mode.db_path
 	conn = sqlite3.connect(path + 'nameservice.db')

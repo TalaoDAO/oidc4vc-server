@@ -33,7 +33,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='livebox'
+   myenv='liveboxh'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -47,10 +47,10 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test
-from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard
+from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
-VERSION = "0.43"
+VERSION = "0.50"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -160,9 +160,10 @@ web_certificate.init_app(app, mode)
 web_external.init_app(app, mode)
 web_directory.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
-web_data_user.init_app(app,mode)
+web_data_user.init_app(app,red,mode)
 web_issuer.init_app(app, mode)
 web_wallet_create_residentcard.init_app(app, red, mode)
+web_display_VP.init_app(app, red, mode)
 
 
 

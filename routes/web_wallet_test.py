@@ -60,6 +60,7 @@ def dir_list_calculate(path) :
 
 def credential_from_filename(path, filename) :
     file = test_repo.get_contents(path + "/" + filename)
+    print("file = ", file)
     encoded_content = file.__dict__['_rawData']['content']
     return json.loads(base64.b64decode(encoded_content).decode())
 
@@ -71,6 +72,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
+    app.add_url_rule('/wallet/test/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
 
     app.add_url_rule('/wallet/test/presentationRequest',  view_func=test_presentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
@@ -124,6 +126,52 @@ def test_credentialOffer2_qrcode(red, mode) :
     global path
     path = "test/CredentialOffer2"
     return redirect(url_for("test_credentialOffer_qrcode"))
+
+"""
+Direct access to one VC with filename passed as an argument
+
+"""
+def test_direct_offer(red, mode) :
+    path = "test/CredentialOffer2"
+    if not request.args.get('VC') :
+        return jsonify("Request malformed")
+    VC_filename= request.args['VC']
+    try :
+        credential = credential_from_filename(path, VC_filename)
+    except :
+        return jsonify("Verifiable Credential not found")
+    credential['issuer'] = did_selected
+    credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    credential['credentialSubject']['id'] = "did:..."
+    credential['issuer'] = did_selected
+    backgroundColor = "ffffff"
+    shareLink = ""
+    if VC_filename == "visa_card.jsonld" :
+        backgroundColor = "fea235"
+    elif VC_filename == "amex_card.jsonld" :
+        backgroundColor = "a9afaf"
+    elif VC_filename == "LoyaltyCard.jsonld" :
+        shareLink = json.dumps(credential, separators=(':', ','))
+    else :
+        pass
+    
+    credentialOffer = {
+            "type": "CredentialOffer",
+            "credentialPreview": credential,
+            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
+            "shareLink" : shareLink,
+            "display" : { "backgroundColor" : backgroundColor}
+        }
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + did_selected
+    red.set(credential['id'], json.dumps(credentialOffer))
+    type = credentialOffer['credentialPreview']['type'][1]
+    return render_template('wallet/test/credential_offer_qr_2.html',
+                                url=url,
+                                id=credential['id'],
+                                type = type + " - " + translate(credential),
+                                simulator='Issuer Simulator' 
+                                )
+
 
 def test_credentialOffer_qrcode(red, mode) :
     global did_selected
@@ -193,7 +241,7 @@ def test_credentialOffer_qrcode(red, mode) :
                         email<input type="checkbox" name="email" value="on">
                         address<input type="checkbox" name="address"  value="on">
                         telephone<input type="checkbox" name="telephone"  value="on"> </p>
-                        <p>backgroundColor : <input value="ffffff" type="text" name="backgroundColor" ></p>
+                        <p>backgroundColor : <input value="#ffffff" type="color" name="backgroundColor" ></p>
                         <p>icon : <input type="text" name="icon"></p>
                         <p>nameFallback : <input type="text" name="nameFallback" ></p>
                         <p>descriptionFallback : <input type="text" name="descriptionFallback"></p>
@@ -243,7 +291,7 @@ def test_credentialOffer_qrcode(red, mode) :
             scope.append("email")
         display = dict()
         if request.form.get('backgroundColor') :
-            display['backgroundColor'] = request.form['backgroundColor']
+            display['backgroundColor'] = request.form['backgroundColor'][1:]
         if request.form.get('icon') :
             display['icon'] = request.form['icon']
         if request.form.get('nameFallback') :
@@ -342,8 +390,10 @@ def test_credentialOffer_back():
     html_string = """
         <!DOCTYPE html>
         <html>
-        <body class="h-screen w-screen flex">
-        <h2>Verifiable Credential has been signed and transferd to wallet"</h2<
+        
+        <body class="h-screen w-screen flex ">
+        <p></p>
+        <h2>Verifiable Credential has been signed and transfered to wallet"</h2<
         <br><br><br>
         <form action="/wallet/test/credentialOffer" method="GET" >
                     <button  type"submit" >Back</button></form>
