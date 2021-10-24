@@ -293,7 +293,7 @@ def VerifiablePresentationRequest_qrcode(red, mode):
 							'issuer_username' : request.args.get('issuer_username'),
 							'vc' : request.args.get('vc')
 							})
-    red.set(stream_id,  session_data)
+    red.set(stream_id,  session_data, PRESENTATION_DELAY)
     if request.args.get('vc') == 'certificateofemployment' : 
         message = _('Get a Certificate of Employment')
     elif request.args.get('vc') == 'professionalexperienceassessment' :

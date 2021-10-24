@@ -7,6 +7,7 @@
   </head>
     <body >
       <div id="content_smartphone" class="d-block d-sm-none">
+
         <style>
           .newcontainer {
             height: 500px;
@@ -34,8 +35,9 @@
         </div>
       </div>
   
-      <div id="content" class="d-none d-sm-block">
-      {% include 'guest_nav_bar.html' %}
+        <div id="content" class="d-none d-sm-block" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
+
+      {% include 'guest_nav_bar_2.html' %}
         <div class="text-center">       
           <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.')}}
             <br><br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>

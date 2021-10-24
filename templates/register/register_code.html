@@ -9,7 +9,8 @@
 <body id="page-top" >
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
+                <div id="content" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
+
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -22,7 +23,7 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-                {% include 'guest_nav_bar.html' %}
+                {% include 'guest_nav_bar_2.html' %}
                 <div class="container-fluid mt-3">
                 <div class="row mb-3">
                     <div class="col-lg-4 offset-lg-4">
