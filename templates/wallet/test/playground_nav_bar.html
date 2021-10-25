@@ -7,11 +7,10 @@
       </div>
       <!-- Title for large devices -->
       <h6 class="text-secondary flex-nowrap ml-auto d-none d-sm-block">
-        <h4 class="d-none d-sm-block"style="color: grey ; margin-bottom: 0; margin-left : 8em">{{_('Manage your Self Sovereign Identity')}}</h4> 
+        <h4 class="d-none d-sm-block"style="color: grey ; margin-bottom: 0">{{_('Wallet Playground')}}</h4> 
       </h6>
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
 
-        <li class="nav-item d-none d-none d-md-block" role="presentation"><div id="connected"></div></li> 
 
         
         <li class="nav-item dropdown no-arrow h-100" role="presentation">
@@ -26,10 +25,7 @@
         </li>  
 
 
-        <li class="nav-item mx-1 h-100 d-none d-sm-block"><a class="nav-link active" href="/register" style="color: rgba(255,255,255,0.9);">
-          <button class="btn btn-primary rounded-pill border-0 px-3 d-none d-sm-block" type="button" style="background: color(#007bff));">
-            <h4 class="mb-0">{{_('Register')}}</h4></button></a>
-        </li>
+       
 
         <li class="nav-item dropdown no-arrow h-100" role="presentation">
           <div class="nav-item dropdown show">
@@ -37,14 +33,13 @@
               <span  style="color: grey;"><i class="fas fa-bars fa-sm fa-fw mr-2 text-gray-400"></i></span>
             </a>
             <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
-              <a class="dropdown-item" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/contents.html"><i class="fa fa-question fa-sm fa-fw mr-2 text-gray-400"></i>{{_('What is Talao ?')}}</a>
-              <a class="dropdown-item" role="presentation" href="https://credential-portfolio.readthedocs.io/en/latest/quick.html"><i class="fas fa-hourglass-start fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Quick start')}}</a>
-              <hr>
-              <a class="dropdown-item" role="presentation"  href="/emailpass"><i class="far fa-envelope fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Get an Email Pass')}}</a> 
-              <a class="dropdown-item" role="presentation"  href="/phonepass"><i class="far fa-envelope fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Get a Phone Pass')}}</a>    
-   
-              <a class="dropdown-item d-lg-none" role="presentation"  href="/directory"><i class="fas fa-book fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Directory')}}</a>             
-         
+                <a class="dropdown-item" role="presentation" href="https://talao.io">{{_('What is Talao ?')}}</a>
+                <a class="dropdown-item" role="presentation" href="https://identity.foundation/faq/">{{_('What is Self Sovereign Identity ?')}}</a>
+
+                <hr>
+                <a class="dropdown-item" role="presentation" href="https://play.google.com/store/apps/details?id=co.talao.wallet">{{_('Google store')}}</a>
+                <a class="dropdown-item" role="presentation" href="https://apps.apple.com/fr/app/talao-wallet/id1582183266#?platform=iphone">{{_('Apple store')}}</a>
+                 
               <hr>
               <a class="dropdown-item" role="presentation"  href="/login"><i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>{{_('Sign-In')}}</a>
 

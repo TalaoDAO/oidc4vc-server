@@ -140,6 +140,7 @@ def test_direct_offer(red, mode) :
         credential = credential_from_filename(path, VC_filename)
     except :
         return jsonify("Verifiable Credential not found")
+    
     credential['issuer'] = did_selected
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
@@ -151,7 +152,7 @@ def test_direct_offer(red, mode) :
     elif VC_filename == "amex_card.jsonld" :
         backgroundColor = "a9afaf"
     elif VC_filename == "LoyaltyCard.jsonld" :
-        shareLink = json.dumps(credential, separators=(':', ','))
+        shareLink = "https://www.leroymerlin.fr/ma-carte-maison.html"
     else :
         pass
     

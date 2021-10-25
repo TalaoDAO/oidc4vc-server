@@ -46,11 +46,11 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid
-from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test
+from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_wallet_playground
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
-VERSION = "0.52"
+VERSION = "0.55"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -164,6 +164,8 @@ web_data_user.init_app(app,red,mode)
 web_issuer.init_app(app, mode)
 web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
+web_wallet_playground.init_app(app, red, mode)
+
 
 
 
