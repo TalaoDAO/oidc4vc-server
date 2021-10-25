@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2021-10-25 10:00+0200\n"
+"POT-Creation-Date: 2021-10-25 13:53+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -2374,8 +2374,8 @@ msgid "Get an email proof"
 msgstr "Obtenir une preuve d'email"
 
 #: templates/wallet/test/playground.html:53
-msgid "Get an expired VC"
-msgstr "VC expiré"
+msgid "Get an expired Verifiable Credential"
+msgstr "Visualiser un Verifiable Credential expiré"
 
 #: templates/wallet/test/playground.html:60
 msgid "Log to Talao.co"
@@ -2386,8 +2386,8 @@ msgid "Get a certificate of employment"
 msgstr "Obtenir une attestation employeur"
 
 #: templates/wallet/test/playground.html:74
-msgid "Display a VP"
-msgstr "Afficher un VP"
+msgid "Display a Verifiable Presentation"
+msgstr "Afficher une Verifiable Presentation"
 
 #: templates/wallet/test/playground.html:80
 msgid "Issuer simulator"
@@ -2399,7 +2399,7 @@ msgstr "Obtenir une preuve de téléphone"
 
 #: templates/wallet/test/playground.html:94
 msgid "Register to Talao"
-msgstr "Créer un protofio"
+msgstr "Créer un portfolio"
 
 #: templates/wallet/test/playground.html:100
 msgid "Get a professional experience certificate"
@@ -2418,12 +2418,12 @@ msgid "What is Self Sovereign Identity ?"
 msgstr "Qu'est ce que le Self Sovereign Identity ?"
 
 #: templates/wallet/test/playground_nav_bar.html:40
-msgid "Google store"
-msgstr "Google Store"
+msgid "Download the app from Google store"
+msgstr "Télécharger l'app depuis le Google store"
 
 #: templates/wallet/test/playground_nav_bar.html:41
-msgid "Apple store"
-msgstr "Apple store"
+msgid "Download the app from Apple store"
+msgstr "Télécharger l'app depuis l'Apple store"
 
 #: templates/wallet/test/simulator_nav_bar.html:40
 msgid "Issuer Simulator"
