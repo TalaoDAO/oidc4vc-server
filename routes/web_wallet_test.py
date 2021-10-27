@@ -83,7 +83,7 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
 
-    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
 
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
