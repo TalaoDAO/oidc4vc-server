@@ -94,13 +94,16 @@ def init_app(app,red, mode) :
 
 
 def playground(mode) :
-    import requests
-    r = requests.get(mode.server + 'credentials/status/3')
-    if r.json()['credentialSubject']["encodedList"] == "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA" :
-        revoked = 'on'
-    else :
-        revoked = 'off'
+    try : 
+        r = requests.get(mode.server + 'credentials/status/3')
+        if r.json()['credentialSubject']["encodedList"] == "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA" :
+            revoked = 'on'
+        else :
+            revoked = 'off'
+    except :
+        revoked='on'
     return render_template("./wallet/test/playground.html", revoked=revoked)
+
 
 
 def tir_api(did) :

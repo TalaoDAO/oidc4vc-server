@@ -31,7 +31,8 @@ def translate(credential) :
 
 def init_app(app,red, mode) :
 
-    app.add_url_rule('/credentials/status/3',  view_func=credentiallist, methods = ['GET'])
+    app.add_url_rule('/credentials/status/3',  view_func=credentiallist, methods = ['GET', 'POST'])
+    
     app.add_url_rule('/wallet/test/revoked_qrcode',  view_func=revoked_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/wallet/test/revoked_endpoint/<id>',  view_func=revoked_endpoint, methods = ['GET', 'POST'],defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/revoked_stream',  view_func=revoked_stream, methods = ['GET', 'POST'], defaults={'red' :red})

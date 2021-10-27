@@ -44,6 +44,7 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
+
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test
@@ -113,7 +114,7 @@ def user_language(mode) :
     refresh()
     return redirect (request.referrer)
 
-
+print('start')
 # Centralized @route
 web_register.init_app(app, red, mode)
 web_emailpass.init_app(app, red, mode)
@@ -132,7 +133,7 @@ web_issuer.init_app(app, mode)
 web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_revocationlist.init_app(app, red, mode)
-
+print('end')
 
 
 

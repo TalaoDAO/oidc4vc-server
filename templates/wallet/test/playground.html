@@ -119,7 +119,7 @@
                         {% if revoked == 'on' %}
                         <div class="col">
                             <div id="id_qrcode" class="text-center">
-                                <a href=""><img  src="/static/img/red_button.jpeg"  style="width: 150px;border-radius:0px;"></a>
+                                <img  src="/static/img/red_button.jpeg"  style="width: 150px;border-radius:0px;">
                                 <br><strong>{{_('My Verifiable Credential is revoked')}}</strong>
                             </div>
                         </div>
@@ -129,12 +129,11 @@
                                 <br><strong>{{_('Unrevoke my Verifiable Credential')}}</strong>
                             </div>
                         </div>
-                        {% endif %}
+                        {% else %}
 
-                        {% if revoked != 'on'%}
                         <div class="col">
                             <div id="id_qrcode" class="text-center">
-                                <a href=""><img  src="/static/img/green_button.jpeg"  style="width: 150px;border-radius:0px;"></a>
+                                <<img  src="/static/img/green_button.jpeg"  style="width: 150px;border-radius:0px;">
                                 <br><strong>{{_('My Verifiable Credential is live')}}</strong>
                             </div>
                         </div>
@@ -146,7 +145,7 @@
                         </div>
                         {% endif %}
 
-
+                    
 
                     </div>
                 </div>
