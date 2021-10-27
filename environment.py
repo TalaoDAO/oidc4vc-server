@@ -76,7 +76,7 @@ class currentMode() :
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.IP = '18.190.21.227' # talao.co
-			self.server = "https://talao.co"
+			#self.server = "https://talao.co"
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.myenv == 'airbox' :
