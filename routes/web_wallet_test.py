@@ -93,16 +93,8 @@ def init_app(app,red, mode) :
     return
 
 
-def playground(mode) :
-    try : 
-        r = requests.get(mode.server + 'credentials/status/3')
-        if r.json()['credentialSubject']["encodedList"] == "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA" :
-            revoked = 'on'
-        else :
-            revoked = 'off'
-    except :
-        revoked='on'
-    return render_template("./wallet/test/playground.html", revoked=revoked)
+def playground() :
+    return render_template("./wallet/test/playground.html")
 
 
 
