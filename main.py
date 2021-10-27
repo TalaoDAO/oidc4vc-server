@@ -132,7 +132,7 @@ web_data_user.init_app(app,red,mode)
 web_issuer.init_app(app, mode)
 web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
-#web_revocationlist.init_app(app, red, mode)
+web_revocationlist.init_app(app, red, mode)
 print('end')
 
 

@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-did_selected = 'did:web:talao.co'
+did_selected = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 list = dict()
 
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
@@ -32,7 +32,7 @@ def translate(credential) :
 def init_app(app,red, mode) :
 
     app.add_url_rule('/credentials/status/3',  view_func=credentiallist, methods = ['GET', 'POST'])
-    
+
     app.add_url_rule('/wallet/test/revoked_qrcode',  view_func=revoked_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/wallet/test/revoked_endpoint/<id>',  view_func=revoked_endpoint, methods = ['GET', 'POST'],defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/revoked_stream',  view_func=revoked_stream, methods = ['GET', 'POST'], defaults={'red' :red})
