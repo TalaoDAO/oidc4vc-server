@@ -27,10 +27,10 @@ except :
 
 
 
-#DID_WEB = 'did:web:talao.co'
-#DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-#DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-#DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID_WEB = 'did:web:talao.co'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
@@ -66,6 +66,8 @@ def credential_from_filename(path, filename) :
 
 
 def init_app(app,red, mode) :
+
+
     app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
@@ -87,6 +89,7 @@ def init_app(app,red, mode) :
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
+
 
 def tir_api(did) :
     """
@@ -132,6 +135,7 @@ Direct access to one VC with filename passed as an argument
 
 """
 def test_direct_offer(red, mode) :
+    global did_selected
     path = "test/CredentialOffer2"
     if not request.args.get('VC') :
         return jsonify("Request malformed")
@@ -140,7 +144,8 @@ def test_direct_offer(red, mode) :
         credential = credential_from_filename(path, VC_filename)
     except :
         return jsonify("Verifiable Credential not found")
-    
+    if request.args.get('method') == "ethr" :
+        did_selected = DID_ETHR
     credential['issuer'] = did_selected
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
