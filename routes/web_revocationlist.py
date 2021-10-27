@@ -12,26 +12,8 @@ from flask_babel import Babel, _
 logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-TEST_REPO = "TalaoDAO/wallet-tools"
-REGISTRY_REPO = "TalaoDAO/context"
 
-try :
-    RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
-    Ed25519 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
-
-except :
-    RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
-    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
-
-
-DID_WEB = 'did:web:talao.co'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
-
-did_selected = DID_ETHR
+did_selected = 'did:web:talao.co'
 list = dict()
 
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
@@ -45,7 +27,6 @@ def translate(credential) :
     except :
         pass
     return credential_name
-
 
 
 def init_app(app,red, mode) :
@@ -62,8 +43,8 @@ def init_app(app,red, mode) :
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     sign_credentiallist(mode)
     logging.info('credential list signed and published')
-    print("mode.server = ", mode.server)
     return
+
 
 def credentiallist() :
     global list
@@ -72,6 +53,7 @@ def credentiallist() :
 
 def sign_credentiallist (mode) :
     # sign with DID_ETHR
+    # credential 50000 is revoked
     global list
     unsigned_list = {
         "@context": [
@@ -94,7 +76,6 @@ def sign_credentiallist (mode) :
     }
     list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
    
-
 
 def unrevoke (mode) :
     global list
@@ -143,6 +124,7 @@ def revoke (mode) :
     list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
     return redirect(mode.server + 'wallet/playground')
 
+
 def revoked_qrcode(mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
@@ -152,17 +134,14 @@ def revoked_qrcode(mode) :
         return render_template('wallet/test/revoked_qrcode.html', url=url, id=id)
 
 
-
 def revoked_endpoint(id, red, mode) :
     credential = json.loads(open('./verifiable_credentials/ResidentCard.jsonld', 'r').read())
-    credential["issuer"] = DID_ETHR
+    credential["issuer"] = did_selected
     credential['id'] = "urn:uuid:..."
     credential['credentialSubject']['id'] = "did:..."
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
-    
     credential["credentialStatus"] ={
-        #"id": mode.server + "credentials/status/3" + "#50000",
         "id" : "urn:uuid:" + str(uuid.uuid1()),
         "type": "RevocationList2020Status",
         "revocationListIndex": "50000",
@@ -184,7 +163,6 @@ def revoked_endpoint(id, red, mode) :
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-        print('pvk = ', pvk)
         signed_credential = vc_signature.sign(credential, pvk, did_selected)
         if not signed_credential :
             message = 'credential signature failed'

@@ -114,11 +114,13 @@
                                 <a href="/wallet/test/revoked_qrcode"><img  src="/static/img/revoked.jpeg"  style="width: 300px;border-radius:0px;"></a>
                                 <br><strong>{{_('Get a revokable Verifiable Credential')}}</strong>
                             </div>
-                        </div>
+                        </div> 
+
+                        {% if revoked == 'on' %}
                         <div class="col">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/revoke"><img  src="/static/img/red_button.jpeg"  style="width: 150px;border-radius:0px;"></a>
-                                <br><strong>{{_('Revoke my Verifiable Credential')}}</strong>
+                                <a href=""><img  src="/static/img/red_button.jpeg"  style="width: 150px;border-radius:0px;"></a>
+                                <br><strong>{{_('My Verifiable Credential is revoked')}}</strong>
                             </div>
                         </div>
                         <div class="col">
@@ -127,6 +129,25 @@
                                 <br><strong>{{_('Unrevoke my Verifiable Credential')}}</strong>
                             </div>
                         </div>
+                        {% endif %}
+
+                        {% if revoked != 'on'%}
+                        <div class="col">
+                            <div id="id_qrcode" class="text-center">
+                                <a href=""><img  src="/static/img/green_button.jpeg"  style="width: 150px;border-radius:0px;"></a>
+                                <br><strong>{{_('My Verifiable Credential is live')}}</strong>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/revoke"><img  src="/static/img/red_button.jpeg"  style="width: 150px;border-radius:0px;"></a>
+                                <br><strong>{{_('Revoke my Verifiable Credential')}}</strong>
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+
                     </div>
                 </div>
             </div>

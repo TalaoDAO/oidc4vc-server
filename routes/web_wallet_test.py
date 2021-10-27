@@ -8,6 +8,7 @@ import base64
 import uuid
 import logging
 from flask_babel import Babel, _
+import requests
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,7 +61,6 @@ def dir_list_calculate(path) :
 
 def credential_from_filename(path, filename) :
     file = test_repo.get_contents(path + "/" + filename)
-    print("file = ", file)
     encoded_content = file.__dict__['_rawData']['content']
     return json.loads(base64.b64decode(encoded_content).decode())
 
@@ -83,12 +83,24 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
 
+    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
+
+
+def playground(mode) :
+    import requests
+    r = requests.get(mode.server + 'credentials/status/3')
+    if r.json()['credentialSubject']["encodedList"] == "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA" :
+        revoked = 'on'
+    else :
+        revoked = 'off'
+    return render_template("./wallet/test/playground.html", revoked=revoked)
 
 
 def tir_api(did) :
