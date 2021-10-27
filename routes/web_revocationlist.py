@@ -55,6 +55,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/revoked_endpoint/<id>',  view_func=revoked_endpoint, methods = ['GET', 'POST'],defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/revoked_stream',  view_func=revoked_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/revoked_back',  view_func=test_revoked_back, methods = ['GET', 'POST'])
+    app.add_url_rule('/wallet/test/revoke',  view_func=revoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/wallet/test/unrevoke',  view_func=unrevoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -91,8 +93,55 @@ def sign_credentiallist (mode) :
         "issuer": did_selected,
     }
     list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
+   
 
 
+def unrevoke (mode) :
+    global list
+    unsigned_list = {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://w3id.org/vc-revocation-list-2020/v1"
+        ],
+        "id":  mode.server + "credentials/status/3",
+        "issuanceDate" : datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+        "type": [
+            "VerifiableCredential",
+            "RevocationList2020Credential"
+        ],
+        "credentialSubject": {
+            "id" : "urn:uuid:" + str(uuid.uuid1()),
+            "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA",
+            "type": "RevocationList2020"
+        },
+        "issuer": did_selected,
+    }
+    list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
+    return redirect(mode.server + 'wallet/playground')
+
+
+def revoke (mode) :
+    global list
+    unsigned_list = {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://w3id.org/vc-revocation-list-2020/v1"
+        ],
+        "id":  mode.server + "credentials/status/3",
+        "issuanceDate" : datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+        "type": [
+            "VerifiableCredential",
+            "RevocationList2020Credential"
+        ],
+        "credentialSubject": {
+            "id" : "urn:uuid:" + str(uuid.uuid1()),
+            "encodedList": "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA",
+            "type": "RevocationList2020"
+        },
+        "issuer": did_selected,
+    }
+    list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
+    return redirect(mode.server + 'wallet/playground')
 
 def revoked_qrcode(mode) :
     if request.method == 'GET' :
