@@ -1,21 +1,7 @@
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        {
-            "RevocationList2020Status": {
-                "@context": {
-                    "@protected": true,
-                    "id": "@id",
-                    "revocationListCredential": {
-                        "@id": "https://w3id.org/vc-revocation-list-2020#revocationListCredential",
-                        "@type": "@id"
-                    },
-                    "revocationListIndex": "https://w3id.org/vc-revocation-list-2020#revocationListIndex",
-                    "type": "@type"
-                },
-                "@id": "https://w3id.org/vc-revocation-list-2020#RevocationList2020Status"
-            }
-        },
+        "https://w3id.org/vc-revocation-list-2020/v1",
         {
             "description": "hhtps://chema.org/description",
             "name": "https://schema.org/name",
