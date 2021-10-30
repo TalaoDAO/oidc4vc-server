@@ -60,7 +60,6 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
     else :
         logging.error('method not supported by Talao')
         return None
-    print('vm = ', vm)
     if not didkit_options :
         didkit_options = {
             "proofPurpose": "assertionMethod",
@@ -73,7 +72,7 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
 
     # verify credential before leaving
     result =  json.loads(didkit.verify_credential(signed_credential, '{}'))
-    print('test signature = %s', result)
+    logging.info('test signature = %s', result)
 
     return signed_credential
 

@@ -91,7 +91,7 @@
     "description": [
         {
             "@language": "en",
-            "@value": "For demo only. This certificate proves the reality of your residence in Paris.\n"
+            "@value": "For demo only. This certificate proves the reality of your residence in Paris."
         },
         {
             "@language": "de",
@@ -99,7 +99,7 @@
         },
         {
             "@language": "fr",
-            "@value": "Démonstration. Cette attestation prouve la réalité de votre résidence dans la Ville de Paris.\n"
+            "@value": "Démonstration. Cette attestation prouve la réalité de votre résidence dans la Ville de Paris."
         }
     ],
     "name": [

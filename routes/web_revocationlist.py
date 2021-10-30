@@ -16,6 +16,8 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 did_selected = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 list = dict()
 
+status = "revoked"
+
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
 def translate(credential) : 
     credential_name = ""
@@ -39,12 +41,19 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/revoked_back',  view_func=test_revoked_back, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/test/revoke',  view_func=revoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/wallet/test/unrevoke',  view_func=unrevoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    
+    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
 
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     sign_credentiallist(mode)
     logging.info('credential list signed and published')
     return
+
+
+def playground() :
+    global status
+    return render_template("./wallet/test/playground.html", status=status)
 
 
 def credentiallist() :
@@ -79,7 +88,9 @@ def sign_credentiallist (mode) :
    
 
 def unrevoke (mode) :
-    global list
+    global list, status
+    if status == "Active" :
+        return redirect(mode.server + 'wallet/playground')
     unsigned_list = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -99,11 +110,14 @@ def unrevoke (mode) :
         "issuer": did_selected,
     }
     list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
+    status = 'Active'
     return redirect(mode.server + 'wallet/playground')
 
 
 def revoke (mode) :
-    global list
+    global list, status
+    if status == "Revoked" :
+        return redirect(mode.server + 'wallet/playground')
     unsigned_list = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -122,6 +136,7 @@ def revoke (mode) :
         },
         "issuer": did_selected,
     }
+    status = 'Revoked'
     list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
     return redirect(mode.server + 'wallet/playground')
 
@@ -129,8 +144,7 @@ def revoke (mode) :
 def revoked_qrcode(mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
-        url = mode.server + "wallet/test/revoked_endpoint/" + id 
-        #red.set(id,  session['email'])
+        url = mode.server + "wallet/test/revoked_endpoint/" + id + '?issuer=' + did_selected
         logging.info('url = %s', url)
         return render_template('wallet/test/revoked_qrcode.html', url=url, id=id)
 

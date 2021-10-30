@@ -83,7 +83,6 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
 
-    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
 
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -92,9 +91,6 @@ def init_app(app,red, mode) :
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
-
-def playground() :
-    return render_template("./wallet/test/playground.html")
 
 
 
@@ -122,12 +118,35 @@ def tir_api(did) :
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
 
     """
+    # first we look in our database
+    if did in [DID_WEB, DID_KEY, DID_TZ2, DID_ETHR] :
+        print('tiar interne')
+        return jsonify({
+            "issuer": {
+                "preferredName": "Talao",
+                "did": ["did:web:talao.co","did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250","did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"],
+                "eidasCertificatePem": [{}],
+                "serviceEndpoints": [{}, {}],
+                "organizationInfo": {
+                    "id": "837674480",
+                    "legalName": "Talao SAS",
+                    "currentAddress": "Talao, 16 rue de Wattignies, 75012 Paris, France",
+                    "vatNumber": "FR26837674480",
+                    "website": "https://talao.co",
+                    "issuerDomain" : ["talao.co", "talao.io"]
+                }
+            }
+        })
+
     registry_file = registry_repo.get_contents("test/registry/talao_issuer_registry.json")
     b64encoded_registry = registry_file.__dict__['_rawData']['content']
     issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
+    issuer_registry = json.load(open("talao_trusted_issuer_registry.json", 'r' ))
+    print(issuer_registry)
     for item in issuer_registry :
         if did in item['issuer']["did"] :
             return jsonify(item)
+    return jsonify("DID not found") , 400
 
 
 ######################### Credential Offer ###########
@@ -182,7 +201,7 @@ def test_direct_offer(red, mode) :
                                 url=url,
                                 id=credential['id'],
                                 type = type + " - " + translate(credential),
-                                simulator='Issuer Simulator' 
+                                #simulator='Issuer Simulator' 
                                 )
 
 
@@ -274,7 +293,7 @@ def test_credentialOffer_qrcode(red, mode) :
                             <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
                         </body></html>"""
 
-        return render_template_string (html_string, simulator="Issuer simulator") 
+        return render_template_string (html_string,simulator="Issuer simulator") 
     else :
       
         did_selected = request.form['did_select']
@@ -359,8 +378,8 @@ def test_credentialOffer_endpoint(id, red):
     try : 
         credentialOffer = json.loads(red.get(id).decode())
     except :
-        logging.error("red get id error")
-        return ('ko')
+        logging.error("red.get(id) error")
+        return jsonify('server error'), 400
     if request.method == 'GET':
         return jsonify(credentialOffer)
     else :
@@ -370,7 +389,7 @@ def test_credentialOffer_endpoint(id, red):
             credential['credentialSubject']['id'] = request.form['subject_id']
         except :
             logging.error("wallet error")
-            return jsonify('ko')
+            return jsonify('wallet error'), 400
         scope = {
             "subject_id" : request.form['subject_id'],
             "givenName" : request.form.get('givenName', "None"),
