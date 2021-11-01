@@ -15,8 +15,8 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 
 did_selected = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 list = dict()
-
-status = "revoked"
+status = ""
+PVK=""
 
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
 def translate(credential) : 
@@ -40,9 +40,10 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/revoked_stream',  view_func=revoked_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/revoked_back',  view_func=test_revoked_back, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/test/revoke',  view_func=revoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/wallet/test/unrevoke',  view_func=unrevoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
     
     app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
+
 
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -63,8 +64,9 @@ def credentiallist() :
 
 def sign_credentiallist (mode) :
     # sign with DID_ETHR
-    # credential 50000 is revoked
+    # credential 50000 is valid
     global list
+    global status
     unsigned_list = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -79,39 +81,17 @@ def sign_credentiallist (mode) :
         "credentialSubject": {
             "id" : "urn:uuid:" + str(uuid.uuid1()),
             #"id": mode.server + "credentials/status/3",
-            "encodedList": "H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDzUMAAA",
+             "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA",
             "type": "RevocationList2020"
         },
         "issuer": did_selected,
     }
-    list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
-   
-
-def unrevoke (mode) :
-    global list, status
-    if status == "Active" :
-        return redirect(mode.server + 'wallet/playground')
-    unsigned_list = {
-        "@context": [
-            "https://www.w3.org/2018/credentials/v1",
-            "https://w3id.org/vc-revocation-list-2020/v1"
-        ],
-        "id":  mode.server + "credentials/status/3",
-        "issuanceDate" : datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
-        "type": [
-            "VerifiableCredential",
-            "RevocationList2020Credential"
-        ],
-        "credentialSubject": {
-            "id" : "urn:uuid:" + str(uuid.uuid1()),
-            "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA",
-            "type": "RevocationList2020"
-        },
-        "issuer": did_selected,
-    }
-    list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
-    status = 'Active'
-    return redirect(mode.server + 'wallet/playground')
+    status = "Active"
+    try :
+        list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
+        return True
+    except :
+        return False
 
 
 def revoke (mode) :
@@ -137,6 +117,7 @@ def revoke (mode) :
         "issuer": did_selected,
     }
     status = 'Revoked'
+    logging.info("Credential is now Revoked")
     list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
     return redirect(mode.server + 'wallet/playground')
 

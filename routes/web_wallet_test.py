@@ -7,8 +7,8 @@ from github import Github
 import base64
 import uuid
 import logging
-from flask_babel import Babel, _
-import requests
+from flask_babel import _
+import urllib.parse
 
 logging.basicConfig(level=logging.INFO)
 
@@ -69,7 +69,7 @@ def init_app(app,red, mode) :
 
 
     app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/wallet/test/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/test/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
     app.add_url_rule('/wallet/test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -83,7 +83,6 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
 
-
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
@@ -92,35 +91,15 @@ def init_app(app,red, mode) :
     return
 
 
-
-
 def tir_api(did) :
     """
     Issuer Registry public JSON API GET:
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/1.3.2.4.+Trusted+Registries+ESSIF+v2#id-1.3.2.4.TrustedRegistriesESSIFv2-TrustedIssuerRegistryEntry-TIR(generic)
-    
-    Data model :
-    {
-    "issuer": {
-        "preferredName": "Great Company",
-        "did": ["did:ebsi:00003333", "did:ebsi:00005555"],
-        "eidasCertificatePem": [{}],
-        "serviceEndpoints": [{}, {}],
-        "organizationInfo": {
-            "id": "BE55555j",
-            "legalName": "Great Company",
-            "currentAddress": "Great Company Street 1, Brussels, Belgium",
-            "vatNumber": "BE05555555XX",
-            "domainName": "https://great.company.be"
-        }
-    }
-    }
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
 
     """
-    # first we look in our database
-    if did in [DID_WEB, DID_KEY, DID_TZ2, DID_ETHR] :
-        print('tiar interne')
+    if did in [DID_WEB, DID_TZ2, DID_ETHR] :
+        logging.info('Internal TIAR')
         return jsonify({
             "issuer": {
                 "preferredName": "Talao",
@@ -137,21 +116,20 @@ def tir_api(did) :
                 }
             }
         })
-
-    registry_file = registry_repo.get_contents("test/registry/talao_issuer_registry.json")
-    b64encoded_registry = registry_file.__dict__['_rawData']['content']
-    issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
-    issuer_registry = json.load(open("talao_trusted_issuer_registry.json", 'r' ))
-    print(issuer_registry)
-    for item in issuer_registry :
-        if did in item['issuer']["did"] :
-            return jsonify(item)
-    return jsonify("DID not found") , 400
+    else :
+        registry_file = registry_repo.get_contents("test/registry/talao_issuer_registry.json")
+        b64encoded_registry = registry_file.__dict__['_rawData']['content']
+        issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
+        #issuer_registry = json.load(open("talao_trusted_issuer_registry.json", 'r' ))
+        for item in issuer_registry :
+            if did in item['issuer']["did"] :
+                return jsonify(item)
+        return jsonify("DID not found") , 404
 
 
 ######################### Credential Offer ###########
 
-def test_credentialOffer2_qrcode(red, mode) :
+def test_credentialOffer2_qrcode() :
     global path
     path = "test/CredentialOffer2"
     return redirect(url_for("test_credentialOffer_qrcode"))
@@ -169,7 +147,7 @@ def test_direct_offer(red, mode) :
     try :
         credential = credential_from_filename(path, VC_filename)
     except :
-        return jsonify("Verifiable Credential not found")
+        return jsonify("Verifiable Credential not found"), 405
     if request.args.get('method') == "ethr" :
         did_selected = DID_ETHR
     credential['issuer'] = did_selected
@@ -194,14 +172,13 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + did_selected
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urllib.parse.urlencode({'issuer' : did_selected})
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
                                 url=url,
                                 id=credential['id'],
-                                type = type + " - " + translate(credential),
-                                #simulator='Issuer Simulator' 
+                                type = type + " - " + translate(credential)
                                 )
 
 
@@ -339,7 +316,7 @@ def test_credentialOffer_qrcode(red, mode) :
         }
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
-        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?issuer=' + did_issuer
+        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urllib.parse.urlencode({'issuer' : did_issuer})
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
@@ -376,14 +353,16 @@ def test_credential_display():
 def test_credentialOffer_endpoint(id, red):
     global did_selected
     try : 
-        credentialOffer = json.loads(red.get(id).decode())
+        credentialOffer = red.get(id).decode()
     except :
         logging.error("red.get(id) error")
-        return jsonify('server error'), 400
+        return jsonify('server error'), 500
     if request.method == 'GET':
-        return jsonify(credentialOffer)
+        return Response(json.dumps(credentialOffer, separators=(':', ':')),
+                        headers={ "Content-Type" : "application/json"},
+                        status=200)
     else :
-        credential =  credentialOffer['credentialPreview']
+        credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
         try :
             credential['credentialSubject']['id'] = request.form['subject_id']
@@ -415,7 +394,9 @@ def test_credentialOffer_endpoint(id, red):
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
-        return jsonify(signed_credential)
+        return Response(json.dumps(signed_credential, separators=(':', ':')),
+                        headers={ "Content-Type" : "application/json"},
+                        status=200)
 
 
 def test_credentialOffer_back():
@@ -537,12 +518,12 @@ def test_presentationRequest_endpoint(stream_id, red):
             logging.warning('presentation is not correct')
             event_data = json.dumps({"stream_id" : stream_id, "message" : "Presentation format failed."})
             red.publish('credible', event_data)
-            return jsonify("ko")
+            return jsonify("presentation is not correct"), 400
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
             event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
             red.publish('credible', event_data)
-            return jsonify("ko")
+            return jsonify("challenge or domain failed"), 400
         else :
             # we just display the presentation VC
             red.set(stream_id,  request.form['presentation'])

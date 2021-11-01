@@ -417,7 +417,6 @@ def generate_token(did,issuer_username, vc, mode) :
     # build JWE
     jwe = JsonWebEncryption()
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
-    print('issuer_username = ', issuer_username)
     json_string = json.dumps({'did' : did, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
     payload = bytes(json_string, 'utf-8')
     return jwe.serialize_compact(header, payload, public_rsa_key).decode()
@@ -431,7 +430,6 @@ def generate_token2(username,issuer_username, vc, mode) :
     # build JWE
     jwe = JsonWebEncryption()
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
-    print('issuer_username = ', issuer_username)
     json_string = json.dumps({'username' : username, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
     payload = bytes(json_string, 'utf-8')
     return jwe.serialize_compact(header, payload, public_rsa_key).decode()
