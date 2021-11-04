@@ -389,7 +389,7 @@ msgstr "Ce code est incorrect plus que 1 seul essai."
 
 #: routes/web_emailpass.py:137
 msgid "Great ! you have now an Email Pass."
-msgstr "Bravo ! vous avez maintenant votre passe Email."
+msgstr "Bravo ! vous avez maintenant votre preuve d'email."
 
 #: routes/web_emailpass.py:139 routes/web_loyaltycard.py:136
 #: routes/web_phonepass.py:138

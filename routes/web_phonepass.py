@@ -8,7 +8,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 from signaturesuite import vc_signature
 from flask_babel import _
-import secrets
+from urllib.parse import urlencode
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
@@ -79,7 +79,7 @@ def phonepass_authentication(mode) :
 def phonepass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
-        url = mode.server + "phonepass/offer/" + id 
+        url = mode.server + "phonepass/offer/" + id +'?' + urlencode({'issuer' : DID})
         red.set(id,  session['phone'])
         logging.info('url = %s', url)
         return render_template('phonepass/phonepass_qrcode.html', url=url, id=id)

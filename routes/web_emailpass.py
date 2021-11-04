@@ -2,13 +2,13 @@ from flask import jsonify, request, render_template, session, redirect, flash, R
 import json
 from components import privatekey, Talao_message
 import uuid
-import secrets
 from datetime import timedelta, datetime
 import logging
 logging.basicConfig(level=logging.INFO)
 from signaturesuite import vc_signature
 from flask_babel import _
 import secrets
+from urllib.parse import urlencode
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
@@ -37,10 +37,9 @@ def emailpass(mode) :
     if request.method == 'GET' :
         return render_template('emailpass/emailpass.html')
     if request.method == 'POST' :
-        # traiter email
         session['email'] = request.form['email']
         session['code'] = str(secrets.randbelow(99999))
-        session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+        session['code_delay'] = datetime.now() + OFFER_DELAY
         try : 
             subject = 'Talao : Email authentification  '
             Talao_message.messageHTML(subject, session['email'], 'code_auth', {'code' : session['code']}, mode)
@@ -80,7 +79,7 @@ def emailpass_authentication(mode) :
 def emailpass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
-        url = mode.server + "emailpass/offer/" + id 
+        url = mode.server + "emailpass/offer/" + id +'?' + urlencode({'issuer' : DID})
         red.set(id,  session['email'])
         logging.info('url = %s', url)
         return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
@@ -117,7 +116,7 @@ def emailpass_offer(id, red, mode):
             logging.error('credential signature failed')
             data = json.dumps({"url_id" : id, "check" : "failed"})
             red.publish('credible', data)
-            return jsonify({})
+            return jsonify('Server error'), 500
          # store signed credential on server
         try :
             filename = credential['id'] + '.jsonld'

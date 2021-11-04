@@ -8,7 +8,7 @@ import base64
 import uuid
 import logging
 from flask_babel import _
-import urllib.parse
+from urllib.parse import urlencode
 
 logging.basicConfig(level=logging.INFO)
 
@@ -90,6 +90,7 @@ def init_app(app,red, mode) :
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
+    #/trusted-issuers-registry/v1/issuers/did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7
 
 def tir_api(did) :
     """
@@ -113,6 +114,24 @@ def tir_api(did) :
                     "vatNumber": "FR26837674480",
                     "website": "https://talao.co",
                     "issuerDomain" : ["talao.co", "talao.io"]
+                }
+            }
+        })
+    elif did == 'did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7' :
+        logging.info('Internal TIAR')
+        return jsonify({
+            "issuer": {
+                "preferredName": "Compellio",
+                "did": ['did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7'],
+                "eidasCertificatePem": [{}],
+                "serviceEndpoints": [{}, {}],
+                "organizationInfo": {
+                    "id": "",
+                    "legalName": "Compellio",
+                    "currentAddress": "1 Rue Glesener, L-1631 Luxembourg, Luxembourg",
+                    "vatNumber": "",
+                    "website": "https://compell.io",
+                    "issuerDomain" : ["compell.io"]
                 }
             }
         })
@@ -172,7 +191,7 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urllib.parse.urlencode({'issuer' : did_selected})
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urlencode({'issuer' : did_selected})
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
@@ -316,7 +335,7 @@ def test_credentialOffer_qrcode(red, mode) :
         }
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
-        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urllib.parse.urlencode({'issuer' : did_issuer})
+        url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urlencode({'issuer' : did_issuer})
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
@@ -361,6 +380,7 @@ def test_credentialOffer_endpoint(id, red):
         return Response(json.dumps(credentialOffer, separators=(':', ':')),
                         headers={ "Content-Type" : "application/json"},
                         status=200)
+                        
     else :
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
