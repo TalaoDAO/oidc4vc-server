@@ -5,7 +5,6 @@ import datetime
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
-import os
 
 
 from protocol import contractsToOwners
@@ -58,7 +57,7 @@ def generate_CA(mode) :
     cert=cert.sign(talao_rsa_key, hashes.SHA256())
 
     # Write this CA certificate out to disk.
-    with open('talao.pem', "wb") as f:
+    with open('CA_talao.pem', "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
     return 
 

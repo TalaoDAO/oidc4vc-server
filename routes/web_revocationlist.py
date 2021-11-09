@@ -54,6 +54,7 @@ def init_app(app,red, mode) :
 
 def playground() :
     global status
+    print('status = ', status)
     return render_template("./wallet/test/playground.html", status=status)
 
 
@@ -67,6 +68,8 @@ def sign_credentiallist (mode) :
     # credential 50000 is valid
     global list
     global status
+    if status == "Active" :
+        return redirect(mode.server + 'wallet/playground')
     unsigned_list = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -165,7 +168,7 @@ def revoked_endpoint(id, red, mode) :
             logging.error(message)
             data = json.dumps({"url_id" : id, "check" : "failed", "message" : message})
             red.publish('revoked', data)
-            return jsonify({})
+            return jsonify({'server error'}), 500
          # store signed credential on server
         try :
             filename = credential['id'] + '.jsonld'
@@ -177,6 +180,7 @@ def revoked_endpoint(id, red, mode) :
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success", "message" : "ok"})
         red.publish('revoked', data)
+        sign_credentiallist(mode)
         return jsonify(signed_credential)
 
 

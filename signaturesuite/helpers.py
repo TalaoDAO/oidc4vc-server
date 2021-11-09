@@ -103,6 +103,7 @@ def _ethereum_to_jwk256k(private_key, alg) :
     priv_key_bytes = decode_hex(private_key)
     priv_key = keys.PrivateKey(priv_key_bytes)
     pub_key = priv_key.public_key
+    
     d = private_key[2:]
     x = pub_key.to_hex()[2:66]
     y = pub_key.to_hex()[66:]

@@ -116,7 +116,7 @@ def phonepass_offer(id, red, mode):
             logging.error('credential signature failed')
             data = json.dumps({"url_id" : id, "check" : "failed"})
             red.publish('credible', data)
-            return jsonify({})
+            return jsonify('server error'), 500
          # store signed credential on server
         try :
             filename = credential['id'] + '.jsonld'
