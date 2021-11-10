@@ -34,10 +34,12 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 	logging.info('user repository talaonet address setup')
 
 	if did in ['tz', 'ethr'] :
+		# one creates did from scratch
 		this_key = helpers.ethereum_to_jwk256kr(private_key)
 		did = didkit.key_to_did(did, this_key)
+		logging.info('registration with password')
 	else :
-		print('probleme choix du did')
+		logging.info('registration with wallet')
 
 	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)

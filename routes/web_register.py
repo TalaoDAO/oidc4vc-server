@@ -28,7 +28,9 @@ CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary'
 
 def init_app(app, red, mode) :
 	app.add_url_rule('/register/identity',  view_func= register_identity, methods = ['GET', 'POST'], defaults={'mode': mode})
-	app.add_url_rule('/register',  view_func=register_user, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
+	#app.add_url_rule('/register',  view_func=register_user, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
+	app.add_url_rule('/register',  view_func=register_qrcode, methods = ['GET', 'POST'], defaults={'mode': mode}) # idem below
+
 	app.add_url_rule('/register/user',  view_func=register_user, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/company',  view_func=register_company, methods = ['GET', 'POST'], defaults={'mode': mode})
 	app.add_url_rule('/register/password',  view_func=register_password, methods = [ 'GET', 'POST'], defaults={'mode': mode})
@@ -241,7 +243,7 @@ def register_wallet_endpoint(id,red, mode):
         if ns.get_workspace_contract_from_did(presentation['holder'], mode) :
             data = json.dumps({ "id" : id, "data" : 'already_registered'})
             red.publish('register_wallet', data)
-            return jsonify('already_registered')
+            return jsonify('already_registered'), 500
         try :
             givenName = presentation['verifiableCredential']['credentialSubject']['givenName'] 
             familyName = presentation['verifiableCredential']['credentialSubject']['familyName'] 
@@ -323,7 +325,7 @@ def register_create_for_wallet(mode) :
 	directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
 
 	# create an Employee Certificate
-	create_employee_certificate(session['did'], session['firstname'], session['lastname'], workspace_contract, mode) 
+	# create_employee_certificate(session['did'], session['firstname'], session['lastname'], workspace_contract, mode) 
 	
 	# create an Identity Pass
 	create_identity_pass(session['did'], session['firstname'], session['lastname'], session['email'], workspace_contract, mode) 
@@ -372,8 +374,8 @@ def create_employee_certificate(did, firstname, lastname, workspace_contract, mo
     return True
 
 def create_identity_pass(did, firstname, lastname, email, workspace_contract, mode) :
-    # load JSON-LD model for IdentityPass
-    unsigned_credential = json.load(open('./verifiable_credentials/Talao_IdentityPass.jsonld', 'r'))
+    # load JSON-LD model for registration_IdentityPass
+    unsigned_credential = json.load(open('./verifiable_credentials/registration_IdentityPass.jsonld', 'r'))
     
     # update credential with form data
     unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
@@ -384,8 +386,6 @@ def create_identity_pass(did, firstname, lastname, email, workspace_contract, mo
     unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     unsigned_credential['issuer'] = did_selected
     
-    print('credential = ', unsigned_credential)
-
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     signed_credential = vc_signature.sign(unsigned_credential, PVK, did_selected)
          

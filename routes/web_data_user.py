@@ -178,7 +178,6 @@ def import_identity_key(mode) :
 	session['check_identity_key'] = True
 	return redirect (mode.server + 'user/')
 
-
 def data(mode) :
 	"""
 	#@app.route('/data/', methods=['GET'])
@@ -209,7 +208,6 @@ def data(mode) :
 							verif=myadvanced,
 							credential=json.dumps(credential.__dict__, sort_keys=True, indent=4, ensure_ascii=False),
 							id=credential.__dict__['id'])
-
 
 def user(mode) :
 	"""
@@ -253,19 +251,10 @@ def user(mode) :
 				return render_template('./login/login_password.html')
 			# wallet direct call to issuer explore
 			did = payload.get('did')
-			username = payload.get('username')
-			if did :
-				issuer_username = payload['issuer_username']
-				vc = payload['vc']
-				session['workspace_contract'] = ns.get_workspace_contract_from_did(did, mode)
-				session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
-			elif username :
-				issuer_username = payload['issuer_username']
-				vc = payload['vc']
-				session['workspace_contract'] = ns.get_data_from_username(username, mode)['workspace_contract']
-				session['username'] = username
-			else :
-				pass
+			issuer_username = payload['issuer_username']
+			vc = payload['vc']
+			session['workspace_contract'] = ns.get_workspace_contract_from_did(did, mode)
+			session['username'] = ns.get_username_from_resolver(session['workspace_contract'], mode)
 		else :
 			abort(403)
 
@@ -350,13 +339,20 @@ def user(mode) :
 							'rsa_filename': session['rsa_filename'],
 							'profil_title' : session['profil_title'],
 							'clipboard' : clipboard}
-		
+
+
 		# Dashboard start for employees
 		if session['role'] in ['issuer', 'reviewer'] :
-			return redirect (mode.server + 'company/dashboard/')
+			return redirect (mode.server + 'company/dashboard/') 
 
-		# wallet direct call redirect 
+
+		# wallet direct call redirect
+		if issuer_username and not ns.get_data_from_username(issuer_username, mode) :
+			issuer_username = None
+			logging.info('company username is not found')
+			flash(_('Company not found'), 'warning')	
 		if issuer_username :
+			# TODO tester si le user est bien un salarié de l entreprise
 			issuer_workspace_contract = ns.get_data_from_username(issuer_username, mode)['workspace_contract']
 			session['issuer_explore'] = Identity(issuer_workspace_contract, mode, authenticated=True,).__dict__.copy()
 			session['issuer_username'] = issuer_username
@@ -376,8 +372,8 @@ def user(mode) :
 			if vc == 'identitypass' :
 				return redirect (mode.server + 'user/request_pass_credential')
 			if not vc :
-				return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)	
-
+				return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+		
 		# Homepage start for Talent
 		#if user.type == 'person' :
 		#	return render_template('homepage.html', **session['menu'])
@@ -569,11 +565,21 @@ def user(mode) :
 		else :
 			for counter, certificate in enumerate(session['all_certificate'],1) :
 				try : 
+					r = requests.get( mode.server + '/trusted-issuers-registry/v1/issuers/' + certificate['issuer'])
+					if r.status_code == 200 :
+						issuer_legalName = r.json()['issuer']['organizationInfo']['legalName']
+						issuer_currentAddress = r.json()['issuer']['organizationInfo']['currentAddress']
+					else :
+						logging.warning('no datat from registry')
+						issuer_legalName = _("No data available")
+						issuer_currentAddress = _("No data available")
 					cert_html = """<hr>
 						<b>""" + _('Credential Type') + """</b> : """ + credential_text.get(certificate['credentialSubject']['type'], "Not supported") + """<br>
-						<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'] + """<br>
-						<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>
-						<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'] + """<br>"""
+						<b>""" + _('Credential Privacy') + """</b> : """ + certificate['privacy'].capitalize() + """<br>
+						<b>""" + _('Issuer legal name') + """</b> : """ + issuer_legalName +"""<br>
+						<b>""" + _('Issuer current address') + """</b> : """ + issuer_currentAddress +"""<br>
+					<!--	<b>""" + _('Issuer DID') + """</b> : """ + certificate['issuer'] +"""<br>  -->
+						<b>""" + _('Issuance Date') + """</b> : """ + certificate['proof']['created'][:10] + """<br>"""
 					# FIXME
 					credential = Document('certificate')
 					credential.relay_get_credential(session['workspace_contract'], int(certificate['doc_id']), mode)

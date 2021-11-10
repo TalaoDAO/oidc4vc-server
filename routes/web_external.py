@@ -53,9 +53,9 @@ def resume(mode) :
 		# tri par date
 		for i, experience in enumerate(experiences):
 			min = i
-			DTmin = time.strptime(experience['credentialSubject']['startDate'], "%Y-%m-%d")
+			DTmin = time.strptime(experience['credentialSubject']['startDate'][:10], "%Y-%m-%d")
 			for j, certi in enumerate(experiences[i::]):
-				DTcerti = time.strptime(certi['credentialSubject']['startDate'], "%Y-%m-%d")
+				DTcerti = time.strptime(certi['credentialSubject']['startDate'][:10], "%Y-%m-%d")
 				if DTcerti < DTmin:
 					min = j + i
 					DTmin = DTcerti
@@ -71,12 +71,12 @@ def resume(mode) :
 			for i in range(nbr_rows):
 				carousel_indicators_experience += '<li data-target="#experience-carousel" data-slide-to="{}"></li>'.format(i+1)
 			for i, experience in enumerate(experiences):
-				logo = experience['credentialSubject']['author']['logo']
+				logo = experience['credentialSubject']['issuedBy']['logo']
 				startDate = experience['credentialSubject']['startDate']
 				endDate = experience['credentialSubject']['endDate']
 				description = experience['credentialSubject']['description']
 				title = experience['credentialSubject']['title']
-				issuer_name = experience['credentialSubject']['author']['name']
+				issuer_name = experience['credentialSubject']['issuedBy']['name']
 
 				if i%3==0:
 					carousel_rows_experience += '<div class="carousel-item px-2 {a}"><div class="row" style="flex-direction: row;">'.format(a = "active" if (i == 0) else '')
@@ -354,10 +354,12 @@ def resume(mode) :
 		birth_date = issuer_explore.personal['birthdate']['claim_value']
 		education = issuer_explore.personal['education']['claim_value']
 		about = issuer_explore.personal['about']['claim_value']
+		print(' picture =', issuer_explore.picture)
 		return render_template('./CV_blockchain.html',
 							issuer_name=issuer_explore.name,
 							issuer_profil_title = issuer_explore.profil_title,
-							issuer_picturefile=issuer_explore.picture,
+							#issuer_picturefile=issuer_explore.picture,
+							issuer_picturefile= mode.ipfs_gateway + issuer_explore.picture,
 							digitalvault=my_file,
 							adress = adress,
 							phone = phone,

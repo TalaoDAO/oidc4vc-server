@@ -926,7 +926,7 @@ def create_company(mode) :
     if request.method == 'POST' :
         email = request.form['email']
         did = request.form.get('did', "")
-        username = request.form['name'].lower()
+        username = request.form['name'].replace(' ', '').lower()
         siren = request.form['siren']
         if ns.username_exist(username, mode)   :
             username = username + str(random.randint(1, 100))

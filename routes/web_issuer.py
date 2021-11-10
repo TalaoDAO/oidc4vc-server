@@ -519,24 +519,24 @@ def credential_list_html(host, issuer_username, reviewer_username, status, mode)
     credential_list = ""
     for mycredential in mylist :
 
-        if json.loads(mycredential[5])['credentialSubject']['type'] == "ProfessionalExperienceAssessment" :
+        if json.loads(mycredential[5])['credentialSubject'].get('type') == "ProfessionalExperienceAssessment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 title = json.loads(mycredential[5])['credentialSubject']['title'][:20]
                 description = json.loads(mycredential[5])['credentialSubject']['description'][:200] + "..."
                 type = "ProfessionalExperienceAssessment"
                 name = json.loads(mycredential[5])['credentialSubject'].get('givenName', "deprecated") + ' ' + json.loads(mycredential[5])['credentialSubject'].get('familyName', "deprecated")
-        elif json.loads(mycredential[5])['credentialSubject']['type'] == "ProfessionalSkillAssessment" :
+        elif json.loads(mycredential[5])['credentialSubject'].get('type') == "ProfessionalSkillAssessment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 title = "N/A"
                 description = "N/A"
                 type = "ProfessionalSkillAssessment"
                 name = json.loads(mycredential[5])['credentialSubject'].get('givenName', "deprecated") + ' ' + json.loads(mycredential[5])['credentialSubject'].get('familyName', "deprecated")
-        elif json.loads(mycredential[5])['credentialSubject']['type'] == "IdentityPass" :
+        elif json.loads(mycredential[5])['credentialSubject'].get('type') == "IdentityPass" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "IdentityPass"
                 title = description = "N/A"
                 name = json.loads(mycredential[5])['credentialSubject']['recipient']['givenName'] + ' ' + json.loads(mycredential[5])['credentialSubject']['recipient']['familyName']
-        elif json.loads(mycredential[5])['credentialSubject']['type'] == "CertificateOfEmployment" :
+        elif json.loads(mycredential[5])['credentialSubject'].get('type') == "CertificateOfEmployment" :
                 subject_link = mode.server + 'resume/?did=' + json.loads(mycredential[5])['credentialSubject']['id']
                 type = "CertificateOfEmployment"
                 title = description = "N/A"

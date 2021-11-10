@@ -40,15 +40,17 @@
       {% include 'guest_nav_bar_2.html' %}
         <div class="text-center">       
           <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.')}}
-            <br><br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
+            <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
           {{_('or present a Resident Card')}}</div>
           <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class="w-20 h-20"></div>
           <div id="id_loading" class="m-5"></div>
           <div id="id_spinner" class="m-5"></div>
           </div>
-            <div class="text-center m-5">
+            <div class="text-center mt-5">
               <button id="id_button" class="btn btn-primary btn-sm" type="button" onclick="goBack()">{{_('Back')}}</button>
             </div>
+            <div class="text-center"><a class="small" href="/register/user">{{_('Register without wallet')}}</a></div>
+
             <div class="text-center"><a class="small" href="/emailpass">{{_('Get an Email Pass')}}</a></div>
 
           </div>

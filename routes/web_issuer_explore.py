@@ -95,9 +95,9 @@ def issuer_explore(mode) :
 		# tri par date
 		for i, experience in enumerate(experiences):
 			min = i
-			DTmin = time.strptime(experience['credentialSubject']['startDate'], "%Y-%m-%d")
+			DTmin = time.strptime(experience['credentialSubject']['startDate'][:10], "%Y-%m-%d")
 			for j, certi in enumerate(experiences[i::]):
-				DTcerti = time.strptime(certi['credentialSubject']['startDate'], "%Y-%m-%d")
+				DTcerti = time.strptime(certi['credentialSubject']['startDate'][:10], "%Y-%m-%d")
 				if DTcerti < DTmin:
 					min = j + i
 					DTmin = DTcerti
@@ -114,12 +114,12 @@ def issuer_explore(mode) :
 				carousel_indicators_experience += '<li data-target="#experience-carousel" data-slide-to="{}"></li>'.format(i+1)
 			
 			for i, experience in enumerate(experiences):
-				logo = experience['credentialSubject']['author']['logo']
+				logo = experience['credentialSubject']['issuedBy']['logo']
 				startDate = experience['credentialSubject']['startDate']
 				endDate = experience['credentialSubject']['endDate']
 				description = experience['credentialSubject']['description']
 				title = experience['credentialSubject']['title']
-				issuer_name = experience['credentialSubject']['author']['name']
+				issuer_name = experience['credentialSubject']['issuedBy']['name']
 
 				if i%3==0:
 					carousel_rows_experience += """<div class="carousel-item px-2 {a}">

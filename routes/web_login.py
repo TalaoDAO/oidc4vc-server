@@ -17,6 +17,8 @@ from urllib.parse import urlencode
 import logging
 from components import Talao_message, ns, sms, privatekey
 import uuid
+from signaturesuite import vc_signature
+import didkit
 
 PRESENTATION_DELAY = 600 # seconds
 
@@ -330,7 +332,9 @@ def wallet_endpoint(stream_id, red, mode):
         #red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
        
-		# FIXME pb de version et voir comment on gere le challenge
+        # FIXME pb de version et voir comment on gere le challenge
+        #print('verify signature = ', vc_signature.verify(presentation))
+        print('verify presentation = ', didkit.verify_presentation(json.dumps(presentation), '{}'))
         try : # FIXME
             issuer = presentation['verifiableCredential']['issuer']
             holder = presentation['holder']
@@ -356,20 +360,7 @@ def wallet_endpoint(stream_id, red, mode):
 									"code" : "ko",
 									 "message" : _("This issuer is unknown.")})
             red.publish('credible', event_data)
-            abort(400, "Issuer unknown")
-		# Successfull login  with email
-        elif presentation['verifiableCredential']['credentialSubject']['type'] == "EmailPass" and ns.get_username_list_from_email(presentation['verifiableCredential']['credentialSubject']['email'], mode) :
-            username_list = ns.get_username_list_from_email(presentation['verifiableCredential']['credentialSubject']['email'], mode)
-            for username in username_list :
-                if username not in ['relay', 'talao'] :
-                    break
-            event_data = json.dumps({"stream_id" : stream_id,
-									"code" : 'ok',
-			                        "message" : "ok",
-			                        "token" : generate_token2(username, session_data['issuer_username'], session_data['vc'],mode)})
-            red.publish('credible', event_data)
-            logging.info('log with email')
-            return jsonify("ok")
+            jsonify("Issuer unknown"), 400
         elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             logging.warning('unknown account')
@@ -377,7 +368,7 @@ def wallet_endpoint(stream_id, red, mode):
 									"code" : "ko",
 									 "message" : _('Your Digital Identity has not been registered yet.')})
             red.publish('credible', event_data)
-            abort (400, "Unknown account for this DID")
+            return  jsonify("Unknown account for this DID"), 400
         # Successfull login with DID 
         else :
             # we transfer a JWE token to user agent to sign in
@@ -417,19 +408,10 @@ def generate_token(did,issuer_username, vc, mode) :
     # build JWE
     jwe = JsonWebEncryption()
     header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
-    json_string = json.dumps({'did' : did, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
+    json_string = json.dumps({'did' : did,
+							 'issuer_username' : issuer_username,
+							 'vc' : vc,
+							 'exp' : expired})
     payload = bytes(json_string, 'utf-8')
     return jwe.serialize_compact(header, payload, public_rsa_key).decode()
 
-
-def generate_token2(username,issuer_username, vc, mode) :
-    private_rsa_key = privatekey.get_key(mode.owner_talao, 'rsa_key', mode)
-    RSA_KEY = RSA.import_key(private_rsa_key)
-    public_rsa_key = RSA_KEY.publickey().export_key('PEM').decode('utf-8')
-    expired = datetime.timestamp(datetime.now()) + 5 # 5s live
-    # build JWE
-    jwe = JsonWebEncryption()
-    header = {'alg': 'RSA1_5', 'enc': 'A256GCM'}
-    json_string = json.dumps({'username' : username, 'issuer_username' : issuer_username, 'vc' : vc, 'exp' : expired})
-    payload = bytes(json_string, 'utf-8')
-    return jwe.serialize_compact(header, payload, public_rsa_key).decode()
