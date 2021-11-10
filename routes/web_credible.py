@@ -2,6 +2,7 @@ from flask import jsonify, request, render_template, session, redirect, flash, R
 import json
 from datetime import timedelta, datetime
 from flask_babel import _
+from urllib.parse import urlencode
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -10,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 those credential have been signed previously
 
 """
-
+DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 OFFER_DELAY = timedelta(seconds= 10*60)
 
 
@@ -29,7 +30,8 @@ def credentialOffer_qrcode(mode,id) :
     except :
         flash(_('This credential is not available.'), 'warning')
         return redirect("/user")
-    url = mode.server + "credible/wallet_credential/" + id
+    url = mode.server + "credible/wallet_credential/" + id + '?' + urlencode({'issuer' : DID_TZ})
+    print(url)
     return render_template('credible/credential_qr.html', url=url, id=id, **session['menu'])
 
 
@@ -48,11 +50,6 @@ def credentialOffer(id, red):
     if request.method == 'GET':
         credential = json.loads(open('./signed_credentials/' + filename, 'r').read())
         del credential['proof']
-        #credential['credentialSubject']['id'] = "did:"
-        #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-        #credential['issuer'] = "did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"
-        #credential['credentialSubject']['startDate'] = "2021-05-13T12:11:59Z"
-        #credential['credentialSubject']['endDate'] = "2021-05-15T12:11:59Z"
         return jsonify({
             "type": "CredentialOffer",
             "credentialPreview": credential,

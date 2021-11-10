@@ -110,7 +110,7 @@ def login(red, mode) :
 		# end code for qrcode
 
 		return render_template('./login/login_password.html',
-								url=mode.server + 'login/wallet_presentation/' + stream_id,
+								url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ}),
 								stream_id=stream_id,
 								message=message,
 								username=request.args.get('username', ''))
@@ -303,7 +303,7 @@ def VerifiablePresentationRequest_qrcode(red, mode):
     else :
         message = _('Sign-In')
     return render_template('login/login_qr.html',
-							url=mode.server + 'login/wallet_presentation/' + stream_id,
+							url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ}),
 							stream_id=stream_id, message=message)
 
 
@@ -346,30 +346,30 @@ def wallet_endpoint(stream_id, red, mode):
 									"code" : "ko",
 									 "message" : _("Presentation check failed.")})
             red.publish('credible', event_data)
-            abort(400, "Presentation malformed")
+            return jsonify("Presentation malformed"), 400
         if domain != mode.server or challenge != session_data['challenge'] :
             logging.warning('challenge failed')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
 									 "message" : _("The presentation challenge failed.")})
             red.publish('credible', event_data)
-            abort(400, "Challenge failed")
+            return jsonify("Challenge failed"), 400
         elif issuer not in [DID_WEB, DID_ETHR, DID_TZ] :
             logging.warning('unknown issuer')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
 									 "message" : _("This issuer is unknown.")})
             red.publish('credible', event_data)
-            jsonify("Issuer unknown"), 400
+            return jsonify("Issuer unknown"), 400
         elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
-            logging.warning('unknown account')
+            logging.warning('User unknown')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
 									 "message" : _('Your Digital Identity has not been registered yet.')})
             red.publish('credible', event_data)
-            return  jsonify("Unknown account for this DID"), 400
-        # Successfull login with DID 
+            return  jsonify("User unknown"), 400
+        # Successfull login 
         else :
             # we transfer a JWE token to user agent to sign in
             logging.info('log with DID')
