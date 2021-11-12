@@ -6,9 +6,6 @@ $ export MYENV=livebox
  NO -> $ export AUTHLIB_INSECURE_TRANSPORT=1
 $ python main.py
 
-
-
-
 """
 
 import os
@@ -51,7 +48,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
-VERSION = "1.4"
+VERSION = "1.5"
 
 # Framework Flask and Session setup
 app = Flask(__name__)

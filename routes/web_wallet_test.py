@@ -95,7 +95,7 @@ Direct access to one VC with filename passed as an argument
 
 """
 def test_direct_offer(red, mode) :
-    global DID_TZ2
+    global DID_TZ2, DID_ETHR, DID_KEY
     path = "test/CredentialOffer2"
     if not request.args.get('VC') :
         return jsonify("Request malformed")
@@ -105,11 +105,13 @@ def test_direct_offer(red, mode) :
     except :
         return jsonify("Verifiable Credential not found"), 405
     if request.args.get('method') == "ethr" :
-        did_selected = DID_ETHR
-    credential['issuer'] = DID_TZ2
+        credential['issuer'] = DID_ETHR
+    elif request.args.get('method') == "key" :
+        credential['issuer'] = DID_KEY
+    else :
+         credential['issuer'] = DID_TZ2
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
-    credential['issuer'] = did_selected
     backgroundColor = "ffffff"
     shareLink = ""
     if VC_filename == "visa_card.jsonld" :
@@ -120,7 +122,6 @@ def test_direct_offer(red, mode) :
         shareLink = "https://www.leroymerlin.fr/ma-carte-maison.html"
     else :
         pass
-    
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
@@ -128,7 +129,7 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urlencode({'issuer' : did_selected})
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urlencode({'issuer' : credential['issuer']})
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
@@ -409,6 +410,7 @@ QueryBYExample = {
 pattern = QueryBYExample
 
 def test_presentationRequest_qrcode(red, mode):
+    global DID_TZ2
     if request.method == 'GET' :
         return render_template('wallet/test/credential_presentation.html', simulator='Verifier Simulator' )
 							
@@ -443,7 +445,7 @@ def test_presentationRequest_qrcode(red, mode):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
-        url = mode.server + 'wallet/test/wallet_presentation/' + stream_id +'?issuer=' + did_selected
+        url = mode.server + 'wallet/test/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
         return render_template('wallet/test/credential_presentation_qr.html',
 							url=url,
 							stream_id=stream_id, 
@@ -525,7 +527,6 @@ def test_presentation_display(red):
             issuers = ", ".join(issuer_list)
             types = ", ".join(type_list)
         credential = json.dumps(presentation, indent=4, ensure_ascii=False)
-        print(credential)
     html_string = """
         <!DOCTYPE html>
         <html>

@@ -65,9 +65,9 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
             "proofPurpose": "assertionMethod",
             "verificationMethod": vm
         }
-    print('did = ', did)
-    print('key = ', key)
-    print('vm = ', vm)
+    logging.info('sign with did = %s' , did)
+    logging.info('sign with key = %s' , key)
+    logging.info('sign with vm = %s' , vm)
     signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
