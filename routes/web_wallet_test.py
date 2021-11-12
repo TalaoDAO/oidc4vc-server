@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
-from signaturesuite import vc_signature
+from signaturesuite import vc_signature, helpers
 from components import privatekey
 from github import Github
 import base64
@@ -9,6 +9,7 @@ import uuid
 import logging
 from flask_babel import _
 from urllib.parse import urlencode
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,14 +29,7 @@ except :
 
 
 DID_WEB = 'did:web:talao.co'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 
-did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-
-
-# officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
 def translate(credential) : 
     credential_name = ""
     try : 
@@ -78,11 +72,15 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
-    global PVK, test_repo, registry_repo
+    global PVK, test_repo, registry_repo, DID_ETHR, DID_TZ2, DID_KEY, did_selected
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
+    DID_ETHR = helpers.ethereum_pvk_to_DID(PVK, 'ethr')
+    DID_TZ2 = helpers.ethereum_pvk_to_DID(PVK, 'tz')
+    DID_KEY = helpers.ethereum_pvk_to_DID(PVK, "key")
+    did_selected = DID_TZ2
     return
 
 ######################### Credential Offer ###########
@@ -141,7 +139,7 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
-    global did_selected
+    global did_selected, DID_ETHR, DID_TZ2, DID_KEY
     global path
     if request.method == 'GET' :   
         # list all the files of github directory 
@@ -152,13 +150,13 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                        <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                        <option selected value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                        <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
                           <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br>
                         <input hidden name="filename" value=""" + "talaoemailpass" + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
@@ -168,13 +166,13 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                       Issuer : <select name="did_select">
-                      <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                      <option selected value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                        <option value="""+ DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
                           <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         
                         </select><br>
                         <input hidden name="filename" value=""" + "talaophonepass" + """> 
@@ -192,13 +190,13 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                    <option selected value="did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk">did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</option>
-                        <option value="did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250">did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</option>
+                    <option selected value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                        <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
                           <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value="did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk">did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk</option>
+                        <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br><br>
                         <input hidden name="filename" value='""" + filename + """'> 
                         <p>Scope :

@@ -19,6 +19,8 @@ pour did:web utiliser ES256K et la suite de signature EcdsaSecp256k1Verification
 def ethereum_pvk_to_DID(pvk, method) :
     if method in ['ethr', 'tz'] :
         return didkit.key_to_did(method, ethereum_to_jwk256kr(pvk))
+    elif method == 'key' :
+        return didkit.key_to_did(method, ethereum_to_jwk256k(pvk))
     else :
         logging.error('DID method not supported')
         return None
