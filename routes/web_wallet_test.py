@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
+did_selected = ""
 
 try :
     RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
@@ -72,7 +73,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
-    global PVK, test_repo, registry_repo, DID_ETHR, DID_TZ2, DID_KEY, did_selected
+    global PVK, test_repo, registry_repo, DID_ETHR, DID_TZ2, DID_KEY
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
@@ -80,10 +81,6 @@ def init_app(app,red, mode) :
     DID_ETHR = helpers.ethereum_pvk_to_DID(PVK, 'ethr')
     DID_TZ2 = helpers.ethereum_pvk_to_DID(PVK, 'tz')
     DID_KEY = helpers.ethereum_pvk_to_DID(PVK, "key")
-    print('did tz = ', DID_TZ2)
-    print('did ethr = ', DID_ETHR)
-    print("did key = ", DID_KEY)
-    did_selected = DID_TZ2
     return
 
 ######################### Credential Offer ###########
@@ -98,7 +95,7 @@ Direct access to one VC with filename passed as an argument
 
 """
 def test_direct_offer(red, mode) :
-    global did_selected
+    global DID_TZ2
     path = "test/CredentialOffer2"
     if not request.args.get('VC') :
         return jsonify("Request malformed")
@@ -109,7 +106,7 @@ def test_direct_offer(red, mode) :
         return jsonify("Verifiable Credential not found"), 405
     if request.args.get('method') == "ethr" :
         did_selected = DID_ETHR
-    credential['issuer'] = did_selected
+    credential['issuer'] = DID_TZ2
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
     credential['issuer'] = did_selected
@@ -142,7 +139,7 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
-    global did_selected, DID_ETHR, DID_TZ2, DID_KEY
+    global DID_ETHR, DID_TZ2, DID_KEY
     global path
     if request.method == 'GET' :   
         # list all the files of github directory 
@@ -183,7 +180,7 @@ def test_credentialOffer_qrcode(red, mode) :
                     </form><hr>"""
         for filename in dir_list :
             credential = credential_from_filename(path, filename)
-            credential['issuer'] = did_selected
+            credential['issuer'] = ""
             credential_name = translate(credential)
             html_string += """
                     <p> Credential preview : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
@@ -230,14 +227,13 @@ def test_credentialOffer_qrcode(red, mode) :
                         </body></html>"""
 
         return render_template_string (html_string,simulator="Issuer simulator") 
-    else :
-      
-        did_selected = request.form['did_select']
-        print('did selected = ', did_selected)
-        if did_selected.split(':')[1] == 'web' :
+    else :      
+        if request.form['did_select'].split(':')[1] == 'web' :
+            global did_selected 
+            did_selected = request.form['did_select']
             did_issuer = 'did:web:talao.co'
         else :
-            did_issuer = did_selected
+            did_issuer = request.form['did_select']
         filename = request.form['filename']
         if filename == "talaoemailpass" :
             return redirect('/emailpass')
@@ -289,16 +285,11 @@ def test_credentialOffer_qrcode(red, mode) :
 
 
 def test_credential_display():  
-    global did_selected
-    if did_selected.split(':')[1] == 'web' :
-        did_issuer = 'did:web:talao.co'
-    else :
-        did_issuer = did_selected
     filename = request.args['filename']
-    # mise en forem
+    # mise en forme
     credential = credential_from_filename(filename)
     credential['credentialSubject']['id'] = "did:..."
-    credential['issuer'] = did_issuer
+    credential['issuer'] = ""
     credential_txt = json.dumps(credential, indent=4)
     html_string = """
         <!DOCTYPE html>
@@ -311,7 +302,6 @@ def test_credential_display():
 
 
 def test_credentialOffer_endpoint(id, red):
-    global did_selected
     try : 
         credentialOffer = red.get(id).decode()
     except :
@@ -339,6 +329,7 @@ def test_credentialOffer_endpoint(id, red):
             "address" : request.form.get('address', "None")
             }
         # to keep the possibility to use an RSA key with did:web
+        global did_selected
         if did_selected == 'did:web:talao.co#key-2' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
         elif did_selected == 'did:web:talao.co#key-3' :
@@ -346,7 +337,7 @@ def test_credentialOffer_endpoint(id, red):
         elif did_selected == 'did:web:talao.co#key-4' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
         else :
-            signed_credential = vc_signature.sign(credential, PVK, did_selected)
+            signed_credential = vc_signature.sign(credential, PVK, credential['issuer'])
         # send event to client agent to go forward
         data = json.dumps({
                             'id' : id,

@@ -11,7 +11,6 @@ DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
-
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 
@@ -34,7 +33,7 @@ def tir_api(did) :
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
 
     """
-    if did in [DID_WEB, DID_TZ2, DID_ETHR] :
+    if did in [DID_WEB, DID_TZ2, DID_ETHR, 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'] :
         logging.info('Internal TIAR / Talao')
         return jsonify({
             "issuer": {
