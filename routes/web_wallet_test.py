@@ -80,6 +80,9 @@ def init_app(app,red, mode) :
     DID_ETHR = helpers.ethereum_pvk_to_DID(PVK, 'ethr')
     DID_TZ2 = helpers.ethereum_pvk_to_DID(PVK, 'tz')
     DID_KEY = helpers.ethereum_pvk_to_DID(PVK, "key")
+    print('did tz = ', DID_TZ2)
+    print('did ethr = ', DID_ETHR)
+    print("did key = ", DID_KEY)
     did_selected = DID_TZ2
     return
 
@@ -230,6 +233,7 @@ def test_credentialOffer_qrcode(red, mode) :
     else :
       
         did_selected = request.form['did_select']
+        print('did selected = ', did_selected)
         if did_selected.split(':')[1] == 'web' :
             did_issuer = 'did:web:talao.co'
         else :
