@@ -308,6 +308,17 @@ def VerifiablePresentationRequest_qrcode(red, mode):
 
 
 def wallet_endpoint(stream_id, red, mode):
+    """
+    200 OK
+    201 Created 
+    400 Bad Request
+    401  unauthenticated
+    403 Forbidden
+    408 Request Timeout
+    500 Internal Server Error
+    501 Not Implemented
+    504 Gateway Timeout
+    """
     try :
         session_data = json.loads(red.get(stream_id).decode())
     except :
@@ -316,7 +327,7 @@ def wallet_endpoint(stream_id, red, mode):
 								"code" : "ko",
 								 "message" : _('Delay has expired.')})
         red.publish('credible', event_data)
-        abort (400, "Delay has expired")
+        jsonify ("Delay has expired"), 408
     if request.method == 'GET':
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
@@ -330,11 +341,15 @@ def wallet_endpoint(stream_id, red, mode):
 
     elif request.method == 'POST' :
         #red.delete(stream_id)
-        presentation = json.loads(request.form['presentation'])
-       
-        # FIXME pb de version et voir comment on gere le challenge
-        #print('verify signature = ', vc_signature.verify(presentation))
-        print('verify presentation = ', didkit.verify_presentation(json.dumps(presentation), '{}'))
+        presentation = json.loads(request.form['presentation'])       
+        logging.info('verify presentation = ' + didkit.verify_presentation(json.dumps(presentation), '{}'))
+        if json.loads(didkit.verify_presentation(request.form['presentation'], '{}'))['errors'] :
+            logging.warning('signature failed')
+            event_data = json.dumps({"stream_id" : stream_id,
+									"code" : "ko",
+									 "message" : _("Signature verification failed.")})
+            red.publish('credible', event_data)
+            return jsonify("Signature verification failed"), 401
         try : # FIXME
             issuer = presentation['verifiableCredential']['issuer']
             holder = presentation['holder']
@@ -353,14 +368,14 @@ def wallet_endpoint(stream_id, red, mode):
 									"code" : "ko",
 									 "message" : _("The presentation challenge failed.")})
             red.publish('credible', event_data)
-            return jsonify("Challenge failed"), 400
+            return jsonify("Challenge failed"), 401
         elif issuer not in [DID_WEB, DID_ETHR, DID_TZ] :
             logging.warning('unknown issuer')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
 									 "message" : _("This issuer is unknown.")})
             red.publish('credible', event_data)
-            return jsonify("Issuer unknown"), 400
+            return jsonify("Issuer unknown"), 403
         elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             logging.warning('User unknown')
@@ -368,9 +383,9 @@ def wallet_endpoint(stream_id, red, mode):
 									"code" : "ko",
 									 "message" : _('Your Digital Identity has not been registered yet.')})
             red.publish('credible', event_data)
-            return  jsonify("User unknown"), 400
-        # Successfull login 
+            return  jsonify("User unknown"), 403
         else :
+			# Successfull login 
             # we transfer a JWE token to user agent to sign in
             logging.info('log with DID')
             event_data = json.dumps({"stream_id" : stream_id,
@@ -378,7 +393,7 @@ def wallet_endpoint(stream_id, red, mode):
 			                        "message" : "ok",
 			                        "token" : generate_token(holder, session_data['issuer_username'], session_data['vc'],mode)})
             red.publish('credible', event_data)
-            return jsonify("ok")
+            return jsonify("ok"), 201
 
 
 def event_stream(red):

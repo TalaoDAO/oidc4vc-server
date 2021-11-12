@@ -117,7 +117,7 @@ def test_VP_presentation_display(red):
                     type_list.append(credential['type'][1])
             issuers = ", ".join(issuer_list)
             types = ", ".join(type_list)
-        credential = json.dumps(presentation, indent=4)
+        credential = json.dumps(presentation, indent=4, ensure_ascii=False)
     html_string = """
         <!DOCTYPE html>
         <html>

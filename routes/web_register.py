@@ -8,6 +8,8 @@ import json
 from flask_babel import _
 from datetime import  datetime, timedelta
 import uuid
+from urllib.parse import urlencode
+import didkit
 
 from datetime import timedelta, datetime
 import logging
@@ -216,7 +218,7 @@ def register_post_code(mode) :
 def register_qrcode(mode) :
 	if request.method == 'GET' :
 		id = str(uuid.uuid1())
-		url = mode.server + 'register/wallet_endpoint/' + id
+		url = mode.server + 'register/wallet_endpoint/' + id +'?' + urlencode({'issuer' : DID}),
 		return render_template("/register/register_wallet_qrcode.html", url=url, id=id)
 
 
@@ -231,19 +233,22 @@ def register_wallet_endpoint(id,red, mode):
         return jsonify(did_auth_request)
     if request.method == 'POST':
         presentation = json.loads(request.form['presentation'])
-        # FIXME pb de version et voir comment on gere le challenge
-        # FIXME challenge = presentation['proof']['challenge']
-        # FIXME domain = presentation['proof']['domain']
+        logging.info('verify presentation = ' + didkit.verify_presentation(json.dumps(presentation), '{}'))
+        if json.loads(didkit.verify_presentation(request.form['presentation'], '{}'))['errors'] :
+            logging.warning('signature failed')
+            data = json.dumps({"id" : id, "data" : "signature_failed."})
+            red.publish('register_wallet', data)
+            return jsonify("Signature verification failed"), 400
         try :
             email = presentation['verifiableCredential']['credentialSubject']['email']   
         except :
             data = json.dumps({ "id" : id, "data" : 'wrong_vc'})	
             red.publish('register_wallet', data)
-            return jsonify('wrong_vc')
+            return jsonify('wrong_vc'), 400
         if ns.get_workspace_contract_from_did(presentation['holder'], mode) :
             data = json.dumps({ "id" : id, "data" : 'already_registered'})
             red.publish('register_wallet', data)
-            return jsonify('already_registered'), 500
+            return jsonify('User already_registered'), 400
         try :
             givenName = presentation['verifiableCredential']['credentialSubject']['givenName'] 
             familyName = presentation['verifiableCredential']['credentialSubject']['familyName'] 
@@ -338,6 +343,8 @@ def register_create_for_wallet(mode) :
 def register_error() :
 	if request.args['message'] == 'already_registered' :
 		message = _("This identity is already registered.")
+	elif request.args['message'] == 'signature_failed' :
+		message = _("This credential was not signed correctly.")
 	elif request.args['message'] == 'wrong_vc' :
 		message = _("This credential is not accepted.")
 	return render_template("/register/registration_error.html", message=message)
