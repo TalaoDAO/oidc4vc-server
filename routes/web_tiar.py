@@ -106,10 +106,10 @@ def tir_api(did) :
             }
         })
     else :
-        registry_file = registry_repo.get_contents("test/registry/talao_issuer_registry.json")
-        b64encoded_registry = registry_file.__dict__['_rawData']['content']
-        issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
-        #issuer_registry = json.load(open("talao_trusted_issuer_registry.json", 'r' ))
+        #registry_file = registry_repo.get_contents("test/registry/talao_issuer_registry.json")
+        #b64encoded_registry = registry_file.__dict__['_rawData']['content']
+        #issuer_registry = json.loads(base64.b64decode(b64encoded_registry).decode())
+        issuer_registry = json.load(open("talao_trusted_issuer_registry.json", 'r' ))
         for item in issuer_registry :
             if did in item['issuer']["did"] :
                 return jsonify(item)

@@ -287,8 +287,12 @@ def test_credentialOffer_qrcode(red, mode) :
 
 def test_credential_display():  
     filename = request.args['filename']
+    global path
     # mise en forme
-    credential = credential_from_filename(filename)
+    try :
+        credential = credential_from_filename(path, filename)
+    except :
+        return jsonify('Credential not found'), 400
     credential['credentialSubject']['id'] = "did:..."
     credential['issuer'] = ""
     credential_txt = json.dumps(credential, indent=4)

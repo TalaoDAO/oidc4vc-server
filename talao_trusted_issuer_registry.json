@@ -30,5 +30,56 @@
             "issuerDomain" : ["talao.co", "talao.io"]
         }
     }
-    }
+    },
+    {
+      "issuer": {
+          "preferredName": "Chamber of commerce",
+          "did": ["did:ethr:0x8A837ACCd6Dc24dbBd408dcf4EB98A6C8413631A"],
+          "eidasCertificatePem": [{}],
+          "serviceEndpoints": [{}, {}],
+          "organizationInfo": {
+              "id": "837676567",
+              "legalName": "Chamber of commerce",
+              "currentAddress": "7, Rue Alcide de Gasperi Luxembourg Kirchberg",
+              "vatNumber": "LX78837674480",
+              "website": "https://www.cc.lu/en/home/",
+              "issuerDomain" : ["compell.io"]
+          }
+      }
+    },
+    {
+      "issuer": {
+          "preferredName": "Spuerkeess",
+          "did": ["did:ethr:0x59dc708328b2c0031786B2F13911c35764De4A49"],
+          "eidasCertificatePem": [{}],
+          "serviceEndpoints": [{}, {}],
+          "organizationInfo": {
+              "id": "837677878",
+              "legalName": "Spuerkeess",
+              "currentAddress": "Avenue J.-F. Kennedy, 39, 1855, Luxembourg",
+              "vatNumber": "LX34837674480",
+              "website": "https://www.spuerkeess.lu/fr/particuliers/",
+              "issuerDomain" : ["compell.io"]
+          }
+      }
+        },
+        {
+          "issuer": {
+              "preferredName": "Compellio",
+              "did": [""],
+              "eidasCertificatePem": [{}],
+              "serviceEndpoints": [{}, {}],
+              "organizationInfo": {
+                  "id": "",
+                  "legalName": "Compellio SA",
+                  "currentAddress": " 21 Rue Glesener, L-1631 Luxembourg, Luxembourg",
+                  "vatNumber": "",
+                  "website": "https://compell.io/",
+                  "issuerDomain" : ["compell.io"]
+              }
+          }
+            }
+
+
+
  ]
