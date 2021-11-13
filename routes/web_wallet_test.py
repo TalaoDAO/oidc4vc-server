@@ -42,8 +42,6 @@ def translate(credential) :
         pass
     return credential_name
     
-#path = "test/CredentialOffer"
-
 def dir_list_calculate(path) :
     dir_list=list()
     contents = test_repo.get_contents(path)
@@ -86,9 +84,7 @@ def init_app(app,red, mode) :
 ######################### Credential Offer ###########
 
 def test_credentialOffer2_qrcode() :
-    #global path
-    path = "test/CredentialOffer2"
-    return redirect(url_for("test_credentialOffer_qrcode", path=path))
+    return redirect(url_for("test_credentialOffer_qrcode", path="test/CredentialOffer2"))
 
 """
 Direct access to one VC with filename passed as an argument
@@ -96,12 +92,12 @@ Direct access to one VC with filename passed as an argument
 """
 def test_direct_offer(red, mode) :
     global DID_TZ2, DID_ETHR, DID_KEY
-    path = "test/CredentialOffer2"
-    if not request.args.get('VC') :
-        return jsonify("Request malformed")
-    VC_filename= request.args['VC']
     try :
-        credential = credential_from_filename(path, VC_filename)
+        VC_filename= request.args['VC']
+    except :
+        return jsonify("Request malformed"), 400
+    try :
+        credential = credential_from_filename("test/CredentialOffer2", VC_filename)
     except :
         return jsonify("Verifiable Credential not found"), 405
     if request.args.get('method') == "ethr" :
@@ -141,7 +137,6 @@ def test_direct_offer(red, mode) :
 
 def test_credentialOffer_qrcode(red, mode) :
     global DID_ETHR, DID_TZ2, DID_KEY
-   
     if request.method == 'GET' :   
         try :
             path = request.args['path']
