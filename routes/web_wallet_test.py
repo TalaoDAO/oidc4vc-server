@@ -42,7 +42,7 @@ def translate(credential) :
         pass
     return credential_name
     
-path = "test/CredentialOffer"
+#path = "test/CredentialOffer"
 
 def dir_list_calculate(path) :
     dir_list=list()
@@ -86,9 +86,9 @@ def init_app(app,red, mode) :
 ######################### Credential Offer ###########
 
 def test_credentialOffer2_qrcode() :
-    global path
+    #global path
     path = "test/CredentialOffer2"
-    return redirect(url_for("test_credentialOffer_qrcode"))
+    return redirect(url_for("test_credentialOffer_qrcode", path=path))
 
 """
 Direct access to one VC with filename passed as an argument
@@ -141,8 +141,12 @@ def test_direct_offer(red, mode) :
 
 def test_credentialOffer_qrcode(red, mode) :
     global DID_ETHR, DID_TZ2, DID_KEY
-    global path
+   
     if request.method == 'GET' :   
+        try :
+            path = request.args['path']
+        except :
+            path = "test/CredentialOffer"
         # list all the files of github directory 
         dir_list = dir_list_calculate(path)
         html_string = """
@@ -159,7 +163,7 @@ def test_credentialOffer_qrcode(red, mode) :
                           <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br>
-                        <input hidden name="filename" value=""" + "talaoemailpass" + """> 
+                        <input hidden name="path" value=""" + path + """> 
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>
                       <p> type : PhonePass</p>
@@ -176,7 +180,8 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         
                         </select><br>
-                        <input hidden name="filename" value=""" + "talaophonepass" + """> 
+                        <input hidden name="path" value=""" + path + """> 
+                         <input hidden name="filename" value=""" + "talaophonepass" + """>
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>"""
         for filename in dir_list :
@@ -184,8 +189,8 @@ def test_credentialOffer_qrcode(red, mode) :
             credential['issuer'] = ""
             credential_name = translate(credential)
             html_string += """
-                    <p> Credential preview : <a href='/wallet/test/display?filename=""" + filename + """'>""" + filename + """</a></p>
-                    <p> id : """ + credential.get("id", "") + """</p>
+                    <p> Credential preview : <a href='/wallet/test/display?path="""+ path + """&filename=""" + filename + """'>""" + filename + """</a></p>
+                    <p> id : """ + credential.get("id", "") + """</p> 
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
                     <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
                     <form action="/wallet/test/credentialOffer" method="POST" >
@@ -199,6 +204,7 @@ def test_credentialOffer_qrcode(red, mode) :
                           <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br><br>
+                        <input hidden name="path" value=""" + path + """> 
                         <input hidden name="filename" value='""" + filename + """'> 
                         <p>Scope :
                         Subject_id<input type="checkbox" disabled checked  >
@@ -212,7 +218,8 @@ def test_credentialOffer_qrcode(red, mode) :
                         <p>nameFallback : <input type="text" name="nameFallback" ></p>
                         <p>descriptionFallback : <input type="text" name="descriptionFallback"></p>
                         <p>shareLink : <input type="text" name="shareLink" ></p>
-                        
+                        <input hidden name="filename" value=""" + "talaophonepass" + """>
+                        <input hidden name="path" value=""" + path + """> 
                         <br><button  type"submit" > Generate QR code for a Credential Offer</button>
                     </form>
                     <hr>"""
@@ -228,7 +235,8 @@ def test_credentialOffer_qrcode(red, mode) :
                         </body></html>"""
 
         return render_template_string (html_string,simulator="Issuer simulator") 
-    else :      
+    else :   
+        path = request.form['path']   
         if request.form['did_select'].split(':')[1] == 'web' :
             global did_selected 
             did_selected = request.form['did_select']
@@ -286,9 +294,8 @@ def test_credentialOffer_qrcode(red, mode) :
 
 
 def test_credential_display():  
+    path = request.args['path']
     filename = request.args['filename']
-    global path
-    # mise en forme
     try :
         credential = credential_from_filename(path, filename)
     except :
