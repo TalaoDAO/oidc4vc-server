@@ -47,7 +47,8 @@ def init_app(app,red, mode) :
 
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-    sign_credentiallist(mode)
+    if not list :
+        sign_credentiallist(mode)
     logging.info('credential list signed and published')
     return
 
@@ -83,7 +84,6 @@ def sign_credentiallist (mode) :
         ],
         "credentialSubject": {
             "id" : "urn:uuid:" + str(uuid.uuid1()),
-            #"id": mode.server + "credentials/status/3",
              "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA",
             "type": "RevocationList2020"
         },

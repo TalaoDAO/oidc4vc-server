@@ -51,7 +51,7 @@ def tir_api(did) :
                 }
             }
         })
-    elif did == 'did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7' :
+    elif did == 'todo' :
         logging.info('Internal TIAR / Compellio')
         return jsonify({
             "issuer": {
