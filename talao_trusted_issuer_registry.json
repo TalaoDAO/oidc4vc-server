@@ -72,14 +72,27 @@
               "organizationInfo": {
                   "id": "",
                   "legalName": "Compellio SA",
-                  "currentAddress": " 21 Rue Glesener, L-1631 Luxembourg, Luxembourg",
+                  "currentAddress": "21 Rue Glesener, L-1631 Luxembourg, Luxembourg",
                   "vatNumber": "",
                   "website": "https://compell.io/",
                   "issuerDomain" : ["compell.io"]
               }
           }
-            }
-
-
-
+        },
+        {
+          "issuer": {
+              "preferredName": "My Guichet",
+              "did": ["did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7"],
+              "eidasCertificatePem": [{}],
+              "serviceEndpoints": [{}, {}],
+              "organizationInfo": {
+                  "id": "",
+                  "legalName": "My Guichet",
+                  "currentAddress": "11, Rue Notre-Dame L-2240 Luxembourg",
+                  "vatNumber": "",
+                  "website": "https://guichet.public.lu/en/myguichet.html",
+                  "issuerDomain" : ["compell.io"]
+              }
+          }
+        }
  ]

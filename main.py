@@ -30,7 +30,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='liveboxh'
+   myenv='livebox'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -48,7 +48,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
-VERSION = "1.6.1"
+VERSION = "1.7.1"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -219,6 +219,23 @@ app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'
 # centralized route for CCI API
 app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, methods = ['GET'], defaults={'mode' : mode})
 app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
+
+
+@app.route('/app/links/' , methods=['GET']) 
+def app_link(): 
+    return jsonify("link to Apple and Google store")
+
+
+@app.route('/.well-known/assetlinks.json' , methods=['GET']) 
+def assetlinks(): 
+    document = json.load(open('assetlinks.json', 'r'))
+    return jsonify(document)
+
+
+@app.route('/.well-known/apple-app-site-association' , methods=['GET']) 
+def apple_app_site_association(): 
+    document = json.load(open('apple-app-site-association', 'r'))
+    return jsonify(document)
 
 
 # wELL-known DID API
