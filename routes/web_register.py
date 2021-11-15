@@ -218,7 +218,7 @@ def register_post_code(mode) :
 def register_qrcode(mode) :
 	if request.method == 'GET' :
 		id = str(uuid.uuid1())
-		url = mode.server + 'register/wallet_endpoint/' + id +'?' + urlencode({'issuer' : DID}),
+		url = mode.server + 'register/wallet_endpoint/' + id +'?' + urlencode({"issuer" :  DID})
 		return render_template("/register/register_wallet_qrcode.html", url=url, id=id)
 
 
@@ -263,6 +263,7 @@ def register_wallet_endpoint(id,red, mode):
             session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
         red.set(id, session_data )
         data = json.dumps({ "id" : id, "data" : 'ok'})
+        print('data = ', data)
         red.publish('register_wallet', data)
         return jsonify('ok')
 
@@ -347,7 +348,10 @@ def register_error() :
 		message = _("This credential was not signed correctly.")
 	elif request.args['message'] == 'wrong_vc' :
 		message = _("This credential is not accepted.")
+	else :
+		message ='Unknown'
 	return render_template("/register/registration_error.html", message=message)
+
 
 def create_employee_certificate(did, firstname, lastname, workspace_contract, mode) :
     # load JSON-LD model for IdentityPass

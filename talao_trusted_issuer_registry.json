@@ -1,22 +1,6 @@
 [
   {
     "issuer": {
-        "preferredName": "Great Company",
-        "did": ["did:ebsi:00003333", "did:ebsi:00005555"],
-        "eidasCertificatePem": [{}],
-        "serviceEndpoints": [{}, {}],
-        "organizationInfo": {
-            "id": "BE55555j",
-            "legalName": "Great Company",
-            "currentAddress": "Great Company Street 1, Brussels, Belgium",
-            "vatNumber": "BE05555555XX",
-            "website": "https://great.company.be",
-            "issuerDomain" : []
-        }
-    }
-    },
-  {
-    "issuer": {
         "preferredName": "Talao",
         "did": ["did:web:talao.co","did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250","did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"],
         "eidasCertificatePem": [{}],
@@ -30,8 +14,8 @@
             "issuerDomain" : ["talao.co", "talao.io"]
         }
     }
-    },
-    {
+  },
+  {
       "issuer": {
           "preferredName": "Chamber of commerce",
           "did": ["did:ethr:0x8A837ACCd6Dc24dbBd408dcf4EB98A6C8413631A"],
@@ -46,8 +30,8 @@
               "issuerDomain" : ["trustmydata.compell.io"]
           }
       }
-    },
-    {
+  },
+  {
       "issuer": {
           "preferredName": "Spuerkeess",
           "did": ["did:ethr:0x59dc708328b2c0031786B2F13911c35764De4A49"],
@@ -62,8 +46,8 @@
               "issuerDomain" : ["trustmydata.compell.io"]
           }
       }
-        },
-        {
+  },
+  {
           "issuer": {
               "preferredName": "Compellio",
               "did": [""],
@@ -78,8 +62,8 @@
                   "issuerDomain" : ["compell.io"]
               }
           }
-        },
-        {
+  },
+  {
           "issuer": {
               "preferredName": "My Guichet",
               "did": ["did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7"],
@@ -94,5 +78,5 @@
                   "issuerDomain" : ["trustmydata.compell.io"]
               }
           }
-        }
+  }
  ]
