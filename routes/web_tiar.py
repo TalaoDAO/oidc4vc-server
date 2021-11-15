@@ -56,7 +56,7 @@ def tir_api(did) :
         return jsonify({
             "issuer": {
                 "preferredName": "Compellio",
-                "did": ['did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7'],
+                "did": ['.........'],
                 "eidasCertificatePem": [{}],
                 "serviceEndpoints": [{}, {}],
                 "organizationInfo": {

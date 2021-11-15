@@ -43,7 +43,7 @@
               "currentAddress": "7, Rue Alcide de Gasperi Luxembourg Kirchberg",
               "vatNumber": "LX78837674480",
               "website": "https://www.cc.lu/en/home/",
-              "issuerDomain" : ["compell.io"]
+              "issuerDomain" : ["trustmydata.compell.io"]
           }
       }
     },
@@ -59,7 +59,7 @@
               "currentAddress": "Avenue J.-F. Kennedy, 39, 1855, Luxembourg",
               "vatNumber": "LX34837674480",
               "website": "https://www.spuerkeess.lu/fr/particuliers/",
-              "issuerDomain" : ["compell.io"]
+              "issuerDomain" : ["trustmydata.compell.io"]
           }
       }
         },
@@ -91,7 +91,7 @@
                   "currentAddress": "11, Rue Notre-Dame L-2240 Luxembourg",
                   "vatNumber": "",
                   "website": "https://guichet.public.lu/en/myguichet.html",
-                  "issuerDomain" : ["compell.io"]
+                  "issuerDomain" : ["trustmydata.compell.io"]
               }
           }
         }
