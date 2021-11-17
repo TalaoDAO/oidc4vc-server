@@ -79,6 +79,7 @@ def init_app(app,red, mode) :
     DID_ETHR = helpers.ethereum_pvk_to_DID(PVK, 'ethr')
     DID_TZ2 = helpers.ethereum_pvk_to_DID(PVK, 'tz')
     DID_KEY = helpers.ethereum_pvk_to_DID(PVK, "key")
+    print('did:key = ', DID_KEY)
     return
 
 ######################### Credential Offer ###########
@@ -159,8 +160,10 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br>
                         <input hidden name="path" value=""" + path + """> 
+                        <input hidden name="filename" value=""" + "talaoemailpass" + """>
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>
+
                       <p> type : PhonePass</p>
                     <p>  name : <strong>Proof of telephone number / Preuve de numéro de téléphone (personalisée) </strong></p>
                     <form action="/wallet/test/credentialOffer" method="POST" >

@@ -24,6 +24,7 @@ PRESENTATION_DELAY = 600 # seconds
 DID_WEB = 'did:web:talao.cp'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'                      
 
 logging.basicConfig(level=logging.INFO)
 
@@ -343,6 +344,7 @@ def wallet_endpoint(stream_id, red, mode):
         #red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])       
         logging.info('verify presentation = ' + didkit.verify_presentation(json.dumps(presentation), '{}'))
+        """
         if json.loads(didkit.verify_presentation(request.form['presentation'], '{}'))['errors'] :
             logging.warning('signature failed')
             event_data = json.dumps({"stream_id" : stream_id,
@@ -350,6 +352,7 @@ def wallet_endpoint(stream_id, red, mode):
 									 "message" : _("Signature verification failed.")})
             red.publish('credible', event_data)
             return jsonify("Signature verification failed"), 401
+        """
         try : # FIXME
             issuer = presentation['verifiableCredential']['issuer']
             holder = presentation['holder']
@@ -369,7 +372,7 @@ def wallet_endpoint(stream_id, red, mode):
 									 "message" : _("The presentation challenge failed.")})
             red.publish('credible', event_data)
             return jsonify("Challenge failed"), 401
-        elif issuer not in [DID_WEB, DID_ETHR, DID_TZ] :
+        elif issuer not in [DID_WEB, DID_ETHR, DID_TZ, DID_KEY] :
             logging.warning('unknown issuer')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
