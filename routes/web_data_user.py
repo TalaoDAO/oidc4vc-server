@@ -361,21 +361,25 @@ def user(mode) :
 			session['reference'] = 'wallet'
 			if vc == 'professionalexperienceassessment':	
 				# get reviewers available
-				select = ""
 				reviewer = company.Employee(issuer_username, mode) 
 				reviewer_list = reviewer.get_list('reviewer', 'all')
 				if not reviewer_list :
-					session['select'] = """<option value=""" + session['username']  + """>""" + session['username'] + """</option>"""
+					flash(_('No reviewers have been appointed yet for this request. Contact your company.'), 'warning')
 				else :
+					select = ""
 					for reviewer in reviewer_list :
-						session['select'] +=  """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
-				return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
-			if vc == 'certificateofemployment' :
+						select +=  """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
+					session['select'] = select
+					return render_template('./issuer/request_experience_credential.html', **session['menu'], select=select)
+			elif vc == 'certificateofemployment' :
 				return render_template('./issuer/request_work_credential.html', **session['menu'])
-			if vc == 'identitypass' :
+			elif vc == 'identitypass' :
 				return redirect (mode.server + 'user/request_pass_credential')
-			if not vc :
+			elif not vc :
 				return redirect (mode.server + 'user/issuer_explore/?issuer_username=' + issuer_username)
+			else :
+				logging.error("request malformed = %s", vc)
+				flash(_('Request malformed'), 'warning')
 		
 		# Homepage start for Talent
 		#if user.type == 'person' :
