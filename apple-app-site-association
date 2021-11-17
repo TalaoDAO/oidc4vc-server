@@ -7,6 +7,18 @@
                 "paths": [
                     "/app/links/*"
                 ]
+            },
+            {
+                "appID": "co.talao.wallet",
+                "paths": [
+                    "/app/links/*"
+                ]
+            },
+            {
+                "appID": "S8QB4VV633.co.talao.wallet",
+                "paths": [
+                    "/app/links/*"
+                ]
             }
         ]
     }

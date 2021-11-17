@@ -17,7 +17,6 @@ from urllib.parse import urlencode
 import logging
 from components import Talao_message, ns, sms, privatekey
 import uuid
-from signaturesuite import vc_signature
 import didkit
 
 PRESENTATION_DELAY = 600 # seconds
@@ -108,7 +107,6 @@ def login(red, mode) :
 		else :
 			message = _('Sign-In')
 		# end code for qrcode
-
 		return render_template('./login/login_password.html',
 								url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ}),
 								stream_id=stream_id,
@@ -286,6 +284,7 @@ def forgot_password_token(mode) :
 		del session['username_password']
 		return render_template('login/login_password.html')
 
+
 ####################################Login with wallet ##########################################################""
 
 
@@ -336,9 +335,8 @@ def wallet_endpoint(stream_id, red, mode):
             	}],
             "challenge": session_data['challenge'],
             "domain" : mode.server
-            }
+        }
         return jsonify(did_auth_request)
-
     elif request.method == 'POST' :
         #red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])       
@@ -402,6 +400,7 @@ def event_stream(red):
     for message in pubsub.listen():
         if message['type']=='message':
             yield 'data: %s\n\n' % message['data'].decode()
+
 
 def stream(red):
     headers = { "Content-Type" : "text/event-stream",

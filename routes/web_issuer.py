@@ -774,9 +774,9 @@ def issue_credential_workflow(mode) :
             #link = mode.server + 'guest/certificate/?certificate_id=did:talao:' + mode.BLOCKCHAIN + ':' + subject['workspace_contract'][2:] + ':document:' + str(doc_id)
             link= mode.server
             certificate_issued = 'certificate_issued_fr' if session['language'] == 'fr' else 'certificate_issued'
+            print('language = ', session['language'])
             try :
                 Talao_message.messageHTML(_('Your professional credential has been issued.'), subject['email'], certificate_issued, {'username': session['name'], 'link': link}, mode)
-                print('email envoyé')
             except :
                 logging.error('email to subject failed')
             

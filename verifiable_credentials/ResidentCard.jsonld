@@ -3,7 +3,7 @@
         "https://www.w3.org/2018/credentials/v1",
         "https://w3id.org/vc-revocation-list-2020/v1",
         {
-            "description": "hhtps://chema.org/description",
+            "description": "https://schema.org/description",
             "name": "https://schema.org/name",
             "ResidentCard": {
                 "@context": {

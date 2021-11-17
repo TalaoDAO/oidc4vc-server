@@ -364,8 +364,11 @@ def user(mode) :
 				select = ""
 				reviewer = company.Employee(issuer_username, mode) 
 				reviewer_list = reviewer.get_list('reviewer', 'all')
-				for reviewer in reviewer_list :
-					session['select'] = select + """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
+				if not reviewer_list :
+					session['select'] = """<option value=""" + session['username']  + """>""" + session['username'] + """</option>"""
+				else :
+					for reviewer in reviewer_list :
+						session['select'] +=  """<option value=""" + reviewer['username'].split('.')[0]  + """>""" + reviewer['username'].split('.')[0] + """</option>"""
 				return render_template('./issuer/request_experience_credential.html', **session['menu'], select=session['select'])
 			if vc == 'certificateofemployment' :
 				return render_template('./issuer/request_work_credential.html', **session['menu'])

@@ -32,7 +32,6 @@ def translate(credential) :
 
 
 def init_app(app,red, mode) :
-
     app.add_url_rule('/credentials/status/3',  view_func=credentiallist, methods = ['GET', 'POST'])
 
     app.add_url_rule('/wallet/test/revoked_qrcode',  view_func=revoked_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -40,15 +39,13 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/revoked_stream',  view_func=revoked_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/revoked_back',  view_func=test_revoked_back, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/test/revoke',  view_func=revoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    
+    app.add_url_rule('/wallet/test/unrevoke',  view_func=unrevoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
     app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
 
-
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-    if not list :
-        sign_credentiallist(mode)
     logging.info('credential list signed and published')
     return
 
@@ -60,47 +57,24 @@ def playground() :
 
 
 def credentiallist() :
-    global list
-    return jsonify(list)
+    credential_list=json.load(open('credential_list_signed.json', 'r'))
+    return jsonify(credential_list)
 
 
-def sign_credentiallist (mode) :
-    # sign with DID_ETHR
-    # credential 50000 is valid
-    global list
-    global status
-    if status == "Active" :
-        return redirect(mode.server + 'wallet/playground')
-    unsigned_list = {
-        "@context": [
-            "https://www.w3.org/2018/credentials/v1",
-            "https://w3id.org/vc-revocation-list-2020/v1"
-        ],
-        "id":  mode.server + "credentials/status/3",
-        "issuanceDate" : datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
-        "type": [
-            "VerifiableCredential",
-            "RevocationList2020Credential"
-        ],
-        "credentialSubject": {
-            "id" : "urn:uuid:" + str(uuid.uuid1()),
-             "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA",
-            "type": "RevocationList2020"
-        },
-        "issuer": did_selected,
-    }
-    status = "Active"
-    try :
-        list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
-        return True
-    except :
-        return False
+def revoke(mode):
+    credential_revoke(mode)
+    return render_template("./wallet/test/playground.html", status=status)
 
 
-def revoke (mode) :
+def unrevoke(mode):
+    credential_unrevoke(mode)
+    return render_template("./wallet/test/playground.html", status=status)
+
+
+def credential_revoke (mode) :
     global list, status
     if status == "Revoked" :
-        return redirect(mode.server + 'wallet/playground')
+        return True
     unsigned_list = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -121,8 +95,38 @@ def revoke (mode) :
     }
     status = 'Revoked'
     logging.info("Credential is now Revoked")
-    list = json.loads(vc_signature.sign(unsigned_list, PVK, did_selected))
-    return redirect(mode.server + 'wallet/playground')
+    with open('credential_list_signed.json', 'w') as outfile :
+       outfile.write(vc_signature.sign(unsigned_list, PVK, did_selected))
+    return True
+
+
+def credential_unrevoke(mode) :
+    global list, status
+    if status == "Active" :
+        return True
+    unsigned_list = {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://w3id.org/vc-revocation-list-2020/v1"
+        ],
+        "id":  mode.server + "credentials/status/3",
+        "issuanceDate" : datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+        "type": [
+            "VerifiableCredential",
+            "RevocationList2020Credential"
+        ],
+        "credentialSubject": {
+            "id" : "urn:uuid:" + str(uuid.uuid1()),
+            "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA",
+            "type": "RevocationList2020"
+        },
+        "issuer": did_selected,
+    }
+    status = 'Active'
+    logging.info("Credential is now Revoked")
+    with open('credential_list_signed.json', 'w') as outfile :
+       outfile.write(vc_signature.sign(unsigned_list, PVK, did_selected))
+    return True
 
 
 def revoked_qrcode(mode) :
@@ -180,7 +184,7 @@ def revoked_endpoint(id, red, mode) :
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success", "message" : "ok"})
         red.publish('revoked', data)
-        sign_credentiallist(mode)
+        credential_unrevoke()
         return jsonify(signed_credential)
 
 
