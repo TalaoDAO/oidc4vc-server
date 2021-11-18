@@ -7,6 +7,7 @@ request : http://blog.luisrei.com/articles/flaskrest.html
 """
 from flask import request, redirect, render_template,abort, Response, jsonify
 from flask_babel import _
+from urllib.parse import urlencode
 
 from datetime import timedelta, datetime
 import json
@@ -36,7 +37,8 @@ def init_app(app, red, mode) :
 
 def app_login(mode) :
     stream_id = str(uuid.uuid1())
-    deeplink = 'https://talao.co/app/links/?uri=' + mode.server + 'app/login/' + stream_id +'&issuer=' + DID_ETHR
+    deeplink = 'https://talao.co/app/links/?' + urlencode({'uri' : mode.server + 'app/login/' + stream_id,  'issuer' : DID_ETHR})
+    print ('deeplink = ', deeplink)
     return render_template("login/deeplink_login.html", deeplink=deeplink, stream_id=stream_id)
 
 def deeplink_endpoint(stream_id, red, mode):
