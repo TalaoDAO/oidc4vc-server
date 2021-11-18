@@ -32,7 +32,7 @@ def init_app(app, red, mode) :
     app.add_url_rule('/app/login/<stream_id>',  view_func=deeplink_endpoint, methods = ['GET', 'POST'], defaults={'mode': mode, 'red' : red} )
     app.add_url_rule('/app/login',  view_func=app_login, methods = ['GET', 'POST'], defaults={'mode': mode} )
     app.add_url_rule('/app/login/stream',  view_func=app_stream, defaults={ 'red' : red})
-    app.add_url_rule('/app/links/',  view_func=app_stream, methods = ['GET', 'POST'])
+    app.add_url_rule('/app/links/',  view_func=app_link, methods = ['GET', 'POST'])
 
     return
 
@@ -43,7 +43,6 @@ def app_link():
 
 def app_login(mode) :
     stream_id = str(uuid.uuid1())
-    print(stream_id)
     uri = "https://app.talao.co/app/login/" + stream_id
     deeplink = 'https://talao.co/app/links/?' + urlencode({'uri' : uri ,  'issuer' : DID_ETHR})
     print ('deeplink = ', deeplink)
