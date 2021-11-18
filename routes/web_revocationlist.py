@@ -15,7 +15,7 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 
 did_selected = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 list = dict()
-status = ""
+status = "Active"
 PVK=""
 
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
@@ -184,7 +184,7 @@ def revoked_endpoint(id, red, mode) :
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success", "message" : "ok"})
         red.publish('revoked', data)
-        credential_unrevoke()
+        credential_unrevoke(mode)
         return jsonify(signed_credential)
 
 
