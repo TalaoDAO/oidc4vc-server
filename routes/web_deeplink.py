@@ -32,13 +32,20 @@ def init_app(app, red, mode) :
     app.add_url_rule('/app/login/<stream_id>',  view_func=deeplink_endpoint, methods = ['GET', 'POST'], defaults={'mode': mode, 'red' : red} )
     app.add_url_rule('/app/login',  view_func=app_login, methods = ['GET', 'POST'], defaults={'mode': mode} )
     app.add_url_rule('/app/login/stream',  view_func=app_stream, defaults={ 'red' : red})
+    app.add_url_rule('/app/links/',  view_func=app_stream, methods = ['GET', 'POST'])
+
     return
+
+
+def app_link(): 
+    return jsonify("link to Apple and Google store")
 
 
 def app_login(mode) :
     stream_id = str(uuid.uuid1())
     print(stream_id)
-    deeplink = 'https://talao.co/app/links/?' + urlencode({'uri' : mode.server + 'app/login/' + stream_id,  'issuer' : DID_ETHR})
+    uri = "https://www.talao.co/app/login/"
+    deeplink = 'https://talao.co/app/links/?' + urlencode({'uri' : uri + stream_id,  'issuer' : DID_ETHR})
     print ('deeplink = ', deeplink)
     return render_template("login/deeplink_login.html", deeplink=deeplink, stream_id=stream_id)
 

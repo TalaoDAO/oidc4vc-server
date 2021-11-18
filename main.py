@@ -222,9 +222,6 @@ app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, metho
 app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
 
 
-@app.route('/app/links/' , methods=['GET']) 
-def app_link(): 
-    return jsonify("link to Apple and Google store")
 
 
 @app.route('/.well-known/assetlinks.json' , methods=['GET']) 
