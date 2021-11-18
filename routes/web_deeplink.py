@@ -43,7 +43,7 @@ def app_link():
 
 def app_login(mode) :
     stream_id = str(uuid.uuid1())
-    uri = "https://app.talao.co/app/login/" + stream_id
+    uri = "https://18.190.21.227/app/login/" + stream_id
     deeplink = 'https://talao.co/app/links/?' + urlencode({'uri' : uri ,  'issuer' : DID_ETHR})
     print ('deeplink = ', deeplink)
     return render_template("login/deeplink_login.html", deeplink=deeplink, stream_id=stream_id)
