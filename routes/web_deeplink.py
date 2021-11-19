@@ -43,10 +43,12 @@ def app_link():
 
 def app_login(mode) :
     stream_id = str(uuid.uuid1())
-    uri = "https://talao.co/app/login/" + stream_id
-    deeplink = 'https://talao.io/?' + urlencode({'uri' : uri ,  'issuer' : DID_ETHR})
+    uri = "https://app.talao.co/app/login/" + stream_id
+    #uri = mode.server + 'app/login/' + stream_id
+    deeplink = 'https://talao.co/?' + urlencode({'uri' : uri ,  'issuer' : DID_ETHR})
     print ('deeplink = ', deeplink)
     return render_template("login/deeplink_login.html", deeplink=deeplink, stream_id=stream_id)
+
 
 def deeplink_endpoint(stream_id, red, mode):
     if request.method == 'GET':
