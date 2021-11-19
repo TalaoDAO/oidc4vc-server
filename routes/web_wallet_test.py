@@ -126,8 +126,8 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id']
-    deeplink = 'https://app.talao.co/?' + urlencode({'uri' : url ,  'issuer' : credential['issuer']})
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + urlencode({'issuer' : credential['issuer']})
+    deeplink = 'https://app.talao.co/?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
