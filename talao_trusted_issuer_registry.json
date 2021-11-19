@@ -2,7 +2,7 @@
   {
     "issuer": {
         "preferredName": "Talao",
-        "did": ["did:web:talao.co","did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250","did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"],
+        "did": ["did:web:talao.co","did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250","did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk", "did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk"],
         "eidasCertificatePem": [{}],
         "serviceEndpoints": [{}, {}],
         "organizationInfo": {

@@ -6,43 +6,29 @@
    
   </head>
     <body >
-      <div id="content_smartphone" class="d-block d-sm-none">
-
-        <style>
-          .newcontainer {
-            height: 500px;
-            position: relative;
-          }
-          
-          .vertical-center {
-            margin: 0;
-            position: absolute;
-            top: 50%;
-            -ms-transform: translateY(-50%);
-            transform: translateY(-50%);
-          }
-          </style>
-        <div class="newcontainer">  
-          <div class="vertical-center col text-center">      
-            <a href="myapp://wallet">lien vers deeplink
-              <img  src="" alt="icon de wallet" style="width: 120px;border-radius:0px;">
-            </a>
-            <br><br>
-            <div class="col text-center">
-              <button onclick="goBack()" class="btn btn-primary btn-sm" type="button" >{{_('Back')}}</button>
-            </div>
-          </div>
-        </div>
-      </div>
+     
   
-        <div id="content" class="d-none d-sm-block" style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
+        <div id="content"  style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
 
       {% include 'guest_nav_bar_2.html' %}
         <div class="text-center">       
-          <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.')}}
-            <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
-          {{_('or present a Resident Card')}}</div>
-          <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class="w-20 h-20"></div>
+         
+
+          <div id="content_desktop" class="d-none d-sm-block">
+            <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.')}}
+              <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
+            {{_('or present a Resident Card')}}</div>
+            <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" class="w-20 h-20"></div>
+          </div>
+          
+          <div id="content_smartphone" class="d-block d-sm-none">
+            <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>')}}
+              <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
+            {{_('or present a Resident Card')}}</div>
+            <a href="{{deeplink}}" class="btn btn-primary">Open the Talao wallet</a>
+          </div>
+
+
           <div id="id_loading" class="m-5"></div>
           <div id="id_spinner" class="m-5"></div>
           </div>
