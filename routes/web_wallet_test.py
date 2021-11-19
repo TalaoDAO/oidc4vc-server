@@ -280,10 +280,12 @@ def test_credentialOffer_qrcode(red, mode) :
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
         url = mode.server + "wallet/test/wallet_credential/" + credential['id']+'?' + urlencode({'issuer' : did_issuer})
+        deeplink = 'https://app.talao.co/?' + urlencode({'uri' : url ,  'issuer' : did_issuer})
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
                                 url=url,
+                                deeplink=deeplink,
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 type = type + " - " + translate(credential),
