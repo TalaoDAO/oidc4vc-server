@@ -44,7 +44,7 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
-from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar
+from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
@@ -128,6 +128,7 @@ web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_revocationlist.init_app(app, red, mode)
 web_tiar.init_app(app, red, mode)
+web_app.init_app(app, red, mode)
 
 print('end')
 

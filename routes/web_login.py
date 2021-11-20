@@ -42,12 +42,8 @@ def init_app(app, red, mode) :
 	app.add_url_rule('/login/wallet_presentation/<stream_id>',  view_func=wallet_endpoint, methods = ['GET', 'POST'],  defaults={'mode' : mode, 'red' :red})
 	app.add_url_rule('/login/stream',  view_func=stream, defaults={ 'red' : red})
 	app.add_url_rule('/credible/callback',  view_func=callback, methods = ['GET', 'POST'])
-	app.add_url_rule('/app/login',  view_func=app_login, methods = ['GET', 'POST'])
-
 	return
 
-def app_login():
-	return jsonify("test login app")
 
 def check_login() :
 	""" check if the user is correctly logged. This function is called everytime a user function is called """
@@ -112,7 +108,7 @@ def login(red, mode) :
 		else :
 			message = _('Sign-In')
 		url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ})
-		deeplink = 'https://app.talao.co/app/login?' + urlencode({'uri' : url })
+		deeplink = 'https://app.talao.co/app/download?' + urlencode({'uri' : url })
 		# end code for qrcode
 		return render_template('./login/login_password.html',
 								url=url,

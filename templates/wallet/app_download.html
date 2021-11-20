@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!-- app_download.html -->
+<html>
+
+<head>
+    {% include 'head.html' %}
+</head>
+
+<body id="page-top" >
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content" >
+                {% include 'guest_nav_bar_2.html' %}
+
+                <div class="container">
+                    <div class="row mt-5">
+                        <div class="col-sm-6 offset-sm-3">
+                            <div id = "id_loading">
+                                <div class="card">
+                                    <img src="/static/img/7.png" class="card-img-top" alt="...">
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <h5 class="card-title">Download the Talao SSI wallet</h5>
+                                            <p class="card-text">Available on Google and Apple stores</p>
+                                            <div class="col mt-4">
+                                                <div id="id_qrcode" class="text-center">
+                                                    <a href="https://play.google.com/store/apps/details?id=co.talao.wallet&hl=fr_FR"><img  src="/static/img/google-play-badge.svg"  style="width: 200px;border-radius:0px;"></a>
+                                                </div>
+                                            </div>
+                                            <div class="col mt-4">
+                                                <div id="id_qrcode" class="text-center">
+                                                    <a href="https://apps.apple.com/fr/app/talao-wallet/id1582183266#?platform=iphone"><img  src="/static/img/apple-appstore-badge.svg"  style="width: 200px;border-radius:0px;"></a>
+                                                </div>
+                                            </div>
+                                           
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>                                      
+                                    <form id="id_token" action="/user/" method="POST">
+                                        <input id="input_token" hidden  name="token" >
+                                    </form>
+                                    <form id="id_failed" action="/app/login" method="GET">
+                                    </form>
+                            
+                        </div>
+                        <div id="space"></div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+    
+     {% include 'user_footer.html' %}  
+
+
+     
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>   
+
+    <script>
+        var source = new EventSource('/app/login/stream');
+        source.onmessage = function (event) {
+            const result = JSON.parse(event.data);
+            if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
+                document.getElementById("space").innerHTML = "<br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br>";
+                const loading_message = '{{_("Your portfolio is loading ...")}}'
+                document.getElementById("id_loading").innerHTML = '<div  class="my-5">\
+                                                                        <div class="text-center">\
+                                                                            <h4 class="text-dark mb-4">' + loading_message + '</h4>\
+                                                                        </div>\
+                                                                        <div class="text-center">\
+                                                                            <div class="spinner-border"></div>\
+                                                                        <div>\
+                                                                    </div>' 
+                document.getElementById("input_token").value=result.token;
+                document.getElementById("id_token").submit();
+                
+            }
+            if (result.code == 'ko' & result.stream_id == '{{stream_id}}' ) {
+                console.log(result.message);
+                window.alert(result.message)
+                document.getElementById("id_failed").submit();
+                
+            }
+            
+        };
+      </script>
+
+
+</body>
+</html>
