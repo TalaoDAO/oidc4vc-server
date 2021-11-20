@@ -30,7 +30,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='livebox'
+   myenv='liveboxh'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -48,7 +48,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
-VERSION = "1.7.9"
+VERSION = "1.7.10"
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -128,7 +128,6 @@ web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_revocationlist.init_app(app, red, mode)
 web_tiar.init_app(app, red, mode)
-#web_deeplink.init_app(app, red, mode)
 
 print('end')
 

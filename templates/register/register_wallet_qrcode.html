@@ -22,21 +22,24 @@
           </div>
           
           <div id="content_smartphone" class="d-block d-sm-none">
-            <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>')}}
-              <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
-            {{_('or present a Resident Card')}}</div>
-            <a href="{{deeplink}}" class="btn btn-primary">Open the Talao wallet</a>
+            <div class="card">
+              <img src="/static/img/7.png" class="card-img-top" alt="...">
+              <div class="card-body">
+                  <div class="text-center">
+                      <h5 class="card-title">Register to Talao</h5>
+                      <p class="card-text">
+                        <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
+                      {{_('or present a Resident Card')}}</p>
+                      <a href="{{deeplink}}" class="btn btn-primary">Open the Talao wallet</a>
+                  </div>
+              </div>
+          </div> 
           </div>
-
-
           <div id="id_loading" class="m-5"></div>
           <div id="id_spinner" class="m-5"></div>
           </div>
-            <div class="text-center mt-5">
-              <button id="id_button" class="btn btn-primary btn-sm" type="button" onclick="goBack()">{{_('Back')}}</button>
-            </div>
+            
             <div class="text-center"><a class="small" href="/register/user">{{_('Register without wallet')}}</a></div>
-
             <div class="text-center"><a class="small" href="/emailpass">{{_('Get an Email Pass')}}</a></div>
 
           </div>
