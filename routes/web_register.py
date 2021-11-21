@@ -218,8 +218,8 @@ def register_post_code(mode) :
 def register_qrcode(mode) :
 	if request.method == 'GET' :
 		id = str(uuid.uuid1())
-		url = mode.server + 'register/wallet_endpoint/' + id +'?' + urlencode({"issuer" : DID})
-		deeplink = 'https://app.talao.co/?' + urlencode({'uri' : url})
+		url = mode.server + 'register/wallet_endpoint/' + id + '?' + urlencode({"issuer" : DID})
+		deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
 		return render_template("/register/register_wallet_qrcode.html", 
 								url=url,
 								deeplink=deeplink,

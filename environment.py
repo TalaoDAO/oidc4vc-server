@@ -56,12 +56,8 @@ class currentMode() :
 		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py
 		self.sms_token = passwords['sms_token'] # used in sms.py
 		self.github = passwords['github'] # used for test credeible
-
-		if self.myenv == 'aws':
-			self.sys_path = '/home/admin'
-			self.server = 'https://talao.co/'
-		else :
-			self.sys_path = '/home/thierry'
+		self.deeplink = 'https://app.talao.co/'		
+		self.sys_path = '/home/thierry'
 
 		self.keystore_path = self.sys_path + '/Talao/keystore/'
 		self.Ed25519_path = self.sys_path + '/Talao/keystore_Ed25519/'
@@ -73,10 +69,11 @@ class currentMode() :
 
 		# En Prod chez AWS avec Talaonet
 		if self.myenv == 'aws':
+			self.sys_path = '/home/admin'
+			self.server = 'https://talao.co/'
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.IP = '18.190.21.227' # talao.co
-			#self.server = "https://talao.co"
 
 		# sur PC portable thierry connecté avec airbox
 		elif self.myenv == 'airbox' :
@@ -103,15 +100,6 @@ class currentMode() :
 			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.server = 'http://192.168.0.20:3000/'
 			self.flaskserver = "192.168.0.20"
-			self.port = 3000
-
-			# sur PC portable Houdan thierry avec acces internet par reseau (pour les test depuis un smartphone)
-		elif self.myenv == 'repdom' :
-			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://192.168.88.32:3000/'
-			self.flaskserver = "192.168.88.32"
 			self.port = 3000
 
 		else :

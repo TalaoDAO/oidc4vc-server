@@ -108,7 +108,7 @@ def login(red, mode) :
 		else :
 			message = _('Sign-In')
 		url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ})
-		deeplink = 'https://app.talao.co/app/download?' + urlencode({'uri' : url })
+		deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
 		# end code for qrcode
 		return render_template('./login/login_password.html',
 								url=url,

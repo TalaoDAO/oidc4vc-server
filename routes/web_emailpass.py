@@ -80,9 +80,12 @@ def emailpass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "emailpass/offer/" + id +'?' + urlencode({'issuer' : DID})
+        deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         red.set(id,  session['email'])
-        logging.info('url = %s', url)
-        return render_template('emailpass/emailpass_qrcode.html', url=url, id=id)
+        return render_template('emailpass/emailpass_qrcode.html',
+                                url=url,
+                                deeplink=deeplink,
+                                id=id)
    
 
 def emailpass_offer(id, red, mode):

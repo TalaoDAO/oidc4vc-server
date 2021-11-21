@@ -127,7 +127,7 @@ def test_direct_offer(red, mode) :
             "display" : { "backgroundColor" : backgroundColor}
         }
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + urlencode({'issuer' : credential['issuer']})
-    deeplink = 'https://app.talao.co/?' + urlencode({'uri' : url })
+    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
@@ -281,8 +281,8 @@ def test_credentialOffer_qrcode(red, mode) :
         }
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
-        url = mode.server + "wallet/test/wallet_credential/" + credential['id']
-        deeplink = 'https://app.talao.co/?' + urlencode({'uri' : url ,  'issuer' : did_issuer})
+        url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
+        deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',

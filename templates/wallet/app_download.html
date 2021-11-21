@@ -20,8 +20,8 @@
                                     <img src="/static/img/7.png" class="card-img-top" alt="...">
                                     <div class="card-body">
                                         <div class="text-center">
-                                            <h5 class="card-title">Download the Talao SSI wallet</h5>
-                                            <p class="card-text">Available on Google and Apple stores</p>
+                                            <h5 class="card-title">{{_('The Talao SSI wallet is not installed on your phone')}}</h5>
+                                            <p class="card-text">{{_('Download the app')}}</p>
                                             <div class="col mt-4">
                                                 <div id="id_qrcode" class="text-center">
                                                     <a href="https://play.google.com/store/apps/details?id=co.talao.wallet&hl=fr_FR"><img  src="/static/img/google-play-badge.svg"  style="width: 200px;border-radius:0px;"></a>
@@ -53,41 +53,9 @@
     
      {% include 'user_footer.html' %}  
 
-
-     
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>   
-
-    <script>
-        var source = new EventSource('/app/login/stream');
-        source.onmessage = function (event) {
-            const result = JSON.parse(event.data);
-            if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
-                document.getElementById("space").innerHTML = "<br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br>";
-                const loading_message = '{{_("Your portfolio is loading ...")}}'
-                document.getElementById("id_loading").innerHTML = '<div  class="my-5">\
-                                                                        <div class="text-center">\
-                                                                            <h4 class="text-dark mb-4">' + loading_message + '</h4>\
-                                                                        </div>\
-                                                                        <div class="text-center">\
-                                                                            <div class="spinner-border"></div>\
-                                                                        <div>\
-                                                                    </div>' 
-                document.getElementById("input_token").value=result.token;
-                document.getElementById("id_token").submit();
-                
-            }
-            if (result.code == 'ko' & result.stream_id == '{{stream_id}}' ) {
-                console.log(result.message);
-                window.alert(result.message)
-                document.getElementById("id_failed").submit();
-                
-            }
-            
-        };
-      </script>
-
 
 </body>
 </html>

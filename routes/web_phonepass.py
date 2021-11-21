@@ -80,9 +80,12 @@ def phonepass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
         url = mode.server + "phonepass/offer/" + id +'?' + urlencode({'issuer' : DID})
+        deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         red.set(id,  session['phone'])
-        logging.info('url = %s', url)
-        return render_template('phonepass/phonepass_qrcode.html', url=url, id=id)
+        return render_template('phonepass/phonepass_qrcode.html',
+                                url=url,
+                                deeplink=deeplink,
+                                id=id)
    
 
 def phonepass_offer(id, red, mode):
