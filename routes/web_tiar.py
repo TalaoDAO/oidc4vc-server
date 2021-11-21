@@ -33,7 +33,7 @@ def tir_api(did) :
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
 
     """
-    if did in [DID_WEB, DID_TZ2, DID_ETHR, 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'] :
+    if did in [DID_WEB, DID_TZ2, DID_ETHR, DID_KEY] :
         logging.info('Internal TIAR / Talao')
         return jsonify({
             "issuer": {

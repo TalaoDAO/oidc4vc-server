@@ -22,7 +22,12 @@ from protocol import Document
 
 #PRESENTATION_DELAY = timedelta(seconds= 10*60)
 
-DID = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_WEB = 'did:web:talao.cp'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'                      
+DID = DID_TZ
+
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 CREDENTIAL_TOPIC = ['experience', 'training', 'recommendation', 'work', 'salary', 'vacation', 'internship', 'relocation', 'end_of_work', 'hiring']

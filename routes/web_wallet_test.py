@@ -30,6 +30,10 @@ except :
 
 
 DID_WEB = 'did:web:talao.co'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'          
+
 
 def translate(credential) : 
     credential_name = ""
@@ -71,15 +75,11 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
-    global PVK, test_repo, registry_repo, DID_ETHR, DID_TZ2, DID_KEY
+    global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
-    DID_ETHR = helpers.ethereum_pvk_to_DID(PVK, 'ethr')
-    DID_TZ2 = helpers.ethereum_pvk_to_DID(PVK, 'tz')
-    DID_KEY = helpers.ethereum_pvk_to_DID(PVK, "key")
-    print('did:key = ', DID_KEY)
     return
 
 ######################### Credential Offer ###########
@@ -92,7 +92,6 @@ Direct access to one VC with filename passed as an argument
 
 """
 def test_direct_offer(red, mode) :
-    global DID_TZ2, DID_ETHR, DID_KEY
     try :
         VC_filename= request.args['VC']
     except :
@@ -128,6 +127,7 @@ def test_direct_offer(red, mode) :
         }
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + urlencode({'issuer' : credential['issuer']})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+    logging.info("deeplink = %s", deeplink)
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
@@ -139,7 +139,6 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
-    global DID_ETHR, DID_TZ2, DID_KEY
     if request.method == 'GET' :   
         try :
             path = request.args['path']
@@ -283,6 +282,7 @@ def test_credentialOffer_qrcode(red, mode) :
             credentialOffer['shareLink'] = request.form['shareLink']
         url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
         deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+        logging.info("deeplink = %s", deeplink)
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
@@ -423,7 +423,6 @@ QueryBYExample = {
 pattern = QueryBYExample
 
 def test_presentationRequest_qrcode(red, mode):
-    global DID_TZ2
     if request.method == 'GET' :
         return render_template('wallet/test/credential_presentation.html', simulator='Verifier Simulator' )
 							
