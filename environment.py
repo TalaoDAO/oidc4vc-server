@@ -57,7 +57,10 @@ class currentMode() :
 		self.sms_token = passwords['sms_token'] # used in sms.py
 		self.github = passwords['github'] # used for test credeible
 		self.deeplink = 'https://app.talao.co/'		
-		self.sys_path = '/home/thierry'
+		if self.myenv == 'aws':
+			self.sys_path = '/home/admin'
+		else :
+			self.sys_path = '/home/thierry'
 
 		self.keystore_path = self.sys_path + '/Talao/keystore/'
 		self.Ed25519_path = self.sys_path + '/Talao/keystore_Ed25519/'
@@ -69,7 +72,6 @@ class currentMode() :
 
 		# En Prod chez AWS avec Talaonet
 		if self.myenv == 'aws':
-			self.sys_path = '/home/admin'
 			self.server = 'https://talao.co/'
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
