@@ -125,7 +125,7 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + urlencode({'issuer' : credential['issuer']})
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' +  urlencode({'issuer' : credential['issuer']})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     logging.info("deeplink = %s", deeplink)
     red.set(credential['id'], json.dumps(credentialOffer))

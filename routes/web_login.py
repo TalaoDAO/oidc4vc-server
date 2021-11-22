@@ -109,7 +109,6 @@ def login(red, mode) :
 			message = _('Sign-In')
 		url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ})
 		deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-		print("deeplink = ", deeplink)
 		# end code for qrcode
 		return render_template('./login/login_password.html',
 								url=url,
@@ -364,21 +363,21 @@ def wallet_endpoint(stream_id, red, mode):
             logging.warning('to be fixed, presentation is not correct')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
-									 "message" : _("Presentation check failed.")})
+									 "message" : _("Credential check failed.")})
             red.publish('credible', event_data)
             return jsonify("Presentation malformed"), 400
         if domain != mode.server or challenge != session_data['challenge'] :
             logging.warning('challenge failed')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
-									 "message" : _("The presentation challenge failed.")})
+									 "message" : _("Credential check failed.")})
             red.publish('credible', event_data)
             return jsonify("Challenge failed"), 401
         elif issuer not in [DID_WEB, DID_ETHR, DID_TZ, DID_KEY] :
             logging.warning('unknown issuer')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
-									 "message" : _("This issuer is unknown.")})
+									 "message" : _("This issuer is unknown. Present another credential.")})
             red.publish('credible', event_data)
             return jsonify("Issuer unknown"), 403
         elif not ns.get_workspace_contract_from_did(holder, mode) :
@@ -386,7 +385,7 @@ def wallet_endpoint(stream_id, red, mode):
             logging.warning('User unknown')
             event_data = json.dumps({"stream_id" : stream_id,
 									"code" : "ko",
-									 "message" : _('Your Digital Identity has not been registered yet.')})
+									 "message" : _("Your identity has not been registered yet.")})
             red.publish('credible', event_data)
             return  jsonify("User unknown"), 403
         else :

@@ -208,7 +208,7 @@ def register_code(mode) :
 # route register/post_code
 def register_post_code(mode) :
 	if session.get('wallet') == 'ok' :
-		return redirect (mode.server + 'login/VerifiablePresentationRequest')
+		return redirect (mode.server + 'login')
 	try :
 		username = session['username']
 		session.clear()
@@ -274,7 +274,6 @@ def register_wallet_endpoint(id,red, mode):
             session_data = json.dumps({"id" : id, "email" : email , "did" : presentation['holder']})
         red.set(id, session_data )
         data = json.dumps({ "id" : id, "data" : 'ok'})
-        print('data = ', data)
         red.publish('register_wallet', data)
         return jsonify('ok')
 
@@ -340,9 +339,6 @@ def register_create_for_wallet(mode) :
 		return render_template("/register/user_register.html" )
 	
 	directory.add_user(mode, session['username'], session['firstname'] + ' ' + session['lastname'], None)
-
-	# create an Employee Certificate
-	# create_employee_certificate(session['did'], session['firstname'], session['lastname'], workspace_contract, mode) 
 	
 	# create an Identity Pass
 	create_identity_pass(session['did'], session['firstname'], session['lastname'], session['email'], workspace_contract, mode) 
@@ -363,37 +359,6 @@ def register_error() :
 		message ='Unknown'
 	return render_template("/register/registration_error.html", message=message)
 
-
-def create_employee_certificate(did, firstname, lastname, workspace_contract, mode) :
-    # load JSON-LD model for IdentityPass
-    unsigned_credential = json.load(open('./verifiable_credentials/Talao_CertificateOfEmployment.jsonld', 'r'))
-    
-    # update credential with form data
-    unsigned_credential["id"] =  "urn:uuid:" + str(uuid.uuid1())
-    unsigned_credential["credentialSubject"]["id"] = did
-    unsigned_credential["credentialSubject"]["familyName"] = firstname
-    unsigned_credential["credentialSubject"]["givenName"] = lastname
-    unsigned_credential["credentialSubject"]["startDate"] = datetime.now().replace(microsecond=0).isoformat() + "Z"	
-    unsigned_credential["issuanceDate"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    unsigned_credential['issuer'] = did_selected
-    
-    PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-    signed_credential = vc_signature.sign(unsigned_credential, PVK, did_selected)
-         
-    if not signed_credential :
-        flash(_('Operation failed.'), 'danger')
-        logging.error('credential signature failed')
-        return 
-
-    # upload credential to repository with company key signature
-    my_certificate = Document('certificate')
-    if not my_certificate.relay_add(workspace_contract, json.loads(signed_credential), mode, privacy='public')[0] :
-        flash(_('Add credential to repository failed.'), 'danger')
-        logging.error('certificate to repository failed')
-        return
-    else :
-        flash(_('The credential has been added to the user repository.'), 'success')
-    return True
 
 def create_identity_pass(did, firstname, lastname, email, workspace_contract, mode) :
     # load JSON-LD model for registration_IdentityPass
@@ -419,11 +384,8 @@ def create_identity_pass(did, firstname, lastname, email, workspace_contract, mo
     # upload credential to repository with company key signature
     my_certificate = Document('certificate')
     if not my_certificate.relay_add(workspace_contract ,json.loads(signed_credential), mode, privacy='public')[0] :
-        flash(_('Add credential to repository failed.'), 'danger')
-        logging.error('certificate to repository failed')
-        return
-    else :
-        flash(_('The credential has been added to the user repository.'), 'success')
+        logging.error('Identity pass to repository failed')
+        return False
     return True
 
 
