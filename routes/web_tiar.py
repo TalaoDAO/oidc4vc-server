@@ -51,24 +51,6 @@ def tir_api(did) :
                 }
             }
         })
-    elif did == 'todo' :
-        logging.info('Internal TIAR / Compellio')
-        return jsonify({
-            "issuer": {
-                "preferredName": "Compellio",
-                "did": ['.........'],
-                "eidasCertificatePem": [{}],
-                "serviceEndpoints": [{}, {}],
-                "organizationInfo": {
-                    "id": "",
-                    "legalName": "Compellio",
-                    "currentAddress": "1 Rue Glesener, L-1631 Luxembourg, Luxembourg",
-                    "vatNumber": "",
-                    "website": "https://compell.io",
-                    "issuerDomain" : ["compell.io"]
-                }
-            }
-        })
     elif did == 'did:ethr:0xbf4dfdd84c24539349e0d06f3eac16edffc9d88f' :
         logging.info('Internal TIAR / MyCompany')
         return jsonify({

@@ -107,7 +107,7 @@ def login(red, mode) :
 			message = _('Request a Professional Experience Assessment')
 		else :
 			message = _('Sign-In')
-		url=mode.server + 'login/wallet_presentation/' + stream_id +'?' + urlencode({'issuer' : DID_TZ})
+		url=mode.server + 'login/wallet_presentation/' + stream_id + '?' + urlencode({'issuer' : DID_TZ})
 		deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
 		# end code for qrcode
 		return render_template('./login/login_password.html',
