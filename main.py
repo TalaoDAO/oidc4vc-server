@@ -222,14 +222,12 @@ app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, metho
 app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
 
 
-
-
 @app.route('/.well-known/assetlinks.json' , methods=['GET']) 
 def assetlinks(): 
     document = json.load(open('assetlinks.json', 'r'))
     return jsonify(document)
 
-
+#@app.route('/apple-app-site-association' , methods=['GET']) 
 @app.route('/.well-known/apple-app-site-association' , methods=['GET']) 
 def apple_app_site_association(): 
     document = json.load(open('apple-app-site-association', 'r'))

@@ -5,7 +5,7 @@
                 "appIDs": ["FH3A3ZJ2YU.co.talao.wallet"],
                 "components": [
                     {
-                        "/": "/app/links/*",
+                        "/": "/app/download*",
                         "comment": "Link to credential offer"
                     }
                 ]
