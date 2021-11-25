@@ -13,7 +13,7 @@ DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-LIST_TRUSTED_ISSUER_REGISTRY_API = 'http://192.103.2.28:1234/tmd/get_did_issuer/'
+LIST_TRUSTED_ISSUER_REGISTRY_API = 'http://192.103.2.28:1234/tmd/get_data_issuer/'
 
 def init_app(app,red, mode) :
 
@@ -41,13 +41,13 @@ def tir_api(did) :
             logging.info("OK, retour List = ", r.json())
             return r.json()
         elif r.status_code == 404 :
-            logging.info('Issuer not found on the List server')
+            logging.info('Issuer not found on the List Trusted Issuer Registry')
         else :
             logging.info('Erreur serveur List =', r.status_code  )
     except :
         logging.error('probleme de connexion sur List')
     if did in [DID_WEB, DID_TZ2, DID_ETHR, DID_KEY] :
-        logging.info('Internal TIAR / Talao')
+        logging.info('Issuer found on the Talao Trusted Issuer Internal List')
         return jsonify({
             "issuer": {
                 "preferredName": "Talao",
@@ -108,5 +108,6 @@ def tir_api(did) :
         for item in issuer_registry :
             if did in item['issuer']["did"] :
                 return jsonify(item)
+        logging.info('Issuer not found')
         return jsonify("DID not found") , 404
 

@@ -48,7 +48,8 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Release
-VERSION = "1.8.2"
+VERSION = '1.8.3'
+logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
 app = Flask(__name__)

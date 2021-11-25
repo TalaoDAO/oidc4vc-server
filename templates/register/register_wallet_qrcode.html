@@ -3,48 +3,56 @@
 <html>
   <head>
     {% include 'head.html' %}
-   
   </head>
     <body >
-     
-  
-        <div id="content"  style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
-
-      {% include 'guest_nav_bar_2.html' %}
-        <div class="text-center">       
-         
 
           <div id="content_desktop" class="d-none d-sm-block">
-            <div id="id_text" class="m-5">{{_('<strong>Register</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.')}}
-              <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
+            <div id="wrapper" >
+              <div class="d-flex flex-column">
+                <div id="content"  style="background-attachment:local;background-size:cover;background-position:50%30% ;background-repeat:no-repeat;background-image: url('/static/img/background_5.png');">
+                  {% include 'guest_nav_bar_2.html' %}
+                  <div class="text-center mt-5">       
+                    <div id="id_text" class="m-t5">{{_('<strong>Register a credential repository</strong><br><br>Scan the QRCode bellow with your smartpĥone wallet.')}}
+                      <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}.<br>
+                    </div>
+                    <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" style="width: 250px;border-radius:0px;"></div>
+                  </div>
+                </div>
+              </div>  
             </div>
-            <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" style="width: 250px;border-radius:0px;"></div>
           </div>
           
-          <div id="content_smartphone" class="d-block d-sm-none">
-            <div class="card">
-              <img src="/static/img/image_16.jpeg" class="card-img-top" alt="...">
-              <div class="card-body">
-                  <div class="text-center">
-                      <h5 class="card-title">{{_('Register a portfolio')}}</h5>
-                      <p class="card-text">
-                        <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}<br>
-                      </p>
-                      <a href="{{deeplink}}" class="btn btn-primary">{{_('Open the Talao wallet')}}</a>
-                  </div>
-              </div>
-          </div> 
-          </div>
-          <div id="id_loading" class="m-5"></div>
-          <div id="id_spinner" class="m-5"></div>
-          </div>
-            
-            <div class="text-center"><a class="small" href="/register/user">{{_('Register without wallet')}}</a></div>
-            <div class="text-center"><a class="small" href="/emailpass">{{_('Get an Email Pass')}}</a></div>
 
-          </div>
+        <div id="content_smartphone" class="d-block d-sm-none">
+          {% include 'guest_nav_bar_2.html' %}
+          <div class="text-center">       
+            <div class="container">
+              <div class="row mt-5">
+                <div class="col-sm-6 offset-sm-3">
+                  <div id = "id_loading">
+                    <div class="card">
+                        <img src="/static/img/image_16.jpeg" class="card-img-top" alt="...">
+                      <div class="card-body">
+                        <div class="text-center">
+                                    <h5 class="card-title">{{_('Register a credential repository')}}</h5>
+                                    <p class="card-text">  <br>{{_('Present an Email Pass and fill the form with your firstname and lastname')}}<br>
+                                    </p>
+                                    <a href="{{deeplink}}" class="btn btn-primary">{{_('Open the Talao wallet')}}</a>
+                        </div>
+                      </div>
+                    </div> 
+                  </div>                                      
+                </div>
+              </div>
+            </div>
+          </div> 
         </div>
-      </div>
+        
+            
+        <div class="text-center"><a class="small" href="/register/user">{{_('Register without wallet')}}</a></div>
+        <div class="text-center"><a class="small" href="/emailpass">{{_('Get an Email Pass')}}</a></div>
+
+       
       {% include 'user_footer.html' %}
 
 <script>function goBack() {  window.history.back();}</script>
