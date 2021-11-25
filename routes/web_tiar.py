@@ -34,12 +34,15 @@ def tir_api(did) :
     https://ec.europa.eu/cefdigital/wiki/display/EBSIDOC/Trusted+Issuers+Registry+API
 
     """
+    
+    """
     try : 
         r = requests.get('https://192.103.2.28:1234/tmd/get_did_issuer/' + did)
         print('status code = ', r.status_code)
         print('json = ', r.json())
     except :
         print('probleme de connexion sur List')
+    """
     if did in [DID_WEB, DID_TZ2, DID_ETHR, DID_KEY] :
         logging.info('Internal TIAR / Talao')
         return jsonify({
