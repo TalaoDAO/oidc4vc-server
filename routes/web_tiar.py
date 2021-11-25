@@ -13,7 +13,7 @@ DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-
+LIST_TRUSTED_ISSUER_REGISTRY_API = 'http://192.103.2.28:1234/tmd/get_did_issuer/'
 
 def init_app(app,red, mode) :
 
@@ -35,16 +35,17 @@ def tir_api(did) :
 
     """
     
-    
     try : 
-        r = requests.get('http://192.103.2.28:1234/tmd/get_did_issuer/' + did)
-        print('status code = ', r.status_code)
+        r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)
         if r.status_code == 200 :
-            print("retour List = ", r.json())
+            logging.info("OK, retour List = ", r.json())
             return r.json()
+        elif r.status_code == 404 :
+            logging.info('Issuer not found on the List server')
+        else :
+            logging.info('Erreur serveur List =', r.status_code  )
     except :
-        print('status code = ', r.status_code)
-        print('probleme de connexion sur List')
+        logging.error('probleme de connexion sur List')
     if did in [DID_WEB, DID_TZ2, DID_ETHR, DID_KEY] :
         logging.info('Internal TIAR / Talao')
         return jsonify({
