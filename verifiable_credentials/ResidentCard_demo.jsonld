@@ -17,7 +17,7 @@
             }
         },
         {
-            "description": "hhtps://chema.org/description",
+            "description": "https://schema.org/description",
             "name": "https://schema.org/name",
             "ResidentCard": {
                 "@context": {
