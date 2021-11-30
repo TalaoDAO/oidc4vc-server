@@ -523,7 +523,11 @@ def test_presentation_display(red):
         red.delete(request.args['stream_id'])
         presentation = json.loads(presentation_json)
         holder = presentation['holder']
-        if isinstance(presentation['verifiableCredential'], dict) :
+        if not presentation.get('verifiableCredential') :
+            nb_credentials = "0"
+            issuers= "issued by me"
+            types = "No types"
+        elif isinstance(presentation['verifiableCredential'], dict) :
             nb_credentials = "1"
             issuers = presentation['verifiableCredential']['issuer']
             types = presentation['verifiableCredential']['type'][1]

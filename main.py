@@ -1,4 +1,5 @@
 """
+TALAO CREDENTIAL REPOSITORY
 
 if script is launched without Gunicorn, setup environment variables first :
 $ export MYCHAIN=talaonet
@@ -12,7 +13,7 @@ import os
 import time
 import json
 from flask_babel import Babel, _, refresh
-from flask import Flask, redirect, jsonify, request, session, render_template
+from flask import Flask, redirect, jsonify, request, session
 from flask_session import Session
 from datetime import timedelta
 from flask_cors import CORS
@@ -37,18 +38,17 @@ logging.info('start to init environment')
 mode = environment.currentMode(mychain,myenv)
 logging.info('end of init environment')
 
-#red = redis.StrictRedis()
+# Redis init red = redis.StrictRedis()
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
-# Release
-VERSION = '1.8.3'
+# Server Release
+VERSION = '1.8.6'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -69,7 +69,6 @@ sess.init_app(app)
 qrcode = QRcode(app)
 CORS(app)
 
- 
 @app.errorhandler(403)
 def page_abort(e):
     """
@@ -97,11 +96,11 @@ pybabel compile -d translations
 
 """
 
-
+"""
 @app.route('/test', methods=['GET', 'POST'])
 def test() :
     return render_template("test.html")
-
+"""
 
 @app.route('/language', methods=['GET'], defaults={'mode': mode})
 def user_language(mode) :
@@ -109,7 +108,7 @@ def user_language(mode) :
     refresh()
     return redirect (request.referrer)
 
-print('start')
+logging.info('start init routes')
 # Centralized @route
 web_register.init_app(app, red, mode)
 web_emailpass.init_app(app, red, mode)
@@ -128,11 +127,9 @@ web_issuer.init_app(app, mode)
 web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_revocationlist.init_app(app, red, mode)
-web_tiar.init_app(app, red, mode)
+web_tiar.init_app(app)
 web_app.init_app(app, red, mode)
-
-print('end')
-
+logging.info('end init routes')
 
 
 # Centralized route issuer for skills
@@ -223,24 +220,28 @@ app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, metho
 app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
 
 
+# Google universal link
 @app.route('/.well-known/assetlinks.json' , methods=['GET']) 
 def assetlinks(): 
     document = json.load(open('assetlinks.json', 'r'))
     return jsonify(document)
 
-#@app.route('/apple-app-site-association' , methods=['GET']) 
+
+# Apple universal link
 @app.route('/.well-known/apple-app-site-association' , methods=['GET']) 
 def apple_app_site_association(): 
     document = json.load(open('apple-app-site-association', 'r'))
     return jsonify(document)
 
 
-# wELL-known DID API
+# .well-known DID API 
 @app.route('/.well-known/did-configuration.json', methods=['GET']) 
 def well_known_did_configuration () :
     document = json.load(open('./verifiable_credentials/well_known_did_configuration.jsonld', 'r'))
     return jsonify(document)
 
+
+# .well-known DID API
 @app.route('/.well-known/did.json', methods=['GET'], defaults={'mode' : mode})
 def well_known_did (mode) :
     """ did:web
@@ -338,5 +339,5 @@ def did_doc(ec_public) :
 # MAIN entry point for test
 if __name__ == '__main__':
     # info release
-    logging.info('flask serveur init')
+    logging.info('flask test serveur run with debug mode')
     app.run(host = mode.flaskserver, port= mode.port, debug = mode.test, threaded=True)
