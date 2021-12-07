@@ -31,7 +31,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='livebox'
+   myenv='liveboxw'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -48,7 +48,7 @@ from routes import web_main, web_login, repository, cci_api, web_credible, web_w
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Server Release
-VERSION = '1.8.6'
+VERSION = '1.8.7'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup

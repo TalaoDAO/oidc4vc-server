@@ -236,7 +236,12 @@ def register_wallet_endpoint(id,red, mode):
         challenge = str(uuid.uuid1())
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
-            "query": [{"type": 'DIDAuth'}],
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": []
+                }
+            ],
             "challenge": challenge,
             "domain" : mode.server}    
         return jsonify(did_auth_request)

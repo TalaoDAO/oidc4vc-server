@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
-from signaturesuite import vc_signature, helpers
+from signaturesuite import vc_signature
 from components import privatekey
 from github import Github
 import base64
@@ -407,13 +407,14 @@ DIDAuth = {
            "challenge": "",
            "domain" : ""
             }
+ 
 
 QueryBYExample = {
             "type": "VerifiablePresentationRequest",
             "query": [
                 {
                     "type": "QueryByExample",
-                    "credentialQuery": ""
+                    "credentialQuery": []
                 }
             ],
             "challenge": "",
@@ -469,7 +470,7 @@ def test_presentationRequest_endpoint(stream_id, red):
         pattern = json.loads(red.get(stream_id).decode())
     except :
         logging.error("red get id error")
-        return ('ko')
+        return jsonify('ko'), 500
     challenge = pattern['challenge']
     domain = pattern['domain']
     if request.method == 'GET':
@@ -489,7 +490,7 @@ def test_presentationRequest_endpoint(stream_id, red):
             logging.warning('challenge or domain failed')
             event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
             red.publish('credible', event_data)
-            return jsonify("challenge or domain failed"), 400
+            return jsonify("challenge or domain failed"), 401
         else :
             # we just display the presentation VC
             red.set(stream_id,  request.form['presentation'])
@@ -525,8 +526,8 @@ def test_presentation_display(red):
         holder = presentation['holder']
         if not presentation.get('verifiableCredential') :
             nb_credentials = "0"
-            issuers= "issued by me"
-            types = "No types"
+            issuers= "issued by me !"
+            types = "DID_Auth"
         elif isinstance(presentation['verifiableCredential'], dict) :
             nb_credentials = "1"
             issuers = presentation['verifiableCredential']['issuer']

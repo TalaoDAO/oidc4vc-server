@@ -29,7 +29,7 @@ pattern = {
             "query": [
                 {
                     "type": "QueryByExample",
-                    "credentialQuery": ""
+                    "credentialQuery": []
                 }
             ],
             "challenge": "",
@@ -49,11 +49,15 @@ def test_display_VP_qrcode(red, mode):
                             simulator="Display VP")
 
 def VP_presentation_endpoint(stream_id, red):
-    challenge = pattern['challenge']
-    domain = pattern['domain']
+    my_pattern = json.loads(red.get(stream_id).decode())
+    challenge = my_pattern['challenge']
+    domain = my_pattern['domain']
     if request.method == 'GET':
+        print("GET requested ")
+        print("pattern = ", pattern)
         return jsonify(pattern)
     elif request.method == 'POST' :
+        print('POST requested')
         red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
         try : 
