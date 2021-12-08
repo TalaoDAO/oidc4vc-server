@@ -52,7 +52,7 @@ def tir_api(did) :
             return jsonify("Erreur request server list") , 404
         if r.status_code == 200 :
             print("OK, retour LIST = ", r.json(), type(r.json()))
-            issuer_json = r.json['issuer'].replace("'\'", "")
+            issuer_json = r.json['issuer']
             issuer = json.loads(issuer_json)
             print("issuer = ", issuer)
             return jsonify({"issuer" : issuer})
