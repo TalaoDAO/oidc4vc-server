@@ -51,8 +51,11 @@ def tir_api(did) :
             logging.info('Erreur serveur LIST =', r.status_code  )
             return jsonify("Erreur request server list") , 404
         if r.status_code == 200 :
-            logging.info("OK, retour LIST = ", r.json(), type(r.json()) )
-            return jsonify(r.json())
+            print("OK, retour LIST = ", r.json(), type(r.json()))
+            issuer_json = r.json['issuer'].replace("'\'", "")
+            issuer = json.loads(issuer_json)
+            print("issuer = ", issuer)
+            return jsonify({"issuer" : issuer})
         else :
             logging.info('DID not found =')
             return jsonify("DID not found") , 404
