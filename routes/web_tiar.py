@@ -46,26 +46,15 @@ def tir_api(did) :
     else :
         # proxy LIST server for LUX prototype
         try : 
-            r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)
-            if r.status_code == 200 :
-                logging.info("OK, retour LIST = ", r.json())
-                return r.json()
-            elif r.status_code == 404 :
-                logging.info('Issuer not found on the List Trusted Issuer Registry')
-            else :
-                logging.info('Erreur serveur LIST =', r.status_code  )
+            r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)           
         except :
-            logging.error('probleme de connexion sur LIST')
-        
-        # Talao server list
-        try :
-            issuer_registry = json.load(open("talao_trusted_issuer_registry.json", 'r' ))
-            for item in issuer_registry :
-                if did in item['issuer']["did"] :
-                    return jsonify(item)
-        except :
-            logging.error('probleme de connexion sur fichier issuer de Talao')
-            pass
-        logging.info('Issuer not found')
-        return jsonify("DID not found") , 404
+            logging.info('Erreur serveur LIST =', r.status_code  )
+            return jsonify("DID not found") , 404
+        if r.status_code == 200 :
+            result = json.dumps(r.json()).replace("'\'", "")
+            logging.info("OK, retour LIST = ", result )
+            return jsonify(json.loads(result))
+        else :
+            logging.info('DID not found =')
+            return jsonify("DID not found") , 404
 

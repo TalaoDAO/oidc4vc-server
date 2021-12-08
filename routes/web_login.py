@@ -355,7 +355,6 @@ def wallet_endpoint(stream_id, red, mode):
             return jsonify("Signature verification failed"), 401
         """
         try : # FIXME
-            issuer = presentation['verifiableCredential']['issuer']
             holder = presentation['holder']
             challenge = presentation['proof']['challenge']
             domain = presentation['proof']['domain']
@@ -373,13 +372,6 @@ def wallet_endpoint(stream_id, red, mode):
 									 "message" : _("Credential check failed.")})
             red.publish('credible', event_data)
             return jsonify("Challenge failed"), 401
-        elif issuer not in [DID_WEB, DID_ETHR, DID_TZ, DID_KEY] :
-            logging.warning('unknown issuer')
-            event_data = json.dumps({"stream_id" : stream_id,
-									"code" : "ko",
-									 "message" : _("This issuer is unknown. Present another credential.")})
-            red.publish('credible', event_data)
-            return jsonify("Issuer unknown"), 403
         elif not ns.get_workspace_contract_from_did(holder, mode) :
             # user has no account
             logging.warning('User unknown')
