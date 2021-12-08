@@ -49,11 +49,10 @@ def tir_api(did) :
             r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)           
         except :
             logging.info('Erreur serveur LIST =', r.status_code  )
-            return jsonify("DID not found") , 404
+            return jsonify("Erreur request server list") , 404
         if r.status_code == 200 :
-            result = json.dumps(r.json()).replace("'\'", "")
-            logging.info("OK, retour LIST = ", result )
-            return jsonify(json.loads(result))
+            logging.info("OK, retour LIST = ", r.json(), type(r.json()) )
+            return jsonify(r.json())
         else :
             logging.info('DID not found =')
             return jsonify("DID not found") , 404
