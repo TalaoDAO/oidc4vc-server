@@ -62,7 +62,7 @@
         }
     },
     "evidence": [{
-        "id": "https://example.edu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+        "id": "https://example.edu/evidence/f2ae",
         "type": ["DocumentVerification"]
         }
     ],

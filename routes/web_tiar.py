@@ -25,7 +25,7 @@ def tir_api(did) :
     """
     logging.info("Registry look up for DID = %s", did)
     
-    if did in [DID_WEB, DID_TZ2, DID_KEY] :
+    if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY] :
         logging.info('Issuer found on the Talao Trusted Issuer Internal List')
         return jsonify({
             "issuer": {
@@ -44,19 +44,19 @@ def tir_api(did) :
             }
         })
     else :
-        # proxy LIST server for LUX prototype
+        # proxy LIST registry server for the Trustmydata prototype
         try : 
-            r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)           
+            r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)   
+            if r.status_code == 200 :
+                logging.info("OK, registry return = %s", r.json())
+                issuer_json = r.json()['issuer'] # is a string"
+                issuer = json.loads(issuer_json)
+                return jsonify({"issuer" : issuer})
+            else :
+                logging.info('DID not found =')
+                return jsonify("DID not found") , 404        
         except :
-            logging.info('Erreur serveur LIST =', r.status_code  )
-            return jsonify("Erreur request server list") , 404
-        if r.status_code == 200 :
-            print("OK, retour LIST = ", r.json(), type(r.json()))
-            issuer_json = r.json()['issuer']
-            issuer = json.loads(issuer_json)
-            print("issuer = ", issuer)
-            return jsonify({"issuer" : issuer})
-        else :
-            logging.info('DID not found =')
-            return jsonify("DID not found") , 404
+            logging.info("Call LIST server failed")
+            return jsonify("Call LIST registry server failed") , 500
+        
 
