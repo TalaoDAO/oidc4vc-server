@@ -70,16 +70,18 @@ def VP_presentation_endpoint(stream_id, red):
             return jsonify("ko")
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
-            red.publish('credible', event_data)
-            return jsonify("ko")
-        else :
+            print(response_domain)
+            print(response_challenge)
+            #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
+            #red.publish('credible', event_data)
+            #return jsonify("ko")
+        #else :
             # we just display the presentation VC
-            red.set(stream_id,  request.form['presentation'])
-            event_data = json.dumps({"stream_id" : stream_id,
+        red.set(stream_id,  request.form['presentation'])
+        event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           
-            red.publish('display_VP', event_data)
-            return jsonify("ok")
+        red.publish('display_VP', event_data)
+        return jsonify("ok")
 
 
 def event_stream(red):
