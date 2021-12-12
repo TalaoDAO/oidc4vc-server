@@ -488,16 +488,17 @@ def test_presentationRequest_endpoint(stream_id, red):
             return jsonify("presentation is not correct"), 400
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
-            red.publish('credible', event_data)
-            return jsonify("challenge or domain failed"), 401
-        else :
-            # we just display the presentation VC
-            red.set(stream_id,  request.form['presentation'])
-            event_data = json.dumps({"stream_id" : stream_id,
+            print("domain = ", response_domain)
+            print('challenge = ', response_challenge)
+            #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
+            #red.publish('credible', event_data)
+            #return jsonify("challenge or domain failed"), 401
+        # we just display the presentation VC
+        red.set(stream_id,  request.form['presentation'])
+        event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           
-            red.publish('credible', event_data)
-            return jsonify("ok")
+        red.publish('credible', event_data)
+        return jsonify("ok")
 
 
 def event_stream(red):

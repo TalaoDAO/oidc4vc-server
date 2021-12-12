@@ -26,7 +26,6 @@ def tir_api(did) :
     logging.info("Registry look up for DID = %s", did)
     
     if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY] :
-        logging.info('Issuer found on the Talao Trusted Issuer Internal List')
         return jsonify({
             "issuer": {
                 "preferredName": "Talao",

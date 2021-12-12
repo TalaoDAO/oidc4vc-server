@@ -13,7 +13,10 @@ logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-did_selected = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+
+did_selected = DID_KEY
 list = dict()
 status = "Active"
 PVK=""
