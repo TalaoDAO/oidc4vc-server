@@ -110,7 +110,11 @@ def login(red, mode) :
 		url=mode.server + 'login/wallet_presentation/' + stream_id + '?' + urlencode({'issuer' : DID_TZ})
 		deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
 		# end code for qrcode
-		return render_template('./login/login_password.html',
+		if request.args.get('test') == "tezotopia" :
+			html_screen = './login/tezotopia_login.html'
+		else :
+			html_screen = './login/login_password.html'
+		return render_template(html_screen,
 								url=url,
 								deeplink=deeplink,
 								stream_id=stream_id,
@@ -290,7 +294,29 @@ def forgot_password_token(mode) :
 
 
 ####################################Login with wallet ##########################################################""
+DIDAuth = {
+           "type": "VerifiablePresentationRequest",
+           "query": [
+               {
+                    "type" : "DIDAuth"
+                }
+           ],
+           "challenge": "",
+           "domain" : ""
+            }
+ 
 
+QueryBYExample = {
+            "type": "VerifiablePresentationRequest",
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": []
+                }
+            ],
+            "challenge": "",
+            "domain" : ""
+            }
 
 def VerifiablePresentationRequest_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
@@ -332,6 +358,7 @@ def wallet_endpoint(stream_id, red, mode):
         red.publish('credible', event_data)
         jsonify ("Delay has expired"), 408
     if request.method == 'GET':
+        
         did_auth_request = {
             "type": "VerifiablePresentationRequest",
             "query": [{
@@ -340,6 +367,10 @@ def wallet_endpoint(stream_id, red, mode):
             "challenge": session_data['challenge'],
             "domain" : mode.server
         }
+		# for testing purpose
+        did_auth_request = QueryBYExample
+        did_auth_request["challenge"] = session_data['challenge']
+        did_auth_request["domain"] = mode.server
         return jsonify(did_auth_request)
     elif request.method == 'POST' :
         #red.delete(stream_id)

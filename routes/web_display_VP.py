@@ -13,15 +13,12 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-
     app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
-
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-  
     return
 
 pattern = {
@@ -36,6 +33,7 @@ pattern = {
             "domain" : ""
             }
 
+
 def test_display_VP_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
     pattern['challenge'] = str(uuid.uuid1())
@@ -48,16 +46,20 @@ def test_display_VP_qrcode(red, mode):
                             pattern=json.dumps(pattern, indent=4),
                             simulator="Display VP")
 
+
 def VP_presentation_endpoint(stream_id, red):
-    my_pattern = json.loads(red.get(stream_id).decode())
+    try :
+        my_pattern = json.loads(red.get(stream_id).decode())
+    except :
+        logging.error('red decode failed')
+        event_data = json.dumps({"stream_id" : stream_id, "message" : "Server error."})
+        red.publish('credible', event_data)
+        return jsonify("server error"), 500
     challenge = my_pattern['challenge']
     domain = my_pattern['domain']
     if request.method == 'GET':
-        print("GET requested ")
-        print("pattern = ", pattern)
-        return jsonify(pattern)
+        return jsonify(my_pattern)
     elif request.method == 'POST' :
-        print('POST requested')
         red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
         try : 
@@ -67,11 +69,9 @@ def VP_presentation_endpoint(stream_id, red):
             logging.warning('presentation is not correct')
             event_data = json.dumps({"stream_id" : stream_id, "message" : "Presentation format failed."})
             red.publish('display_VP', event_data)
-            return jsonify("ko")
+            return jsonify("presentation is not correct"), 500
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
-            print(response_domain)
-            print(response_challenge)
             #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
             #red.publish('credible', event_data)
             #return jsonify("ko")

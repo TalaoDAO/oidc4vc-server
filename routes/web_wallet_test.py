@@ -442,8 +442,7 @@ def test_presentationRequest_qrcode(red, mode):
                                                 {"@value": "Text in English", "@language": "en"},
                                                 {"@value" : request.form['reason' + q], "@language" : "fr"},
                                                 {"@value" : "text in German", "@language": "De"}
-                                            ]            
-          
+                                                ]
                     MycredentialQuery['example'] = dict()
                     if request.form.get('type' + q) :
                         MycredentialQuery['example']['type'] =  request.form['type' + q]
@@ -454,7 +453,6 @@ def test_presentationRequest_qrcode(red, mode):
                     if request.form.get('credentialSchema' + q) :
                         MycredentialQuery['example']['credentialSchema'] = {'type' : request.form['credentialSchema' + q]}
                     pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
-        
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
@@ -465,16 +463,17 @@ def test_presentationRequest_qrcode(red, mode):
                             pattern=json.dumps(pattern, indent=4),
                             simulator="Verifier Simulator")
 
+
 def test_presentationRequest_endpoint(stream_id, red):
     try : 
-        pattern = json.loads(red.get(stream_id).decode())
+        my_pattern = json.loads(red.get(stream_id).decode())
     except :
         logging.error("red get id error")
         return jsonify('ko'), 500
-    challenge = pattern['challenge']
-    domain = pattern['domain']
+    challenge = my_pattern['challenge']
+    domain = my_pattern['domain']
     if request.method == 'GET':
-        return jsonify(pattern)
+        return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
@@ -488,8 +487,8 @@ def test_presentationRequest_endpoint(stream_id, red):
             return jsonify("presentation is not correct"), 400
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
-            print("domain = ", response_domain)
-            print('challenge = ', response_challenge)
+            logging.warning("domain = %s", response_domain)
+            logging.warning('challenge = %s', response_challenge)
             #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
             #red.publish('credible', event_data)
             #return jsonify("challenge or domain failed"), 401
