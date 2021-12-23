@@ -44,7 +44,7 @@
                 <div id="id_text" class="m-5"><strong></strong><br>
                   {{_('<br> Scan the QR Code bellow with your smartphone wallet.
                    <br>You can present any credential which has been issued by Talao.')}}</div>  
-                <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url) }}" style="width: 250px;border-radius:0px;"></div>
+                <div id="id_qrcode" class="m-5"><img src="{{ qrcode(url,  icon_img='./img/talao_icon.jpg') }}" style="width: 250px;border-radius:0px;"></div>
                 <div id="id_loading" class="m-5"></div>
                 <div id="id_spinner" class="m-5"></div>
               </div>
