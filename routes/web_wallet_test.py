@@ -28,12 +28,10 @@ except :
     P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
     Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
 
-
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'          
-
 
 def translate(credential) : 
     credential_name = ""
@@ -69,7 +67,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/test/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
-
     app.add_url_rule('/wallet/test/presentationRequest',  view_func=test_presentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -89,7 +86,6 @@ def test_credentialOffer2_qrcode() :
 
 """
 Direct access to one VC with filename passed as an argument
-
 """
 def test_direct_offer(red, mode) :
     try :
@@ -152,8 +148,8 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                        <option selected value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
-                        <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
+                        <option value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                        <option selected value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
@@ -195,8 +191,8 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                    <option selected value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
-                        <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
+                    <option value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                        <option selected value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
@@ -205,17 +201,7 @@ def test_credentialOffer_qrcode(red, mode) :
                         </select><br><br>
                         <input hidden name="path" value=""" + path + """> 
                         <input hidden name="filename" value='""" + filename + """'> 
-                        <p>Scope :
-                        Subject_id<input type="checkbox" disabled checked  >
-                        givenName<input type="checkbox" name="givenName"  value="on">
-                        familyName<input type="checkbox" name="familyName" value="on">
-                        email<input type="checkbox" name="email" value="on">
-                        address<input type="checkbox" name="address"  value="on">
-                        telephone<input type="checkbox" name="telephone"  value="on"> </p>
                         <p>backgroundColor : <input value="#ffffff" type="color" name="backgroundColor" ></p>
-                        <p>icon : <input type="text" name="icon"></p>
-                        <p>nameFallback : <input type="text" name="nameFallback" ></p>
-                        <p>descriptionFallback : <input type="text" name="descriptionFallback"></p>
                         <p>shareLink : <input type="text" name="shareLink" ></p>
                         <input hidden name="filename" value=""" + "talaophonepass" + """>
                         <input hidden name="path" value=""" + path + """> 
@@ -252,25 +238,25 @@ def test_credentialOffer_qrcode(red, mode) :
         credential['credentialSubject']['id'] = "did:..."
         credential['issuer'] = did_issuer
         scope = ["subject_id"]
-        if request.form.get("address") :
-            scope.append("address")
-        if request.form.get("telephone") :
-            scope.append("telephone")
-        if request.form.get("givenName") :
-            scope.append("givenName")
-        if request.form.get("familyName") :
-            scope.append("familyName")
-        if request.form.get("email") :
-            scope.append("email")
+        #if request.form.get("address") :
+        #    scope.append("address")
+        #if request.form.get("telephone") :
+        #    scope.append("telephone")
+        #if request.form.get("givenName") :
+        #    scope.append("givenName")
+        #if request.form.get("familyName") :
+        #    scope.append("familyName")
+        #if request.form.get("email") :
+        #    scope.append("email")
         display = dict()
         if request.form.get('backgroundColor') :
             display['backgroundColor'] = request.form['backgroundColor'][1:]
-        if request.form.get('icon') :
-            display['icon'] = request.form['icon']
-        if request.form.get('nameFallback') :
-            display['nameFallback'] = request.form['nameFallback']
-        if request.form.get('descriptionFallback') :
-            display['descriptionFallback'] = request.form['descriptionFallback']
+        #if request.form.get('icon') :
+        #    display['icon'] = request.form['icon']
+        #if request.form.get('nameFallback') :
+        #    display['nameFallback'] = request.form['nameFallback']
+        #if request.form.get('descriptionFallback') :
+        #    display['descriptionFallback'] = request.form['descriptionFallback']
         credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
@@ -334,14 +320,6 @@ def test_credentialOffer_endpoint(id, red):
         except :
             logging.error("wallet error")
             return jsonify('wallet error'), 400
-        scope = {
-            "subject_id" : request.form['subject_id'],
-            "givenName" : request.form.get('givenName', "None"),
-            "familyName" : request.form.get('familyName', "None"),
-            "telephone" : request.form.get('telephone' , "None"),
-            "email" : request.form.get('email', "None"),
-            "address" : request.form.get('address', "None")
-            }
         # to keep the possibility to use an RSA key with did:web
         global did_selected
         if did_selected == 'did:web:talao.co#key-2' :
@@ -356,7 +334,7 @@ def test_credentialOffer_endpoint(id, red):
         data = json.dumps({
                             'id' : id,
                             'check' : 'success',
-                            'scope' : json.dumps(scope),
+                            'scope' : '',
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
@@ -374,7 +352,7 @@ def test_credentialOffer_back():
         <p></p>
         <h2>Verifiable Credential has been signed and transfered to wallet"</h2<
         <br><br><br>
-        <form action="/wallet/test/credentialOffer" method="GET" >
+        <form action="/playground" method="GET" >
                     <button  type"submit" >Back</button></form>
         </body>
         </html>"""

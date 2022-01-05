@@ -31,7 +31,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='liveboxh'
+   myenv='liveboxw'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -42,13 +42,13 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory
+from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory, web_wallet_test_login
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
 # Server Release
-VERSION = '1.9.5'
+VERSION = '1.9.7'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -116,6 +116,7 @@ web_phonepass.init_app(app, red, mode)
 web_loyaltycard.init_app(app, red, mode)
 web_credible.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
+web_wallet_test_login.init_app(app, red, mode)
 web_login.init_app(app, red,  mode)
 web_hrid.init_app(app, mode)
 web_certificate.init_app(app, mode)

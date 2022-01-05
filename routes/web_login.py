@@ -337,17 +337,6 @@ def VerifiablePresentationRequest_qrcode(red, mode):
 
 
 def wallet_endpoint(stream_id, red, mode):
-    """
-    200 OK
-    201 Created 
-    400 Bad Request
-    401  unauthenticated
-    403 Forbidden
-    408 Request Timeout
-    500 Internal Server Error
-    501 Not Implemented
-    504 Gateway Timeout
-    """
     try :
         session_data = json.loads(red.get(stream_id).decode())
     except :

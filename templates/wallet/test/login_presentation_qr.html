@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>{% include 'head.html' %}</head>
+  <body>
+        {% include '/wallet/test/simulator_nav_bar.html' %}
+              <div class="text-center">  
+                <div id="id_text" class="m-5">
+                  <br><br><strong>Scan the QRCode bellow with your crypto wallet.</strong> 
+                <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url, icon_img='./img/talao_icon.jpg') }}" class=" w-30 h-30"></div>
+              
+                <br>
+                <br>
+                <p><button  type="button"  onclick="goBack()">Back</button></p>
+               </div> 
+              </div>
+            
+ 
+
+
+  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+             
+      <script>      
+                function goBack() {  window.history.back();}
+      </script>
+      <script>
+        var source = new EventSource('/wallet/test/login_presentation_stream');
+        source.onmessage = function (event) {
+        const result = JSON.parse(event.data)
+        if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
+          window.location.href='/wallet/test/login_presentation_display?stream_id=' + result.stream_id;
+          }
+        if (result.message != 'ok' & result.stream_id == '{{stream_id}}' ) {
+          window.location.href='/wallet/test/login_presentation_display?message=' + result.message;
+        } 
+        };
+      </script>
+  </body>
+</html>
