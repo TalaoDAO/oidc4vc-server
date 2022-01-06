@@ -1,8 +1,8 @@
 from flask import jsonify, request, render_template, Response, render_template_string
 import json
 from datetime import timedelta
-from components import privatekey
 import uuid
+from urllib.parse import urlencode
 import logging
 from flask_babel import Babel, _
 
@@ -17,8 +17,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/login_presentation_display',  view_func=test_login_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/login_presentation_stream',  view_func=login_presentation_stream, defaults={ 'red' : red})
-    #global PVK
-    #PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     return
 
 pattern = {
@@ -40,8 +38,10 @@ def test_display_login_qrcode(red, mode):
     pattern['domain'] = mode.server
     red.set(stream_id,  json.dumps(pattern))
     url = mode.server + 'wallet/test/login_presentation/' + stream_id +'?issuer=' + did_selected
+    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     return render_template('wallet/test/login_presentation_qr.html',
 							url=url,
+                            deeplink=deeplink,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
                             simulator="Custom login")
@@ -150,7 +150,7 @@ def test_login_presentation_display(red):
         <br>Wallet DID  : """ + holder + """<br>
         <br>Issuer DID  : """ + issuers + """<br>
         <br>Credential type : """ + types + """<br>
-        <br>Verfication status : OK <br>
+        <br>Verification status : OK <br>
         <br><br><br>
          <form action="/wallet/test/display_VP" method="GET" >
                     <button  type"submit" >QR code for Request</button></form>
