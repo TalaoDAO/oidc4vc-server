@@ -18,6 +18,22 @@ TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
 did_selected = ""
 
+
+
+QueryBYExample = {
+            "type": "VerifiablePresentationRequest",
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": []
+                }
+            ],
+            "challenge": "",
+            "domain" : ""
+            }
+
+pattern = QueryBYExample
+
 try :
     RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
     P256 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
@@ -71,6 +87,9 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
+    app.add_url_rule('/wallet/test/return_code',  view_func=return_code, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
+    app.add_url_rule('/wallet/test/return_code_endpoint/<id>',  view_func=return_code_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
+
 
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -79,8 +98,43 @@ def init_app(app,red, mode) :
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
-######################### Credential Offer ###########
+######################### test return code ###########
 
+
+def return_code(red, mode) :
+    if request.method == 'GET' :
+        html_string =  """<p> type : test return code sur presentationOffer</p>
+                
+                    <form action="/wallet/test/return_code" method="POST" >
+                    Return Code : <input name="code"> 
+                    <br><br>
+                      <br><button  type"submit" > Generate QR code</button>
+                    </form>
+
+                    """
+        return render_template_string(html_string)
+    if request.method == 'POST' :
+        id = str(uuid.uuid1())
+        print(id)
+        url = mode.server + "wallet/test/return_code_endpoint/" + id
+        red.set(id, request.form['code'])
+        #deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+        return render_template('wallet/test/credential_offer_qr_2.html',
+                                url=url,
+                                )
+
+def return_code_endpoint(id, red) :
+    print('id = ', id)
+    code = red.get(id).decode()
+    pattern['challenge'] = "1234"
+    pattern['domain'] = "https://talao.co"
+    return jsonify(pattern), int(code) 
+
+
+
+
+
+######################### Credential Offer ###########
 def test_credentialOffer2_qrcode() :
     return redirect(url_for("test_credentialOffer_qrcode", path="test/CredentialOffer2"))
 
@@ -387,19 +441,6 @@ DIDAuth = {
             }
  
 
-QueryBYExample = {
-            "type": "VerifiablePresentationRequest",
-            "query": [
-                {
-                    "type": "QueryByExample",
-                    "credentialQuery": []
-                }
-            ],
-            "challenge": "",
-            "domain" : ""
-            }
-
-pattern = QueryBYExample
 
 def test_presentationRequest_qrcode(red, mode):
     if request.method == 'GET' :
