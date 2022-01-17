@@ -112,6 +112,7 @@ def test_VP_presentation_display(red):
             nb_credentials = "1"
             issuers = presentation['verifiableCredential']['issuer']
             types = presentation['verifiableCredential']['type'][1]
+            credential = json.dumps(presentation['verifiableCredential'], indent=4, ensure_ascii=False)
         else :
             nb_credentials = str(len(presentation['verifiableCredential']))
             issuer_list = list()
@@ -123,7 +124,9 @@ def test_VP_presentation_display(red):
                     type_list.append(credential['type'][1])
             issuers = ", ".join(issuer_list)
             types = ", ".join(type_list)
-        credential = json.dumps(presentation, indent=4, ensure_ascii=False)
+            credential = json.dumps(presentation['verifiableCredential'][0], indent=4, ensure_ascii=False)
+        presentation = json.dumps(presentation, indent=4, ensure_ascii=False)
+
     html_string = """
         <!DOCTYPE html>
         <html>
@@ -136,7 +139,11 @@ def test_VP_presentation_display(red):
          <form action="/wallet/test/display_VP" method="GET" >
                     <button  type"submit" >QR code for Request</button></form>
                     <br>---------------------------------------------------<br>
+        
+        <h2> Verifiable Credential </h2>
         <pre class="whitespace-pre-wrap m-auto">""" + credential + """</pre>
+        <h2> Verifiable Presentation </h2>
+        <pre class="whitespace-pre-wrap m-auto">""" + presentation + """</pre>
         </body>
         </html>"""
     return render_template_string(html_string)

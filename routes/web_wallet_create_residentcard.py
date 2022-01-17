@@ -29,6 +29,7 @@ except :
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 
+
 # officiel did:ethr:0xE474E9a6DFD6D8A3D60A36C2aBC428Bf54d2B1E8
 def translate(credential) : 
     credential_name = ""

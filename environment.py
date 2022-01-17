@@ -113,6 +113,14 @@ class currentMode() :
 			self.flaskserver = "192.168.0.20"
 			self.port = 3000
 
+		elif self.myenv == 'liveboxh2' :
+			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
+			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
+			self.server = 'http://192.168.0.231:3000/'
+			self.flaskserver = "192.168.0.231"
+			self.port = 3000
+
 		else :
 			logging.error('environment variable problem')
 

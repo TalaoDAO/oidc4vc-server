@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
-from signaturesuite import vc_signature
+from signaturesuite import vc_signature, helpers
 from components import privatekey
 from github import Github
 import base64
@@ -9,6 +9,7 @@ import uuid
 import logging
 from flask_babel import _
 from urllib.parse import urlencode
+import didkit
 
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +17,12 @@ logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
-did_selected = ""
+DID_WEB = 'did:web:talao.co'
+DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'        
+
+did_selected = DID_ETHR
 
 
 
@@ -44,10 +50,7 @@ except :
     P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
     Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
 
-DID_WEB = 'did:web:talao.co'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'          
+  
 
 def translate(credential) : 
     credential_name = ""
@@ -116,15 +119,13 @@ def return_code(red, mode) :
     if request.method == 'POST' :
         id = str(uuid.uuid1())
         print(id)
-        url = mode.server + "wallet/test/return_code_endpoint/" + id
+        url = mode.server + "wallet/test/return_code_endpoint/" + id + '?issuer=' + did_selected
         red.set(id, request.form['code'])
-        #deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         return render_template('wallet/test/credential_offer_qr_2.html',
                                 url=url,
                                 )
 
 def return_code_endpoint(id, red) :
-    print('id = ', id)
     code = red.get(id).decode()
     pattern['challenge'] = "1234"
     pattern['domain'] = "https://talao.co"
@@ -175,9 +176,17 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' +  urlencode({'issuer' : credential['issuer']})
+    """ later 
+    try :
+        key = helpers.ethereum_to_jwk256k(PVK)
+        registration = didkit.did_auth(did_selected, '{}' , key)
+    except:
+        registration = "" 
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'registration' : registration})
+    """
+    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
+
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-    logging.info("deeplink = %s", deeplink)
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
@@ -189,6 +198,7 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
+    global did_selected 
     if request.method == 'GET' :   
         try :
             path = request.args['path']
@@ -277,7 +287,6 @@ def test_credentialOffer_qrcode(red, mode) :
     else :   
         path = request.form['path']   
         if request.form['did_select'].split(':')[1] == 'web' :
-            global did_selected 
             did_selected = request.form['did_select']
             did_issuer = 'did:web:talao.co'
         else :
@@ -322,7 +331,6 @@ def test_credentialOffer_qrcode(red, mode) :
             credentialOffer['shareLink'] = request.form['shareLink']
         url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
         deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-        logging.info("deeplink = %s", deeplink)
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
