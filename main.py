@@ -47,8 +47,10 @@ from routes import web_data_user, web_skills, web_external, web_issuer_explore, 
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP
 
+
+#BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.9.10'
+VERSION = '1.9.11'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup

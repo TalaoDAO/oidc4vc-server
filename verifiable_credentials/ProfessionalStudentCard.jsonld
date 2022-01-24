@@ -1,12 +1,11 @@
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        "https://w3id.org/vc-revocation-list-2020/v1",
         {
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
-            "ProfessionalStudentCard" : {
-                "@id": "https://github.com/TalaoDAO/context/blob/main/README.mdidentitypass",
+            "ProfessionalStudentCard" : {   
+                "@id": "https://github.com/TalaoDAO/context/blob/main/README.md",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
@@ -15,19 +14,26 @@
                     "type": "@type",
                     "recipient" : {
                         "@id" : "schema:recipient",
-                        "@context" : {
+                        "@context" :    {
                             "@version": 1.1,
                             "@protected": true,
                             "schema" : "https://schema.org/",
-                            "email" : "schema:email",
                             "image": {"@id" : "schema:image", "@type" : "@id"},
-                            "telephone" : "schema:telephone",
                             "givenName" : "schema:givenName",
                             "familyName" : "schema:familyName",
-                            "gender" : "schema:gender",
-                            "address" : "schema:address",
                             "birthDate" : "schema:birthDate",
-                            "jobTitle" : "schema:jobTitle"
+                            "signatureLines": {
+                                "@id": "https://github.com/blockchain-certificates/cert-schema/blob/master/docs/signatureLineExtension_schema.md",
+                                "@context": {
+                                    "@protected": true,
+                                    "@version": 1.1,
+                                    "image": {
+                                        "@id": "schema:image",
+                                        "@type": "@id"
+                                    },
+                                    "schema": "https://schema.org/"
+                                }
+                            }
                         }
                     },
                     "issuedBy": {
@@ -37,12 +43,13 @@
                             "@protected": true,
                             "schema" : "https://schema.org/",
                             "name" :  "schema:name",
+                            "directorName" : "schema:name",
                             "address" : "schema:address",
                             "logo" : { "@id" : "schema:logo", "@type" : "@id"}
                         }
                     }
                 }
-              }
+            }
         }
     ],
     "id": "",
@@ -81,16 +88,19 @@
         "id": "",
         "type" : "ProfessionalStudentCard",
         "recipient" : {
-            "email" : "john.doe@talao.io",
-            "image" : "",
+            "image" : "https://gateway.pinata.cloud/ipfs/QmXdKFQDoGpKRb11aj84zmmYXuTNpe7TYaJs9z6b9QN2VM",
+            "birthDate" : "1991-12-10T12:02:55.268Z",
             "familyName" : "Doe",
             "givenName" : "John",
-            "jobTitle" : "Director"
-            },
+            "signatureLines": {
+                "image": "https://gateway.pinata.cloud/ipfs/QmeMfck3z6K5p8xmCqQpjH3R7s3YddR5DsMNLewWvzQrFS"
+            }
+        },
         "issuedBy" : {
-            "name" : "Talao",
-            "address" : "4, rue Louis-Guérin, 69626 Villeurbanne, France",
-            "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
-              }
+            "name" : "Talao CFA",
+            "directorName" : "Nicolas Muller",
+            "address" : "16 rue de Wattignies, 75012 Paris, France",
+            "logo" : "https://gateway.pinata.cloud/ipfs/Qmac6K4suXyYaouFXxeBzDTr7XivTiq6cLWPh1puS6L7Kt"
+        }
     }
 }

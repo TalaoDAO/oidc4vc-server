@@ -91,6 +91,7 @@ def emailpass_qrcode(red, mode) :
 def emailpass_offer(id, red, mode):
     """ Endpoint for wallet
     """
+  
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
     credential["issuer"] = DID
     credential['id'] = "urn:uuid:..."
@@ -108,6 +109,7 @@ def emailpass_offer(id, red, mode):
              "shareLink" : json.dumps(credential, separators=(',', ':'))
         }
         return jsonify(credential_offer)
+
     elif request.method == 'POST': 
         red.delete(id)   
         # sign credential

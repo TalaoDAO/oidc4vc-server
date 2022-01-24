@@ -46,6 +46,8 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground/prosoon',  view_func=playground_prosoon, methods = ['GET', 'POST'])
+
 
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -55,9 +57,11 @@ def init_app(app,red, mode) :
 
 def playground() :
     global status
-    print('status = ', status)
     return render_template("./wallet/test/playground.html", status=status)
 
+def playground_prosoon() :
+    global status
+    return render_template("./wallet/test/prosoon.html", status=status)
 
 def credentiallist() :
     credential_list=json.load(open('credential_list_signed.json', 'r'))

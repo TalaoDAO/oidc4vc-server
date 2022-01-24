@@ -38,7 +38,7 @@
     ],
     "id": "urn:uuid:8930fe9c-0e22-11ec-9ef1-f37fc4c00c40",
     "type": ["VerifiableCredential", "Voucher"],
-    "issuer": "",
+    "issuer": "did:tz:ljkghg",
     "name" : [ 
         {
             "@value": "100% off Tezotopia blocks",
