@@ -95,6 +95,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/return_code_GET',  view_func=return_code_GET, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
     app.add_url_rule('/wallet/test/return_code_GET_endpoint/<id>',  view_func=return_code_GET_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
 
+    app.add_url_rule('/wallet/test/return_code_POST',  view_func=return_code_POST, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
+    app.add_url_rule('/wallet/test/return_code_POST_endpoint/<id>',  view_func=return_code_POST_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
 
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -103,7 +105,7 @@ def init_app(app,red, mode) :
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
-######################### test return code ###########
+######################### test return code GET ###########
 
 
 def return_code_GET(red, mode) :
@@ -158,6 +160,64 @@ def return_code_GET_endpoint(id, red) :
     pattern['domain'] = "https://talao.co"
     return jsonify(pattern), int_code 
 
+
+
+
+######################### test return code POST for presentationRequest ###########
+
+
+def return_code_POST(red, mode) :
+    if request.method == 'GET' :
+        html_string =  """
+        
+        <center>
+                <h2> test return code for PresentationRequest -> POST </h2>
+                
+                    <form action="/wallet/test/return_code_POST" method="POST" >
+                  
+                        <br><br>
+
+                        <button name="code" type="submit" value="200">code 200</button>
+                        <button name="code" type="submit" value="201">code 201</button>
+
+                        <button name="code" type="submit" value="400">code 400</button>
+                        <button name="code" type="submit" value="401">code 401</button>
+                        <button name="code" type="submit" value="403">code 403</button>
+                        <button name="code" type="submit" value="408">code 408</button>
+                        <button name="code" type="submit" value="429">code 429</button>
+
+                        <button name="code" type="submit" value="500">code 500</button>
+                        <button name="code" type="submit" value="501">code 501</button>
+                        <button name="code" type="submit" value="504">code 504</button>
+                     
+                        <button name="code" type="submit" value="000">code random</button>
+                   
+                    </form>*
+         </center>
+
+                    """
+        return render_template_string(html_string)
+    if request.method == 'POST' :
+        id = str(uuid.uuid1())
+        print(id)
+        url = mode.server + "wallet/test/return_code_POST_endpoint/" + id + '?issuer=' + did_selected
+        red.set(id, request.form['code'])
+        return render_template('wallet/test/credential_offer_qr_2.html',
+                                url=url,
+                                )
+
+def return_code_POST_endpoint(id, red) :
+    code = red.get(id).decode()
+    if code == "000" :
+        int_code =  random.randrange(100, 999)
+    else :
+        int_code = int(code)
+    if request.method == 'GET' :
+        pattern['challenge'] = "1234"
+        pattern['domain'] = "https://talao.co"
+        return jsonify(pattern), 200
+    if request.method == 'POST' :
+        return jsonify("Test return code POST / PresentationRequest"), int_code
 
 
 
@@ -551,7 +611,7 @@ def test_presentationRequest_endpoint(stream_id, red):
         event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           
         red.publish('credible', event_data)
-        return jsonify("ok")
+        return jsonify("ok"), 200
 
 
 def event_stream(red):
