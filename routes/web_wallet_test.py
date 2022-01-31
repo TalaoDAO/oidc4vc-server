@@ -10,6 +10,7 @@ import logging
 from flask_babel import _
 from urllib.parse import urlencode
 import didkit
+import random
 
 
 logging.basicConfig(level=logging.INFO)
@@ -90,8 +91,9 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
-    app.add_url_rule('/wallet/test/return_code',  view_func=return_code, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
-    app.add_url_rule('/wallet/test/return_code_endpoint/<id>',  view_func=return_code_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
+    
+    app.add_url_rule('/wallet/test/return_code_GET',  view_func=return_code_GET, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
+    app.add_url_rule('/wallet/test/return_code_GET_endpoint/<id>',  view_func=return_code_GET_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
 
 
     global PVK, test_repo, registry_repo
@@ -104,32 +106,57 @@ def init_app(app,red, mode) :
 ######################### test return code ###########
 
 
-def return_code(red, mode) :
+def return_code_GET(red, mode) :
     if request.method == 'GET' :
-        html_string =  """<p> type : test return code sur presentationOffer</p>
+        html_string =  """
+        
+        <center>
+                <h2> test return code -> GET </h2>
                 
-                    <form action="/wallet/test/return_code" method="POST" >
-                    Return Code : <input name="code"> 
-                    <br><br>
-                      <br><button  type"submit" > Generate QR code</button>
-                    </form>
+                    <form action="/wallet/test/return_code_GET" method="POST" >
+                  
+                        <br><br>
+
+                        <button name="code" type="submit" value="200">code 200</button>
+                        <button name="code" type="submit" value="201">code 201</button>
+
+                        <button name="code" type="submit" value="400">code 400</button>
+                        <button name="code" type="submit" value="401">code 401</button>
+                        <button name="code" type="submit" value="403">code 403</button>
+                        <button name="code" type="submit" value="408">code 408</button>
+                        <button name="code" type="submit" value="429">code 429</button>
+
+                        <button name="code" type="submit" value="500">code 500</button>
+                        <button name="code" type="submit" value="501">code 501</button>
+                        <button name="code" type="submit" value="504">code 504</button>
+                     
+                        <button name="code" type="submit" value="000">code random</button>
+                   
+                    </form>*
+         </center>
 
                     """
         return render_template_string(html_string)
     if request.method == 'POST' :
         id = str(uuid.uuid1())
         print(id)
-        url = mode.server + "wallet/test/return_code_endpoint/" + id + '?issuer=' + did_selected
+        url = mode.server + "wallet/test/return_code_GET_endpoint/" + id + '?issuer=' + did_selected
         red.set(id, request.form['code'])
         return render_template('wallet/test/credential_offer_qr_2.html',
                                 url=url,
                                 )
 
-def return_code_endpoint(id, red) :
+def return_code_GET_endpoint(id, red) :
     code = red.get(id).decode()
+    if code == "000" :
+        int_code =  random.randrange(100, 999)
+    else :
+        int_code = int(code)
+    print("code = ", int_code)
+
     pattern['challenge'] = "1234"
     pattern['domain'] = "https://talao.co"
-    return jsonify(pattern), int(code) 
+    return jsonify(pattern), int_code 
 
 
 
