@@ -10,7 +10,7 @@
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content" >
-                {% include './wallet/test/prosoon_nav_bar.html' %}
+                {% include './wallet/test/playground_new__nav_bar.html' %}
                 <div class="container-fluid mt-5">
                     <div class="text-center">
                         1 - Télécharger l'app smartphone Talao wallet de Google ou Apple store <br>
@@ -24,19 +24,12 @@
                                 <br><strong>{{_('Attestation employeur')}}</strong>
                             </div>
                         </div>
-                        
-                        <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=ProfessionalSkillAssessment.jsonld"><img  src="/static/img/15.png"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>{{_("Certificat de compétences")}}</strong>
-                            </div>
-                        </div>
                        
                         
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=ProfessionalExperienceAssessment.jsonld"><img  src="/static/img/20.jpeg"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>{{_("Certificat d'experience professionnelle")}}</strong>
+                                <a href="/wallet/test/direct_offer?VC=Voucher.jsonld"><img  src="/static/img/20.jpeg"  style="width: 300px;border-radius:0px;"></a>
+                                <br><strong>{{_("Carte de réduction")}}</strong>
                             </div>
                         </div>
                     </div>
@@ -45,14 +38,14 @@
                         <<div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=Carte_etudiant_des_metiers.jsonld"><img  src="/static/img/carte_etudiant.jpg"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>{{_("Carte d'étudiant des métiers - CFA")}}</strong>
+                                <br><strong>{{_("Carte d'étudiant")}}</strong>
                             </div>
                         </div>
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=LearningAchievement.jsonld"><img  src="/static/img/8.png"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>{{_("Diplomes , Learning Achievement style ESSIF")}}</strong>
+                                <br><strong>{{_("Diplomes")}}</strong>
                             </div>
                         </div>
                        

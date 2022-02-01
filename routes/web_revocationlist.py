@@ -44,24 +44,11 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/revoke',  view_func=revoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/wallet/test/unrevoke',  view_func=unrevoke, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
-    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
-    app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
-    app.add_url_rule('/playground/prosoon',  view_func=playground_prosoon, methods = ['GET', 'POST'])
-
-
     global PVK
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     logging.info('credential list signed and published')
     return
 
-
-def playground() :
-    global status
-    return render_template("./wallet/test/playground.html", status=status)
-
-def playground_prosoon() :
-    global status
-    return render_template("./wallet/test/prosoon.html", status=status)
 
 def credentiallist() :
     credential_list=json.load(open('credential_list_signed.json', 'r'))

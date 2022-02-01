@@ -1,7 +1,7 @@
 from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
-from signaturesuite import vc_signature, helpers
+from signaturesuite import vc_signature
 from components import privatekey
 from github import Github
 import base64
@@ -9,8 +9,6 @@ import uuid
 import logging
 from flask_babel import _
 from urllib.parse import urlencode
-import didkit
-import random
 
 
 logging.basicConfig(level=logging.INFO)
@@ -24,8 +22,6 @@ DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'        
 
 did_selected = DID_ETHR
-
-
 
 QueryBYExample = {
             "type": "VerifiablePresentationRequest",
@@ -51,7 +47,6 @@ except :
     P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
     Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
 
-  
 
 def translate(credential) : 
     credential_name = ""
@@ -64,6 +59,7 @@ def translate(credential) :
         pass
     return credential_name
     
+
 def dir_list_calculate(path) :
     dir_list=list()
     contents = test_repo.get_contents(path)
@@ -91,12 +87,11 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
-    
-    app.add_url_rule('/wallet/test/return_code_GET',  view_func=return_code_GET, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
-    app.add_url_rule('/wallet/test/return_code_GET_endpoint/<id>',  view_func=return_code_GET_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
 
-    app.add_url_rule('/wallet/test/return_code_POST',  view_func=return_code_POST, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode} )
-    app.add_url_rule('/wallet/test/return_code_POST_endpoint/<id>',  view_func=return_code_POST_endpoint, methods = ['GET', 'POST'], defaults={'red' : red} )
+    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground/prosoon',  view_func=playground_prosoon, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground/new',  view_func=playground_new, methods = ['GET', 'POST'])
 
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -105,121 +100,20 @@ def init_app(app,red, mode) :
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
-######################### test return code GET ###########
 
 
-def return_code_GET(red, mode) :
-    if request.method == 'GET' :
-        html_string =  """
-        
-        <center>
-                <h2> test return code -> GET </h2>
-                
-                    <form action="/wallet/test/return_code_GET" method="POST" >
-                  
-                        <br><br>
+########################  playground ##########################""
+def playground() :
+    global status
+    return render_template("./wallet/test/playground.html")
 
-                        <button name="code" type="submit" value="200">code 200</button>
-                        <button name="code" type="submit" value="201">code 201</button>
+def playground_prosoon() :
+    global status
+    return render_template("./wallet/test/prosoon.html")
 
-                        <button name="code" type="submit" value="400">code 400</button>
-                        <button name="code" type="submit" value="401">code 401</button>
-                        <button name="code" type="submit" value="403">code 403</button>
-                        <button name="code" type="submit" value="408">code 408</button>
-                        <button name="code" type="submit" value="429">code 429</button>
-
-                        <button name="code" type="submit" value="500">code 500</button>
-                        <button name="code" type="submit" value="501">code 501</button>
-                        <button name="code" type="submit" value="504">code 504</button>
-                     
-                        <button name="code" type="submit" value="000">code random</button>
-                   
-                    </form>*
-         </center>
-
-                    """
-        return render_template_string(html_string)
-    if request.method == 'POST' :
-        id = str(uuid.uuid1())
-        print(id)
-        url = mode.server + "wallet/test/return_code_GET_endpoint/" + id + '?issuer=' + did_selected
-        red.set(id, request.form['code'])
-        return render_template('wallet/test/credential_offer_qr_2.html',
-                                url=url,
-                                )
-
-def return_code_GET_endpoint(id, red) :
-    code = red.get(id).decode()
-    if code == "000" :
-        int_code =  random.randrange(100, 999)
-    else :
-        int_code = int(code)
-    print("code = ", int_code)
-
-    pattern['challenge'] = "1234"
-    pattern['domain'] = "https://talao.co"
-    return jsonify(pattern), int_code 
-
-
-
-
-######################### test return code POST for presentationRequest ###########
-
-
-def return_code_POST(red, mode) :
-    if request.method == 'GET' :
-        html_string =  """
-        
-        <center>
-                <h2> test return code for PresentationRequest -> POST </h2>
-                
-                    <form action="/wallet/test/return_code_POST" method="POST" >
-                  
-                        <br><br>
-
-                        <button name="code" type="submit" value="200">code 200</button>
-                        <button name="code" type="submit" value="201">code 201</button>
-
-                        <button name="code" type="submit" value="400">code 400</button>
-                        <button name="code" type="submit" value="401">code 401</button>
-                        <button name="code" type="submit" value="403">code 403</button>
-                        <button name="code" type="submit" value="408">code 408</button>
-                        <button name="code" type="submit" value="429">code 429</button>
-
-                        <button name="code" type="submit" value="500">code 500</button>
-                        <button name="code" type="submit" value="501">code 501</button>
-                        <button name="code" type="submit" value="504">code 504</button>
-                     
-                        <button name="code" type="submit" value="000">code random</button>
-                   
-                    </form>*
-         </center>
-
-                    """
-        return render_template_string(html_string)
-    if request.method == 'POST' :
-        id = str(uuid.uuid1())
-        print(id)
-        url = mode.server + "wallet/test/return_code_POST_endpoint/" + id + '?issuer=' + did_selected
-        red.set(id, request.form['code'])
-        return render_template('wallet/test/credential_offer_qr_2.html',
-                                url=url,
-                                )
-
-def return_code_POST_endpoint(id, red) :
-    code = red.get(id).decode()
-    if code == "000" :
-        int_code =  random.randrange(100, 999)
-    else :
-        int_code = int(code)
-    if request.method == 'GET' :
-        pattern['challenge'] = "1234"
-        pattern['domain'] = "https://talao.co"
-        return jsonify(pattern), 200
-    if request.method == 'POST' :
-        return jsonify("Test return code POST / PresentationRequest"), int_code
-
-
+def playground_new() :
+    global status
+    return render_template("./wallet/test/playground_new.html")
 
 
 ######################### Credential Offer ###########
@@ -502,7 +396,11 @@ def test_credentialOffer_back():
         <h2>Verifiable Credential has been signed and transfered to wallet"</h2<
         <br><br><br>
         <form action="/playground" method="GET" >
-                    <button  type"submit" >Back</button></form>
+                    <button  type"submit" >Back Playground </button></form>
+        <form action="/playground/prosoon" method="GET" >
+                    <button  type"submit" >Back Prosoon</button></form>
+        <form action="/playground/new" method="GET" >
+                    <button  type"submit" >Back Playground/New</button></form>
         </body>
         </html>"""
     return render_template_string(html_string)
