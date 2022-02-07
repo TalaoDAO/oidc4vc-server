@@ -42,6 +42,24 @@ def tir_api(did) :
                 }
             }
         })
+    elif did in ["did:ethr:0x6Ad8372F03d2b16701c9989d3043fE27C1f8e2FE".lower(), "did:tz:tz2CWTBwgUbs1BMXAjzUvrEk8gRhS6eLqzRD"] :
+        print('did is verified')
+        return jsonify({
+            "issuer": {
+                "preferredName": "Association 42",
+                "did": ["did:ethr:0x6Ad8372F03d2b16701c9989d3043fE27C1f8e2FE".lower()],
+                "eidasCertificatePem": [{}],
+                "serviceEndpoints": [{}, {}],
+                "organizationInfo": {
+                    "id": "837674480",
+                    "legalName": "Association 42",
+                    "currentAddress": "96 Boulevard Bessières, 75017 Paris",
+                    "vatNumber": "FR26837674480",
+                    "website": "https://42.fr",
+                    "issuerDomain" : ["ecole42.talao.co"]
+                }
+            }
+        })
     else :
         # proxy LIST registry server for the Trustmydata prototype
         try : 
