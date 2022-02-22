@@ -91,6 +91,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground/prosoon',  view_func=playground_prosoon, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground/grant',  view_func=playground_grant, methods = ['GET', 'POST'])
     app.add_url_rule('/playground/new',  view_func=playground_new, methods = ['GET', 'POST'])
 
     global PVK, test_repo, registry_repo
@@ -110,6 +111,10 @@ def playground() :
 def playground_prosoon() :
     global status
     return render_template("./wallet/test/prosoon.html")
+
+def playground_grant() :
+    global status
+    return render_template("./wallet/test/grant.html")
 
 def playground_new() :
     global status
