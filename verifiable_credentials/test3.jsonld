@@ -1,0 +1,69 @@
+{
+    "@context": ["https://www.w3.org/2018/credentials/v1",
+        {
+            "name" : "https://schema.org/name",
+            "description" : "https://schema.org/description",
+            "EmailPass" : {
+                "@id": "https://github.com/TalaoDAO/context/blob/main/README.md#emailpass",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "id": "@id",
+                    "type": "@type",
+                    "email": "schema:email",
+                    "issuedBy" : {
+                        "@id" : "schema:issuedBy",
+                        "@context" : {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "logo": {"@id" : "schema:image", "@type" : "@id"},
+                            "name" : "schema:name"
+                        }
+                    }
+                   
+                }
+            }
+        }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "EmailPass"],
+    "name" : [ 
+        {
+            "@value": "Test 3",
+            "@language": "en"
+        },
+        {
+            "@value": "Test 3",
+            "@language": "de"
+        },
+        {
+            "@value": "Test 3",
+            "@language": "fr"
+        }
+    ],
+    "description" : [
+        {
+            "@language": "en",
+            "@value": "Accept this VC the server will return an error code."
+        },
+        {
+            "@language": "de",
+            "@value": "Dieses signierte elektronische Zertifikat ist der Beweis dafür, dass Sie der Inhaber dieser E-Mail-Adresse sind."
+        },
+        {
+            "@language": "fr",
+            "@value": "Accept this VC and the server will return an error code."
+        }
+    ],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "type" : "EmailPass",
+        "email" : "",
+        "issuedBy" : {
+            "name" : "Talao",
+            "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+        }
+    }
+}
