@@ -135,7 +135,7 @@ def generate_store_key(address, curve, mode) :
 	return True
 
 
-# create a RSA key from Ethereum private key
+# create a RSA key
 def create_rsa_key(private_key, mode) :
 	RSA_key = RSA.generate(2048)
 	return  RSA_key, RSA_key.exportKey('PEM'), RSA_key.publickey().exportKey('PEM')

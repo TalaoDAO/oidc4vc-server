@@ -386,7 +386,7 @@ def test_credentialOffer_endpoint(id, red):
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
-        return Response(json.dumps(signed_credential, separators=(':', ':')),
+        return Response(json.dumps(signed_credential, separators=(':', ',')),
                         headers={ "Content-Type" : "application/json"},
                         status=200)
 

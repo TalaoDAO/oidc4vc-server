@@ -92,8 +92,6 @@ def test1_endpoint(id, red) :
     return jsonify(pattern), int_code 
 
 
-
-
 ######################### Test 2 ###########
 
 
@@ -149,11 +147,6 @@ def test2_endpoint(id, red) :
     
     if request.method == 'POST' :
         return jsonify("Test2"), int_code
-
-
-
-
-
 
 
 ######################### Test 3 ###########

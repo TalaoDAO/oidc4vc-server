@@ -31,7 +31,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='liveboxh2'
+   myenv='montana'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -44,13 +44,13 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory, web_wallet_test_login
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
-from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app
+from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2
 from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP, web_wallet_return_code
 
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.10.3'
+VERSION = '1.11.0'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -133,6 +133,7 @@ web_revocationlist.init_app(app, red, mode)
 web_tiar.init_app(app)
 web_app.init_app(app, red, mode)
 web_wallet_return_code.init_app(app, red, mode)
+web_siopv2.init_app(app, red, mode)
 logging.info('end init routes')
 
 
@@ -286,7 +287,8 @@ def did_doc(ec_public) :
                         "controller": "did:web:talao.co",
                         "publicKeyJwk": {
                             "e":"AQAB",
-                            "kid":"K3X7qOtK1O4-sJHM1NYJVKGFS2rr0JTYFjxoo5Oz1v8",
+                            #"kid":"K3X7qOtK1O4-sJHM1NYJVKGFS2rr0JTYFjxoo5Oz1v8",
+                            "kid":"did:web:talao.co#key-2",
                             "kty":"RSA",
                             "n":"mIPHiLUlfIwj9udZARJg5FlyXuqMsyGHucbA-CqpJh98_17Qvd51SAdg83UzuCihB7LNYXEujnzEP5J5mAWsrTi0G3CRFk-pU_TmuY8p57M_NXvB1EJsOrjuki5HmcybzfkJMtHydD7gVotPoe-W4f8TxWqB54ve4YiFczG6A43yB3lLCYZN2wEWfwKD_FcaC3wKWdHFxqLkrulD4pVZQ_DwMNuf2XdCvEzpC33ZsU3DB6IxtcSbVejGCyq5EXroIh1-rp6ZPuCGExg8CjiLehsWvOmBac9wO74yfo1IF6PIrQQNkFA3vL2YWjp3k8SO0PAaUMF44orcUI_OOHXYLw"
                         }
