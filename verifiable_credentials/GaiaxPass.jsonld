@@ -3,7 +3,7 @@
         {
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
-            "EmailPass" : {
+            "GaiaxPass" : {
                 "@id": "https://github.com/TalaoDAO/context/blob/main/README.md#emailpass",
                 "@context": {
                     "@version": 1.1,
@@ -12,6 +12,9 @@
                     "id": "@id",
                     "type": "@type",
                     "email": "schema:email",
+                    "givenName" : "schema:givenName",
+                    "familyName" : "schema:familyName",
+                    "workFor" : "schema:workFor",
                     "issuedBy" : {
                         "@id" : "schema:issuedBy",
                         "@context" : {
@@ -27,40 +30,39 @@
         }
     ],
     "id": "",
-    "type": ["VerifiableCredential", "EmailPass"],
+    "type": ["VerifiableCredential", "GaiaxPass"],
     "name" : [ 
         {
-            "@value": "Test 3",
+            "@value": "GAIA-X Pass",
             "@language": "en"
         },
         {
-            "@value": "Test 3",
+            "@value": "GAIA-X Pass",
             "@language": "de"
         },
         {
-            "@value": "Test 3",
+            "@value": "GAIA-X Pass",
             "@language": "fr"
         }
     ],
     "description" : [
         {
             "@language": "en",
-            "@value": "Accept this VC the server will return an error code."
+            "@value": "This signed electronic credential is a GAIA-X pass."
         },
         {
             "@language": "de",
-            "@value": "Dieses signierte elektronische Zertifikat ist der Beweis dafür, dass Sie der Inhaber dieser E-Mail-Adresse sind."
+            "@value": "Dieser signierte elektronische Ausweis ist ein GAIA-X-Pass."
         },
         {
             "@language": "fr",
-            "@value": "Accept this VC and the server will return an error code."
+            "@value": "Ce credential est un pass GAIA-X."
         }
     ],
     "issuer": "",
     "issuanceDate": "",
     "credentialSubject" : {
-        "type" : "EmailPass",
-        "email" : "",
+        "type" : "GaiaxPass",
         "issuedBy" : {
             "name" : "Talao",
             "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"

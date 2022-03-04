@@ -28,21 +28,7 @@
     ],
     "id": "",
     "type": ["VerifiableCredential", "EmailPass"],
-    "name" : [ 
-        {
-            "@value": "Email Proof",
-            "@language": "en"
-        },
-        {
-            "@value": "E-Mail-Beweis",
-            "@language": "de"
-        },
-        {
-            "@value": "Preuve d'email",
-            "@language": "fr"
-        }
-    ],
-    "description" : [
+    "description": [
         {
             "@language": "en",
             "@value": "This signed electronic credential is proof that you are the owner of this email address."
@@ -54,6 +40,20 @@
         {
             "@language": "fr",
             "@value": "Cette attestation électronique signée est la preuve que vous êtes le propriétaire de cette adresse email."
+        }
+    ],
+    "name": [
+        {
+            "@language": "en",
+            "@value": "Email Proof"
+        },
+        {
+            "@language": "de",
+            "@value": "E-Mail-Beweis"
+        },
+        {
+            "@language": "fr",
+            "@value": "Preuve d'email"
         }
     ],
     "issuer": "",
