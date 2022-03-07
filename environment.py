@@ -118,12 +118,6 @@ class currentMode() :
 			self.server = 'http://192.168.0.187:3000/'
 			self.flaskserver = "192.168.0.187"
 			self.port = 3000
-		
-		elif self.myenv == 'montana' :
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://172.16.9.19:3000/'
-			self.flaskserver = "172.16.9.19"
-			self.port = 3000
 
 		else :
 			logging.error('environment variable problem')

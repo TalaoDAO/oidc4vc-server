@@ -48,7 +48,7 @@
     "description" : [
         {
             "@language": "en",
-            "@value": "This signed electronic credential is a GAIA-X pass."
+            "@value": "This signed electronic credential is a GAIA-X pass issued by Talao."
         },
         {
             "@language": "de",
@@ -56,7 +56,7 @@
         },
         {
             "@language": "fr",
-            "@value": "Ce credential est un pass GAIA-X."
+            "@value": "Ce credential est un pass GAIA-X signé par Talao."
         }
     ],
     "issuer": "",
