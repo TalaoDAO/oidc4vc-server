@@ -50,7 +50,7 @@ from routes import web_emailpass, web_gaiaxpass, web_phonepass, web_loyaltycard,
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.12.0'
+VERSION = '1.12.2'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -291,7 +291,6 @@ def did_doc(ec_public) :
                         "controller": "did:web:talao.co",
                         "publicKeyJwk": {
                             "e":"AQAB",
-                            #"kid":"K3X7qOtK1O4-sJHM1NYJVKGFS2rr0JTYFjxoo5Oz1v8",
                             "kid":"did:web:talao.co#key-2",
                             "kty":"RSA",
                             "n":"mIPHiLUlfIwj9udZARJg5FlyXuqMsyGHucbA-CqpJh98_17Qvd51SAdg83UzuCihB7LNYXEujnzEP5J5mAWsrTi0G3CRFk-pU_TmuY8p57M_NXvB1EJsOrjuki5HmcybzfkJMtHydD7gVotPoe-W4f8TxWqB54ve4YiFczG6A43yB3lLCYZN2wEWfwKD_FcaC3wKWdHFxqLkrulD4pVZQ_DwMNuf2XdCvEzpC33ZsU3DB6IxtcSbVejGCyq5EXroIh1-rp6ZPuCGExg8CjiLehsWvOmBac9wO74yfo1IF6PIrQQNkFA3vL2YWjp3k8SO0PAaUMF44orcUI_OOHXYLw"

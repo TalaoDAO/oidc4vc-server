@@ -4,17 +4,23 @@
             "name" : "https://schema.org/name",
             "description" : "https://schema.org/description",
             "GaiaxPass" : {
-                "@id": "https://github.com/TalaoDAO/context/blob/main/README.md#emailpass",
+                "@id": "https://gaia-x.gitlab.io/policy-rules-committee/trust-framework/participant/",
                 "@context": {
                     "@version": 1.1,
                     "@protected": true,
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
-                    "email": "schema:email",
-                    "givenName" : "schema:givenName",
-                    "familyName" : "schema:familyName",
-                    "workFor" : "schema:workFor",
+                    "company_number" : "schema:taxID",
+                    "headquarter": {
+                        "@id": "https://gaia-x.gitlab.io/policy-rules-committee/trust-framework/participant/",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "schema" : "https://schema.org/",
+                            "country" :   "schema:addressCountry"
+                        }
+                    },
                     "issuedBy" : {
                         "@id" : "schema:issuedBy",
                         "@context" : {
@@ -23,8 +29,19 @@
                             "logo": {"@id" : "schema:image", "@type" : "@id"},
                             "name" : "schema:name"
                         }
-                    }
-                   
+                    },
+                    "legal": {
+                        "@id": "https://gaia-x.gitlab.io/policy-rules-committee/trust-framework/participant/",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "schema" : "https://schema.org/",
+                            "country" :   "schema:addressCountry"
+                        }
+                    },
+                    "lei" : "schema:leiCode",
+                    "parentOrganisation" : "schema:parentOrganization",
+                    "subOrganisation" : "schema:subOrganization"                   
                 }
             }
         }
@@ -63,6 +80,13 @@
     "issuanceDate": "",
     "credentialSubject" : {
         "type" : "GaiaxPass",
+        "company_number" : " FR7501.837674480",
+        "headquarter" : {
+            "country" :"FR"
+        },
+        "legal" : {
+            "country" : "FR"
+        },
         "issuedBy" : {
             "name" : "Talao",
             "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"

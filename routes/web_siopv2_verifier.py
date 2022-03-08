@@ -18,7 +18,7 @@ qrcode = QRcode(app)
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-# Talao key
+# Talao key 
 try :
     RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
 except :
@@ -28,24 +28,21 @@ key = rsa_key.export_private() # private key jwk
 key_dict = json.loads(key)
 did = "did:web:talao.co"
 key_dict['kid'] = kid = did + "#key-2"
-
 key1 = jwk.JWK(**key_dict)
-key_pem = key1.export_to_pem(private_key=True, password=None).decode()
-
+key_pem = key1.export_to_pem(private_key=True, password=None).decode() # private key pem
 
 vc_type = "EmailPass"
 vc_issuer = "did:web:talao.co"
+client_id= "did:web:talao.co"
+
 
 def init_app(app,red, mode) :
     app.add_url_rule('/siopv2/verifier',  view_func=siopv2_verifier, methods = ['GET'])
     app.add_url_rule('/siopv2/verifier/<id>',  view_func=siopv2_verifier_id, methods = ['GET', 'POST'], defaults={'red' :red, "mode" : mode})
-   
     app.add_url_rule('/siopv2/verifier_redirect/<id>',  view_func=siopv2_verifier_redirect, methods = ['POST'], defaults={'red' :red})
     app.add_url_rule('/siopv2/verifier_followup',  view_func=verifier_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/siopv2/verifier_stream',  view_func=verifier_stream, methods = ['GET', 'POST'], defaults={ 'red' : red})
-
     app.add_url_rule('/siopv2/verifier_request_uri/<id>',  view_func=verifier_request_uri, methods = ['GET', 'POST'], defaults={ 'red' : red})
-
     return
 
 
@@ -118,25 +115,24 @@ def siopv2_verifier_id(id, red, mode) :
             "did:web"
         ]
     }
-
     claims_string = json.loads(json.dumps(claims, separators=(',', ':')))
     nonce = secrets.token_urlsafe()[0:10]
     verifier_request = {
                 "scope" : "openid",
                 "response_type" : "id_token",
-                "client_id" : "did:web:talao.co",
+                "client_id" : client_id,
     	        "redirect_uri" : mode.server + "siopv2/verifier_redirect/" + id,
     	        "response_mode" : "post",
     	        "claims" : claims_string,
     	        "nonce" : nonce,
                 "registration" : registration,
                 "request_uri" : mode.server + "siopv2/verifier_request_uri/" + id,
-            }
+    }
     # calcul de request 
     jwt_header = {
         "typ" :"JWT",
         "kid": kid
-        }
+    }
     verifier_request_encoded = jwt.encode(verifier_request, key_pem, algorithm="RS256",  headers=jwt_header)
     red.set(id + "_encoded", verifier_request_encoded)
     # preparation du QR code
@@ -168,8 +164,7 @@ def siopv2_verifier_id(id, red, mode) :
                 const result = JSON.parse(event.data);
                 if (result.check == 'success' & result.id == '{{id}}'){
                     window.location.href="/siopv2/verifier_followup?id=" + '{{id}}';
-                }
-                
+                }            
                 if (result.check == 'ko' & result.id == '{{id}}'){
                     window.location.href="/siopv2/verifier_followup?id=" + "{{id}}" + "&message=" + result.message ;
                 }
@@ -178,7 +173,6 @@ def siopv2_verifier_id(id, red, mode) :
         </script>
         </body>
         </html>"""
-        
     return render_template_string(html_string,
                                 url=url,
                                 id=id,
@@ -207,65 +201,86 @@ def siopv2_verifier_redirect(id, red) :
                              })   
         red.publish('siopv2_verifier', event_data)
         return jsonify("ko, user has probably aborted the process !"),500
-    else :
+    
+    try :
         id_token = request.form['id_token']
         vp_token = request.form['vp_token']
-        # let's verify the VP
-        didkit_options = {
+    except :
+        event_data = json.dumps({"id" : id,
+                         "check" : "ko",
+                         "message" : "Response malformed"
+                         })   
+        red.publish('siopv2_verifier', event_data)
+        return jsonify("Response malformed"),500
+
+    error = str()
+    error += test_vp_token(vp_token, nonce)
+    error += test_id_token(id_token, nonce)
+    if error :    
+        event_data = json.dumps({"id" : id,
+                                "check" : "ko",
+                                "message" : error
+                                })   
+        red.publish('siopv2_verifier', event_data)
+        return jsonify("ko, signature verification failed !"),500
+
+    # just to say its fine your are logged in !
+    event_data = json.dumps({"id" : id,
+                         "check" : "success",
+                         })   
+    red.publish('siopv2_verifier', event_data)
+    return jsonify("Everything is fine !"), 200
+
+
+def test_vp_token(vp_token, nonce) :
+    didkit_options = {
             "proofPurpose": "authentication",
             "verificationMethod": "did:web:ecole42.talao.co#key-1",
             "challenge" : nonce
             }
-        result = didkit.verify_presentation(vp_token, json.dumps(didkit_options))
-        error = str() 
-        if json.loads(result)['errors'] :
-            error += "VP signature error , didkit result = " + result + "<br>"
-        if json.loads(vp_token)['verifiableCredential']['credentialSubject']['type'] != vc_type :
-            error += "VC type error <br>"
-        if json.loads(vp_token)['proof']['challenge'] != nonce :
-            error += "Different nonce/challenge in VC <br>"
-        if json.loads(vp_token)['verifiableCredential']['issuer'] != vc_issuer :
-            error += "VC issuer error <br>"
-        id_token_kid = jwt.get_unverified_header(id_token)['kid']
-        id_token_did = id_token_kid.split('#')[0] 
-        did_document = json.loads(didkit.resolve_did(id_token_did, '{}'))['didDocument']
-        public_key = str()
-        for key in did_document['verificationMethod'] :
-            if key['id'] == id_token_kid :
-                public_key = json.dumps(key['publicKeyJwk'])
-                break
-        if not public_key :
-            error += "public key not found in DID Document <br>"
-        try :
-            KEY_PEM = jwk.JWK(**json.loads(public_key)).export_to_pem(private_key=False, password=None).decode()
-            id_token = jwt.decode(id_token, KEY_PEM, audience=client_id, algorithms=["RS256"])
-        except :
-            error += "error decode Id token or audience issue <br>"
-        if not id_token.get('iat') :
-            error += "error; iat is missing in id token<br> "
-        if not id_token.get('exp') :
-            error += "error: exp is missing in id token <br>"
-        if round(datetime.timestamp(datetime.now())) > id_token.get('exp', 0) :
-            error += "id token is expired <br>"
-        if id_token.get('sub') != id_token_did :
-            error += "error: sub is wrong or missing in id token <br>"
-        if id_token.get('i_am_siop') != True :
-            error += "error: I am siop is missing in id token <br>"
-        if id_token.get('nonce') != nonce :
-            error += "error: nonce is missing in id token <br>"
-        if error :    
-            event_data = json.dumps({"id" : id,
-                                    "check" : "ko",
-                                    "message" : error
-                                    })   
-            red.publish('siopv2_verifier', event_data)
-            return jsonify("ko, signature verification failed !"),500
-        # just to display the wallet response
-        event_data = json.dumps({"id" : id,
-                             "check" : "success",
-                             })   
-        red.publish('siopv2_verifier', event_data)
-        return jsonify("Everything is fine !"), 200
+    error = str()
+    result = didkit.verify_presentation(vp_token, json.dumps(didkit_options))
+    if json.loads(result)['errors'] :
+        error += "VP signature error , didkit result = " + result + "<br>"
+    if json.loads(vp_token)['verifiableCredential']['credentialSubject']['type'] != vc_type :
+        error += "VC type error <br>"
+    if json.loads(vp_token)['proof']['challenge'] != nonce :
+        error += "Different nonce/challenge in VC <br>"
+    if json.loads(vp_token)['verifiableCredential']['issuer'] != vc_issuer :
+        error += "VC issuer error <br>"
+    return error
+
+
+def test_id_token(id_token, nonce) :
+    id_token_kid = jwt.get_unverified_header(id_token)['kid']
+    id_token_did = id_token_kid.split('#')[0] 
+    did_document = json.loads(didkit.resolve_did(id_token_did, '{}'))['didDocument']
+    public_key = str()
+    error = str()
+    for key in did_document['verificationMethod'] :
+        if key['id'] == id_token_kid :
+            public_key = json.dumps(key['publicKeyJwk'])
+            break
+    if not public_key :
+        error += "public key not found in DID Document <br>"
+    try :
+        op_key_pem = jwk.JWK(**json.loads(public_key)).export_to_pem(private_key=False, password=None).decode()
+        id_token = jwt.decode(id_token, op_key_pem, audience=client_id, algorithms=["RS256"])
+    except :
+        error += "error decode Id token or audience issue <br>"
+    if not id_token.get('iat') :
+        error += "error; iat is missing in id token<br> "
+    if not id_token.get('exp') :
+        error += "error: exp is missing in id token <br>"
+    if round(datetime.timestamp(datetime.now())) > id_token.get('exp', 0) :
+        error += "id token is expired <br>"
+    if id_token.get('sub') != id_token_did :
+        error += "error: sub is wrong or missing in id token <br>"
+    if id_token.get('i_am_siop') != True :
+        error += "error: I am siop is missing in id token <br>"
+    if id_token.get('nonce') != nonce :
+        error += "error: nonce is missing in id token <br>"
+    return error
 
 
 # This is to get a feedback from the wallet and display id_token and vp_token
@@ -282,7 +297,6 @@ def verifier_followup(red) :
                 <br><br>
                 <button type="submit">Return</button>
                 </form>
-
             </center>
             </body>
             </html>"""
@@ -292,7 +306,6 @@ def verifier_followup(red) :
     html_string = """  <!DOCTYPE html>
         <html>
         <body>
-        
             <center>  
                 <h1> Talao SIOPv2 Verifier</h1>
                 <h2> Congrats ! </h2>
