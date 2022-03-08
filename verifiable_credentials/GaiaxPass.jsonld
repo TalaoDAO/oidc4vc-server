@@ -50,30 +50,30 @@
     "type": ["VerifiableCredential", "GaiaxPass"],
     "name" : [ 
         {
-            "@value": "GAIA-X Pass",
+            "@value": "Gaia-X Pass",
             "@language": "en"
         },
         {
-            "@value": "GAIA-X Pass",
+            "@value": "Gaia-X Pass",
             "@language": "de"
         },
         {
-            "@value": "GAIA-X Pass",
+            "@value": "Gaia-X Pass",
             "@language": "fr"
         }
     ],
     "description" : [
         {
             "@language": "en",
-            "@value": "This signed electronic credential is a GAIA-X pass issued by Talao."
+            "@value": "This signed electronic credential is a Gaia-X pass issued by Talao."
         },
         {
             "@language": "de",
-            "@value": "Dieser signierte elektronische Ausweis ist ein GAIA-X-Pass."
+            "@value": "Dieser signierte elektronische Ausweis ist ein Gaia-X-Pass."
         },
         {
             "@language": "fr",
-            "@value": "Ce credential est un pass GAIA-X signé par Talao."
+            "@value": "Ce credential est un pass Gaia-X signé par Talao."
         }
     ],
     "issuer": "",

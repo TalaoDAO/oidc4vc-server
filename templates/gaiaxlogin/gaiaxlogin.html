@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- gaiaxpass.html -->
+<html>
+
+<head>
+    {% include 'head.html' %}
+
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+                       {% include './gaiaxpass/guest_nav_bar_gaiax.html' %}
+    <div class="container mt-5">
+        <div class="row  justify-content-center">
+                                <div class="m-3">
+                                    <center>
+                                        <div>  
+                                            <h2>Gaia-X Login simulator</h2>
+                                            <h4>Scan the QR Code bellow with your smartphone wallet or copy the request to your desktop wallet.</h4> 
+                                            <br>  
+                                            <div><img src="{{ qrcode(url)}}"  width="300" ></div>
+                                        </div><br><br>
+                                        Request<br>
+                                        <textarea cols="100" rows="15">{{url}}</textarea>
+                                        <br><br>
+                                        <br>
+                                    </center>
+                                   
+                                </div>
+            </div>
+    </div>
+</div>
+</div>
+</div>
+
+{% include 'user_footer.html' %}
+
+
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+    <script>
+        var source = new EventSource('/gaiax/login_stream');
+        source.onmessage = function (event) {
+            const result = JSON.parse(event.data);
+            if (result.check == 'success' & result.id == '{{id}}'){
+                window.location.href="/gaiax/login_followup?id=" + '{{id}}';
+            }            
+            if (result.check == 'ko' & result.id == '{{id}}'){
+                window.location.href="/gaiax/login_followup?id=" + "{{id}}" + "&message=" + result.message ;
+            }
+        };
+ 
+    </script>
+    
+</body>
+</html>

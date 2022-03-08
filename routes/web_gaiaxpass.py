@@ -145,7 +145,7 @@ def gaiaxpass_offer(id, red, mode):
 
 def gaiaxpass_end() :
     if request.args['followup'] == "success" :
-        message = "Great ! you have now an Gaia-x Pass."
+        message = "Great ! you have now a Gaia-X Pass."
     elif request.args['followup'] == 'expired' :
         message = _('Delay expired.')
     return render_template('gaiaxpass/gaiaxpass_end.html', message=message)

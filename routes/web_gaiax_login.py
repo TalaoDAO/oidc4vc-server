@@ -4,7 +4,7 @@ import uuid
 from flask_babel import _
 import didkit
 from jwcrypto import jwk
-from flask import Flask, jsonify, request, Response, render_template_string, redirect
+from flask import Flask, jsonify, request, Response, render_template, redirect, render_template_string
 from flask_qrcode import QRcode
 from datetime import timedelta, datetime
 from urllib.parse import urlencode
@@ -31,35 +31,35 @@ key_dict['kid'] = kid = did + "#key-2"
 key1 = jwk.JWK(**key_dict)
 key_pem = key1.export_to_pem(private_key=True, password=None).decode() # private key pem
 
-vc_type = "EmailPass"
 vc_issuer = "did:web:talao.co"
 client_id= "did:web:talao.co"
+vc_type = 'GaiaxPass'
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/siopv2/verifier',  view_func=siopv2_verifier, methods = ['GET'])
-    app.add_url_rule('/siopv2/verifier/<id>',  view_func=siopv2_verifier_id, methods = ['GET', 'POST'], defaults={'red' :red, "mode" : mode})
-    app.add_url_rule('/siopv2/verifier_redirect/<id>',  view_func=siopv2_verifier_redirect, methods = ['POST'], defaults={'red' :red})
-    app.add_url_rule('/siopv2/verifier_followup',  view_func=verifier_followup, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/siopv2/verifier_stream',  view_func=verifier_stream, methods = ['GET', 'POST'], defaults={ 'red' : red})
-    app.add_url_rule('/siopv2/verifier_request_uri/<id>',  view_func=verifier_request_uri, methods = ['GET', 'POST'], defaults={ 'red' : red})
+    app.add_url_rule('/gaiax/login',  view_func=gaiax_login, methods = ['GET'])
+    app.add_url_rule('/gaiax',  view_func=gaiax_login, methods = ['GET'])
+    app.add_url_rule('/gaiax/login/<id>',  view_func=gaiax_login_id, methods = ['GET', 'POST'], defaults={'red' :red, "mode" : mode})
+    app.add_url_rule('/gaiax/login_redirect/<id>',  view_func=gaiax_login_redirect, methods = ['POST'], defaults={'red' :red})
+    app.add_url_rule('/gaiax/login_followup',  view_func=login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/gaiax/login_stream',  view_func=login_stream, methods = ['GET', 'POST'], defaults={ 'red' : red})
+    app.add_url_rule('/gaiax/login_request_uri/<id>',  view_func=login_request_uri, methods = ['GET', 'POST'], defaults={ 'red' : red})
     return
 
 
-def verifier_request_uri(id, red):
+def login_request_uri(id, red):
     encoded = red.get(id + "_encoded").decode()
     return jsonify(encoded)
 
 
-def siopv2_verifier() :
+def gaiax_login() :
     id = str(uuid.uuid1())
-    return redirect('/siopv2/verifier/' + id)
+    return redirect('/gaiax/login/' + id)
 
 
-# verifier siopv2
-def siopv2_verifier_id(id, red, mode) :
+# login gaiax
+def gaiax_login_id(id, red, mode) :
 # Claims for an EmailPass signed by Talao
-    vc_type = 'EmailPass'
     claims = {
         "vp_token": {
             "presentation_definition": {
@@ -67,7 +67,7 @@ def siopv2_verifier_id(id, red, mode) :
                 "input_descriptors": [
                     {
                         "id": "EmailPass issued by Talao",
-                        "purpose" : "Test for GAIA-X project",
+                        "purpose" : "Test for Gaia-X project",
                         "format" : {
                             "ldp_vc": {
                                 "proof_type": [
@@ -106,7 +106,7 @@ def siopv2_verifier_id(id, red, mode) :
         }
     }
 
-# DID method supported by Talao verifier 
+# DID method supported by Talao login 
     registration = {
         "id_token_signing_alg_values_supported" : [
             "RS256"
@@ -117,63 +117,32 @@ def siopv2_verifier_id(id, red, mode) :
     }
     claims_string = json.loads(json.dumps(claims, separators=(',', ':')))
     nonce = secrets.token_urlsafe()[0:10]
-    verifier_request = {
+    login_request = {
                 "scope" : "openid",
                 "response_type" : "id_token",
                 "client_id" : client_id,
-    	        "redirect_uri" : mode.server + "siopv2/verifier_redirect/" + id,
+    	        "redirect_uri" : mode.server + "gaiax/login_redirect/" + id,
     	        "response_mode" : "post",
     	        "claims" : claims_string,
     	        "nonce" : nonce,
                 "registration" : registration,
-                "request_uri" : mode.server + "siopv2/verifier_request_uri/" + id,
+                "request_uri" : mode.server + "gaiax/login_request_uri/" + id,
     }
     # calcul de request 
     jwt_header = {
         "typ" :"JWT",
         "kid": kid
     }
-    verifier_request_encoded = jwt.encode(verifier_request, key_pem, algorithm="RS256",  headers=jwt_header)
-    red.set(id + "_encoded", verifier_request_encoded)
+    login_request_encoded = jwt.encode(login_request, key_pem, algorithm="RS256",  headers=jwt_header)
+    red.set(id + "_encoded", login_request_encoded)
     # preparation du QR code
-    red.set(id, json.dumps(verifier_request))
-    url = "openid://?" + urlencode(verifier_request)
-    html_string = """  <!DOCTYPE html>
-        <html>
-        <head></head>
-        <body>
-        <center>
-            <div>  
-                <h1>Verifier simulator - SIOPv2</h1>
-                <h2>Scan the QR Code bellow with your smartphone wallet or copy the request to your desktop wallet</h2> 
-                <br>  
-                <div><img src="{{ qrcode(url)}}"  width="300" ></div>
-            </div><br><br>
-            Request<br>
-            <textarea cols="100" rows="20">{{url}}</textarea>
-            <br><br>
-            <br>
-        
-        </center>
-        <script>
-            var source = new EventSource('/siopv2/verifier_stream');
-            source.onmessage = function (event) {
-                const result = JSON.parse(event.data);
-                if (result.check == 'success' & result.id == '{{id}}'){
-                    window.location.href="/siopv2/verifier_followup?id=" + '{{id}}';
-                }            
-                if (result.check == 'ko' & result.id == '{{id}}'){
-                    window.location.href="/siopv2/verifier_followup?id=" + "{{id}}" + "&message=" + result.message ;
-                }
-            };
-     
-        </script>
-        </body>
-        </html>"""
-    return render_template_string(html_string,
+    red.set(id, json.dumps(login_request))
+    url = "openid://?" + urlencode(login_request)
+    
+    return render_template('./gaiaxlogin/gaiaxlogin.html',
                                 url=url,
                                 id=id,
-                                encoded=verifier_request_encoded,
+                                encoded=login_request_encoded,
                                 claims=json.dumps(claims, indent=4)
                                 )
 
@@ -182,21 +151,21 @@ def siopv2_verifier_id(id, red, mode) :
 Endpoint de  la reponse du wallet en POST
 
 """
-def siopv2_verifier_redirect(id, red) :
+def gaiax_login_redirect(id, red) :
     try : 
-        verifier_request = red.get(id).decode()
-        nonce = json.loads(verifier_request)['nonce']
-        client_id = json.loads(verifier_request)['client_id']
+        login_request = red.get(id).decode()
+        nonce = json.loads(login_request)['nonce']
+        #client_id = json.loads(login_request)['client_id']
     except :
         return jsonify('server error'), 500
-
+    
     # if user has aborted the process
     if request.form.get('error') :
         event_data = json.dumps({"id" : id,
                              "check" : "ko",
                              "message" : request.form.get('error_description', "Unknown")
                              })   
-        red.publish('siopv2_verifier', event_data)
+        red.publish('gaiax_login', event_data)
         return jsonify("ko, user has probably aborted the process !"),500
     
     try :
@@ -207,7 +176,7 @@ def siopv2_verifier_redirect(id, red) :
                          "check" : "ko",
                          "message" : "Response malformed"
                          })   
-        red.publish('siopv2_verifier', event_data)
+        red.publish('gaiax_login', event_data)
         return jsonify("Response malformed"),500
 
     error = str()
@@ -218,14 +187,14 @@ def siopv2_verifier_redirect(id, red) :
                                 "check" : "ko",
                                 "message" : error
                                 })   
-        red.publish('siopv2_verifier', event_data)
+        red.publish('gaiax_login', event_data)
         return jsonify("ko, signature verification failed !"),500
 
     # just to say its fine your are logged in !
     event_data = json.dumps({"id" : id,
                          "check" : "success",
                          })   
-    red.publish('siopv2_verifier', event_data)
+    red.publish('gaiax_login', event_data)
     return jsonify("Everything is fine !"), 200
 
 
@@ -234,7 +203,7 @@ def test_vp_token(vp_token, nonce) :
             "proofPurpose": "authentication",
             "verificationMethod": "did:web:ecole42.talao.co#key-1",
             "challenge" : nonce
-            }
+    }
     error = str()
     result = didkit.verify_presentation(vp_token, json.dumps(didkit_options))
     if json.loads(result)['errors'] :
@@ -281,16 +250,16 @@ def test_id_token(id_token, nonce) :
 
 
 # This is to get a feedback from the wallet and display id_token and vp_token
-def verifier_followup(red) :
+def login_followup(red) :
     if request.args.get('message') :
         html_string = """  <!DOCTYPE html>
             <html>
             <body>
             <center>  
-                <h1> Talao SIOPv2 Verifier</h1>
+                <h1> Talao gaiax login</h1>
                 <h2>Problems occured</h2>
                 <h4> {{message|safe}} </h4>
-                 <form   action="/siopv2/verifier" method="GET">
+                 <form   action="/gaiax/login" method="GET">
                 <br><br>
                 <button type="submit">Return</button>
                 </form>
@@ -299,15 +268,15 @@ def verifier_followup(red) :
             </html>"""
         return render_template_string(html_string, message=request.args.get('message'))
 
-    id = request.args['id']
+    #id = request.args['id']
     html_string = """  <!DOCTYPE html>
         <html>
         <body>
             <center>  
-                <h1> Talao SIOPv2 Verifier</h1>
+                <h1> Talao gaiax login</h1>
                 <h2> Congrats ! </h2>
                 <h2> You are logged in </h2>
-                 <form   action="/siopv2/verifier" method="GET">
+                 <form   action="/gaiax/login" method="GET">
                 <br><br>
                 <button type="submit">Return</button>
                 </form>
@@ -318,14 +287,14 @@ def verifier_followup(red) :
 
 
 # Event stream to manage the front end page
-def verifier_stream(red):
-    def verifier_event_stream(red):
+def login_stream(red):
+    def login_event_stream(red):
         pubsub = red.pubsub()
-        pubsub.subscribe('siopv2_verifier')
+        pubsub.subscribe('gaiax_login')
         for message in pubsub.listen():
             if message['type']=='message':
                 yield 'data: %s\n\n' % message['data'].decode()
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
-    return Response(verifier_event_stream(red), headers=headers)
+    return Response(login_event_stream(red), headers=headers)

@@ -36,7 +36,6 @@ DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 PORT = 3000
-
 did_selected = DID_WEB
 
 # key Talao
@@ -46,9 +45,6 @@ except :
     RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
 t_key = jwk.JWK.from_pem(RSA.encode())
 talao_key = t_key.export_private()
-
-
-
 
 rsa_key = jwk.JWK.from_pem(RSA.encode())
 key_dict = json.loads(rsa_key.export_private())

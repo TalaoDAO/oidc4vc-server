@@ -43,14 +43,14 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory, web_wallet_test_login
-from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
+from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist, web_gaiax_login
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2_issuer, web_siopv2_verifier
 from routes import web_emailpass, web_gaiaxpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP, web_wallet_return_code
 
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.12.2'
+VERSION = '1.12.3'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -137,6 +137,7 @@ web_app.init_app(app, red, mode)
 web_wallet_return_code.init_app(app, red, mode)
 web_siopv2_issuer.init_app(app, red, mode)
 web_siopv2_verifier.init_app(app, red, mode)
+web_gaiax_login.init_app(app, red, mode)
 
 logging.info('end init routes')
 
