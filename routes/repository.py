@@ -258,16 +258,11 @@ def authn(mode) :
 			"domain" :  request.json['proof']['domain']
 			}
 	try :
-		verifyResult = didkit.verify_presentation(
-			request.data.decode(),
-			verificationPurpose.__str__().replace("'", '"'))
+		verifyResult = didkit.verifyPresentation(
+		request.data.decode(),
+		verificationPurpose.__str__().replace("'", '"'))
 	except :
-		try : 
-			verifyResult = didkit.verifyPresentation(
-			request.data.decode(),
-			verificationPurpose.__str__().replace("'", '"'))
-		except :
-			return Response('{"message" : "request malformed"}', status=406, mimetype='application/json')
+		return Response('{"message" : "request malformed"}', status=406, mimetype='application/json')
 
 	# check authentication
 	if json.loads(verifyResult)["errors"] :

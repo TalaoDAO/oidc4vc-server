@@ -162,14 +162,7 @@ def test_direct_offer(red, mode) :
             "shareLink" : shareLink,
             "display" : { "backgroundColor" : backgroundColor}
         }
-    """ later 
-    try :
-        key = helpers.ethereum_to_jwk256k(PVK)
-        registration = didkit.did_auth(did_selected, '{}' , key)
-    except:
-        registration = "" 
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'registration' : registration})
-    """
+   
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
 
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })

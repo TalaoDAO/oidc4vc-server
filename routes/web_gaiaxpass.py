@@ -124,7 +124,7 @@ def gaiaxpass_offer(id, red, mode):
             "verificationMethod": "did:web:talao.co#key-2",
         }
         try : 
-            signed_credential  = didkit.issue_credential(json.dumps(credential),
+            signed_credential  = didkit.issueCredential(json.dumps(credential),
                                        didkit_options.__str__().replace("'", '"'),
                                        key)
         except :
