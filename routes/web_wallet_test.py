@@ -73,6 +73,7 @@ def credential_from_filename(path, filename) :
     file = test_repo.get_contents(path + "/" + filename)
     encoded_content = file.__dict__['_rawData']['content']
     return json.loads(base64.b64decode(encoded_content).decode())
+      
 
 
 def init_app(app,red, mode) :
@@ -223,10 +224,11 @@ def test_credentialOffer_qrcode(red, mode) :
                         <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
                     </form><hr>"""
         for filename in dir_list :
-            credential = credential_from_filename(path, filename)
-            credential['issuer'] = ""
-            credential_name = translate(credential)
-            html_string += """
+            try :
+                credential = credential_from_filename(path, filename)
+                credential['issuer'] = ""
+                credential_name = translate(credential)
+                html_string += """
                     <p> Credential preview : <a href='/wallet/test/display?path="""+ path + """&filename=""" + filename + """'>""" + filename + """</a></p>
                     <p> id : """ + credential.get("id", "") + """</p> 
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
@@ -251,6 +253,9 @@ def test_credentialOffer_qrcode(red, mode) :
                         <br><button  type"submit" > Generate QR code for a Credential Offer</button>
                     </form>
                     <hr>"""
+            except :
+                print(filename, '  est un credential mal formaté')
+                pass
         html_string = """<html><head>{% include 'head.html' %}</head>
                         <body> {% include '/wallet/test/simulator_nav_bar.html' %}
                             <div class="m-5">
@@ -275,30 +280,18 @@ def test_credentialOffer_qrcode(red, mode) :
             return redirect('/emailpass')
         if filename == "talaophonepass" :
             return redirect('/phonepass')
-        credential = credential_from_filename(path, filename)
+        try : 
+            credential = credential_from_filename(path, filename)
+        except :
+            print(filename, '  est un credential mal formaté')
+            return redirect ('/playground')
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
         credential['issuer'] = did_issuer
         scope = ["subject_id"]
-        #if request.form.get("address") :
-        #    scope.append("address")
-        #if request.form.get("telephone") :
-        #    scope.append("telephone")
-        #if request.form.get("givenName") :
-        #    scope.append("givenName")
-        #if request.form.get("familyName") :
-        #    scope.append("familyName")
-        #if request.form.get("email") :
-        #    scope.append("email")
         display = dict()
         if request.form.get('backgroundColor') :
             display['backgroundColor'] = request.form['backgroundColor'][1:]
-        #if request.form.get('icon') :
-        #    display['icon'] = request.form['icon']
-        #if request.form.get('nameFallback') :
-        #    display['nameFallback'] = request.form['nameFallback']
-        #if request.form.get('descriptionFallback') :
-        #    display['descriptionFallback'] = request.form['descriptionFallback']
         credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
@@ -328,6 +321,7 @@ def test_credential_display():
     try :
         credential = credential_from_filename(path, filename)
     except :
+        print(filename, '  est un credential mal formaté')
         return jsonify('Credential not found'), 400
     credential['credentialSubject']['id'] = "did:..."
     credential['issuer'] = ""
