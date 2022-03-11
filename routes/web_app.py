@@ -1,17 +1,7 @@
 
-from flask import request, redirect, render_template,abort, Response, jsonify
+from flask import request, redirect, render_template
 from flask_babel import _
-from urllib.parse import urlencode
-
-from datetime import timedelta, datetime
-import json
-from Crypto.PublicKey import RSA
-from authlib.jose import JsonWebEncryption
-from urllib.parse import urlencode
 import logging
-from components import ns, privatekey
-import uuid
-import didkit
 
 PRESENTATION_DELAY = 600 # seconds
 

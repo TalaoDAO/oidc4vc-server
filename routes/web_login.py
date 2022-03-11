@@ -17,7 +17,6 @@ from urllib.parse import urlencode
 import logging
 from components import Talao_message, ns, sms, privatekey
 import uuid
-import didkit
 
 PRESENTATION_DELAY = 600 # seconds
 
@@ -364,16 +363,6 @@ def wallet_endpoint(stream_id, red, mode):
     elif request.method == 'POST' :
         #red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])       
-        logging.info('verify presentation = ' + didkit.verify_presentation(json.dumps(presentation), '{}'))
-        """
-        if json.loads(didkit.verify_presentation(request.form['presentation'], '{}'))['errors'] :
-            logging.warning('signature failed')
-            event_data = json.dumps({"stream_id" : stream_id,
-									"code" : "ko",
-									 "message" : _("Signature verification failed.")})
-            red.publish('credible', event_data)
-            return jsonify("Signature verification failed"), 401
-        """
         try : # FIXME
             holder = presentation['holder']
             challenge = presentation['proof']['challenge']

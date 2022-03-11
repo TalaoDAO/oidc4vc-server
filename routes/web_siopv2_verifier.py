@@ -236,7 +236,11 @@ def test_vp_token(vp_token, nonce) :
             "challenge" : nonce
             }
     error = str()
-    result = didkit.verify_presentation(vp_token, json.dumps(didkit_options))
+    try :
+        result = didkit.verify_presentation(vp_token, json.dumps(didkit_options))
+    except :
+        result = didkit.verifyPresentation(vp_token, json.dumps(didkit_options))
+   
     if json.loads(result)['errors'] :
         error += "VP signature error , didkit result = " + result + "<br>"
     if json.loads(vp_token)['verifiableCredential']['credentialSubject']['type'] != vc_type :
@@ -251,7 +255,10 @@ def test_vp_token(vp_token, nonce) :
 def test_id_token(id_token, nonce) :
     id_token_kid = jwt.get_unverified_header(id_token)['kid']
     id_token_did = id_token_kid.split('#')[0] 
-    did_document = json.loads(didkit.resolve_did(id_token_did, '{}'))['didDocument']
+    try :
+        did_document = json.loads(didkit.resolve_did(id_token_did, '{}'))['didDocument']
+    except :
+        did_document = json.loads(didkit.resolveDid(id_token_did, '{}'))['didDocument']
     public_key = str()
     error = str()
     for key in did_document['verificationMethod'] :

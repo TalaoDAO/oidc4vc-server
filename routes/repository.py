@@ -252,17 +252,22 @@ def authn(mode) :
 	@app.route('/repository/authn', methods=['POST'])
 	"""
 	# verify authn request
-	try :
-		verificationPurpose = {
+	verificationPurpose = {
 			"proofPurpose": "authentication",
 			"verificationMethod": request.json['proof']['verificationMethod'],
 			"domain" :  request.json['proof']['domain']
 			}
+	try :
 		verifyResult = didkit.verify_presentation(
 			request.data.decode(),
 			verificationPurpose.__str__().replace("'", '"'))
 	except :
-		return Response('{"message" : "request malformed"}', status=406, mimetype='application/json')
+		try : 
+			verifyResult = didkit.verifyPresentation(
+			request.data.decode(),
+			verificationPurpose.__str__().replace("'", '"'))
+		except :
+			return Response('{"message" : "request malformed"}', status=406, mimetype='application/json')
 
 	# check authentication
 	if json.loads(verifyResult)["errors"] :

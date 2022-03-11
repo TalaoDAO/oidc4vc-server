@@ -229,7 +229,12 @@ def issuer_credential(red) :
         "proofPurpose": "assertionMethod",
         "verificationMethod": kid,
         }
-    signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
+    try :
+        signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
+                                    didkit_options.__str__().replace("'", '"'),
+                                     talao_key)
+    except :
+        signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      talao_key)
     event_data = json.dumps({"id" : id, "check" : "success"})   

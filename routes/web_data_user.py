@@ -866,7 +866,11 @@ def user_advanced(mode) :
 	else :
 		if did.split(':')[1]  in ['tz', 'ethr', 'key'] :
 			# did:tz has no driver for Universal resolver
-			DID_Document = json.dumps(json.loads(didkit.resolve_did(did,'{}')), indent=4)
+			try : 
+				DID_Document = json.dumps(json.loads(didkit.resolve_did(did,'{}')), indent=4)
+			except :
+				DID_Document = json.dumps(json.loads(didkit.resolveDid(did,'{}')), indent=4)
+
 		else  :
 			resolver = 'https://resolver.identity.foundation/'
 			r = requests.get( resolver + did)
