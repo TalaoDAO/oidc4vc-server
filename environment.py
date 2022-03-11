@@ -97,8 +97,8 @@ class currentMode() :
 		
 		# sur PC portable thierry avec livebox sfr
 		elif self.myenv == 'liveboxw' :
-			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
+			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
+			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
 			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.server = 'http://192.168.0.65:3000/'
 			self.flaskserver = "192.168.0.65"
@@ -139,7 +139,7 @@ class currentMode() :
 		# Web Relay
 		self.relay_address = '0x5f736A4A69Cc9A6F859be788A9f59483A2219d1C'
 		self.relay_workspace_contract = '0xAe3D8c93Caf52AB09c74463A1358c0121C8C61e3'
-		self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])
+		#self.relay_publickeyhex = self.w3.soliditySha3(['address'], [self.relay_address])
 		# Talao company
 		self.owner_talao = '0xEE09654eEdaA79429F8D216fa51a129db0f72250'
 		self.workspace_contract_talao = '0x4562DB03D8b84C5B10FfCDBa6a7A509FF0Cdcc68'

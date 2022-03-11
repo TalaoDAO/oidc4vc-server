@@ -107,7 +107,10 @@ def gaiaxpass_offer(id, red, mode):
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat(),
-            "display": {"backgroundColor": "ffffff"},
+            "display" : { "backgroundColor" : "ffffff",
+                        "nameFallback" : "Gaia-X Pass by Talao",
+                        "descriptionFallback" : "This Verifiable Credential is used for test purpose. It gives you the possibility to sign-in to the Gaia-X Talao portal."
+                        }
         }
         return jsonify(credential_offer)
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- gaiaxpass.html -->
+<!-- gaiaxlogin.html -->
 <html>
 
 <head>
@@ -26,12 +26,14 @@
             {% endwith %}
             
                        {% include './gaiaxpass/guest_nav_bar_gaiax.html' %}
-    <div class="container mt-5">
-        <div class="row  justify-content-center">
+
+
+                        <div class="container mt-5 d-none d-sm-block" >
+                            <div class="row  justify-content-center ">
                                 <div class="m-3">
                                     <center>
                                         <div>  
-                                            <h2>Gaia-X Login simulator</h2>
+                                            <h2>Gaia-X Talao login portal </h2>
                                             <h4>Scan the QR Code bellow with your smartphone wallet or copy the request to your desktop wallet.</h4> 
                                             <br>  
                                             <div><img src="{{ qrcode(url)}}"  width="300" ></div>
@@ -41,10 +43,26 @@
                                         <br><br>
                                         <br>
                                     </center>
-                                   
                                 </div>
-            </div>
+                            </div>
+                        </div>
+
+
+    <div id="content_smartphone" class="d-block d-sm-none">
+        <div class="card shadow o-hidden border-0 m-3">
+          <img src="/static/img/image_16.jpeg" class="card-img-top">
+          <div class="card-body">
+              <div class="text-center">
+                  <p class="card-text">
+                    <br>Gaia-X Talao login portal<br>
+                  </p>
+                  <a href="{{deeplink}}" class="btn btn-primary">Sign-In</a>
+              </div>
+          </div>
+      </div> 
     </div>
+
+
 </div>
 </div>
 </div>

@@ -47,15 +47,24 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
 
     elif method == 'ethr' :
         key = ethereum_to_jwk256kr(pvk)
-        vm = didkit.key_to_verification_method('ethr', key)
+        try :
+            vm = didkit.key_to_verification_method('ethr', key)
+        except :
+            vm = didkit.keyToVerificationMethod('ethr', key)
 
     elif method == 'tz'  :
         key = ethereum_to_jwk256kr(pvk)
-        vm = didkit.key_to_verification_method('tz', key)
+        try :
+            vm = didkit.key_to_verification_method('tz', key)
+        except :
+            vm = didkit.keyToVerificationMethod('tz', key)
     
     elif method == 'key' :
         key = ethereum_to_jwk256k(pvk)
-        vm = didkit.key_to_verification_method('key', key)
+        try :
+            vm = didkit.key_to_verification_method('key', key)
+        except :
+            vm = didkit.keyToVerificationMethod('key', key)
 
     else :
         logging.error('method not supported by Talao')
@@ -68,13 +77,22 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
     logging.info('sign with did = %s' , did)
     logging.info('sign with key = %s' , key)
     logging.info('sign with vm = %s' , vm)
-    signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
+    try : 
+        signed_credential = didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
+        # verify credential before leaving
+        result =  json.loads(didkit.verify_credential(signed_credential, '{}'))
+        logging.info('test signature = %s', result)
 
-    # verify credential before leaving
-    result =  json.loads(didkit.verify_credential(signed_credential, '{}'))
-    logging.info('test signature = %s', result)
+    except :
+        signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
+                                    didkit_options.__str__().replace("'", '"'),
+                                     key)
+        # verify credential before leaving
+        result =  json.loads(didkit.verifyCredential(signed_credential, '{}'))
+        logging.info('test signature = %s', result)
+    
 
     return signed_credential
 
@@ -84,9 +102,12 @@ def verify (credential) :
     return list
     """
     try :
-        result = didkit.verify_credential(credential, '{}')
+        result = didkit.verifyCredential(credential, '{}')
     except:
-        return "Failed : JSON-LD malformed"
+        try :
+             result = didkit.verify_credential(credential, '{}')
+        except : 
+            return "Failed : JSON-LD malformed"
 
     if not json.loads(result)['errors'] :
         return "Signature verified : " + result

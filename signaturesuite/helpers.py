@@ -6,7 +6,6 @@ import didkit
 from pytezos.crypto.encoding import base58_encode
 from pytezos.crypto.key import Key
 
-import pytest
 import logging
 logging.basicConfig(level=logging.INFO)
 

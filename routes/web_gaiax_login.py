@@ -138,11 +138,12 @@ def gaiax_login_id(id, red, mode) :
     # preparation du QR code
     red.set(id, json.dumps(login_request))
     url = "openid://?" + urlencode(login_request)
-    
+    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     return render_template('./gaiaxlogin/gaiaxlogin.html',
                                 url=url,
                                 id=id,
                                 encoded=login_request_encoded,
+                                deeplink=deeplink,
                                 claims=json.dumps(claims, indent=4)
                                 )
 
