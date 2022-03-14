@@ -357,7 +357,9 @@ def test_credentialOffer_endpoint(id, red):
             return jsonify('wallet error'), 400
         # to keep the possibility to use an RSA key with did:web
         global did_selected
-        if did_selected == 'did:web:talao.co#key-2' :
+        if did_selected == 'did:web:talao.co#key-1' :
+            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co")
+        elif did_selected == 'did:web:talao.co#key-2' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
         elif did_selected == 'did:web:talao.co#key-3' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
