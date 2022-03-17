@@ -38,42 +38,30 @@ def tir_api(did) :
                     "currentAddress": "Talao, 16 rue de Wattignies, 75012 Paris, France",
                     "vatNumber": "FR26837674480",
                     "website": "https://talao.co",
-                    "issuerDomain" : ["talao.co", "talao.io"]
+                    "issuerDomain" : ["talao.co", "talao.io", "playground.talao.co"]
                 }
             }
         })
     elif did in ["did:ethr:0x6Ad8372F03d2b16701c9989d3043fE27C1f8e2FE".lower(), "did:tz:tz2CWTBwgUbs1BMXAjzUvrEk8gRhS6eLqzRD"] :
-        print('did is verified')
         return jsonify({
             "issuer": {
-                "preferredName": "Association 42",
+                "preferredName": "Wallet test",
                 "did": ["did:ethr:0x6Ad8372F03d2b16701c9989d3043fE27C1f8e2FE".lower()],
                 "eidasCertificatePem": [{}],
                 "serviceEndpoints": [{}, {}],
                 "organizationInfo": {
                     "id": "837674480",
-                    "legalName": "Association 42",
-                    "currentAddress": "96 Boulevard Bessières, 75017 Paris",
-                    "vatNumber": "FR26837674480",
-                    "website": "https://42.fr",
-                    "issuerDomain" : ["ecole42.talao.co"]
+                    "legalName": "Demo for wallet",
+                    "currentAddress": "16 rue de Bessieres, 75010 Paris",
+                    "vatNumber": "FR26837677777",
+                    "website": "https://demo.talap.co",
+                    "issuerDomain" : ["demo.talao.co"]
                 }
             }
         })
     else :
         # proxy LIST registry server for the Trustmydata prototype
-        try : 
-            r = requests.get(LIST_TRUSTED_ISSUER_REGISTRY_API + did)   
-            if r.status_code == 200 :
-                logging.info("OK, registry return = %s", r.json())
-                issuer_json = r.json()['issuer'] # is a string"
-                issuer = json.loads(issuer_json)
-                return jsonify({"issuer" : issuer})
-            else :
-                logging.info('DID not found =')
-                return jsonify("DID not found") , 404        
-        except :
-            logging.info("Call LIST server failed")
-            return jsonify("Call LIST registry server failed") , 500
+        logging.info("Issuer not found")
+        return jsonify("Issuer not found") , 500
         
 
