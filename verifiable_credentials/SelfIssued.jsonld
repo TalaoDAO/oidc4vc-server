@@ -12,6 +12,9 @@
                     "id": "@id",
                     "type": "@type",
                     "givenName": "scheama:givenName",
+                    "jobTitle" : "schema:jobTitle",
+                    "workFor" : "schema:workFor",
+                    "companyWebsite" : "schema:website",
                     "familyName" : "schema:familyName",
                     "telephone" : "schema:telephone",
                     "address" : "schema:address",
@@ -55,7 +58,10 @@
     "credentialSubject" : {
         "type" : "SelfIssued",
         "familyName" : "Thevenet",
-        "givenName" : "Thierry"
+        "givenName" : "Thierry",
+        "workFor" : "Talao",
+        "jobTitle" : "Director",
+        "companyWebsite" : "https://talao.co"
         
     }
 }

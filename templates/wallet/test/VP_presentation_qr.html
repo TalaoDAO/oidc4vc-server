@@ -3,7 +3,10 @@
   <head>{% include 'head.html' %}</head>
   <body>
         {% include '/wallet/test/simulator_nav_bar.html' %}
-              <div class="text-center">  
+          
+        
+  <div id="content_desktop" class="d-none d-sm-block">
+      <div class="text-center">  
                 <div id="id_text" class="m-5">
                   <br><br>Scan the QRCode bellow with your Talao wallet. 
                 <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url) }}" class=" w-30 h-30"></div>
@@ -11,10 +14,23 @@
                 <br>
                 <br>
                 <p><button  type="button"  onclick="goBack()">Back</button></p>
-               </div> 
-              </div>
-              <p><strong> Verifier GET response will be : </strong></p>
-  <pre class="whitespace-pre-wrap m-auto">{{pattern}}</pre>
+                </div>
+      </div>
+            <p><strong> Verifier GET response will be : </strong></p>
+      <pre class="whitespace-pre-wrap m-auto">{{pattern}}</pre>
+  </div>
+
+  <div id="content_smartphone" class="d-block d-sm-none">
+    <div class="text-center m-5"> 
+      <img src="/static/img/12.png" class="card-img-top" alt="...">
+      <br><br>
+      <a href="{{deeplink}}" class="btn btn-primary">Open the Talao wallet</a>
+      </div>
+    </div>
+
+
+
+
 
 
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>

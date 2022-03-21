@@ -5,6 +5,7 @@ from components import privatekey
 import uuid
 import logging
 from flask_babel import Babel, _
+from urllib.parse import urlencode
 
 logging.basicConfig(level=logging.INFO)
 
@@ -40,8 +41,10 @@ def test_display_VP_qrcode(red, mode):
     pattern['domain'] = mode.server
     red.set(stream_id,  json.dumps(pattern))
     url = mode.server + 'wallet/test/VP_presentation/' + stream_id +'?issuer=' + did_selected
+    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     return render_template('wallet/test/VP_presentation_qr.html',
 							url=url,
+                            deeplink=deeplink,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
                             simulator="Display VP")
