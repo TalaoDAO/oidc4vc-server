@@ -13,15 +13,6 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
-def init_app(app,red, mode) :
-    app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    app.add_url_rule('/wallet/test/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/wallet/test/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
-    global PVK
-    PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-    return
-
 pattern = {
             "type": "VerifiablePresentationRequest",
             "query": [
@@ -33,6 +24,16 @@ pattern = {
             "challenge": "",
             "domain" : ""
             }
+
+
+def init_app(app,red, mode) :
+    app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/wallet/test/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/wallet/test/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
+    global PVK
+    PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+    return
 
 
 def test_display_VP_qrcode(red, mode):
@@ -75,11 +76,6 @@ def VP_presentation_endpoint(stream_id, red):
             return jsonify("presentation is not correct"), 500
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
-            #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
-            #red.publish('credible', event_data)
-            #return jsonify("ko")
-        #else :
-            # we just display the presentation VC
         red.set(stream_id,  request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           
@@ -107,8 +103,11 @@ def test_VP_presentation_display(red):
         credential = request.args['message']
         nb_credentials = holder = issuers = "Unknown"
     else :
-        presentation_json = red.get(request.args['stream_id']).decode()
-        red.delete(request.args['stream_id'])
+        try :
+            presentation_json = red.get(request.args['stream_id']).decode()
+            #red.delete(request.args['stream_id'])
+        except :
+            return jsonify('server problem')
         presentation = json.loads(presentation_json)
         holder = presentation['holder']
         if isinstance(presentation['verifiableCredential'], dict) :

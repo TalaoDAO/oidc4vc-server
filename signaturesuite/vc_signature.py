@@ -49,8 +49,12 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
 
     elif method == 'tz'  :
         key = ethereum_to_jwk256kr(pvk)
-        vm = didkit.keyToVerificationMethod('tz', key)
-    
+        try :
+            vm = didkit.keyToVerificationMethod('tz', key)
+        except :
+            # to manage didkit 0.2.1 limit tation with tz2
+            logging.error('tz2 not supported by didkit 0.2.1')
+            return None 
     elif method == 'key' :
         key = ethereum_to_jwk256k(pvk)
         vm = didkit.keyToVerificationMethod('key', key)
