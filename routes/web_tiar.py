@@ -8,6 +8,7 @@ DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID_PLAYGROUND = "did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7"
 #LIST_TRUSTED_ISSUER_REGISTRY_API = 'http://192.103.2.28:1234/tmd/get_data_issuer/'
 LIST_TRUSTED_ISSUER_REGISTRY_API = 'https://tmd.list.lu:1234/tmd/get_data_issuer/'
 
@@ -25,11 +26,11 @@ def tir_api(did) :
     """
     logging.info("Registry look up for DID = %s", did)
     
-    if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY] :
+    if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY, DID_PLAYGROUND] :
         return jsonify({
             "issuer": {
                 "preferredName": "Talao",
-                "did": ["did:web:talao.co","did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250","did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk"],
+                "did": ["did:web:talao.co","did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250","did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk", "did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7"],
                 "eidasCertificatePem": [{}],
                 "serviceEndpoints": [{}, {}],
                 "organizationInfo": {
