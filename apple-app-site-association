@@ -8,6 +8,10 @@
                         "/": "/app/download*",
                         "comment": "Link to credential offer"
                     }
+                    {
+                        "/": "/authorization_endpoint*",
+                        "comment": "Link to SIOPV2 flow"
+                    }
                 ]
             }
         ]

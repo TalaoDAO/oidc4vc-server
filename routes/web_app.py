@@ -1,9 +1,12 @@
+"""
 
-from flask import request, redirect, render_template
+wallet endpoints
+
+"""
+from flask import render_template
 from flask_babel import _
 import logging
 
-PRESENTATION_DELAY = 600 # seconds
 
 DID_WEB = 'did:web:talao.cp'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
@@ -14,7 +17,14 @@ logging.basicConfig(level=logging.INFO)
 
 def init_app(app, red, mode) :
     app.add_url_rule('/app/download',  view_func=app_download, methods = ['GET', 'POST'])
+    app.add_url_rule('/authorization_endpoint',  view_func=authorization_endpoint, methods = ['GET', 'POST'])
     return
 
 def app_download() :
+    logging.info('call credible endpoint')
+    return render_template('./wallet/app_download.html')
+
+
+def authorization_endpoint() :
+    logging.info('call siopv2 authorization endpoint')
     return render_template('./wallet/app_download.html')
