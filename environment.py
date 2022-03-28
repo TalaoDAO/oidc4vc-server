@@ -12,6 +12,7 @@ from web3 import Web3
 import json
 import sys
 import logging
+import socket
 
 logging.basicConfig(level=logging.INFO)
 
@@ -119,6 +120,12 @@ class currentMode() :
 			self.flaskserver = "192.168.0.187"
 			self.port = 3000
 
+		elif self.myenv == 'local' :
+			self.flaskserver = extract_ip()
+			self.IP = extract_ip()
+			self.server = 'http://' + self.flaskserver + ':3000/'
+			self.port = 3000
+
 		else :
 			logging.error('environment variable problem')
 
@@ -157,3 +164,13 @@ class currentMode() :
 			self.w3.geth.personal.unlockAccount(self.Talaogen_public_key,self.password,0)
 			self.w3.geth.personal.unlockAccount(self.relay_address,self.password,0)
 
+def extract_ip():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:       
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
