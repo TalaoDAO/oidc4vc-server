@@ -78,7 +78,8 @@ class currentMode() :
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.IP = '18.190.21.227' # talao.co
 
-		# sur PC portable thierry connecté avec airbox
+	
+			# sur PC portable thierry connecté avec airbox
 		elif self.myenv == 'airbox' :
 			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
 			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
@@ -118,9 +119,10 @@ class currentMode() :
 			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.server = 'http://192.168.0.187:3000/'
 			self.flaskserver = "192.168.0.187"
-			self.port = 3000
-
+			self.port = 3000 
+	
 		elif self.myenv == 'local' :
+			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
 			self.flaskserver = extract_ip()
 			self.IP = extract_ip()
 			self.server = 'http://' + self.flaskserver + ':3000/'

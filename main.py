@@ -34,7 +34,7 @@ import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
-   myenv='liveboxh2'
+   myenv='local'
 mychain = 'talaonet'
 
 logging.info('start to init environment')
@@ -53,7 +53,7 @@ from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_cre
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.15.0'
+VERSION = '1.15.1'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -248,6 +248,13 @@ def apple_app_site_association():
 @app.route('/.well-known/did-configuration.json', methods=['GET']) 
 def well_known_did_configuration () :
     document = json.load(open('./verifiable_credentials/well_known_did_configuration.jsonld', 'r'))
+    return jsonify(document)
+
+
+# openid configuration with credential manifest
+@app.route('/.well-known/openid-configuration', methods=['GET'])
+def openid_configuration():
+    document = json.load(open('./credential_manifest.json', 'r'))
     return jsonify(document)
 
 

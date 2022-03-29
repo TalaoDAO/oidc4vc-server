@@ -55,7 +55,7 @@ key = json.dumps(key_dict)
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/.well-known/openid-configuration',  view_func=openid_configuration, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    #app.add_url_rule('/.well-known/openid-configuration',  view_func=openid_configuration, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
 
     app.add_url_rule('/siopv2/issuer/email',  view_func=issuer_email, methods = ['GET'])
     app.add_url_rule('/siopv2/issuer/email/<id>',  view_func=issuer_email_id, methods = ['GET', 'POST'])
