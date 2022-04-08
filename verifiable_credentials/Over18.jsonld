@@ -60,8 +60,8 @@
     "credentialSubject" : {
         "type" : "Over18",
         "issuedBy": {
-            "logo": "https://talao.mypinata.cloud/ipfs/QmUHa4kdRMpbwFv9zfsuPjaoW4h79kfvYnsCk9h9eTmDJy",
-            "name": "MyGuichet"
+            "logo": "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu",
+            "name": "Talao"
         }
     }
 }

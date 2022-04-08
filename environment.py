@@ -52,6 +52,7 @@ class currentMode() :
 			logging.error('open Key file problem')
 			sys.exit()
 		self.password = passwords['password']
+		self.passbase = passwords['passbase']
 		self.smtp_password = passwords['smtp_password'] # used in smtp.py
 		self.pinata_api_key = passwords['pinata_api_key'] # used in Talao_ipfs.py
 		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py
