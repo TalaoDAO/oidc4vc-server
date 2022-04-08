@@ -62,6 +62,7 @@ def get_over18(email) :
 
 def over18(red, mode) :
     id = str(uuid.uuid1())
+    nonce = str(uuid.uuid1())[0:1]
     credential = json.loads(open("./verifiable_credentials/Over18.jsonld", 'r').read())
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['expirationDate'] = (datetime.now() + EXPIRATION_DELAY).replace(microsecond=0).isoformat() + "Z"
@@ -72,7 +73,8 @@ def over18(red, mode) :
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-            "display": {"backgroundColor": "ffffff"}
+            "display": {"backgroundColor": "ffffff"},
+            "nonce" : nonce
     }
     url = mode.server + "over18/endpoint/" + id +'?issuer=' + issuer_did
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
@@ -106,7 +108,7 @@ def over18_webhook(mode) :
         return jsonify('Verification not completed')
     
     # get identity data and set the database
-    """
+    
     url = "https://api.passbase.com/verification/v1/identities/" + key
     headers = {
         'accept' : 'application/json',
@@ -121,22 +123,16 @@ def over18_webhook(mode) :
 
     # treatment of API data
     identity = r.json()
-    logging.info("API data = ", identity)
-    birthDate = identity['ressources']['datapoints']['date_of_birth'] # "1970-01-01"
+    logging.info("API data = %s", identity)
+    birthDate = identity['resources'][0]['datapoints']['date_of_birth'] # "1970-01-01"
     email = identity['owner']['email']
     
-    email = "thierry.thevenet@talao.io" # for test
     current_date = datetime.now()
     date1 = datetime.strptime(birthDate,'%Y-%m-%d') + timedelta(weeks=18*52)
     over18 = 1 if (current_date > date1) else 0
-    """
-    email = "thierry.thevenet@talao.io" # for test
-    over18 = 1 # for test
     
     # update database email/over18
     add_over18(email, over18)
-
-    
 
     # send notification by email
     link_text = "Follow this link to get an Over 18 credential " + mode.server + 'over18'
@@ -157,12 +153,12 @@ def over18_endpoint(id, red):
     credential =  credentialOffer['credentialPreview']
     red.delete(id)
     did = request.form['subject_id']
-    """
-    emailpass = request.form['verifiablepresentaTion'][0]
-    email  = emailpass['credentialSubject']['email']
-    """
-    email = "thierry.thevenet@talao.io" # for test
-
+    try : # for testing 
+        emailpass = request.form['verifiablepresentaTion'][0]
+        email  = emailpass['credentialSubject']['email']
+    except :
+        logging.error("verifiablePresentation not received from wallet")
+        email = "thierry.thevenet@talao.io"
     over18 = get_over18(email)
     if not over18 :
         data = json.dumps({
