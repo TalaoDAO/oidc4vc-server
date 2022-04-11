@@ -35,21 +35,21 @@ class currentMode() :
 		try :
 			keys = json.load(open('./keys.json'))
 		except :
-			logging.error('open Key file problem')
+			logging.error('open keys.json file problem')
 			sys.exit()
-		self.aes_public_key = keys[mychain]['aes_public_key']
-		self.relay_private_key = keys[mychain]['relay_private_key']
-		self.Talaogen_private_key = keys[mychain]['talaogen_private_key']
-		self.owner_talao_private_key = keys[mychain]['talao_private_key']
-		self.foundation_private_key = keys[mychain].get('foundation_private_key')
-		self.talao_P256_private_key = keys[mychain].get('P256_private_key')
-		self.talao_Ed25519_private_key = keys[mychain].get('Ed25519_private_key')
+		self.aes_public_key = keys['aes_public_key']
+		self.relay_private_key = keys['relay_private_key']
+		self.Talaogen_private_key = keys['talaogen_private_key']
+		self.owner_talao_private_key = keys['talao_private_key']
+		self.foundation_private_key = keys['foundation_private_key']
+		self.talao_P256_private_key = keys['talao_P256_private_key']
+		self.talao_Ed25519_private_key = keys['talao_Ed25519_private_key']
 
 		# upload of main private passwords. This file (passwords.json) is not in the  github repo.
 		try :
 			passwords = json.load(open('./passwords.json'))
 		except :
-			logging.error('open Key file problem')
+			logging.error('open passwords.json file problem')
 			sys.exit()
 		self.password = passwords['password']
 		self.passbase = passwords['passbase']
@@ -78,49 +78,6 @@ class currentMode() :
 			self.IPCProvider = '/home/admin/Talaonet/node1/geth.ipc'
 			self.w3 = Web3(Web3.IPCProvider("/home/admin/Talaonet/node1/geth.ipc", timeout=20))
 			self.IP = '18.190.21.227' # talao.co
-
-	
-			# sur PC portable thierry connecté avec airbox
-		elif self.myenv == 'airbox' :
-			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://127.0.0.1:3000/'
-			self.flaskserver = "127.0.0.1"
-			self.port = 3000
-
-		# sur PC portable thierry avec acces internet par reseau (pour les test depuis un smartphone)
-		elif self.myenv == 'livebox' :
-			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://192.168.0.8:3000/'
-			self.flaskserver = "192.168.0.8"
-			self.port = 3000
-		
-		# sur PC portable thierry avec livebox sfr
-		elif self.myenv == 'liveboxw' :
-			self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://192.168.0.65:3000/'
-			self.flaskserver = "192.168.0.65"
-			self.port = 3000
-
-		# sur PC portable Houdan thierry avec acces internet par reseau (pour les test depuis un smartphone)
-		elif self.myenv == 'liveboxh' :
-			#self.IPCProvider = '/mnt/ssd/talaonet/geth.ipc"'
-			#self.w3 = Web3(Web3.IPCProvider('/mnt/ssd/talaonet/geth.ipc', timeout=20))
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://192.168.0.20:3000/'
-			self.flaskserver = "192.168.0.20"
-			self.port = 3000
-
-		elif self.myenv == 'liveboxh2' :
-			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))
-			self.server = 'http://192.168.0.187:3000/'
-			self.flaskserver = "192.168.0.187"
-			self.port = 3000 
 	
 		elif self.myenv == 'local' :
 			self.w3 = Web3(Web3.HTTPProvider("https://talao.co/rpc"))

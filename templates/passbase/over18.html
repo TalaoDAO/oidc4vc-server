@@ -49,14 +49,14 @@
 
 <script>
 
-var source = new EventSource('/over18/stream');
+var source = new EventSource('/passbase/stream');
 source.onmessage = function (event) {
      const result = JSON.parse(event.data)
      if (result.check == 'success' & result.url_id == '{{id}}' ){
-       window.location.href="/over18/back?followup=success";
+       window.location.href="/passbase/back?followup=success";
      }
      if (result.check == 'failed' & result.url_id == '{{id}}' ){
-       window.location.href="/over18/back?followup=failed";
+       window.location.href="/passbase/back?followup=failed";
      }
 };
 

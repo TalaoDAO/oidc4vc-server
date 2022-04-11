@@ -17,13 +17,13 @@ REGISTRY_REPO = "TalaoDAO/context"
 
 try :
     RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
-    Ed25519 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
+    P256 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 
 except :
     RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
-    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
+    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
@@ -61,15 +61,12 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/wallet_credential_residentcard/<id>',  view_func=test_credentialOffer_residentcard_endpoint, methods = ['GET', 'POST'], defaults={ 'red' :red})
     app.add_url_rule('/wallet/test/residentcard_offer_stream',  view_func=residentcard_offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
 
-
-
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
-
 
 
 

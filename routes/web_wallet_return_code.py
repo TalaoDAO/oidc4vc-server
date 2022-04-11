@@ -65,7 +65,66 @@ def test1(red, mode) :
                      
                         <button name="code" type="submit" value="000">code random</button>
                    
-                    </form>*
+                    </form>
+
+## Servers return codes
+<p>   
+ ### 200 OK
+ Color : Green  
+ Message : No message or Credential presented successfully
+ </p>
+ <p>
+ ### 201 Created
+ Color : Green  
+ Message : Ressource created
+ </p>
+ <p>
+ ### 400 Bad Request
+ Color : Red  
+ Message : Bad request
+ </p>
+ <p>
+ ### 401  unauthenticated
+ Color : Red  
+ Message :  The user must authenticate itself to get the requested response. 
+ </p>
+ <p>
+ ### 403 Forbidden
+ Color : Red  
+ Message : Unauthorized request.  
+ </p>
+ <p>
+ ### 408 Request Timeout
+ Color : Red  
+ Message : Request timeout
+ </p>
+ <p>
+ ### 429 : Too many requests
+ Color : Red  
+ Message : The user has sent too many requests in a given amount of time.
+ </p>
+ <p>
+ ### 500 Internal Server Error
+ Color : Red  
+ Message : This is a server internal error. Contact the server administrator.
+ </p>
+ <p>
+ ### 501 Not Implemented
+ Color : Red  
+ Message : Not implemented 
+ </p>
+ <p>
+ ### 504 Gateway Timeout
+ Color : Red  
+ Message : The gateway encountered a timeout
+</p>
+ <p>
+ ### other code
+ Color : Red  
+ Message : Received invalid status code
+</p>
+ 
+
          </center>
 
                     """
@@ -119,6 +178,64 @@ def test2(red, mode) :
                         <button name="code" type="submit" value="000">code random</button>
                    
                     </form>
+
+## Servers return codes
+<p>   
+ ### 200 OK
+ Color : Green  
+ Message : No message or Credential presented successfully
+ </p>
+ <p>
+ ### 201 Created
+ Color : Green  
+ Message : Ressource created
+ </p>
+ <p>
+ ### 400 Bad Request
+ Color : Red  
+ Message : Bad request
+ </p>
+ <p>
+ ### 401  unauthenticated
+ Color : Red  
+ Message :  The user must authenticate itself to get the requested response. 
+ </p>
+ <p>
+ ### 403 Forbidden
+ Color : Red  
+ Message : Unauthorized request.  
+ </p>
+ <p>
+ ### 408 Request Timeout
+ Color : Red  
+ Message : Request timeout
+ </p>
+ <p>
+ ### 429 : Too many requests
+ Color : Red  
+ Message : The user has sent too many requests in a given amount of time.
+ </p>
+ <p>
+ ### 500 Internal Server Error
+ Color : Red  
+ Message : This is a server internal error. Contact the server administrator.
+ </p>
+ <p>
+ ### 501 Not Implemented
+ Color : Red  
+ Message : Not implemented 
+ </p>
+ <p>
+ ### 504 Gateway Timeout
+ Color : Red  
+ Message : The gateway encountered a timeout
+</p>
+ <p>
+ ### other code
+ Color : Red  
+ Message : Received invalid status code
+</p>
+ 
          </center>
 
                     """
@@ -176,6 +293,64 @@ def test3(red, mode) :
                         <button name="code" type="submit" value="000">code random</button>
                    
                     </form>
+
+## Servers return codes
+<p>   
+ ### 200 OK
+ Color : Green  
+ Message : No message or Credential presented successfully
+ </p>
+ <p>
+ ### 201 Created
+ Color : Green  
+ Message : Ressource created
+ </p>
+ <p>
+ ### 400 Bad Request
+ Color : Red  
+ Message : Bad request
+ </p>
+ <p>
+ ### 401  unauthenticated
+ Color : Red  
+ Message :  The user must authenticate itself to get the requested response. 
+ </p>
+ <p>
+ ### 403 Forbidden
+ Color : Red  
+ Message : Unauthorized request.  
+ </p>
+ <p>
+ ### 408 Request Timeout
+ Color : Red  
+ Message : Request timeout
+ </p>
+ <p>
+ ### 429 : Too many requests
+ Color : Red  
+ Message : The user has sent too many requests in a given amount of time.
+ </p>
+ <p>
+ ### 500 Internal Server Error
+ Color : Red  
+ Message : This is a server internal error. Contact the server administrator.
+ </p>
+ <p>
+ ### 501 Not Implemented
+ Color : Red  
+ Message : Not implemented 
+ </p>
+ <p>
+ ### 504 Gateway Timeout
+ Color : Red  
+ Message : The gateway encountered a timeout
+</p>
+ <p>
+ ### other code
+ Color : Red  
+ Message : Received invalid status code
+</p>
+ 
          </center>
 
                     """
@@ -195,7 +370,7 @@ def test3_endpoint(id, red) :
         return_code =  random.randrange(300, 999)
     else :
         return_code = int(code)
-    credential = json.loads(open('./verifiable_credentials/test3.jsonld', 'r').read())
+    credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
     credential['description'][0]['@value']= "Add this credential and the server will return an error code " + code + "."
     credential['description'][2]['@value']= "Ajoutez cette attestation et le serveur retournera un core erreur " + code + "."
     credential["issuer"] = did_selected

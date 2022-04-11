@@ -6,6 +6,7 @@ from components import privatekey
 from github import Github
 import base64
 import uuid
+import didkit
 import logging
 from flask_babel import _
 from urllib.parse import urlencode
@@ -20,8 +21,18 @@ DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
 DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'        
+DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
-did_selected = DID_ETHR
+
+try :
+    key_tz1 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+except :
+    key_tz1 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
+
+
+
+did_selected = DID_TZ1
 
 QueryBYExample = {
             "type": "VerifiablePresentationRequest",
@@ -44,8 +55,8 @@ try :
 
 except :
     RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_P256_private_key'))
-    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
+    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 
 
 def translate(credential) : 
@@ -211,6 +222,7 @@ def test_credentialOffer_qrcode(red, mode) :
                     
                       Issuer : <select name="did_select">
                       <option selected value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                           <option value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
                         <option value="""+ DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
@@ -237,6 +249,7 @@ def test_credentialOffer_qrcode(red, mode) :
                     
                     Issuer : <select name="did_select">
                     <option value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                     <option value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
                         <option selected value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
@@ -283,7 +296,6 @@ def test_credentialOffer_qrcode(red, mode) :
         try : 
             credential = credential_from_filename(path, filename)
         except :
-            print(filename, '  est un credential mal formaté')
             return redirect ('/playground')
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
@@ -365,6 +377,15 @@ def test_credentialOffer_endpoint(id, red):
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
         elif did_selected == 'did:web:talao.co#key-4' :
             signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
+        elif did_selected == DID_TZ1 :
+            didkit_options = {
+            "proofPurpose": "assertionMethod",
+            "verificationMethod": vm_tz1
+            }
+            signed_credential =  didkit.issueCredential(
+                json.dumps(credential),
+                didkit_options.__str__().replace("'", '"'),
+                key_tz1)
         else :
             signed_credential = vc_signature.sign(credential, PVK, credential['issuer'])
         # send event to client agent to go forward
@@ -391,10 +412,9 @@ def test_credentialOffer_back():
         <br><br><br>
         <form action="/playground" method="GET" >
                     <button  type"submit" >Back Playground </button></form>
-        <form action="/playground/prosoon" method="GET" >
-                    <button  type"submit" >Back Prosoon</button></form>
-        <form action="/playground/new" method="GET" >
-                    <button  type"submit" >Back Playground/New</button></form>
+        <form action="/playground/grant" method="GET" >
+                    <button  type"submit" >Back Grant Tezos</button></form>
+       
         </body>
         </html>"""
     return render_template_string(html_string)

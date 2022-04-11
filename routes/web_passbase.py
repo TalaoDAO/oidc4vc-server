@@ -18,40 +18,43 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 EXPIRATION_DELAY = timedelta(weeks=52)
 
 try :
-    key = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
+    key = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 except :
-    key = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talaonet'].get('talao_Ed25519_private_key'))
+    key = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 issuer_did = didkit.keyToDID('tz', key)
 vm = didkit.keyToVerificationMethod('tz', key)
 
  
 def init_app(app,red, mode) :
-    app.add_url_rule('/over18',  view_func=over18, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
-    app.add_url_rule('/over18/webhook',  view_func=over18_webhook, methods = ['GET', 'POST'], defaults={ 'mode' : mode})
-    app.add_url_rule('/over18/endpoint/<id>',  view_func=over18_endpoint, methods = ['GET', 'POST'], defaults={'red' : red})
-    app.add_url_rule('/over18/stream',  view_func=over18_stream, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/over18/back',  view_func=over18_back, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/passbase',  view_func=passbase, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/passbase/webhook',  view_func=passbase_webhook, methods = ['GET', 'POST'], defaults={ 'mode' : mode})
+    app.add_url_rule('/passbase/endpoint/<id>',  view_func=passbase_endpoint, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/passbase/stream',  view_func=passbase_stream, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/passbase/back',  view_func=passbase_back, methods = ['GET', 'POST'], defaults={'red' :red})
     return
 
 
-def add_over18(email, check) :
-    if get_over18(email) :
+def add_passbase(email, check, did, key, created) :
+    if get_passbase(did) :
         return 
-    conn = sqlite3.connect('over18.db')
+    conn = sqlite3.connect('passbase_check.db')
     c = conn.cursor()
-    data = {'email' : email,
-			 'over18_check' : check}
-    c.execute("INSERT INTO over18 VALUES (:email, :over18_check)", data)
+    data = {'email' : email,                       
+			 'status' : check,
+             "did" : did,
+             "key" : key,
+             "created" : created}      
+    c.execute("INSERT INTO webhook VALUES (:email, :status, :did; :key, :created)", data)
     conn.commit()
     conn.close()
     return
 
 
-def get_over18(email) :
-	conn = sqlite3.connect('over18.db')
+def get_passbase(did) :
+	conn = sqlite3.connect('passbase_check.db')
 	c = conn.cursor()
-	data = { "email" : email}
-	c.execute("SELECT over18_check FROM over18 WHERE email = :email", data)
+	data = { "did" : did}
+	c.execute("SELECT status, key FROM webhook WHERE did = :did", data)
 	check = c.fetchone()
 	conn.close()
 	try :
@@ -60,9 +63,28 @@ def get_over18(email) :
 		return None
 
 
-def over18(red, mode) :
+def get_identity(passbase_key, mode) :
+    url = "https://api.passbase.com/verification/v1/identities/" + passbase_key
+    print("api key = ", mode.passbase)
+    print("url = ", url)
+    headers = {
+        'accept' : 'application/json',
+        'X-API-KEY' : mode.passbase
+    }
+    r = requests.get(url, headers=headers)
+    logging.info("status code = %s", r.status_code)
+    if not 199<r.status_code<300 :
+        logging.error("API call rejected")
+        return None
+    # treatment of API data
+    identity = r.json()
+    logging.info("API data = %s", identity)
+    return identity
+
+
+def passbase(red, mode) :
     id = str(uuid.uuid1())
-    nonce = str(uuid.uuid1())[0:1]
+    challenge = str(uuid.uuid1())[0:1]
     credential = json.loads(open("./verifiable_credentials/Over18.jsonld", 'r').read())
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['expirationDate'] = (datetime.now() + EXPIRATION_DELAY).replace(microsecond=0).isoformat() + "Z"
@@ -74,12 +96,12 @@ def over18(red, mode) :
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
             "display": {"backgroundColor": "ffffff"},
-            "nonce" : nonce
+            "challenge" : challenge
     }
-    url = mode.server + "over18/endpoint/" + id +'?issuer=' + issuer_did
+    url = mode.server + "passbase/endpoint/" + id +'?issuer=' + issuer_did
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(id, json.dumps(credentialOffer))
-    return render_template('/over18/over18.html',
+    return render_template('/passbase/over18.html',
                                 url=url,
                                 id=id,
                                 deeplink=deeplink
@@ -87,60 +109,44 @@ def over18(red, mode) :
 
 
 """
-curl --location --request POST 'http://192.168.0.65:3000/over18/webhook' \
+curl --location --request POST 'http://192.168.0.65:3000/passbase/webhook' \
 --header 'Content-Type: application/json' \
---data-raw '{"event": "VERIFICATION_REVIEWED","key": "b76e244e-26a3-49ef-9c72-3e599bf0b5f2", "status": "approved"}'
+--data-raw '{"event": "VERIFICATION_REVIEWED","key": "72be8407-a1df-47d7-af1b-e00f6ba4f96c", "status": "approved", "created" : 1582628711}'
 """
 
-def over18_webhook(mode) :
+def passbase_webhook(mode) :
     # get email and id
     webhook = request.get_json()
     logging.info("webhook = %s", webhook)
-    if webhook['event' ] == "VERIFICATION_REVIEWED" and webhook['status'] == "approved" :
-        key = webhook['key']
-        logging.info("identityKey = %s", key)
-    elif  webhook['event' ] == "VERIFICATION_REVIEWED" and webhook['status'] != "approved" :
-        key = webhook['key']
-        logging.warning("Identity not approuved = %s", key)
-        return jsonify('Identity not approuved')
+    if webhook['event' ] == "VERIFICATION_REVIEWED" :
+        logging.info("identityKey = %s", webhook['key'])
     else :
         logging.warning("Verification not completed")
         return jsonify('Verification not completed')
     
     # get identity data and set the database
-    
-    url = "https://api.passbase.com/verification/v1/identities/" + key
-    headers = {
-        'accept' : 'application/json',
-        'X-API-KEY' : mode.passbase
-    }
+    identity = get_identity(webhook['key'], mode)
+    if not identity :
+        logging.error("probleme d acces API")
+        return jsonify("probleme d acces API")
 
-    r = requests.get(url, headers=headers)
-    logging.info("status code = ", r.status_code)
-    if not 199<r.status_code<300 :
-        logging.error("API call rejected")
-        return jsonify('API call rejected')
-
-    # treatment of API data
-    identity = r.json()
-    logging.info("API data = %s", identity)
-    birthDate = identity['resources'][0]['datapoints']['date_of_birth'] # "1970-01-01"
+    #if not identity['metadata'].get('did') :
+    #    logging.error("probleme d encryptage metadata")
+    #    return jsonify("probleme d encryptage metadata")
     email = identity['owner']['email']
-    
-    current_date = datetime.now()
-    date1 = datetime.strptime(birthDate,'%Y-%m-%d') + timedelta(weeks=18*52)
-    over18 = 1 if (current_date > date1) else 0
-    
-    # update database email/over18
-    add_over18(email, over18)
+    email = "thierry.thevenet@talao.io"
+    add_passbase(email,
+                webhook['status'],
+                identity['metadata'].get('did',""),
+                webhook['key'],
+                webhook['created'] )
 
     # send notification by email
-    link_text = "Follow this link to get an Over 18 credential " + mode.server + 'over18'
-    Talao_message.message("Over 18 credential", email, link_text, mode)
-
+    link_text = "Follow this link to get an identity credential " + mode.server + 'passbase'
+    Talao_message.message("Identity credential", identity['owner']['email'], link_text, mode)
     return jsonify('ok')
 
-def over18_endpoint(id, red):
+def passbase_endpoint(id, red,mode):
     try : 
         credentialOffer = json.loads(red.get(id).decode())
     except :
@@ -152,26 +158,25 @@ def over18_endpoint(id, red):
 
     credential =  credentialOffer['credentialPreview']
     red.delete(id)
-    did = request.form['subject_id']
-    try : # for testing 
-        emailpass = request.form['verifiablepresentaTion'][0]
-        email  = emailpass['credentialSubject']['email']
-    except :
-        logging.error("verifiablePresentation not received from wallet")
-        email = "thierry.thevenet@talao.io"
-    over18 = get_over18(email)
-    if not over18 :
+    wallet_did = request.form['subject_id']
+    status, passbase_key = get_passbase(wallet_did)
+    if status != "approved" :
         data = json.dumps({
                     'id' : id,
                     'check' : 'failed',
                         })
-        red.publish('over18', data)
-        return jsonify(signed_credential)
-    try :
-        credential['credentialSubject']['id'] = did
-    except :
-        logging.error("wallet error")
-        return jsonify('ko'), 500
+        red.publish('passbase', data)
+        return jsonify('not approved')
+
+    identity = get_identity(passbase_key,mode)
+    birthDate = identity['resources'][0]['datapoints']['date_of_birth'] # "1970-01-01"
+    current_date = datetime.now()
+    date1 = datetime.strptime(birthDate,'%Y-%m-%d') + timedelta(weeks=18*52)
+    if (current_date > date1) :
+        credential['credentialSubject']['id'] = wallet_did
+    else :
+        logging.error("below 18")
+        return jsonify('ko')
 
     didkit_options = {
             "proofPurpose": "assertionMethod",
@@ -188,11 +193,11 @@ def over18_endpoint(id, red):
                     'id' : id,
                     'check' : 'success',
                         })
-    red.publish('over18', data)
+    red.publish('passbase', data)
     return jsonify(signed_credential)
 
 
-def over18_back():
+def passbase_back():
     result = request.args['followup']
     if result == 'failed' :
         message = 'Your request failed, sorry'
@@ -205,7 +210,7 @@ def over18_back():
         <body class="h-screen w-screen flex">
         """ + message + """
         <br><br><br>
-        <form action="/over18" method="GET" >
+        <form action="/passbase" method="GET" >
         <button  type"submit" >Back</button></form>
         </body>
         </html>"""
@@ -213,10 +218,10 @@ def over18_back():
 
 
 # server event push for user agent EventSource
-def over18_stream(red):
+def passbase_stream(red):
     def event_stream(red):
         pubsub = red.pubsub()
-        pubsub.subscribe('over18')
+        pubsub.subscribe('passbase')
         for message in pubsub.listen():
             if message['type']=='message':
                 yield 'data: %s\n\n' % message['data'].decode()  
