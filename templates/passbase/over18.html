@@ -52,11 +52,15 @@
 var source = new EventSource('/passbase/stream');
 source.onmessage = function (event) {
      const result = JSON.parse(event.data)
-     if (result.check == 'success' & result.url_id == '{{id}}' ){
+     console.log(result);
+     if (result.check == 'success' & result.id == '{{id}}' ){
+       console.log('success');
        window.location.href="/passbase/back?followup=success";
-     }
-     if (result.check == 'failed' & result.url_id == '{{id}}' ){
-       window.location.href="/passbase/back?followup=failed";
+     } 
+     if (result.check == 'failed' & result.id == '{{id}}' ){
+       console.log('failed');
+       console.log("/passbase/back?followup=failed&message=" + result.message);
+       window.location.href="/passbase/back?followup=failed&message=" + result.message;
      }
 };
 

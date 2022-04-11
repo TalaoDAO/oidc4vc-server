@@ -154,7 +154,7 @@ def test_direct_offer(red, mode) :
     elif request.args.get('method') == "key" :
         credential['issuer'] = DID_KEY
     else :
-        credential['issuer'] = DID_ETHR
+        credential['issuer'] = DID_TZ1
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
     backgroundColor = "ffffff"

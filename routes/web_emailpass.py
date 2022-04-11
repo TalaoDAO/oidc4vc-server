@@ -5,18 +5,25 @@ import uuid
 from datetime import timedelta, datetime
 import logging
 logging.basicConfig(level=logging.INFO)
-from signaturesuite import vc_signature
+#from signaturesuite import vc_signature
 from flask_babel import _
 import secrets
 from urllib.parse import urlencode
+import didkit
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-DID_WEB = 'did:web:talao.co'
-DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
-DID = DID_KEY
+#DID_WEB = 'did:web:talao.co'
+#DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
+#DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+#DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
+try :
+    key_tz1 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+except :
+    key_tz1 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
+DID = DID_TZ1
 
 def init_app(app,red, mode) :
     app.add_url_rule('/emailpass',  view_func=emailpass, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -61,19 +68,19 @@ def emailpass_authentication(mode) :
         logging.info('code received = %s', code)
         if code == session['code'] and datetime.now() < session['code_delay'] :
     	    # success exit
-    	    return redirect(mode.server + 'emailpass/qrcode')
+            return redirect(mode.server + 'emailpass/qrcode')
         elif session['code_delay'] < datetime.now() :
-    	    flash(_("Code expired."), "warning")
-    	    return render_template('emailpass/emailpass.html')
+            flash(_("Code expired."), "warning")
+            return render_template('emailpass/emailpass.html')
         elif session['try_number'] > 3 :
-    	    flash(_("Too many trials (3 max)."), "warning")
-    	    return render_template('emailpass/emailpass.html')
+            flash(_("Too many trials (3 max)."), "warning")
+            return render_template('emailpass/emailpass.html')
         else :
-    	    if session['try_number'] == 2 :
-    		    flash(_('This code is incorrect, 2 trials left.'), 'warning')
-    	    if session['try_number'] == 3 :
-    		    flash(_('This code is incorrect, 1 trial left.'), 'warning')
-    	    return render_template("emailpass/emailpass_authentication.html")
+            if session['try_number'] == 2 :
+                flash(_('This code is incorrect, 2 trials left.'), 'warning')
+            if session['try_number'] == 3 :
+                flash(_('This code is incorrect, 1 trial left.'), 'warning')
+            return render_template("emailpass/emailpass_authentication.html")
 
 
 def emailpass_qrcode(red, mode) :
@@ -91,7 +98,6 @@ def emailpass_qrcode(red, mode) :
 def emailpass_offer(id, red, mode):
     """ Endpoint for wallet
     """
-  
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
     credential["issuer"] = DID
     credential['id'] = "urn:uuid:..."
@@ -116,7 +122,14 @@ def emailpass_offer(id, red, mode):
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
         pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
-        signed_credential = vc_signature.sign(credential, pvk, DID)
+        didkit_options = {
+            "proofPurpose": "assertionMethod",
+            "verificationMethod": vm_tz1
+            }
+        signed_credential =  didkit.issueCredential(
+                json.dumps(credential),
+                didkit_options.__str__().replace("'", '"'),
+                key_tz1)
         if not signed_credential :
             logging.error('credential signature failed')
             data = json.dumps({"url_id" : id, "check" : "failed"})

@@ -30,7 +30,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/passbase/webhook',  view_func=passbase_webhook, methods = ['GET', 'POST'], defaults={ 'mode' : mode})
     app.add_url_rule('/passbase/endpoint/<id>',  view_func=passbase_endpoint, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/passbase/stream',  view_func=passbase_stream, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/passbase/back',  view_func=passbase_back, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/passbase/back',  view_func=passbase_back, methods = ['GET', 'POST'])
     return
 
 
@@ -44,7 +44,7 @@ def add_passbase(email, check, did, key, created) :
              "did" : did,
              "key" : key,
              "created" : created}      
-    c.execute("INSERT INTO webhook VALUES (:email, :status, :did; :key, :created)", data)
+    c.execute("INSERT INTO webhook VALUES (:email, :status, :did, :key, :created)", data)
     conn.commit()
     conn.close()
     return
@@ -58,7 +58,7 @@ def get_passbase(did) :
 	check = c.fetchone()
 	conn.close()
 	try :
-		return check[0]
+		return check
 	except :
 		return None
 
@@ -124,7 +124,7 @@ def passbase_webhook(mode) :
         logging.warning("Verification not completed")
         return jsonify('Verification not completed')
     
-    # get identity data and set the database
+    # get identity data and set the issuer database with minimum data
     identity = get_identity(webhook['key'], mode)
     if not identity :
         logging.error("probleme d acces API")
@@ -133,18 +133,28 @@ def passbase_webhook(mode) :
     #if not identity['metadata'].get('did') :
     #    logging.error("probleme d encryptage metadata")
     #    return jsonify("probleme d encryptage metadata")
+
     email = identity['owner']['email']
-    email = "thierry.thevenet@talao.io"
+    email = "thierry.thevenet@talao.io" #test
+    try :
+        did = identity['metadata']['did']
+    except :
+        did = "did:tz:tz2CAqCeoeLsmUJDHdRE7zQJbkRQArcKQwNk"                        
     add_passbase(email,
                 webhook['status'],
-                identity['metadata'].get('did',""),
+                did,
                 webhook['key'],
                 webhook['created'] )
 
     # send notification by email
-    link_text = "Follow this link to get an identity credential " + mode.server + 'passbase'
-    Talao_message.message("Identity credential", identity['owner']['email'], link_text, mode)
-    return jsonify('ok')
+    if webhook['status' ] == "approved" :
+        link_text = "Follow this link to get an identity credential " + mode.server + 'passbase'
+        Talao_message.message("Identity credential", email, link_text, mode)
+        return jsonify('ok, notification sent')
+
+    # if not approved no notification
+    logging.warning('Identification not approved, no notification was sent')
+    return jsonify("not approved")
 
 def passbase_endpoint(id, red,mode):
     try : 
@@ -158,25 +168,45 @@ def passbase_endpoint(id, red,mode):
 
     credential =  credentialOffer['credentialPreview']
     red.delete(id)
-    wallet_did = request.form['subject_id']
-    status, passbase_key = get_passbase(wallet_did)
+    (status, passbase_key) = get_passbase(request.form['subject_id'])
     if status != "approved" :
         data = json.dumps({
                     'id' : id,
                     'check' : 'failed',
+                    'message' : 'Identification not approved'
                         })
         red.publish('passbase', data)
         return jsonify('not approved')
 
-    identity = get_identity(passbase_key,mode)
+    identity = get_identity(passbase_key, mode)
+    # check if the wallet id is the same
+    try :
+        did = identity['metadata']['did']
+    except :
+        did = "test"
+    if did != request.form['subject_id'] :
+        logging.warning("wrong wallet")
+        data = json.dumps({
+                    'id' : id,
+                    'check' : 'failed',
+                    'message' : 'Wrong wallet'
+                        })
+        red.publish('passbase', data)
+        return (jsonify('wrong wallet'))
     birthDate = identity['resources'][0]['datapoints']['date_of_birth'] # "1970-01-01"
     current_date = datetime.now()
     date1 = datetime.strptime(birthDate,'%Y-%m-%d') + timedelta(weeks=18*52)
     if (current_date > date1) :
-        credential['credentialSubject']['id'] = wallet_did
+        credential['credentialSubject']['id'] = request.form['subject_id']
     else :
-        logging.error("below 18")
-        return jsonify('ko')
+        logging.warning("below 18")
+        data = json.dumps({
+                    'id' : id,
+                    'check' : 'failed',
+                    'message' : 'Below 18'
+                        })
+        red.publish('passbase', data)
+        return jsonify('below 18')
 
     didkit_options = {
             "proofPurpose": "assertionMethod",
@@ -199,19 +229,23 @@ def passbase_endpoint(id, red,mode):
 
 def passbase_back():
     result = request.args['followup']
+    print('back result = ', result)
+    print('back message = ', request.args['message'])
     if result == 'failed' :
-        message = 'Your request failed, sorry'
+        message = """ <h2>Sorry !<br><br>""" + request.args['message'] + """</h2>"""
+        
     else :
-        message  = """ <h2>Congrats !<br><br>
-        Your Over 18 credential has been signed and transfered to your wallet"</h2>"""
+        message  = """ <h2>Congrats !<br><br>Your credential has been signed and transfered to your wallet"</h2>"""
     html_string = """
         <!DOCTYPE html>
         <html>
         <body class="h-screen w-screen flex">
+        <center>
         """ + message + """
         <br><br><br>
         <form action="/passbase" method="GET" >
         <button  type"submit" >Back</button></form>
+        </center>
         </body>
         </html>"""
     return render_template_string(html_string)
