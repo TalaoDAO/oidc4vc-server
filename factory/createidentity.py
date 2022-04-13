@@ -43,7 +43,6 @@ def create_user(username, email, mode, did='', password='', firstname=None,  las
 
 	# create RSA key as derivative from Ethereum private key
 	RSA_key, RSA_private, RSA_public = privatekey.create_rsa_key(private_key, mode)
-	print('rsa key = ', RSA_key)
 	# Setup a key (symetric) named 'AES' to encrypt private data and to be shared with partnership
 	AES_key = get_random_bytes(16)
 

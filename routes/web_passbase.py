@@ -35,8 +35,6 @@ def init_app(app,red, mode) :
 
 
 def add_passbase(email, check, did, key, created) :
-    if get_passbase(did) :
-        return 
     conn = sqlite3.connect('passbase_check.db')
     c = conn.cursor()
     data = {'email' : email,                       
@@ -54,11 +52,11 @@ def get_passbase(did) :
 	conn = sqlite3.connect('passbase_check.db')
 	c = conn.cursor()
 	data = { "did" : did}
-	c.execute("SELECT status, key FROM webhook WHERE did = :did", data)
-	check = c.fetchone()
+	c.execute("SELECT status, key, created FROM webhook WHERE did = :did", data)
+	check = c.fetchall()
 	conn.close()
 	try :
-		return check
+		return check[-1]
 	except :
 		return None
 
@@ -111,7 +109,7 @@ def passbase(red, mode) :
 """
 curl --location --request POST 'http://192.168.0.65:3000/passbase/webhook' \
 --header 'Content-Type: application/json' \
---data-raw '{"event": "VERIFICATION_REVIEWED","key": "72be8407-a1df-47d7-af1b-e00f6ba4f96c", "status": "approved", "created" : 1582628711}'
+--data-raw '{"event": "VERIFICATION_REVIEWED","key": "72be8407-a1df-47d7-af1b-e00f6ba4f96c", "status": "approved", "created" : 1582628712}'
 """
 
 def passbase_webhook(mode) :
@@ -130,16 +128,13 @@ def passbase_webhook(mode) :
         logging.error("probleme d acces API")
         return jsonify("probleme d acces API")
 
-    #if not identity['metadata'].get('did') :
-    #    logging.error("probleme d encryptage metadata")
-    #    return jsonify("probleme d encryptage metadata")
-
     email = identity['owner']['email']
-    email = "thierry.thevenet@talao.io" #test
     try :
         did = identity['metadata']['did']
     except :
-        did = "did:tz:tz2CAqCeoeLsmUJDHdRE7zQJbkRQArcKQwNk"                        
+        logging.error("Metadata are not available")
+        did = "did:tz:tz2CAqCeoeLsmUJDHdRE7zQJbkRQArcKQwNk"
+        email = "thierry.thevenet@talao.io"           
     add_passbase(email,
                 webhook['status'],
                 did,
@@ -168,7 +163,7 @@ def passbase_endpoint(id, red,mode):
 
     credential =  credentialOffer['credentialPreview']
     red.delete(id)
-    (status, passbase_key) = get_passbase(request.form['subject_id'])
+    (status, passbase_key, created) = get_passbase(request.form['subject_id'])
     if status != "approved" :
         data = json.dumps({
                     'id' : id,
@@ -183,7 +178,7 @@ def passbase_endpoint(id, red,mode):
     try :
         did = identity['metadata']['did']
     except :
-        did = "test"
+        did = "did:tz:tz2CAqCeoeLsmUJDHdRE7zQJbkRQArcKQwNk"
     if did != request.form['subject_id'] :
         logging.warning("wrong wallet")
         data = json.dumps({
@@ -230,7 +225,7 @@ def passbase_endpoint(id, red,mode):
 def passbase_back():
     result = request.args['followup']
     print('back result = ', result)
-    print('back message = ', request.args['message'])
+    print('back message = ', request.args.get('message', 'No message'))
     if result == 'failed' :
         message = """ <h2>Sorry !<br><br>""" + request.args['message'] + """</h2>"""
         

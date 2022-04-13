@@ -56,7 +56,7 @@ from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_cre
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.22.0'
+VERSION = '1.22.1'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
