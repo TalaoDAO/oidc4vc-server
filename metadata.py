@@ -22,7 +22,7 @@ print(build_metadata(my_metadata))
 def build_metadata(metadata) :
     with open("passbase-test-private-key.pem", "rb") as f:
         p = subprocess.Popen(
-            "openssl rsautl -sign -inkey " + f.name,
+            "/usr/bin/openssl rsautl -sign -inkey " + f.name,
             shell=True,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
