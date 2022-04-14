@@ -137,6 +137,7 @@ def emailpass_offer(id, red, mode):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         signature, stderr = p.communicate(input=bytes_metadata)
+        print('encrypted metadata = ', base64.b64encode(signature).decode())
         credential['credentialSubject']['passbaseMetadata'] = base64.b64encode(signature).decode()
         #pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         didkit_options = {
