@@ -10,6 +10,8 @@ from flask_babel import _
 import secrets
 from urllib.parse import urlencode
 import didkit
+import base64
+import subprocess
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
@@ -120,8 +122,23 @@ def emailpass_offer(id, red, mode):
         red.delete(id)   
         # sign credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
-        credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
-        pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+        email =  credential['credentialSubject']['email']
+        did = request.form.get('subject_id', 'unknown DID')
+        credential['credentialSubject']['id'] = did
+        # calcul passbase metadata
+        metadata = '{"did": ' + did + ', "email" :' + email + ' }'
+        print('metadata = ', metadata)
+        bytes_metadata = bytearray(metadata, 'utf-8')
+        with open("passbase-test-private-key.pem", "rb") as f:
+            p = subprocess.Popen(
+            "openssl rsautl -sign -inkey " + f.name,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        signature, stderr = p.communicate(input=bytes_metadata)
+        credential['credentialSubject']['passbaseMetadata'] = base64.b64encode(signature).decode()
+        #pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         didkit_options = {
             "proofPurpose": "assertionMethod",
             "verificationMethod": vm_tz1

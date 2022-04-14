@@ -12,6 +12,7 @@
                     "id": "@id",
                     "type": "@type",
                     "email": "schema:email",
+                    "passbaseMetadata" : "schema:identifier",
                     "issuedBy" : {
                         "@id" : "schema:issuedBy",
                         "@context" : {
@@ -61,6 +62,7 @@
     "credentialSubject" : {
         "type" : "EmailPass",
         "email" : "",
+        "passbaseMetadata" : "xxx",
         "issuedBy" : {
             "name" : "Talao",
             "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
