@@ -10,14 +10,14 @@ def build_metadata(metadata) :
     with open("input.txt", "wb") as f:
         f.write(metadata)
         f.close()
-    os.system("openssl rsautl -sign -inkey passbase-test-private-key.pem -out output.txt -in input.txt")
+    os.system("/usr/bin/openssl rsautl -sign -inkey passbase-test-private-key.pem -out output.txt -in input.txt")
     with open("output.txt", "rb") as f:
         signature = f.read()
         f.close()
     encrypted_metadata = base64.b64encode(signature)
     return (encrypted_metadata.decode())
 
-
+print(build_metadata(my_metadata))
 
 def build_metadata(metadata) :
     with open("passbase-test-private-key.pem", "rb") as f:
