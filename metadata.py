@@ -12,8 +12,9 @@ def metadata(metadata) :
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
-        signature, stderr = p.communicate(input=metadata)
-        encrypted_metadata = base64.b64encode(signature)
+    signature, stderr = p.communicate(input=metadata)
+    print('erreur = ', stderr)
+    encrypted_metadata = base64.b64encode(signature)
     return encrypted_metadata.decode()
 
 print(metadata(my_metadata))
