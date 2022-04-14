@@ -11,7 +11,7 @@ import secrets
 from urllib.parse import urlencode
 import didkit
 import base64
-import subprocess
+import os
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
@@ -36,19 +36,18 @@ def init_app(app,red, mode) :
     app.add_url_rule('/emailpass/end',  view_func=emailpass_end, methods = ['GET', 'POST'])
     return
 
-def build_metadata(metadata) :
-    with open("passbase-test-private-key.pem", "rb") as f:
-        p = subprocess.Popen(
-            "openssl rsautl -sign -inkey " + f.name,
-            shell=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        signature, stderr = p.communicate(input=metadata)
-        print('erreur = ', stderr)
-        encrypted_metadata = base64.b64encode(signature)
-    return encrypted_metadata.decode()
 
+def build_metadata(metadata) :
+    with open("input.txt", "wb") as f:
+        f.write(metadata)
+        f.close()
+    os.system("openssl rsautl -sign -inkey passbase-test-private-key.pem -out output.txt -in input.txt")
+    with open("output.txt", "rb") as f:
+        signature = f.read()
+        f.close()
+    encrypted_metadata = base64.b64encode(signature)
+    print('metadata = ', encrypted_metadata.decode())
+    return (encrypted_metadata.decode())
 
 
 """
@@ -144,7 +143,6 @@ def emailpass_offer(id, red, mode):
         metadata = '{"did": ' + did + ', "email" :' + email + ' }'
         bytes_metadata = bytearray(metadata, 'utf-8')
         credential['credentialSubject']['passbaseMetadata'] = build_metadata(bytes_metadata)
-        print('encrypted metadata =', build_metadata(bytes_metadata))
         #pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         didkit_options = {
             "proofPurpose": "assertionMethod",
