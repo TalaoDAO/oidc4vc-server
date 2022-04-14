@@ -36,6 +36,20 @@ def init_app(app,red, mode) :
     app.add_url_rule('/emailpass/end',  view_func=emailpass_end, methods = ['GET', 'POST'])
     return
 
+def build_metadata(metadata) :
+    with open("passbase-test-private-key.pem", "rb") as f:
+        p = subprocess.Popen(
+            "openssl rsautl -sign -inkey " + f.name,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        signature, stderr = p.communicate(input=metadata)
+        encrypted_metadata = base64.b64encode(signature)
+    return encrypted_metadata.decode()
+
+
+
 """
 Email Pass : credential offer for a VC with email only
 VC is signed by Talao
@@ -127,18 +141,9 @@ def emailpass_offer(id, red, mode):
         credential['credentialSubject']['id'] = did
         # calcul passbase metadata
         metadata = '{"did": ' + did + ', "email" :' + email + ' }'
-        print('metadata = ', metadata)
         bytes_metadata = bytearray(metadata, 'utf-8')
-        with open("passbase-test-private-key.pem", "rb") as f:
-            p = subprocess.Popen(
-            "openssl rsautl -sign -inkey " + f.name,
-            shell=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        signature, stderr = p.communicate(input=bytes_metadata)
-        print('encrypted metadata = ', base64.b64encode(signature).decode())
-        credential['credentialSubject']['passbaseMetadata'] = base64.b64encode(signature).decode()
+        credential['credentialSubject']['passbaseMetadata'] = build_metadata(bytes_metadata)
+        print('encrypted metadata =', build_metadata(bytes_metadata))
         #pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
         didkit_options = {
             "proofPurpose": "assertionMethod",
