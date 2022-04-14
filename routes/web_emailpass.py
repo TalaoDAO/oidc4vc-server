@@ -142,8 +142,8 @@ def emailpass_offer(id, red, mode):
         did = request.form.get('subject_id', 'unknown DID')
         credential['credentialSubject']['id'] = did
         # calcul passbase metadata
-        did = "did:web:demo.talao.co" # test
-        email = "googandads@gmail.com" # test
+        #did = "did:web:demo.talao.co" # test
+        #email = "googandads@gmail.com" # test
         data = json.dumps({"did" : did, "email" : email})
         bytes_metadata = bytearray(data, 'utf-8')
         credential['credentialSubject']['passbaseMetadata'] = build_metadata(bytes_metadata)
