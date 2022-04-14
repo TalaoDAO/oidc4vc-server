@@ -136,17 +136,20 @@ def emailpass_offer(id, red, mode):
 
     elif request.method == 'POST': 
         red.delete(id)   
-        # sign credential
+        # init credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         email =  credential['credentialSubject']['email']
         did = request.form.get('subject_id', 'unknown DID')
         credential['credentialSubject']['id'] = did
         # calcul passbase metadata
-        metadata = '{"did": ' + did + ', "email" :' + email + ' }'
-        bytes_metadata = bytearray(metadata, 'utf-8')
+        did = "did:web:demo.talao.co" # test
+        email = "googandads@gmail.com" # test
+        data = json.dumps({"did" : did, "email" : email})
+        bytes_metadata = bytearray(data, 'utf-8')
         credential['credentialSubject']['passbaseMetadata'] = build_metadata(bytes_metadata)
         print('metadata = ', credential['credentialSubject']['passbaseMetadata'])
         #pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+        # signature 
         didkit_options = {
             "proofPurpose": "assertionMethod",
             "verificationMethod": vm_tz1

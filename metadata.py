@@ -2,22 +2,13 @@ import base64
 import subprocess
 import sys
 import os
+import json
 
-my_metadata = bytearray('{"did":"did:web:demo.talao.co", "email" : "googandads@gmail.com"}', 'utf-8')
+did = "did:web:demo.talao.co"
+email =  "googandads@gmail.com"
+data = json.dumps({"did" : did, "email" : email})
+my_metadata = bytearray(data, 'utf-8')
 
-
-def build_metadata(metadata) :
-    with open("input.txt", "wb") as f:
-        f.write(metadata)
-        f.close()
-    os.system("/usr/bin/openssl rsautl -sign -inkey passbase-test-private-key.pem -out output.txt -in input.txt")
-    with open("output.txt", "rb") as f:
-        signature = f.read()
-        f.close()
-    encrypted_metadata = base64.b64encode(signature)
-    return (encrypted_metadata.decode())
-
-print(build_metadata(my_metadata))
 
 def build_metadata(metadata) :
     with open("passbase-test-private-key.pem", "rb") as f:
@@ -31,3 +22,5 @@ def build_metadata(metadata) :
         print('erreur = ', stderr)
         encrypted_metadata = base64.b64encode(signature)
     return encrypted_metadata.decode()
+
+print(build_metadata(my_metadata))
