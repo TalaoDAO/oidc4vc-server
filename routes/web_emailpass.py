@@ -1,11 +1,10 @@
 from flask import jsonify, request, render_template, session, redirect, flash, Response
 import json
-from components import privatekey, Talao_message
+from components import Talao_message
 import uuid
 from datetime import timedelta, datetime
 import logging
 logging.basicConfig(level=logging.INFO)
-#from signaturesuite import vc_signature
 from flask_babel import _
 import secrets
 from urllib.parse import urlencode
@@ -13,12 +12,10 @@ import didkit
 import base64
 import subprocess
 
+
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-#DID_WEB = 'did:web:talao.co'
-#DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
-#DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-#DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
+
 DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 try :
     key_tz1 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
@@ -27,15 +24,15 @@ except :
 vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
 DID = DID_TZ1
 
+
 def init_app(app,red, mode) :
     app.add_url_rule('/emailpass',  view_func=emailpass, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/emailpass/qrcode',  view_func=emailpass_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
-    app.add_url_rule('/emailpass/offer/<id>',  view_func=emailpass_offer, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
+    app.add_url_rule('/emailpass/offer/<id>',  view_func=emailpass_offer, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/emailpass/authentication',  view_func=emailpass_authentication, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/emailpass/stream',  view_func=emailpass_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/emailpass/end',  view_func=emailpass_end, methods = ['GET', 'POST'])
     return
-
 
 
 def build_metadata(metadata) :
@@ -47,16 +44,10 @@ def build_metadata(metadata) :
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         signature, stderr = p.communicate(input=metadata)
-        print('erreur = ', stderr)
+        logging.error('erreur = %s', stderr)
         encrypted_metadata = base64.b64encode(signature)
     return encrypted_metadata.decode()
 
-
-"""
-Email Pass : credential offer for a VC with email only
-VC is signed by Talao
-
-"""
 
 def emailpass(mode) :
     if request.method == 'GET' :
@@ -113,7 +104,7 @@ def emailpass_qrcode(red, mode) :
                                 id=id)
    
 
-def emailpass_offer(id, red, mode):
+def emailpass_offer(id, red):
     """ Endpoint for wallet
     """
     credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
@@ -122,7 +113,13 @@ def emailpass_offer(id, red, mode):
     credential['credentialSubject']['id'] = "did:..."
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    credential['credentialSubject']['email'] = red.get(id).decode()
+    try :
+        credential['credentialSubject']['email'] = red.get(id).decode()
+    except :
+        logging.error('redis pb, id deleted ?')
+        data = json.dumps({"url_id" : id, "check" : "failed"})
+        red.publish('credible', data)
+        return jsonify('id deleted'), 408
     if request.method == 'GET': 
         # make an offer  
         credential_offer = {
@@ -135,20 +132,17 @@ def emailpass_offer(id, red, mode):
         return jsonify(credential_offer)
 
     elif request.method == 'POST': 
-        red.delete(id)   
+        red.delete(id)   #TODO remplacer par set time
         # init credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         email =  credential['credentialSubject']['email']
         did = request.form.get('subject_id', 'unknown DID')
         credential['credentialSubject']['id'] = did
         # calcul passbase metadata
-        #did = "did:web:demo.talao.co" # test
-        #email = "googandads@gmail.com" # test
         data = json.dumps({"did" : did, "email" : email})
         bytes_metadata = bytearray(data, 'utf-8')
         credential['credentialSubject']['passbaseMetadata'] = build_metadata(bytes_metadata)
-        print('metadata = ', credential['credentialSubject']['passbaseMetadata'])
-        #pvk = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+        logging.info('metadata = %s', credential['credentialSubject']['passbaseMetadata'])
         # signature 
         didkit_options = {
             "proofPurpose": "assertionMethod",

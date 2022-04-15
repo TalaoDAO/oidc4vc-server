@@ -63,8 +63,7 @@ def get_passbase(did) :
 
 def get_identity(passbase_key, mode) :
     url = "https://api.passbase.com/verification/v1/identities/" + passbase_key
-    print("api key = ", mode.passbase)
-    print("url = ", url)
+    logging.info("API call url = ", url)
     headers = {
         'accept' : 'application/json',
         'X-API-KEY' : mode.passbase
@@ -72,7 +71,7 @@ def get_identity(passbase_key, mode) :
     r = requests.get(url, headers=headers)
     logging.info("status code = %s", r.status_code)
     if not 199<r.status_code<300 :
-        logging.error("API call rejected")
+        logging.error("API call rejected %s", r.status_code)
         return None
     # treatment of API data
     identity = r.json()
@@ -116,8 +115,9 @@ def passbase_webhook(mode) :
     # get email and id
     webhook = request.get_json()
     logging.info("webhook = %s", webhook)
-    if webhook['event' ] == "VERIFICATION_REVIEWED" :
+    if webhook['event' ] in ["VERIFICATION_REVIEWED" , "VERIFICATION_COMPLETED"] :
         logging.info("identityKey = %s", webhook['key'])
+        logging.info(webhook['event'])
     else :
         logging.warning("Verification not completed")
         return jsonify('Verification not completed')
@@ -133,8 +133,8 @@ def passbase_webhook(mode) :
         did = identity['metadata']['did']
     except :
         logging.error("Metadata are not available")
-        did = "did:tz:tz2CAqCeoeLsmUJDHdRE7zQJbkRQArcKQwNk"
-        email = "thierry.thevenet@talao.io"           
+        return jsonify("NO metadata")
+
     add_passbase(email,
                 webhook['status'],
                 did,
@@ -224,8 +224,8 @@ def passbase_endpoint(id, red,mode):
 
 def passbase_back():
     result = request.args['followup']
-    print('back result = ', result)
-    print('back message = ', request.args.get('message', 'No message'))
+    logging.info('back result = %s', result)
+    logging.info('back message = %s', request.args.get('message', 'No message'))
     if result == 'failed' :
         message = """ <h2>Sorry !<br><br>""" + request.args['message'] + """</h2>"""
         

@@ -22,18 +22,18 @@ from datetime import timedelta
 from flask_cors import CORS
 from flask_qrcode import QRcode
 import redis
-
 import sys
-print("python version : ", sys.version)
-
 import logging
-logging.basicConfig(level=logging.INFO)
-
 from components import privatekey
 from signaturesuite import helpers
+import environment
+
+
+logging.basicConfig(level=logging.INFO)
+logging.info("python version : ", sys.version)
+
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
-import environment
 mychain = os.getenv('MYCHAIN')
 myenv = os.getenv('MYENV')
 if not myenv :
@@ -56,7 +56,7 @@ from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_cre
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.23.4'
+VERSION = '1.24.0'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
