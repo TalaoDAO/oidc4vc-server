@@ -63,7 +63,7 @@ def get_passbase(did) :
 
 def get_identity(passbase_key, mode) :
     url = "https://api.passbase.com/verification/v1/identities/" + passbase_key
-    logging.info("API call url = ", url)
+    logging.info("API call url = %s", url)
     headers = {
         'accept' : 'application/json',
         'X-API-KEY' : mode.passbase
@@ -133,7 +133,7 @@ def passbase_webhook(mode) :
         did = identity['metadata']['did']
     except :
         logging.error("Metadata are not available")
-        return jsonify("NO metadata")
+        return jsonify("No metadata")
 
     add_passbase(email,
                 webhook['status'],
@@ -143,13 +143,16 @@ def passbase_webhook(mode) :
 
     # send notification by email
     if webhook['status' ] == "approved" :
-        link_text = "Follow this link to get an identity credential " + mode.server + 'passbase'
+        link_text = "Great ! \nWe have now the proof your are over 18.\nFollow this link to get an Over 18 credential " + mode.server + "passbase\n No identity data will be included in that credential."
         Talao_message.message("Identity credential", email, link_text, mode)
+        logging.info("email sent to %s", email)
         return jsonify('ok, notification sent')
-
-    # if not approved no notification
-    logging.warning('Identification not approved, no notification was sent')
-    return jsonify("not approved")
+    else :
+        link_text = "Sorry ! \nThe authentication failed.\nProbably the identity documents are not acceptable.\nLet's try again with another type of document."
+        Talao_message.message("Identity credential", email, link_text, mode)
+        logging.info("email sent to %s", email)
+        logging.warning('Identification not approved, no notification was sent')
+        return jsonify("not approved")
 
 def passbase_endpoint(id, red,mode):
     try : 
@@ -163,7 +166,11 @@ def passbase_endpoint(id, red,mode):
 
     credential =  credentialOffer['credentialPreview']
     red.delete(id)
-    (status, passbase_key, created) = get_passbase(request.form['subject_id'])
+    try :
+        (status, passbase_key, created) = get_passbase(request.form['subject_id'])
+    except :
+        logging.error("KYC has not been done")
+        return jsonify ('request time out'),404
     if status != "approved" :
         data = json.dumps({
                     'id' : id,

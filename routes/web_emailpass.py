@@ -12,17 +12,16 @@ import didkit
 import base64
 import subprocess
 
-
 OFFER_DELAY = timedelta(seconds= 10*60)
+CODE_DELAY = timedelta(seconds= 180)
 
 
-DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
+issuer_did = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 try :
-    key_tz1 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+    issuer_key = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 except :
-    key_tz1 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
-vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
-DID = DID_TZ1
+    issuer_key = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+issuer_vm = didkit.keyToVerificationMethod('tz', issuer_key)
 
 
 def init_app(app,red, mode) :
@@ -55,7 +54,7 @@ def emailpass(mode) :
     if request.method == 'POST' :
         session['email'] = request.form['email']
         session['code'] = str(secrets.randbelow(99999))
-        session['code_delay'] = datetime.now() + OFFER_DELAY
+        session['code_delay'] = datetime.now() + CODE_DELAY
         try : 
             subject = 'Talao : Email authentification  '
             Talao_message.messageHTML(subject, session['email'], 'code_auth', {'code' : session['code']}, mode)
@@ -95,7 +94,7 @@ def emailpass_authentication(mode) :
 def emailpass_qrcode(red, mode) :
     if request.method == 'GET' :
         id = str(uuid.uuid1())
-        url = mode.server + "emailpass/offer/" + id +'?' + urlencode({'issuer' : DID})
+        url = mode.server + "emailpass/offer/" + id +'?' + urlencode({'issuer' : issuer_did})
         deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         red.set(id,  session['email'])
         return render_template('emailpass/emailpass_qrcode.html',
@@ -107,18 +106,18 @@ def emailpass_qrcode(red, mode) :
 def emailpass_offer(id, red):
     """ Endpoint for wallet
     """
-    credential = json.loads(open('./verifiable_credentials/EmailPass.jsonld', 'r').read())
-    credential["issuer"] = DID
-    credential['id'] = "urn:uuid:..."
-    credential['credentialSubject']['id'] = "did:..."
+    credential = json.load(open('./verifiable_credentials/EmailPass.jsonld', 'r'))
+    credential["issuer"] = issuer_did
+    credential['id'] = "urn:uuid:...random"
+    credential['credentialSubject']['id'] = "did:...wallet"
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     try :
         credential['credentialSubject']['email'] = red.get(id).decode()
     except :
         logging.error('redis pb, id deleted ?')
-        data = json.dumps({"url_id" : id, "check" : "failed"})
-        red.publish('credible', data)
+        data = json.dumps({"url_id" : id, "check" : "expired"})
+        red.publish('emailpass', data)
         return jsonify('id deleted'), 408
     if request.method == 'GET': 
         # make an offer  
@@ -126,7 +125,6 @@ def emailpass_offer(id, red):
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat(),
-            #"display": {"backgroundColor": "ffffff"}
         }
         return jsonify(credential_offer)
 
@@ -134,60 +132,61 @@ def emailpass_offer(id, red):
         red.delete(id)   #TODO remplacer par set time
         # init credential
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
-        email =  credential['credentialSubject']['email']
-        did = request.form.get('subject_id', 'unknown DID')
-        credential['credentialSubject']['id'] = did
+        credential['credentialSubject']['id'] = request.form.get('subject_id', 'unknown DID')
         # calcul passbase metadata
-        data = json.dumps({"did" : did, "email" : email})
+        data = json.dumps({"did" : request.form.get('subject_id', 'unknown DID'),
+                         "email" : credential['credentialSubject']['email']})
         bytes_metadata = bytearray(data, 'utf-8')
         credential['credentialSubject']['passbaseMetadata'] = build_metadata(bytes_metadata)
         logging.info('metadata = %s', credential['credentialSubject']['passbaseMetadata'])
         # signature 
         didkit_options = {
             "proofPurpose": "assertionMethod",
-            "verificationMethod": vm_tz1
+            "verificationMethod": issuer_vm
             }
         signed_credential =  didkit.issueCredential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
-                key_tz1)
+                issuer_key)
         if not signed_credential :
             logging.error('credential signature failed')
             data = json.dumps({"url_id" : id, "check" : "failed"})
-            red.publish('credible', data)
-            return jsonify('Server error'), 500
+            red.publish('emailpass', data)
+            return jsonify('Server failed'), 500
          # store signed credential on server
+        """
         try :
             filename = credential['id'] + '.jsonld'
-            path = "./signed_credentials/"
-            with open(path + filename, 'w') as outfile :
+            filepath = "./signed_credentials/" +filename
+            with open(filepath, 'w') as outfile :
                 json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
         except :
-            logging.error('signed credential not stored')
+            logging.warning('signed credential not stored')
+        """
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
-        red.publish('credible', data)
+        red.publish('emailpass', data)
         return jsonify(signed_credential)
  
 
 def emailpass_end() :
     if request.args['followup'] == "success" :
-        message = _('Great ! you have now an Email Pass.')
+        message = _('Great ! you have now a proof email.')
     elif request.args['followup'] == 'expired' :
-        message = _('Delay expired.')
+        message = _('Sorry ! delay expired.')
+    else :
+        message = _('Sorry ! there is a server problem, try again later.')
     return render_template('emailpass/emailpass_end.html', message=message)
 
 
-# server event push 
-def event_stream(red):
-    pubsub = red.pubsub()
-    pubsub.subscribe('credible')
-    for message in pubsub.listen():
-        if message['type']=='message':
-            yield 'data: %s\n\n' % message['data'].decode()
-
-
+# server event
 def emailpass_stream(red):
+    def event_stream(red):
+        pubsub = red.pubsub()
+        pubsub.subscribe('emailpass')
+        for message in pubsub.listen():
+            if message['type']=='message':
+                yield 'data: %s\n\n' % message['data'].decode()
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}

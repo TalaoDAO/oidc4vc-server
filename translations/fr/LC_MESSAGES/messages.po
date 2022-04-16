@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2022-03-28 12:53+0200\n"
+"POT-Creation-Date: 2022-04-16 15:34+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -382,42 +382,45 @@ msgstr "Photo mise à jour"
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
-#: routes/web_emailpass.py:47
+#: routes/web_emailpass.py:62
 msgid "Secret code sent to your email."
 msgstr "Code secret envoyé par email."
 
-#: routes/web_emailpass.py:50
+#: routes/web_emailpass.py:65
 msgid "Email failed."
 msgstr "Echec d'envoi d'email."
 
-#: routes/web_emailpass.py:66 routes/web_login.py:182
-#: routes/web_phonepass.py:66
+#: routes/web_emailpass.py:81 routes/web_login.py:182
+#: routes/web_phonepass.py:67
 msgid "Code expired."
 msgstr "Code expiré."
 
-#: routes/web_emailpass.py:69 routes/web_login.py:145 routes/web_login.py:185
-#: routes/web_phonepass.py:69
+#: routes/web_emailpass.py:84 routes/web_login.py:145 routes/web_login.py:185
+#: routes/web_phonepass.py:70
 msgid "Too many trials (3 max)."
 msgstr "Nombre maximum d'essais atteint."
 
-#: routes/web_emailpass.py:73 routes/web_login.py:189
-#: routes/web_phonepass.py:73
+#: routes/web_emailpass.py:88 routes/web_login.py:189
+#: routes/web_phonepass.py:74
 msgid "This code is incorrect, 2 trials left."
 msgstr "Ce code est incorrect, plus que 2 essais."
 
-#: routes/web_emailpass.py:75 routes/web_login.py:191
-#: routes/web_phonepass.py:75
+#: routes/web_emailpass.py:90 routes/web_login.py:191
+#: routes/web_phonepass.py:76
 msgid "This code is incorrect, 1 trial left."
 msgstr "Ce code est incorrect plus que 1 seul essai."
 
-#: routes/web_emailpass.py:141
-msgid "Great ! you have now an Email Pass."
+#: routes/web_emailpass.py:174
+msgid "Great ! you have now a proof email."
 msgstr "Bravo ! vous avez maintenant votre preuve d'email."
 
-#: routes/web_emailpass.py:143 routes/web_loyaltycard.py:136
-#: routes/web_phonepass.py:141
-msgid "Delay expired."
+#: routes/web_emailpass.py:176
+msgid "Sorry ! delay expired."
 msgstr "Délais expiré."
+
+#: routes/web_emailpass.py:178
+msgid "Sorry ! there is a server problem, try again later."
+msgstr "Problème de serveur, réessayez plus tard"
 
 #: routes/web_hrid.py:20 routes/web_main.py:154
 msgid "Identiy pass"
@@ -679,12 +682,10 @@ msgid "Delay has expired."
 msgstr "Délais expiré."
 
 #: routes/web_login.py:374 routes/web_login.py:381
-#, fuzzy
 msgid "Credential check failed."
 msgstr "Echec de la vérification."
 
 #: routes/web_login.py:389
-#, fuzzy
 msgid "Your identity has not been registered yet."
 msgstr "Votre Identité Numérique n'est pas enregistrée."
 
@@ -695,6 +696,10 @@ msgstr " Card"
 #: routes/web_loyaltycard.py:134
 msgid "Great ! you have now a new Loyalty Card."
 msgstr "Bravo ! vous avez maintenant votre Carte de Fidélité."
+
+#: routes/web_loyaltycard.py:136
+msgid "Delay expired."
+msgstr "Délais expiré."
 
 #: routes/web_main.py:109
 msgid "No credential selected"
@@ -1054,17 +1059,25 @@ msgstr "Certificat non disponible."
 msgid "Certificate PKCS12 not available."
 msgstr "Certificat non disponible."
 
-#: routes/web_phonepass.py:47
+#: routes/web_phonepass.py:48
 msgid "Secret code sent to your phone."
 msgstr "Code secret envoyé par sms."
 
-#: routes/web_phonepass.py:50
+#: routes/web_phonepass.py:51
 msgid "phone failed."
 msgstr "Echec de l'opération."
 
-#: routes/web_phonepass.py:139
-msgid "Great ! you have now a Phone Pass."
-msgstr "Bravo ! vous avez maintenant votre Passe Téléphone."
+#: routes/web_phonepass.py:147
+msgid "Great ! you have now a proof of phone number."
+msgstr "Bravo ! vous avez maintenant une preuve de téléphone."
+
+#: routes/web_phonepass.py:149
+msgid "Sorry, delay expired."
+msgstr "Délais expiré."
+
+#: routes/web_phonepass.py:151
+msgid "Sorry, server problem, try again later."
+msgstr "Problème de serveur, réessayez plus tard."
 
 #: routes/web_register.py:103
 msgid "Company registration failed"
@@ -1206,9 +1219,10 @@ msgstr "Mettre à jour"
 #: templates/login/login_qr.html:32 templates/login/login_qr.html:54
 #: templates/login/logout.html:59 templates/loyaltycard/loyaltycard_end.html:27
 #: templates/loyaltycard/loyaltycard_qrcode.html:20
+#: templates/passbase/over18.html:23
 #: templates/phonepass/phonepass_authentication.html:43
 #: templates/phonepass/phonepass_end.html:39
-#: templates/phonepass/phonepass_qrcode.html:20 templates/picture.html:80
+#: templates/phonepass/phonepass_qrcode.html:21 templates/picture.html:80
 #: templates/register/register_code.html:53
 #: templates/register/register_password.html:62
 #: templates/register/registration_error.html:35 templates/signature.html:65
@@ -1544,7 +1558,6 @@ msgstr "Obtenir une preuve de téléphone"
 
 #: templates/guest_nav_bar.html:46 templates/guest_nav_bar_2.html:48
 #: templates/loyaltycard/loyaltycard.html:60
-#: templates/phonepass/phonepass.html:44
 msgid "Directory"
 msgstr "Répertoire"
 
@@ -1808,7 +1821,6 @@ msgstr "Signé par"
 
 #: templates/credible/credential_qr.html:18
 #: templates/loyaltycard/loyaltycard_qrcode.html:14
-#: templates/phonepass/phonepass_qrcode.html:14
 #: templates/wallet/test/revoked_qrcode.html:15
 msgid "Scan the QRCode bellow with your Credible wallet"
 msgstr "Scannez le QR code avec votre wallet smartphone"
@@ -1872,16 +1884,18 @@ msgid "Sign-In to Talao"
 msgstr "Se connecter à Talao"
 
 #: templates/emailpass/emailpass_qrcode.html:17
+#: templates/phonepass/phonepass_qrcode.html:17
 msgid "Scan the QRCode bellow with your wallet"
 msgstr "Scannez le QR code avec votre wallet smartphone"
 
 #: templates/emailpass/emailpass_qrcode.html:31
-msgid "Download your email pass in your wallet"
+msgid "Download your proof of email to your wallet"
 msgstr "Téléchargez votre preuve d'email dans votre wallet"
 
 #: templates/emailpass/emailpass_qrcode.html:33
 #: templates/login/login_password.html:26
-#: templates/login/tezotopia_login.html:26
+#: templates/login/tezotopia_login.html:26 templates/passbase/over18.html:36
+#: templates/phonepass/phonepass_qrcode.html:33
 #: templates/register/register_wallet_qrcode.html:40
 msgid "Open the Talao wallet"
 msgstr "Ouvrir le wallet Talao"
@@ -2240,17 +2254,29 @@ msgstr ""
 msgid "Get your Loyalty Card"
 msgstr "Obtenir votre Carte de Fidélité"
 
+#: templates/passbase/over18.html:18
+msgid "Scan the QRCode below with your Talao wallet"
+msgstr "Scannez le QR code avec votre wallet smartphone"
+
+#: templates/passbase/over18.html:33
+msgid "Download the credential to your wallet"
+msgstr "Téléchargez votre preuve de majorité dans votre wallet"
+
 #: templates/phonepass/phonepass.html:38
 msgid ""
-"Verify your phone number to get one-click access to your services with "
-"your Talao smartphone wallet."
+"Verify your international phone number to get one-click access to your "
+"services with your Talao smartphone wallet."
 msgstr ""
 "Validez votre numéro de téléphone pour avoir un accès en un clic à vos "
 "services."
 
 #: templates/phonepass/phonepass.html:41
-msgid "Enter your int. phone number"
-msgstr "Saisissez votre numéro de téléphone int."
+msgid "+"
+msgstr ""
+
+#: templates/phonepass/phonepass_qrcode.html:31
+msgid "Download your proof of phone number to your wallet"
+msgstr "Téléchargez votre preuve de téléphone dans votre wallet"
 
 #: templates/register/end_of_registration.html:21
 msgid "Your portfolio have been installed."
@@ -2370,9 +2396,7 @@ msgstr "* Vous pouvez demander de nouvelles attestations à votre entreprise."
 
 #: templates/register/user_register.html:48
 msgid "Create a new repository for your credentials"
-msgstr ""
-"* Créer un portfolio pour sauvegarder "
-"vos attestations."
+msgstr "* Créer un portfolio pour sauvegarder vos attestations."
 
 #: templates/register/user_register.html:55
 msgid ""

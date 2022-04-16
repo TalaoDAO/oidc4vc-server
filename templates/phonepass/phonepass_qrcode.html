@@ -43,18 +43,14 @@
 <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
 
 <script>
 
 var source = new EventSource('/phonepass/stream');
 source.onmessage = function (event) {
      const result = JSON.parse(event.data)
-     if (result.check == 'success' & result.url_id == '{{id}}' ){
-       window.location.href="/phonepass/end?followup=success";
-     }
-     if (result.check == 'expired' & result.url_id == '{{id}}' ){
-       window.location.href="/phonepass/end?followup=expired";
+     if (result.url_id == '{{id}}' ){
+       window.location.href="/phonepass/end?followup=" + result.check;
      }
 };
 

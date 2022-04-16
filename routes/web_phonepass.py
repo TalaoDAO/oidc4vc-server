@@ -11,6 +11,9 @@ from urllib.parse import urlencode
 import didkit
 
 OFFER_DELAY = timedelta(seconds= 10*60)
+CODE_DELAY = timedelta(seconds= 180)
+
+
 
 DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 try :
@@ -24,7 +27,7 @@ DID = DID_TZ1
 def init_app(app,red, mode) :
     app.add_url_rule('/phonepass',  view_func=phonepass, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/phonepass/qrcode',  view_func=phonepass_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
-    app.add_url_rule('/phonepass/offer/<id>',  view_func=phonepass_offer, methods = ['GET', 'POST'], defaults={'mode' : mode, 'red' : red})
+    app.add_url_rule('/phonepass/offer/<id>',  view_func=phonepass_offer, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/phonepass/authentication',  view_func=phonepass_authentication, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/phonepass/stream',  view_func=phonepass_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/phonepass/end',  view_func=phonepass_end, methods = ['GET', 'POST'])
@@ -38,7 +41,7 @@ def phonepass(mode) :
         # traiter phone
         session['phone'] = request.form['phone']
         session['code'] = str(secrets.randbelow(99999))
-        session['code_delay'] = datetime.now() + timedelta(seconds= 180)
+        session['code_delay'] = datetime.now() + CODE_DELAY
         try : 
             sms.send_code(session['phone'], session['code'], mode)
             logging.info('secret code sent = %s', session['code'])
@@ -86,7 +89,7 @@ def phonepass_qrcode(red, mode) :
                                 id=id)
    
 
-def phonepass_offer(id, red, mode):
+def phonepass_offer(id, red):
     """ Endpoint for wallet
     """
     credential = json.loads(open('./verifiable_credentials/PhonePass.jsonld', 'r').read())
@@ -121,9 +124,10 @@ def phonepass_offer(id, red, mode):
         if not signed_credential :
             logging.error('credential signature failed')
             data = json.dumps({"url_id" : id, "check" : "failed"})
-            red.publish('credible', data)
-            return jsonify('server error'), 500
+            red.publish('phonepass', data)
+            return jsonify('server error')
          # store signed credential on server
+        """
         try :
             filename = credential['id'] + '.jsonld'
             path = "./signed_credentials/"
@@ -131,30 +135,34 @@ def phonepass_offer(id, red, mode):
                 json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
         except :
             logging.error('signed credential not stored')
+        """
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
-        red.publish('credible', data)
+        red.publish('phonepass', data)
         return jsonify(signed_credential)
  
 
 def phonepass_end() :
     if request.args['followup'] == "success" :
-        message = _('Great ! you have now a Phone Pass.')
+        message = _('Great ! you have now a proof of phone number.')
     elif request.args['followup'] == 'expired' :
-        message = _('Delay expired.')
+        message = _('Sorry, delay expired.')
+    else :
+        message = _('Sorry, server problem, try again later.')
     return render_template('phonepass/phonepass_end.html', message=message)
 
 
 # server event push 
-def event_stream(red):
-    pubsub = red.pubsub()
-    pubsub.subscribe('credible')
-    for message in pubsub.listen():
-        if message['type']=='message':
-            yield 'data: %s\n\n' % message['data'].decode()
+
 
 
 def phonepass_stream(red):
+    def event_stream(red):
+        pubsub = red.pubsub()
+        pubsub.subscribe('phonepass')
+        for message in pubsub.listen():
+            if message['type']=='message':
+                yield 'data: %s\n\n' % message['data'].decode()
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
