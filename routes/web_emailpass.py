@@ -126,8 +126,7 @@ def emailpass_offer(id, red):
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat(),
-            "display": {"backgroundColor": "ffffff"},
-             "shareLink" : json.dumps(credential, separators=(',', ':'))
+            #"display": {"backgroundColor": "ffffff"}
         }
         return jsonify(credential_offer)
 

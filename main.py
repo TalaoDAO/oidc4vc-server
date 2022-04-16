@@ -30,7 +30,7 @@ import environment
 
 
 logging.basicConfig(level=logging.INFO)
-logging.info("python version : ", sys.version)
+logging.info("python version : %s", sys.version)
 
 
 # Environment variables set in gunicornconf.py  and transfered to environment.py
@@ -56,7 +56,7 @@ from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_cre
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.24.0'
+VERSION = '1.24.1'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
