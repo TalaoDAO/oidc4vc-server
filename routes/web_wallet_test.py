@@ -30,8 +30,6 @@ except :
     key_tz1 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
 
-
-
 did_selected = DID_TZ1
 
 QueryBYExample = {
@@ -86,7 +84,6 @@ def credential_from_filename(path, filename) :
     return json.loads(base64.b64decode(encoded_content).decode())
       
 
-
 def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/wallet/test/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'])
@@ -115,7 +112,7 @@ def init_app(app,red, mode) :
 
 
 
-########################  playground ##########################""
+########################  dev playground ##########################""
 def playground() :
     global status
     return render_template("./wallet/test/playground.html")
@@ -158,7 +155,7 @@ def test_direct_offer(red, mode) :
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
     backgroundColor = "ffffff"
-    shareLink = ""
+    shareLink = str()
     if VC_filename == "visa_card.jsonld" :
         backgroundColor = "fea235"
     elif VC_filename == "amex_card.jsonld" :
@@ -197,44 +194,7 @@ def test_credentialOffer_qrcode(red, mode) :
             path = "test/CredentialOffer"
         # list all the files of github directory 
         dir_list = dir_list_calculate(path)
-        html_string = """
-                    <p> type : EmailPass</p>
-                    <p>  name : <strong>Proof of email / Preuve d"email (personalisée) </strong></p>
-                    <form action="/wallet/test/credentialOffer" method="POST" >
-                    
-                    Issuer : <select name="did_select">
-                        <option value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
-                        <option selected value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
-                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
-                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
-                        </select><br>
-                        <input hidden name="path" value=""" + path + """> 
-                        <input hidden name="filename" value=""" + "talaoemailpass" + """>
-                        <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
-                    </form><hr>
-
-                      <p> type : PhonePass</p>
-                    <p>  name : <strong>Proof of telephone number / Preuve de numéro de téléphone (personalisée) </strong></p>
-                    <form action="/wallet/test/credentialOffer" method="POST" >
-                    
-                      Issuer : <select name="did_select">
-                      <option selected value=""" + DID_TZ2 + """>""" + DID_TZ2 + """</option>
-                           <option value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
-                        <option value="""+ DID_ETHR + """>""" + DID_ETHR + """</option>
-                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
-                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
-                        <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
-                        
-                        </select><br>
-                        <input hidden name="path" value=""" + path + """> 
-                         <input hidden name="filename" value=""" + "talaophonepass" + """>
-                        <br><button  type"submit" > Generate a QR code for this Credential Offer</button>
-                    </form><hr>"""
+        html_string = str()
         for filename in dir_list :
             try :
                 credential = credential_from_filename(path, filename)
@@ -289,10 +249,6 @@ def test_credentialOffer_qrcode(red, mode) :
         else :
             did_issuer = request.form['did_select']
         filename = request.form['filename']
-        if filename == "talaoemailpass" :
-            return redirect('/emailpass')
-        if filename == "talaophonepass" :
-            return redirect('/phonepass')
         try : 
             credential = credential_from_filename(path, filename)
         except :

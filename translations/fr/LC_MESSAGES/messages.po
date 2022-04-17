@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Issuer Talao \n"
 "Report-Msgid-Bugs-To: Thierry Thevenet\n"
-"POT-Creation-Date: 2022-04-16 15:34+0200\n"
+"POT-Creation-Date: 2022-04-17 18:34+0200\n"
 "PO-Revision-Date: 2021-06-13 21:22+0200\n"
 "Last-Translator: Thierry Thevenet\n"
 "Language: fr\n"
@@ -382,43 +382,43 @@ msgstr "Photo mise à jour"
 msgid "Logo has been updated"
 msgstr "Logo mis à jour"
 
-#: routes/web_emailpass.py:62
+#: routes/web_emailpass.py:65
 msgid "Secret code sent to your email."
 msgstr "Code secret envoyé par email."
 
-#: routes/web_emailpass.py:65
+#: routes/web_emailpass.py:68
 msgid "Email failed."
 msgstr "Echec d'envoi d'email."
 
-#: routes/web_emailpass.py:81 routes/web_login.py:182
+#: routes/web_emailpass.py:85 routes/web_login.py:182
 #: routes/web_phonepass.py:67
 msgid "Code expired."
 msgstr "Code expiré."
 
-#: routes/web_emailpass.py:84 routes/web_login.py:145 routes/web_login.py:185
+#: routes/web_emailpass.py:88 routes/web_login.py:145 routes/web_login.py:185
 #: routes/web_phonepass.py:70
 msgid "Too many trials (3 max)."
 msgstr "Nombre maximum d'essais atteint."
 
-#: routes/web_emailpass.py:88 routes/web_login.py:189
+#: routes/web_emailpass.py:92 routes/web_login.py:189
 #: routes/web_phonepass.py:74
 msgid "This code is incorrect, 2 trials left."
 msgstr "Ce code est incorrect, plus que 2 essais."
 
-#: routes/web_emailpass.py:90 routes/web_login.py:191
+#: routes/web_emailpass.py:94 routes/web_login.py:191
 #: routes/web_phonepass.py:76
 msgid "This code is incorrect, 1 trial left."
 msgstr "Ce code est incorrect plus que 1 seul essai."
 
-#: routes/web_emailpass.py:174
-msgid "Great ! you have now a proof email."
-msgstr "Bravo ! vous avez maintenant votre preuve d'email."
+#: routes/web_emailpass.py:166
+msgid "Great ! you have now a proof of email."
+msgstr "Bravo ! vous avez maintenant une preuve d'email."
 
-#: routes/web_emailpass.py:176
-msgid "Sorry ! delay expired."
+#: routes/web_emailpass.py:168
+msgid "Sorry ! session expired."
 msgstr "Délais expiré."
 
-#: routes/web_emailpass.py:178
+#: routes/web_emailpass.py:170
 msgid "Sorry ! there is a server problem, try again later."
 msgstr "Problème de serveur, réessayez plus tard"
 
@@ -1067,15 +1067,15 @@ msgstr "Code secret envoyé par sms."
 msgid "phone failed."
 msgstr "Echec de l'opération."
 
-#: routes/web_phonepass.py:147
+#: routes/web_phonepass.py:144
 msgid "Great ! you have now a proof of phone number."
 msgstr "Bravo ! vous avez maintenant une preuve de téléphone."
 
-#: routes/web_phonepass.py:149
-msgid "Sorry, delay expired."
-msgstr "Délais expiré."
+#: routes/web_phonepass.py:146
+msgid "Sorry, session expired."
+msgstr "Session expirée."
 
-#: routes/web_phonepass.py:151
+#: routes/web_phonepass.py:148
 msgid "Sorry, server problem, try again later."
 msgstr "Problème de serveur, réessayez plus tard."
 
@@ -1205,7 +1205,7 @@ msgstr "Mettre à jour"
 #: templates/credible/credential_qr.html:24 templates/data_check.html:44
 #: templates/delete_identity.html:62
 #: templates/emailpass/emailpass_authentication.html:43
-#: templates/emailpass/emailpass_end.html:39
+#: templates/emailpass/emailpass_end.html:22
 #: templates/emailpass/emailpass_qrcode.html:21
 #: templates/issuer/add_campaign.html:98 templates/issuer/campaign_code.html:46
 #: templates/issuer/issue_experience_credential_workflow.html:171
@@ -1221,7 +1221,7 @@ msgstr "Mettre à jour"
 #: templates/loyaltycard/loyaltycard_qrcode.html:20
 #: templates/passbase/over18.html:23
 #: templates/phonepass/phonepass_authentication.html:43
-#: templates/phonepass/phonepass_end.html:39
+#: templates/phonepass/phonepass_end.html:24
 #: templates/phonepass/phonepass_qrcode.html:21 templates/picture.html:80
 #: templates/register/register_code.html:53
 #: templates/register/register_password.html:62
@@ -1877,15 +1877,9 @@ msgstr "Suivant"
 msgid "Enter your code"
 msgstr "Saisissez votre code"
 
-#: templates/emailpass/emailpass_end.html:40
-#: templates/loyaltycard/loyaltycard_end.html:28
-#: templates/phonepass/phonepass_end.html:40
-msgid "Sign-In to Talao"
-msgstr "Se connecter à Talao"
-
 #: templates/emailpass/emailpass_qrcode.html:17
 #: templates/phonepass/phonepass_qrcode.html:17
-msgid "Scan the QRCode bellow with your wallet"
+msgid "Scan the QRCode below with your wallet"
 msgstr "Scannez le QR code avec votre wallet smartphone"
 
 #: templates/emailpass/emailpass_qrcode.html:31
@@ -1895,8 +1889,9 @@ msgstr "Téléchargez votre preuve d'email dans votre wallet"
 #: templates/emailpass/emailpass_qrcode.html:33
 #: templates/login/login_password.html:26
 #: templates/login/tezotopia_login.html:26 templates/passbase/over18.html:36
-#: templates/phonepass/phonepass_qrcode.html:33
+#: templates/phonepass/phonepass_qrcode.html:34
 #: templates/register/register_wallet_qrcode.html:40
+#: templates/wallet/test/login_presentation_qr.html:29
 msgid "Open the Talao wallet"
 msgstr "Ouvrir le wallet Talao"
 
@@ -2254,6 +2249,10 @@ msgstr ""
 msgid "Get your Loyalty Card"
 msgstr "Obtenir votre Carte de Fidélité"
 
+#: templates/loyaltycard/loyaltycard_end.html:28
+msgid "Sign-In to Talao"
+msgstr "Se connecter à Talao"
+
 #: templates/passbase/over18.html:18
 msgid "Scan the QRCode below with your Talao wallet"
 msgstr "Scannez le QR code avec votre wallet smartphone"
@@ -2270,11 +2269,7 @@ msgstr ""
 "Validez votre numéro de téléphone pour avoir un accès en un clic à vos "
 "services."
 
-#: templates/phonepass/phonepass.html:41
-msgid "+"
-msgstr ""
-
-#: templates/phonepass/phonepass_qrcode.html:31
+#: templates/phonepass/phonepass_qrcode.html:32
 msgid "Download your proof of phone number to your wallet"
 msgstr "Téléchargez votre preuve de téléphone dans votre wallet"
 
@@ -2473,6 +2468,11 @@ msgstr "Générez un QR code pour la carte de résident"
 #: templates/wallet/test/grant.html:27
 msgid "Tezotopia voucher with image"
 msgstr ""
+
+#: templates/wallet/test/login_presentation_qr.html:27
+#, fuzzy
+msgid "Sign-In with your wallet"
+msgstr "Créer un portfolio avec un wallet sur smartphone"
 
 #: templates/wallet/test/playground.html:21
 msgid "Get a resident card"

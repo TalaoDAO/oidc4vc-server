@@ -13,14 +13,15 @@
       <br><br><br>
       
       <div id="content_desktop" class="d-none d-sm-block">
-        <div class="text-center"       
-        <p>{{_('Scan the QRCode bellow with your wallet')}}</p>
+        <div class="text-center">       
+          <p>{{_('Scan the QRCode below with your wallet')}}</p>
           <div class="my-3"><img src="{{qrcode(url)}}" style="width: 250px;border-radius:0px;"></div>
         </div>
         <div class="col text-center mt-2">
           <button class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
+        </div>
       </div>
-      </div>
+    
 
       <div id="content_smartphone" class="d-block d-sm-none">
         <div class="card">
@@ -34,9 +35,10 @@
               </div>
           </div>
       </div> 
-     
     </div>
-
+</div>
+</div>
+</div>
         {% include 'user_footer.html' %}
 
 <script>function goBack() {  window.history.back();}</script>
@@ -49,7 +51,7 @@
 var source = new EventSource('/phonepass/stream');
 source.onmessage = function (event) {
      const result = JSON.parse(event.data)
-     if (result.url_id == '{{id}}' ){
+     if (result.url_id == '{{session["sid"]}}' ){
        window.location.href="/phonepass/end?followup=" + result.check;
      }
 };

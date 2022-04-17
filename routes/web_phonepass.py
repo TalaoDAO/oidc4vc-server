@@ -12,7 +12,7 @@ import didkit
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 CODE_DELAY = timedelta(seconds= 180)
-
+QRCODE_DELAY = 30
 
 
 DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
@@ -78,15 +78,12 @@ def phonepass_authentication(mode) :
 
 
 def phonepass_qrcode(red, mode) :
-    if request.method == 'GET' :
-        id = str(uuid.uuid1())
-        url = mode.server + "phonepass/offer/" + id +'?' + urlencode({'issuer' : DID})
-        deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-        red.set(id,  session['phone'])
-        return render_template('phonepass/phonepass_qrcode.html',
+    url = mode.server + "phonepass/offer/" + session.sid +'?' + urlencode({'issuer' : DID})
+    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+    red.setex(session.sid, QRCODE_DELAY, session['phone'])
+    return render_template('phonepass/phonepass_qrcode.html',
                                 url=url,
-                                deeplink=deeplink,
-                                id=id)
+                                deeplink=deeplink)
    
 
 def phonepass_offer(id, red):
@@ -94,8 +91,8 @@ def phonepass_offer(id, red):
     """
     credential = json.loads(open('./verifiable_credentials/PhonePass.jsonld', 'r').read())
     credential["issuer"] = DID
-    credential['id'] = "urn:uuid:..."
-    credential['credentialSubject']['id'] = "did:..."
+    credential['id'] = "urn:uuid:random"
+    credential['credentialSubject']['id'] = "did:wallet"
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['phone'] = red.get(id).decode()
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
@@ -146,16 +143,13 @@ def phonepass_end() :
     if request.args['followup'] == "success" :
         message = _('Great ! you have now a proof of phone number.')
     elif request.args['followup'] == 'expired' :
-        message = _('Sorry, delay expired.')
+        message = _('Sorry, session expired.')
     else :
         message = _('Sorry, server problem, try again later.')
     return render_template('phonepass/phonepass_end.html', message=message)
 
 
 # server event push 
-
-
-
 def phonepass_stream(red):
     def event_stream(red):
         pubsub = red.pubsub()

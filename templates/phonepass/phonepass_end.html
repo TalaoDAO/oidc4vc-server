@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- authentification.html -->
+<!-- phonepass_end.html -->
 <html>
 
 <head>
@@ -7,23 +7,10 @@
 
 </head>
 
-
    <body id="page-top">
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
-                   {% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				{% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-                <span>{{ message }}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
 
                        {% include 'guest_nav_bar_2.html' %}
 
@@ -33,25 +20,25 @@
                 <div class="card shadow o-hidden border-0 my-5" style="color: rgb(133,135,150);">
                     <div class="card-body p-0">
                                 <div class="p-5">
-                                    <div class="text-center"><h4 class="text-dark mb-4" >{{message}}</h4></div>
-
-                                    
+                                    <div class="text-center"><h4 class="text-dark mb-4" >{{message}}</h4></div>                                    
                                     <div class="text-center"><a class="small" href="/phonepass">{{_('Back')}}</a></div>
-                                    <div class="text-center"><a class="small" href="/login">{{_('Sign-In to Talao')}}</a></div>
-
                                 </div>
                     </div>
                 </div>
             </div>
         </div>
-                         {% include 'user_footer.html' %}
-    </div>
+        </div>
+</div>
+</div>
+</div>
+
+{% include 'user_footer.html' %}
+
     <script>function goBack() {window.history.back();}</script>
 
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
     
 </body>
 </html>

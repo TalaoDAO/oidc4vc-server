@@ -37,9 +37,9 @@
 
                                     <p>{{_('Verify your international phone number to get one-click access to your services with your Talao smartphone wallet.')}}</p>
 
-                                    <form name="form" class="user" action="/phonepass" method="post">
-                                        <div class="form-group"><input required="" class="form-control" type="text" placeholder='{{_("+")}}'  name="phone" style="color: rgb(133,135,150);"></div>
-                                        <button class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Next')}}</button>
+                                    <form id="form"  class="user" action="/phonepass" method="post">
+                                        <div class="form-group"><input required="" class="form-control" type="text" placeholder='+'  name="phone" style="color: rgb(133,135,150);"></div>
+                                        <button id="in_progress_button" class="btn btn-primary btn-block text-white border rounded btn-user" type="submit">{{_('Next')}}</button>
                                     </form>
 
                                 </div>
@@ -58,6 +58,7 @@
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-    
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+
 </body>
 </html>
