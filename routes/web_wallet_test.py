@@ -160,6 +160,8 @@ def test_direct_offer(red, mode) :
         backgroundColor = "fea235"
     elif VC_filename == "amex_card.jsonld" :
         backgroundColor = "a9afaf"
+    elif VC_filename == " tezotopia_loyaltycard.jsonld" :
+        backgroundColor = "e60118"
     elif VC_filename == "LoyaltyCard.jsonld" :
         shareLink = "https://www.leroymerlin.fr/ma-carte-maison.html"
     else :
@@ -208,13 +210,13 @@ def test_credentialOffer_qrcode(red, mode) :
                     <form action="/wallet/test/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
-                    <option value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
-                     <option value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
-                        <option selected value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
+                        <option selected value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
+                        <option value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
+                        <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
                         <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
-                          <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
+                        <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br><br>
                         <input hidden name="path" value=""" + path + """> 

@@ -10,18 +10,17 @@ from flask_babel import _
 from urllib.parse import urlencode
 import didkit
 
-OFFER_DELAY = timedelta(seconds= 10*60)
+OFFER_DELAY = timedelta(seconds= 30)
 CODE_DELAY = timedelta(seconds= 180)
 QRCODE_DELAY = 30
 
 
-DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 try :
     key_tz1 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 except :
     key_tz1 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
 vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
-DID = DID_TZ1
+DID =  "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
 
 def init_app(app,red, mode) :
@@ -123,16 +122,6 @@ def phonepass_offer(id, red):
             data = json.dumps({"url_id" : id, "check" : "failed"})
             red.publish('phonepass', data)
             return jsonify('server error')
-         # store signed credential on server
-        """
-        try :
-            filename = credential['id'] + '.jsonld'
-            path = "./signed_credentials/"
-            with open(path + filename, 'w') as outfile :
-                json.dump(json.loads(signed_credential), outfile, indent=4, ensure_ascii=False)
-        except :
-            logging.error('signed credential not stored')
-        """
         # send event to client agent to go forward
         data = json.dumps({"url_id" : id, "check" : "success"})
         red.publish('phonepass', data)
