@@ -97,6 +97,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
+    app.add_url_rule('/sandbox',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/wallet/sandbox',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground/prosoon',  view_func=playground_prosoon, methods = ['GET', 'POST'])
