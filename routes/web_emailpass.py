@@ -56,6 +56,7 @@ def emailpass(mode) :
         return render_template('emailpass/emailpass.html')
     if request.method == 'POST' :
         session['email'] = request.form['email']
+        logging.info('email = %s', session['email'])
         session['code'] = str(secrets.randbelow(99999))
         session['code_delay'] = datetime.now() + CODE_DELAY
         try : 

@@ -126,6 +126,8 @@ def passbase_webhook(mode) :
     identity = get_identity(webhook['key'], mode)
     if not identity :
         logging.error("probleme d acces API")
+        link_text = "Sorry ! \nThe server encountered an error.\nLet's try again later."
+        Talao_message.message("Identity credential", email, link_text, mode)
         return jsonify("probleme d acces API")
 
     email = identity['owner']['email']
@@ -133,6 +135,9 @@ def passbase_webhook(mode) :
         did = identity['metadata']['did']
     except :
         logging.error("Metadata are not available")
+        link_text = "Sorry ! \nThe authentication failed.\nProbably your proof of email has been rejected.\nLet's try again with a new proof of email."
+        Talao_message.message("Identity credential", email, link_text, mode)
+        logging.info("email sent to %s", email)
         return jsonify("No metadata")
 
     add_passbase(email,

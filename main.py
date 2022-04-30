@@ -48,15 +48,15 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_directory, web_wallet_test_login
+from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_wallet_test_login
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist, web_passbase
 from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2_issuer, web_siopv2_verifier
-from routes import web_emailpass, web_phonepass, web_loyaltycard, web_wallet_create_residentcard, web_display_VP, web_wallet_return_code
+from routes import web_emailpass, web_phonepass, web_wallet_create_residentcard, web_display_VP, web_wallet_return_code
 
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.24.4'
+VERSION = '1.24.5'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -121,7 +121,6 @@ logging.info('start init routes')
 web_register.init_app(app, red, mode)
 web_emailpass.init_app(app, red, mode)
 web_phonepass.init_app(app, red, mode)
-web_loyaltycard.init_app(app, red, mode)
 web_credible.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
 web_wallet_test_login.init_app(app, red, mode)
@@ -129,7 +128,6 @@ web_login.init_app(app, red,  mode)
 web_hrid.init_app(app, mode)
 web_certificate.init_app(app, mode)
 web_external.init_app(app, mode)
-web_directory.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
 web_data_user.init_app(app,red,mode)
 web_issuer.init_app(app, mode)
