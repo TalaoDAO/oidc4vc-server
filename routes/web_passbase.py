@@ -28,7 +28,8 @@ vm = didkit.keyToVerificationMethod('tz', key)
 def init_app(app,red, mode) :
     app.add_url_rule('/passbase',  view_func=passbase, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/passbase/webhook',  view_func=passbase_webhook, methods = ['GET', 'POST'], defaults={ 'mode' : mode})
-    app.add_url_rule('/passbase/endpoint/<id>',  view_func=passbase_endpoint, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/passbase/endpoint/over18/<id>',  view_func=passbase_endpoint_over18, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/passbase/endpoint/idcard/<id>',  view_func=passbase_endpoint_idcard, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/passbase/stream',  view_func=passbase_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/passbase/back',  view_func=passbase_back, methods = ['GET', 'POST'])
     return
@@ -49,16 +50,19 @@ def add_passbase(email, check, did, key, created) :
 
 
 def get_passbase(did) :
-	conn = sqlite3.connect('passbase_check.db')
-	c = conn.cursor()
-	data = { "did" : did}
-	c.execute("SELECT status, key, created FROM webhook WHERE did = :did", data)
-	check = c.fetchall()
-	conn.close()
-	try :
-		return check[-1]
-	except :
-		return None
+    conn = sqlite3.connect('passbase_check.db')
+    c = conn.cursor()
+    data = { "did" : did}
+    c.execute("SELECT status, key, created FROM webhook WHERE did = :did", data)
+    check = c.fetchall()
+    print("check = ", check)
+    conn.close()
+    if len(check) == 1 :
+        return check[0]
+    try :
+        return check[-1]
+    except :
+        return None
 
 
 def get_identity(passbase_key, mode) :
@@ -81,27 +85,16 @@ def get_identity(passbase_key, mode) :
 
 def passbase(red, mode) :
     id = str(uuid.uuid1())
-    challenge = str(uuid.uuid1())[0:1]
-    credential = json.loads(open("./verifiable_credentials/Over18.jsonld", 'r').read())
-    credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    credential['expirationDate'] = (datetime.now() + EXPIRATION_DELAY).replace(microsecond=0).isoformat() + "Z"
-    credential['issuer'] = issuer_did
-    credential['id'] =  "urn:uuid:" + str(uuid.uuid1())
-    credential['credentialSubject']['id'] = "did:..."
-    credentialOffer = {
-            "type": "CredentialOffer",
-            "credentialPreview": credential,
-            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-            "display": {"backgroundColor": "ffffff"},
-            "challenge" : challenge
-    }
-    url = mode.server + "passbase/endpoint/" + id +'?issuer=' + issuer_did
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-    red.set(id, json.dumps(credentialOffer))
-    return render_template('/passbase/over18.html',
-                                url=url,
+    url_over18 = mode.server + "passbase/endpoint/over18/" + id +'?issuer=' + issuer_did
+    url_idcard = mode.server + "passbase/endpoint/idcard/" + id +'?issuer=' + issuer_did
+    deeplink_over18 = mode.deeplink + 'app/download?' + urlencode({'uri' : url_over18 })
+    deeplink_idcard = mode.deeplink + 'app/download?' + urlencode({'uri' : url_idcard })
+    #red.set(id, json.dumps(credentialOffer))
+    return render_template('/passbase/decentralized_kyc.html',
+                                url=url_over18,
                                 id=id,
-                                deeplink=deeplink
+                                deeplink_over18=deeplink_over18,
+                                deeplink_idcard=deeplink_idcard
                                 )
 
 
@@ -110,7 +103,6 @@ curl --location --request POST 'http://192.168.0.65:3000/passbase/webhook' \
 --header 'Content-Type: application/json' \
 --data-raw '{"event": "VERIFICATION_REVIEWED","key": "72be8407-a1df-47d7-af1b-e00f6ba4f96c", "status": "approved", "created" : 1582628712}'
 """
-
 def passbase_webhook(mode) :
     # get email and id
     webhook = request.get_json()
@@ -126,9 +118,7 @@ def passbase_webhook(mode) :
     identity = get_identity(webhook['key'], mode)
     if not identity :
         logging.error("probleme d acces API")
-        link_text = "Sorry ! \nThe server encountered an error.\nLet's try again later."
-        Talao_message.message("Identity credential", email, link_text, mode)
-        return jsonify("probleme d acces API")
+        return jsonify("probleme d acces API"),500
 
     email = identity['owner']['email']
     try :
@@ -159,7 +149,98 @@ def passbase_webhook(mode) :
         logging.warning('Identification not approved, no notification was sent')
         return jsonify("not approved")
 
-def passbase_endpoint(id, red,mode):
+
+def passbase_endpoint_over18(id, red,mode):
+    if request.method == 'GET':
+        challenge = str(uuid.uuid1())[0:1]
+        credential = json.loads(open("./verifiable_credentials/Over18.jsonld", 'r').read())
+        credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        credential['expirationDate'] = (datetime.now() + EXPIRATION_DELAY).replace(microsecond=0).isoformat() + "Z"
+        credential['issuer'] = issuer_did
+        credential['id'] =  "urn:uuid:" + str(uuid.uuid1())
+        credential['credentialSubject']['id'] = "did:..."
+        credentialOffer = {
+            "type": "CredentialOffer",
+            "credentialPreview": credential,
+            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
+            "display": {"backgroundColor": "ffffff"},
+            "challenge" : challenge
+        }
+        red.set(id, json.dumps(credentialOffer))
+        return jsonify(credentialOffer)
+
+    try : 
+        credentialOffer = json.loads(red.get(id).decode())
+    except :
+        logging.error("red get id error, or request time out ")
+        return jsonify ('request time out'),408
+    credential =  credentialOffer['credentialPreview']
+    red.delete(id)
+    print(request.form['subject_id'])
+    try :
+        (status, passbase_key, created) = get_passbase(request.form['subject_id'])
+    except :
+        logging.error("Over18 check has not been done")
+        return jsonify ('request time out'),404
+    if status != "approved" :
+        data = json.dumps({
+                    'id' : id,
+                    'check' : 'failed',
+                    'message' : 'Identification not approved'
+                        })
+        red.publish('passbase', data)
+        return jsonify('not approved')
+
+    identity = get_identity(passbase_key, mode)
+    # check if the wallet id is the same
+    try :
+        did = identity['metadata']['did']
+    except :
+        did = "did:tz:tz2CAqCeoeLsmUJDHdRE7zQJbkRQArcKQwNk"
+    if did != request.form['subject_id'] :
+        logging.warning("wrong wallet")
+        data = json.dumps({
+                    'id' : id,
+                    'check' : 'failed',
+                    'message' : 'Wrong wallet'
+                        })
+        red.publish('passbase', data)
+        return (jsonify('wrong wallet'))
+    birthDate = identity['resources'][0]['datapoints']['date_of_birth'] # "1970-01-01"
+    current_date = datetime.now()
+    date1 = datetime.strptime(birthDate,'%Y-%m-%d') + timedelta(weeks=18*52)
+    if (current_date > date1) :
+        credential['credentialSubject']['id'] = request.form['subject_id']
+    else :
+        logging.warning("below 18")
+        data = json.dumps({
+                    'id' : id,
+                    'check' : 'failed',
+                    'message' : 'Below 18'
+                        })
+        red.publish('passbase', data)
+        return jsonify('below 18')
+
+    didkit_options = {
+            "proofPurpose": "assertionMethod",
+            "verificationMethod": vm
+        }
+    signed_credential =  didkit.issueCredential(
+            json.dumps(credential),
+            didkit_options.__str__().replace("'", '"'),
+            key
+    )
+        
+    # send event to client agent to go forward
+    data = json.dumps({
+                    'id' : id,
+                    'check' : 'success',
+                        })
+    red.publish('passbase', data)
+    return jsonify(signed_credential)
+
+
+def passbase_endpoint_idcard(id, red,mode):
     try : 
         credentialOffer = json.loads(red.get(id).decode())
     except :

@@ -14,7 +14,7 @@ import subprocess
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 CODE_DELAY = timedelta(seconds= 180)
-QRCODE_DELAY = 30
+QRCODE_DELAY = 60
 
 issuer_did = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 try :

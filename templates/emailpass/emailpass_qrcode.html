@@ -10,27 +10,33 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
                  {% include 'guest_nav_bar_2.html' %}
-      <br><br><br>
+      
       
       <div id="content_desktop" class="d-none d-sm-block">
+        <br><br><br><br>
         <div class="text-center">       
-        <p>{{_('Scan the QRCode below with your wallet')}}</p>
+        <p>{{_('Scan the QRCode below with your wallet to get an Email Proof')}}</p>
           <div class="my-3"><img src="{{qrcode(url)}}" style="width: 250px;border-radius:0px;"></div>
         </div>
-        <div class="col text-center mt-2">
+        <div class="col text-center">
+          <br>
           <button class="btn btn-primary btn-sm" type="button" value="download" onclick="goBack()">{{_('Back')}}</button>
         </div>
       </div>
 
       <div id="content_smartphone" class="d-block d-sm-none">
-        <div class="card">
-          <img src="/static/img/image_16.jpeg" class="card-img-top">
+        
+        <div class="card shadow mx-1">
+          <a href="{{deeplink}}" class="bg-transparent">
+          <img src="/static/img/email_proof.jpg" class="card-img-top mt-3">
+          </a>
           <div class="card-body">
               <div class="text-center">
                   <p class="card-text">
-                    <br>{{_('Download your proof of email to your wallet')}}<br>
+                    {{_('Clic on the credential to get it into your wallet')}}
+                
                   </p>
-                  <a href="{{deeplink}}" class="btn btn-primary">{{_('Open the Talao wallet')}}</a>
+                
               </div>
           </div>
         </div>  
