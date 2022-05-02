@@ -55,7 +55,7 @@ def get_passbase(did) :
     data = { "did" : did}
     c.execute("SELECT status, key, created FROM webhook WHERE did = :did", data)
     check = c.fetchall()
-    print("check = ", check)
+    logging.info("check = %s", check)
     conn.close()
     if len(check) == 1 :
         return check[0]
@@ -106,7 +106,7 @@ curl --location --request POST 'http://192.168.0.65:3000/passbase/webhook' \
 def passbase_webhook(mode) :
     # get email and id
     webhook = request.get_json()
-    logging.info("webhook = %s", webhook)
+    logging.info("webhook has received an event = %s", webhook)
     if webhook['event' ] in ["VERIFICATION_REVIEWED" , "VERIFICATION_COMPLETED"] :
         logging.info("identityKey = %s", webhook['key'])
         logging.info(webhook['event'])
