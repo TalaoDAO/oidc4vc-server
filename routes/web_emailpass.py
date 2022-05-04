@@ -58,7 +58,7 @@ def emailpass(mode) :
         session['email'] = request.form['email']
         logging.info('email = %s', session['email'])
         session['code'] = str(secrets.randbelow(99999))
-        session['code_delay'] = datetime.now() + CODE_DELAY
+        session['code_delay'] = (datetime.now() + CODE_DELAY).timestamp()
         try : 
             subject = 'Talao : Email authentification  '
             Talao_message.messageHTML(subject, session['email'], 'code_auth', {'code' : session['code']}, mode)
@@ -67,7 +67,7 @@ def emailpass(mode) :
             session['try_number'] = 1
         except :
             flash(_("Email failed."), 'danger')
-            return render_template('emailpass/email.html.html')
+            return render_template('emailpass/emailpass.html')
     return redirect ('emailpass/authentication')
 
 
@@ -79,10 +79,10 @@ def emailpass_authentication(mode) :
         code = request.form['code']
         session['try_number'] +=1
         logging.info('code received = %s', code)
-        if code == session['code'] and datetime.now() < session['code_delay'] :
+        if code == session['code'] and datetime.now().timestamp() < session['code_delay'] :
     	    # success exit, lets display a a QR code or an universal link in same session
             return redirect(mode.server + 'emailpass/qrcode')
-        elif session['code_delay'] < datetime.now() :
+        elif session['code_delay'] < datetime.now().timestamp() :
             flash(_("Code expired."), "warning")
             return render_template('emailpass/emailpass.html')
         elif session['try_number'] > 3 :

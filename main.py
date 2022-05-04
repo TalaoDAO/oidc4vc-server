@@ -1,16 +1,3 @@
-"""
-TALAO CREDENTIAL REPOSITORY
-
-if script is launched without Gunicorn, setup environment variables first :
-$ export MYCHAIN=talaonet
-$ export MYENV=livebox
- NO -> $ export AUTHLIB_INSECURE_TRANSPORT=1
-$ python main.py
-
-
-https://testdriven.io/blog/flask-async/
-
-"""
 
 import os
 import time
@@ -56,7 +43,7 @@ from routes import web_emailpass, web_phonepass, web_wallet_create_residentcard,
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.25.3'
+VERSION = '1.25.5'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -101,13 +88,6 @@ https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiii-i18n-and-
 pybabel extract -F babel.cfg -o messages.pot .
 pybabel update -i messages.pot -d translations -l fr
 pybabel compile -d translations
-
-"""
-
-"""
-@app.route('/test', methods=['GET', 'POST'])
-def test() :
-    return render_template("test.html")
 """
 
 @app.route('/language', methods=['GET'], defaults={'mode': mode})
@@ -146,13 +126,6 @@ logging.info('end init routes')
 
 # Centralized route issuer for skills
 app.add_url_rule('/user/update_skills',  view_func=web_skills.update_skills, methods = ['GET', 'POST'], defaults={'mode': mode})
-
-
-# Centralized @route for create company CCI
-app.add_url_rule('/create_company_cci/',  view_func=web_create_company_cci.cci, methods = ['GET', 'POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_cci/password/',  view_func=web_create_company_cci.cci_password, methods = [ 'GET','POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_cci/code/', view_func=web_create_company_cci.cci_code, methods = ['GET','POST'], defaults={'mode': mode})
-app.add_url_rule('/create_company_cci/post_code/', view_func=web_create_company_cci.cci_post_code, methods = ['GET','POST'], defaults={'mode': mode})
 
 
 # Centralized route for main features

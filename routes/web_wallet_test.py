@@ -140,6 +140,8 @@ def test_credentialOffer2_qrcode() :
 Direct access to one VC with filename passed as an argument
 """
 def test_direct_offer(red, mode) :
+    print("direct credential offer")
+
     try :
         VC_filename= request.args['VC']
     except :
@@ -157,24 +159,27 @@ def test_direct_offer(red, mode) :
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
     backgroundColor = "ffffff"
-    shareLink = str()
-    if VC_filename == "visa_card.jsonld" :
-        backgroundColor = "fea235"
-    elif VC_filename == "amex_card.jsonld" :
-        backgroundColor = "a9afaf"
-    elif VC_filename == " tezotopia_loyaltycard.jsonld" :
-        backgroundColor = "e60118"
-    elif VC_filename == "LoyaltyCard.jsonld" :
-        shareLink = "https://www.leroymerlin.fr/ma-carte-maison.html"
-    else :
-        pass
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-            "shareLink" : shareLink,
-            "display" : { "backgroundColor" : backgroundColor}
+            "shareLink" : str(),
+            "display" : { "backgroundColor" : backgroundColor},
         }
+    if VC_filename == "tezotopia_loyaltycard.jsonld" :
+        credentialOffer['display']['backgroundColor'] = "e60118"
+    elif VC_filename == "LoyaltyCard.jsonld" :
+        credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
+    elif VC_filename == "Pcds.jsonld" :
+        try :
+            credentialOffer['manifest'] = json.load(open("./test/credential_manifest/pcds_credential_manifest_1.json"))
+            del credentialOffer['shareLink']
+            del credentialOffer['display']
+        except :
+            print("erreur ouverture du credential manifest")                                                                 
+    else :
+        pass
+    print("credential offer = ", credentialOffer)
    
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
 
@@ -190,6 +195,7 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
+    print("credential offer")
     global did_selected 
     if request.method == 'GET' :   
         try :

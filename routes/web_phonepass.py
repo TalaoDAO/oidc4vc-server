@@ -40,7 +40,7 @@ def phonepass(mode) :
         # traiter phone
         session['phone'] = request.form['phone']
         session['code'] = str(secrets.randbelow(99999))
-        session['code_delay'] = datetime.now() + CODE_DELAY
+        session['code_delay'] = (datetime.now() + CODE_DELAY).timestamp()
         try : 
             sms.send_code(session['phone'], session['code'], mode)
             logging.info('secret code sent = %s', session['code'])
@@ -59,10 +59,10 @@ def phonepass_authentication(mode) :
         code = request.form['code']
         session['try_number'] +=1
         logging.info('code received = %s', code)
-        if code == session['code'] and datetime.now() < session['code_delay'] :
+        if code == session['code'] and datetime.now().timestamp() < session['code_delay'] :
     	    # success exit
             return redirect(mode.server + 'phonepass/qrcode')
-        elif session['code_delay'] < datetime.now() :
+        elif session['code_delay'] < datetime.now().timestamp() :
             flash(_("Code expired."), "warning")
             return render_template('phonepass/phonepass.html')
         elif session['try_number'] > 3 :
