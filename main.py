@@ -35,15 +35,15 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-from routes import web_register, web_create_company_cci, web_certificate, web_issuer, web_wallet_test_login
+from routes import web_register, web_certificate, web_issuer, web_wallet_test_login
 from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist, web_passbase
-from routes import web_main, web_login, repository, cci_api, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2_issuer, web_siopv2_verifier
-from routes import web_emailpass, web_phonepass, web_wallet_create_residentcard, web_display_VP, web_wallet_return_code
+from routes import web_main, web_login, repository, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2_issuer, web_siopv2_verifier
+from routes import web_emailpass, web_phonepass, web_display_VP, web_wallet_return_code
 
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.25.5'
+VERSION = '1.25.6'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -111,7 +111,6 @@ web_external.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
 web_data_user.init_app(app,red,mode)
 web_issuer.init_app(app, mode)
-web_wallet_create_residentcard.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_revocationlist.init_app(app, red, mode)
 web_tiar.init_app(app)
@@ -201,8 +200,8 @@ app.add_url_rule('/repository/get',  view_func=repository.get, methods = ['POST'
 
 
 # centralized route for CCI API
-app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, methods = ['GET'], defaults={'mode' : mode})
-app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
+#app.add_url_rule('/api/v1/credential',  view_func=cci_api.credential_list, methods = ['GET'], defaults={'mode' : mode})
+#app.add_url_rule('/api/v1/resolver',  view_func=cci_api.resolver, methods = ['GET'], defaults={'mode' : mode})
 
 
 # Google universal link

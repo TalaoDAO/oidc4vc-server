@@ -140,8 +140,6 @@ def test_credentialOffer2_qrcode() :
 Direct access to one VC with filename passed as an argument
 """
 def test_direct_offer(red, mode) :
-    print("direct credential offer")
-
     try :
         VC_filename= request.args['VC']
     except :
@@ -159,6 +157,10 @@ def test_direct_offer(red, mode) :
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
     backgroundColor = "ffffff"
+    if VC_filename == "VerifiableDiploma.jsonld" :
+        credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
+        credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
@@ -176,10 +178,9 @@ def test_direct_offer(red, mode) :
             del credentialOffer['shareLink']
             del credentialOffer['display']
         except :
-            print("erreur ouverture du credential manifest")                                                                 
+            logging.error("erreur ouverture du credential manifest")                                                                 
     else :
         pass
-    print("credential offer = ", credentialOffer)
    
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
 
@@ -195,7 +196,6 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
-    print("credential offer")
     global did_selected 
     if request.method == 'GET' :   
         try :
@@ -237,7 +237,7 @@ def test_credentialOffer_qrcode(red, mode) :
                     </form>
                     <hr>"""
             except :
-                print(filename, '  est un credential mal formaté')
+                logging.info("credential mal formaté %s", filename)
                 pass
         html_string = """<html><head>{% include 'head.html' %}</head>
                         <body> {% include '/wallet/test/simulator_nav_bar.html' %}
@@ -299,7 +299,7 @@ def test_credential_display():
     try :
         credential = credential_from_filename(path, filename)
     except :
-        print(filename, '  est un credential mal formaté')
+        logging.warning("credential mal formaté %s", filename)
         return jsonify('Credential not found'), 400
     credential['credentialSubject']['id'] = "did:..."
     credential['issuer'] = ""
@@ -315,6 +315,7 @@ def test_credential_display():
 
 
 def test_credentialOffer_endpoint(id, red):
+    print("enter endpoint")
     try : 
         credentialOffer = red.get(id).decode()
     except :
@@ -334,26 +335,40 @@ def test_credentialOffer_endpoint(id, red):
             logging.error("wallet error")
             return jsonify('wallet error'), 400
         # to keep the possibility to use an RSA key with did:web
+
         global did_selected
-        if did_selected == 'did:web:talao.co#key-1' :
-            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co")
-        elif did_selected == 'did:web:talao.co#key-2' :
-            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
-        elif did_selected == 'did:web:talao.co#key-3' :
-            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
-        elif did_selected == 'did:web:talao.co#key-4' :
-            signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
-        elif did_selected == DID_TZ1 :
-            didkit_options = {
-            "proofPurpose": "assertionMethod",
-            "verificationMethod": vm_tz1
+        print("type = ", credential["type"])
+        if "VerifiableDiploma" in credential["type"] :
+            signed_credential = credential
+            signed_credential["proof"] = {
+                "created": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+                "creator": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
+                "domain": "https://api.preprod.ebsi.eu",
+                "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..mIBnM8XDQqSYKQNX_LvaJhmsbyCr5OZ5cU2Zk-ReqLpr4doFsgmoobkO5128tZy-8KimVjJkGw0wL1uBWnMLWQ",
+                "nonce": "3ea68dae-d07a-4daa-932b-fbb58f5c20c4",
+                "type": "EcdsaSecp256k1Signature2019"
             }
-            signed_credential =  didkit.issueCredential(
+        else :
+            if did_selected == 'did:web:talao.co#key-1' :
+                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co")
+            elif did_selected == 'did:web:talao.co#key-2' :
+                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
+            elif did_selected == 'did:web:talao.co#key-3' :
+                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
+            elif did_selected == 'did:web:talao.co#key-4' :
+                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
+            elif did_selected == DID_TZ1 :
+                didkit_options = {
+                    "proofPurpose": "assertionMethod",
+                    "verificationMethod": vm_tz1
+                    }
+                signed_credential =  didkit.issueCredential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
                 key_tz1)
-        else :
-            signed_credential = vc_signature.sign(credential, PVK, credential['issuer'])
+            else :
+                signed_credential = vc_signature.sign(credential, PVK, credential['issuer'])
+        
         # send event to client agent to go forward
         data = json.dumps({
                             'id' : id,
@@ -362,9 +377,11 @@ def test_credentialOffer_endpoint(id, red):
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
-        return Response(json.dumps(signed_credential, separators=(':', ',')),
-                        headers={ "Content-Type" : "application/json"},
-                        status=200)
+        print("signed credential = ", signed_credential)
+        return jsonify(signed_credential)
+        #return Response(json.dumps(signed_credential, separators=(':', ',')),
+        #                headers={ "Content-Type" : "application/json"},
+        #                status=200)
 
 
 def test_credentialOffer_back():

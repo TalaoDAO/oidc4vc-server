@@ -1,6 +1,4 @@
 from flask import jsonify
-import json
-import requests
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -10,13 +8,11 @@ DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 DID_PLAYGROUND = "did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7"
 DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
-#LIST_TRUSTED_ISSUER_REGISTRY_API = 'http://192.103.2.28:1234/tmd/get_data_issuer/'
 LIST_TRUSTED_ISSUER_REGISTRY_API = 'https://tmd.list.lu:1234/tmd/get_data_issuer/'
 
 def init_app(app) :
     app.add_url_rule('/trusted-issuers-registry/v1/issuers/<did>',  view_func=tir_api, methods = ['GET'])
     return
-    #/trusted-issuers-registry/v1/issuers/did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7
 
 def tir_api(did) :
     """
@@ -44,7 +40,7 @@ def tir_api(did) :
                     "currentAddress": "Talao, 16 rue de Wattignies, 75012 Paris, France",
                     "vatNumber": "FR26837674480",
                     "website": "https://talao.co",
-                    "issuerDomain" : ["talao.co", "talao.io", "playground.talao.co"]
+                    "issuerDomain" : ["talao.co", "issuer.talao.co", "talao.io", "playground.talao.co"]
                 }
             }
         })
@@ -66,7 +62,6 @@ def tir_api(did) :
             }
         })
     else :
-        # proxy LIST registry server for the Trustmydata prototype
         logging.info("Issuer not found")
         return jsonify("Issuer not found") , 500
         
