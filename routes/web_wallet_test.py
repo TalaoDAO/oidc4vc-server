@@ -337,8 +337,8 @@ def test_credentialOffer_endpoint(id, red):
         # to keep the possibility to use an RSA key with did:web
 
         global did_selected
-        print("type = ", credential["type"])
-        if "VerifiableDiploma" in credential["type"] :
+        print("issuer = ", credential["issuer"][:8])
+        if  credential["issuer"][:8] == "did:ebsi" :
             signed_credential = credential
             signed_credential["proof"] = {
                 "created": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
@@ -348,6 +348,9 @@ def test_credentialOffer_endpoint(id, red):
                 "nonce": "3ea68dae-d07a-4daa-932b-fbb58f5c20c4",
                 "type": "EcdsaSecp256k1Signature2019"
             }
+            filename = './signed_credentials/verifiablediploma' + '.jsonld'
+            with open(filename, 'w') as outfile :
+                outfile.write(json.dumps(signed_credential, indent=4, ensure_ascii=False))
         else :
             if did_selected == 'did:web:talao.co#key-1' :
                 signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co")
