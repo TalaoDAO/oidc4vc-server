@@ -76,8 +76,11 @@ def login_presentation_endpoint(stream_id, red):
             #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
             #red.publish('credible', event_data)
             #return jsonify("ko")
-        #else :
-            # we just display the presentation VC
+        """
+        Tout est ok,
+        on peut verifier maintenant par exemple que le type du VC est un EmailPass et permettre le login par exemple en utilisant l email comme id du user.
+    
+        """
         red.set(stream_id,  request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           

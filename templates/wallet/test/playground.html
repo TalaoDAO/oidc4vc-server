@@ -12,7 +12,9 @@
             <div id="content" >
                 {% include './wallet/test/playground_nav_bar.html' %}
                 <div class="container-fluid mt-5">
-                  
+                  <div class="text-center">
+                <b>{{_('All the VCs below are for testing purpose only')}}</b>
+                </div>
                     <div class="row my-5">
                         
                         <div class="col mt-4">
@@ -38,8 +40,8 @@
                     <div class="row my-5">
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/emailpass"><img  src="/static/img/email_proof.jpg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Get an email proof')}}</strong>
+                                <a href="/wallet/test/direct_offer?VC=emailpass.jsonld"><img  src="/static/img/email_proof.jpg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>{{_('Get an email proof (fake)')}}</strong>
                             </div>
                         </div>
                         <div class="col mt-4">
@@ -51,7 +53,7 @@
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=Over18.jsonld"><img  src="/static/img/over18.jpg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Get an Over 18 proof')}}</strong>
+                                <br><strong>{{_('Get an Over 18 proof (fake)')}}</strong>
                             </div>
                         </div>
                        
@@ -98,10 +100,32 @@
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld"><img  src="/static/img/15.png"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>PCDS credential manifest</strong>
+                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=1"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>PCDS with credential manifest 1</strong>
                             </div>
                         </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=2"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>PCDS with credential manifest 2</strong>
+                            </div>
+                        </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=3"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>PCDS with credential manifest 3</strong>
+                            </div>
+                        </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=4"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>PCDS with credential manifest 4</strong>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="row my-5">

@@ -1,0 +1,71 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    {
+      "name": "https://schema.org/name",
+      "description": "https://schema.org/description",
+      "SelfIssued": {
+        "@context": {
+          "@protected": true,
+          "@version": 1.1,
+          "address": "schema:address",
+          "email": "schema:email",
+          "familyName": "schema:familyName",
+          "givenName": "scheama:givenName",
+          "id": "@id",
+          "schema": "https://schema.org/",
+          "telephone": "schema:telephone",
+          "type": "@type"
+        },
+        "@id": "https://github.com/TalaoDAO/context/blob/main/README.md"
+      }
+    }
+  ],
+  "id": "urn:uuid:201cfb13-eec3-4767-9bcb-248529982010",
+  "type": [
+    "VerifiableCredential",
+    "SelfIssued"
+  ],
+  "credentialSubject": {
+    "id": "did:web:demo.talao.co",
+    "givenName": "Jfjf",
+    "familyName": "Fjrj",
+    "telephone": "5656",
+    "address": "Djjd",
+    "type": "SelfIssued",
+    "email": "dkdk",
+    "companyName": "fkfk",
+    "companyWebsite": "fkfk",
+    "title": "fkfk"
+  },
+  "issuer": "did:web:demo.talao.co",
+  "issuanceDate": "2022-03-18T07:59:40Z",
+  "description": [
+    {
+      "@language": "en",
+      "@value": "This signed electronic certificate has been issued by the user itself."
+    },
+    {
+      "@language": "de",
+      "@value": ""
+    },
+    {
+      "@language": "fr",
+      "@value": "Cette attestation électronique est signée par l'utilisateur."
+    }
+  ],
+  "name": [
+    {
+      "@language": "en",
+      "@value": "Self Issued credential"
+    },
+    {
+      "@language": "de",
+      "@value": ""
+    },
+    {
+      "@language": "fr",
+      "@value": "Attestation déclarative"
+    }
+  ]
+}

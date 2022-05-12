@@ -36,14 +36,14 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
 from routes import web_register, web_certificate, web_issuer, web_wallet_test_login
-from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_hrid, web_revocationlist
+from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_revocationlist
 from routes import web_main, web_login, repository, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2_issuer, web_siopv2_verifier
 from routes import web_display_VP, web_wallet_return_code
 
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.31'
+VERSION = '1.35'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -103,17 +103,16 @@ web_credible.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
 web_wallet_test_login.init_app(app, red, mode)
 web_login.init_app(app, red,  mode)
-web_hrid.init_app(app, mode)
 web_certificate.init_app(app, mode)
 web_external.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
 web_data_user.init_app(app,red,mode)
 web_issuer.init_app(app, mode)
 web_display_VP.init_app(app, red, mode)
-web_revocationlist.init_app(app, red, mode)
+#web_revocationlist.init_app(app, red, mode) see latyer use
 web_tiar.init_app(app)
 web_app.init_app(app, red, mode)
-web_wallet_return_code.init_app(app, red, mode)
+#web_wallet_return_code.init_app(app, red, mode)
 web_siopv2_issuer.init_app(app, red, mode)
 web_siopv2_verifier.init_app(app, red, mode)
 

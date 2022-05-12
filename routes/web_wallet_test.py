@@ -142,6 +142,7 @@ Direct access to one VC with filename passed as an argument
 def test_direct_offer(red, mode) :
     try :
         VC_filename= request.args['VC']
+        cm = request.args.get("cm", "1")
     except :
         return jsonify("Request malformed"), 400
     try :
@@ -171,16 +172,25 @@ def test_direct_offer(red, mode) :
     if VC_filename == "tezotopia_loyaltycard.jsonld" :
         credentialOffer['display']['backgroundColor'] = "e60118"
     elif VC_filename == "LoyaltyCard.jsonld" :
+        credentialOffer['display']['backgroundColor'] = "532b29"
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
     elif VC_filename == "Pcds.jsonld" :
-        try :
-            credentialOffer['manifest'] = json.load(open("./test/credential_manifest/pcds_credential_manifest_1.json"))
-            del credentialOffer['shareLink']
-            del credentialOffer['display']
-        except :
-            logging.error("erreur ouverture du credential manifest")                                                                 
+        print("cm = ", cm)
+        filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        print("filename = ", filename)
+        #try :
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']
+        print(credentialOffer['credential_manifest'])
+        #except :
+        #logging.error("erreur ouverture du credential manifest")    
+                                                                    
     else :
         pass
+  
    
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
 
@@ -315,7 +325,6 @@ def test_credential_display():
 
 
 def test_credentialOffer_endpoint(id, red):
-    print("enter endpoint")
     try : 
         credentialOffer = red.get(id).decode()
     except :
@@ -337,7 +346,6 @@ def test_credentialOffer_endpoint(id, red):
         # to keep the possibility to use an RSA key with did:web
 
         global did_selected
-        print("issuer = ", credential["issuer"][:8])
         if  credential["issuer"][:8] == "did:ebsi" :
             signed_credential = credential
             signed_credential["proof"] = {
@@ -380,7 +388,6 @@ def test_credentialOffer_endpoint(id, red):
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
-        print("signed credential = ", signed_credential)
         return jsonify(signed_credential)
         #return Response(json.dumps(signed_credential, separators=(':', ',')),
         #                headers={ "Content-Type" : "application/json"},

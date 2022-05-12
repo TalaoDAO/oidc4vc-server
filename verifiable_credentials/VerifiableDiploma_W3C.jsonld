@@ -1,0 +1,125 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    {
+      "subjectPresence": "cred:subjectPresence",
+      "verifier": "cred:verifier",
+      "documentPresence": "cred:documentPresence",
+      "evidenceDocument": "cred:evidenceDocument",
+      "cred": "https://www.w3.org/2018/credentials#"
+    },
+    {
+      "location": "schema:location",
+      "familyName": "schema:familyName",
+      "essif": "https://essif.europa.eu/schemas/vc/2020/v1#",
+      "identifier": "schema:identifier",
+      "eqfLevel": "essif:eqfLevel",
+      "title": "schema:title",
+      "givenName": "schema:givenName",
+      "ectsCreditPoints": "essif:ectsCreditPoints",
+      "preferredName": "schema:preferredName",
+      "endedAtTime": "schema:endedAtTime",
+      "VerifiableDiploma": "essif:VerifiableDiploma",
+      "schema": "httsp://schema.org/",
+      "registration": "schema:registration",
+      "dateOfBirth": "schema:dateOfBirth",
+      "gradingScheme": "essif:gradingSchema",
+      "additionalNote": "shema:additionalNote",
+      "startedAtTime": "schema:startedAtTime",
+      "description": "schema:description",
+      "awardingBody": "essif:awardingBody",
+      "iscedfCode": "essif:iscedfCode",
+      "nqfLevel": "essif:nqfLevel",
+      "homepage": "schema:homepage",
+      "eidasLegalIdentifier": "essif:eidasLegalIdentifier",
+      "learningAchievement": "essif:learningAchievement",
+      "awardingOpportunity": "essif:awardingOpportunity",
+      "learningSpecification": "essif:learningSpecifications"
+    }
+  ],
+  "id": "urn:uuid:d5122b1b-0c0a-410c-a42e-71f1f7bdaaf3",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation",
+    "VerifiableDiploma"
+  ],
+  "credentialSubject": {
+    "id": "did:key:zQebea6mBwNVNEHCeGRHFNoyRrkaXTUsX31aCja4brjbgKXbV",
+    "familyName": "DOE",
+    "learningSpecification": {
+      "ectsCreditPoints": 120,
+      "eqfLevel": 7,
+      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
+      "iscedfCode": [
+        "7"
+      ],
+      "nqfLevel": [
+        "7"
+      ]
+    },
+    "dateOfBirth": "1993-04-08",
+    "identifier": "0904008084H",
+    "learningAchievement": {
+      "additionalNote": [
+        "DISTRIBUTION MANAGEMENT"
+      ],
+      "description": "The Master in Information and Computer Sciences (MICS) at the University of Luxembourg enables students to acquire deeper knowledge in computer science by understanding its abstract and interdisciplinary foundations, focusing on problem-solving and developing lifelong learning skills.",
+      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
+      "title": "Master in Information and Computer Sciences"
+    },
+    "type": "VerifiableDiploma",
+    "givenName": "Jane",
+    "awardingOpportunity": {
+      "awardingBody": {
+        "eidasLegalIdentifier": "Unknown",
+        "homepage": "https://leaston.bcdiploma.com/",
+        "id": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
+        "preferredName": "Leaston University",
+        "registration": "0597065J"
+      },
+      "endedAtTime": "2020-06-26T00:00:00Z",
+      "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
+      "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+      "location": "FRANCE",
+      "startedAtTime": "2019-09-02T00:00:00Z"
+    },
+    "gradingScheme": {
+      "id": "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
+      "title": "2 year full-time programme / 4 semesters"
+    }
+  },
+  "issuer": "did:key:zQ3shUq7Bt9g4CZ1kWnzksN5DrLifG5UHuFKZs4sGMHhwM749",
+  "issuanceDate": "2022-05-06T13:42:03Z",
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:key:zQ3shUq7Bt9g4CZ1kWnzksN5DrLifG5UHuFKZs4sGMHhwM749#zQ3shUq7Bt9g4CZ1kWnzksN5DrLifG5UHuFKZs4sGMHhwM749",
+    "created": "2022-05-06T11:42:03.380Z",
+    "jws": "eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..QCmD11bdtR_Vf85RkSSUaPVponcFMXRtwZ5gweHe9sUqcFvyPAICxKfG9ovupWnwV-ziKFxrKAdiG9PhFR_rjQA"
+  },
+  "expirationDate": "2022-05-18T13:42:03Z",
+  "credentialStatus": {
+    "id": "https://essif.europa.eu/status/education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
+    "type": "CredentialStatusList2020"
+  },
+  "evidence": {
+    "id": "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
+    "type": [
+      "DocumentVerification"
+    ],
+    "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a",
+    "documentPresence": [
+      "Physical"
+    ],
+    "subjectPresence": "Physical",
+    "evidenceDocument": [
+      "Passport"
+    ]
+  },
+  "credentialSchema": {
+    "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
+    "type": "JsonSchemaValidator2018"
+  },
+  "issued": "2022-05-06T13:42:03Z",
+  "validFrom": "2022-05-06T13:42:03Z"
+}
