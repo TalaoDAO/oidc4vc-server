@@ -43,7 +43,7 @@ from routes import web_display_VP, web_wallet_return_code
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.35'
+VERSION = '1.36'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup

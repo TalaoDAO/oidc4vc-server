@@ -175,25 +175,20 @@ def test_direct_offer(red, mode) :
         credentialOffer['display']['backgroundColor'] = "532b29"
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
     elif VC_filename == "Pcds.jsonld" :
-        print("cm = ", cm)
         filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
-        print("filename = ", filename)
         #try :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']
-        print(credentialOffer['credential_manifest'])
         #except :
-        #logging.error("erreur ouverture du credential manifest")    
-                                                                    
+        #    logging.error("erreur ouverture du credential manifest")      
+        #    print("cm = ", cm)                                                        
     else :
         pass
-  
    
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
-
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
