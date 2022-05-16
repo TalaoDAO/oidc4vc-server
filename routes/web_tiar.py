@@ -40,7 +40,7 @@ def tir_api(did) :
                     "currentAddress": "Talao, 16 rue de Wattignies, 75012 Paris, France",
                     "vatNumber": "FR26837674480",
                     "website": "https://talao.co",
-                    "issuerDomain" : ["talao.co", "issuer.talao.co", "talao.io", "playground.talao.co"]
+                    "issuerDomain" : ["talao.co", "issuer.talao.co", "talao.io", "playground.talao.co", "playground2.talao.co"]
                 }
             }
         })
