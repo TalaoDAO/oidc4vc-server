@@ -182,9 +182,7 @@ def test_direct_offer(red, mode) :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']
-        #except :
-        #    logging.error("erreur ouverture du credential manifest")      
-        #    print("cm = ", cm)  
+        
     elif VC_filename == "TalaoCommunity.jsonld" :
         filename = "./test/credential_manifest/talaocommunity_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
@@ -193,9 +191,16 @@ def test_direct_offer(red, mode) :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']
-        #except :
-        #    logging.error("erreur ouverture du credential manifest")      
-        #    print("cm = ", cm)                                                            
+    
+    elif VC_filename == "TezVoucher_1.jsonld" :
+        filename = "./test/credential_manifest/tezotopia_voucher_credential_manifest_" + cm + ".json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        #try :
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']
+                                                               
     else :
         pass
    
