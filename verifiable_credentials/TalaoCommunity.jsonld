@@ -2,7 +2,15 @@
     "@context": ["https://www.w3.org/2018/credentials/v1",
         {
             "talaoAccount" : "https://schema.org/account",
-            "walletNotation" : "https://schema.org/notation"
+            "walletNotation" : "https://schema.org/notation",
+            "associatedAddress" : {
+                "@id": "https://schema.org/address",
+                "@context" : {
+                    "@protected" : true,
+                    "blockchain" : "https://schema.org/blockchain",
+                    "blockchainAccount" : "https://schema.org/address"
+                }
+            }
         }
     ],
     "id": "did:tz2:....",
@@ -14,7 +22,21 @@
             "id": "did:key:z6MkftN6LL5DRTG8u5LjhQuwUconSp3wremHoMjcH1LP7Hxd",
             "type": "TalaoCommunity",
             "walletNotation" : "Gold",
-            "talaoAccount": "Temple Account"
+            "talaoAccount": "0x83E0481C1844Ed257efE1147218C125832F10236",
+            "associatedAddress" : [
+                {
+                    "blockchain" : "tezos",
+                    "blockchainAccount" : "tz1ReP6Pfzgmcwm9rTzivdJwnmQm4KzKS3im"
+                },
+                {
+                    "blockchain" : "ethereum",
+                    "blockchainAccount" : "0x461B99bCBdaD9697d299FDFe0879eC04De256DA1"
+                },
+                {
+                    "blockchain" : "polygon",
+                    "blockchainAccount" : "0x461B99bCBdaD9697d299FDFe0879eC04De256DA1"
+                }
+            ]
          }
  }
  

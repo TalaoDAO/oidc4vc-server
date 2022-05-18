@@ -12,6 +12,14 @@
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
+                    "associatedAddress" : {
+                        "@id": "https://schema.org/address",
+                        "@context" : {
+                            "@protected" : true,
+                            "blockchain" : "https://schema.org/blockchain",
+                            "blockchainAccount" : "https://schema.org/address"
+                        }
+                    },
                     "affiliate" : {
                         "@id" : "https://github.com/TalaoDAO/context/blob/main/README.md",
                         "@context" : {
@@ -143,6 +151,16 @@
     "expirationDate" : "2023-09-15T19:55:00Z",
     "credentialSubject" : {
         "type" : "TezVoucher_1",
+        "associatedAddress" : [
+            {
+                "blockchain" : "tezos",
+                "blockchainAccount" : "tz1345765476547654"
+            },
+            {
+                "blockchain" : "ethereum",
+                "blockchainAccount" : "0x1345765476547654"
+            }
+        ],
         "offers" : {
             "startDate" : "2022-04-08T19:55:00Z",
             "endDate" : "2022-06-08T19:55:00Z",
