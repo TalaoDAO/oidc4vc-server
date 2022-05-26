@@ -35,15 +35,18 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-from routes import web_register, web_certificate, web_issuer, web_wallet_test_login
-from routes import web_data_user, web_skills, web_external, web_issuer_explore, web_revocationlist
+#from routes import web_certificate
+#from routes import web_revocationlist
+#from r!outes import web_wallet_return_code
+from routes import web_register, web_issuer, web_wallet_test_login
+from routes import web_data_user, web_skills, web_external, web_issuer_explore
 from routes import web_main, web_login, repository, web_credible, web_wallet_test, web_tiar, web_app, web_siopv2_issuer, web_siopv2_verifier
-from routes import web_display_VP, web_wallet_return_code
+from routes import web_display_VP
 
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.41'
+VERSION = '1.42'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -103,7 +106,7 @@ web_credible.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
 web_wallet_test_login.init_app(app, red, mode)
 web_login.init_app(app, red,  mode)
-web_certificate.init_app(app, mode)
+#web_certificate.init_app(app, mode)
 web_external.init_app(app, mode)
 web_issuer_explore.init_app(app, mode)
 web_data_user.init_app(app,red,mode)
