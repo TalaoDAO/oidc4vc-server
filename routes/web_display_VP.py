@@ -27,8 +27,8 @@ pattern = {
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/wallet/test/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
     global PVK
@@ -36,11 +36,8 @@ def init_app(app,red, mode) :
     return
 
 
-def test_display_VP_qrcode(red, mode):
+def test_display_VP_qrcode(mode):
     stream_id = str(uuid.uuid1())
-    pattern['challenge'] = str(uuid.uuid1())
-    pattern['domain'] = mode.server
-    red.set(stream_id,  json.dumps(pattern))
     url = mode.server + 'wallet/test/VP_presentation/' + stream_id +'?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     return render_template('wallet/test/VP_presentation_qr.html',
@@ -51,19 +48,23 @@ def test_display_VP_qrcode(red, mode):
                             simulator="Display VP")
 
 
-def VP_presentation_endpoint(stream_id, red):
-    try :
-        my_pattern = json.loads(red.get(stream_id).decode())
-    except :
-        logging.error('red decode failed')
-        event_data = json.dumps({"stream_id" : stream_id, "message" : "Server error."})
-        red.publish('credible', event_data)
-        return jsonify("server error"), 500
-    challenge = my_pattern['challenge']
-    domain = my_pattern['domain']
+def VP_presentation_endpoint(stream_id, mode, red):
+
     if request.method == 'GET':
-        return jsonify(my_pattern)
+        pattern['challenge'] = str(uuid.uuid1())
+        pattern['domain'] = mode.server
+        red.set(stream_id,  json.dumps(pattern))
+        return jsonify(pattern)
     elif request.method == 'POST' :
+        try :
+            my_pattern = json.loads(red.get(stream_id).decode())
+            challenge = my_pattern['challenge']
+            domain = my_pattern['domain']
+        except :
+            logging.error('red decode failed')
+            event_data = json.dumps({"stream_id" : stream_id, "message" : "Server error."})
+            red.publish('credible', event_data)
+            return jsonify("URL not found"), 404
         red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
         try : 
@@ -142,9 +143,8 @@ def test_VP_presentation_display(red):
                     <button  type"submit" >QR code for Request</button></form>
                     <br>---------------------------------------------------<br>
         
-        <h2> Verifiable Credential </h2>
-        <pre class="whitespace-pre-wrap m-auto">""" + credential + """</pre>
-        <h2> Verifiable Presentation </h2>
+       
+        <h2> Verifiable Presentation sent by the wallet :</h2>
         <pre class="whitespace-pre-wrap m-auto">""" + presentation + """</pre>
         </body>
         </html>"""

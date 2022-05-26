@@ -175,10 +175,14 @@ def test_direct_offer(red, mode) :
         credentialOffer['display']['backgroundColor'] = "532b29"
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
     elif VC_filename == "Pcds.jsonld" :
-        filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
+        if cm == "5" :
+            filename = "./test/credential_manifest/presentation_credential_manifest_simple.json"
+        elif cm == "6" :
+            filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres.json"
+        else :
+            filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
-        #try :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']
@@ -187,7 +191,6 @@ def test_direct_offer(red, mode) :
         filename = "./test/credential_manifest/talaocommunity_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
-        #try :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']
@@ -206,11 +209,13 @@ def test_direct_offer(red, mode) :
    
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+    altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
                                 url=url,
                                 deeplink=deeplink,
+                                alrme_deeplink=altme_deeplink,
                                 id=credential['id'],
                                 type = type + " - " + translate(credential)
                                 )
@@ -302,11 +307,13 @@ def test_credentialOffer_qrcode(red, mode) :
             credentialOffer['shareLink'] = request.form['shareLink']
         url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
         deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+        altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('wallet/test/credential_offer_qr.html',
                                 url=url,
                                 deeplink=deeplink,
+                                altme_deeplink=altme_deeplink,
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 type = type + " - " + translate(credential),

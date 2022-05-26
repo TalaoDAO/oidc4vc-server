@@ -58,7 +58,8 @@ class currentMode() :
 		self.pinata_secret_api_key = passwords['pinata_secret_api_key'] # used in Talao_ipfs.py
 		self.sms_token = passwords['sms_token'] # used in sms.py
 		self.github = passwords['github'] # used for test credeible
-		self.deeplink = 'https://app.talao.co/'		
+		self.deeplink = 'https://app.talao.co/'	
+		self.altme_deeplink = 'https://app.altme.io/'		
 		if self.myenv == 'aws':
 			self.sys_path = '/home/admin'
 		else :

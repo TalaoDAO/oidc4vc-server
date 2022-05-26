@@ -25,10 +25,11 @@
                         </div>
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/presentationRequest"><img  src="/static/img/image_16.jpeg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Verifier simulator')}}</strong>
+                                <a href="/wallet/test/direct_offer?VC=TalaoCommunity.jsonld&cm=1"><img  src="/static/img/talao_community_card.jpg"  style="width: 300px;border-radius:0px;"></a>
+                                <br><strong>Get a Talao community card</strong>
                             </div>
                         </div>
+                       
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=LearningAchievement.jsonld"><img  src="/static/img/diploma.jpg"  style="width: 350px;border-radius:0px;"></a>
@@ -44,12 +45,14 @@
                                 <br><strong>{{_('Get an email proof (fake)')}}</strong>
                             </div>
                         </div>
+
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/credentialOffer2"><img  src="/static/img/8.png"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Issuer simulator')}}</strong>
-                            </div> 
+                                <a href="/wallet/test/direct_offer?VC=TezVoucher_1.jsonld&cm=1"><img  src="/static/img/tezotopia_voucher.png"  style="width: 300px;border-radius:0px;"></a>
+                                <br><strong>Get a Tezotopia Voucher</strong>
+                            </div>
                         </div>
+                       
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=Over18.jsonld"><img  src="/static/img/over18.jpg"  style="width: 350px;border-radius:0px;"></a>
@@ -69,12 +72,7 @@
                         </div>
                         
                         
-                        <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/display_VP"><img  src="/static/img/15.png"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Display the verifiable Credential and Verifiable Presentation')}}</strong>
-                            </div>
-                        </div>
+                       
                         
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
@@ -88,17 +86,26 @@
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=TalaoCommunity.jsonld&cm=1"><img  src="/static/img/talao_community_card.jpg"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>Talao Community Card</strong>
+                                <a href="/wallet/test/presentationRequest"><img  src="/static/img/image_16.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>{{_('Verifier simulator')}}</strong>
                             </div>
                         </div>
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=TezVoucher_1.jsonld&cm=1"><img  src="/static/img/tezotopia_voucher.png"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>Tezotopia Voucher</strong>
+                                <a href="/wallet/test/display_VP"><img  src="/static/img/15.png"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>{{_('Display Verifiable Credentials and Verifiable Presentations of your wallet')}}</strong>
                             </div>
                         </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/credentialOffer2"><img  src="/static/img/8.png"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>{{_('Issuer simulator for all VCs')}}</strong>
+                            </div> 
+                        </div>
+
+                       
 
                     </div>
                     
@@ -107,7 +114,7 @@
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/display_login"><img  src="/static/img/login.jpeg"  style="width: 200px;border-radius:0px;"></a>
-                                <br><strong>{{_('Login with Verifiable Credentials')}}</strong>
+                                <br><strong>{{_('Demo login with Verifiable Credentials (Verifier)')}}</strong>
                             </div>
                         </div>  
 
@@ -145,20 +152,38 @@
 
                     </div>
 
-                   
+                    <div class="row my-5">
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=5"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>PCDS with credential manifest simple filter</strong>
+                            </div>
+                        </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=6"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>PCDS with credential manifest 2 filters</strong>
+                            </div>
+                        </div>
+
+                      
+
+                    </div>
 
                     <div class="row my-5">
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=VerifiableDiploma.jsonld"><img  src="/static/img/15.png"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>EBSILUX verifiable diploma signed by Ebsi</strong>
+                                <br><strong>EBSILUX verifiable diploma signed with did:ebsi</strong>
                             </div>
                         </div>
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=VerifiableDiploma_1.jsonld"><img  src="/static/img/15.png"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>EBSILUX verifiable diploma signed by Didkit</strong>
+                                <br><strong>EBSILUX verifiable diploma signed with other DID methods</strong>
                             </div>
                         </div>
 
