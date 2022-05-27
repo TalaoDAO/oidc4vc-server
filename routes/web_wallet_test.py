@@ -176,8 +176,12 @@ def test_direct_offer(red, mode) :
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
     elif VC_filename == "Pcds.jsonld" :
         if cm == "5" :
+            credentialOffer['domain'] = "talao.co"
+            credentialOffer['challenge'] = "test_input_descriptor"
             filename = "./test/credential_manifest/presentation_credential_manifest_simple.json"
         elif cm == "6" :
+            credentialOffer['domain'] = "talao.co"
+            credentialOffer['challenge'] = "test_input_descriptor"
             filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres.json"
         else :
             filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
@@ -210,6 +214,7 @@ def test_direct_offer(red, mode) :
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
+    print("credential offer = ", credentialOffer)
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',

@@ -46,7 +46,7 @@ from routes import web_display_VP
 
 #BUNNEY Calum <calum.bunney@nexusgroup.com>
 # Server Release
-VERSION = '1.42'
+VERSION = '1.45'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
