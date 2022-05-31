@@ -32,6 +32,7 @@ d_bytes =  base58.b58decode(secret_key.encode())[4:-4]
 d = base64.urlsafe_b64encode(d_bytes)
 # we do the same with the public key
 x_bytes = base58.b58decode(public_key.encode())[4:-4]
+
 x = base64.urlsafe_b64encode(x_bytes)
 # bytes to string
 d = d.decode()
@@ -44,9 +45,12 @@ JWK =  {
         "kty":"OKP",
         "x": x
         }
-print('JWK = ', JWK)
+#print('JWK = ', JWK)
 
 
+
+
+"""
 ####################### TEST
 
 # one checks with didkit that everything is ok
@@ -76,7 +80,7 @@ signed_credential =  didkit.issueCredential(
 result = didkit.verifyCredential(signed_credential, '{}')
 print('signature check = ', result)
 
-""" Test vectors 
+Test vectors 
 
 edskRzfJzQnyKWr4qP4rUipDfTNCXJGxBW91m5HtgTYS92MmWo1tUge6nXkumkrNqDa767qPgqiJQaqNfmjebFJUc96JmuBLQn
 JWK =  {'crv': 'Ed25519', 'd': 'rRsH4WNxjh6E_XzEBJxiBi-nsR1QPMINu6Ciri2XhZ8=', 'kty': 'OKP', 'x': 'ZfeZIUWmL61MbAqP9kPDfWBeqAZmV-josXNft__RkLI='}

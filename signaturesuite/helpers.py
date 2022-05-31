@@ -1,5 +1,7 @@
 import json
+import hashlib
 import base64
+import base58
 from eth_keys import keys
 from eth_utils import decode_hex
 import didkit
@@ -118,5 +120,72 @@ def _ethereum_to_jwk256k(private_key, alg) :
     ay = bytes.fromhex(y)
     y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
 
-    return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x": x,"y":y, "alg" :alg})
+    return json.dumps({"crv":"secp256k1","d":d,"kty":"EC","x":x,"y":y,"alg":alg})
 
+
+def thumbprint(jwk) :
+    """
+    Curve secp256k1
+    return hex string without 0x
+    https://www.rfc-editor.org/rfc/rfc7638.html
+    """
+    if isinstance(jwk, str) :
+        jwk = json.loads(jwk)
+    if jwk["crv"] != "secp256k1" :
+        print("error key type")
+        return False
+    JWK = json.dumps({"crv":"secp256k1",
+                    "kty":"EC",
+                    "x":jwk["x"],
+                    "y":jwk["y"]
+                    }).replace(" ","")
+    m = hashlib.sha256()
+    m.update(JWK.encode())
+    return m.hexdigest()
+
+
+def eth_pub_key_to_jwk(pub_key) :
+    """
+    return json
+    """
+    if pub_key[:2] == "0x" :
+        pub_key = pub_key[2:]
+    x = pub_key[:64]
+    y = pub_key[64:]
+    ax = bytes.fromhex(x)
+    x =  base64.urlsafe_b64encode((ax)).decode()[:-1]
+    ay = bytes.fromhex(y)
+    y =  base64.urlsafe_b64encode((ay)).decode()[:-1]
+    return json.dumps({"crv":"secp256k1","kty":"EC","x": x,"y":y}).replace(" ", "")
+
+
+def ebsi_from_jwk(jwk) :
+    """
+    for legal person only version = b'\x02' 
+    subject_identier = thumbprint of public key
+    reference https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
+    """
+    if isinstance(jwk, str) :
+        jwk = json.loads(jwk)
+    ebsi_did = 'z' + base58.b58encode(b'\x02' + bytes.fromhex(thumbprint(jwk))).decode()
+    ebsi_verificationMethod = ebsi_did + '#keys-1'
+    did_doc = {
+        "@context": "https://w3id.org/did/v1",
+        "id": ebsi_did,
+        "verificationMethod": [
+        {
+            "id": ebsi_verificationMethod,
+            "type": "EcdsaSecp256k1VerificationKey2019",
+            "controller": ebsi_did,
+            "publicKeyJwk": {
+                "kty": "EC",
+                "crv": "secp256k1",
+                "x": jwk["x"],
+                "y": jwk["y"],
+            }
+        }
+        ],
+        "authentication": [ebsi_verificationMethod],
+        "assertionMethod": [ebsi_verificationMethod]
+    }
+    return ebsi_did, ebsi_verificationMethod, did_doc
