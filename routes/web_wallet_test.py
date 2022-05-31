@@ -214,7 +214,6 @@ def test_direct_offer(red, mode) :
     url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
-    print("credential offer = ", credentialOffer)
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
     return render_template('wallet/test/credential_offer_qr_2.html',
