@@ -92,6 +92,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/wallet/test/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/test/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
+
     app.add_url_rule('/wallet/test/presentationRequest',  view_func=test_presentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -449,6 +450,9 @@ def offer_stream(red):
     return Response(event_stream(red), headers=headers)
 
 
+
+
+
 ######################### Presentation Request ###########
 
 DIDAuth = {
@@ -490,7 +494,7 @@ def test_presentationRequest_qrcode(red, mode):
                     if request.form.get('trustedIssuer' + q) :
                         MycredentialQuery['example']['trustedIssuer' + q] = list()
                         for issuer in [key.replace(" ", "") for key in request.form['trustedIssuer' + q].split(',')] :
-                            MycredentialQuery['example']['trustedIssuer'].append({"issuer" : issuer})   
+                            MycredentialQuery['example']['trustedIssuer' + q].append({"issuer" : issuer})   
                     if request.form.get('credentialSchema' + q) :
                         MycredentialQuery['example']['credentialSchema'] = {'type' : request.form['credentialSchema' + q]}
                     pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
