@@ -1,0 +1,21 @@
+{
+ "@context": [ "https://www.w3.org/2018/credentials/v1",
+	{
+        "name": "https://schema.org/name",
+        "description": "https://schema.org/description"
+    }
+],
+"id" : "urn:uuid:53d…..bb37-0242ac130002",
+"name": "My Tezos associated wallet",
+"type": [
+   		 "VerifiableCredential",
+    		"TezosAssociatedWallet"
+],
+"description" : "DID of the crypto wallet associated with AltMe",
+"issuer" : "did:key:.....",
+"expirationDate" : "ceci est une dateZ",
+"credentialSubject" : {
+	    "id" : "did:key:wallet",
+	    "type" : "TezosAssociatedWallet"
+}
+}

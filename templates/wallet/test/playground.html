@@ -11,10 +11,14 @@
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content" >
                 {% include './wallet/test/playground_nav_bar.html' %}
-                <div class="container-fluid mt-5">
-                  <div class="text-center">
-                <b>{{_('All the VCs below are for testing purpose only')}}</b>
-                </div>
+                <div class="container-fluid my-5">
+
+                 
+            
+                <hr>
+                    <div class="text-center">
+                        <h4>Package of 6 Verifiable Credentials for wallet testing</h4>
+                    </div>
                     <div class="row my-5">
                         
                         <div class="col mt-4">
@@ -25,10 +29,11 @@
                         </div>
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=TalaoCommunity.jsonld&cm=1"><img  src="/static/img/talao_community_card.jpg"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>Get a Talao community card</strong>
+                                <a href="/wallet/test/direct_offer?VC=CertificateOfEmployment.jsonld"><img  src="/static/img/certificate_of_employment.jpg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>{{_('Get a certificate of employment')}}</strong>
                             </div>
                         </div>
+                      
                        
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
@@ -45,13 +50,13 @@
                                 <br><strong>{{_('Get an email proof (fake)')}}</strong>
                             </div>
                         </div>
-
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=TezVoucher_1.jsonld&cm=1"><img  src="/static/img/tezotopia_voucher.png"  style="width: 300px;border-radius:0px;"></a>
-                                <br><strong>Get a Tezotopia Voucher</strong>
+                                <a href="/wallet/test/direct_offer?VC=StudentCard.jsonld"><img  src="/static/img/student_card.jpg"  style="width: 350px;border-radius:0px;"></a>
+                                <br><strong>{{_('Get a Student Card')}}</strong>
                             </div>
                         </div>
+                        
                        
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
@@ -62,39 +67,36 @@
                        
                        
                     </div>
+
+                    <hr>
+                    <div class="text-center">
+                        <h4>Verifiable Presentation Request protocol simulator</h4>
+                    </div>
                     <div class="row my-5">
-            
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=CertificateOfEmployment.jsonld"><img  src="/static/img/certificate_of_employment.jpg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Get a certificate of employment')}}</strong>
+                                <a href="/wallet/test/presentationRequest"><img  src="/static/img/image_16.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                               
                             </div>
                         </div>
-                        
-                        
-                       
-                        
-                        <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/direct_offer?VC=StudentCard.jsonld"><img  src="/static/img/student_card.jpg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Get a Student Card')}}</strong>
-                            </div>
-                        </div>
+                      
+
+                    </div> 
+
+                    <hr>
+
+                    <div class="text-center">
+                        <h4>Tools</h4>
                     </div>
                    
                     <div class="row my-5">
 
-                        <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/presentationRequest"><img  src="/static/img/image_16.jpeg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Verifier simulator')}}</strong>
-                            </div>
-                        </div>
+                       
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/display_VP"><img  src="/static/img/15.png"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>{{_('Display Verifiable Credentials and Verifiable Presentations of your wallet')}}</strong>
+                                <br><strong>{{_('Display a Verifiable Presentations content')}}</strong>
                             </div>
                         </div>
 
@@ -109,6 +111,32 @@
 
                     </div>
                     
+                    <hr>
+                    <div class="text-center">
+                        <h4>Under dev</h4>
+                    </div>
+
+                    <div class="row my-5">
+            
+                        
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=TalaoCommunity.jsonld&cm=1"><img  src="/static/img/talao_community_card.jpg"  style="width: 300px;border-radius:0px;"></a>
+                                <br><strong>Get a Talao community card</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/wallet/test/direct_offer?VC=TezVoucher_1.jsonld&cm=1"><img  src="/static/img/tezotopia_voucher.png"  style="width: 300px;border-radius:0px;"></a>
+                                <br><strong>Get a Tezotopia Voucher</strong>
+                            </div>
+                        </div>
+                        
+                       
+                    </div>
+<!--
+
                     <div class="row my-5">
                         
                         <div class="col mt-4">
@@ -118,8 +146,12 @@
                             </div>
                         </div>  
 
-                    </div> 
+                    </div> -->
 
+                    <hr>
+                    <div class="text-center">
+                        <h4>Credential Manifest output descriptors tests</h4>
+                    </div>
                     <div class="row my-5">
 
                         <div class="col mt-4">
@@ -152,24 +184,35 @@
 
                     </div>
 
+                    <hr>
+                    <div class="text-center">
+                        <h4>Credential Manifest input descriptors tests</h4>
+                    </div>
+
                     <div class="row my-5">
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=5"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>PCDS with credential manifest simple filter</strong>
+                                <br><strong>PCDS issuance with 1 filter</strong>
                             </div>
                         </div>
 
                         <div class="col mt-4">
                             <div id="id_qrcode" class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=Pcds.jsonld&cm=6"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
-                                <br><strong>PCDS with credential manifest 2 filters</strong>
+                                <br><strong>PCDS issuance with 2 filters</strong>
                             </div>
                         </div>
 
                       
 
+                    </div>
+
+
+                    <hr>
+                    <div class="text-center">
+                        <h4>EBSI simulation</h4>
                     </div>
 
                     <div class="row my-5">

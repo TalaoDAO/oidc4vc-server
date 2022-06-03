@@ -102,9 +102,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/wallet/sandbox',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
-    app.add_url_rule('/playground/prosoon',  view_func=playground_prosoon, methods = ['GET', 'POST'])
     app.add_url_rule('/playground/grant',  view_func=playground_grant, methods = ['GET', 'POST'])
-    app.add_url_rule('/playground/new',  view_func=playground_new, methods = ['GET', 'POST'])
 
     global PVK, test_repo, registry_repo
     PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
@@ -120,18 +118,11 @@ def playground() :
     global status
     return render_template("./wallet/test/playground.html")
 
-def playground_prosoon() :
-    global status
-    return render_template("./wallet/test/prosoon.html")
+
 
 def playground_grant() :
     global status
     return render_template("./wallet/test/grant.html")
-
-def playground_new() :
-    global status
-    return render_template("./wallet/test/playground_new.html")
-
 
 ######################### Credential Offer ###########
 def test_credentialOffer2_qrcode() :
@@ -170,20 +161,24 @@ def test_direct_offer(red, mode) :
             "shareLink" : str(),
             "display" : { "backgroundColor" : backgroundColor},
         }
+    credential_manifest = "{}" 
     if VC_filename == "tezotopia_loyaltycard.jsonld" :
         credentialOffer['display']['backgroundColor'] = "e60118"
     elif VC_filename == "LoyaltyCard.jsonld" :
         credentialOffer['display']['backgroundColor'] = "532b29"
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
     elif VC_filename == "Pcds.jsonld" :
+        # input descriptor
         if cm == "5" :
             credentialOffer['domain'] = "talao.co"
             credentialOffer['challenge'] = "test_input_descriptor"
             filename = "./test/credential_manifest/presentation_credential_manifest_simple.json"
+        # input descriptor
         elif cm == "6" :
             credentialOffer['domain'] = "talao.co"
             credentialOffer['challenge'] = "test_input_descriptor"
             filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres.json"
+        # output descriptor
         else :
             filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
@@ -207,8 +202,7 @@ def test_direct_offer(red, mode) :
         #try :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
-        del credentialOffer['display']
-                                                               
+        del credentialOffer['display']                                             
     else :
         pass
    
@@ -222,6 +216,7 @@ def test_direct_offer(red, mode) :
                                 deeplink=deeplink,
                                 alrme_deeplink=altme_deeplink,
                                 id=credential['id'],
+                                credential_manifest = json.dumps(json.loads(credential_manifest),indent=4),
                                 type = type + " - " + translate(credential)
                                 )
 
@@ -359,6 +354,7 @@ def test_credentialOffer_endpoint(id, red):
                         status=200)
                         
     else :
+        print("wallet request = ", request.form['presentation'])
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
         try :
@@ -412,28 +408,11 @@ def test_credentialOffer_endpoint(id, red):
                             })
         red.publish('credible', data)
         return jsonify(signed_credential)
-        #return Response(json.dumps(signed_credential, separators=(':', ',')),
-        #                headers={ "Content-Type" : "application/json"},
-        #                status=200)
+        
 
 
 def test_credentialOffer_back():
-    html_string = """
-        <!DOCTYPE html>
-        <html>
-        
-        <body class="h-screen w-screen flex ">
-        <p></p>
-        <h2>Verifiable Credential has been signed and transfered to wallet"</h2<
-        <br><br><br>
-        <form action="/playground" method="GET" >
-                    <button  type"submit" >Back Playground </button></form>
-        <form action="/playground/grant" method="GET" >
-                    <button  type"submit" >Back Grant Tezos</button></form>
-       
-        </body>
-        </html>"""
-    return render_template_string(html_string)
+    return render_template("wallet/test/credential_offer_back.html")
 
 
 # server event push for user agent EventSource
@@ -470,7 +449,7 @@ DIDAuth = {
 
 def test_presentationRequest_qrcode(red, mode):
     if request.method == 'GET' :
-        return render_template('wallet/test/credential_presentation.html', simulator='Verifier Simulator' )
+        return render_template('wallet/test/credential_presentation.html', simulator='Verifier simulator with query types' )
 							
     else :
         stream_id = str(uuid.uuid1())
@@ -478,26 +457,23 @@ def test_presentationRequest_qrcode(red, mode):
             pattern = DIDAuth
         else :
             pattern =  QueryBYExample
-            pattern['query'][0]["credentialQuery"] = list()
-            for q in ["1","2","3"] :
-                if request.form.get('trustedIssuer' + q) or request.form.get('type' + q) or request.form.get('credentialSchema' + q) : 
-                    MycredentialQuery = dict()
-                    if request.form.get('reason' + q) :
-                        MycredentialQuery['reason'] = [
-                                                {"@value": "Text in English", "@language": "en"},
-                                                {"@value" : request.form['reason' + q], "@language" : "fr"},
-                                                {"@value" : "text in German", "@language": "De"}
+            pattern['query'][0]["credentialQuery"] = list()          
+            if request.form.get('trustedIssuer') or request.form.get('type') or request.form.get('credentialSchema') : 
+                MycredentialQuery = dict()
+                if request.form.get('reason') :
+                    MycredentialQuery['reason'] = [
+                                                {"@value": request.form['reason'], "@language": "en"},
+                                                {"@value" : request.form['reason'], "@language" : "fr"},
+                                                {"@value" : request.form['reason'], "@language": "De"}
                                                 ]
-                    MycredentialQuery['example'] = dict()
-                    if request.form.get('type' + q) :
-                        MycredentialQuery['example']['type'] =  request.form['type' + q]
-                    if request.form.get('trustedIssuer' + q) :
-                        MycredentialQuery['example']['trustedIssuer' + q] = list()
-                        for issuer in [key.replace(" ", "") for key in request.form['trustedIssuer' + q].split(',')] :
-                            MycredentialQuery['example']['trustedIssuer' + q].append({"issuer" : issuer})   
-                    if request.form.get('credentialSchema' + q) :
-                        MycredentialQuery['example']['credentialSchema'] = {'type' : request.form['credentialSchema' + q]}
-                    pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
+                MycredentialQuery['example'] = dict()
+                if request.form.get('type') :
+                    MycredentialQuery['example']['type'] =  request.form['type']
+                if request.form.get('trustedIssuer') :
+                    MycredentialQuery['example']['trustedIssuer'] = list()
+                    for issuer in [key.replace(" ", "") for key in request.form['trustedIssuer'].split(',')] :
+                        MycredentialQuery['example']['trustedIssuer'].append({"issuer" : issuer})   
+                pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
@@ -506,7 +482,7 @@ def test_presentationRequest_qrcode(red, mode):
 							url=url,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
-                            simulator="Verifier Simulator")
+                            simulator='Verifier simulator with query types')
 
 
 def test_presentationRequest_endpoint(stream_id, red):
@@ -518,6 +494,7 @@ def test_presentationRequest_endpoint(stream_id, red):
     challenge = my_pattern['challenge']
     domain = my_pattern['domain']
     if request.method == 'GET':
+        print(pattern)
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
@@ -529,20 +506,20 @@ def test_presentationRequest_endpoint(stream_id, red):
             logging.warning('presentation is not correct')
             event_data = json.dumps({"stream_id" : stream_id, "message" : "Presentation format failed."})
             red.publish('credible', event_data)
-            return jsonify("presentation is not correct"), 400
+            return jsonify("presentation is not correct"), 401
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
             logging.warning("domain = %s", response_domain)
             logging.warning('challenge = %s', response_challenge)
-            #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
-            #red.publish('credible', event_data)
-            #return jsonify("challenge or domain failed"), 401
+            event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
+            red.publish('credible', event_data)
+            return jsonify("challenge or domain failed"), 401
         # we just display the presentation VC
         red.set(stream_id,  request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           
         red.publish('credible', event_data)
-        return jsonify("ok"), 200
+        return jsonify("ok")
 
 
 def event_stream(red):

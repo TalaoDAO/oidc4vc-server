@@ -26,6 +26,7 @@ pattern = {
             }
 
 
+
 def init_app(app,red, mode) :
     app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
@@ -54,6 +55,7 @@ def VP_presentation_endpoint(stream_id, mode, red):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
+        print(pattern)
         return jsonify(pattern)
     elif request.method == 'POST' :
         try :
