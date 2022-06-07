@@ -353,13 +353,15 @@ def test_credentialOffer_endpoint(id, red):
     except :
         logging.error("red.get(id) error")
         return jsonify('server error'), 500
+    # wallet GET
     if request.method == 'GET':
         return Response(json.dumps(credentialOffer, separators=(':', ':')),
                         headers={ "Content-Type" : "application/json"},
                         status=200)
                         
+    # wallet POST
     else :
-        print("wallet request = ", request.form['presentation'])
+        print("wallet request = ", request.form.get('presentation', "No attribute presentation"))
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
         try :
