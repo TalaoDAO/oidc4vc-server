@@ -154,6 +154,9 @@ def test_direct_offer(red, mode) :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    if VC_filename == "TezosAssociatedWallet.jsonld" :
+        credential['credentialSubject']['correlation'].append(request.args.get('address'))
+        print("credential = ", credential)
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
@@ -164,6 +167,7 @@ def test_direct_offer(red, mode) :
     credential_manifest = "{}" 
     if VC_filename == "tezotopia_loyaltycard.jsonld" :
         credentialOffer['display']['backgroundColor'] = "e60118"
+   
     elif VC_filename == "LoyaltyCard.jsonld" :
         credentialOffer['display']['backgroundColor'] = "532b29"
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
@@ -361,7 +365,6 @@ def test_credentialOffer_endpoint(id, red):
                         
     # wallet POST
     else :
-        print("wallet request = ", request.form.get('presentation', "No attribute presentation"))
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
         try :
@@ -501,7 +504,6 @@ def test_presentationRequest_endpoint(stream_id, red):
     challenge = my_pattern['challenge']
     domain = my_pattern['domain']
     if request.method == 'GET':
-        print(pattern)
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)

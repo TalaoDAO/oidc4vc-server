@@ -1,0 +1,32 @@
+{
+	"@context": [ "https://www.w3.org/2018/credentials/v1", 
+		{
+			"name" : "https://schema.org/name",
+			"description" : "https://schema.org/description",
+			"correlation" : "https://schema.org/correlation"
+		}	
+   	],
+	"id" : "urn:uuid:53d-bb37-0242ac130002",
+	 "name" : [ 
+        	{
+            		"@value": "My Tezos associated wallet",
+            		"@language": "en"
+        	}
+    	],
+    	"description" : [
+        	{
+            		"@language": "en",
+            		"@value": "This uses the DID of the crypto wallet associated with AltMe"
+        	}
+    	],
+	"type": [
+        		"VerifiableCredential",
+           		"TezosAssociatedWallet"
+	],
+	"issuer" : "did:key:crypto_wallet",
+	"credentialSubject" : {
+       		"id" : "did:key:wallet AltMe",
+       		"type" : "TezosAssociatedWallet",
+			"correlation" : ["tz100000000"]			
+	}
+}
