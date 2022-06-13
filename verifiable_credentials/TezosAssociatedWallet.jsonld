@@ -3,7 +3,10 @@
 		{
 			"name" : "https://schema.org/name",
 			"description" : "https://schema.org/description",
+			"walletName" : "https://schema.org/walletName",
+			"accountName" :  "https://schema.org/name",
 			"correlation" : "https://schema.org/correlation"
+
 		}	
    	],
 	"id" : "urn:uuid:53d-bb37-0242ac130002",
@@ -27,6 +30,8 @@
 	"credentialSubject" : {
        		"id" : "did:key:wallet AltMe",
        		"type" : "TezosAssociatedWallet",
-			"correlation" : ["tz100000000"]			
+			"walletName" : "Temple",
+			"accountName" : "Account 1",
+			"correlation" : "tz2...."			
 	}
 }

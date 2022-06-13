@@ -154,9 +154,11 @@ def test_direct_offer(red, mode) :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
     if VC_filename == "TezosAssociatedWallet.jsonld" :
-        credential['credentialSubject']['correlation'].append(request.args.get('address'))
+        credential['credentialSubject']['correlation'] = request.args.get('address')
         print("credential = ", credential)
+
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
