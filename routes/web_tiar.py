@@ -8,6 +8,8 @@ DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY = 'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'
 DID_PLAYGROUND = "did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7"
 DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
+DID_ISSUER = "tz2UFjbN9ZruP5pusKoAKiPD3ZLV49CBG9Ef"
+
 LIST_TRUSTED_ISSUER_REGISTRY_API = 'https://tmd.list.lu:1234/tmd/get_data_issuer/'
 
 def init_app(app) :
@@ -23,7 +25,7 @@ def tir_api(did) :
     """
     logging.info("Registry look up for DID = %s", did)
     
-    if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY, DID_TZ1, DID_PLAYGROUND] :
+    if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY, DID_TZ1, DID_PLAYGROUND, DID_ISSUER] :
         return jsonify({
             "issuer": {
                 "preferredName": "Talao",
@@ -31,7 +33,8 @@ def tir_api(did) :
                         "did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250",
                         "did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk",
                         "did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7",
-                        "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"],
+                        "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du",
+                        "did:tz:tz2UFjbN9ZruP5pusKoAKiPD3ZLV49CBG9Ef"],
                 "eidasCertificatePem": [{}],
                 "serviceEndpoints": [{}, {}],
                 "organizationInfo": {
