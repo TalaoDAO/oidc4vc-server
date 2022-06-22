@@ -120,20 +120,31 @@
             
                         
                         <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
+                            <div class="text-center">
                                 <a href="/wallet/test/direct_offer?VC=TalaoCommunity.jsonld&cm=1"><img  src="/static/img/talao_community_card.png"  style="width: 300px;border-radius:0px;"></a>
                                 <br><strong>Get a Talao community card</strong>
                             </div>
                         </div>
                         
-                      
+                        <div class="col mt-4">
+                            <div  class="text-center">
+                                <form name="form" action="/wallet/test/direct_offer" method="GET">
+                                    <img src="/static/img/Associated-wallet-orange.png"  style="width: 300px;border-radius:0px;">
+                                    <br><strong>Talao account</strong>
+                                    <div class="form-group"><label>simulate a TALAO token account :  </label><br><input type="text" name="talao"></div>
+                                    <input hidden type="text" name="VC" value="TalaoAssociatedAddress.jsonld">
+                                    <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Get your TALAO account proof</button></div>
+                                </form> 
+                            </div>
+                            </div>
+                        </div>
 
                         <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
+                            <div  class="text-center">
                                 <form name="form" action="/wallet/test/direct_offer" method="GET">
                                     <img src="/static/img/Associated-wallet-orange.png"  style="width: 300px;border-radius:0px;">
                                     <br><strong>Tezos Associated Wallet</strong>
-                                    <div class="form-group"><label>simulate a Tezos associated address :  </label><input type="text" name="address"></div>
+                                    <div class="form-group"><label>simulate a Tezos associated address :  </label><br><input type="text" name="address"></div>
                                     <input hidden type="text" name="VC" value="TezosAssociatedWallet.jsonld">
                                     <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Get your associated wallet proof</button></div>
                                 </form> 
@@ -143,18 +154,6 @@
                         
                        
                     </div>
-<!--
-
-                    <div class="row my-5">
-                        
-                        <div class="col mt-4">
-                            <div id="id_qrcode" class="text-center">
-                                <a href="/wallet/test/display_login"><img  src="/static/img/login.jpeg"  style="width: 200px;border-radius:0px;"></a>
-                                <br><strong>{{_('Demo login with Verifiable Credentials (Verifier)')}}</strong>
-                            </div>
-                        </div>  
-
-                    </div> -->
 
                     <hr>
                     <div class="text-center">

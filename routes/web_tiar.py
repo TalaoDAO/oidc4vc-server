@@ -26,6 +26,7 @@ def tir_api(did) :
     logging.info("Registry look up for DID = %s", did)
     
     if did in [DID_WEB, DID_ETHR, DID_TZ2, DID_KEY, DID_TZ1, DID_PLAYGROUND, DID_ISSUER] :
+        logging.info("Great ! This is a Talao trusted issuer")
         return jsonify({
             "issuer": {
                 "preferredName": "Talao",
@@ -43,7 +44,14 @@ def tir_api(did) :
                     "currentAddress": "Talao, 16 rue de Wattignies, 75012 Paris, France",
                     "vatNumber": "FR26837674480",
                     "website": "https://talao.co",
-                    "issuerDomain" : ["talao.co", "issuer.talao.co", "talao.io", "tezotopia.talao.co", "playground.talao.co", "api.generator.talao.co", "generator.talao.co"]
+                    "issuerDomain" : ["talao.co",
+                                     "issuer.talao.co",
+                                  "talao.io",
+                                   "tezotopia.talao.co",
+                                    "playground.talao.co",
+                                     "api.generator.talao.co",
+                                     "generator.talao.co",
+                                     "api.issuer.tezotopia.altme.io"]
                 }
             }
         })
@@ -65,7 +73,7 @@ def tir_api(did) :
             }
         })
     else :
-        logging.info("Issuer not found")
+        logging.info("Issuer not found in the Talao registry")
         return jsonify("Issuer not found") , 404
         
 

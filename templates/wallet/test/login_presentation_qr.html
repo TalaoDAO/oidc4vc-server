@@ -2,15 +2,14 @@
 <html>
   <head>{% include 'head.html' %}</head>
   <body>
-        {% include '/wallet/test/simulator_nav_bar.html' %}
 
         <div id="content_desktop" class="d-none d-sm-block">
 
               <div class="text-center">  
                 <div id="id_text" class="m-5">
-                  <br><br><strong>Scan the QRCode below with your crypto wallet to Sign-In.</strong> 
+                  <br><br><strong>Scan the QRCode below with your AltMe wallet to Sign-In.</strong> 
                 <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url, icon_img='./img/talao_icon.jpg') }}" class=" w-30 h-30"></div>
-                <br> <br>
+                <br> 
                 <p><button  type="button"  onclick="goBack()">Back</button></p>
                </div> 
               </div>  
@@ -32,7 +31,6 @@
           </div> 
           </div>
           
-          {% include 'user_footer.html' %}
 
 
   <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
@@ -50,7 +48,7 @@
           window.location.href='/wallet/test/login_presentation_display?stream_id=' + result.stream_id;
           }
         if (result.message != 'ok' & result.stream_id == '{{stream_id}}' ) {
-          window.location.href='/wallet/test/login_presentation_display?message=' + result.message;
+          window.location.href='/wallet/test/login_presentation_display?message=' + result.message ;
         } 
         };
       </script>

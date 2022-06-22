@@ -159,6 +159,11 @@ def test_direct_offer(red, mode) :
         credential['credentialSubject']['correlation'] = request.args.get('address')
         print("credential = ", credential)
 
+    if VC_filename == "TalaoAssociatedAddress.jsonld" :
+        print(credential['description'][0]['@value'])
+        credential['credentialSubject']['associatedAddress'] = request.args.get('talao')
+        credential['description'][0]['@value'] = request.args.get('talao')
+       
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
