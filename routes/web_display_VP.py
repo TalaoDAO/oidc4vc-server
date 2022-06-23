@@ -118,7 +118,7 @@ def test_VP_presentation_display(red):
         credential_json = "No check done"
         if isinstance(presentation['verifiableCredential'], dict) :
             credential_json = json.dumps(presentation['verifiableCredential'])
-            credential_result = presentation_result = didkit.verifyCredential(credential_json, '{}')
+            credential_result = didkit.verifyCredential(credential_json, '{}')
             nb_credentials = "1"
             issuers = presentation['verifiableCredential']['issuer']
             types = presentation['verifiableCredential']['type'][1]

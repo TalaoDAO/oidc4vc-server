@@ -178,34 +178,7 @@ def test_direct_offer(red, mode) :
     elif VC_filename == "LoyaltyCard.jsonld" :
         credentialOffer['display']['backgroundColor'] = "532b29"
         credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
-    elif VC_filename == "Pcds.jsonld" :
-        # input descriptor
-        if cm == "5" :
-            credentialOffer['domain'] = "talao.co"
-            credentialOffer['challenge'] = "test_input_descriptor"
-            filename = "./test/credential_manifest/presentation_credential_manifest_simple.json"
-        # input descriptor
-        elif cm == "6" :
-            credentialOffer['domain'] = "talao.co"
-            credentialOffer['challenge'] = "test_input_descriptor"
-            filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres.json"
-        elif cm == "8" :
-            credentialOffer['domain'] = "talao.co"
-            credentialOffer['challenge'] = "test_input_descriptor"
-            filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres_Doe.json"
-         # input descriptor
-        elif cm == "7" :
-            credentialOffer['domain'] = "talao.co"
-            credentialOffer['challenge'] = "test_input_descriptor"
-            filename = "./test/credential_manifest/presentation_selfissued.json"
-        # output descriptor
-        else :
-            filename = "./test/credential_manifest/pcds_credential_manifest_" + cm + ".json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']
+   
         
     elif VC_filename == "TalaoCommunity.jsonld" :
         filename = "./test/credential_manifest/talaocommunity_credential_manifest_" + cm + ".json"
