@@ -189,6 +189,10 @@ def test_direct_offer(red, mode) :
             credentialOffer['domain'] = "talao.co"
             credentialOffer['challenge'] = "test_input_descriptor"
             filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres.json"
+        elif cm == "8" :
+            credentialOffer['domain'] = "talao.co"
+            credentialOffer['challenge'] = "test_input_descriptor"
+            filename = "./test/credential_manifest/presentation_credential_manifest_deux_filtres_Doe.json"
          # input descriptor
         elif cm == "7" :
             credentialOffer['domain'] = "talao.co"
@@ -514,7 +518,9 @@ def test_presentationRequest_endpoint(stream_id, red):
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
+        didkit.verifyPresentation()
         presentation = json.loads(request.form['presentation'])
+      
         try : 
             response_challenge = presentation['proof']['challenge']
             response_domain = presentation['proof']['domain']

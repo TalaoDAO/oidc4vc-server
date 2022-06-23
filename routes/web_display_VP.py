@@ -6,6 +6,7 @@ import uuid
 import logging
 from flask_babel import Babel, _
 from urllib.parse import urlencode
+import didkit
 
 logging.basicConfig(level=logging.INFO)
 
@@ -55,7 +56,6 @@ def VP_presentation_endpoint(stream_id, mode, red):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
-        print(pattern)
         return jsonify(pattern)
     elif request.method == 'POST' :
         try :
@@ -69,6 +69,7 @@ def VP_presentation_endpoint(stream_id, mode, red):
             return jsonify("URL not found"), 404
         red.delete(stream_id)
         presentation = json.loads(request.form['presentation'])
+       
         try : 
             response_challenge = presentation['proof']['challenge']
             response_domain = presentation['proof']['domain']
@@ -111,9 +112,13 @@ def test_VP_presentation_display(red):
             #red.delete(request.args['stream_id'])
         except :
             return jsonify('server problem')
+        presentation_result = didkit.verifyPresentation(presentation_json, '{}')
         presentation = json.loads(presentation_json)
         holder = presentation['holder']
+        credential_json = "No check done"
         if isinstance(presentation['verifiableCredential'], dict) :
+            credential_json = json.dumps(presentation['verifiableCredential'])
+            credential_result = presentation_result = didkit.verifyCredential(credential_json, '{}')
             nb_credentials = "1"
             issuers = presentation['verifiableCredential']['issuer']
             types = presentation['verifiableCredential']['type'][1]
@@ -137,9 +142,16 @@ def test_VP_presentation_display(red):
         <html>
         <body class="h-screen w-screen flex">
         <br>Number of credentials : """ + nb_credentials + """<br>
-        <br>Holder (wallet DID)  : """ + holder + """<br>
-        <br>Issuers : """ + issuers + """<br>
-        <br>Credential types : """ + types + """
+        
+        <br><b>wallet DID  : </b>""" + holder + """<br>
+        
+        <br><b>Issuers DID : </b>""" + issuers + """<br>
+        
+        <br><b>Signature VC check : </b>""" + credential_result + """<br> 
+
+        <br><b>Signature VP check : </b>""" + presentation_result + """<br> 
+       
+        <br><b>Credential types : </b>""" + types + """
         <br><br><br>
          <form action="/wallet/test/display_VP" method="GET" >
                     <button  type"submit" >QR code for Request</button></form>
