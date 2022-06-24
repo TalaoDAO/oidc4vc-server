@@ -147,9 +147,9 @@ def test_VP_presentation_display(red):
         
         <br><b>Issuers DID : </b>""" + issuers + """<br>
         
-        <br><b>Signature VC check : </b>""" + credential_result + """<br> 
+        <br><b>Signature Issuer VC verify : </b>""" + credential_result + """<br> 
 
-        <br><b>Signature VP check : </b>""" + presentation_result + """<br> 
+        <br><b>Signature Wallet VP verify : </b>""" + presentation_result + """<br> 
        
         <br><b>Credential types : </b>""" + types + """
         <br><br><br>

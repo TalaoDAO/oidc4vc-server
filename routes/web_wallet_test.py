@@ -155,8 +155,8 @@ def test_direct_offer(red, mode) :
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
-    if VC_filename == "TezosAssociatedWallet.jsonld" :
-        credential['credentialSubject']['correlation'] = request.args.get('address')
+    if VC_filename == "TezosAssociatedAddress.jsonld" :
+        credential['credentialSubject']['associatedAddress'] = request.args.get('address')
         print("credential = ", credential)
 
     if VC_filename == "TalaoAssociatedAddress.jsonld" :
