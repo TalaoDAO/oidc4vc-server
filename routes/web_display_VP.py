@@ -27,7 +27,7 @@ pattern = {
 
 try :
     Secp256kr  = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_secp256kr'])
-    P256 = json.dumps(json.load(open("/home/admin/sandox/keys.json", "r"))['talao_P256_private_key'])
+    P256 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_P256_private_key'])
     Ed25519 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 
 except :
