@@ -1,14 +1,30 @@
+"""
+
+def get_version() -> str: ...
+def generate_ed25519_key() -> str: ...
+def key_to_did(method_pattern: str, jwk: str) -> str: ...
+async def key_to_verification_method(method_pattern: str, jwk: str) -> str: ...
+async def issue_credential(credential: str, proof_options: str, key: str) -> str: ...
+async def verify_credential(credential: str, proof_options: str) -> str: ...
+async def issue_presentation(presentation: str, proof_options: str, key: str) -> str: ...
+async def verify_presentation(presentation: str, proof_options: str) -> str: ...
+async def resolve_did(did: str, input_metadata: str) -> str: ...
+async def dereference_did_url(did_url: str, input_metadata: str) -> str: ...
+async def did_auth(did: str, options: str, key: str) -> str: ...
+
+
+"""
+
+
 from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
 from signaturesuite import vc_signature
-from components import privatekey
 from github import Github
 import base64
 import uuid
 import didkit
 import logging
-from flask_babel import _
 from urllib.parse import urlencode
 
 
@@ -25,10 +41,9 @@ DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
 
 try :
-    key_tz1 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+    key_tz1 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 except :
-    key_tz1 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
-vm_tz1 = didkit.keyToVerificationMethod('tz', key_tz1)
+    key_tz1 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 
 did_selected = DID_TZ1
 
@@ -47,14 +62,12 @@ QueryBYExample = {
 pattern = QueryBYExample
 
 try :
-    RSA = open("/home/admin/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_P256_private_key'])
-    Ed25519 = json.dumps(json.load(open("/home/admin/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+    P256 = json.dumps(json.load(open("/home/admin/sandox/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 
 except :
-    RSA = open("/home/thierry/Talao/RSA_key/talaonet/0x3B1dcb1A80476875780b67b239e556B42614C7f9_TalaoAsymetricEncryptionPrivateKeyAlgorithm1.txt", 'r').read()
-    P256 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_P256_private_key'])
-    Ed25519 = json.dumps(json.load(open("/home/thierry/Talao/keys.json", "r"))['talao_Ed25519_private_key'])
+    P256 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 
 
 def translate(credential) : 
@@ -85,27 +98,24 @@ def credential_from_filename(path, filename) :
       
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/wallet/test/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'])
-    app.add_url_rule('/wallet/test/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
-    app.add_url_rule('/wallet/test/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/wallet/test/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/wallet/test/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
-    app.add_url_rule('/wallet/test/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/sandbox/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/sandbox/credentialOffer2',  view_func=test_credentialOffer2_qrcode, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
+    app.add_url_rule('/sandbox/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
 
-    app.add_url_rule('/wallet/test/presentationRequest',  view_func=test_presentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    app.add_url_rule('/wallet/test/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/wallet/test/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
+    app.add_url_rule('/sandbox/presentationRequest',  view_func=test_presentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/sandbox/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
     app.add_url_rule('/sandbox',  view_func=playground, methods = ['GET', 'POST'])
-    app.add_url_rule('/wallet/sandbox',  view_func=playground, methods = ['GET', 'POST'])
-    app.add_url_rule('/wallet/playground',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
-    app.add_url_rule('/playground/grant',  view_func=playground_grant, methods = ['GET', 'POST'])
 
     global PVK, test_repo, registry_repo
-    PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+    #PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
@@ -116,13 +126,10 @@ def init_app(app,red, mode) :
 ########################  dev playground ##########################""
 def playground() :
     global status
-    return render_template("./wallet/test/playground.html")
+    return render_template("playground.html")
 
 
 
-def playground_grant() :
-    global status
-    return render_template("./wallet/test/grant.html")
 
 ######################### Credential Offer ###########
 def test_credentialOffer2_qrcode() :
@@ -199,12 +206,12 @@ def test_direct_offer(red, mode) :
     else :
         pass
    
-    url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
+    url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
-    return render_template('wallet/test/credential_offer_qr_2.html',
+    return render_template('credential_offer_qr_2.html',
                                 url=url,
                                 deeplink=deeplink,
                                 alrme_deeplink=altme_deeplink,
@@ -230,11 +237,11 @@ def test_credentialOffer_qrcode(red, mode) :
                 credential['issuer'] = ""
                 credential_name = translate(credential)
                 html_string += """
-                    <p> Credential preview : <a href='/wallet/test/display?path="""+ path + """&filename=""" + filename + """'>""" + filename + """</a></p>
+                    <p> Credential preview : <a href='/sandbox/display?path="""+ path + """&filename=""" + filename + """'>""" + filename + """</a></p>
                     <p> id : """ + credential.get("id", "") + """</p> 
                     <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
                     <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
-                    <form action="/wallet/test/credentialOffer" method="POST" >
+                    <form action="/sandbox/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
                         <option selected value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
@@ -259,7 +266,7 @@ def test_credentialOffer_qrcode(red, mode) :
                 logging.info("credential mal formaté %s", filename)
                 pass
         html_string = """<html><head>{% include 'head.html' %}</head>
-                        <body> {% include '/wallet/test/simulator_nav_bar.html' %}
+                        <body> {% include 'simulator_nav_bar.html' %}
                             <div class="m-5">
                                 <br><br>""" + html_string + """
                             </div>
@@ -298,12 +305,12 @@ def test_credentialOffer_qrcode(red, mode) :
         }
         if request.form.get('shareLink') :
             credentialOffer['shareLink'] = request.form['shareLink']
-        url = mode.server + "wallet/test/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
+        url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
         deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
-        return render_template('wallet/test/credential_offer_qr.html',
+        return render_template('credential_offer_qr.html',
                                 url=url,
                                 deeplink=deeplink,
                                 altme_deeplink=altme_deeplink,
@@ -335,7 +342,7 @@ def test_credential_display():
     return render_template_string(html_string)
 
 
-def test_credentialOffer_endpoint(id, red):
+async def test_credentialOffer_endpoint(id, red):
     try : 
         credentialOffer = red.get(id).decode()
     except :
@@ -384,9 +391,9 @@ def test_credentialOffer_endpoint(id, red):
             elif did_selected == DID_TZ1 :
                 didkit_options = {
                     "proofPurpose": "assertionMethod",
-                    "verificationMethod": vm_tz1
+                    "verificationMethod": await didkit.key_to_verification_method('tz', key_tz1)
                     }
-                signed_credential =  didkit.issueCredential(
+                signed_credential =  await didkit.issue_credential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
                 key_tz1)
@@ -406,7 +413,7 @@ def test_credentialOffer_endpoint(id, red):
 
 
 def test_credentialOffer_back():
-    return render_template("wallet/test/credential_offer_back.html")
+    return render_template("redential_offer_back.html")
 
 
 # server event push for user agent EventSource
@@ -443,7 +450,7 @@ DIDAuth = {
 
 def test_presentationRequest_qrcode(red, mode):
     if request.method == 'GET' :
-        return render_template('wallet/test/credential_presentation.html', simulator='Verifier simulator with query types' )
+        return render_template('credential_presentation.html', simulator='Verifier simulator with query types' )
 							
     else :
         stream_id = str(uuid.uuid1())
@@ -479,7 +486,7 @@ def test_presentationRequest_qrcode(red, mode):
                             simulator='Verifier simulator with query types')
 
 
-def test_presentationRequest_endpoint(stream_id, red):
+async def test_presentationRequest_endpoint(stream_id, red):
     try : 
         my_pattern = json.loads(red.get(stream_id).decode())
     except :
@@ -491,7 +498,7 @@ def test_presentationRequest_endpoint(stream_id, red):
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
-        didkit.verifyPresentation()
+        await didkit.verify_presentation()
         presentation = json.loads(request.form['presentation'])
       
         try : 

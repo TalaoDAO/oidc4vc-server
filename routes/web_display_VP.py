@@ -1,7 +1,6 @@
 from flask import jsonify, request, render_template, Response, render_template_string
 import json
 from datetime import timedelta
-from components import privatekey
 import uuid
 import logging
 from urllib.parse import urlencode
@@ -28,20 +27,20 @@ pattern = {
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/wallet/test/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/wallet/test/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/wallet/test/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
+    app.add_url_rule('/sandbox/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/sandbox/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandox/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
     global PVK
-    PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+    #PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
     return
 
 
 def test_display_VP_qrcode(mode):
     stream_id = str(uuid.uuid1())
-    url = mode.server + 'wallet/test/VP_presentation/' + stream_id +'?issuer=' + did_selected
+    url = mode.server + 'sandbox/VP_presentation/' + stream_id +'?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-    return render_template('wallet/test/VP_presentation_qr.html',
+    return render_template('VP_presentation_qr.html',
 							url=url,
                             deeplink=deeplink,
 							stream_id=stream_id, 
@@ -101,7 +100,7 @@ def VP_presentation_stream(red):
     return Response(event_stream(red), headers=headers)
 
 
-def test_VP_presentation_display(red):  
+async def test_VP_presentation_display(red):  
     if request.args.get('message') :
         credential = request.args['message']
         nb_credentials = holder = issuers = "Unknown"
@@ -111,13 +110,13 @@ def test_VP_presentation_display(red):
             #red.delete(request.args['stream_id'])
         except :
             return jsonify('server problem')
-        presentation_result = didkit.verifyPresentation(presentation_json, '{}')
+        presentation_result = await didkit.verify_presentation(presentation_json, '{}')
         presentation = json.loads(presentation_json)
         holder = presentation['holder']
         credential_json = "No check done"
         if isinstance(presentation['verifiableCredential'], dict) :
             credential_json = json.dumps(presentation['verifiableCredential'])
-            credential_result = didkit.verifyCredential(credential_json, '{}')
+            credential_result = await didkit.verify_credential(credential_json, '{}')
             nb_credentials = "1"
             issuers = presentation['verifiableCredential']['issuer']
             types = presentation['verifiableCredential']['type'][1]
@@ -152,7 +151,7 @@ def test_VP_presentation_display(red):
        
         <br><b>Credential types : </b>""" + types + """
         <br><br><br>
-         <form action="/wallet/test/display_VP" method="GET" >
+         <form action="/sandbox/display_VP" method="GET" >
                     <button  type"submit" >QR code for Request</button></form>
                     <br>---------------------------------------------------<br>
         

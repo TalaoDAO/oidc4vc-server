@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO)
 from .helpers import ethereum_to_jwk256kr, ethereum_to_jwk256k
 
 
-def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options=None):
+async def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options=None):
     """ sign credential for did:ethr, did:tz, did:web
 
     @did is str
@@ -45,19 +45,19 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
 
     elif method == 'ethr' :
         key = ethereum_to_jwk256kr(pvk)      
-        vm = didkit.keyToVerificationMethod('ethr', key)
+        vm = didkit.key_to_verificationMethod('ethr', key)
 
     elif method == 'tz'  :
         key = ethereum_to_jwk256kr(pvk)
         try :
-            vm = didkit.keyToVerificationMethod('tz', key)
+            vm = didkit.key_to_verificationMethod('tz', key)
         except :
             # to manage didkit 0.2.1 limit tation with tz2
             logging.error('tz2 not supported by didkit 0.2.1')
             return None 
     elif method == 'key' :
         key = ethereum_to_jwk256k(pvk)
-        vm = didkit.keyToVerificationMethod('key', key)
+        vm = didkit.key_to_verificationMethod('key', key)
 
     else :
         logging.error('method not supported by Talao')
@@ -71,21 +71,21 @@ def sign(credential, pvk, did, rsa=None, P256=None, Ed25519=None, didkit_options
     logging.info('sign with key = %s' , key)
     logging.info('sign with vm = %s' , vm)
   
-    signed_credential = didkit.issueCredential(json.dumps(credential,ensure_ascii=False),
+    signed_credential = await didkit.issue_credential(json.dumps(credential,ensure_ascii=False),
                                     didkit_options.__str__().replace("'", '"'),
                                      key)
     # verify credential before leaving
-    result =  json.loads(didkit.verifyCredential(signed_credential, '{}'))
+    result =  json.loads(await didkit.verify_credential(signed_credential, '{}'))
     logging.info('test signature = %s', result)
     return signed_credential
 
-def verify (credential) :
+async def verify (credential) :
     """
     credential  str
     return list
     """
     try :
-        result = didkit.verifyCredential(credential, '{}')
+        result = await didkit.verify_credential(credential, '{}')
     except:
         return "Failed : JSON-LD malformed"
 
