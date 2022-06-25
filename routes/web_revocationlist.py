@@ -7,7 +7,6 @@ from github import Github
 import base64
 import uuid
 import logging
-from flask_babel import Babel, _
 
 logging.basicConfig(level=logging.INFO)
 

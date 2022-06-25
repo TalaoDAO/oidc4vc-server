@@ -4,7 +4,6 @@ from datetime import timedelta
 from components import privatekey
 import uuid
 import logging
-from flask_babel import Babel, _
 from urllib.parse import urlencode
 import didkit
 

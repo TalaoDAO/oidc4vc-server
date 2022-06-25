@@ -6,7 +6,6 @@ from datetime import timedelta
 import uuid
 from urllib.parse import urlencode
 import logging
-from flask_babel import Babel, _
 
 logging.basicConfig(level=logging.INFO)
 
