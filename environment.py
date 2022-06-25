@@ -33,7 +33,7 @@ class currentMode() :
 			logging.error('open keys.json file problem')
 			sys.exit()
 	
-		
+		self.talao_secp256kr = keys['talao_secp256kr']
 		self.talao_P256_private_key = keys['talao_P256_private_key']
 		self.talao_Ed25519_private_key = keys['talao_Ed25519_private_key']
 

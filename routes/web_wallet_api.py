@@ -1,6 +1,5 @@
-from flask import jsonify, request, render_template, Response, render_template_string, redirect
-from flask import session, flash, Response, jsonify
-import requests
+from flask import jsonify, request, render_template, Response, redirect
+from flask import session,Response, jsonify
 import json
 from datetime import timedelta
 import uuid
@@ -14,13 +13,12 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/wallet/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red})
-    app.add_url_rule('/wallet/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red})
-
-    app.add_url_rule('/wallet/test/display_login',  view_func=test_display_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/wallet/test/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    app.add_url_rule('/wallet/test/login_presentation_display',  view_func=test_login_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/wallet/test/login_presentation_stream',  view_func=login_presentation_stream, defaults={ 'red' : red})
+    app.add_url_rule('/sandbox/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red})
+    app.add_url_rule('/sandbox/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red})
+    app.add_url_rule('/sandbox/display_login',  view_func=test_display_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/login_presentation_display',  view_func=test_login_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/login_presentation_stream',  view_func=login_presentation_stream, defaults={ 'red' : red})
     return
 
 
@@ -40,7 +38,7 @@ def wallet_authorize(red) :
             }
     red.set(code, json.dumps(data))
     print("data reçu dans authorization server ", data)
-    return redirect('/wallet/test/display_login?code=' + code)
+    return redirect('/sandbox/display_login?code=' + code)
 
 def wallet_token(red) :
     print(request.headers)
@@ -80,9 +78,9 @@ def test_display_login_qrcode(red, mode):
     pattern['domain'] = mode.server
     red.set(stream_id,  json.dumps(pattern))
     red.set(stream_id + "_code",  request.args['code'])
-    url = mode.server + 'wallet/test/login_presentation/' + stream_id +'?issuer=' + did_selected
+    url = mode.server + 'sandbox/login_presentation/' + stream_id +'?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-    return render_template('wallet/test/login_presentation_qr.html',
+    return render_template('login_presentation_qr.html',
 							url=url,
                             deeplink=deeplink,
 							stream_id=stream_id, 
@@ -165,4 +163,4 @@ def test_login_presentation_display(red):
         session['logged'] = True
         vp = presentation_json
         red.set(code, vp)
-    return redirect ('/wallet/authorize?code=' + code)
+    return redirect ('/sandbox/authorize?code=' + code)

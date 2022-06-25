@@ -43,6 +43,7 @@
       </script>
       <script>
         var source = new EventSource('/sandbox/VP_presentation_stream');
+        console.log(source);
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
         if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){

@@ -25,14 +25,22 @@ pattern = {
             }
 
 
+try :
+    Secp256kr  = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_secp256kr'])
+    P256 = json.dumps(json.load(open("/home/admin/sandox/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
+
+except :
+    Secp256kr  = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_secp256kr'])
+    P256 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_P256_private_key'])
+    Ed25519 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
+
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/VP_presentation/<stream_id>',  view_func=VP_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/VP_presentation_display',  view_func=test_VP_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/sandox/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
-    global PVK
-    #PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+    app.add_url_rule('/sandbox/VP_presentation_stream',  view_func=VP_presentation_stream, defaults={ 'red' : red})
     return
 
 

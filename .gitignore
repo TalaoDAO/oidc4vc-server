@@ -1,12 +1,4 @@
-# fichier a exclure
-
-*.db
-*.csv
-gunicornconf.py
-bootstrap/*
-RSA_key/*
 __pycache__/*
-protocol/__pycache__/*
+routes/__pycache__/*
 keys.json
 passwords.json
-node_modules

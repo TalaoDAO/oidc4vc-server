@@ -39,12 +39,6 @@ DID_TZ2 = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 DID_KEY =  'did:key:zQ3shWBnQgxUBuQB2WGd8iD22eh7nWC4PTjjTjEgYyoC3tjHk'        
 DID_TZ1 = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
-
-try :
-    key_tz1 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
-except :
-    key_tz1 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
-
 did_selected = DID_TZ1
 
 QueryBYExample = {
@@ -62,10 +56,12 @@ QueryBYExample = {
 pattern = QueryBYExample
 
 try :
-    P256 = json.dumps(json.load(open("/home/admin/sandox/keys.json", "r"))['talao_P256_private_key'])
+    Secp256kr  = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_secp256kr'])
+    P256 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_P256_private_key'])
     Ed25519 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 
 except :
+    Secp256kr  = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_secp256kr'])
     P256 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_P256_private_key'])
     Ed25519 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
 
@@ -114,21 +110,15 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox',  view_func=playground, methods = ['GET', 'POST'])
     app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
 
-    global PVK, test_repo, registry_repo
-    #PVK = privatekey.get_key(mode.owner_talao, 'private_key', mode)
+    global test_repo, registry_repo
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
 
-
-
-########################  dev playground ##########################""
 def playground() :
     global status
     return render_template("playground.html")
-
-
 
 
 ######################### Credential Offer ###########
@@ -248,7 +238,7 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
                         <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
                         <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
-                        <option value="did:web:talao.co#key-2">did:web:talao.co#key-2 (RSA)</option>
+                 
                          <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
                         <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
@@ -381,24 +371,22 @@ async def test_credentialOffer_endpoint(id, red):
                 outfile.write(json.dumps(signed_credential, indent=4, ensure_ascii=False))
         else :
             if did_selected == 'did:web:talao.co#key-1' :
-                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co")
-            elif did_selected == 'did:web:talao.co#key-2' :
-                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", rsa=RSA)
+                signed_credential = vc_signature.sign(credential, Secp256kr, "did:web:talao.co") 
             elif did_selected == 'did:web:talao.co#key-3' :
-                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", P256=P256)
+                signed_credential = vc_signature.sign(credential, Secp256kr, "did:web:talao.co", P256=P256)
             elif did_selected == 'did:web:talao.co#key-4' :
-                signed_credential = vc_signature.sign(credential, PVK, "did:web:talao.co", Ed25519=Ed25519)
+                signed_credential = vc_signature.sign(credential, Secp256kr, "did:web:talao.co", Ed25519=Ed25519)
             elif did_selected == DID_TZ1 :
                 didkit_options = {
                     "proofPurpose": "assertionMethod",
-                    "verificationMethod": await didkit.key_to_verification_method('tz', key_tz1)
+                    "verificationMethod": await didkit.key_to_verification_method('tz', Ed25519)
                     }
                 signed_credential =  await didkit.issue_credential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
-                key_tz1)
+                Ed25519)
             else :
-                signed_credential = vc_signature.sign(credential, PVK, credential['issuer'])
+                signed_credential = vc_signature.sign(credential, Secp256kr, credential['issuer'])
         
         # send event to client agent to go forward
         data = json.dumps({
@@ -413,7 +401,7 @@ async def test_credentialOffer_endpoint(id, red):
 
 
 def test_credentialOffer_back():
-    return render_template("redential_offer_back.html")
+    return render_template("credential_offer_back.html")
 
 
 # server event push for user agent EventSource
@@ -478,8 +466,8 @@ def test_presentationRequest_qrcode(red, mode):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
-        url = mode.server + 'wallet/test/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
-        return render_template('wallet/test/credential_presentation_qr.html',
+        url = mode.server + 'sandbox/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
+        return render_template('credential_presentation_qr.html',
 							url=url,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
@@ -577,7 +565,7 @@ def test_presentation_display(red):
         <br>Issuers : """ + issuers + """<br>
         <br>Credential types : """ + types + """
         <br><br><br>
-         <form action="/wallet/test/presentationRequest" method="GET" >
+         <form action="/sandbox/presentationRequest" method="GET" >
                     <button  type"submit" >QR code for Request</button></form>
                     <br>---------------------------------------------------<br>
         <pre class="whitespace-pre-wrap m-auto">""" + credential + """</pre>
