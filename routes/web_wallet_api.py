@@ -1,4 +1,4 @@
-from flask import jsonify, request, render_template, Response, redirect
+from flask import jsonify, request, render_template, Response, redirect, session
 from flask import session,Response, jsonify
 import json
 from datetime import timedelta
@@ -10,35 +10,86 @@ logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
 
+Mode=dict()
+
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
+    app.add_url_rule('/sandbox/console',  view_func=console, methods = ['GET', 'POST'], defaults={"red" : red})
+
     app.add_url_rule('/sandbox/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red})
     app.add_url_rule('/sandbox/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red})
+    app.add_url_rule('/sandbox/logout',  view_func=wallet_logout, methods = ['GET', 'POST'])
+    
     app.add_url_rule('/sandbox/display_login',  view_func=test_display_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    app.add_url_rule('/sandbox/login_presentation_display',  view_func=test_login_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/login_presentation_display',  view_func=login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/login_presentation_stream',  view_func=login_presentation_stream, defaults={ 'red' : red})
+    global Mode
+    Mode=mode
     return
 
 
+def extract_client(Mode):
+    return 'http://'+ Mode.IP +':4000'
+
+def extract_bridge(Mode):
+    return 'http://'+ Mode.IP +':3000'
+
+
+def console(red) :
+    global vc, reason
+    if request.method == 'GET' :
+        if session.get('vc') == "EmailPass" :
+            vc = "Email proof"
+        elif  session.get('vc') == "Kyc" :
+            vc = "KYC"
+        elif  session.get('vc') == "CertificateOfEmployment" :
+            vc = "Certificate of employment"
+        elif  session.get('vc') == "LearningAchievement" :
+            vc = "Diploma"
+        elif  session.get('vc') == "Tez_Voucher_1" :
+            vc = "Voucher Tezotopia 15%"
+        elif  session.get('vc') == "Over18" : 
+            vc = "Over 18 proof"
+        else :
+            vc = "Any"
+        return render_template('console.html',
+                 callback_url=extract_client(Mode) + '/callback',
+                 logout_url=extract_client(Mode) + '/logout',
+                 token=extract_bridge(Mode) + '/sandbox/authorize',
+                 authorization=extract_bridge(Mode) + '/sandbox/token',
+                 website = extract_client(Mode),
+                 vc=vc,
+                 reason=session.get('reason', '')
+                 )
+    if request.method == 'POST' :
+        session['vc'] = request.form['vc']
+        session['reason'] = request.form['reason']
+        session['client_id'] = request.form['client_id']
+        data = {'vc' : session['vc'],
+                'reason' : session['reason']}
+        red.set( session['client_id'], json.dumps(data))
+        return redirect('/sandbox/console')
+
 
 def wallet_authorize(red) :
-    if session.get('logged') :
+    if session.get('is_connected') :
         print('user is connected in OP')
-        code = request.args.get('code', 'vide')
-        return redirect('http://192.168.0.65:4000/callback?code=' + code) 
+        code = request.args.get('code', '')
+        return redirect(extract_client(Mode) + '/callback?code=' + code) 
     code = str(uuid.uuid1())
     print('user is not connected in OP')
-    print("code généré dans authorization server = ", code)
     data = {
             'client_id' : request.args.get('client_id'),
             'scope' : request.args.get('scope'),
-            'redirect_uri' : request.args.get( 'redirect_uri')
+            'redirect_uri' : request.args.get( 'redirect_uri'),
+            'client_data' : json.loads(red.get(request.args.get('client_id')).decode())
             }
     red.set(code, json.dumps(data))
     print("data reçu dans authorization server ", data)
     return redirect('/sandbox/display_login?code=' + code)
+
 
 def wallet_token(red) :
     print(request.headers)
@@ -47,19 +98,46 @@ def wallet_token(red) :
     try :
         vp = red.get(request.form.get('code', "")).decode()
     except :
-        vp =""
+        return redirect (extract_client())
     my_response = {
                     'id_token' : "eyjklhdfmljkhkj8765GLKJGKLHJG9769876LB",
                     "access_token" : "mkljhluhjhmlkhmljkh",
                     "vp" : vp
                 }
-    session['logged'] = False
-    print('user is disconnected in OP') 
     return jsonify(my_response)
 
 
+def wallet_logout() :
+    session.clear()
+    print("logout reçu")
+    return jsonify('logout')
 
-pattern = {
+
+model_pattern = {
+    "type": "VerifiablePresentationRequest",
+    "query": [
+        {
+            "type": "QueryByExample",
+            "credentialQuery": [
+                {
+                    "example" : {
+                        "type" : "EmailPass",
+                    },
+                    "reason": [
+                        {
+                            "@language": "en",
+                            "@value": "Join a resident card and your driver license"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+
+
+model_pattern_any = {
             "type": "VerifiablePresentationRequest",
             "query": [
                 {
@@ -74,6 +152,14 @@ pattern = {
 
 def test_display_login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
+    client_data = json.loads(red.get(request.args['code']).decode())['client_data']
+    if client_data['vc'] == "Any" :
+        pattern = model_pattern_any
+    else :
+        pattern = model_pattern
+        pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = client_data['reason']
+        pattern["query"][0]["credentialQuery"][0]["example"]["type"] = client_data['vc']
+
     pattern['challenge'] = str(uuid.uuid1())
     pattern['domain'] = mode.server
     red.set(stream_id,  json.dumps(pattern))
@@ -84,8 +170,8 @@ def test_display_login_qrcode(red, mode):
 							url=url,
                             deeplink=deeplink,
 							stream_id=stream_id, 
-                            pattern=json.dumps(pattern, indent=4),
-                            simulator="Custom login")
+                            pattern=json.dumps(pattern, indent=4)
+                            )
 
 
 def login_presentation_endpoint(stream_id, red):
@@ -114,9 +200,6 @@ def login_presentation_endpoint(stream_id, red):
         logging.info('Presentation received from wallet is correctly formated')
         if response_domain != domain or response_challenge != challenge :
             logging.warning('challenge or domain failed')
-            #event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
-            #red.publish('credible', event_data)
-            #return jsonify("ko")
         """
         Tout est ok,
         on peut verifier maintenant par exemple que le type du VC est un EmailPass et permettre le login par exemple en utilisant l email comme id du user.
@@ -129,38 +212,35 @@ def login_presentation_endpoint(stream_id, red):
         return jsonify("ok")
 
 
-def login_event_stream(red):
-    pubsub = red.pubsub()
-    pubsub.subscribe('display_login')
-    for message in pubsub.listen():
-        if message['type']=='message':
-            yield 'data: %s\n\n' % message['data'].decode()
-
-
 def login_presentation_stream(red):
+    def login_event_stream(red):
+        pubsub = red.pubsub()
+        pubsub.subscribe('display_login')
+        for message in pubsub.listen():
+            if message['type']=='message':
+                yield 'data: %s\n\n' % message['data'].decode()
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}
     return Response(login_event_stream(red), headers=headers)
 
 
-def test_login_presentation_display(red):  
+def login_followup(red):  
     if request.args.get('message') :
         message = request.args['message']
         print(message)
     else :
         stream_id = request.args['stream_id']
         try :
-            presentation_json = red.get(stream_id).decode()
+            vp = red.get(stream_id).decode()
             code = red.get(stream_id +"_code").decode()
             red.delete(stream_id)
             red.delete(stream_id + "_code")
-            presentation = json.loads(presentation_json)
+            presentation = json.loads(vp)
         except :
             logging.warning('red.get problem')
         holder = presentation['holder']
         print('user is connected in OP ', holder)
-        session['logged'] = True
-        vp = presentation_json
+        session['is_connected'] = True
         red.set(code, vp)
     return redirect ('/sandbox/authorize?code=' + code)

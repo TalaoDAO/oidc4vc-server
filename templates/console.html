@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+     
+      <div id="content">
+        <div class="container-fluid mt-3">
+          <div class="text-center mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-8 offset-lg-2">
+              <div class="row">
+                <div class="col-xl-10 offset-xl-1">
+                  <div class="card shadow mt-5">
+                    <div class="card-header py-3">
+                      <div class="d-flex justify-content-between">
+                        <p class="text-primary m-0 font-weight-bold">OpenID to Web3 Authentication</p>
+                      
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form action="/sandbox/console" method="POST">
+
+                        
+
+                        <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>Client_id</strong></label><input readonly class="form-control" type="text" name="client_id" required="" value='iPSoIWDI4shQ0dEG86ZpSFdj'></div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group"><label><strong>Client_secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value='68R8QzaaTigNcISRHSymdZb9D53YfaM2AOm8HnULg1ILvrIl'></div>
+                          </div> 
+                         
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col">
+                              <div class="form-group"><label><strong>Authorization endpoint</strong></label><input readonly class="form-control" type="text"  value={{authorization}}></div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Token endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{token}}></div>
+                            </div> 
+                           
+                          </div>
+                          <hr>
+                          <div class="form-row">
+                            <div class="col">
+                              <div class="form-group"><label><strong>Company name</strong></label><input class="form-control" type="text" value='MaSociété'></div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Website</strong><br></label><input size="50" class="form-control" type="text"  value={{website}}></div>
+                            </div> 
+                           
+                          </div>
+
+                        <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>Client callback URL</strong><br></label><input class="form-control" name="callback_url" value={{callback_url}}></div>
+                          </div>
+                        
+                      
+                          <div class="col">
+                            <div class="form-group"><label><strong>Client logout URL</strong><br></label><input class="form-control" name="logout_url" value={{logout_url}}></div>
+                          </div>
+                       </div>
+<hr>
+                        <div class="form-row">
+                            <div class="col">
+                                <div class="form-group"><label><strong>Credential</strong></label><select name="vc" value={{vc}} class="form-control">
+                                    <option value={{vc}}>{{vc}}</option>
+                                    <option value="EmailPass">Email proof</option>
+                                    <option value="Kyc">KYC</option>
+                                    <option value="Over18">Over 18 proof</option>
+                                    <option value="LearningAchievement">Diploma</option>
+                                    <option value="CertificateOfEmployment">Certificate of employment</option>
+                                    <option value="Tez_Voucher_1">Voucher Tezotopia 15%</option>
+                                    <option value="Any">Any</option>
+    
+                                  </select></div>
+                            </div>      
+                       
+                          <div class="col">
+                            <div class="form-group"><label><strong>Protocol</strong></label><select name="vc" class="form-control">
+                                <option selected value="altme">W3C Presentation Request</option>
+                                <option value="openid4vp">OpenID for VP</option>
+                                <option value="ebsi">EBSI</option>
+                                <option value="ebsi">Gaia-X</option>
+                                <option value="hyperledger">Hyperledger</option>
+
+                              </select></div>
+                          </div>
+                          </div>
+
+
+                          <div class="form-row">
+                            <div class="col">
+                              <div class="form-group"><label><strong>Authorized emails</strong><br></label><textarea class="form-control" name="emails" >thierry.thevenet@talao.io,thevenet_thierry@yahoo.fr</textarea></div>
+                            </div>
+                         </div>
+
+                          <div class="form-row">
+                            <div class="col">
+                              <div class="form-group"><label><strong>Wallet text</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
+                            </div>
+                         </div>
+
+                          
+
+                        <div class="form-group">
+                          <div class="form-row">
+                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" type="submit">Update</button></div>
+                            <div class="col-xl-3"><a href="/sandbox/console"><button class="btn btn-primary btn-sm" type="button" value="cancel">Back</button></a></div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include 'user_footer.html' %}
+
+      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

@@ -1,13 +1,3 @@
-"""
-initialisation des variables d'environnement
-upload du fichier des private key de Talao, Relay et Talaogen
-initialisation du provider
-construction du registre nameservice
-unlock des addresses du node
-check de geth
-"""
-
-
 import json
 import sys
 import logging
