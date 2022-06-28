@@ -41,26 +41,30 @@ def console(red) :
     global vc, reason
     if request.method == 'GET' :
         if session.get('vc') == "EmailPass" :
-            vc = "Email proof"
+            credential = "Email proof"
         elif  session.get('vc') == "Kyc" :
-            vc = "KYC"
+            credential = "KYC"
+        elif  session.get('vc') == "StudentCard" :
+            credential = "Student card"
         elif  session.get('vc') == "CertificateOfEmployment" :
-            vc = "Certificate of employment"
+            credential = "Certificate of employment"
         elif  session.get('vc') == "LearningAchievement" :
-            vc = "Diploma"
+            credential = "Diploma"
         elif  session.get('vc') == "Tez_Voucher_1" :
-            vc = "Voucher Tezotopia 15%"
+            credential = "Voucher Tezotopia 15%"
         elif  session.get('vc') == "Over18" : 
-            vc = "Over 18 proof"
+            credential = "Over 18 proof"
         else :
-            vc = "Any"
+            credential = "Any"
+        print("credential = ", credential)
         return render_template('console.html',
                  callback_url=extract_client(Mode) + '/callback',
                  logout_url=extract_client(Mode) + '/logout',
                  token=extract_bridge(Mode) + '/sandbox/authorize',
                  authorization=extract_bridge(Mode) + '/sandbox/token',
                  website = extract_client(Mode),
-                 vc=vc,
+                 credential=credential,
+                 vc=session.get('vc',""),
                  reason=session.get('reason', '')
                  )
     if request.method == 'POST' :

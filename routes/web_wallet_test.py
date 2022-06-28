@@ -485,7 +485,7 @@ async def test_presentationRequest_endpoint(stream_id, red):
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
-        await didkit.verify_presentation()
+        #await didkit.verify_presentation()
         presentation = json.loads(request.form['presentation'])
       
         try : 
