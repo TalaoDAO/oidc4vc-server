@@ -32,10 +32,10 @@
 
                         <div class="form-row">
                           <div class="col">
-                            <div class="form-group"><label><strong>Client_id</strong></label><input readonly class="form-control" type="text" name="client_id" required="" value='iPSoIWDI4shQ0dEG86ZpSFdj'></div>
+                            <div class="form-group"><label><strong>Client_id</strong></label><input readonly class="form-control" type="text" name="client_id" required="" value={{client_id}}></div>
                           </div>
                           <div class="col">
-                            <div class="form-group"><label><strong>Client_secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value='68R8QzaaTigNcISRHSymdZb9D53YfaM2AOm8HnULg1ILvrIl'></div>
+                            <div class="form-group"><label><strong>Client_secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
                           </div> 
                          
                         </div>
@@ -52,10 +52,10 @@
                           <hr>
                           <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Company name</strong></label><input class="form-control" type="text" value='MaSociété'></div>
+                              <div class="form-group"><label><strong>Company name</strong></label><input class="form-control" name="company_name" type="text" value={{company_name}}></div>
                             </div>
                             <div class="col">
-                              <div class="form-group"><label><strong>Company website</strong><br></label><input size="50" class="form-control" type="text"  value={{website}}></div>
+                              <div class="form-group"><label><strong>Company website</strong><br></label><input size="50" class="form-control" name ="website"" type="text"  value={{website}}></div>
                             </div> 
                            
                           </div>
@@ -70,40 +70,50 @@
                             <div class="form-group"><label><strong>Client logout URL</strong><br></label><input class="form-control" name="logout_url" value={{logout_url}}></div>
                           </div>
                        </div>
-<hr>
+                    <hr>
                         <div class="form-row">
                             <div class="col">
                                 <div class="form-group"><label><strong>Credential</strong></label><select name="vc" class="form-control">
-                                    <option value={{vc}}>{{credential}}</option>
-                                    <option value="EmailPass">Email proof</option>
-                                    <option value="Kyc">KYC</option>
-                                    <option value="Over18">Over 18 proof</option>
-                                    <option value="LearningAchievement">Diploma</option>
-                                    <option value="StudentCard">Student card</option>
-                                    <option value="CertificateOfEmployment">Certificate of employment</option>
-                                    <option value="Tez_Voucher_1">Voucher Tezotopia 15%</option>
-                                    <option value="Any">Any</option>
-    
+                                  {{vc_select|safe}}  
                                   </select></div>
                             </div>      
                        
                           <div class="col">
-                            <div class="form-group"><label><strong>Ecosystem</strong></label><select name="vc" class="form-control">
-                                <option value="altme">W3C Presentation Request</option>
-                                <option value="altme">DIF WACI</option>
-                                <option value="openid4vp">OpenID for VP</option>
-                                <option selected value="ebsi">EU-EBSI</option>
-                                <option value="ebsi">Gaia-X</option>
-                                <option value="hyperledger">Hyperledger</option>
-
+                            <div class="form-group"><label><strong>Protocol</strong></label><select name="protocol" class="form-control">
+                              {{protocol_select|safe}}  
                               </select></div>
                           </div>
                           </div>
 
+                          <div class="form-row">
+                            <div class="col">
+                              <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                  <input type="checkbox" class="custom-control-input" name="emails_filtering">
+                                  <label class="custom-control-label" for="defaultUnchecked">Emails filtering</label>
+                              </div>
+                               </div>
+                            </div>
+
+                            <div class="col">
+                              <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                  <input type="checkbox" disabled class="custom-control-input" id="defaultUnchecked">
+                                  <label class="custom-control-label" for="defaultUnchecked">to be defined</label>
+                              </div>
+                               </div>
+                            </div>
+
+
+                          </div>
+
+
+
+                        
 
                           <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Authorized emails</strong><br></label><textarea class="form-control" name="emails" >thierry.thevenet@talao.io,thevenet_thierry@yahoo.fr</textarea></div>
+                              <div class="form-group"><label><strong>Authorized emails</strong><br></label><textarea class="form-control" name="authorized_emails" >{{authorized_emails}}</textarea></div>
                             </div>
                          </div>
 
@@ -117,8 +127,10 @@
 
                         <div class="form-group">
                           <div class="form-row">
-                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" type="submit">Update</button></div>
-                            <div class="col-xl-3"><a href="/sandbox/console"><button class="btn btn-primary btn-sm" type="button" value="cancel">Back</button></a></div>
+                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
+                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">New client</button></div>
+                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select client</button></div>
+
                           </div>
                         </div>
                       </form>

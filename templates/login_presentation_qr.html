@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html>
-  <head>{% include 'head.html' %}</head>
+  <head>
+<meta charset="utf-8">
+
+
+<meta name="viewport" content="width=300px, initial-scale=1, maximum-scale=1">
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
+<title>Web3 API server</title>
+<link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+  </head>
   <body>
 
         <div id="content_desktop" class="d-none d-sm-block">
-
-              <div class="text-center">  
+              <div class="text-center" onload=openWin() >  
                 <div id="id_text" class="m-5">
                   <br><br><strong>Scan the QRCode below with your wallet to Sign-In.</strong> 
                 <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url) }}" style="width: 200px;"></div>
@@ -15,8 +22,6 @@
               </div>  
         </div>
         
-       
-
           <div id="content_smartphone" class="d-block d-sm-none">
             <div class="card mt-5">
               <img src="/static/img/image_16.jpeg" class="card-img-top">
@@ -30,13 +35,23 @@
               </div>
           </div> 
           </div>
-          
-
-
-  <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-             
+ 
+
+
+    <script>
+       function ReSizeIt(){
+//window.moveTo(0,0);
+window.resizeTo(300,200)
+}
+window.on_load=ReSizeIt;
+window.onresize=ReSizeIt;
+     
+  
+      </script>
+    
       <script>      
                 function goBack() {  window.history.back();}
       </script>
@@ -44,12 +59,9 @@
         var source = new EventSource('/sandbox/login_presentation_stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
-        if (result.message == 'ok' & result.stream_id == '{{stream_id}}' ){
-          window.location.href='/sandbox/login_presentation_display?stream_id=' + result.stream_id;
+        if (result.stream_id == '{{stream_id}}' ){
+          window.location.href='/sandbox/login_followup?stream_id=' + result.stream_id;
           }
-        if (result.message != 'ok' & result.stream_id == '{{stream_id}}' ) {
-          window.location.href='/wallet/test/login_presentation_display?message=' + result.message ;
-        } 
         };
       </script>
   </body>
