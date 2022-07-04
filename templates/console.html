@@ -15,13 +15,13 @@
             <h3 class="text-dark mb-4">{{name}}</h3>
           </div>
           <div class="row mb-3">
-            <div class="col-lg-8 offset-lg-2">
+            <div class="col-lg-10 offset-lg-1">
               <div class="row">
                 <div class="col-xl-10 offset-xl-1">
                   <div class="card shadow mt-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">OpenID to Web3 Authentication</p>
+                        <p class="text-primary m-0 font-weight-bold">Verifier configuration panel</p>
                       
                       </div>
                     </div>
@@ -31,11 +31,16 @@
                         
 
                         <div class="form-row">
+                            <div class="col">
+                              <div class="form-group"><label><strong>Company name</strong><br></label><textarea class="form-control" name="company_name" >{{company_name}}</textarea></div>
+                            </div>
+                         
+                       
                           <div class="col">
-                            <div class="form-group"><label><strong>Client_id</strong></label><input readonly class="form-control" type="text" name="client_id" required="" value={{client_id}}></div>
+                            <div class="form-group"><label><strong>Verifier id</strong></label><input readonly class="form-control" type="text" name="client_id" required="" value={{client_id}}></div>
                           </div>
                           <div class="col">
-                            <div class="form-group"><label><strong>Client_secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
+                            <div class="form-group"><label><strong>Verifier secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
                           </div> 
                          
                         </div>
@@ -47,79 +52,74 @@
                             <div class="col">
                               <div class="form-group"><label><strong>Token endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{token}}></div>
                             </div> 
-                           
-                          </div>
-                          <hr>
-                          <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Company name</strong></label><input class="form-control" name="company_name" type="text" value={{company_name}}></div>
-                            </div>
-                            <div class="col">
-                              <div class="form-group"><label><strong>Company website</strong><br></label><input size="50" class="form-control" name ="website"" type="text"  value={{website}}></div>
+                              <div class="form-group"><label><strong>Logout endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{logout}}></div>
                             </div> 
                            
                           </div>
 
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group"><label><strong>Client callback URL</strong><br></label><input class="form-control" name="callback_url" value={{callback_url}}></div>
-                          </div>
-                        
-                      
-                          <div class="col">
-                            <div class="form-group"><label><strong>Client logout URL</strong><br></label><input class="form-control" name="logout_url" value={{logout_url}}></div>
-                          </div>
-                       </div>
-                    <hr>
-                        <div class="form-row">
+
+                          <div class="form-row">
                             <div class="col">
-                                <div class="form-group"><label><strong>Credential</strong></label><select name="vc" class="form-control">
+                              <div class="form-group"><label><strong>Verifier secret key</strong><br></label><textarea class="form-control" name="jwk" >{{jwk}}</textarea></div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Verifier DID (Optional)</strong></label><select name="method" class="form-control">
+                                {{did|safe}}  
+                                </select></div>
+                            </div>
+                         </div>
+
+                          <hr>
+                          <div class="form-row">
+                             
+                           
+                            <div class="col">
+                                <div class="form-group"><label><strong>Credential to verify</strong></label><select name="vc" class="form-control">
                                   {{vc_select|safe}}  
                                   </select></div>
                             </div>      
                        
                           <div class="col">
-                            <div class="form-group"><label><strong>Protocol</strong></label><select name="protocol" class="form-control">
+                            <div class="form-group"><label><strong>Verifier protocol</strong></label><select name="protocol" class="form-control">
                               {{protocol_select|safe}}  
                               </select></div>
                           </div>
                           </div>
 
+                         <hr>
+
                           <div class="form-row">
                             <div class="col">
-                              <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                  <input type="checkbox" class="custom-control-input" name="emails_filtering">
-                                  <label class="custom-control-label" for="defaultUnchecked">Emails filtering</label>
-                              </div>
-                               </div>
+
+                            <div class="form-check">
+                             {{emails_filtering|safe}}
+                              <label class="form-check-label" for="flexCheckDefault">
+                                Email filtering
+                              </label>
                             </div>
-
-                            <div class="col">
-                              <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                  <input type="checkbox" disabled class="custom-control-input" id="defaultUnchecked">
-                                  <label class="custom-control-label" for="defaultUnchecked">to be defined</label>
-                              </div>
-                               </div>
-                            </div>
-
-
                           </div>
-
-
-
-                        
-
+                          </div>
+  
                           <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Authorized emails</strong><br></label><textarea class="form-control" name="authorized_emails" >{{authorized_emails}}</textarea></div>
+                              <div class="form-group"><label><strong>Authorized emails list</strong><br></label><textarea class="form-control" name="authorized_emails" >{{authorized_emails}}</textarea></div>
                             </div>
                          </div>
+                         
+                         <hr>
 
-                          <div class="form-row">
+                         <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>Desktop screen message</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
+                          </div>
+                     
+                        <div class="col">
+                          <div class="form-group"><label><strong>Mobile screen message</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
+                        </div>
+                   
                             <div class="col">
-                              <div class="form-group"><label><strong>Wallet message</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
+                              <div class="form-group"><label><strong>In wallet message</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
                             </div>
                          </div>
 
@@ -127,9 +127,12 @@
 
                         <div class="form-group">
                           <div class="form-row">
-                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
-                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">New client</button></div>
-                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select client</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">New verifier</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select verifier</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete verifier</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
+
 
                           </div>
                         </div>

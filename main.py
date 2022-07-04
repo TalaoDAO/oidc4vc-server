@@ -25,7 +25,7 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-from routes import web_wallet_api
+from routes import console, api_verifier
 from routes import  web_wallet_test
 from routes import web_display_VP
 
@@ -60,7 +60,8 @@ def page_abort(e):
 logging.info('start init routes')
 # Centralized @route
 web_wallet_test.init_app(app, red, mode)
-web_wallet_api.init_app(app, red, mode)
+api_verifier.init_app(app, red, mode)
+console.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 logging.info('end init routes')
 
