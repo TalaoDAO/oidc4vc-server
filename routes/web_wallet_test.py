@@ -255,7 +255,7 @@ def test_credentialOffer_qrcode(red, mode) :
                 logging.info("credential mal formaté %s", filename)
                 pass
         html_string = """<html><head>{% include 'head.html' %}</head>
-                        <body> {% include 'simulator_nav_bar.html' %}
+                        <body> {% include 'sandbox_nav_bar.html' %}
                             <div class="m-5">
                                 <br><br>""" + html_string + """
                             </div>

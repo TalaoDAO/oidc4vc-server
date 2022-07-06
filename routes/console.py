@@ -1,10 +1,9 @@
-from flask import  request, render_template, redirect, session, jsonify
+from flask import  request, render_template, redirect, session
 from flask import session,jsonify
 import json
 import logging
 import didkit
 import random
-import socket
 import requests
 import verifier_db_api 
 from urllib.parse import urlencode
@@ -54,6 +53,8 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/sandbox/console',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/console/select',  view_func=select, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/console/advanced',  view_func=advanced, methods = ['GET', 'POST'])
+
     return
 
 
@@ -144,6 +145,64 @@ def console(mode) :
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(verifier_db_api.read_verifier(session['client_id']))
+        vc_select = str()
+        for key, value in credential_list.items() :
+                if key ==   session['client_data']['vc'] :
+                    vc_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    vc_select +=  "<option value=" + key + ">" + value + "</option>"
+
+        print(session['client_data'])
+        return render_template('console.html',
+                client_id= session['client_data']['client_id'],
+                client_secret= session['client_data']['client_secret'],
+                token=mode.server + 'sandbox/authorize',
+                authorization=mode.server + 'sandbox/token',
+                logout=mode.server + 'sandbox/logout',
+                company_name = session['client_data']['company_name'],
+                reason = session['client_data']['reason'],
+                qrcode_message = session['client_data'].get('qrcode_message', ""),
+                mobile_message = session['client_data'].get('mobile_message', ""),
+                vc_select=vc_select,
+                )
+    if request.method == 'POST' :
+        if request.form['button'] == "new" :
+            return redirect('/sandbox/console?client_id=' + verifier_db_api.create_verifier())
+        
+        elif request.form['button'] == "select" :
+            return redirect ('/sandbox/console/select')
+        
+        elif request.form['button'] == "delete" :
+            verifier_db_api.delete_verifier( request.form['client_id'])
+            return redirect ('/sandbox/console')
+
+        elif request.form['button'] == "logout" :
+            session.clear()
+            return redirect ('/sandbox/console')
+
+        elif request.form['button'] == "advanced" :
+            return redirect ('/sandbox/console/advanced')
+        
+        elif request.form['button'] == "update" :
+            session['client_data']['client_id'] =  request.form['client_id']
+            session['client_data']['client_secret'] = request.form['client_secret']
+            session['client_data']['company_name'] = request.form['company_name']
+            session['client_data']['reason'] = request.form.get('reason', "")
+            session['client_data']['vc'] = request.form['vc']
+            session['client_data']['qrcode_message'] = request.form['qrcode_message']
+            session['client_data']['mobile_message'] = request.form['mobile_message']          
+            verifier_db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
+            return redirect('/sandbox/console?client_id=' + request.form['client_id'])
+        else :
+            return redirect('/sandbox/console')
+
+def advanced() :
+    global vc, reason
+    if not session.get('is_connected') :
+        return redirect('/sandbox/console/login')
+    if request.method == 'GET' :
+        session['client_data'] = json.loads(verifier_db_api.read_verifier(session['client_id']))
+        print(session['client_data'])
         protocol_select = vc_select = str()
         did = ""
         for method in ['tz', 'key', 'ethr', 'sol', 'pkh:tz', 'ion'] :
@@ -173,61 +232,27 @@ def console(mode) :
             emails_filtering = """<input class="form-check-input" checked type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
         else :
             emails_filtering = """<input class="form-check-input" type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
-        return render_template('console.html',
-                client_id= session['client_data']['client_id'],
-                client_secret= session['client_data']['client_secret'],
-                token=mode.server + 'sandbox/authorize',
-                authorization=mode.server + 'sandbox/token',
-                logout=mode.server + 'sandbox/logout',
-                jwk = session['client_data'].get('jwk'),
+        return render_template('advanced.html',
+                client_id = session['client_data']['client_id'],
+                jwk = session['client_data']['jwk'],
                 did=did,
-                company_name = session['client_data']['company_name'],
-                reason = session['client_data']['reason'],
                 authorized_emails = session['client_data']['authorized_emails'],
-                protocol = session['client_data'].get('protocol', ""),
-                qrcode_message = session['client_data'].get('qrcode_message', ""),
-                mobile_message = session['client_data'].get('mobile_message', ""),
-                vc_select=vc_select,
+                protocol = session['client_data']['protocol'],
                 emails_filtering=emails_filtering,
                 protocol_select=protocol_select
                 )
     if request.method == 'POST' :
 
-        print("check box = ", request.form.get('emails'))
-
-        if request.form['button'] == "new" :
-            return redirect('/sandbox/console?client_id=' + verifier_db_api.create_verifier())
+        if request.form['button'] == "back" :
+            return redirect ('/sandbox/console?client_id=' + request.form['client_id'] )
         
-        elif request.form['button'] == "select" :
-            return redirect ('/sandbox/console/select')
-        
-        elif request.form['button'] == "delete" :
-            verifier_db_api.delete_verifier( request.form['client_id'])
-            return redirect ('/sandbox/console')
-
-        elif request.form['button'] == "logout" :
-            session.clear()
-            return redirect ('/sandbox/console')
-        
-        elif request.form['button'] in ["update" , "create"] :
-            session['client_data'] = client_data_pattern
-            session['client_data']['client_id'] =  request.form['client_id']
-            session['client_data']['client_secret'] = request.form['client_secret']
-            session['client_data']['company_name'] = request.form['company_name']
+        elif request.form['button'] == "update" :
             session['client_data']['jwk'] = request.form['jwk']
             session['client_data']['method'] = request.form['method']
-            session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['authorized_emails'] = request.form.get('authorized_emails', "")
-            session['client_data']['vc'] = request.form['vc']
             session['client_data']['protocol'] = request.form['protocol']
-            session['client_data']['qrcode_message'] = request.form['qrcode_message']
-            session['client_data']['mobile_message'] = request.form['mobile_message']
             session['client_data']['emails'] = request.form.get('emails')
-
-            if request.form['button'] == "update" :
-                verifier_db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
-                return redirect('/sandbox/console?client_id=' + request.form['client_id'])
-            else :
-                return redirect('/sandbox/console')
-
+            verifier_db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
+            return redirect('/sandbox/console?client_id=' + request.form['client_id'])
+          
 

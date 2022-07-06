@@ -98,7 +98,6 @@ def read_verifier(client_id) :
 # authorization server
 def wallet_authorize(red) :
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
-    print('entree dans authorize')
     
     if session.get('is_connected') :
         logging.info('user is connected in OP')
@@ -121,18 +120,15 @@ def wallet_authorize(red) :
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
     logging.info('user is not connected in OP')
-    code = str(uuid.uuid1())
-    try :
-        json.loads(read_verifier(request.args['client_id']))
-    except :
-        return jsonify('unauthorized'), 401 
-
     try : 
         data = {
             'client_id' : request.args['client_id'],
             'scope' : request.args['scope'],
+            'state' : request.args.get('state'),
+            'response_type' : request.args['response_type'],
             'redirect_uri' : request.args['redirect_uri'],
-            'client_data' : json.loads(read_verifier(request.args['client_id']))
+            'nonce' : request.args.get('nonce'),
+            "expires" : round(datetime.timestamp(datetime.now())) + 1000
         }
     except :
         logging.warning('invalid request')
@@ -142,14 +138,18 @@ def wallet_authorize(red) :
         except :
             return jsonify('request malformed'), 400
 
-    if request.args.get('state') :
-        data['state'] = request.args['state']
-
     if not read_verifier(request.args['client_id']) :
         logging.warning('client_id not found')
         resp = {'error' : 'unauthorized_client'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
+
+    if request.args['response_type'] != "code" :
+        logging.warning('unsupported response type')
+        resp = {'error' : 'unsupported_response_type'}
+        return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
     
+    # creation code
+    code = str(uuid.uuid1())
     red.set(code, json.dumps(data))
     return redirect('/sandbox/login?code=' + code)
    
@@ -162,7 +162,7 @@ async def wallet_token(red) :
         token = base64.b64decode(token).decode()
         client_secret = token.split(":")[1]
         client_id = token.split(":")[0]
-        client_data = json.loads(read_verifier(client_id))
+        verifier_data = json.loads(read_verifier(client_id))
         grant_type =  request.form['grant_type']
         code = request.form['code']
         redirect_uri = request.form['redirect_uri']
@@ -170,10 +170,11 @@ async def wallet_token(red) :
         logging.warning('invalid request')
         return jsonify({"error": "invalid_request"}), 400
     
-    vp = red.get(code + "_vp").decode()
+    vp_token = red.get(code + "_vp").decode()
     data = json.loads(red.get(code).decode())
+    print(data)
     
-    if client_data['client_secret'] != client_secret or client_id != data['client_id'] or redirect_uri != data['redirect_uri']:
+    if verifier_data['client_secret'] != client_secret or client_id != data['client_id'] or redirect_uri != data['redirect_uri']:
         logging.warning('client secret or code or redirect_uri incorrect' )
         return jsonify({"error": "invalid_client"}), 400
     
@@ -181,14 +182,16 @@ async def wallet_token(red) :
         logging.warning('grant type is incorrect')
         return jsonify({"error": "unauthorized_client"}), 400
 
-    DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
-    id_token = await build_id_token(client_id, DID, client_data['jwk'], client_data['method'])
+    DID = json.loads(vp_token)['verifiableCredential']['credentialSubject']['id']
+    id_token = await build_id_token(client_id, DID, verifier_data['jwk'], verifier_data['method'])
     logging.info('id_token and vp_token sent to RP')
-    my_response = {
-                    'id_token' : id_token,
-                    "token_type":"Bearer",
-                    "vp_token" : vp
-                }
+    my_response = {"id_token" : id_token, "vp_token" : vp_token}
+    """
+    if "id_token" in data['response_type'].split() :
+        my_response.update({"id_token" : id_token})
+    if "vp_token" in data['response_type'].split() :
+        my_response.update({"vp_token" : vp_token})
+    """
     red.delete(code)
     red.delete(code + '_vp')
     return jsonify(my_response)
@@ -253,19 +256,21 @@ model_any = {
 
 def login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
-    data = json.loads(red.get(request.args['code']).decode())['client_data']
-    qrcode_message = data.get('qrcode_message', "No message")
-    mobile_message = data.get('mobile_message', "No message")
-    if data['vc'] == "ANY" :
+    client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+    nonce = json.loads(red.get(request.args['code']).decode())['nonce']
+    verifier_data = json.loads(read_verifier(client_id))
+    qrcode_message = verifier_data.get('qrcode_message', "No message")
+    mobile_message = verifier_data.get('mobile_message', "No message")
+    if verifier_data['vc'] == "ANY" :
         pattern = model_any
-    elif data['vc'] == "DID" :
+    elif verifier_data['vc'] == "DID" :
         pattern = model_DIDAuth
     else :
         pattern = model_one
-        pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = data['reason']
-        pattern["query"][0]["credentialQuery"][0]["example"]["type"] = data['vc']
-      
-    pattern['challenge'] = str(uuid.uuid1())
+        pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
+        pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
+    if nonce :
+        pattern['challenge'] = nonce
     pattern['domain'] = mode.server
     data = { "pattern": pattern,"code" : request.args['code'] }
     red.set(stream_id,  json.dumps(data))
@@ -286,8 +291,7 @@ def login_presentation_endpoint(stream_id, red):
     except :
         logging.error('red decode failed')
         red.set(stream_id + '_access',  'ko')
-        event_data = json.dumps({"stream_id" : stream_id})
-        red.publish('credible', event_data)
+        red.publish('login', json.dumps({"stream_id" : stream_id}))
         return jsonify("server error"), 500
 
     if request.method == 'GET':
@@ -302,10 +306,10 @@ def login_presentation_endpoint(stream_id, red):
         # check authorization criteria
         code = json.loads(red.get(stream_id).decode())['code']
         client_id =  json.loads(red.get(code).decode())['client_id']
-        client_data = json.loads(read_verifier(client_id))
+        verifier_data = json.loads(read_verifier(client_id))
         # emails filtering
-        if client_data['emails'] :
-            authorized_emails = client_data['authorized_emails']
+        if verifier_data['emails'] :
+            authorized_emails = verifier_data['authorized_emails']
             authorized_list = [emails.replace(" ", "") for emails in authorized_emails.split(' ')]
             if json.loads(presentation)['verifiableCredential']['credentialSubject']['email'] in authorized_list :
                 red.set(stream_id + '_access',  'ok')

@@ -37,6 +37,8 @@ def create_verifier() :
     key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
     #a = key.export_to_pem(private_key=True, password=b'test')
     data['jwk'] = key.export_private()
+    data['method'] = 'tz'
+    data['protocol'] = "w3cpr"
     conn = sqlite3.connect('api.db')
     c = conn.cursor()
     db_data = { "client_id" : data['client_id'] ,"data" :json.dumps(data)}

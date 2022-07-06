@@ -58,56 +58,16 @@
                            
                           </div>
 
-
-                          <div class="form-row">
-                            <div class="col">
-                              <div class="form-group"><label><strong>Verifier secret key</strong><br></label><textarea class="form-control" name="jwk" >{{jwk}}</textarea></div>
-                            </div>
-                            <div class="col">
-                              <div class="form-group"><label><strong>Verifier DID (Optional)</strong></label><select name="method" class="form-control">
-                                {{did|safe}}  
-                                </select></div>
-                            </div>
-                         </div>
-
-                          <hr>
                           <div class="form-row">
                              
                            
-                            <div class="col">
+                            <div class="col-6">
                                 <div class="form-group"><label><strong>Credential to verify</strong></label><select name="vc" class="form-control">
                                   {{vc_select|safe}}  
                                   </select></div>
                             </div>      
-                       
-                          <div class="col">
-                            <div class="form-group"><label><strong>Verifier protocol</strong></label><select name="protocol" class="form-control">
-                              {{protocol_select|safe}}  
-                              </select></div>
+                                              
                           </div>
-                          </div>
-
-                         <hr>
-
-                          <div class="form-row">
-                            <div class="col">
-
-                            <div class="form-check">
-                             {{emails_filtering|safe}}
-                              <label class="form-check-label" for="flexCheckDefault">
-                                Email filtering
-                              </label>
-                            </div>
-                          </div>
-                          </div>
-  
-                          <div class="form-row">
-                            <div class="col">
-                              <div class="form-group"><label><strong>Authorized emails list</strong><br></label><textarea class="form-control" name="authorized_emails" >{{authorized_emails}}</textarea></div>
-                            </div>
-                         </div>
-                         
-                         <hr>
 
                          <div class="form-row">
                           <div class="col">
@@ -123,14 +83,14 @@
                             </div>
                          </div>
 
-                          
-
                         <div class="form-group">
                           <div class="form-row">
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">New verifier</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select verifier</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete verifier</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced</button></div>
+
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
 
 
