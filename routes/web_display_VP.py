@@ -64,6 +64,7 @@ def VP_presentation_endpoint(stream_id, mode, red):
         red.set(stream_id,  json.dumps(pattern))
         return jsonify(pattern)
     elif request.method == 'POST' :
+        print("wallet POST data = ", request.form)
         try :
             my_pattern = json.loads(red.get(stream_id).decode())
             challenge = my_pattern['challenge']

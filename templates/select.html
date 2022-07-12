@@ -21,23 +21,42 @@
                   <div class="card shadow mt-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">OpenID to Web3 Authentication</p>
+                        <p class="text-primary m-0 font-weight-bold">Verifier list</p>
                       
                       </div>
                     </div>
                     <div class="card-body">
-                      <form action="/sandbox/console/select" method="POST">
+                      <form action="/sandbox/op/console/select" method="POST">
 
                        
-                        <div class="form-row">
+                        <div class="form-row"><!--
+
                             <div class="col">
                                 <div class="form-group"><label><strong>Verifier data</strong></label><select name="client_id" class="form-control">
                                   {{select|safe}}  
                                   </select></div>
-                            </div>      
+                            </div>  -->    
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                              <div style="height:600px;overflow:auto;overflow-x: hidden;"> 
+                              <table class="table my-0" id="dataTable">
+                                  <thead>
+                                      <tr>
+                                          <th style="width: 35%" >Verifier name</th>
+                                          <th style="width: 15%">OIDC client_id</th>
+                                          <th style="width: 35%">OIDC client_secret</th>
+                                          <th style="width: 15%">Credential</th>
+                                         
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{verifier_list|safe}}
+                                  </tbody>
+                              </table>
+                             </div> 
+                          </div>
                        
                         
-                          </div>
+                        </div>
 
                           
 

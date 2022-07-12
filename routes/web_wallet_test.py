@@ -345,6 +345,7 @@ async def test_credentialOffer_endpoint(id, red):
                         
     # wallet POST
     else :
+        print("wallet POST data =", request.form)
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
         try :

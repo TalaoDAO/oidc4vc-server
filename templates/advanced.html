@@ -26,24 +26,11 @@
                       </div>
                     </div>
                     <div class="card-body">
-                      <form action="/sandbox/console/advanced" method="POST">
+                      <form action="/sandbox/op/console/advanced" method="POST">
 
                         
 
                         <input value="{{client_id}}" hidden name="client_id">
-
-
-
-                          <div class="form-row">
-                            <div class="col">
-                              <div class="form-group"><label><strong>Verifier secret key</strong><br></label><textarea class="form-control" name="jwk" >{{jwk}}</textarea></div>
-                            </div>
-                            <div class="col">
-                              <div class="form-group"><label><strong>Verifier DID (Optional)</strong></label><select name="method" class="form-control">
-                                {{did|safe}}  
-                                </select></div>
-                            </div>
-                         </div>
 
                           <div class="form-row">
                                                     
@@ -97,7 +84,6 @@
 
       {% include 'user_footer.html' %}
 
-      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

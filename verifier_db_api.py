@@ -4,19 +4,12 @@ import logging
 import sqlite3
 import random 
 import string
-from jwcrypto import jwk
 
 logging.basicConfig(level=logging.INFO)
-
-
-
-
 
 client_data_pattern = {
                 "client_id" :  "",
                 "client_secret" : "",
-                "jwk" : "",
-                "method" : "",
                 "company_name" : "",
                 "reason" : "",
                 "authorized_emails" : "",
@@ -34,10 +27,6 @@ def create_verifier() :
     letters = string.ascii_lowercase
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['client_secret'] = str(uuid.uuid1())
-    key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
-    #a = key.export_to_pem(private_key=True, password=b'test')
-    data['jwk'] = key.export_private()
-    data['method'] = 'tz'
     data['protocol'] = "w3cpr"
     conn = sqlite3.connect('api.db')
     c = conn.cursor()
