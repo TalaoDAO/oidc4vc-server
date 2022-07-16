@@ -1,0 +1,99 @@
+{
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "https://w3id.org/vc-revocation-list-2020/v1",
+      {
+        "description": "https://schema.org/description",
+        "name": "https://schema.org/name",
+        "ClubMembershipCertificate": {
+          "@id": "https://vocabulary.vc.compell.io/credentials/ClubMembershipCertificate",
+          "@context": {
+            "@version": 1.1,
+            "@protected": true,
+            "schema": "https://schema.org/",
+            "id": "@id",
+            "type": "@type",
+            "member": {
+              "@context": {
+                "@protected": true,
+                "@version": 1.1,
+                "type": "schema:Person",
+                "familyName": "schema:familyName",
+                "givenName": "schema:givenName",
+                "birthDate": "schema:birthDate",
+                "address": "schema:address",
+                "knowsLanguage": "schema:knowsLanguage",
+                "honorificPrefix": "schema:honorificPrefix",
+                "email": "schema:email",
+                "telephone": "schema:telephone"
+              },
+              "@id": "https://vocabulary.vc.compell.io/properties/performance"
+            },
+            "serviceCardNumber": "schema:identifier",
+            "issuedBy": {
+              "@context": {
+                "@protected": true,
+                "@version": 1.1,
+                "logo": {
+                  "@id": "schema:logo",
+                  "@type": "@id"
+                },
+                "name": "schema:name",
+                "address": "schema:address",
+                "type": "schema:Organization",
+                "schema": "https://schema.org/"
+              },
+              "@id": "https://vocabulary.vc.compell.io/properties/issuedBy"
+            }
+          }
+        }
+      }
+    ],
+    "id": "urn:uuid:reg_62999e8977c71",
+    "type": [
+      "VerifiableCredential",
+      "ClubMembershipCertificate"
+    ],
+    "credentialSubject": {
+      "id": "did:ethr:0xd2685e9d997a94257b4d96a969a2fac066206745",
+      "member": {
+        "familyName": "Tzekou",
+        "givenName": "Vivi",
+        "birthDate": "1980-04-17T00:00:00Z",
+        "address": "Achillews 59",
+        "knowsLanguage": "",
+        "honorificPrefix": "Ms",
+        "email": "vivi1704@gmail.com",
+        "telephone": "2741056151"
+      },
+      "serviceCardNumber": "1234567",
+      "issuedBy": {
+        "logo": "https://trustmydata.compell.io/img/logo-compellio.png",
+        "name": "Compellio",
+        "address": "Luxemburg"
+      },
+      "type": "ClubMembershipCertificate"
+    },
+    "issuer": "did:ethr:0xd2685e9d997a94257b4d96a969a2fac066206745",
+    "issuanceDate": "2022-06-03T11:00:00Z",
+    "description": [
+      {
+        "@language": "en",
+        "@value": "This certifies the membership to a club [alt]"
+      }
+    ],
+    "name": [
+      {
+        "@language": "en",
+        "@value": "Club Membership Alt"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "https://cmpl.io/tmd/reg_62999e8977c71",
+        "type": [
+          "DocumentVerification"
+        ]
+      }
+    ]
+  }

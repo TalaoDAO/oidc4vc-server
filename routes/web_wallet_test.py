@@ -188,10 +188,26 @@ def test_direct_offer(red, mode) :
         filename = "./test/credential_manifest/tezotopia_voucher_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
-        #try :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
-        del credentialOffer['display']                                             
+        del credentialOffer['display']       
+
+    elif VC_filename == "compellio_ticket.jsonld" :
+        filename = "./test/credential_manifest/compellio_ticket_cm.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']      
+
+    elif VC_filename == "compellio_club_membership.jsonld" :
+        filename = "./test/credential_manifest/compellio_club_membership_cm.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display'] 
+
     else :
         pass
    

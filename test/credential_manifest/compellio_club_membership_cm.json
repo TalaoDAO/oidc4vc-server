@@ -1,0 +1,146 @@
+{
+    "id": "CLUB_MEMBERSHIP_MANIFEST",
+    "issuer": {
+      "id": "$.issuer",
+      "name": "$.issuedBy.name",
+      "styles": {
+        "thumbnail": {
+          "uri": "$.issuedBy.logo",
+          "alt": "$.issuedBy.name"
+        },
+        "background": {
+          "color": "#ff0000"
+        },
+        "text": {
+          "color": "#d4d400"
+        }
+      }
+    },
+    "output_descriptors": [
+      {
+        "id": "CLUB_MEMBERSHIP_OUTPUT_01",
+        "schema": "ClubMembershipCertificate",
+        "display": {
+          "title": {
+            "path": [
+              "$.name"
+            ],
+            "schema": {
+              "type": "string"
+            },
+            "fallback": "Club Membership Alt"
+          },
+          "description": {
+            "path": [
+              "$.description"
+            ],
+            "schema": {
+              "type": "string"
+            },
+            "fallback": "This certifies the membership to a club [alt]"
+          },
+          "properties": [
+            {
+              "path": [
+                "$.credentialSubject.member.familyName"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown family name",
+              "label": "Family name"
+            },
+            {
+              "path": [
+                "$.credentialSubject.member.givenName"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown given name",
+              "label": "Given name"
+            },
+            {
+              "path": [
+                "$.credentialSubject.member.birthDate"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown birth date",
+              "label": "Birth Date"
+            },
+            {
+              "path": [
+                "$.credentialSubject.member.telephone"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown telephone",
+              "label": "Telephone"
+            },
+            {
+              "path": [
+                "$.credentialSubject.member.email"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown email",
+              "label": "Email"
+            },
+            {
+              "path": [
+                "$.credentialSubject.serviceCardNumber"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown service card number",
+              "label": "Service card number"
+            },
+            {
+              "path": [
+                "$.credentialSubject.issuedBy.name"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown issuer name",
+              "label": "Issuer Name"
+            },
+            {
+              "path": [
+                "$.credentialSubject.issuedBy.address"
+              ],
+              "schema": {
+                "type": "string"
+              },
+              "fallback": "Unknown address",
+              "label": "Issuer Address"
+            }
+          ]
+        },
+        "styles": {
+          "thumbnail": {
+            "uri": "$.issuedBy.logo",
+            "alt": "$.issuedBy.name"
+          },
+          "hero": {
+            "uri": "$.issuedBy.logo",
+            "alt": "$.issuedBy.name"
+          },
+          "background": {
+            "color": "#d9c7b8"
+          },
+          "text": {
+            "color": "#8c7969"
+          }
+        }
+      }
+    ],
+    "presentation_definition": {
+      
+    }
+  }

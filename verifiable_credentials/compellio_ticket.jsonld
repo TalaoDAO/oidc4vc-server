@@ -1,0 +1,129 @@
+{
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "https://w3id.org/vc-revocation-list-2020/v1",
+      {
+        "description": "https://schema.org/description",
+        "name": "https://schema.org/name",
+        "TicketCertificate": {
+          "@id": "https://vocabulary.vc.compell.io/credentials/TicketCertificate",
+          "@context": {
+            "@version": 1.1,
+            "@protected": true,
+            "schema": "https://schema.org/",
+            "id": "@id",
+            "type": "@type",
+            "performance": {
+              "@context": {
+                "@protected": true,
+                "@version": 1.1,
+                "type": "schema:Event",
+                "location": "schema:location",
+                "name": "schema:name",
+                "startDate": "schema:startDate",
+                "doorTime": "schema:doorTime"
+              },
+              "@id": "https://vocabulary.vc.compell.io/properties/performance"
+            },
+            "familyName": "schema:familyName",
+            "givenName": "schema:givenName",
+            "issuedBy": {
+              "@context": {
+                "@protected": true,
+                "@version": 1.1,
+                "logo": {
+                  "@id": "schema:logo",
+                  "@type": "@id"
+                },
+                "name": "schema:name",
+                "address": "schema:address",
+                "telephone": "schema:telephone",
+                "vatID": "schema:vatID",
+                "type": "schema:Organization",
+                "schema": "https://schema.org/"
+              },
+              "@id": "https://vocabulary.vc.compell.io/properties/issuedBy"
+            },
+            "ticketPrice": {
+              "@context": {
+                "@protected": true,
+                "@version": 1.1,
+                "schema": "https://schema.org/",
+                "type": "schema:MonetaryAmount",
+                "currency": "schema:currency",
+                "value": "schema:value"
+              },
+              "@id": "https://vocabulary.vc.compell.io/properties/ticketPrice"
+            },
+            "ticketSeat": {
+              "@context": {
+                "@protected": true,
+                "@version": 1.1,
+                "schema": "https://schema.org/",
+                "type": "schema:Seat",
+                "seatNumber": "schema:seatNumber",
+                "seatRow": "schema:seatRow",
+                "seatSection": "schema:seatSection"
+              },
+              "@id": "https://vocabulary.vc.compell.io/properties/ticketSeat"
+            }
+          }
+        }
+      }
+    ],
+    "id": "urn:uuid:reg_6298949acc73b",
+    "type": [
+      "VerifiableCredential",
+      "TicketCertificate"
+    ],
+    "credentialSubject": {
+      "id": "did:ethr:0xd2685e9d997a94257b4d96a969a2fac066206745",
+      "performance": {
+        "location": "Venue Hall in Boston MA, USA",
+        "name": "Compellio Tour",
+        "startDate": "2022-06-29",
+        "doorTime": "20:00:00Z"
+      },
+      "familyName": "Smith",
+      "givenName": "John",
+      "issuedBy": {
+        "logo": "",
+        "name": "Venue Productions",
+        "address": "238 Blockchain Avenue",
+        "vatID": "55555555",
+        "telephone": "123456789"
+      },
+      "ticketPrice": {
+        "currency": "USD",
+        "value": "50"
+      },
+      "ticketSeat": {
+        "seatNumber": "1A",
+        "seatRow": "",
+        "seatSection": ""
+      },
+      "type": "TicketCertificate"
+    },
+    "issuer": "did:ethr:0xd2685e9d997a94257b4d96a969a2fac066206745",
+    "issuanceDate": "2022-06-01T17:00:00Z",
+    "description": [
+      {
+        "@language": "en",
+        "@value": "This verifies ownership of the ticket -"
+      }
+    ],
+    "name": [
+      {
+        "@language": "en",
+        "@value": "Ticket Certificate -"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "https://cmpl.io/tmd/reg_6298949acc73b",
+        "type": [
+          "DocumentVerification"
+        ]
+      }
+    ]
+  }
