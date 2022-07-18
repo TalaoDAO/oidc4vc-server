@@ -106,7 +106,10 @@ def wallet_authorize(red) :
     if 'error' in request.args :
         logging.warning('error = %s', request.args['error'])
         code = request.args['code']
-        data =  json.loads(red.get(code).decode())
+        try : 
+            data =  json.loads(red.get(code).decode())
+        except :
+            return jsonify('request expired'), 400
         resp = {'error' : request.args['error']}
         if data.get('state') :
             resp['state'] = data['state']
@@ -287,7 +290,12 @@ model_any = {
 
 def login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
-    client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+    try :
+        client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+    except :
+        logging.error("code expired")
+        resp = {'code' : request.args['code'], 'error' : "access_denied"}
+        return redirect ('/sandbox/op/authorize?' + urlencode(resp))
     nonce = json.loads(red.get(request.args['code']).decode())['nonce']
     verifier_data = json.loads(read_verifier(client_id))
     if verifier_data['vc'] == "ANY" :
