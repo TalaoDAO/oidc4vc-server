@@ -30,7 +30,7 @@ from routes import  web_wallet_test
 from routes import web_display_VP
 
 # Server Release
-VERSION = '1.5'
+VERSION = '2.0'
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup

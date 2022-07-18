@@ -12,9 +12,8 @@ import didkit
 from verifier_db_api import read_verifier
 
 logging.basicConfig(level=logging.INFO)
-OFFER_DELAY = timedelta(seconds= 10*60)
-ACCESS_TOKEN_LIVE = 180
-CODE_LIFE = 30
+ACCESS_TOKEN_LIFE = 180
+CODE_LIFE = 180
 
 key = {"kty": "RSA", "kid" : "123", "n": "uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ", "e": "AQAB", "d": "SXFleQ-yqu_pSvuf5dbUyoX72fFvV255_8FsMGVDrWUxCrBR3Kr4Klz4cg1atAQ70JfeWNjtQEN7OVhM7CXh6fxG27JanktUguyNmbXfuqEP3L_5dIXFkoroOiKRH4y5Zbu5yxDbnmvAFHS92se48gMYvX_uXDY2uxn5nSVsthdI7TKyMbe_-sXui-Wg8uFmB3pAxueE2a1koDdMNmZJ9bjTopYrIq8HpgI2U_MRPqNU5lVoUVrGQbVMUaLkQsTXjJZJ-aCs9s7TvMYB164tWjc9MyUadnFR0f8wFdn5yDM6Abn7rYZ8lqq9Jfo_QSbb3jk7OoonZF3GWXWfz8MDhw", "p": "ufPro-NIo1vts5TFHJb0_61-qXV2ks5DctqfrJf3qFo5bsQOO5ICcl8zarso8M6qvbSuymC0QWgDKEAi_f3MBM3p9nHOEJiaS8NL2kDArL9NZXZJwE2a4aVmddEI6uVjgzTXZtXlmrvUJovdFu3XefJ5CIrmHtJuHCBrGcH_Etc", "q": "_a8Bho_BHTOMr86Wq3UXD6IFKZb8Aw6DTYa8Lxn1qw8YYDMOEAExChoTsB8M70sdz4G9UW1pBgfYUbXgs7dsXomoiJKsWtcGrSQYouV3smTw74vl3FsFJpiuovM_bD5txRLnHKsi6P97lVAo-6sJMj4KQyTXy0fOnLEU51AeRvM", "dp": "JKXB5wbAJhHUAvRq9Ht7xXf34oXX3I7yFAyqM2Wv1WoSr5XMCEl6WfgRNhO0ueDBHaoiWJg-bjWFicU6IDyInNnIJl2_ct3gatYOePESB_mb00dAubmRsK7cRpPv4ftbZVxgp0-4dIpYAVDHPeGZ-dqjp99YAvMN6FUrRmRJVPk", "dq": "TDWO18XH1eXulcISMV_zlZauxle9TY3GlDutvNinnMPkJsIvr08sVESRNY-eayS9x-DJ5vRfYJhqu-FPp62quJvSLXUiogeG0ezOGeGlm8oHN29nllMhsP6dOAarPvFiOJn9I_elfSmDDtAN_8zZ7mYE3zbqPP9NanUoOnUvI1E", "qi": "fpEiQo_OODLTehEXsdSh9LGN0G9s9MShWKONc5x1pIZXByLxgs-8cfa9uq2P1D-rajgzxPTfdCko3NJhf2AdT3ipDsDfdizGu8Pcd2TefpTa9Td7pVYym88ZJkK5_oR3a27rWrQLXsCOG1ALYO-Yr0-cPSjRZas6sEaRa81W6m0"}
 
@@ -104,6 +103,7 @@ def wallet_authorize(red) :
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
     if 'error' in request.args :
+        logging.warning('there is an error in the OP')
         logging.warning('error = %s', request.args['error'])
         code = request.args['code']
         try : 
@@ -113,10 +113,7 @@ def wallet_authorize(red) :
         resp = {'error' : request.args['error']}
         if data.get('state') :
             resp['state'] = data['state']
-        try :
-            red.delete(code)
-        except :
-            pass
+        red.delete(code)
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
     logging.info('user is not connected in OP')
@@ -150,7 +147,7 @@ def wallet_authorize(red) :
     
     # creation grant (code)
     code = str(uuid.uuid1())
-    red.setex(code, CODE_LIFE, json.dumps(data))
+    red.set(code, json.dumps(data))
     return redirect('/sandbox/login?code=' + code)
    
 
@@ -202,16 +199,13 @@ async def wallet_token(red, mode) :
     endpoint_response = {"id_token" : id_token,
                         "access_token" : access_token,
                         "token_type" : "Bearer",
-                        "expires_in": ACCESS_TOKEN_LIVE
+                        "expires_in": ACCESS_TOKEN_LIFE
                         }
-    try :
-        red.delete(code)
-    except :
-        pass
+    red.delete(code)
     red.delete(code + '_vp')
-    red.setex(access_token,
-        ACCESS_TOKEN_LIVE,
-        json.dumps({"sub" : DID,"vp_token" : json.loads(vp)}))
+    red.setex(access_token, 
+            ACCESS_TOKEN_LIFE,
+            json.dumps({"sub" : DID,"vp_token" : json.loads(vp)}))
     headers = {
         "Cache-Control" : "no-store",
         "Pragma" : "no-cache",
@@ -290,12 +284,7 @@ model_any = {
 
 def login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
-    try :
-        client_id = json.loads(red.get(request.args['code']).decode())['client_id']
-    except :
-        logging.error("code expired")
-        resp = {'code' : request.args['code'], 'error' : "access_denied"}
-        return redirect ('/sandbox/op/authorize?' + urlencode(resp))
+    client_id = json.loads(red.get(request.args['code']).decode())['client_id']
     nonce = json.loads(red.get(request.args['code']).decode())['nonce']
     verifier_data = json.loads(read_verifier(client_id))
     if verifier_data['vc'] == "ANY" :
@@ -310,7 +299,7 @@ def login_qrcode(red, mode):
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
     data = { "pattern": pattern,"code" : request.args['code'] }
-    red.setex(stream_id,  OFFER_DELAY, json.dumps(data))
+    red.set(stream_id,  json.dumps(data))
     url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
@@ -337,13 +326,7 @@ async def login_presentation_endpoint(stream_id, red):
     
     """
     if request.method == 'GET':
-        try :
-            my_pattern = json.loads(red.get(stream_id).decode())['pattern']
-        except :
-            logging.error('red decode failed, delay expired')
-            red.set(stream_id + '_access',  'access_denied')
-            red.publish('login', json.dumps({"stream_id" : stream_id}))
-            return jsonify("request time out"), 408
+        my_pattern = json.loads(red.get(stream_id).decode())['pattern']
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
@@ -368,13 +351,14 @@ async def login_presentation_endpoint(stream_id, red):
         if verifier_data['emails'] :
             authorized_emails = verifier_data['authorized_emails']
             authorized_list = [emails.replace(" ", "") for emails in authorized_emails.split(' ')]
-            if json.loads(presentation)['verifiableCredential']['credentialSubject']['email'] in authorized_list :
-                red.set(stream_id + '_access',  'ok')
-            else :
+            print("email list = ",authorized_list)
+            if json.loads(presentation)['verifiableCredential']['credentialSubject']['email'] not in authorized_list :
                 red.set(stream_id + '_access',  'access_denied')
+                event_data = json.dumps({"stream_id" : stream_id})           
+                red.publish('login', event_data)
                 return jsonify("access_denied"), 404
-        else :
-            red.set(stream_id + '_access',  'ok')
+        
+        red.set(stream_id + '_access',  'ok')
         red.set(stream_id + '_vp',  request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id})           
         red.publish('login', event_data)
@@ -395,6 +379,7 @@ def login_followup(red):
     red.delete(stream_id + '_vp')
     red.delete(stream_id + '_access')
     red.delete(stream_id)
+    # redirect to authorize server
     return redirect ('/sandbox/op/authorize?' + urlencode(resp))
 
 
