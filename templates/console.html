@@ -18,37 +18,68 @@
             <div class="col-lg-10 offset-lg-1">
               <div class="row">
                 <div class="col-xl-10 offset-xl-1">
-                  <div class="card shadow mt-5">
+                  <form action="/sandbox/op/console" method="POST">
+
+                  <div class="card shadow my-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Verifier configuration panel</p>
+                        <p class="text-primary m-0 font-weight-bold">Generate a verifier for your application</p>
                       
                       </div>
                     </div>
                     <div class="card-body">
-                      <form action="/sandbox/op/console" method="POST">
+                   
 
-                        
+                        <div class="card shadow my-3">
+                          <div class="card-header py-3">
+                            <div class="d-flex justify-content-between">
+                              <p class="text-primary m-0 font-weight-bold">Enter your verifier information</p>
+                            </div>
+                          </div>
+                          <div class="card-body">
 
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Verifier name</strong><br></label><textarea class="form-control" name="company_name" >{{company_name}}</textarea></div>
+                              <div class="form-group"><label><strong>Verifier name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}""  name="company_name" ></div>
                             </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Contact name</strong><br></label><input class="form-control" type ="text" value="{{contact_name}}" name="contact_name" ></div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Contact email</strong><br></label><input class="form-control" type="email" value="{{contact_email}}" name="contact_email" ></div>
+                            </div>
+                        </div>
+
 
                         </div>
+                        </div>
+
+
+
+
+                        <div class="card shadow my-3">
+                          <div class="card-header py-3">
+                            <div class="d-flex justify-content-between">
+                              <p class="text-primary m-0 font-weight-bold">Copy parameters to setup your OpenID client</p>
+                            </div>
+                          </div>
+                          <div class="card-body">
+
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Issuer</strong></label><input readonly class="form-control" type="text" name="issuer" required="" value={{issuer}}></div>
+                              <div class="form-group"><label><strong>Issuer</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
                             </div>
                        
                           <div class="col">
-                            <div class="form-group"><label><strong>client_id</strong></label><input readonly class="form-control" type="text" name="client_id" required="" value={{client_id}}></div>
+                            <div class="form-group"><label><strong>client_id</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
                           </div>
                           <div class="col">
                             <div class="form-group"><label><strong>client_secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
                           </div> 
                          
                         </div>
+
+                        <!--
 
                         <div class="form-row">
                             <div class="col">
@@ -66,50 +97,105 @@
                             <div class="col">
                               <div class="form-group"><label><strong>User info endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{userinfo}}></div>
                             </div> 
-                           
+                          </div>
+                        -->
+                          </div>
                           </div>
 
+                          <div class="card shadow my-3">
+                            <div class="card-header py-3">
+                              <div class="d-flex justify-content-between">
+                                <p class="text-primary m-0 font-weight-bold">Select user requested credentials</p>
+                              </div>
+                            </div>
+                            <div class="card-body">
+
                           <div class="form-row">
-                             
-                           
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential to verify</strong></label><select name="vc" class="form-control">
+                                <div class="form-group"><label><strong>Credential</strong></label><select name="vc" class="form-control">
                                   {{vc_select|safe}}  
                                   </select></div>
                             </div>      
-                                              
                           </div>
 
-                         <div class="form-row">
-                          <div class="col">
-                            <div class="form-group"><label><strong>Desktop screen message</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
+                        
+
                           </div>
+                          </div>
+
+
+                          <div class="card shadow my-3">
+                            <div class="card-header py-3">
+                              <div class="d-flex justify-content-between">
+                                <p class="text-primary m-0 font-weight-bold">Customize your verifier landing page</p>
+                              </div>
+                            </div>
+                            <div class="card-body">
+
+                         <div class="form-row">
+                  
+                            <div class="col">
+                              <div class="form-group"><label><strong>Title QR code page for desktop </strong><br></label><textarea required class="form-control" name="title" >{{title}}</textarea></div>
+                            </div>
+
+                            <div class="col">
+                              <div class="form-group"><label><strong>Subtitle QR code page for desktop</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
+                            </div>
+                         </div>
+
+                         <div class="form-row">
+                          
                      
                         <div class="col">
-                          <div class="form-group"><label><strong>Mobile screen message</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
+                          <div class="form-group"><label><strong>Message for mobile</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
                         </div>
                    
                             <div class="col">
                               <div class="form-group"><label><strong>In wallet message</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
                             </div>
+
+                           
                          </div>
+
+
+                        <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>Landing page URL</strong><br></label><input class="form-control" type="text" value="{{landing_page_url}}""  name="landing_page_url" ></div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group"><label><strong>Privacy URL</strong><br></label><input class="form-control" type ="text" value="{{privacy_url}}" name="privacy_url" ></div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group"><label><strong>Terms & conditions URL</strong><br></label><input class="form-control" type="text" value="{{terms_url}}" name="terms_url" ></div>
+                          </div>
+                      </div>
+
+                        </div>
+                        </div>
 
                         <div class="form-group">
                           <div class="form-row">
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">New verifier</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select verifier</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete verifier</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced</button></div>
+                                <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuraion</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview your verifier</button></div>
 
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
+
 
 
                           </div>
                         </div>
-                      </form>
+                     
                     </div>
                   </div>
+
+                  <div class="form-row">
+                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
+                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select verifier</button></div>
+                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create verifier</button></div>
+                  </div>
+
+                </form>
                 </div>
               </div>
             </div>

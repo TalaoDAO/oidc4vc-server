@@ -21,7 +21,7 @@
                   <div class="card shadow mt-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Verifier list</p>
+                        <p class="text-primary m-0 font-weight-bold">Select a verifier</p>
                       
                       </div>
                     </div>
@@ -29,13 +29,8 @@
                       <form action="/sandbox/op/console/select" method="POST">
 
                        
-                        <div class="form-row"><!--
+                        <div class="form-row">
 
-                            <div class="col">
-                                <div class="form-group"><label><strong>Verifier data</strong></label><select name="client_id" class="form-control">
-                                  {{select|safe}}  
-                                  </select></div>
-                            </div>  -->    
                             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
                               <div style="height:600px;overflow:auto;overflow-x: hidden;"> 
                               <table class="table my-0" id="dataTable">
@@ -58,14 +53,12 @@
                         
                         </div>
 
-                          
-
-                        <div class="form-group">
-                          <div class="form-row">
-                            <div class="col-xl-3"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Display verifier</button></div>
-
+                        <div class="form-row mb-5">
+                          <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
+                          <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create verifier</button></div>
                           </div>
-                        </div>
+
+                        
                       </form>
                     </div>
                   </div>

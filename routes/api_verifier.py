@@ -11,24 +11,13 @@ from jwcrypto import jwk, jwt
 import didkit
 from verifier_db_api import read_verifier
 
-
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
+ACCESS_TOKEN_LIVE = 180
+CODE_LIFE = 30
 
 key = {"kty": "RSA", "kid" : "123", "n": "uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ", "e": "AQAB", "d": "SXFleQ-yqu_pSvuf5dbUyoX72fFvV255_8FsMGVDrWUxCrBR3Kr4Klz4cg1atAQ70JfeWNjtQEN7OVhM7CXh6fxG27JanktUguyNmbXfuqEP3L_5dIXFkoroOiKRH4y5Zbu5yxDbnmvAFHS92se48gMYvX_uXDY2uxn5nSVsthdI7TKyMbe_-sXui-Wg8uFmB3pAxueE2a1koDdMNmZJ9bjTopYrIq8HpgI2U_MRPqNU5lVoUVrGQbVMUaLkQsTXjJZJ-aCs9s7TvMYB164tWjc9MyUadnFR0f8wFdn5yDM6Abn7rYZ8lqq9Jfo_QSbb3jk7OoonZF3GWXWfz8MDhw", "p": "ufPro-NIo1vts5TFHJb0_61-qXV2ks5DctqfrJf3qFo5bsQOO5ICcl8zarso8M6qvbSuymC0QWgDKEAi_f3MBM3p9nHOEJiaS8NL2kDArL9NZXZJwE2a4aVmddEI6uVjgzTXZtXlmrvUJovdFu3XefJ5CIrmHtJuHCBrGcH_Etc", "q": "_a8Bho_BHTOMr86Wq3UXD6IFKZb8Aw6DTYa8Lxn1qw8YYDMOEAExChoTsB8M70sdz4G9UW1pBgfYUbXgs7dsXomoiJKsWtcGrSQYouV3smTw74vl3FsFJpiuovM_bD5txRLnHKsi6P97lVAo-6sJMj4KQyTXy0fOnLEU51AeRvM", "dp": "JKXB5wbAJhHUAvRq9Ht7xXf34oXX3I7yFAyqM2Wv1WoSr5XMCEl6WfgRNhO0ueDBHaoiWJg-bjWFicU6IDyInNnIJl2_ct3gatYOePESB_mb00dAubmRsK7cRpPv4ftbZVxgp0-4dIpYAVDHPeGZ-dqjp99YAvMN6FUrRmRJVPk", "dq": "TDWO18XH1eXulcISMV_zlZauxle9TY3GlDutvNinnMPkJsIvr08sVESRNY-eayS9x-DJ5vRfYJhqu-FPp62quJvSLXUiogeG0ezOGeGlm8oHN29nllMhsP6dOAarPvFiOJn9I_elfSmDDtAN_8zZ7mYE3zbqPP9NanUoOnUvI1E", "qi": "fpEiQo_OODLTehEXsdSh9LGN0G9s9MShWKONc5x1pIZXByLxgs-8cfa9uq2P1D-rajgzxPTfdCko3NJhf2AdT3ipDsDfdizGu8Pcd2TefpTa9Td7pVYym88ZJkK5_oR3a27rWrQLXsCOG1ALYO-Yr0-cPSjRZas6sEaRa81W6m0"}
 
-client_data_pattern = {
-                "client_id" :  "",
-                "client_secret" : "",
-                "company_name" : "",
-                "website" : "",
-                "callback_url" : "",
-                "logout_url" : "",
-                "reason" : "",
-                "authorized_emails" : "",
-                "vc" : "",
-                "protocol" : ""
-                }
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
@@ -69,18 +58,6 @@ async def build_id_token(client_id, sub, nonce, mode) :
     token.make_signed_token(verifier_key)
     return token.serialize()
    
-"""
-def read_verifier(client_id) :
-    conn = sqlite3.connect('api.db')
-    c = conn.cursor()
-    db_data = { 'client_id' : client_id}
-    c.execute('SELECT data FROM client WHERE client_id = :client_id ', db_data)
-    client_data = c.fetchone()
-    conn.close()
-    if not client_data :
-        return None
-    return client_data[0]
-"""
 
 def jwks() :
     key = { "keys" : [
@@ -130,10 +107,13 @@ def wallet_authorize(red) :
         logging.warning('error = %s', request.args['error'])
         code = request.args['code']
         data =  json.loads(red.get(code).decode())
+        resp = {'error' : request.args['error']}
         if data.get('state') :
-            resp = {'error' : request.args['error'], 'state' : data['state']}
-        else :
-            resp = {'error' : request.args['error']}
+            resp['state'] = data['state']
+        try :
+            red.delete(code)
+        except :
+            pass
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
     logging.info('user is not connected in OP')
@@ -145,7 +125,7 @@ def wallet_authorize(red) :
             'response_type' : request.args['response_type'],
             'redirect_uri' : request.args['redirect_uri'],
             'nonce' : request.args.get('nonce'),
-            "expires" : round(datetime.timestamp(datetime.now())) + 1000
+            "expires" : datetime.timestamp(datetime.now()) + CODE_LIFE
         }
     except :
         logging.warning('invalid request')
@@ -165,14 +145,15 @@ def wallet_authorize(red) :
         resp = {'error' : 'unsupported_response_type'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
     
-    # creation code
+    # creation grant (code)
     code = str(uuid.uuid1())
-    red.set(code, json.dumps(data))
+    red.setex(code, CODE_LIFE, json.dumps(data))
     return redirect('/sandbox/login?code=' + code)
    
 
 # token endpoint
 async def wallet_token(red, mode) :
+    #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
     try :
         token = request.headers['Authorization']
         token = token.split(" ")[1]
@@ -188,8 +169,15 @@ async def wallet_token(red, mode) :
         endpoint_response= {"error": "invalid_request"}
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
-   
-    data = json.loads(red.get(code).decode())
+
+    try :
+        data = json.loads(red.get(code).decode())
+    except :
+        logging.warning('code expired' )
+        endpoint_response= {"error": "invalid_grant"}
+        headers = {'Content-Type': 'application/json'}
+        return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
+    
     if verifier_data['client_secret'] != client_secret or client_id != data['client_id'] or redirect_uri != data['redirect_uri']:
         logging.warning('client secret or code or redirect_uri incorrect' )
         endpoint_response= {"error": "invalid_client"}
@@ -198,7 +186,7 @@ async def wallet_token(red, mode) :
     
     if grant_type != 'authorization_code' :
         logging.warning('grant type is incorrect')
-        endpoint_response= {"error": "unauthorzed_client"}
+        endpoint_response= {"error": "unauthorized_client"}
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
     
@@ -211,11 +199,16 @@ async def wallet_token(red, mode) :
     endpoint_response = {"id_token" : id_token,
                         "access_token" : access_token,
                         "token_type" : "Bearer",
-                        "expires_in": 180
+                        "expires_in": ACCESS_TOKEN_LIVE
                         }
-    red.delete(code)
+    try :
+        red.delete(code)
+    except :
+        pass
     red.delete(code + '_vp')
-    red.set(access_token, json.dumps({"sub" : DID, "vp" : json.loads(vp)}))
+    red.setex(access_token,
+        ACCESS_TOKEN_LIVE,
+        json.dumps({"sub" : DID,"vp_token" : json.loads(vp)}))
     headers = {
         "Cache-Control" : "no-store",
         "Pragma" : "no-cache",
@@ -233,8 +226,15 @@ def wallet_logout() :
 # userinfo endpoint
 def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
-    data = json.loads(red.get(access_token).decode())
-    return jsonify(data)
+    try :
+        data = json.loads(red.get(access_token).decode())
+        return jsonify(data)
+    except :
+        logging.warning("access token expired")
+        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "The access token expired"'}
+        return Response(status=401,headers=headers)
+
+
 
 """
 Protocol pour Presentation Request
@@ -268,8 +268,8 @@ model_DIDAuth = {
            "query": [{
                "type": "DIDAuth"
                }],
-           "challenge": "a random uri",
-           "domain" : "talao.co"
+           "challenge": "",
+           "domain" : ""
     }
 
 model_any = {
@@ -290,8 +290,6 @@ def login_qrcode(red, mode):
     client_id = json.loads(red.get(request.args['code']).decode())['client_id']
     nonce = json.loads(red.get(request.args['code']).decode())['nonce']
     verifier_data = json.loads(read_verifier(client_id))
-    qrcode_message = verifier_data.get('qrcode_message', "No message")
-    mobile_message = verifier_data.get('mobile_message', "No message")
     if verifier_data['vc'] == "ANY" :
         pattern = model_any
     elif verifier_data['vc'] == "DID" :
@@ -304,27 +302,40 @@ def login_qrcode(red, mode):
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
     data = { "pattern": pattern,"code" : request.args['code'] }
-    red.set(stream_id,  json.dumps(data))
+    red.setex(stream_id,  OFFER_DELAY, json.dumps(data))
     url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
-    return render_template('login_qrcode.html',
+    deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
+    return render_template('op_verifier_qrcode.html',
 							url=url,
-                            deeplink=deeplink,
+                            deeplink_talao=deeplink_talao,
+                            deeplink_altme=deeplink_altme,
 							stream_id=stream_id,
-                            qrcode_message=qrcode_message,
-                            mobile_message=mobile_message 
+                            qrcode_message=verifier_data.get('qrcode_message'),
+                            mobile_message=verifier_data.get('mobile_message'),
+                            landing_page_url= verifier_data['landing_page_url'],
+                            title=verifier_data['title'],
+                            terms_url= verifier_data.get('terms_url'),
+                            privacy_url=verifier_data.get('privacy_url'),
+                            company_name=verifier_data.get('company_name')
                             )
+    
 
 
 async def login_presentation_endpoint(stream_id, red):
+    """
+    stream_id_access : message d'erreur retourné a l authorization server 
+    stream_id_vp : presentation reçu du wallet
+    
+    """
     if request.method == 'GET':
         try :
             my_pattern = json.loads(red.get(stream_id).decode())['pattern']
         except :
-            logging.error('red decode failed')
-            red.set(stream_id + '_access',  'server_error')
+            logging.error('red decode failed, delay expired')
+            red.set(stream_id + '_access',  'access_denied')
             red.publish('login', json.dumps({"stream_id" : stream_id}))
-            return jsonify("server error"), 500
+            return jsonify("request time out"), 408
         return jsonify(my_pattern)
 
     if request.method == 'POST' :

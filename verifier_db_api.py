@@ -4,22 +4,8 @@ import logging
 import sqlite3
 import random 
 import string
-
+from op_constante import client_data_pattern
 logging.basicConfig(level=logging.INFO)
-
-client_data_pattern = {
-                "client_id" :  "",
-                "client_secret" : "",
-                "company_name" : "",
-                "reason" : "",
-                "authorized_emails" : "",
-                "vc" : "",
-                "protocol" : "",
-                "qrcode_message" : "",
-                "mobile_message" : "",
-                "emails" : None
-                }
-
 
 
 def create_verifier() :
@@ -27,7 +13,6 @@ def create_verifier() :
     letters = string.ascii_lowercase
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['client_secret'] = str(uuid.uuid1())
-    data['protocol'] = "w3cpr"
     conn = sqlite3.connect('api.db')
     c = conn.cursor()
     db_data = { "client_id" : data['client_id'] ,"data" :json.dumps(data)}
