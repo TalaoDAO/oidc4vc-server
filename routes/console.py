@@ -18,7 +18,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/console/login',  view_func=console_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/callback',  view_func=console_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/logout',  view_func=console_logout, methods = ['GET', 'POST'], defaults={'mode' : mode})
-
+    
+    app.add_url_rule('/verifier_generator',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/console/advanced',  view_func=advanced, methods = ['GET', 'POST'])

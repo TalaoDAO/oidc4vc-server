@@ -28,7 +28,7 @@
             "schema": {
               "type": "string"
             },
-            "fallback": "Ticket Certificate -"
+            "fallback": "Ticket Certificate"
           },
           "description": {
             "path": [
@@ -37,7 +37,7 @@
             "schema": {
               "type": "string"
             },
-            "fallback": "This verifies ownership of the ticket -"
+            "fallback": "This verifies ownership of the ticket"
           },
           "properties": [
             {
@@ -202,10 +202,10 @@
             "alt": "$.issuedBy.name"
           },
           "background": {
-            "color": "#b8d4d9"
+            "color": "#233e9b"
           },
           "text": {
-            "color": "#5b858c"
+            "color": "#ffffff"
           }
         }
       }

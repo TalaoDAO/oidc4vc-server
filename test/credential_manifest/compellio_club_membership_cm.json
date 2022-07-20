@@ -28,7 +28,7 @@
             "schema": {
               "type": "string"
             },
-            "fallback": "Club Membership Alt"
+            "fallback": "Club Membership"
           },
           "description": {
             "path": [
@@ -37,7 +37,7 @@
             "schema": {
               "type": "string"
             },
-            "fallback": "This certifies the membership to a club [alt]"
+            "fallback": "This certifies the membership to a club"
           },
           "properties": [
             {
@@ -132,10 +132,10 @@
             "alt": "$.issuedBy.name"
           },
           "background": {
-            "color": "#d9c7b8"
+            "color": "#f55353"
           },
           "text": {
-            "color": "#8c7969"
+            "color": "#ffffff"
           }
         }
       }
