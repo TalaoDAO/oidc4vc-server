@@ -62,7 +62,7 @@ model_any = {
             }
 
 
-client_data_pattern = {
+verifier_client_data_pattern = {
                 "client_id" :  "",
                 "client_secret" : "",
                 "jwk" : "",
@@ -74,10 +74,29 @@ client_data_pattern = {
                 "qrcode_message" : "Sign In with your wallet",
                 "mobile_message" : "Mobile message",
                 "emails" : None,
-                "contact_email" : "",
+                "contact_email" : "contact@altme.io",
                 "contact_name" : "",
-                "landing_page_url" : "",
+                "landing_page_url" : "https://AltMe.io",
                 "privacy_url" : "https://talao.co/md_file?file=privacy",
                 "terms_url" : "https://talao.co/md_file?file=terms_and_conditions", 
                 "title" : "Sign-In"
                 }
+
+
+issuer_client_data_pattern = {
+                "client_id" :  "",
+                "issuer_landing_page" : "",     
+                "company_name" : "New issuer",
+                "reason" : "Text in wallet message",
+                "vc" : "",
+                "protocol" : "w3cpr",
+                "qrcode_message" : "Scvan with your wallet",
+                "mobile_message" : "Mobile message",
+                "contact_email" : "contact@altme.io",
+                "contact_name" : "",
+                "landing_page_url" : "https://AltMe.io",
+                "privacy_url" : "https://talao.co/md_file?file=privacy",
+                "terms_url" : "https://talao.co/md_file?file=terms_and_conditions", 
+                "title" : "Scan"
+                }
+

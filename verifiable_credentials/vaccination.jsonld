@@ -1,0 +1,49 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://w3id.org/vaccination/v1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "VaccinationCertificate"
+  ],
+  "id": "urn:uvci:af5vshde843jf831j128ff",
+  "issuanceDate": "",
+  "expirationDate": "2029-12-03T12:19:52Z",
+  "issuer": "",
+   "name": [
+        {
+            "@language": "en",
+            "@value": "Vaccination certificate"
+        },
+        {
+            "@language": "de",
+            "@value": ""
+        },
+        {
+            "@language": "fr",
+            "@value": "Certificat de vaccination"
+        }
+   ],
+  "credentialSubject": {
+    "type": "VaccinationCertificate",
+    "batchNumber": "",
+    "administeringCentre": "",
+    "healthProfessional": "",
+    "countryOfVaccination": "",
+    "recipient": {
+      "type": "",
+      "givenName": "",
+      "familyName": "",
+      "gender": "",
+      "birthDate": ""
+    },
+    "vaccine": {
+      "type": "",
+      "disease": "",
+      "atcCode": "",
+      "medicinalProductName": "",
+      "marketingAuthorizationHolder": ""
+    }
+  }
+}

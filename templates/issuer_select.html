@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+     
+      <div id="content">
+        <div class="container-fluid mt-3">
+          <div class="text-center mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-8 offset-lg-2">
+              <div class="row">
+                <div class="col">
+                  <div class="card shadow mt-5">
+                    <div class="card-header py-3">
+                      <div class="d-flex justify-content-between">
+                        <p class="text-primary m-0 font-weight-bold">Select an issuer</p>
+                      
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form action="/sandbox/op/issuer/console/select" method="POST">
+
+                       
+                        <div class="form-row">
+
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                              <div style="height:600px;overflow:auto;overflow-x: hidden;"> 
+                              <table class="table my-0" id="dataTable">
+                                  <thead>
+                                      <tr>
+                                          <th style="width: 35%" >Issuer name</th>
+                                          <th style="width: 15%">Issuer_id</th>
+                                          <th style="width: 15%">Credential</th>
+                                         
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{issuer_list|safe}}
+                                  </tbody>
+                              </table>
+                             </div> 
+                          </div>
+                       
+                        
+                        </div>
+
+                        <div class="form-row mb-5">
+                          <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
+                          <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create issuer</button></div>
+                          </div>
+
+                        
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include 'user_footer.html' %}
+
+      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

@@ -1,7 +1,6 @@
 from flask import jsonify, request, render_template, Response, redirect, session, jsonify
 from flask import session,Response, jsonify
 import json
-from datetime import timedelta
 import uuid
 from urllib.parse import urlencode
 import logging
@@ -9,7 +8,8 @@ import base64
 from datetime import datetime
 from jwcrypto import jwk, jwt
 import didkit
-from verifier_db_api import read_verifier
+from db_api import read_verifier
+import op_constante
 
 logging.basicConfig(level=logging.INFO)
 ACCESS_TOKEN_LIFE = 180
@@ -36,7 +36,7 @@ def init_app(app,red, mode) :
     return
 
 
-async def build_id_token(client_id, sub, nonce, mode) :
+def build_id_token(client_id, sub, nonce, mode) :
     verifier_key = jwk.JWK(**key) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
@@ -46,7 +46,6 @@ async def build_id_token(client_id, sub, nonce, mode) :
     }
     payload = {
         "iss" : mode.server +'sandbox/op',
-        "sub" : sub,
         "nonce" : nonce,
         "iat": datetime.timestamp(datetime.now()),
         "aud" : client_id,
@@ -178,8 +177,14 @@ async def wallet_token(red, mode) :
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
     
-    if verifier_data['client_secret'] != client_secret or client_id != data['client_id'] or redirect_uri != data['redirect_uri']:
-        logging.warning('client secret or code or redirect_uri incorrect' )
+    if verifier_data['client_secret'] != client_secret :
+        logging.warning('client secret incorrect' )
+        endpoint_response= {"error": "invalid_client"}
+        headers = {'Content-Type': 'application/json'}
+        return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
+
+    if client_id != data['client_id'] or redirect_uri != data['redirect_uri']:
+        logging.warning('client_id or redirect_uri incorrect' )
         endpoint_response= {"error": "invalid_client"}
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
@@ -193,7 +198,7 @@ async def wallet_token(red, mode) :
     # token response
     vp = red.get(code + "_vp").decode()
     DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
-    id_token = await build_id_token(client_id, DID, data['nonce'], mode)
+    id_token = build_id_token(client_id, DID, data['nonce'], mode)
     logging.info('id_token and vp_token sent to RP')
     access_token = str(uuid.uuid1())
     endpoint_response = {"id_token" : id_token,
@@ -237,62 +242,22 @@ def wallet_userinfo(red) :
 Protocol pour Presentation Request
 """
 
-model_one = {
-            "type": "VerifiablePresentationRequest",
-            "query": [
-                {
-                    "type": "QueryByExample",
-                    "credentialQuery": [{
-                    "example" : {
-                        "type" : "",
-                    },
-                    "reason": [
-                        {
-                            "@language": "en",
-                            "@value": ""
-                        }
-                    ]
-                }]
-                }
-            ],
-            "challenge": "",
-            "domain" : ""
-            }
-
-
-model_DIDAuth = {
-           "type": "VerifiablePresentationRequest",
-           "query": [{
-               "type": "DIDAuth"
-               }],
-           "challenge": "",
-           "domain" : ""
-    }
-
-model_any = {
-            "type": "VerifiablePresentationRequest",
-            "query": [
-                {
-                    "type": "QueryByExample",
-                    "credentialQuery": list()
-                }
-            ],
-            "challenge": "",
-            "domain" : ""
-            }
-
 
 def login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
-    client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+    try :
+        client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+    except :
+        logging.error("session expired in login_qrcode")
+        return jsonify("session expired"), 404
     nonce = json.loads(red.get(request.args['code']).decode())['nonce']
     verifier_data = json.loads(read_verifier(client_id))
     if verifier_data['vc'] == "ANY" :
-        pattern = model_any
+        pattern = op_constante.model_any
     elif verifier_data['vc'] == "DID" :
-        pattern = model_DIDAuth
+        pattern = op_constante.model_DIDAuth
     else :
-        pattern = model_one
+        pattern = op_constante.model_one
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
     if nonce :
@@ -350,9 +315,12 @@ async def login_presentation_endpoint(stream_id, red):
         # emails filtering
         if verifier_data['emails'] :
             authorized_emails = verifier_data['authorized_emails']
+            print(authorized_emails)
             authorized_list = [emails.replace(" ", "") for emails in authorized_emails.split(' ')]
-            print("email list = ",authorized_list)
-            if json.loads(presentation)['verifiableCredential']['credentialSubject']['email'] not in authorized_list :
+            email = json.loads(presentation)['verifiableCredential']['credentialSubject']['email'].lower()
+            print(email)
+            if email not in authorized_list :
+                logging.warning('email not in authorized list')
                 red.set(stream_id + '_access',  'access_denied')
                 event_data = json.dumps({"stream_id" : stream_id})           
                 red.publish('login', event_data)

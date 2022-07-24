@@ -3,7 +3,7 @@ import json
 import logging
 import random
 import requests
-import verifier_db_api 
+import db_api 
 from urllib.parse import urlencode
 import uuid
 from op_constante import credential_list, protocol_list, model_one, model_any, model_DIDAuth
@@ -19,7 +19,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/console/callback',  view_func=console_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/logout',  view_func=console_logout, methods = ['GET', 'POST'], defaults={'mode' : mode})
     
-    app.add_url_rule('/verifier_generator',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/console/advanced',  view_func=advanced, methods = ['GET', 'POST'])
@@ -54,7 +53,7 @@ def console_login(mode) :
 def console_callback(mode):
     if 'error' in request.args :
             session['is_connected'] = False
-            return redirect('/')
+            return redirect('/sandbox')
     
     data = {
         'grant_type': 'authorization_code',
@@ -84,7 +83,7 @@ def select() :
         return redirect('/sandbox/op/console/login')
 
     if request.method == 'GET' :  
-        my_list = verifier_db_api.list_verifier()
+        my_list = db_api.list_verifier()
         verifier_list=str()
         for data in my_list :
             data_dict = json.loads(data)
@@ -98,18 +97,16 @@ def select() :
         return render_template('select.html', verifier_list=verifier_list) 
     else :
         if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + verifier_db_api.create_verifier())
+            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier())
         elif request.form['button'] == "logout" :
             session.clear()
             return redirect ('/sandbox/op/console')
-        #client_id = request.form['client_id']
-        #return redirect ('/sandbox/op/console?client_id=' + client_id)
-
+       
 
 def preview (red, mode) :
     stream_id = str(uuid.uuid1())
     client_id = session['client_data']['client_id']
-    verifier_data = json.loads(verifier_db_api.read_verifier(client_id))
+    verifier_data = json.loads(db_api.read_verifier(client_id))
     qrcode_message = verifier_data.get('qrcode_message', "No message")
     mobile_message = verifier_data.get('mobile_message', "No message")
     if verifier_data['vc'] == "ANY" :
@@ -151,6 +148,7 @@ def preview_presentation_endpoint(stream_id, red):
 
 
 def console(mode) :
+    print("console")
     global vc, reason
     if not session.get('is_connected') :
         return redirect('/sandbox/op/console/login')
@@ -159,7 +157,7 @@ def console(mode) :
             return redirect('/sandbox/op/console/select')
         else  :
             session['client_id'] = request.args.get('client_id')
-        session['client_data'] = json.loads(verifier_db_api.read_verifier(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
         vc_select = str()
         for key, value in credential_list.items() :
                 if key ==   session['client_data']['vc'] :
@@ -167,7 +165,7 @@ def console(mode) :
                 else :
                     vc_select +=  "<option value=" + key + ">" + value + "</option>"
 
-        return render_template('console.html',
+        return render_template('verifier_console.html',
                 title = session['client_data'].get('title'),
                 contact_name = session['client_data'].get('contact_name'),
                 contact_email = session['client_data'].get('contact_email'),
@@ -177,8 +175,8 @@ def console(mode) :
                 issuer = mode.server + "sandblox/op",
                 client_id= session['client_data']['client_id'],
                 client_secret= session['client_data']['client_secret'],
-                token=mode.server + 'sandbox/op/authorize',
-                authorization=mode.server + 'sandbox/op/token',
+                token=mode.server + 'sandbox/op/token',
+                authorization=mode.server + 'sandbox/op/authorize',
                 logout=mode.server + 'sandbox/op/logout',
                 userinfo=mode.server + 'sandbox/op/userinfo',
                 company_name = session['client_data']['company_name'],
@@ -189,13 +187,13 @@ def console(mode) :
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + verifier_db_api.create_verifier())
+            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier())
         
         elif request.form['button'] == "select" :
             return redirect ('/sandbox/op/console/select')
         
         elif request.form['button'] == "delete" :
-            verifier_db_api.delete_verifier( request.form['client_id'])
+            db_api.delete_verifier( request.form['client_id'])
             return redirect ('/sandbox/op/console')
 
         elif request.form['button'] == "logout" :
@@ -219,7 +217,7 @@ def console(mode) :
             session['client_data']['vc'] = request.form['vc']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          
-            verifier_db_api.update_verifier(request.form['client_id'], json.dumps(session['client_data']))
+            db_api.update_verifier(request.form['client_id'], json.dumps(session['client_data']))
             if request.form['button'] == "preview" :
                 return redirect ('/sandbox/op/console/preview')
             return redirect('/sandbox/op/console?client_id=' + request.form['client_id'])
@@ -232,7 +230,7 @@ def advanced() :
     if not session.get('is_connected') :
         return redirect('/sandbox/op/console/login')
     if request.method == 'GET' :
-        session['client_data'] = json.loads(verifier_db_api.read_verifier(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
         protocol_select = vc_select = str()       
         for key, value in credential_list.items() :
                 if key ==   session['client_data']['vc'] :
@@ -265,7 +263,7 @@ def advanced() :
             session['client_data']['authorized_emails'] = request.form.get('authorized_emails', "")
             session['client_data']['protocol'] = request.form['protocol']
             session['client_data']['emails'] = request.form.get('emails')
-            verifier_db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
+            db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
             return redirect('/sandbox/op/console?client_id=' + request.form['client_id'])
           
 
