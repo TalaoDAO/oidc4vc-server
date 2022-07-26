@@ -90,13 +90,13 @@ issuer_client_data_pattern = {
                 "reason" : "Text in wallet message",
                 "vc" : "",
                 "protocol" : "w3cpr",
-                "qrcode_message" : "Scvan with your wallet",
+                "qrcode_message" : "Scan with your wallet",
                 "mobile_message" : "Mobile message",
                 "contact_email" : "contact@altme.io",
                 "contact_name" : "",
                 "landing_page_url" : "https://AltMe.io",
                 "privacy_url" : "https://talao.co/md_file?file=privacy",
                 "terms_url" : "https://talao.co/md_file?file=terms_and_conditions", 
-                "title" : "Scan"
+                "title" : "Scan to issue"
                 }
 

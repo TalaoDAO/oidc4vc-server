@@ -185,7 +185,7 @@ def test_direct_offer(red, mode) :
         del credentialOffer['display']
     
     elif VC_filename == "TezVoucher_1.jsonld" :
-        filename = "./test/credential_manifest/tezotopia_voucher_credential_manifest_" + cm + ".json"
+        filename = "./test/credential_manifest/voucher_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
