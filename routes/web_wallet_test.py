@@ -188,6 +188,7 @@ def test_direct_offer(red, mode) :
         filename = "./test/credential_manifest/voucher_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
+        print('ok', credential_manifest)
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']       
@@ -216,6 +217,7 @@ def test_direct_offer(red, mode) :
     altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
     type = credentialOffer['credentialPreview']['type'][1]
+    
     return render_template('credential_offer_qr_2.html',
                                 url=url,
                                 deeplink=deeplink,
