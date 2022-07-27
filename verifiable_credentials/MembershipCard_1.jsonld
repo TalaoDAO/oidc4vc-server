@@ -137,7 +137,7 @@
                 "blockchainTezos" : "tz1345765476547654",
                 "blockchainEthereum" : "0x1345765476547654"
         },
-        "offers" : [{
+        "offers" : {
             "startDate" : "2022-04-08T19:55:00Z",
             "endDate" : "2022-06-08T19:55:00Z",
             "category" : "membershipcard",
@@ -160,7 +160,7 @@
                     "blockchainAccount" : "tz1iyjrTUNxDpPaqNZ84ipGELAcTWYg66789"
                 }
             }
-        }],
+        },
         "issuedBy": {
             "logo": "ipfs://QmZmdndUVRoxiVhUnjGrKnNPn8ah3jT8fxTCLMnAzRAFFZ",
             "name": "Talao",

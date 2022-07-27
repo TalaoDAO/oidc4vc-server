@@ -153,10 +153,8 @@ def test_direct_offer(red, mode) :
 
     if VC_filename == "TezosAssociatedAddress.jsonld" :
         credential['credentialSubject']['associatedAddress'] = request.args.get('address')
-        print("credential = ", credential)
 
     if VC_filename == "TalaoAssociatedAddress.jsonld" :
-        print(credential['description'][0]['@value'])
         credential['credentialSubject']['associatedAddress'] = request.args.get('talao')
         credential['description'][0]['@value'] = request.args.get('talao')
        
@@ -184,11 +182,18 @@ def test_direct_offer(red, mode) :
         del credentialOffer['shareLink']
         del credentialOffer['display']
     
+    elif VC_filename == "LearningAchievement.jsonld" :
+        filename = "./test/credential_manifest/learningachievement_credential_manifest.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']
+
     elif VC_filename == "TezVoucher_1.jsonld" :
         filename = "./test/credential_manifest/voucher_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
-        print('ok', credential_manifest)
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']       
@@ -363,7 +368,6 @@ async def test_credentialOffer_endpoint(id, red):
                         
     # wallet POST
     else :
-        print("wallet POST data =", request.form)
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
         try :
