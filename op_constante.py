@@ -63,6 +63,7 @@ model_any = {
 
 
 verifier_client_data_pattern = {
+                "user" : "all",
                 "client_id" :  "",
                 "client_secret" : "",
                 "jwk" : "",
@@ -84,6 +85,7 @@ verifier_client_data_pattern = {
 
 
 issuer_client_data_pattern = {
+                "user" : "all",
                 "client_id" :  "",
                 "issuer_landing_page" : "",     
                 "company_name" : "New issuer",
@@ -100,3 +102,22 @@ issuer_client_data_pattern = {
                 "title" : "Scan to issue"
                 }
 
+
+emailpass = {
+        "type" : "EmailPass",
+        "email" : "",
+        "issuedBy" : {
+            "name" : "",
+            "logo" : ""
+        }
+    }
+
+phonepass = {
+        "type" : "PhonePass",
+        "phone" : "",
+        "issuedBy" : {
+            "name" : "",
+            "logo" : ""
+        }
+      
+    }

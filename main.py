@@ -28,9 +28,10 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 from routes import verifier_console, issuer_console, api_verifier, api_issuer
 from routes import  web_wallet_test
 from routes import web_display_VP
+from routes import saas2ssi
 
 # Server Release
-VERSION = '2.1'
+VERSION = "2.5"
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -64,6 +65,7 @@ api_verifier.init_app(app, red, mode)
 api_issuer.init_app(app, red, mode)
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
+saas2ssi.init_app(app, red, mode)
 
 web_display_VP.init_app(app, red, mode)
 logging.info('end init routes')

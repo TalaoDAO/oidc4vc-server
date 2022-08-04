@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!-- saas_verfier.html-->
+<html>
+  <head>
+    {% include 'head.html' %}
+  </head>
+  <body>
+      
+    {% include 'sandbox_nav_bar.html' %}
+
+    <div class="text-center mt-5">
+        <br><br>
+        <h1>Welcome to the verifier generator and bridge</h1>
+        <br><br>
+        <h3>You can add a verifier to your code as an OpenID standard login similar to Facebook or Google Connect (or FranceConnect).</h3>
+        <br>
+        <h3>What you need to do is to install in your code a client OpenID library; it takes no more than 2 hours.</h3>
+        <br>
+        A list of libraries available for different platform is <a href="https://openid.net/developers/certified/">here</a>.
+        <br>An example of python code is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/verifier_app.py ">there</a>.
+
+        <br><br><h3>To activate the bridge you will need the following OpenID parameters :</h3><br>
+        Issuer : <strong>{{issuer}}</strong> <br>
+        client_id : <strong>{{client_id}}</strong> <br>
+        client_secret : <strong>{{client_secret}}</strong>
+        <br><br><br>
+        <h3>How it works ?</h3>
+        <br>For each user you want to get a verifiable credential, you request an OpenID authentication.
+        <br> The bridge will manage a user redirection to a page with a QR code (or a deeplink for mobile browser) allowing the user to present a verifiable credential stored in his wallet. 
+        <br>Your application will receive the user's credential in the form of a json file on the userinfo endpoint.
+        <br> The verification of the signatures of the issuer and the user's wallet is carried out by the bridge, the application can simply access the attributes of the json received securely. 
+        <br>This verifier is initialized to receive any type of credential. You will be able then to update it or to generate several other different verifiers.
+
+
+        <br><br><br>
+        <form action="/sandbox/saas2ssi/verifier" method="POST" >
+                <button class="btn btn-primary" type"submit" >Update your verifier or generate a new one</button>
+        </form>
+   </div>
+
+              <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+              <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+              <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    
+  </body>
+</html>

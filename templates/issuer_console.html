@@ -23,7 +23,7 @@
                   <div class="card shadow my-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Generate an Issuer for your application</p>
+                        <p class="text-primary m-0 font-weight-bold">Generate an Issuer for your application, login : {{login_name}}</p>
                       
                       </div>
                     </div>
@@ -60,7 +60,7 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Copy parameters to setup your Ressource server</p>
+                              <p class="text-primary m-0 font-weight-bold">Copy parameters to setup your server</p>
                             </div>
                           </div>
                           <div class="card-body">
@@ -110,18 +110,37 @@
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
                               <div class="d-flex justify-content-between">
-                                <p class="text-primary m-0 font-weight-bold">Select user requested credentials</p>
+                                <p class="text-primary m-0 font-weight-bold">Application parameters</p>
                               </div>
                             </div>
                             <div class="card-body">
 
                           <div class="form-row">
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential</strong></label><select name="vc" class="form-control">
+                                <div class="form-group"><label><strong>Credential requested for issuance</strong></label><select name="vc" class="form-control">
                                   {{vc_select|safe}}  
                                   </select></div>
-                            </div>      
+                            </div>   
+                            
+                            <div class="col-6">
+                              <div class="form-group"><label><strong>Webhook URL</strong><br></label><input class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
+                            </div> 
+
                           </div>
+
+                          <div class="form-row">
+                            <div class="col-6">
+                                <div class="form-group"><label><strong>Credential to issue</strong></label><select onchange="getResponse();" id="selectCredential" name="issuance" class="form-control">
+                                  {{vc_select|safe}}  
+                                  </select></div>
+                            </div>   
+                            
+                            <div class="col-6">
+                              <div class="form-group"><label><strong>Data to send back</strong><br></label><textarea class="form-control" name="" id="" cols="30" rows="10" type="text" value="{{credentialSubject}}" name="credentialSubject" ></textarea></div>
+                            </div> 
+
+                          </div>
+
 
                         
 
@@ -215,6 +234,25 @@
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+<script>
+  var response1 = "{{phonepass}}";
+  var response2 = "{{emailpass}}";
+  
+  function getResponse() {
+    var selected = document.getElementById("selectCredential").value;
+    console.log(selected);
+    if (selected == "EmailPass"){
+      console.log(response2);
+    }
+      else {
+        console.log("rien")
+    }
+
+    }
+    
+  
+  </script>
 </body>
 
 </html>

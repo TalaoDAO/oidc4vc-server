@@ -7,8 +7,8 @@ import string
 from op_constante import issuer_client_data_pattern, verifier_client_data_pattern
 logging.basicConfig(level=logging.INFO)
 
-def create_verifier(mode) :
-    return create('verifier.db', mode)
+def create_verifier(mode, user=None) :
+    return create('verifier.db', user, mode)
 def update_verifier(client_id, data) :
     return update(client_id, data, 'verifier.db')
 def read_verifier(client_id) :
@@ -17,8 +17,8 @@ def list_verifier() :
     return list('verifier.db')
 def delete_verifier(client_id) :
     return delete(client_id, 'verifier.db')
-def create_issuer(mode) :
-    return create('issuer.db', mode)
+def create_issuer(mode, user=None) :
+    return create('issuer.db', user, mode)
 def update_issuer(client_id, data) :
     return update(client_id, data, 'issuer.db')
 def read_issuer(client_id) :
@@ -29,7 +29,7 @@ def delete_issuer(client_id) :
     return delete(client_id, 'issuer.db')
 
 
-def create(db, mode) :
+def create(db, user, mode) :
     letters = string.ascii_lowercase
     if db == 'issuer.db' :
         data = issuer_client_data_pattern     
@@ -39,6 +39,8 @@ def create(db, mode) :
         data = verifier_client_data_pattern
         data['client_id'] = ''.join(random.choice(letters) for i in range(10))
         data['client_secret'] = str(uuid.uuid1())
+    if user :
+        data['user'] = user
     conn = sqlite3.connect(db)
     c = conn.cursor()
     db_data = { "client_id" : data['client_id'] ,"data" :json.dumps(data)}

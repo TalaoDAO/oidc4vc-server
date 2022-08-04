@@ -6,7 +6,7 @@ import requests
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_list, protocol_list
+from op_constante import credential_list, protocol_list, emailpass, phonepass
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,8 +16,6 @@ public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/issuer/console/login',  view_func=issuer_console_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/issuer/console/callback',  view_func=issuer_console_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'], defaults={'mode' : mode})
     
     app.add_url_rule('/sandbox/op/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -29,57 +27,19 @@ def init_app(app,red, mode) :
     return
 
 
-# parameters provided by platform
-client_id = 'omwfxyojto'
-client_secret = 'c74a61c2-0aad-11ed-9d6f-9b0deb2319ac'
-
-
-# website homepage / authentication
-def issuer_console_login(mode) :
-    if not session.get('is_connected') :
-        data = {
-                'response_type': 'code',
-                'client_id': client_id,
-                'state': str(random.randint(0, 99999)),
-                'nonce' :  str(random.randint(10000, 999999)), 
-                'redirect_uri': mode.server + 'sandbox/op/issuer/console/callback',
-                'scope': 'openid'    }
-        session['data'] = data
-        return redirect('/sandbox/op/authorize?' + urlencode(data))
-    else  :
-        return redirect('/sandbox/op/issuer/console')
-    
-
-# authentication
-def issuer_console_callback(mode):
-    if 'error' in request.args :
-            session['is_connected'] = False
-            return redirect('/')
-    
-    data = {
-        'grant_type': 'authorization_code',
-        'redirect_uri': mode.server + 'sandbox/op/issuer/console/callback',
-        'code': request.args['code']
-    }
-    response = requests.post(mode.server + 'sandbox/op/token', data=data, auth=(client_id, client_secret))
-
-    if response.status_code == 200:
-        session['is_connected'] = True
-    else :
-        session['is_connected'] = False
-    return redirect('/sandbox/op/issuer/console')
+   
       
 # authentication
 def issuer_console_logout(mode):
     if not session.get('is_connected') :
         return redirect('sandbox/op/issuer/console/login')
     session.clear()
-    response = requests.post(mode.server + 'sandbox/logout', data="")
     return redirect('/sandbox/op/issuer/console')
 
 
 def issuer_select(mode) :
-    if not session.get('is_connected') :
+    print('login name = ', session['login_name'])
+    if not session.get('is_connected') :  
         return redirect('/sandbox/op/issuer/console/login')
 
     if request.method == 'GET' :  
@@ -87,19 +47,23 @@ def issuer_select(mode) :
         issuer_list=str()
         for data in my_list :
             data_dict = json.loads(data)
-            issuer = """<tr>
-                <td>""" + data_dict['company_name'] + """</td>
-                <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
-                <td>""" + data_dict['vc'] + """</td>
-                </tr>"""
-            issuer_list += issuer     
-        return render_template('issuer_select.html', issuer_list=issuer_list) 
+            if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
+                issuer = """<tr>
+                    <td>""" + data_dict['company_name'] + """</td>
+                     <td>""" + data_dict['user'] + """</td>
+                    <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
+                    <td>""" + data_dict['vc'] + """</td>
+                    </tr>"""
+                issuer_list += issuer
+            else :
+                pass     
+        return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
             return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode))
         elif request.form['button'] == "logout" :
             session.clear()
-            return redirect ('/sandbox/op/issuer/console')
+            return redirect ('/sandbox/saas2ssi')
        
 
 
@@ -157,6 +121,8 @@ def issuer_console(mode) :
 
         return render_template('issuer_console.html',
                 public_key=public_key,
+                login_name=session['login_name'],
+                user=session['client_data']['user'], 
                 issuer_landing_page = session['client_data']['issuer_landing_page'],
                 title = session['client_data'].get('title'),
                 contact_name = session['client_data'].get('contact_name'),
@@ -170,6 +136,8 @@ def issuer_console(mode) :
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 vc_select=vc_select,
+                phonepass=phonepass,
+                emailpass=emailpass
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
@@ -184,7 +152,7 @@ def issuer_console(mode) :
 
         elif request.form['button'] == "logout" :
             session.clear()
-            return redirect ('/sandbox/op/issuer/console')
+            return redirect ('/sandbox/saas2ssi')
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/issuer/console/advanced')

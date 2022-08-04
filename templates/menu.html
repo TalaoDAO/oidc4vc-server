@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!-- menu.html-->
+<html>
+  <head>
+    {% include 'head.html' %}
+  </head>
+  <body>
+      
+    {% include 'sandbox_nav_bar.html' %}
+
+    <div class="text-center mt-5">
+        <br><br><br>
+        <h2>Choose between an Issuer or a Verifier</h2>
+        <br><br><br>
+
+        <div class="row my-5">
+            <div class="col mt-4">
+                <div id="id_qrcode" class="text-center">
+                    <a href="/sandbox/saas2ssi/verifier"><img  src="/static/img/12.png"  style="width: 350px;border-radius:0px;"></a>
+                    <br><strong>Enter the verifier generator</strong>
+                </div> 
+            </div>
+
+            <div class="col mt-4">
+                <div id="id_qrcode" class="text-center">
+                    <a href="/sandbox/saas2ssi/issuer"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                    <br><strong>Enter the issuer generator</strong>
+                </div> 
+            </div>
+
+        </div>
+       
+   </div>
+
+              <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+              <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+              <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    
+  </body>
+</html>

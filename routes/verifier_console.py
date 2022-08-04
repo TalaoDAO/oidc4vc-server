@@ -15,58 +15,15 @@ logging.basicConfig(level=logging.INFO)
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/console/login',  view_func=console_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/console/callback',  view_func=console_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/logout',  view_func=console_logout, methods = ['GET', 'POST'], defaults={'mode' : mode})
     
     app.add_url_rule('/sandbox/op/console',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/advanced',  view_func=advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/console/preview',  view_func=preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
     app.add_url_rule('/sandbox/preview_presentation/<stream_id>',  view_func=preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
 
     return
-
-
-# parameters provided by platform
-client_id = 'gajjfwdbhy'
-client_secret = 'a86c8a1e-fb80-11ec-ad02-db56768956ef'
-
-
-# website homepage
-def console_login(mode) :
-    if not session.get('is_connected') :
-        data = {
-                'response_type': 'code',
-                'client_id': client_id,
-                'state': str(random.randint(0, 99999)),
-                'nonce' :  str(random.randint(10000, 999999)), 
-                'redirect_uri': mode.server + 'sandbox/op/console/callback',
-                'scope': 'openid'    }
-        session['data'] = data
-        return redirect('/sandbox/op/authorize?' + urlencode(data))
-    else  :
-        return redirect('/sandbox/op/console')
-    
-
-
-def console_callback(mode):
-    if 'error' in request.args :
-            session['is_connected'] = False
-            return redirect('/sandbox')
-    
-    data = {
-        'grant_type': 'authorization_code',
-        'redirect_uri': mode.server + 'sandbox/op/console/callback',
-        'code': request.args['code']
-    }
-    response = requests.post(mode.server + 'sandbox/op/token', data=data, auth=(client_id, client_secret))
-
-    if response.status_code == 200:
-        session['is_connected'] = True
-    else :
-        session['is_connected'] = False
-    return redirect('/sandbox/op/console')
       
 
 
@@ -74,11 +31,10 @@ def console_logout(mode):
     if not session.get('is_connected') :
         return redirect('sandbox/op/console/login')
     session.clear()
-    response = requests.post(mode.server + 'sandbox/logout', data="")
     return redirect('/sandbox/op/console')
 
 
-def select() :
+def select(mode) :
     if not session.get('is_connected') :
         return redirect('/sandbox/op/console/login')
 
@@ -87,20 +43,25 @@ def select() :
         verifier_list=str()
         for data in my_list :
             data_dict = json.loads(data)
-            verifier = """<tr>
-                <td>""" + data_dict['company_name'] + """</td>
-                <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
-                <td>""" + data_dict['client_secret'] + """</td>
-                <td>""" + data_dict['vc'] + """</td>
-                </tr>"""
-            verifier_list += verifier     
-        return render_template('select.html', verifier_list=verifier_list) 
+            if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
+                verifier = """<tr>
+                    <td>""" + data_dict['company_name'] + """</td>
+                     <td>""" + data_dict['user'] + """</td>
+                    <td>""" + mode.server + "sandblox/op" + """</td>
+                    <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
+                    <td>""" + data_dict['client_secret'] + """</td>
+                    <td>""" + data_dict['vc'] + """</td>
+                    </tr>"""
+                verifier_list += verifier
+            else :
+                pass     
+        return render_template('select.html', verifier_list=verifier_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier())
+            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
         elif request.form['button'] == "logout" :
             session.clear()
-            return redirect ('/sandbox/op/console')
+            return redirect ('/sandbox/saas2ssi')
        
 
 def preview (red, mode) :
@@ -148,13 +109,12 @@ def preview_presentation_endpoint(stream_id, red):
 
 
 def console(mode) :
-    print("console")
     global vc, reason
     if not session.get('is_connected') :
         return redirect('/sandbox/op/console/login')
     if request.method == 'GET' :
         if not request.args.get('client_id') :
-            return redirect('/sandbox/op/console/select')
+            return redirect('/sandbox/op/console/select?user='+ session.get('login_name'))
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
@@ -183,14 +143,16 @@ def console(mode) :
                 reason = session['client_data']['reason'],
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
+                user_name=session['client_data'].get('user'),
                 vc_select=vc_select,
+                login_name=session['login_name']
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier())
+            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(user=session['login_name']))
         
         elif request.form['button'] == "select" :
-            return redirect ('/sandbox/op/console/select')
+            return redirect ('/sandbox/op/console/select?user=' + session['login_name'])
         
         elif request.form['button'] == "delete" :
             db_api.delete_verifier( request.form['client_id'])
@@ -198,7 +160,7 @@ def console(mode) :
 
         elif request.form['button'] == "logout" :
             session.clear()
-            return redirect ('/sandbox/op/console')
+            return redirect ('/sandbox/saas2ssi')
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')

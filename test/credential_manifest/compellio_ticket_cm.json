@@ -74,7 +74,8 @@
                 "$.credentialSubject.performance.startDate"
               ],
               "schema": {
-                "type": "string"
+                "type": "string",
+                "format" : "date"
               },
               "fallback": "Unknown date",
               "label": "Date"
@@ -84,7 +85,8 @@
                 "$.credentialSubject.performance.doorTime"
               ],
               "schema": {
-                "type": "string"
+                "type": "string",
+                "format" : "time"
               },
               "fallback": "Unknown door opening time",
               "label": "Doors open at"
