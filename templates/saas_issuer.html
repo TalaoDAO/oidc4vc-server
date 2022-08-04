@@ -10,25 +10,26 @@
 
     <div class="text-center mt-5">
         <br><br>
-        <h1>Welcome to the issuer generator and bridge</h1>
+        <h1>Welcome to the issuer configurator and generator.</h1>
         <br><br>
         <h3>You can add an issuer to your code as a webhook.</h3>
         <br>
-        <h3>What you need to do is to install in your code a webhook and redirect your user to an URL It takes no more than 2 hours.</h3>
-        <br>
-
-        <br><br><h3>To activate the bridge you will need the following link : {{link}}</h3><br>
+        <h3>What you need to do is to install in your code a webhook and a callback endpoint and then redirect your user to a QR code page.
+          <br> It takes no more than 2 hours and 50 lines of code.</h3>
       
-        <br><br><br>
+        <br>
         <h3>How it works ?</h3>
-        <br>When the user scans the QR code, the third-party application receives a call on the “credential” webhook with the user's credentials in the form of a json web token.
-        <br> The application produces the attestation and the transfer in response to the API. Talao's back end signs the certificate and transfers it to the user's wallet. 
-        <br>The credential is stored on the wallet. 
+        <br>When you want the user to collect her credential you redirect her browser to the landing page provided by the platform so she can scan a QR code (or activate a deeplink).
+        <br>Then your application receives a call on its webhook endpoint with eventually a requested credential in the form of a json web token.
+        <br>Your application prepares the credential json data to issue and transfers it in response to the webhook call. The platform signs the credential and transfers it to the user's wallet. 
+        <br>If the transfer is sccessful the user is redirected to your application callback endpoint.
+        <br>The credential is then accepted or rejected by the user and stored in the wallet. 
 
+        <br><br>An example of python code is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/issuer_app.py ">here</a>.
 
         <br><br><br>
-        <form action="/sandbox/saas2ssi/issuer" method="POST" >
-                <button class="btn btn-primary" type"submit" >Update your issuer or generate a new one</button>
+        <form action="/sandbox/saas4ssi/issuer" method="POST" >
+                <button class="btn btn-primary" type"submit" >Configure your issuer or generate a new one</button>
         </form>
    </div>
 

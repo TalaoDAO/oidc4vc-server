@@ -10,7 +10,18 @@
   <body>
 
         <div id="content_desktop" class="d-none d-sm-block mt-5">
+          <div class="text-center">
+            <h1>{{page_title}}</h1><br>
+            <h3>{{page_subtitle}}</h3><br>
+            <div class="row">
+              <div class="col-6 offset-3">
+                <h5>{{page_description}}</h5>
+              </div>
+            </div>
+
+          </div>  
             <div class="row d-flex justify-content-center">
+             
             <div class="col-2">
               <div class="text-center">
               <div class="card shadow border-dark mt-5" >
@@ -69,7 +80,7 @@
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
         if (result.stream_id == '{{stream_id}}' ){
-          window.location.href='/sandbox/op/issuer_followup?stream_id=' + result.stream_id;
+          window.location.href='/sandbox/op/issuer_followup?issuer_id=' + '{{issuer_id}}';
           }
         };
       </script>

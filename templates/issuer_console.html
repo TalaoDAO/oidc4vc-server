@@ -23,7 +23,7 @@
                   <div class="card shadow my-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Generate an Issuer for your application, login : {{login_name}}</p>
+                        <p class="text-primary m-0 font-weight-bold">Generate an Issuer for your application, your login name is {{login_name}}</p>
                       
                       </div>
                     </div>
@@ -33,21 +33,37 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Enter your Issuer information</p>
+                              <p class="text-primary m-0 font-weight-bold">Enter your application and issuer information</p>
                             </div>
                           </div>
                           <div class="card-body">
 
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Issuer name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}""  name="company_name" ></div>
+                              <div class="form-group"><label><strong>Application or issuer name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}""  name="company_name" ></div>
                             </div>
+                            <div class="col">
+                              {% if session['login_name'] != session['client_data']['user'] and  session['login_name'] != "admin1234" %}
+                              <div class="form-group"><label><strong>User</strong><br></label><input readonly class="form-control" type ="text" value="{{user}}" name="user" ></div>
+                              {% else %}
+                              <div class="form-group"><label><strong>User</strong><br></label><input class="form-control" type ="text" value="{{user}}" name="user" ></div>
+                              {% endif %}
+                            </div>
+                        
+                        </div> 
+                        <div class="form-row">
                             <div class="col">
                               <div class="form-group"><label><strong>Contact name</strong><br></label><input class="form-control" type ="text" value="{{contact_name}}" name="contact_name" ></div>
                             </div>
                             <div class="col">
                               <div class="form-group"><label><strong>Contact email</strong><br></label><input class="form-control" type="email" value="{{contact_email}}" name="contact_email" ></div>
                             </div>
+                        </div>
+
+                        <div class="form-row">           
+                          <div class="col">
+                            <div class="form-group"><label><strong>Note</strong><br></label><textarea class="form-control" name="note" >{{note}}</textarea></div>
+                          </div>
                         </div>
 
 
@@ -60,89 +76,60 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Copy parameters to setup your server</p>
+                              <p class="text-primary m-0 font-weight-bold">Your application configuration and data</p>
                             </div>
                           </div>
                           <div class="card-body">
 
                         <div class="form-row">
                           <div class="col">
-                            <div class="form-group"><label><strong>Issuer landing page URL</strong></label><input readonly class="form-control" type="text" value={{issuer_landing_page}}></div>
+                            <div class="form-group"><label><strong>Issuer landing page to redirect your user</strong></label><input readonly class="form-control" type="text" value={{issuer_landing_page}}></div>
                           </div>
 
                           <div class="col" hidden>
                             <div class="form-group"><label><strong>Issuer Id</strong></label><input readonly class="form-control" name="client_id" type="text" value={{client_id}}></div>
                           </div>
+                        </div>
+
+                        <div class="form-row">
+                          <div class="col" >
+                            <div class="form-group"><label><strong>Callback URL of your application</strong></label><input required class="form-control" name="callback" type="text" value={{callback}}></div>
+                          </div>
                           
-                        </div>
-                        <div class="form-row">
-                        <div class="col">
-                          <div class="form-group"><label><strong>Public key</strong><br></label><textarea rows="5" class="form-control" readonly >{{public_key}}</textarea></div>
-                        </div>
-                        </div>
-
-
-
-
-                        <!--
-
-                        <div class="form-row">
-                            <div class="col">
-                              <div class="form-group"><label><strong>Authorization endpoint</strong></label><input readonly class="form-control" type="text"  value={{authorization}}></div>
-                            </div>
-                            <div class="col">
-                              <div class="form-group"><label><strong>Token endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{token}}></div>
-                            </div> 
+                          <div class="col-6">
+                            <div class="form-group"><label><strong>Webhook URL of your application</strong><br></label><input required class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
+                          </div> 
 
                         </div>
-                        <div class="form-row">
-                            <div class="col">
-                              <div class="form-group"><label><strong>Logout endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{logout}}></div>
-                            </div> 
-                            <div class="col">
-                              <div class="form-group"><label><strong>User info endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{userinfo}}></div>
-                            </div> 
-                          </div>
-                        -->
-                          </div>
-                          </div>
-
-                          <div class="card shadow my-3">
-                            <div class="card-header py-3">
-                              <div class="d-flex justify-content-between">
-                                <p class="text-primary m-0 font-weight-bold">Application parameters</p>
-                              </div>
-                            </div>
-                            <div class="card-body">
-
-                          <div class="form-row">
-                            <div class="col-6">
-                                <div class="form-group"><label><strong>Credential requested for issuance</strong></label><select name="vc" class="form-control">
-                                  {{vc_select|safe}}  
-                                  </select></div>
-                            </div>   
-                            
-                            <div class="col-6">
-                              <div class="form-group"><label><strong>Webhook URL</strong><br></label><input class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
-                            </div> 
-
-                          </div>
-
-                          <div class="form-row">
-                            <div class="col-6">
-                                <div class="form-group"><label><strong>Credential to issue</strong></label><select onchange="getResponse();" id="selectCredential" name="issuance" class="form-control">
-                                  {{vc_select|safe}}  
-                                  </select></div>
-                            </div>   
-                            
-                            <div class="col-6">
-                              <div class="form-group"><label><strong>Data to send back</strong><br></label><textarea class="form-control" name="" id="" cols="30" rows="10" type="text" value="{{credentialSubject}}" name="credentialSubject" ></textarea></div>
-                            </div> 
-
-                          </div>
-
-
                         
+
+                          <div class="form-row">
+                            <div class="col-6">
+                                <div class="form-group"><label><strong>Credential requested for issuance</strong></label>
+                                  <select name="credential_requested" class="form-control">
+                                  <option value="">--Please choose an option--</option>
+                                 {{credential_requested_select|safe}}
+                                  </select></div>
+                            </div>   
+                            
+                            
+
+                          </div>
+
+                          <div class="form-row">
+                            <div class="col-6">
+                                <div class="form-group"><label><strong>Credential to issue</strong></label><select  onchange="getResponse();" id="selectCredential" name="credential_to_issue" class="form-control">
+                                  <option value="">--Please choose an option--</option>
+                                 {{credential_to_issue_select|safe}}
+
+                                  </select></div>
+                            </div>   
+                            
+                            <div class="col-6">
+                              <div class="form-group"><label><strong>Example of data to send back through your webhook</strong><br></label><textarea class="form-control" readonly id="textCredential" cols="30" rows="10" type="text" name="credentialSubject" ></textarea></div>
+                            </div> 
+
+                          </div>                    
 
                           </div>
                           </div>
@@ -155,15 +142,36 @@
                               </div>
                             </div>
                             <div class="card-body">
+                              <div class="form-row">
+                  
+                                <div class="col">
+                                  <div class="form-group"><label><strong>Landing page title</strong><br></label><input class="form-control" type="text" name="page_title" value="{{page_title}}"></div>
+                                </div>
+    
+                                <div class="col">
+                                  <div class="form-group"><label><strong>Landing page subtitle</strong><br></label><input class="form-control" type="text" name="page_subtitle" value="{{page_subtitle}}"></div>
+                                </div>
+                             </div>
+
+                             <div class="form-row">
+                          
+                     
+                              <div class="col">
+                                <div class="form-group"><label><strong>Landing page description</strong><br></label><textarea class="form-control" rows="5" name="page_description" >{{page_description}}</textarea></div>
+                              </div>
+      
+                                 
+                               </div>
+
 
                          <div class="form-row">
                   
                             <div class="col">
-                              <div class="form-group"><label><strong>Title QR code page for desktop </strong><br></label><textarea required class="form-control" name="title" >{{title}}</textarea></div>
+                              <div class="form-group"><label><strong>QR code title</strong><br></label><textarea required class="form-control" name="title" >{{title}}</textarea></div>
                             </div>
 
                             <div class="col">
-                              <div class="form-group"><label><strong>Subtitle QR code page for desktop</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
+                              <div class="form-group"><label><strong>QR code subtitle</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
                             </div>
                          </div>
 
@@ -184,7 +192,7 @@
 
                         <div class="form-row">
                           <div class="col">
-                            <div class="form-group"><label><strong>Application page URL</strong><br></label><input class="form-control" type="text" value="{{landing_page_url}}""  name="landing_page_url" ></div>
+                            <div class="form-group"><label><strong>Application page URL</strong><br></label><input class="form-control" type="text" value="{{landing_page_url}}"  name="landing_page_url" ></div>
                           </div>
                           <div class="col">
                             <div class="form-group"><label><strong>Privacy URL</strong><br></label><input class="form-control" type ="text" value="{{privacy_url}}" name="privacy_url" ></div>
@@ -193,16 +201,18 @@
                             <div class="form-group"><label><strong>Terms & conditions URL</strong><br></label><input class="form-control" type="text" value="{{terms_url}}" name="terms_url" ></div>
                           </div>
                       </div>
+                      <div class="form-row text-center">
+                        <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview your landing page</button></div>
+                      </div>
 
                         </div>
                         </div>
 
                         <div class="form-group">
                           <div class="form-row">
-                                <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuraion</button></div>
+                                <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuration</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview your Issuer</button></div>
 
 
 
@@ -229,24 +239,31 @@
 
       {% include 'user_footer.html' %}
 
-      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 <script>
-  var response1 = "{{phonepass}}";
-  var response2 = "{{emailpass}}";
   
+  document.getElementById("textCredential").innerHTML = "Select the credential to issue to get an example of data to send back";
   function getResponse() {
     var selected = document.getElementById("selectCredential").value;
     console.log(selected);
-    if (selected == "EmailPass"){
-      console.log(response2);
+    if (selected == "LearningAchievement"){
+      document.getElementById("textCredential").innerHTML = "{{LearningAchievement}}";
     }
-      else {
-        console.log("rien")
+    else if (selected == "VaccinationEvent"){
+      document.getElementById("textCredential").innerHTML = "{{VaccinationEvent}}";
+    }
+    else if (selected == "StudentCard"){
+      document.getElementById("textCredential").innerHTML = "{{StudentCard}}";
+    }
+    else if (selected == "CertificateOfEmployment"){
+      document.getElementById("textCredential").innerHTML = "{{CertificateOfEmployment}}";
+    }
+    else {
+        document.getElementById("textCredential").innerHTML = "Select a credential to issue";
     }
 
     }

@@ -46,7 +46,7 @@
             "schema": {
               "type": "string"
             },
-            "fallback": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed placerat, neque vel sodales laoreet, urna sapien tristique lectus, eu iaculis lectus ex eu felis. Duis a venenatis elit. Morbi dignissim orci at tortor condimentum pharetra. Phasellus ultrices, diam quis imperdiet feugiat, ante risus tempor quam, mollis "
+            "fallback": "This credential is an electronic version of your ticket. You can use this card  when you need to prove this information to services that have adopted the verifiable and decentralized identity system."
           },
           "properties": [
             {

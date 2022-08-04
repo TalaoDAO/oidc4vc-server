@@ -9,7 +9,7 @@ app.config.update(SECRET_KEY = "abcdefgh")
 
 
 # data provided by Talao
-landing_page_link = 'http://192.168.0.220:3000/sandbox/op/issuer/mmowtxhsxf'
+landing_page_link = 'http://192.168.43.67:3000/sandbox/op/issuer/jpmnjbmcjs'
 public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ"}
 
 
@@ -20,13 +20,16 @@ Application redirects user to issuer landing page
 def index():
     return redirect(landing_page_link)
 
-
+@app.route('/callback', methods=['GET'])
+def callback() :
+    print("callback success")
+    return jsonify ('callback success')
 
 """
 Ressource server endpoint
 The ressource server receives an access token with user data and return its response with the credential data
 """
-@app.route('/credential', methods=['POST'])
+@app.route('/webhook', methods=['POST'])
 def credential() :
     # Get user data from access_token received
     access_token = request.headers["Authorization"].split()[1]

@@ -7,19 +7,19 @@ from device_detector import SoftwareDetector
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/saas2ssi',  view_func=saas_login, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas2ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas2ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas2ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
-    app.add_url_rule('/sandbox/saas2ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_login, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
+    app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
 
-    app.add_url_rule('/sandbox/saas2ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
 
 
     return
 
 def saas_qrcode (mode) :
-    return render_template('saas_qrcode.html', url = mode.server + '/sandbox/saas2ssi/device_detector' )
+    return render_template('saas_qrcode.html', url = mode.server + '/sandbox/saas4ssi/device_detector' )
 
 
 def saas_device_detector ():
@@ -35,12 +35,12 @@ def saas_device_detector ():
 
 def saas_login():
     if request.method == "GET" :
-        return render_template("saas2ssi.html")
+        return render_template("saas4ssi.html")
     else :
         session["login_name"] = request.form["login_name"]
         if session["login_name"].lower() not in ['ebsilux', "admin1234", "guest"] :
-            return redirect('/sandbox/saas2ssi')
-        return redirect("/sandbox/saas2ssi/menu")
+            return redirect('/sandbox/saas4ssi')
+        return redirect("/sandbox/saas4ssi/menu")
 
 def saas_menu():
     return render_template("menu.html", login_name=session["login_name"])

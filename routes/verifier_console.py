@@ -61,7 +61,7 @@ def select(mode) :
             return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
         elif request.form['button'] == "logout" :
             session.clear()
-            return redirect ('/sandbox/saas2ssi')
+            return redirect ('/sandbox/saas4ssi')
        
 
 def preview (red, mode) :
@@ -149,7 +149,7 @@ def console(mode) :
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(user=session['login_name']))
+            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
         
         elif request.form['button'] == "select" :
             return redirect ('/sandbox/op/console/select?user=' + session['login_name'])
@@ -160,7 +160,7 @@ def console(mode) :
 
         elif request.form['button'] == "logout" :
             session.clear()
-            return redirect ('/sandbox/saas2ssi')
+            return redirect ('/sandbox/saas4ssi')
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')

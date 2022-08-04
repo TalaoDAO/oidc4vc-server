@@ -10,31 +10,29 @@
 
     <div class="text-center mt-5">
         <br><br>
-        <h1>Welcome to the verifier generator and bridge</h1>
+        <h1>Welcome to the verifier configurator and generator.</h1>
         <br><br>
-        <h3>You can add a verifier to your code as an OpenID standard login similar to Facebook or Google Connect (or FranceConnect).</h3>
+        <h3>You can add a verifier to your code as a login similar to Facebook or Google Connect (or FranceConnect).</h3>
         <br>
-        <h3>What you need to do is to install in your code a client OpenID library; it takes no more than 2 hours.</h3>
+        <h3>What you need to do is to install in your code a client OpenID library.
+        <br>It takes no more than 2 hours and 50 lines of code.</h3>
         <br>
-        A list of libraries available for different platform is <a href="https://openid.net/developers/certified/">here</a>.
-        <br>An example of python code is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/verifier_app.py ">there</a>.
-
-        <br><br><h3>To activate the bridge you will need the following OpenID parameters :</h3><br>
-        Issuer : <strong>{{issuer}}</strong> <br>
-        client_id : <strong>{{client_id}}</strong> <br>
-        client_secret : <strong>{{client_secret}}</strong>
+        A list of libraries available for different platforms is <a href="https://openid.net/developers/certified/">here</a>.
+        
         <br><br><br>
         <h3>How it works ?</h3>
-        <br>For each user you want to get a verifiable credential, you request an OpenID authentication.
-        <br> The bridge will manage a user redirection to a page with a QR code (or a deeplink for mobile browser) allowing the user to present a verifiable credential stored in his wallet. 
-        <br>Your application will receive the user's credential in the form of a json file on the userinfo endpoint.
-        <br> The verification of the signatures of the issuer and the user's wallet is carried out by the bridge, the application can simply access the attributes of the json received securely. 
-        <br>This verifier is initialized to receive any type of credential. You will be able then to update it or to generate several other different verifiers.
+        <br>For each user for whom you want to obtain verifiable credentials or authenticate with credentials, your applications requests OpenID authentication.
+        <br>The platform will manage a user redirect to a page with a QR code (or deep link for mobile browser) allowing the user to present a verifiable credential/presentation stored in their wallet.
+        <br>Your app will receive the user credential as a json file on the userinfo endpoint.
+        <br>The verification of the signatures of the issuer and the user's wallet is carried out by the platform, your application can simply access the attributes of the json received in complete safety.
+        <br>This verifier is configured to receive any type of credential. You can then update it or generate several other different verifiers.
+        
+        <br><br>An example of python code is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/verifier_app.py ">here</a>.
 
 
         <br><br><br>
-        <form action="/sandbox/saas2ssi/verifier" method="POST" >
-                <button class="btn btn-primary" type"submit" >Update your verifier or generate a new one</button>
+        <form action="/sandbox/saas4ssi/verifier" method="POST" >
+                <button class="btn btn-primary" type"submit" >Configure your verifier or generate a new one</button>
         </form>
    </div>
 

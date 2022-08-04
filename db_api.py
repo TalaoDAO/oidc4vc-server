@@ -17,6 +17,7 @@ def list_verifier() :
     return list('verifier.db')
 def delete_verifier(client_id) :
     return delete(client_id, 'verifier.db')
+    
 def create_issuer(mode, user=None) :
     return create('issuer.db', user, mode)
 def update_issuer(client_id, data) :
