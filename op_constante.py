@@ -14,19 +14,21 @@ credential_list = {
                 }
 
 credential_to_issue_list = {
-                    'LearningAchievement' : 'Diploma',
+                    'LearningAchievement' : 'Diploma (Learning achievement)',
+                    'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
-                    "VaccinationEvent" : "Vaccination certificate"
+                    "VaccinationEvent" : "Vaccination certificate",
+                     "AragoPass" : "Arago Pass"
                 }
 
 credential_requested_list = {
                     'EmailPass' : 'Proof of email',
+                    'PhonePass' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
-                    'Over18' : 'Over 18',
-                    'DID' : "Decentralized Identifier",
+                    'Over18' : 'Proof of majority (Over 18)',
                     "TezosAssociatedWallet" : "Proof of crypto account",
-                    'ANY' : 'Any'
+                    'DID' : "Decentralized Identifier (DID)",
                 }
 
 protocol_list = {'w3cpr' : "W3C Presentation Request ",
@@ -109,7 +111,7 @@ issuer_client_data_pattern = {
                 "client_id" :  "",
                 "callback" : "",
                 "webhook" : "",
-                 "jwk" : "",
+                "jwk" : "",
                 "issuer_landing_page" : "",     
                 "note" : "This issuer is ......",
                 "company_name" : "New issuer",
@@ -211,4 +213,65 @@ CertificateOfEmployment = {
             "name": "Talao"
         },
         "baseSalary": "65000 euros"
+    }
+
+VerifiableDiploma = {
+    "type": "VerifiableDiploma",
+    "awardingOpportunity": {
+      "awardingBody": {
+          "eidasLegalIdentifier": "Unknown",
+          "homepage": "https://leaston.bcdiploma.com/",
+          "id": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
+          "preferredName": "Leaston University",
+          "registration": "0597065J"
+      },
+      "endedAtTime": "2020-06-26T00:00:00Z",
+      "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
+      "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+      "location": "FRANCE",
+      "startedAtTime": "2019-09-02T00:00:00Z"
+  },
+  "dateOfBirth": "1993-04-08",
+  "familyName": "DOE",
+  "givenName": "Jane",
+  "gradingScheme": {
+      "id": "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
+      "title": "2 year full-time programme / 4 semesters"
+  },
+  "id": "",
+  "identifier": "0904008084H",
+  "learningAchievement": {
+      "additionalNote": [
+          "DISTRIBUTION MANAGEMENT"
+      ],
+      "description": "The Master in Information and Computer Sciences (MICS) at the University of Luxembourg enables students to acquire deeper knowledge in computer science by understanding its abstract and interdisciplinary foundations, focusing on problem solving and developing lifelong learning skills.",
+      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
+      "title": "Master in Information and Computer Sciences"
+  },
+  "learningSpecification": {
+      "ectsCreditPoints": 120,
+      "eqfLevel": 7,
+      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
+      "iscedfCode": [
+          "7"
+      ],
+      "nqfLevel": [
+          "7"
+      ]
+  }
+}
+
+AragoPass = {
+        "id": "",
+        "type" : "AgoraPass",
+        "email" : "john.doe@gmail.com",
+        "image" : "",
+        "familyName" : "Doe",
+        "givenName" : "John",
+        "duration" : "30",
+        "issuedBy" : {
+            "name" : "Agora",
+            "address" : "4, rue Louis-Guérin, 69626 Villeurbanne, France",
+            "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+              }
     }

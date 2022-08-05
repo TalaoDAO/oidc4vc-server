@@ -175,7 +175,7 @@ def test_direct_offer(red, mode) :
    
         
     elif VC_filename == "TalaoCommunity.jsonld" :
-        filename = "./test/credential_manifest/talaocommunity_credential_manifest_" + cm + ".json"
+        filename = "./test/credential_manifest/TalaoCommunity_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -183,7 +183,7 @@ def test_direct_offer(red, mode) :
         del credentialOffer['display']
     
     elif VC_filename == "LearningAchievement.jsonld" :
-        filename = "./test/credential_manifest/learningachievement_credential_manifest.json"
+        filename = "./test/credential_manifest/LearningAchievement_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)

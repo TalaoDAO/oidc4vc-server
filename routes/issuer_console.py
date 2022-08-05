@@ -6,7 +6,8 @@ import requests
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, LearningAchievement, VaccinationEvent, StudentCard, CertificateOfEmployment
+from op_constante import credential_requested_list, credential_to_issue_list, protocol_list
+from op_constante import LearningAchievement, VaccinationEvent, StudentCard, CertificateOfEmployment, VerifiableDiploma, AragoPass
 
 logging.basicConfig(level=logging.INFO)
 
@@ -150,8 +151,9 @@ def issuer_console(mode) :
                 LearningAchievement=json.dumps(LearningAchievement),
                 VaccinationEvent = json.dumps(VaccinationEvent),
                 StudentCard=json.dumps(StudentCard),
-                CertificateOfEmployment=json.dumps(CertificateOfEmployment)
-
+                CertificateOfEmployment=json.dumps(CertificateOfEmployment),
+                VerifiableDiploma=json.dumps(VerifiableDiploma),
+                AragoPass=json.dumps(AragoPass)
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :

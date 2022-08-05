@@ -43,7 +43,7 @@
                               <div class="form-group"><label><strong>Application or issuer name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}""  name="company_name" ></div>
                             </div>
                             <div class="col">
-                              {% if session['login_name'] != session['client_data']['user'] and  session['login_name'] != "admin1234" %}
+                              {% if session['login_name'] != "admin1234" %}
                               <div class="form-group"><label><strong>User</strong><br></label><input readonly class="form-control" type ="text" value="{{user}}" name="user" ></div>
                               {% else %}
                               <div class="form-group"><label><strong>User</strong><br></label><input class="form-control" type ="text" value="{{user}}" name="user" ></div>
@@ -105,12 +105,20 @@
 
                           <div class="form-row">
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential requested for issuance</strong></label>
+                                <div class="form-group"><label><strong>Credential 1 requested for issuance</strong></label>
                                   <select name="credential_requested" class="form-control">
                                   <option value="">--Please choose an option--</option>
                                  {{credential_requested_select|safe}}
                                   </select></div>
-                            </div>   
+                            </div>  
+                            
+                            <div class="col-6">
+                              <div class="form-group"><label><strong>Credential 2 requested for issuance (Not available today)</strong></label>
+                                <select disabled name="credential_requested_2" class="form-control">
+                                <option value="">--Please choose an option--</option>
+                               {{credential_requested_select|safe}}
+                                </select></div>
+                          </div>  
                             
                             
 
@@ -142,7 +150,7 @@
                               </div>
                             </div>
                             <div class="card-body">
-                              
+
                               <div class="form-row">
                                 <div class="col">
                                   <div class="form-group"><label><strong>Landing page title</strong><br></label><input class="form-control" type="text" name="page_title" value="{{page_title}}"></div>
@@ -163,11 +171,11 @@
                          <div class="form-row">
                   
                             <div class="col">
-                              <div class="form-group"><label><strong>QR code title</strong><br></label><textarea required class="form-control" name="title" >{{title}}</textarea></div>
+                              <div class="form-group"><label><strong>QR code title</strong><br></label><input type="text" required class="form-control" name="title" value="{{title}}"></div>
                             </div>
 
                             <div class="col">
-                              <div class="form-group"><label><strong>QR code subtitle</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
+                              <div class="form-group"><label><strong>QR code subtitle</strong><br></label><input type="text" class="form-control" name="qrcode_message" value="{{qrcode_message}}"></div>
                             </div>
                          </div>
 
@@ -175,11 +183,11 @@
                           
                      
                         <div class="col">
-                          <div class="form-group"><label><strong>Message for mobile</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
+                          <div class="form-group"><label><strong>Message for mobile</strong><br></label><input type="text" class="form-control" name="mobile_message" value="{{mobile_message}}"></div>
                         </div>
                    
                             <div class="col">
-                              <div class="form-group"><label><strong>In wallet message</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
+                              <div class="form-group"><label><strong>In wallet message</strong><br></label><input type="text" class="form-control" name="reason" value="{{reason}}"></div>
                             </div>
 
                            
@@ -257,6 +265,12 @@
     }
     else if (selected == "CertificateOfEmployment"){
       document.getElementById("textCredential").innerHTML = "{{CertificateOfEmployment}}";
+    }
+    else if (selected == "VerifiableDiploma"){
+      document.getElementById("textCredential").innerHTML = "{{VerifiableDiploma}}";
+    }
+    else if (selected == "AragoPass"){
+      document.getElementById("textCredential").innerHTML = "{{AragoPass}}";
     }
     else {
         document.getElementById("textCredential").innerHTML = "Select a credential to issue";
