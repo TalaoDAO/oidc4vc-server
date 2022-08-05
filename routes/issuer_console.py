@@ -1,20 +1,38 @@
 from flask import  request, render_template, redirect, session, jsonify
 import json
 import logging
-import random
-import requests
+import didkit
 import db_api 
+import hashlib
+import base58
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, credential_to_issue_list, protocol_list
-from op_constante import LearningAchievement, VaccinationEvent, StudentCard, CertificateOfEmployment, VerifiableDiploma, AragoPass
+from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list
+from op_constante import LearningAchievement, VaccinationEvent, StudentCard, CertificateOfEmployment, VerifiableDiploma, AragoPass, NewIdentityPass
 
 logging.basicConfig(level=logging.INFO)
 
-
 public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ"}
 
-did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+
+def did_ebsi(jwk) :
+    def thumbprint(jwk) :
+        if isinstance(jwk, str) :
+            jwk = json.loads(jwk)
+        if jwk["crv"] != "secp256k1" :
+            logging.error("error key type for did:ebsi")
+            return False
+        JWK = json.dumps({"crv":"secp256k1",
+                    "kty":"EC",
+                    "x":jwk["x"],
+                    "y":jwk["y"]
+                    }).replace(" ","")
+        m = hashlib.sha256()
+        m.update(JWK.encode())
+        return m.hexdigest()
+    if isinstance(jwk, str) :
+        jwk = json.loads(jwk)
+    return  'did:ebsis:z' + base58.b58encode(b'\x02' + bytes.fromhex(thumbprint(jwk))).decode()
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'])
@@ -69,8 +87,11 @@ def issuer_preview (mode) :
     issuer_data = json.loads(db_api.read_issuer(client_id))
     qrcode_message = issuer_data.get('qrcode_message', "No message")
     mobile_message = issuer_data.get('mobile_message', "No message")
-    
-    url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
+    if session['client_data']['method'] == "ebsi" :
+        issuer_did = did_ebsi(session['client_data']['jwk'])
+    else : 
+        issuer_did = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
+    url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : issuer_did})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     return render_template('op_issuer_qrcode.html',
 							url=url,
@@ -153,7 +174,8 @@ def issuer_console(mode) :
                 StudentCard=json.dumps(StudentCard),
                 CertificateOfEmployment=json.dumps(CertificateOfEmployment),
                 VerifiableDiploma=json.dumps(VerifiableDiploma),
-                AragoPass=json.dumps(AragoPass)
+                AragoPass=json.dumps(AragoPass),
+                NewIdentityPass=json.dumps(NewIdentityPass)
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
@@ -209,21 +231,35 @@ def issuer_advanced() :
     if request.method == 'GET' :
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         protocol_select = str()       
-
         for key, value in protocol_list.items() :
                 if key ==   session['client_data'].get('protocol', "") :
                     protocol_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     protocol_select +=  "<option value=" + key + ">" + value + "</option>"
+        method_select = str()       
+        for key, value in method_list.items() :
+                if key ==   session['client_data'].get('method', "") :
+                    method_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    method_select +=  "<option value=" + key + ">" + value + "</option>"
         if session['client_data'].get('emails') :
             emails_filtering = """<input class="form-check-input" checked type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
         else :
             emails_filtering = """<input class="form-check-input" type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
+
+        if session['client_data']['method'] == "ebsi" :
+            DID = did_ebsi(session['client_data']['jwk'])
+        else : 
+            DID = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
         return render_template('issuer_advanced.html',
                 client_id = session['client_data']['client_id'],
                 protocol = session['client_data']['protocol'],
+                jwk = session['client_data']['jwk'],
+                method = session['client_data']['method'],
                 emails_filtering=emails_filtering,
-                protocol_select=protocol_select
+                protocol_select=protocol_select,
+                method_select=method_select,
+                DID = DID
                 )
     if request.method == 'POST' :
 
@@ -232,7 +268,15 @@ def issuer_advanced() :
         
         elif request.form['button'] == "update" :
             session['client_data']['protocol'] = request.form['protocol']
+            if request.form['method'] != "ebsi" :
+                try :
+                    didkit.key_to_did(request.form['method'], request.form['jwk'])
+                except :
+                    logging.error('wrong key/method')
+                    return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+            session['client_data']['method'] = request.form['method']
+            session['client_data']['jwk'] = request.form['jwk']
             db_api.update_issuer( request.form['client_id'], json.dumps(session['client_data']))
-            return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+            return redirect('/sandbox/op/issuer/console/advanced')
           
 

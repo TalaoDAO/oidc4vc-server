@@ -34,14 +34,30 @@
 
                           <div class="form-row">
                                                     
-                          <div class="col-6">
+                          <div class="col-3">
                             <div class="form-group"><label><strong>Issuer protocol</strong></label><select name="protocol" class="form-control">
                               {{protocol_select|safe}}  
                               </select></div>
                           </div>
-                          </div>
+                         
+                                                    
+                            <div class="col-3">
+                              <div class="form-group"><label><strong>DID method</strong></label><select name="method" class="form-control">
+                                {{method_select|safe}}  
+                                </select></div>
+                            </div>
 
-               
+                            <div class="col">
+                              <div class="form-group"><label><strong>Issuer DID</strong><br></label><input readonly class="form-control" type="text"  value="{{DID}}"></div>
+                            </div>
+
+                            </div>
+
+                            <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>Private key for DID (JWK format)</strong><br></label><textarea class="form-control" rows="3" name="jwk" >{{jwk}}</textarea></div>
+                              </div>
+                            </div>
 
                         <div class="form-group">
                           <div class="form-row">

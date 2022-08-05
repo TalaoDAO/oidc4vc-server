@@ -22,19 +22,32 @@ from urllib.parse import urlencode
 from jwcrypto import jwk, jwt
 import requests
 import db_api
+import base58
+import hashlib
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 
 try :
-    Ed25519 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
     key = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key'])
 
 except :
-    Ed25519 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
     key = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key'])
 
-#public_key =  {"e": key['e'],"kid" : key['kid'],"kty": key['kty'],"n": key['n']}
+
+def did_ebsi(jwk) :
+    if isinstance(jwk, str) :
+        jwk = json.loads(jwk)
+    if jwk["crv"] != "secp256k1" :
+            logging.error("error key type for did:ebsi")
+            return False
+    def thumbprint(jwk) :
+        JWK = json.dumps({"crv":"secp256k1","kty":"EC","x":jwk["x"],"y":jwk["y"]}).replace(" ","")
+        m = hashlib.sha256()
+        m.update(JWK.encode())
+        return m.hexdigest()
+    return  'did:ebsi:z' + base58.b58encode(b'\x02' + bytes.fromhex(thumbprint(jwk))).decode()
+   
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/<issuer_id>',  view_func=issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
@@ -85,13 +98,24 @@ def build_access_token(vp, did, client_id, key, mode) :
 """
 Direct access to one VC with filename passed as an argument
 """
-async def issuer_landing_page(issuer_id, red, mode) :
+def issuer_landing_page(issuer_id, red, mode) :
     try :
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
+    except :
+        logging.error('issuer id not found')
+        return render_template('op_issuer_removed.html')
+    try :
         credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
         credential_manifest = json.load(open('./test/credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
     except :
+        logging.error('credential not found %s', issuer_data['credential_to_issue'])
         return render_template('op_issuer_removed.html')
+    try :
+        credential_manifest = json.load(open('./test/credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
+    except :
+        logging.error('credebtial manifest not found %s', issuer_data['credential_to_issue'])
+        return render_template('op_issuer_removed.html')
+    
     credential_manifest['presentation_definition']['input_descriptors'][0]['purpose'] = issuer_data['reason']
     credential_manifest['presentation_definition']['input_descriptors'][0]['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
     # TODO to remove
@@ -103,7 +127,11 @@ async def issuer_landing_page(issuer_id, red, mode) :
         "credential_manifest" : credential_manifest,
     }
     stream_id = str(uuid.uuid1())
-    url = mode.server + "sandbox/op/issuer_endpoint/" + issuer_id + '/' + stream_id + '?issuer=' + await didkit.key_to_verification_method('tz', Ed25519)
+    if issuer_data['method'] == "ebsi" :
+        issuer_did =  did_ebsi(issuer_data['jwk'])
+    else : 
+        issuer_did = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])
+    url = mode.server + "sandbox/op/issuer_endpoint/" + issuer_id + '/' + stream_id + '?issuer=' + issuer_did 
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     deeplink_altme = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(stream_id, json.dumps(credentialOffer))
@@ -153,8 +181,8 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
 
         # prepare credential to issue and sign it   
         # TODO get DID from application user
-        vm = await didkit.key_to_verification_method('tz', Ed25519)
-        issuer_DID = didkit.key_to_did('tz', Ed25519)  
+        vm = await didkit.key_to_verification_method(issuer_data['method'], issuer_data['jwk'])
+        issuer_DID = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])  
    
         credential =  json.loads(credentialOffer)['credentialPreview']
         credential['credentialSubject']['id'] = request.form['subject_id']
@@ -170,7 +198,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         signed_credential =  await didkit.issue_credential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
-                Ed25519
+                issuer_data['jwk']
                 )
         
         # send event to front to go forward

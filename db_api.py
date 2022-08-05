@@ -4,6 +4,7 @@ import logging
 import sqlite3
 import random 
 import string
+from jwcrypto import jwk
 from op_constante import issuer_client_data_pattern, verifier_client_data_pattern
 logging.basicConfig(level=logging.INFO)
 
@@ -36,6 +37,9 @@ def create(db, user, mode) :
         data = issuer_client_data_pattern     
         data['client_id'] = ''.join(random.choice(letters) for i in range(10))
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
+        data['method'] = "ethr"
+        key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+        data['jwk'] = key.export_private()
     else :
         data = verifier_client_data_pattern
         data['client_id'] = ''.join(random.choice(letters) for i in range(10))

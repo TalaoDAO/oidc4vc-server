@@ -1,5 +1,11 @@
 
-
+method_list = {
+                    "ethr" : "did:ethr",
+                    "key" : "did:key",
+                    "tz": "did:tz",
+                    "ebsi" : "did:ebsi",
+                    "pkh:tz" : "did:pkh:tz",
+                }
 
 credential_list = {
                     'EmailPass' : 'Proof of email',
@@ -14,6 +20,7 @@ credential_list = {
                 }
 
 credential_to_issue_list = {
+                    'NewIdentityPass' : "Pass",
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',
@@ -112,12 +119,13 @@ issuer_client_data_pattern = {
                 "callback" : "",
                 "webhook" : "",
                 "jwk" : "",
+                "method" : "",
                 "issuer_landing_page" : "",     
                 "note" : "This issuer is ......",
                 "company_name" : "New issuer",
                 "reason" : "Text in wallet message",
-                "credential_requested" : "",
-                "credential_to_issue" : "",
+                "credential_requested" : "IdCard",
+                "credential_to_issue" : "NewIdentityPass",
                 "protocol" : "w3cpr",
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
@@ -273,5 +281,20 @@ AragoPass = {
             "name" : "Agora",
             "address" : "4, rue Louis-Guérin, 69626 Villeurbanne, France",
             "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
+              }
+    }
+
+NewIdentityPass = {
+        "id": "",
+        "type" : "NewIdentityPass",
+        "email" : "john.doe@gmail.com",
+        "image" : "",
+        "familyName" : "Doe",
+        "givenName" : "John",
+        "duration" : "30",
+        "issuedBy" : {
+            "name" : "Issuer name",
+            "address" : "Issuer addres",
+            "logo" : "Issuer logo URL"
               }
     }

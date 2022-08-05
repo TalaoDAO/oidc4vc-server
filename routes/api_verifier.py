@@ -319,10 +319,8 @@ async def login_presentation_endpoint(stream_id, red):
         # emails filtering
         if verifier_data['emails'] :
             authorized_emails = verifier_data['authorized_emails']
-            print(authorized_emails)
             authorized_list = [emails.replace(" ", "") for emails in authorized_emails.split(' ')]
             email = json.loads(presentation)['verifiableCredential']['credentialSubject']['email'].lower()
-            print(email)
             if email not in authorized_list :
                 logging.warning('email not in authorized list')
                 red.set(stream_id + '_access',  'access_denied')
