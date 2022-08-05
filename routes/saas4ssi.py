@@ -4,7 +4,6 @@ from device_detector import SoftwareDetector
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_login, methods = ['GET', 'POST'])
-    #app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
@@ -38,12 +37,6 @@ def saas_login():
         session['is_connected'] = True
         return render_template("menu.html", login_name=session["login_name"])
 
-"""
-def saas_menu():
-    if not session.get('is_connected') or not session.get('login_name') :
-        return redirect('/sandbox/saas4ssi')
-    return render_template("menu.html", login_name=session["login_name"])
-"""
 
 def saas_verifier():
     if not session.get('is_connected') or not session.get('login_name') :
