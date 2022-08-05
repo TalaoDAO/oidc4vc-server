@@ -58,6 +58,11 @@
                               <div class="form-group"><label><strong>Contact email</strong><br></label><input class="form-control" readonly type="email" value="{{contact_email}}" name="contact_email" ></div>
                             </div>
                         </div>
+                        <div class="form-row">           
+                          <div class="col">
+                            <div class="form-group"><label><strong>Note</strong><br></label><textarea readonly class="form-control" name="note" >{{note}}</textarea></div>
+                          </div>
+                        </div>
                         {% else %}
                         <div class="form-row">
                           <div class="col">
@@ -76,6 +81,11 @@
                           <div class="col">
                             <div class="form-group"><label><strong>Contact email</strong><br></label><input class="form-control" type="email" value="{{contact_email}}" name="contact_email" ></div>
                           </div>
+                      </div>
+                      <div class="form-row">           
+                        <div class="col">
+                          <div class="form-group"><label><strong>Note</strong><br></label><textarea class="form-control" name="note" >{{note}}</textarea></div>
+                        </div>
                       </div>
                       {% endif %}
 
@@ -146,12 +156,18 @@
 
                           <div class="form-row">
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential</strong></label><select name="vc" class="form-control">
+                                <div class="form-group"><label><strong>Credential 1</strong></label><select name="vc" class="form-control">
+                                  {{vc_select|safe}}  
+                                  </select></div>
+                                 
+                          </div>
+                        
+                            <div class="col-6">
+                                <div class="form-group"><label><strong>Credential 2 (not available today) </strong></label><select disabled name="vc2" class="form-control">
                                   {{vc_select|safe}}  
                                   </select></div>
                             </div>      
                           </div>
-
                         
 
                           </div>
@@ -165,6 +181,22 @@
                               </div>
                             </div>
                             <div class="card-body">
+
+                              <div class="form-row">
+                                <div class="col">
+                                  <div class="form-group"><label><strong>Landing page title</strong><br></label><input class="form-control" type="text" name="page_title" value="{{page_title}}"></div>
+                                </div>
+    
+                                <div class="col">
+                                  <div class="form-group"><label><strong>Landing page subtitle</strong><br></label><input class="form-control" type="text" name="page_subtitle" value="{{page_subtitle}}"></div>
+                                </div>
+                              </div>
+
+                              <div class="form-row">
+                                <div class="col">
+                                  <div class="form-group"><label><strong>Landing page description</strong><br></label><textarea class="form-control" rows="5" name="page_description" >{{page_description}}</textarea></div>
+                                </div>
+                              </div>
 
                          <div class="form-row">
                   
@@ -203,6 +235,9 @@
                             <div class="form-group"><label><strong>Terms & conditions URL</strong><br></label><input class="form-control" type="text" value="{{terms_url}}" name="terms_url" ></div>
                           </div>
                       </div>
+                      <div class="form-row text-center">
+                        <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview your landing page</button></div>
+                      </div>
 
                         </div>
                         </div>
@@ -212,7 +247,6 @@
                                 <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuraion</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview your verifier</button></div>
 
 
 
@@ -239,7 +273,6 @@
 
       {% include 'user_footer.html' %}
 
-      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>

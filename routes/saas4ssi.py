@@ -1,9 +1,5 @@
 from flask import jsonify, request, render_template, redirect, session
-import json
-from datetime import timedelta
 from device_detector import SoftwareDetector
-
-
 
 
 def init_app(app,red, mode) :
@@ -12,11 +8,9 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
-
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
-
-
     return
+
 
 def saas_qrcode (mode) :
     return render_template('saas_qrcode.html', url = mode.server + '/sandbox/saas4ssi/device_detector' )
@@ -33,6 +27,7 @@ def saas_device_detector ():
     else :
         return jsonify('unknown device')    
 
+
 def saas_login():
     if request.method == "GET" :
         return render_template("saas4ssi.html")
@@ -42,25 +37,21 @@ def saas_login():
             return redirect('/sandbox/saas4ssi')
         return redirect("/sandbox/saas4ssi/menu")
 
+
 def saas_menu():
     return render_template("menu.html", login_name=session["login_name"])
 
 def saas_verifier():
     if request.method == "GET" :
-        return render_template("saas_verifier.html",
-                 login_name=session["login_name"],
-                 client_id = "fhwrsmszjn",
-                 issuer = "https://talao.co/sandblox/op",
-                 client_secret = "9bd6eeb0-0617-11ed-8fe6-8d54d1ffa6d3")
+        return render_template("saas_verifier.html")
     else :
         session["is_connected"] = True
         return redirect("/sandbox/op/console")
 
+
 def saas_issuer():
     if request.method == "GET" :
-        return render_template("saas_issuer.html",
-            link="link"
-            )
+        return render_template("saas_issuer.html")
     else :
         session["is_connected"] = True
         return redirect("/sandbox/op/issuer/console")

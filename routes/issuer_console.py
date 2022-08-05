@@ -16,27 +16,24 @@ public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    
+    app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
+    app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-
     return
       
 # authentication
-def issuer_console_logout(mode):
-    if not session.get('is_connected') :
-        return redirect('sandbox/op/issuer/console/login')
-    session.clear()
+def issuer_console_logout():
+    if session.get('is_connected') :
+        session.clear()
     return redirect('/sandbox/op/issuer/console')
 
 
 def issuer_select(mode) :
-    if not session.get('is_connected') :  
-        return redirect('/sandbox/op/issuer/console/login')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
 
     if request.method == 'GET' :  
         my_list = db_api.list_issuer()
@@ -63,8 +60,9 @@ def issuer_select(mode) :
             return redirect ('/sandbox/saas4ssi')
        
 
-
-def issuer_preview (red, mode) :
+def issuer_preview (mode) :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     stream_id = str(uuid.uuid1())
     client_id = session['client_data']['client_id']
     issuer_data = json.loads(db_api.read_issuer(client_id))
@@ -86,7 +84,8 @@ def issuer_preview (red, mode) :
                             page_description=issuer_data['page_description'],
                             terms_url= issuer_data.get('terms_url'),
                             privacy_url=issuer_data.get('privacy_url'),
-                            company_name=issuer_data.get('company_name')
+                            company_name=issuer_data.get('company_name'),
+                            back_button = True
                             )
     
 def issuer_preview_presentation_endpoint(stream_id, red):
@@ -104,8 +103,8 @@ def issuer_preview_presentation_endpoint(stream_id, red):
 
 def issuer_console(mode) :
     global  reason
-    if not session.get('is_connected') :
-        return redirect('/sandbox/op/issuer/console/login')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         if not request.args.get('client_id') :
             return redirect('/sandbox/op/issuer/console/select')
@@ -203,8 +202,8 @@ def issuer_console(mode) :
 
 def issuer_advanced() :
     global  reason
-    if not session.get('is_connected') :
-        return redirect('/sandbox/op/issuer/console/login')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         protocol_select = str()       

@@ -15,19 +15,19 @@
         <h3>You can add a verifier to your code as a login similar to Facebook or Google Connect (or FranceConnect).</h3>
         <br>
         <h3>What you need to do is to install in your code a client OpenID library.
-        <br>It takes no more than 2 hours and 50 lines of code.</h3>
+        <br>It takes no more than 2 hours.</h3>
         <br>
         A list of libraries available for different platforms is <a href="https://openid.net/developers/certified/">here</a>.
         
         <br><br><br>
         <h3>How it works ?</h3>
-        <br>For each user for whom you want to obtain verifiable credentials or authenticate with credentials, your applications requests OpenID authentication.
-        <br>The platform will manage a user redirect to a page with a QR code (or deep link for mobile browser) allowing the user to present a verifiable credential/presentation stored in their wallet.
+        <br>For each user for whom you want to obtain verifiable credentials or authen ticate with credentials, your applications requests OpenID authentication.
+        <br>The platform will manage a user redirect to a page with a QR code (or deep link for mobile browser) allowing usere to present a verifiable credential/presentation stored in their wallet.
         <br>Your app will receive the user credential as a json file on the userinfo endpoint.
         <br>The verification of the signatures of the issuer and the user's wallet is carried out by the platform, your application can simply access the attributes of the json received in complete safety.
         <br>This verifier is configured to receive any type of credential. You can then update it or generate several other different verifiers.
         
-        <br><br>An example of python code is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/verifier_app.py ">here</a>.
+        <br><br>An example of a minimal application (python) using this platform is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/verifier_app.py ">here</a>.
 
 
         <br><br><br>

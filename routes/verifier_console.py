@@ -1,8 +1,6 @@
 from flask import  request, render_template, redirect, session, jsonify
 import json
 import logging
-import random
-import requests
 import db_api 
 from urllib.parse import urlencode
 import uuid
@@ -10,33 +8,27 @@ from op_constante import credential_list, protocol_list, model_one, model_any, m
 
 logging.basicConfig(level=logging.INFO)
 
-
-
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/console/logout',  view_func=console_logout, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    
+    app.add_url_rule('/sandbox/op/console/logout',  view_func=console_logout, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/console',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/advanced',  view_func=advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/console/preview',  view_func=preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
     app.add_url_rule('/sandbox/preview_presentation/<stream_id>',  view_func=preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-
     return
       
 
-
-def console_logout(mode):
-    if not session.get('is_connected') :
-        return redirect('sandbox/op/console/login')
-    session.clear()
-    return redirect('/sandbox/op/console')
+def console_logout():
+    if session.get('is_connected') :
+        session.clear()
+    return redirect('/sandbox/saas4ssi')
 
 
 def select(mode) :
-    if not session.get('is_connected') :
-        return redirect('/sandbox/op/console/login')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
 
     if request.method == 'GET' :  
         my_list = db_api.list_verifier()
@@ -46,16 +38,17 @@ def select(mode) :
             if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
                 verifier = """<tr>
                     <td>""" + data_dict['company_name'] + """</td>
-                     <td>""" + data_dict['user'] + """</td>
-                    <td>""" + mode.server + "sandblox/op" + """</td>
+                    <td>""" + data_dict['user'] + """</td>
+                    <td>""" + data_dict['vc'] + """</td>
+                    <td>""" + mode.server + "sandbox/op" + """</td>
                     <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                     <td>""" + data_dict['client_secret'] + """</td>
-                    <td>""" + data_dict['vc'] + """</td>
+                   
                     </tr>"""
                 verifier_list += verifier
             else :
                 pass     
-        return render_template('select.html', verifier_list=verifier_list, login_name=session['login_name']) 
+        return render_template('verifier_select.html', verifier_list=verifier_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
             return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
@@ -65,6 +58,9 @@ def select(mode) :
        
 
 def preview (red, mode) :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+        
     stream_id = str(uuid.uuid1())
     client_id = session['client_data']['client_id']
     verifier_data = json.loads(db_api.read_verifier(client_id))
@@ -86,13 +82,17 @@ def preview (red, mode) :
 							url=url,
                             deeplink=deeplink,
 							stream_id=stream_id,
+                            page_title=verifier_data['page_title'],
+                            page_subtitle=verifier_data['page_subtitle'],
+                            page_description=verifier_data['page_description'],
                             qrcode_message=qrcode_message,
                             mobile_message=mobile_message,
                             landing_page_url= verifier_data['landing_page_url'],
                             title=verifier_data['title'],
                             terms_url= verifier_data.get('terms_url'),
                             privacy_url=verifier_data.get('privacy_url'),
-                            company_name=verifier_data.get('company_name')
+                            company_name=verifier_data.get('company_name'),
+                            back_button = True
                             )
     
 def preview_presentation_endpoint(stream_id, red):
@@ -110,8 +110,8 @@ def preview_presentation_endpoint(stream_id, red):
 
 def console(mode) :
     global vc, reason
-    if not session.get('is_connected') :
-        return redirect('/sandbox/op/console/login')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         if not request.args.get('client_id') :
             return redirect('/sandbox/op/console/select?user='+ session.get('login_name'))
@@ -132,10 +132,14 @@ def console(mode) :
                 privacy_url = session['client_data'].get('privacy_url'),
                 landing_page_url = session['client_data'].get('landing_page_url'),
                 terms_url = session['client_data'].get('terms_url'),
-                issuer = mode.server + "sandblox/op",
+                issuer = mode.server + "sandbox/op",
                 client_id= session['client_data']['client_id'],
                 client_secret= session['client_data']['client_secret'],
                 token=mode.server + 'sandbox/op/token',
+                page_title = session['client_data']['page_title'],
+                note = session['client_data']['note'],
+                page_subtitle = session['client_data']['page_subtitle'],
+                page_description = session['client_data']['page_description'],
                 authorization=mode.server + 'sandbox/op/authorize',
                 logout=mode.server + 'sandbox/op/logout',
                 userinfo=mode.server + 'sandbox/op/userinfo',
@@ -166,6 +170,10 @@ def console(mode) :
             return redirect ('/sandbox/op/console/advanced')
         
         elif request.form['button'] in [ "update", "preview"] :
+            session['client_data']['note'] = request.form['note']
+            session['client_data']['page_title'] = request.form['page_title']
+            session['client_data']['page_subtitle'] = request.form['page_subtitle']
+            session['client_data']['page_description'] = request.form['page_description']
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['title'] = request.form['title']
             session['client_data']['contact_email'] = request.form['contact_email']
@@ -189,8 +197,8 @@ def console(mode) :
 
 def advanced() :
     global vc, reason
-    if not session.get('is_connected') :
-        return redirect('/sandbox/op/console/login')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
         protocol_select = vc_select = str()       
