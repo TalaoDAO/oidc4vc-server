@@ -1,45 +1,49 @@
-{
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-  
-    {  "cred": "https://www.w3.org/2018/credentials#",
-      "documentPresence" : "cred:documentPresence",
-      "evidenceDocument" : "cred:evidenceDocument",
-      "subjectPresence" : "cred:subjectPresence",
-      "verifier" : "cred:verifier"
-    },
-    { "schema" : "httsp://schema.org/",
-      "essif": "https://essif.europa.eu/schemas/vc/2020/v1#",
-      "VerifiableDiploma": "essif:VerifiableDiploma", 
-      "awardingOpportunity" : "essif:awardingOpportunity",          
-      "awardingBody" : "essif:awardingBody",
-      "eidasLegalIdentifier" : "essif:eidasLegalIdentifier",
-      "homepage" : "schema:homepage",
-      "preferredName" : "schema:preferredName",
-      "registration": "schema:registration",
-      "endedAtTime" : "schema:endedAtTime",
-      "identifier" : "schema:identifier",
-      "location" : "schema:location",
-      "startedAtTime": "schema:startedAtTime",
-      "dateOfBirth" : "schema:dateOfBirth",
-      "familyName" : "schema:familyName",
-      "givenName" : "schema:givenName",
-      "gradingScheme" : "essif:gradingSchema",
-      "title" : "schema:title",
-      "learningAchievement" : "essif:learningAchievement",
-      "additionalNote" : "shema:additionalNote",
-      "description" : "schema:description",
-      "learningSpecification" : "essif:learningSpecifications",
-      "ectsCreditPoints" : "essif:ectsCreditPoints",
-      "eqfLevel" : "essif:eqfLevel",
-      "iscedfCode" : "essif:iscedfCode",
-      "nqfLevel" : "essif:nqfLevel"
-        }
-  ],
-  "credentialStatus": {
-    "id": "https://essif.europa.eu/status/education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
-    "type": "CredentialStatusList2020"
-  },
+from flask import Flask, jsonify, redirect, request
+from jwcrypto import jwk, jwt
+import json
+import sys
+
+# Init Flask
+app = Flask(__name__)
+app.config.update(SECRET_KEY = "abcdefgh")
+
+
+# data provided by Saas4ssi platform
+landing_page_link = 'http://192.168.43.67:3000/sandbox/op/issuer/demo'
+public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ"}
+
+
+""" 
+Step 1
+Application redirects user to issuer page
+"""
+@app.route('/')
+def index():
+    return redirect(landing_page_link)
+
+
+
+"""
+Step 2
+Application receives an access token with user data and return the credential data to issue
+"""
+@app.route('/webhook', methods=['POST'])
+def credential() :
+
+    # Get user data from access_token received (optional)
+    access_token = request.headers["Authorization"].split()[1]
+    key = jwk.JWK(**public_key)
+    try :
+        ET = jwt.JWT(key=key, jwt=access_token)
+    except :
+        print ("signature error")
+        sys.exit()
+    user_data = json.loads(ET.claims)
+    print('user data received from platform = ', user_data)
+
+    # Do what you need to prepare the credential to issue (required)
+    credential = {
+  "@context": [ ],
   "credentialSchema": {
     "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
     "type": "JsonSchemaValidator2018"
@@ -102,16 +106,27 @@
       "DocumentVerification"
     ],
     "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
-  },
+  }
 
-  "id": "urn:uuid:6b1d8411-9ed5-4566-9c7f-4c24165ff236",
-  "issued": "2022-04-27T12:25:07.424476323Z",
-  "issuer": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
-  "validFrom": "2022-04-27T12:25:07.424481688Z",
-  "issuanceDate": "2022-04-27T12:25:07.424481688Z",
-  "type": [
-    "VerifiableCredential",
-    "VerifiableAttestation",
-    "VerifiableDiploma"
-  ]
 }
+   
+    return jsonify(credential)
+   
+
+
+""" 
+Step 3
+Application get user back after issuance
+"""
+@app.route('/callback', methods=['GET'])
+def callback() :
+    print("callback success")
+    return jsonify ('callback success')
+
+
+
+
+
+if __name__ == '__main__':
+    IP = "127.0.0.1"
+    app.run( host = IP, port=4000, debug =True)

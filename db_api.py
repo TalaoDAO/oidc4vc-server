@@ -3,13 +3,16 @@ import uuid
 import logging
 import sqlite3
 import random 
+import sys
 import string
+import base58
+import os
 from jwcrypto import jwk
 from op_constante import issuer_client_data_pattern, verifier_client_data_pattern
 logging.basicConfig(level=logging.INFO)
 
-def create_verifier(mode, user=None) :
-    return create('verifier.db', user, mode)
+def create_verifier(mode, user=None, demo=False) :
+    return create('verifier.db', user, mode, demo)
 def update_verifier(client_id, data) :
     return update(client_id, data, 'verifier.db')
 def read_verifier(client_id) :
@@ -19,8 +22,8 @@ def list_verifier() :
 def delete_verifier(client_id) :
     return delete(client_id, 'verifier.db')
     
-def create_issuer(mode, user=None) :
-    return create('issuer.db', user, mode)
+def create_issuer(mode, user=None, demo=False) :
+    return create('issuer.db', user, mode, demo)
 def update_issuer(client_id, data) :
     return update(client_id, data, 'issuer.db')
 def read_issuer(client_id) :
@@ -31,19 +34,30 @@ def delete_issuer(client_id) :
     return delete(client_id, 'issuer.db')
 
 
-def create(db, user, mode) :
+def create(db, user, mode, demo) :
     letters = string.ascii_lowercase
     if db == 'issuer.db' :
         data = issuer_client_data_pattern     
         data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+        data['client_secret'] = str(uuid.uuid1())
+        if demo :
+            data['client_id'] =  data['client_secret'] = "demo"
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
-        data['method'] = "ethr"
+        # init with did:ethr
         key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
         data['jwk'] = key.export_private()
-    else :
+        data['method'] = "ethr"
+        # init did:ebsi in case of use
+        data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
+    elif  db == 'verifier.db' :
         data = verifier_client_data_pattern
         data['client_id'] = ''.join(random.choice(letters) for i in range(10))
         data['client_secret'] = str(uuid.uuid1())
+        if demo :
+            data['client_id'] =  data['client_secret'] = "demo"
+    else :
+        logging.error("error db = %s", db)
+        sys.exit()
     if user :
         data['user'] = user
     conn = sqlite3.connect(db)

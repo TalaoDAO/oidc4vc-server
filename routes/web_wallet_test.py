@@ -1,5 +1,4 @@
 """
-
 def get_version() -> str: ...
 def generate_ed25519_key() -> str: ...
 def key_to_did(method_pattern: str, jwk: str) -> str: ...
@@ -11,8 +10,6 @@ async def verify_presentation(presentation: str, proof_options: str) -> str: ...
 async def resolve_did(did: str, input_metadata: str) -> str: ...
 async def dereference_did_url(did_url: str, input_metadata: str) -> str: ...
 async def did_auth(did: str, options: str, key: str) -> str: ...
-
-
 """
 
 
@@ -26,7 +23,7 @@ import uuid
 import didkit
 import logging
 from urllib.parse import urlencode
-
+import ebsi
 
 logging.basicConfig(level=logging.INFO)
 
@@ -175,23 +172,24 @@ def test_direct_offer(red, mode) :
    
         
     elif VC_filename == "TalaoCommunity.jsonld" :
-        filename = "./test/credential_manifest/TalaoCommunity_credential_manifest_" + cm + ".json"
+        filename = "./credential_manifest/TalaoCommunity_credential_manifest_" + cm + ".json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']
     
-    elif VC_filename == "LearningAchievement.jsonld" :
-        filename = "./test/credential_manifest/LearningAchievement_credential_manifest.json"
+    # EBSI signer
+    elif VC_filename == "VerifiableDiploma.jsonld" :
+        filename = "./credential_manifest/VerifiableDiploma_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
-        del credentialOffer['display']
+        del credentialOffer['display']      
 
     elif VC_filename == "TezVoucher_1.jsonld" :
-        filename = "./test/credential_manifest/voucher_credential_manifest.json"
+        filename = "./credential_manifest/voucher_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -199,7 +197,7 @@ def test_direct_offer(red, mode) :
         del credentialOffer['display']       
 
     elif VC_filename == "compellio_ticket.jsonld" :
-        filename = "./test/credential_manifest/compellio_ticket_cm.json"
+        filename = "./credential_manifest/compellio_ticket_cm.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -207,7 +205,7 @@ def test_direct_offer(red, mode) :
         del credentialOffer['display']      
 
     elif VC_filename == "compellio_club_membership.jsonld" :
-        filename = "./test/credential_manifest/compellio_club_membership_cm.json"
+        filename = "./credential_manifest/compellio_club_membership_cm.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -216,20 +214,24 @@ def test_direct_offer(red, mode) :
 
     else :
         pass
-   
+    cm = json.loads(credential_manifest)
+    try :
+        del cm["presentation_definition"]
+    except :
+        pass
     url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(credential['id'], json.dumps(credentialOffer))
-    type = credentialOffer['credentialPreview']['type'][1]
+    mytype = credentialOffer['credentialPreview']['type'][1]
     
     return render_template('credential_offer_qr_2.html',
                                 url=url,
                                 deeplink=deeplink,
                                 alrme_deeplink=altme_deeplink,
                                 id=credential['id'],
-                                credential_manifest = json.dumps(json.loads(credential_manifest),indent=4),
-                                type = type + " - " + translate(credential)
+                                credential_manifest = json.dumps(cm,indent=4),
+                                type = mytype + " - " + translate(credential)
                                 )
 
 
@@ -379,15 +381,9 @@ async def test_credentialOffer_endpoint(id, red):
 
         global did_selected
         if  credential["issuer"][:8] == "did:ebsi" :
-            signed_credential = credential
-            signed_credential["proof"] = {
-                "created": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
-                "creator": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
-                "domain": "https://api.preprod.ebsi.eu",
-                "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..mIBnM8XDQqSYKQNX_LvaJhmsbyCr5OZ5cU2Zk-ReqLpr4doFsgmoobkO5128tZy-8KimVjJkGw0wL1uBWnMLWQ",
-                "nonce": "3ea68dae-d07a-4daa-932b-fbb58f5c20c4",
-                "type": "EcdsaSecp256k1Signature2019"
-            }
+            print("ebsi signer")
+            signed_credential = ebsi.lp_sign(credential, Secp256kr, credential["issuer"])
+            print('signed credential =', signed_credential)
             filename = './signed_credentials/verifiablediploma' + '.jsonld'
             with open(filename, 'w') as outfile :
                 outfile.write(json.dumps(signed_credential, indent=4, ensure_ascii=False))

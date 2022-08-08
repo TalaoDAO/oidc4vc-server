@@ -2,8 +2,7 @@
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
-            "name" : "https://schema.org/name",
-            "description" : "https://schema.org/description",
+            
             "LearningAchievement" : {
                 "@id": "https://github.com/TalaoDAO/context",
                 "@context": {
@@ -44,22 +43,6 @@
     "type": ["VerifiableCredential","LearningAchievement"],
     "issuer": "",
     "issuanceDate": "2019-06-22T14:11:44Z",
-    "name" :[ 
-        {
-            "@language": "fr",
-            "@value": "Diplome"
-        },
-        {
-            "@language": "en",
-            "@value": "Diploma"
-        }
-    ],
-     "description" :[ 
-        {
-            "@language": "en",
-            "@value": ""
-        }
-    ],
     "credentialSubject": {
         "type" : "LearningAchievement",
         "id": "",

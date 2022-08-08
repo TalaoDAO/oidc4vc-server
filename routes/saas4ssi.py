@@ -20,7 +20,7 @@ def saas_device_detector ():
     device = SoftwareDetector(ua).parse()
     print(device.os_name())
     if device.os_name() == "Android" :
-        return redirect("https://play.google.com/store/apps/details?id=co.talao.wallet&hl=fr_FR")
+        return redirect("https://play.google.com/store/apps/details?id=co.altme.alt.me.altme")
     elif device.os_name() == "iOS" : 
         return redirect("https://apps.apple.com/fr/app/talao-wallet/id1582183266?platform=iphone")
     else :

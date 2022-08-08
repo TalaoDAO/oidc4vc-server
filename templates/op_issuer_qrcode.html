@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="background-color: {{ page_background_color }} ">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=300px, initial-scale=1, maximum-scale=1">
@@ -8,8 +8,9 @@
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
   </head>
   <body>
-
-        <div id="content_desktop" class="d-none d-sm-block mt-5">
+    <font color="{{page_text_color}}">  
+        <div id="content_desktop" class="d-none d-sm-block mt-5" style="background-color: {{page_background_color}} " >
+          
           <div class="text-center">
             <h1>{{page_title}}</h1><br>
             <h3>{{page_subtitle}}</h3><br>
@@ -18,13 +19,13 @@
                 <h5>{{page_description}}</h5>
               </div>
             </div>
+          </div> 
 
-          </div>  
-            <div class="row d-flex justify-content-center">
-             
+            <div class="row d-flex justify-content-center">   
+
             <div class="col-2">
               <div class="text-center">
-              <div class="card shadow border-dark mt-5" >
+              <div class="card shadow border-dark mt-5" style="background-color: {{qrcode_background_color}} ">
                 <h2 class="mt-4">{{title}}</h2>
                 <img class="card-img-top p-4" src="{{ qrcode(url) }}">
                 <div>
@@ -57,19 +58,37 @@
         
         
 
-        <div id="content_smartphone" class="d-block d-sm-none"> 
-          <div class="card shadow mt-5">
-                  <div class="card-body mt-4">
-                    <div class="text-center">
-                        <a href="{{deeplink_talao}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/talao.png"  style="width: 150px;"></a>
-                        <br>
-                        <a href="{{deeplink_altme}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/AltMe.png"  style="width: 75px;"></a>
-                        <h5 class="card-title mt-4">{{mobile_message}}</h5>
-                        <button  onclick="goBack()" class="btn btn-outline-secondary mt-2">Back</button>
-                        <div class="mt-5"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
-                  </div>
-                </div> 
+        <div id="content_smartphone" class="d-block d-sm-none" style="background-color: {{page_background_color}} " > 
+          <div class="text-center">
+
+            <h3>{{page_title}}</h3><br>
+            <h5>{{page_subtitle}}</h5><br>
+
+            <div class="row">
+              <div class="col-6 offset-3">
+                <h6>{{page_description}}</h6>
               </div>
+            </div>
+         
+                        <a href="{{deeplink_talao}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/talao.png"  style="width: 100px;"></a>
+                        <br>
+                        <a href="{{deeplink_altme}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/AltMe.png"  style="width: 50px;"></a>
+                        <h6 class=" mt-4">{{mobile_message}}</h6>
+                        <div class="mt-5"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
+                 
+              <div class="row">
+                <div class="col">
+                  <a class="text-secondary" href={{privacy_url}}><small>Privacy</small></a>
+                </div>
+                </div>
+                <div class="row">
+                
+                <div class="col">
+                  <a class="text-secondary" href={{terms_url}}><small>Terms & conditions</small></a>
+                </div>
+              </div>
+         
+          </div>
         </div>
 
 
@@ -91,5 +110,6 @@
         };
       </script>
       
+      </font>
   </body>
 </html>

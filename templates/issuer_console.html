@@ -76,7 +76,7 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Your application configuration and data</p>
+                              <p class="text-primary m-0 font-weight-bold">Your application code</p>
                             </div>
                           </div>
                           <div class="card-body">
@@ -93,15 +93,26 @@
 
                         <div class="form-row">
                           <div class="col" >
-                            <div class="form-group"><label><strong>Callback URL of your application</strong></label><input required class="form-control" name="callback" type="text" value={{callback}}></div>
+                            <div class="form-group"><label><strong>Callback URL of your application</strong></label><input class="form-control" name="callback" type="text" value={{callback}}></div>
                           </div>
                           
                           <div class="col-6">
-                            <div class="form-group"><label><strong>Webhook URL of your application</strong><br></label><input required class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
+                            <div class="form-group"><label><strong>Webhook URL of your application</strong><br></label><input  class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
                           </div> 
 
                         </div>
                         
+                        </div>
+                        </div>
+
+
+                        <div class="card shadow my-3">
+                          <div class="card-header py-3">
+                            <div class="d-flex justify-content-between">
+                              <p class="text-primary m-0 font-weight-bold">Your credentials</p>
+                            </div>
+                          </div>
+                          <div class="card-body">
 
                           <div class="form-row">
                             <div class="col-6">
@@ -129,14 +140,8 @@
                                 <div class="form-group"><label><strong>Credential to issue</strong></label><select  onchange="getResponse();" id="selectCredential" name="credential_to_issue" class="form-control">
                                   <option value="">--Please choose an option--</option>
                                  {{credential_to_issue_select|safe}}
-
                                   </select></div>
                             </div>   
-                            
-                            <div class="col-6">
-                              <div class="form-group"><label><strong>Example of data to send back through your webhook</strong><br></label><textarea class="form-control" readonly id="textCredential" cols="30" rows="10" type="text" name="credentialSubject" ></textarea></div>
-                            </div> 
-
                           </div>                    
 
                           </div>
@@ -146,7 +151,7 @@
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
                               <div class="d-flex justify-content-between">
-                                <p class="text-primary m-0 font-weight-bold">Customize your issuer landing page</p>
+                                <p class="text-primary m-0 font-weight-bold">Customize your issuer page</p>
                               </div>
                             </div>
                             <div class="card-body">
@@ -167,6 +172,22 @@
                                 </div>
                               </div>
 
+                              <div class="form-row">
+
+                                <div class="col">
+                                  <div class="form-group"><label><strong>Page background color</strong><br></label><input type="color" class="form-control" name="page_background_color" value="{{page_background_color}}"></div>
+                                </div>
+                           
+
+                              <div class="col">
+                                <div class="form-group"><label><strong>Page text color</strong><br></label><input type="color" class="form-control" name="page_text_color" value="{{page_text_color}}"></div>
+                              </div>
+                          
+
+                            <div class="col">
+                              <div class="form-group"><label><strong>QR code background color</strong><br></label><input type="color" class="form-control" name="qrcode_background_color" value="{{qrcode_background_color}}"></div>
+                            </div>
+                          </div>
 
                          <div class="form-row">
                   
@@ -183,11 +204,11 @@
                           
                      
                         <div class="col">
-                          <div class="form-group"><label><strong>Message for mobile</strong><br></label><input type="text" class="form-control" name="mobile_message" value="{{mobile_message}}"></div>
+                          <div class="form-group"><label><strong>Message for mobile deeplink</strong><br></label><input type="text" class="form-control" name="mobile_message" value="{{mobile_message}}"></div>
                         </div>
                    
                             <div class="col">
-                              <div class="form-group"><label><strong>In wallet message</strong><br></label><input type="text" class="form-control" name="reason" value="{{reason}}"></div>
+                              <div class="form-group"><label><strong>In wallet message for credential requested</strong><br></label><input type="text" class="form-control" name="reason" value="{{reason}}"></div>
                             </div>
 
                            
@@ -216,8 +237,9 @@
                           <div class="form-row">
                                 <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuration</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
+                            {% if session['login_name'] == "admin1234" %}
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
-
+                            {% endif %}
 
 
 
@@ -229,8 +251,11 @@
 
                   <div class="form-row">
                   <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
-                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select issuer</button></div>
                   <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create issuer</button></div>
+                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select issuer</button></div>
+                  {% if session['login_name'] == "admin1234" %}
+                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="demo" type="submit">Create demo issuer</button></div>
+                    {% endif %}
                   </div>
 
                 </form>
@@ -248,41 +273,7 @@
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
-<script>
-  
-  document.getElementById("textCredential").innerHTML = "Select the credential to issue to get an example of data to send back";
-  function getResponse() {
-    var selected = document.getElementById("selectCredential").value;
-    console.log(selected);
-    if (selected == "LearningAchievement"){
-      document.getElementById("textCredential").innerHTML = "{{LearningAchievement}}";
-    }
-    else if (selected == "VaccinationEvent"){
-      document.getElementById("textCredential").innerHTML = "{{VaccinationEvent}}";
-    }
-    else if (selected == "StudentCard"){
-      document.getElementById("textCredential").innerHTML = "{{StudentCard}}";
-    }
-    else if (selected == "CertificateOfEmployment"){
-      document.getElementById("textCredential").innerHTML = "{{CertificateOfEmployment}}";
-    }
-    else if (selected == "VerifiableDiploma"){
-      document.getElementById("textCredential").innerHTML = "{{VerifiableDiploma}}";
-    }
-    else if (selected == "AragoPass"){
-      document.getElementById("textCredential").innerHTML = "{{AragoPass}}";
-    }
-    else if (selected == "NewIdentityPass"){
-      document.getElementById("textCredential").innerHTML = "{{NewIdentityPass}}";
-    }
-    else {
-        document.getElementById("textCredential").innerHTML = "Select a credential to issue";
-    }
 
-    }
-    
-  
-  </script>
 </body>
 
 </html>

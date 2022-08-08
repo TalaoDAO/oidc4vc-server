@@ -25,8 +25,7 @@ credential_to_issue_list = {
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
-                    "VaccinationEvent" : "Vaccination certificate",
-                     "AragoPass" : "Arago Pass"
+                    "AragoPass" : "Arago Pass"
                 }
 
 credential_requested_list = {
@@ -35,7 +34,7 @@ credential_requested_list = {
                     'IdCard' : 'Identity card',
                     'Over18' : 'Proof of majority (Over 18)',
                     "TezosAssociatedWallet" : "Proof of crypto account",
-                    'DID' : "Decentralized Identifier (DID)",
+                    'DID' : "None",
                 }
 
 protocol_list = {'w3cpr' : "W3C Presentation Request ",
@@ -116,10 +115,12 @@ verifier_client_data_pattern = {
 issuer_client_data_pattern = {
                 "user" : "all",
                 "client_id" :  "",
+                "client_secret" : "",
                 "callback" : "",
                 "webhook" : "",
                 "jwk" : "",
                 "method" : "",
+                "did_ebsi": "",
                 "issuer_landing_page" : "",     
                 "note" : "This issuer is ......",
                 "company_name" : "New issuer",
@@ -129,7 +130,10 @@ issuer_client_data_pattern = {
                 "protocol" : "w3cpr",
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
-                "page_description" : "Page description",
+                "page_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                "page_background_color" : "#ffffff",
+                "page_text_color" : "#000000",
+                "qrcode_background_color" :"#ffffff",
                 "qrcode_message" : "Scan with your wallet",
                 "mobile_message" : "",
                 "contact_email" : "",
@@ -139,162 +143,3 @@ issuer_client_data_pattern = {
                 "terms_url" : "https://www.my_company.com/terms_and_conditions", 
                 "title" : "Scan to issue"
                 }
-
-
-LearningAchievement = {
-        "type" : "LearningAchievement",
-        "id": "",
-        "familyName": "Lea",
-        "givenName": "Skywalker",
-        "birthDate": "1977-08-15",
-        "email" : "lea@starwar.io",
-        "hasCredential": {
-            "title":  "Pilot",
-            "description" : "hhhhh"
-        },
-        "issuedBy" : {
-            "name": "Star war commander",
-            "address" : "",
-            "logo" : ""
-        }
-    }
-
-VaccinationEvent = {
-        "type": "VaccinationEvent",
-        "id" : "",
-        "batchNumber": "1183738569",
-        "administeringCentre": "MoH",
-        "healthProfessional": "MoH",
-        "countryOfVaccination": "NZ",
-        "recipient": {
-            "type": "VaccineRecipient",
-            "givenName": "JOHN",
-            "familyName": "SMITH",
-            "gender": "Male",
-            "birthDate": "1958-07-17"
-        },
-        "vaccine": {
-            "type": "Vaccine",
-            "disease": "COVID-19",
-            "atcCode": "J07BX03",
-            "medicinalProductName": "COVID-19 Vaccine Moderna",
-            "marketingAuthorizationHolder": "Moderna Biotech"
-        }
-}
-
-StudentCard = {
-        "id": "",
-        "type": "StudentCard",
-        "recipient": {
-            "birthDate": "1991-12-10T12:02:55.268Z",
-            "familyName": "Doe",
-            "givenName": "John",
-            "image": "https://gateway.pinata.cloud/ipfs/QmSSJooT2JFraZFNHavVLQzzxwSpg3ithJL4ztGYY9MpBY",
-            "signatureLines": {
-                "image": "https://gateway.pinata.cloud/ipfs/QmeMfck3z6K5p8xmCqQpjH3R7s3YddR5DsMNLewWvzQrFS"
-            }
-        },
-        "issuedBy": {
-            "address": "16 rue de Wattignies, 75012 Paris, France",
-            "directorName": "Nicolas Muller",
-            "logo": "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu",
-            "name": "Talao CFA"
-        }
-    }
-
-CertificateOfEmployment = {
-        "id": "",
-        "familyName": "Derangeot",
-        "jobTitle": "Lead developer",
-        "employmentType": "Contrat à durée illimitée",
-        "startDate": "2019-09-04",
-        "type": "CertificateOfEmployment",
-        "givenName": "Paul",
-        "workFor": {
-            "address": "16 rue de Wattignies, 75012 Paris, France",
-            "logo": "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu",
-            "name": "Talao"
-        },
-        "issuedBy": {
-            "address": "16 rue de Wattignies, 75012 Paris, France",
-            "logo": "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu",
-            "name": "Talao"
-        },
-        "baseSalary": "65000 euros"
-    }
-
-VerifiableDiploma = {
-    "type": "VerifiableDiploma",
-    "awardingOpportunity": {
-      "awardingBody": {
-          "eidasLegalIdentifier": "Unknown",
-          "homepage": "https://leaston.bcdiploma.com/",
-          "id": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
-          "preferredName": "Leaston University",
-          "registration": "0597065J"
-      },
-      "endedAtTime": "2020-06-26T00:00:00Z",
-      "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
-      "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-      "location": "FRANCE",
-      "startedAtTime": "2019-09-02T00:00:00Z"
-  },
-  "dateOfBirth": "1993-04-08",
-  "familyName": "DOE",
-  "givenName": "Jane",
-  "gradingScheme": {
-      "id": "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
-      "title": "2 year full-time programme / 4 semesters"
-  },
-  "id": "",
-  "identifier": "0904008084H",
-  "learningAchievement": {
-      "additionalNote": [
-          "DISTRIBUTION MANAGEMENT"
-      ],
-      "description": "The Master in Information and Computer Sciences (MICS) at the University of Luxembourg enables students to acquire deeper knowledge in computer science by understanding its abstract and interdisciplinary foundations, focusing on problem solving and developing lifelong learning skills.",
-      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
-      "title": "Master in Information and Computer Sciences"
-  },
-  "learningSpecification": {
-      "ectsCreditPoints": 120,
-      "eqfLevel": 7,
-      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
-      "iscedfCode": [
-          "7"
-      ],
-      "nqfLevel": [
-          "7"
-      ]
-  }
-}
-
-AragoPass = {
-        "id": "",
-        "type" : "AgoraPass",
-        "email" : "john.doe@gmail.com",
-        "image" : "",
-        "familyName" : "Doe",
-        "givenName" : "John",
-        "duration" : "30",
-        "issuedBy" : {
-            "name" : "Agora",
-            "address" : "4, rue Louis-Guérin, 69626 Villeurbanne, France",
-            "logo" : "https://talao.mypinata.cloud/ipfs/QmNwbEEupT7jR2zmrA87FsN4hUS8eXnCxM8DsL9RXc25cu"
-              }
-    }
-
-NewIdentityPass = {
-        "id": "",
-        "type" : "NewIdentityPass",
-        "email" : "john.doe@gmail.com",
-        "image" : "",
-        "familyName" : "Doe",
-        "givenName" : "John",
-        "duration" : "30",
-        "issuedBy" : {
-            "name" : "Issuer name",
-            "address" : "Issuer addres",
-            "logo" : "Issuer logo URL"
-              }
-    }

@@ -27,12 +27,9 @@
                     </div>
                     <div class="card-body">
                       <form action="/sandbox/op/issuer/console/advanced" method="POST">
+                      <input value="{{client_id}}" hidden name="client_id">
 
-                        
-
-                        <input value="{{client_id}}" hidden name="client_id">
-
-                          <div class="form-row">
+                      <div class="form-row">
                                                     
                           <div class="col-3">
                             <div class="form-group"><label><strong>Issuer protocol</strong></label><select name="protocol" class="form-control">
@@ -40,34 +37,51 @@
                               </select></div>
                           </div>
                          
-                                                    
+
                             <div class="col-3">
-                              <div class="form-group"><label><strong>DID method</strong></label><select name="method" class="form-control">
-                                {{method_select|safe}}  
-                                </select></div>
+                              <div class="form-group"><label><strong>VC/VP format</strong></label>
+                                <select name="" class="form-control">
+                                <option selected value="JSON-LD">JSON-LD</option>
+                                </select>
+                              </div>
                             </div>
+                      </div>
+
+                      <div class="form-row">
+
+                              <div class="col-3">
+                                <div class="form-group"><label><strong>DID method for secp256k1 keys</strong></label><select name="method" class="form-control">
+                                  {{method_select|safe}}  
+                                  </select></div>
+                              </div>
 
                             <div class="col">
                               <div class="form-group"><label><strong>Issuer DID</strong><br></label><input readonly class="form-control" type="text"  value="{{DID}}"></div>
                             </div>
 
+                            <div class="col">
+                              <div class="form-group"><label><strong>Issuer DID for EBSI (input your DID if needed)</strong><br></label><input class="form-control" type="text"  name = "did_ebsi" value="{{did_ebsi}}"></div>
                             </div>
 
-                            <div class="form-row">
+                      </div>
+
+                      <div class="form-row">
                               <div class="col">
-                                <div class="form-group"><label><strong>Private key for DID (JWK format)</strong><br></label><textarea class="form-control" rows="3" name="jwk" >{{jwk}}</textarea></div>
+                                <div class="form-group"><label><strong>Secp256k1 private key for DID (JWK format)</strong><br></label><textarea class="form-control" rows="8" name="jwk" >{{jwk}}</textarea></div>
                               </div>
-                            </div>
+                      </div>
 
-                        <div class="form-group">
-                          <div class="form-row">
+                      <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>DID Document</strong><br></label><textarea readonly class="form-control" rows="10" name="" >{{did_document}}</textarea></div>
+                              </div>
+                      </div>
+
+                      <div class="form-row">
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
-                            
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="back" type="submit">Back</button></div>
+                      </div>
 
-
-                          </div>
-                        </div>
                       </form>
                     </div>
                   </div>
