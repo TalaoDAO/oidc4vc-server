@@ -186,6 +186,14 @@ def test_direct_offer(red, mode) :
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
+        del credentialOffer['display']     
+
+    elif VC_filename == "Test.jsonld" :
+        filename = "./credential_manifest/Test_credential_manifest.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
         del credentialOffer['display']      
 
     elif VC_filename == "TezVoucher_1.jsonld" :
@@ -413,6 +421,7 @@ async def test_credentialOffer_endpoint(id, red):
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
+        print(signed_credential)
         return jsonify(signed_credential)
         
 
