@@ -381,12 +381,11 @@ async def test_credentialOffer_endpoint(id, red):
 
         global did_selected
         if  credential["issuer"][:8] == "did:ebsi" :
-            print("ebsi signer")
+            logging.info("ebsi signer")
             signed_credential = ebsi.lp_sign(credential, Secp256kr, credential["issuer"])
-            print('signed credential =', signed_credential)
-            filename = './signed_credentials/verifiablediploma' + '.jsonld'
-            with open(filename, 'w') as outfile :
-                outfile.write(json.dumps(signed_credential, indent=4, ensure_ascii=False))
+            #filename = './signed_credentials/verifiablediploma' + '.jsonld'
+            #with open(filename, 'w') as outfile :
+            #    outfile.write(json.dumps(signed_credential, indent=4, ensure_ascii=False))
         else :
             if did_selected == 'did:web:talao.co#key-1' :
                 signed_credential = vc_signature.sign(credential, Secp256kr, "did:web:talao.co") 
