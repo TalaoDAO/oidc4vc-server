@@ -8,10 +8,10 @@
   <div id="content_desktop" class="d-none d-sm-block">
       <div class="text-center">  
                 <div id="id_text" class="m-5">
-                  <br><br>Scan the QRCode below with your Talao wallet to display your VC and VP. 
+                  <h1>Display your VP and VC</h1>
+                  <br><br>Scan the QRCode below with your wallet (Talao or Altme). 
                 <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url) }}" class=" w-30 h-30"></div>
                 <br>
-                URL endpoint = {{url}}
                 <br>
                 <br>
                 <p><button  type="button"  onclick="goBack()">Back</button></p>
@@ -21,10 +21,16 @@
   </div>
 
   <div id="content_smartphone" class="d-block d-sm-none">
-    <div class="text-center m-5"> 
-      <img src="/static/img/12.png" class="card-img-top" alt="...">
+    <div class="text-center m-5 mt-5"> 
+      <h1>Display your VP and VC</h1>
       <br><br>
       <a href="{{deeplink}}" class="btn btn-primary">Open the Talao wallet</a>
+      <br> <br><br>
+      <a href="{{altme_deeplink}}" class="btn btn-primary">Open the Altme wallet</a>
+      <br><br>
+      <p><button  type="button"  onclick="goBack()">Back</button></p>
+
+
       </div>
     </div>
 

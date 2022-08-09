@@ -142,6 +142,7 @@ def test_direct_offer(red, mode) :
         credential['issuer'] = DID_TZ1
     credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
+    credential['id'] = "urn:uuid:" + str(uuid.uuid1())
     backgroundColor = "ffffff"
     if VC_filename == "VerifiableDiploma.jsonld" :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
@@ -227,17 +228,17 @@ def test_direct_offer(red, mode) :
         del cm["presentation_definition"]
     except :
         pass
-    url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?issuer=' + did_selected
+    id =  str(uuid.uuid1())
+    url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
-    red.set(credential['id'], json.dumps(credentialOffer))
+    red.set(id, json.dumps(credentialOffer))
     mytype = credentialOffer['credentialPreview']['type'][1]
-    
     return render_template('credential_offer_qr_2.html',
                                 url=url,
                                 deeplink=deeplink,
-                                alrme_deeplink=altme_deeplink,
-                                id=credential['id'],
+                                altme_deeplink=altme_deeplink,
+                                id=id,
                                 credential_manifest = json.dumps(cm,indent=4),
                                 type = mytype + " - " + translate(credential)
                                 )
@@ -402,6 +403,7 @@ async def test_credentialOffer_endpoint(id, red):
             elif did_selected == 'did:web:talao.co#key-4' :
                 signed_credential = vc_signature.sign(credential, Secp256kr, "did:web:talao.co", Ed25519=Ed25519)
             elif did_selected == DID_TZ1 :
+                print("credential = ", credential)
                 didkit_options = {
                     "proofPurpose": "assertionMethod",
                     "verificationMethod": await didkit.key_to_verification_method('tz', Ed25519)
