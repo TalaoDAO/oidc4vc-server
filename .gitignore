@@ -2,3 +2,5 @@ __pycache__/*
 routes/__pycache__/*
 keys.json
 passwords.json
+issuer.db
+verifier.db

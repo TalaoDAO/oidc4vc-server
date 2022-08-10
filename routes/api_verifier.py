@@ -26,7 +26,6 @@ public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
-
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red})
     app.add_url_rule('/sandbox/op/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red, 'mode' : mode})
@@ -249,6 +248,7 @@ Protocol pour Presentation Request
 
 
 def login_qrcode(red, mode):
+
     stream_id = str(uuid.uuid1())
     try :
         client_id = json.loads(red.get(request.args['code']).decode())['client_id']
@@ -285,6 +285,9 @@ def login_qrcode(red, mode):
                             terms_url= verifier_data.get('terms_url'),
                             privacy_url=verifier_data.get('privacy_url'),
                             company_name=verifier_data.get('company_name'),
+                            page_title=verifier_data['page_title'],
+                            page_subtitle=verifier_data['page_subtitle'],
+                            page_description=verifier_data['page_description'],
                             page_background_color = verifier_data['page_background_color'],
                             page_text_color = verifier_data['page_text_color'],
                             qrcode_background_color = verifier_data['qrcode_background_color']
@@ -300,7 +303,6 @@ async def login_presentation_endpoint(stream_id, red):
     """
     if request.method == 'GET':
         my_pattern = json.loads(red.get(stream_id).decode())['pattern']
-        print("my pattern = ", my_pattern)
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
@@ -340,6 +342,7 @@ async def login_presentation_endpoint(stream_id, red):
         return jsonify("ok")
 
 
+# check if user is connected or not
 def login_followup(red):  
     stream_id = request.args['stream_id']
     code = json.loads(red.get(stream_id).decode())['code']

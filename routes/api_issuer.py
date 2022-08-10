@@ -12,7 +12,7 @@ async def dereference_did_url(did_url: str, input_metadata: str) -> str: ...
 async def did_auth(did: str, options: str, key: str) -> str: ...
 """
 
-from flask import jsonify, request, render_template, Response, redirect
+from flask import jsonify, request, render_template, Response, redirect, session
 import json
 from datetime import timedelta, datetime
 import uuid
@@ -84,6 +84,7 @@ def build_access_token(vp, did, client_id, key, mode) :
 Direct access to one VC with filename passed as an argument
 """
 def issuer_landing_page(issuer_id, red, mode) :
+    session['is_connected'] = True
     try :
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
     except :
@@ -126,7 +127,6 @@ def issuer_landing_page(issuer_id, red, mode) :
         credential_manifest['presentation_definition']['input_descriptors'][0]['purpose'] = issuer_data['reason']
         credential_manifest['presentation_definition']['input_descriptors'][0]['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
         credential_manifest['presentation_definition']['input_descriptors'][0]['id'] = str(uuid.uuid1())
-    print(credential_manifest)
 
     credentialOffer = {
         "type": "CredentialOffer",
@@ -173,19 +173,36 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                         
     # wallet POST
     if request.method == 'POST':
-        red.delete(stream_id)
+        try :
+            red.delete(stream_id)
+        except :
+            logging.warning('delete stream_id failed')
+            pass
 
         # build access token and call application webhook to receive application data
-        try :
-            vp = json.loads(request.form['presentation'])
-        except : 
-            vp = None
-            logging.warning('no verifiable presentation')
+        vp = json.loads(request.form['presentation'])
         access_token = build_access_token(vp, request.form['subject_id'], issuer_id, key, mode)
         header = {"Authorization" : "Bearer " + access_token}      
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
         r = requests.post(issuer_data['webhook'], headers=header)
-        credential_received = r.json()
+        if not r.status_code == requests.codes.ok :
+            logging.error('issuer failed to call application')
+            data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Issuer failed to call application"})
+            red.publish('op_issuer', data)
+            return jsonify("application error"),500
+        logging.info('status code ok')
+        
+        try :
+            credential_received = r.json()
+        except :
+            logging.error('aplication data are not json')
+            data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Application data are not json"})
+            red.publish('op_issuer', data)
+            return jsonify("application error"),500
 
         # prepare credential to issue   
         credential =  json.loads(credentialOffer)['credentialPreview']
@@ -207,6 +224,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                             "message" : "Application failed to send correct data"})
             red.publish('op_issuer', data)
             return jsonify("application error"),500
+        logging.info('credential received ok')
 
         if credential_received.get('evidence') :
             credential["evidence"] = credential_received['evidence']
@@ -221,19 +239,26 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             credential["issuer"] = issuer_data['did_ebsi']
             signed_credential = ebsi.lp_sign(credential, issuer_data['jwk'], issuer_data['did_ebsi'])
         else :
-            vm = await didkit.key_to_verification_method(issuer_data['method'], issuer_data['jwk'])
-            issuer_did = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])  
-            credential["issuer"] = issuer_did
+            credential["issuer"] = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])  
             didkit_options = {
                 "proofPurpose": "assertionMethod",
-                "verificationMethod": vm
+                "verificationMethod": await didkit.key_to_verification_method(issuer_data['method'], issuer_data['jwk'])
             }
-            signed_credential =  await didkit.issue_credential(
+            try :
+                signed_credential =  await didkit.issue_credential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
                 issuer_data['jwk']
             )
+            except :
+                logging.error('Signature error, application failed to return correct data')
+                data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Signature error, application failed to send correct data"})
+                red.publish('op_issuer', data)
+                return jsonify("application error"),500
 
+        logging.info('signature ok')
         # send event to front to go forward callback
         data = json.dumps({'stream_id' : stream_id,
                             "result" : True
@@ -243,9 +268,12 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         
 
 def issuer_followup():  
+    if not session.get('is_connected') :
+        logging.error('user is not connectd')
+        return render_template('op_issuer_removed.html')
+    session.clear()
     issuer_id = request.args.get('issuer_id')
     issuer_data = json.loads(db_api.read_issuer(issuer_id))
-    print(issuer_data['issuer_landing_page'])
     if request.args.get('message') :
         return render_template('op_issuer_failed.html', next = issuer_data['issuer_landing_page'])
     try :

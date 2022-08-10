@@ -9,9 +9,8 @@ app.config.update(SECRET_KEY = "abcdefgh")
 
 
 # data provided by Saas4ssi platform
-landing_page_link = 'http://192.168.0.220:3000/sandbox/op/issuer/fpbiarujhx'
-public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ"}
-
+landing_page_link = 'http://192.168.0.220:3000/sandbox/op/issuer/ualqtjnowx'
+public_key =  {'kty': 'RSA', 'kid': '123', 'n': 'pPocyKreTAn3YrmGyPYXHklYqUiSSQirGACwJSYYs-ksfw4brtA3SZCmA2sdAO8a2DXfqADwFgVSxJFtJ3GkHLV2ZvOIOnZCX6MF6NIWHB9c64ydrYNJbEy72oyG_-v-sE6rb0x-D-uJe9DFYIURzisyBlNA7imsiZPQniOjPLv0BUgED0vdO5HijFe7XbpVhoU-2oTkHHQ4CadmBZhelCczACkXpOU7mwcImGj9h1__PsyT5VBLi_92-93NimZjechPaaTYEU2u0rfnfVW5eGDYNAynO4Q2bhpFPRTXWZ5Lhnhnq7M76T6DGA3GeAu_MOzB0l4dxpFMJ6wHnekdkQ', 'e': 'AQAB'}
 
 """ 
 Step 1
@@ -39,7 +38,7 @@ def credential() :
         print ("signature error")
         sys.exit()
     user_data = json.loads(ET.claims)
-    print('user data received from platform = ', user_data)
+    #print('user data received from platform = ', user_data)
 
     # Do what you need to prepare the credential to issue (required)
     try :
@@ -63,6 +62,7 @@ def credential() :
     }
     except :
         credential = dict()
+    print("my credential = ", credential)
     return jsonify(credential)
    
 
