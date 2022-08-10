@@ -92,6 +92,9 @@ def preview (red, mode) :
                             terms_url= verifier_data.get('terms_url'),
                             privacy_url=verifier_data.get('privacy_url'),
                             company_name=verifier_data.get('company_name'),
+                            page_background_color = verifier_data['page_background_color'],
+                            page_text_color = verifier_data['page_text_color'],
+                            qrcode_background_color = verifier_data['qrcode_background_color'],
                             back_button = True
                             )
     
@@ -140,6 +143,9 @@ def console(mode) :
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
                 page_description = session['client_data']['page_description'],
+                page_background_color = session['client_data']['page_background_color'],
+                page_text_color = session['client_data']['page_text_color'],
+                qrcode_background_color = session['client_data']['qrcode_background_color'],
                 authorization=mode.server + 'sandbox/op/authorize',
                 logout=mode.server + 'sandbox/op/logout',
                 userinfo=mode.server + 'sandbox/op/userinfo',
@@ -174,6 +180,9 @@ def console(mode) :
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']
             session['client_data']['page_description'] = request.form['page_description']
+            session['client_data']['page_background_color'] = request.form['page_background_color']      
+            session['client_data']['page_text_color'] = request.form['page_text_color']  
+            session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color'] 
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['title'] = request.form['title']
             session['client_data']['contact_email'] = request.form['contact_email']

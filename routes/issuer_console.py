@@ -157,9 +157,9 @@ def issuer_console(mode) :
                 credential_requested_select =  credential_requested_select,
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
+                qrcode_background_color = session['client_data']['qrcode_background_color'],
                 card_background_color = session['client_data']['card_background_color'],
-                card_text_color = session['client_data']['card_text_color'],
-                qrcode_background_color = session['client_data']['qrcode_background_color']
+                card_text_color = session['client_data']['card_text_color']
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
@@ -207,9 +207,10 @@ def issuer_console(mode) :
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
             session['client_data']['page_background_color'] = request.form['page_background_color']      
             session['client_data']['page_text_color'] = request.form['page_text_color']  
+            session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color']    
             session['client_data']['card_background_color'] = request.form['card_background_color']      
             session['client_data']['card_text_color'] = request.form['card_text_color']                
-            session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color']      
+              
             db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
             if request.form['button'] == "preview" :
                 return redirect ('/sandbox/op/issuer/console/preview')

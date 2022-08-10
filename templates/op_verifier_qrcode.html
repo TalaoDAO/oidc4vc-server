@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html  style="background-color: {{ page_background_color }} ">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=300px, initial-scale=1, maximum-scale=1">
@@ -8,8 +8,8 @@
     <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
   </head>
   <body>
-
-        <div id="content_desktop" class="d-none d-sm-block mt-5">
+    <font color="{{page_text_color}}"> 
+        <div id="content_desktop" class="d-none d-sm-block mt-5" style="background-color: {{page_background_color}} ">
           <div class="text-center">
             <h1>{{page_title}}</h1><br>
             <h3>{{page_subtitle}}</h3><br>
@@ -23,8 +23,8 @@
             <div class="row d-flex justify-content-center">
             <div class="col-2">
               <div class="text-center">
-              <div class="card shadow border-dark mt-5" >
-                <h2 class="mt-4">{{title}}</h2>
+              <div class="card shadow border-dark mt-5" style="background-color: {{qrcode_background_color}} ">
+                <h3 class="mt-4">{{title}}</h3>
                 <img class="card-img-top p-4" src="{{ qrcode(url) }}">
                 <div>
                   <h6>{{qrcode_message}}</h6>
@@ -56,7 +56,7 @@
         
         
 
-        <div id="content_smartphone" class="d-block d-sm-none"> 
+        <div id="content_smartphone" class="d-block d-sm-none" style="background-color: {{page_background_color}} "> 
           <div class="card shadow mt-5">
                   <div class="card-body mt-4">
                     <div class="text-center">
@@ -89,6 +89,6 @@
           }
         };
       </script>
-      
+      </font>
   </body>
 </html>

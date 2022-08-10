@@ -12,10 +12,13 @@ credential_list = {
                     'IdCard' : 'Identity card',
                     'Over18' : 'Over 18',
                     'Tez_Voucher_1' : "Voucher 15% Tezotopia",
+                    'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'LearningAchievement' : 'Diploma',
                     'StudentCard' : 'Student card',
+                    'AragoPass' : 'Arago Pass',
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'DID' : "Decentralized Identifier",
+                    'VotersCard' : 'Voter card',
                     'ANY' : 'Any'
                 }
 
@@ -94,8 +97,8 @@ client_data_pattern = {
                 "user" : "all",
                 "client_id" :  "",
                 "client_secret" : "",
-                "callback" : "",
-                "webhook" : "",
+                "callback" : "https://company.com/callback",
+                "webhook" : "https://company.com/webhook",
                 "jwk" : "",
                 "method" : "",
                 "did_ebsi": "",

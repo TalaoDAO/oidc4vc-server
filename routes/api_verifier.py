@@ -17,12 +17,12 @@ CODE_LIFE = 180
 
 
 try :
-    rsa_key = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key'])
+    rsa_key_dict = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
 except :
-    rsa_key = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key'])
+    rsa_key_dict = json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key']
 
-key_dict = json.loads(rsa_key)
-public_rsa_key =  {"e": key_dict['e'],"kid" : key_dict['kid'],"kty": key_dict['kty'],"n": key_dict['n']}
+rsa_key = jwk.JWK(**rsa_key_dict) 
+public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
@@ -44,11 +44,11 @@ def init_app(app,red, mode) :
 
 
 def build_id_token(client_id, sub, nonce, mode) :
-    verifier_key = jwk.JWK(**key_dict) 
+    verifier_key = jwk.JWK(**rsa_key_dict) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
         "typ" :"JWT",
-        "kid": key_dict['kid'],
+        "kid": rsa_key_dict['kid'],
         "alg": "RS256"
     }
     payload = {
@@ -65,7 +65,8 @@ def build_id_token(client_id, sub, nonce, mode) :
    
 
 def jwks() :
-    return jsonify(public_rsa_key)
+    print(public_rsa_key)
+    return jsonify({"keys" : [public_rsa_key]})
 
 
 def openid_configuration(mode):
@@ -283,7 +284,10 @@ def login_qrcode(red, mode):
                             title=verifier_data['title'],
                             terms_url= verifier_data.get('terms_url'),
                             privacy_url=verifier_data.get('privacy_url'),
-                            company_name=verifier_data.get('company_name')
+                            company_name=verifier_data.get('company_name'),
+                            page_background_color = verifier_data['page_background_color'],
+                            page_text_color = verifier_data['page_text_color'],
+                            qrcode_background_color = verifier_data['qrcode_background_color']
                             )
     
 
@@ -296,6 +300,7 @@ async def login_presentation_endpoint(stream_id, red):
     """
     if request.method == 'GET':
         my_pattern = json.loads(red.get(stream_id).decode())['pattern']
+        print("my pattern = ", my_pattern)
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
