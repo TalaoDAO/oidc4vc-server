@@ -13,9 +13,15 @@ landing_page_link = 'http://192.168.43.67:3000/sandbox/op/issuer/demo'
 public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ"}
 
 
+"""
+Step 0 : configure an issuer with https://talao.co/sandbox/saas4ssi
+Note the issuer page URL and provides your call back and webhook endpoint
+Configure your issuer page, text, color and if needed SSI data as keys, DID method, etc
+"""
+
+
 """ 
-Step 1
-Application redirects user to issuer page
+Step 1 : Your application redirects user to your issuer page
 """
 @app.route('/')
 def index():
@@ -24,8 +30,8 @@ def index():
 
 
 """
-Step 2
-Application receives an access token with user data and return the credential data to issue
+Step 2  your application receives an access token with user data and return the credential data to issue
+user data is teh credential requested to issue the diploma : maybe none if your issuer is behinf a portal (university) or maybe an ID card or what ever you may need to authenticate your user
 """
 @app.route('/webhook', methods=['POST'])
 def credential() :
@@ -41,7 +47,7 @@ def credential() :
     user_data = json.loads(ET.claims)
     print('user data received from platform = ', user_data)
 
-    # Do what you need to prepare the credential to issue (required)
+    # Do what you need to prepare the credential to issue (required) !
     credential = {
   "@context": [ ],
   "credentialSchema": {
@@ -115,18 +121,18 @@ def credential() :
 
 
 """ 
-Step 3
-Application get user back after issuance
+Step 3 : your application get its user back after issuance here 
 """
 @app.route('/callback', methods=['GET'])
 def callback() :
     print("callback success")
+    # Do what you want now.....
     return jsonify ('callback success')
 
 
 
 
-
+# Python Flask http server loop
 if __name__ == '__main__':
     IP = "127.0.0.1"
     app.run( host = IP, port=4000, debug =True)
