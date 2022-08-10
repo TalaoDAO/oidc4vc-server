@@ -148,12 +148,17 @@ def issuer_console(mode) :
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
                 page_description = session['client_data']['page_description'],
+                card_title = session['client_data']['card_title'],
+                card_subtitle = session['client_data']['card_subtitle'],
+                card_description = session['client_data']['card_description'],
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 credential_to_issue_select = credential_to_issue_select,
                 credential_requested_select =  credential_requested_select,
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
+                card_background_color = session['client_data']['card_background_color'],
+                card_text_color = session['client_data']['card_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color']
                 )
     if request.method == 'POST' :
@@ -184,6 +189,9 @@ def issuer_console(mode) :
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']
             session['client_data']['page_description'] = request.form['page_description']
+            session['client_data']['card_title'] = request.form['card_title']
+            session['client_data']['card_subtitle'] = request.form['card_subtitle']
+            session['client_data']['card_description'] = request.form['card_description']
             session['client_data']['note'] = request.form['note']          
             session['client_data']['title'] = request.form['title']
             session['client_data']['contact_email'] = request.form['contact_email']
@@ -198,7 +206,9 @@ def issuer_console(mode) :
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
             session['client_data']['page_background_color'] = request.form['page_background_color']      
-            session['client_data']['page_text_color'] = request.form['page_text_color']         
+            session['client_data']['page_text_color'] = request.form['page_text_color']  
+            session['client_data']['card_background_color'] = request.form['card_background_color']      
+            session['client_data']['card_text_color'] = request.form['card_text_color']                
             session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color']      
             db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
             if request.form['button'] == "preview" :

@@ -74,7 +74,8 @@
                 "$.credentialSubject.member.birthDate"
               ],
               "schema": {
-                "type": "string"
+                "type": "string",
+                "format" : "date"
               },
               "fallback": "Unknown birth date",
               "label": "Birth Date"
@@ -94,7 +95,8 @@
                 "$.credentialSubject.member.email"
               ],
               "schema": {
-                "type": "string"
+                "type": "string",
+                "format" : "email"
               },
               "fallback": "Unknown email",
               "label": "Email"
@@ -132,14 +134,6 @@
           ]
         },
         "styles": {
-          "thumbnail": {
-            "uri": "$.issuedBy.logo",
-            "alt": "$.issuedBy.name"
-          },
-          "hero": {
-            "uri": "$.issuedBy.logo",
-            "alt": "$.issuedBy.name"
-          },
           "background": {
             "color": "#f55353"
           },

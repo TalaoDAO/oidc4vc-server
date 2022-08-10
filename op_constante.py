@@ -25,7 +25,8 @@ credential_to_issue_list = {
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
-                    "AragoPass" : "Arago Pass"
+                    "AragoPass" : "Arago Pass",
+                    "VotersCard" : "Voter Card"
                 }
 
 credential_requested_list = {
@@ -86,33 +87,10 @@ model_any = {
             }
 
 
-verifier_client_data_pattern = {
-                "user" : "all",
-                "client_id" :  "",
-                "client_secret" : "",
-                "jwk" : "",
-                "company_name" : "New verifier",
-                "reason" : "",
+client_data_pattern = {
                 "authorized_emails" : "",
                 "vc" : "",
-                "note" : "This verifier is ......",
-                "page_title" : "Page title",
-                "page_subtitle" : "Page subtitle",
-                "page_description" : "Page description",
-                "protocol" : "w3cpr",
-                "qrcode_message" : "Sign In with your wallet",
-                "mobile_message" : "",
                 "emails" : None,
-                "contact_email" : "",
-                "contact_name" : "",
-                "landing_page_url" : "https://www.my_company.com",
-                "privacy_url" : "https://www.my_company.comprivacy",
-                "terms_url" : "https://www.my_company.com/terms_and_conditions", 
-                "title" : "Sign-In"
-                }
-
-
-issuer_client_data_pattern = {
                 "user" : "all",
                 "client_id" :  "",
                 "client_secret" : "",
@@ -122,8 +100,8 @@ issuer_client_data_pattern = {
                 "method" : "",
                 "did_ebsi": "",
                 "issuer_landing_page" : "",     
-                "note" : "This issuer is ......",
-                "company_name" : "New issuer",
+                "note" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+                "company_name" : "New company",
                 "reason" : "Text in wallet message",
                 "credential_requested" : "IdCard",
                 "credential_to_issue" : "NewIdentityPass",
@@ -133,13 +111,18 @@ issuer_client_data_pattern = {
                 "page_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                 "page_background_color" : "#ffffff",
                 "page_text_color" : "#000000",
+                "card_title" : "Page title",
+                "card_subtitle" : "Page subtitle",
+                "card_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                "card_background_color" : "#ffffff",
+                "card_text_color" : "#000000",
                 "qrcode_background_color" :"#ffffff",
                 "qrcode_message" : "Scan with your wallet",
-                "mobile_message" : "",
-                "contact_email" : "",
+                "mobile_message" : "Open your wallet",
+                "contact_email" : "contact@company.com",
                 "contact_name" : "",
-                "landing_page_url" : "https://www.my_company.com",
-                "privacy_url" : "https://www.my_company.com/privacy",
-                "terms_url" : "https://www.my_company.com/terms_and_conditions", 
-                "title" : "Scan to issue"
+                "landing_page_url" : "https://www.company.com",
+                "privacy_url" : "https://www.company.com/privacy",
+                "terms_url" : "https://www.company.com/terms_and_conditions", 
+                "title" : "Scan with your wallet"
                 }

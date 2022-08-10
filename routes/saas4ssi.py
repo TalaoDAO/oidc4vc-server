@@ -22,7 +22,7 @@ def saas_device_detector ():
     if device.os_name() == "Android" :
         return redirect("https://play.google.com/store/apps/details?id=co.altme.alt.me.altme")
     elif device.os_name() == "iOS" : 
-        return redirect("https://apps.apple.com/fr/app/talao-wallet/id1582183266?platform=iphone")
+        return redirect("https://apps.apple.com/fr/app/altme/id1633216869")
     else :
         return jsonify('unknown device')    
 

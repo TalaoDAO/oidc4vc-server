@@ -99,8 +99,8 @@
       },
       "ticketSeat": {
         "seatNumber": "1A",
-        "seatRow": "",
-        "seatSection": ""
+        "seatRow": "5",
+        "seatSection": "12"
       },
       "type": "TicketCertificate"
     },

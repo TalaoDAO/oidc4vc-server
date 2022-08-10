@@ -18,12 +18,13 @@
           <br> It takes no more than 2 hours.</h3>
       
         <br>
-        <h3>How it works ?</h3>
-        <br>When you want the user to collect her credential you redirect her browser to the landing page provided by the platform so she can scan a QR code (or activate a deeplink).
-        <br>Then your application receives a call on its webhook endpoint with eventually a requested credential in the form of a json web token.
+        <h3>How it works ?</h3> 
+        <br>When you want the user to collect her credential you redirect her browser to the issuer page provided by the platform so she can scan a QR code (or activate a deeplink).
+        <br>Then your application receives a call on its webhook endpoint with eventually the requested credential of your choice in the form of a json web token.
         <br>Your application prepares the credential json data to issue and transfers it in response to the webhook call. The platform signs the credential and transfers it to the user's wallet. 
         <br>If the transfer is sccessful the user is redirected to your application callback endpoint.
-        <br>The credential is then accepted or rejected by the user and stored in the wallet. 
+        <br>The credential is then accepted or rejected by the user and stored in the wallet.
+        <br>Most of the parameters (DID method, keys, credentials, page design,...) can be configured on the platform in a couple of minutes.
 
         <br><br>An example of a minimal application (python) using this platform is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/issuer_app.py ">here</a>.
 

@@ -8,7 +8,7 @@ import string
 import base58
 import os
 from jwcrypto import jwk
-from op_constante import issuer_client_data_pattern, verifier_client_data_pattern
+from op_constante import client_data_pattern
 logging.basicConfig(level=logging.INFO)
 
 def create_verifier(mode, user=None, demo=False) :
@@ -36,12 +36,13 @@ def delete_issuer(client_id) :
 
 def create(db, user, mode, demo) :
     letters = string.ascii_lowercase
-    if db == 'issuer.db' :
-        data = issuer_client_data_pattern     
+    data = client_data_pattern
+    if demo :
+        data['client_id'] =  data['client_secret'] = "demo"
+    else :
         data['client_id'] = ''.join(random.choice(letters) for i in range(10))
-        data['client_secret'] = str(uuid.uuid1())
-        if demo :
-            data['client_id'] =  data['client_secret'] = "demo"
+    data['client_secret'] = str(uuid.uuid1())
+    if db == 'issuer.db' :
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
         # init with did:ethr
         key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
@@ -49,15 +50,6 @@ def create(db, user, mode, demo) :
         data['method'] = "ethr"
         # init did:ebsi in case of use
         data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
-    elif  db == 'verifier.db' :
-        data = verifier_client_data_pattern
-        data['client_id'] = ''.join(random.choice(letters) for i in range(10))
-        data['client_secret'] = str(uuid.uuid1())
-        if demo :
-            data['client_id'] =  data['client_secret'] = "demo"
-    else :
-        logging.error("error db = %s", db)
-        sys.exit()
     if user :
         data['user'] = user
     conn = sqlite3.connect(db)

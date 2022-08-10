@@ -109,6 +109,13 @@ def issuer_landing_page(issuer_id, red, mode) :
     credential_manifest['id'] = str(uuid.uuid1())
     credential_manifest['output_descriptors'][0]['id'] = str(uuid.uuid1())
     credential_manifest['output_descriptors'][0]['schema'] = "https://github.com/TalaoDAO/wallet-tools/blob/main/test/CredentialOffer2/" + issuer_data['credential_to_issue'] + '.jsonld'
+    credential_manifest['output_descriptors'][0]['display']['title']['fallback'] = issuer_data['card_title']
+    credential_manifest['output_descriptors'][0]['display']['subtitle']['fallback'] = issuer_data['card_subtitle']
+    credential_manifest['output_descriptors'][0]['display']['description']['fallback'] = issuer_data['card_description']
+    credential_manifest['output_descriptors'][0]['styles'] = {
+            'background' : {'color' : issuer_data['card_background_color']},
+            'text' : { 'color' : issuer_data['card_text_color']}}
+    
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
     if issuer_data['credential_requested'] == "DID" : # No credential requested to issue 
@@ -119,6 +126,7 @@ def issuer_landing_page(issuer_id, red, mode) :
         credential_manifest['presentation_definition']['input_descriptors'][0]['purpose'] = issuer_data['reason']
         credential_manifest['presentation_definition']['input_descriptors'][0]['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
         credential_manifest['presentation_definition']['input_descriptors'][0]['id'] = str(uuid.uuid1())
+    print(credential_manifest)
 
     credentialOffer = {
         "type": "CredentialOffer",
@@ -190,7 +198,16 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         credential_type = credential['credentialSubject']['type']
 
         # extract data sent by application and merge them with verifiable credential data
-        credential["credentialSubject"] = credential_received['credentialSubject']
+        try : 
+            credential["credentialSubject"] = credential_received['credentialSubject']
+        except :
+            logging.error('application failed to return correct data')
+            data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Application failed to send correct data"})
+            red.publish('op_issuer', data)
+            return jsonify("application error"),500
+
         if credential_received.get('evidence') :
             credential["evidence"] = credential_received['evidence']
         if credential_received.get('credentialSchema') :
@@ -218,13 +235,19 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             )
 
         # send event to front to go forward callback
-        data = json.dumps({'stream_id' : stream_id})
+        data = json.dumps({'stream_id' : stream_id,
+                            "result" : True
+                            })
         red.publish('op_issuer', data)
         return jsonify(signed_credential)
         
 
 def issuer_followup():  
     issuer_id = request.args.get('issuer_id')
+    issuer_data = json.loads(db_api.read_issuer(issuer_id))
+    print(issuer_data['issuer_landing_page'])
+    if request.args.get('message') :
+        return render_template('op_issuer_failed.html', next = issuer_data['issuer_landing_page'])
     try :
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
     except :
