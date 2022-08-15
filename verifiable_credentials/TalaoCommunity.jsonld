@@ -11,11 +11,13 @@
                     "startDate" : "schema:date",
                     "category" : "schema:category",
                     "endDate" : "schema:date",
+                    "duration" : "schema:duration", 
+                    "analytics" : "schema:website",
+                    "userGuide" : "schema:userGuide",
                     "benefit" : {
                         "@id" : "https://github.com/TalaoDAO/context/blob/main/README",
                         "@context" : {
                             "price" : "schema:value",
-                            "category" : "schema:category",
                             "discount" : "schema:discount"
                         }
                     },
@@ -28,17 +30,20 @@
                             "website" : "schema:website",
                             "logo": {"@id" : "schema:image", "@type" : "@id"},
                             "did" : "schema:identifier",
-                            "name" : "schema:name",
-                            "paymentMethod" : {
-                                "@id" : "schema:paymentMethod",
-                                "@context" : {
-                                    "currency" : "schema:currency",
-                                    "blockchain" : "schema:name",
-                                    "blockchainAccount" : "schema:identifier"
-                                }
-                            }
+                            "name" : "schema:name"
                         }
                     }
+                }
+            },
+            "issuedBy" : {
+                "@id" : "schema:issuedBy",
+                "@context" : {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "website" : "schema:website",
+                    "logo": {"@id" : "schema:image", "@type" : "@id"},
+                    "did" : "schema:identifier",
+                    "name" : "schema:name"
                 }
             },
             "associatedAddress" : {
@@ -52,10 +57,10 @@
             }
         }
     ],
-    "id": "did:tz2:....",
+    "id": "",
     "type": ["VerifiableCredential", "TalaoCommunity"],
-    "issuer": "did:key:z6MkftN6LL5DRTG8u5LjhQuwUconSp3wremHoMjcH1LP7Hxd",
-    "issuanceDate": "2020-08-19T21:41:50Z",
+    "issuer": "",
+    "issuanceDate": "",
     "credentialSubject": 
         {
             "id": "did:key:z6MkftN6LL5DRTG8u5LjhQuwUconSp3wremHoMjcH1LP7Hxd",
@@ -63,28 +68,27 @@
             "walletNotation" : "Gold",
             "talaoAccount": "0x83E0481C1844Ed257efE1147218C125832F10236",
             "offers" : [{
-                "startDate" : "2022-04-08T19:55:00Z",
-                "endDate" : "2022-06-08T19:55:00Z",
+                "startDate" : "2022-08-01T19:55:00Z",
+                "endDate" : "2022-12-31T19:55:00Z",
+                "duration" : "30",
                 "category" : "discounted_coupon",
+                "analytics" : "",
+                "userGuide" : "",
                 "benefit" : {
-                    "category" : "discount",
-                    "discount" : "15%"
+                    "discount" : "25%"
                 },    
                 "offeredBy": {
                     "logo": "ipfs://QmZmdndUVRoxiVhUnjGrKnNPn8ah3jT8fxTCLMnAzRAFFZ",
-                    "name": "GifGames",
-                    "description" : "https://tezotopia.com",
-                    "paymentMethod" : {
-                        "blockchain" : "Tezos",
-                        "currency" : "XTZ",
-                        "blockchainAccount" : "tz1iyjrTUNxDpPaqNZ84ipGELAcTWYg66789"
-                    }
+                    "name": "Gif Games",
+                    "description" : "Gaming platform of Tezotopia",
+                    "website" : "https://tezotopia.com"
                 }
             }],
             "associatedAddress" : {
-                    "blockchainTezos" : "tz1ReP6Pfzgmcwm9rTzivdJwnmQm4KzKS3im",
-                    "blockchainEthereum" : "0x461B99bCBdaD9697d299FDFe0879eC04De256DA1",
-                    "blockchainPolygon" : "0x461B99bCBdaD9697d299FDFe0879eC04De256DA1"
+                    "blockchainTezos" : "",
+                    "blockchainEthereum" : "",
+                    "blockchainPolygon" : ""
             }
          }
  }
+ 

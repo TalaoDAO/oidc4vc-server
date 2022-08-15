@@ -19,6 +19,7 @@ credential_list = {
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'DID' : "Decentralized Identifier",
                     'VotersCard' : 'Voter card',
+                    'TalaoCommunity' : 'Talao Community card',
                     'ANY' : 'Any'
                 }
 
@@ -29,6 +30,7 @@ credential_to_issue_list = {
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
                     "AragoPass" : "Arago Pass",
+                    'TalaoCommunity' : 'Talao Community card',
                     "VotersCard" : "Voter Card"
                 }
 
@@ -37,7 +39,7 @@ credential_requested_list = {
                     'PhonePass' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Proof of majority (Over 18)',
-                    "TezosAssociatedWallet" : "Proof of crypto account",
+                    "TezosAssociatedAddress" : "Proof of Tezos crypto account",
                     'DID' : "None",
                 }
 

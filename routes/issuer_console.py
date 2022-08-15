@@ -68,10 +68,12 @@ def issuer_preview (mode) :
     issuer_data = json.loads(db_api.read_issuer(client_id))
     qrcode_message = issuer_data.get('qrcode_message', "No message")
     mobile_message = issuer_data.get('mobile_message', "No message")
+
     if session['client_data']['method'] == "ebsi" :
-        issuer_did = did_ebsi(session['client_data']['jwk'])
+        issuer_did = session['client_data']['did_ebsi']
     else : 
         issuer_did = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
+        
     url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : issuer_did})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     return render_template('op_issuer_qrcode.html',

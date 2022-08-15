@@ -128,6 +128,8 @@ def issuer_landing_page(issuer_id, red, mode) :
         credential_manifest['presentation_definition']['input_descriptors'][0]['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
         credential_manifest['presentation_definition']['input_descriptors'][0]['id'] = str(uuid.uuid1())
 
+    print("credential manifest = ", credential_manifest)
+
     credentialOffer = {
         "type": "CredentialOffer",
         "credentialPreview": credential,
@@ -206,9 +208,8 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
 
         # prepare credential to issue   
         credential =  json.loads(credentialOffer)['credentialPreview']
-        credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-        if credential_received.get('validFrom') :
-            credential['validFrom'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
+        if not credential_received.get('validUntil') and not credential_received.get('expirationDate') :
+            credential['expirationDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
         else : 
             credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
