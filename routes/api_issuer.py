@@ -23,13 +23,36 @@ from jwcrypto import jwk, jwt
 import requests
 import db_api
 import ebsi
+import copy
+
+input_descriptor_pattern = {
+                        "id": "",
+                        "purpose" : "",
+                        "constraints": {
+                            "fields": [
+                                {
+                                    "path": [
+                                        "$.type"
+                                    ],
+                                    "filter": {
+                                        "type": "string",
+                                        "pattern": ""
+                                    }
+                                }
+                            ]
+                        }
+                    }
+
+presentation_definition_pattern = {
+                "id": "",
+                "input_descriptors": list()           
+            }
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 
 try :
     key = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key'])
-
 except :
     key = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key'])
 
@@ -119,16 +142,28 @@ def issuer_landing_page(issuer_id, red, mode) :
     
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
-    if issuer_data['credential_requested'] == "DID" : # No credential requested to issue 
-        credential_manifest['presentation_definition'] = {}
+    credential_manifest['presentation_definition'] = dict()
+    if issuer_data['credential_requested'] == "DID" and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
+        pass
     else :
-        # one sets up the presentation definition
+        credential_manifest['presentation_definition'] = copy.deepcopy(presentation_definition_pattern)
         credential_manifest['presentation_definition']['id'] = str(uuid.uuid1())
-        credential_manifest['presentation_definition']['input_descriptors'][0]['purpose'] = issuer_data['reason']
-        credential_manifest['presentation_definition']['input_descriptors'][0]['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
-        credential_manifest['presentation_definition']['input_descriptors'][0]['id'] = str(uuid.uuid1())
+        
+        if issuer_data['credential_requested'] != "DID" :
+            input_descriptor = copy.deepcopy(input_descriptor_pattern)
+            input_descriptor['purpose'] = issuer_data['reason']
+            input_descriptor['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
+            input_descriptor['id'] = str(uuid.uuid1())
+            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
+     
+        if issuer_data['credential_requested_2'] != "DID" :  
+            input_descriptor_2 = copy.deepcopy(input_descriptor_pattern)
+            input_descriptor_2['purpose'] = issuer_data.get('reason_2',"")
+            input_descriptor_2['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested_2']
+            input_descriptor_2['id'] = str(uuid.uuid1())
+            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
 
-    print("credential manifest = ", credential_manifest)
+    logging.info("credential manifest = %s", credential_manifest)
 
     credentialOffer = {
         "type": "CredentialOffer",
@@ -219,10 +254,11 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         try : 
             credential["credentialSubject"] = credential_received['credentialSubject']
         except :
-            logging.error('application failed to return correct data')
+            message = "application failed to return correct credentialSubject"
+            logging.error(message)
             data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
-                            "message" : "Application failed to send correct data"})
+                            "message" : message})
             red.publish('op_issuer', data)
             return jsonify("application error"),500
         logging.info('credential received ok')
@@ -233,6 +269,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             credential["credentialSchema"] = credential_received['credentialSchema']
         credential['credentialSubject']['id'] = request.form['subject_id']
         credential['credentialSubject']['type'] = credential_type
+        credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
 
         # sign credential
         if issuer_data['method'] == "ebsi" :
@@ -252,10 +289,12 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                 issuer_data['jwk']
             )
             except :
-                logging.error('Signature error, application failed to return correct data')
+                message = 'Signature error, application failed to return correct data'
+                logging.error(message)
+                logging.error("credential to sign = %s", credential)
                 data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
-                            "message" : "Signature error, application failed to send correct data"})
+                            "message" : message})
                 red.publish('op_issuer', data)
                 return jsonify("application error"),500
 

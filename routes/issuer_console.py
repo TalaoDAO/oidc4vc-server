@@ -7,10 +7,19 @@ from urllib.parse import urlencode
 import uuid
 from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list
 import ebsi
+from jwcrypto import jwk
 
 logging.basicConfig(level=logging.INFO)
 
-public_key =  {"e":"AQAB","kid" : "123", "kty":"RSA","n":"uEUuur6rqoEMaV3qEgzf4a8jSWzLuftWzW1t9SApbKKKI9_M2ZCValgbUJqpto190zKgBge20d7Hwb24Y_SrxC2e8W7sQMNCEHdCrAvzjtk36o3tKHbsSfYFRfDexZJKQ75tsA_TOSMRKH_xGSO-15ZL86NXrwMrg3CLPXw6T0PjG38IsJ2UHAZL-3ezw7ibDto8LD06UhLrvCMpBlS6IMmDYFRJ-d2KvnWyKt6TyNC-0hNcDS7X0jaODATmDh-rOE5rv5miyljjarC_3p8D2MJXmYWk0XjxzozXx0l_iQyh-J9vQ_70gBqCV1Ifqlu8VkasOfIaSbku_PJHSXesFQ"}
+
+try :
+    rsa_key_dict = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
+except :
+    rsa_key_dict = json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key']
+
+rsa_key = jwk.JWK(**rsa_key_dict) 
+public_key =  rsa_key.export(private_key=False, as_dict=True)
+
 
 
 def init_app(app,red, mode) :
@@ -45,6 +54,7 @@ def issuer_select(mode) :
                     <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                     <td>""" + data_dict['credential_to_issue'] + """</td>
                     <td>""" + data_dict['credential_requested'] + """</td>
+                    <td>""" + data_dict.get('credential_requested_2', "") + """</td>
                     <td>""" + data_dict['callback'] + """</td>
                     <td>""" + data_dict['webhook'] + """</td>
                     </tr>"""
@@ -124,6 +134,12 @@ def issuer_console(mode) :
                     credential_requested_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_select +=  "<option value=" + key + ">" + value + "</option>"
+        credential_requested_2_select = str()
+        for key, value in credential_requested_list.items() :
+                if key ==   session['client_data'].get('credential_requested_2', "") :
+                    credential_requested_2_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    credential_requested_2_select +=  "<option value=" + key + ">" + value + "</option>"
         credential_to_issue_select = str()
         for key, value in credential_to_issue_list.items() :
                 if key ==   session['client_data']['credential_to_issue'] :
@@ -146,6 +162,7 @@ def issuer_console(mode) :
                 client_id= session['client_data']['client_id'],
                 company_name = session['client_data']['company_name'],
                 reason = session['client_data']['reason'],
+                reason_2 = session['client_data'].get('reason_2', ""),
                 page_title = session['client_data']['page_title'],
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
@@ -157,11 +174,12 @@ def issuer_console(mode) :
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 credential_to_issue_select = credential_to_issue_select,
                 credential_requested_select =  credential_requested_select,
+                credential_requested_2_select =  credential_requested_2_select,
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color'],
                 card_background_color = session['client_data']['card_background_color'],
-                card_text_color = session['client_data']['card_text_color']
+                card_text_color = session['client_data']['card_text_color'],
                 )
     if request.method == 'POST' :
         if request.form['button'] == "new" :
@@ -202,8 +220,10 @@ def issuer_console(mode) :
             session['client_data']['terms_url'] = request.form['terms_url']
             session['client_data']['client_id'] =  request.form['client_id']
             session['client_data']['company_name'] = request.form['company_name']
-            session['client_data']['reason'] = request.form.get('reason', "")
+            session['client_data']['reason'] = request.form['reason']
+            session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['credential_requested'] = request.form['credential_requested']
+            session['client_data']['credential_requested_2'] = request.form['credential_requested_2']
             session['client_data']['credential_to_issue'] = request.form['credential_to_issue']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
