@@ -23,30 +23,6 @@ from jwcrypto import jwk, jwt
 import requests
 import db_api
 import ebsi
-import copy
-
-input_descriptor_pattern = {
-                        "id": "",
-                        "purpose" : "",
-                        "constraints": {
-                            "fields": [
-                                {
-                                    "path": [
-                                        "$.type"
-                                    ],
-                                    "filter": {
-                                        "type": "string",
-                                        "pattern": ""
-                                    }
-                                }
-                            ]
-                        }
-                    }
-
-presentation_definition_pattern = {
-                "id": "",
-                "input_descriptors": list()           
-            }
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
@@ -146,21 +122,28 @@ def issuer_landing_page(issuer_id, red, mode) :
     if issuer_data['credential_requested'] == "DID" and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
         pass
     else :
-        credential_manifest['presentation_definition'] = copy.deepcopy(presentation_definition_pattern)
-        credential_manifest['presentation_definition']['id'] = str(uuid.uuid1())
+        credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}
         
         if issuer_data['credential_requested'] != "DID" :
-            input_descriptor = copy.deepcopy(input_descriptor_pattern)
-            input_descriptor['purpose'] = issuer_data['reason']
-            input_descriptor['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested']
-            input_descriptor['id'] = str(uuid.uuid1())
+            input_descriptor = {"id": str(uuid.uuid1()),
+                        "purpose" : issuer_data['reason'],
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.type"],
+                                "filter": {"type": "string",
+                                            "pattern": issuer_data['credential_requested']}
+                                }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
      
         if issuer_data['credential_requested_2'] != "DID" :  
-            input_descriptor_2 = copy.deepcopy(input_descriptor_pattern)
-            input_descriptor_2['purpose'] = issuer_data.get('reason_2',"")
-            input_descriptor_2['constraints']['fields'][0]['filter']['pattern'] = issuer_data['credential_requested_2']
-            input_descriptor_2['id'] = str(uuid.uuid1())
+            input_descriptor_2 = {"id": str(uuid.uuid1()),
+                        "purpose" : issuer_data.get('reason_2',""),
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.type"],
+                                "filter": {"type": "string",
+                                            "pattern": issuer_data['credential_requested_2']}
+                                }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
 
     logging.info("credential manifest = %s", credential_manifest)
@@ -218,6 +201,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
 
         # build access token and call application webhook to receive application data
         vp = json.loads(request.form['presentation'])
+        print("vp = ", vp)
         access_token = build_access_token(vp, request.form['subject_id'], issuer_id, key, mode)
         header = {"Authorization" : "Bearer " + access_token}      
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
@@ -246,7 +230,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         if not credential_received.get('validUntil') and not credential_received.get('expirationDate') :
             credential['expirationDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
         else : 
-            credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
+            credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential_type = credential['credentialSubject']['type']
 

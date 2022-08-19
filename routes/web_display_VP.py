@@ -24,17 +24,6 @@ pattern = {
             "domain" : ""
             }
 
-"""
-try :
-    Secp256kr  = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_secp256kr'])
-    P256 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_P256_private_key'])
-    Ed25519 = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
-
-except :
-    Secp256kr  = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_secp256kr'])
-    P256 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_P256_private_key'])
-    Ed25519 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
-"""
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/display_VP',  view_func=test_display_VP_qrcode, methods = ['GET', 'POST'], defaults={'mode' : mode})

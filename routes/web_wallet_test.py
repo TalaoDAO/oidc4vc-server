@@ -140,7 +140,9 @@ def test_direct_offer(red, mode) :
         credential['issuer'] = DID_KEY
     else :
         credential['issuer'] = DID_TZ1
-    credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    credential['issuanceDate'] = datetime.utcnow().isoformat() + "Z"
+
     credential['credentialSubject']['id'] = "did:..."
     credential['id'] = "urn:uuid:" + str(uuid.uuid1())
     backgroundColor = "ffffff"
@@ -148,13 +150,7 @@ def test_direct_offer(red, mode) :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-
-    if VC_filename == "TezosAssociatedAddress.jsonld" :
-        credential['credentialSubject']['associatedAddress'] = request.args.get('address')
-
-    if VC_filename == "TalaoAssociatedAddress.jsonld" :
-        credential['credentialSubject']['associatedAddress'] = request.args.get('talao')
-        credential['description'][0]['@value'] = request.args.get('talao')
+    
        
     credentialOffer = {
             "type": "CredentialOffer",
@@ -164,16 +160,9 @@ def test_direct_offer(red, mode) :
             "display" : { "backgroundColor" : backgroundColor},
         }
     credential_manifest = "{}" 
-    if VC_filename == "tezotopia_loyaltycard.jsonld" :
-        credentialOffer['display']['backgroundColor'] = "e60118"
-   
-    elif VC_filename == "LoyaltyCard.jsonld" :
-        credentialOffer['display']['backgroundColor'] = "532b29"
-        credentialOffer['shareLink'] = "https://www.leroymerlin.fr/ma-carte-maison.html"
-   
         
-    elif VC_filename == "TalaoCommunity.jsonld" :
-        filename = "./credential_manifest/TalaoCommunity_credential_manifest_" + cm + ".json"
+    if VC_filename == "TezLoyaltyCard_1.jsonld" :
+        filename = "./credential_manifest/loyaltycard_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -188,14 +177,6 @@ def test_direct_offer(red, mode) :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']     
-
-    elif VC_filename == "Test.jsonld" :
-        filename = "./credential_manifest/Test_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']      
 
     elif VC_filename == "TezVoucher_1.jsonld" :
         filename = "./credential_manifest/voucher_credential_manifest.json"
@@ -221,13 +202,8 @@ def test_direct_offer(red, mode) :
         del credentialOffer['shareLink']
         del credentialOffer['display'] 
 
-    else :
-        pass
     cm = json.loads(credential_manifest)
-    try :
-        del cm["presentation_definition"]
-    except :
-        pass
+
     id =  str(uuid.uuid1())
     url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
@@ -312,6 +288,7 @@ def test_credentialOffer_qrcode(red, mode) :
             credential = credential_from_filename(path, filename)
         except :
             return redirect ('/playground')
+        #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
         credential['issuer'] = did_issuer
@@ -381,11 +358,10 @@ async def test_credentialOffer_endpoint(id, red):
     else :
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)
-        try :
-            credential['credentialSubject']['id'] = request.form['subject_id']
-        except :
-            logging.error("wallet error")
-            return jsonify('wallet error'), 400
+      
+        credential['credentialSubject']['id'] = request.form['subject_id']
+       
+        print("presentation = ", request.form['presentation'])
         # to keep the possibility to use an RSA key with did:web
 
         global did_selected
@@ -403,7 +379,6 @@ async def test_credentialOffer_endpoint(id, red):
             elif did_selected == 'did:web:talao.co#key-4' :
                 signed_credential = vc_signature.sign(credential, Secp256kr, "did:web:talao.co", Ed25519=Ed25519)
             elif did_selected == DID_TZ1 :
-                print("credential = ", credential)
                 didkit_options = {
                     "proofPurpose": "assertionMethod",
                     "verificationMethod": await didkit.key_to_verification_method('tz', Ed25519)
@@ -423,7 +398,6 @@ async def test_credentialOffer_endpoint(id, red):
                             'signed_credential' : signed_credential
                             })
         red.publish('credible', data)
-        print(signed_credential)
         return jsonify(signed_credential)
         
 

@@ -31,7 +31,7 @@ from routes import web_display_VP
 from routes import saas4ssi
 
 # Server Release
-VERSION = "3.2"
+VERSION = "3.3"
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -52,13 +52,9 @@ qrcode = QRcode(app)
 
 @app.errorhandler(403)
 def page_abort(e):
-    """
-    we set the 403 status explicitly
-    """
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
-logging.info('start init routes')
 # Centralized @route
 web_wallet_test.init_app(app, red, mode)
 api_verifier.init_app(app, red, mode)
@@ -66,9 +62,7 @@ api_issuer.init_app(app, red, mode)
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
 saas4ssi.init_app(app, red, mode)
-
 web_display_VP.init_app(app, red, mode)
-logging.info('end init routes')
 
 # MAIN entry point for test
 if __name__ == '__main__':

@@ -40,6 +40,7 @@ credential_requested_list = {
                     'IdCard' : 'Identity card',
                     'Over18' : 'Proof of majority (Over 18)',
                     "TezosAssociatedAddress" : "Proof of Tezos crypto account",
+                    "TalaoAssociatedAddress" : "Proof of TALAO token account",
                     'DID' : "None",
                 }
 
