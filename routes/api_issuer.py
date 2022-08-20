@@ -27,11 +27,6 @@ import ebsi
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 
-try :
-    key = json.dumps(json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key'])
-except :
-    key = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key'])
-
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/<issuer_id>',  view_func=issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
@@ -39,44 +34,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer_stream',  view_func=issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/op/issuer_followup',  view_func=issuer_followup, methods = ['GET'])
     return
-
-
-def build_access_token(vp, did, client_id, key, mode) :
-    if isinstance(key, str) :
-        key = json.loads(key)
-    if key['kty'] == "OKP" :
-        alg = "EdDSA"
-    elif key['kty'] == "EC" and key["crv"] == "secp256k1" :
-        alg = "ES256K"
-    elif key['kty'] == "EC" and key["crv"] == "P-256" :
-        alg = "ES256"
-    elif key['kty'] == "RSA" :
-        alg = "RS256"
-    else :
-        logging.error("key type not supported")
-        return None
-    
-    verifier_key = jwk.JWK(**key) 
-    # https://jwcrypto.readthedocs.io/en/latest/jwk.html
-    header = {
-        "typ" :"JWT",
-        "kid": key['kid'],
-        "alg": alg
-    }
-    payload = {
-        "iss" : mode.server +'sandbox/op/issuer',
-        "iat": datetime.timestamp(datetime.now()),
-        "aud" : client_id,
-        "exp": datetime.timestamp(datetime.now()) + 1000,
-        "sub" : did
-    }
-    if vp :
-        if isinstance(vp, str) :
-            vp = json.loads(vp)
-        payload['vp'] = vp
-    token = jwt.JWT(header=header,claims=payload, algs=["ES256", "ES256K", "EdDSA", "RS256"])
-    token.make_signed_token(verifier_key)
-    return token.serialize()
 
 
 """
@@ -200,21 +157,21 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             pass
 
         # build access token and call application webhook to receive application data
-        vp = json.loads(request.form['presentation'])
-        access_token = build_access_token(vp, request.form['subject_id'], issuer_id, key, mode)
-        header = {"Authorization" : "Bearer " + access_token}      
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
-        logging.info("webhook url = %s", issuer_data['webhook'])
-
-        r = requests.post(issuer_data['webhook'],  data={'key': 'value'}, headers=header)
+        vp = json.loads(request.form['presentation'])
+        header = {"client_secret" : issuer_data['client_secret'],
+                   "Content-Type": "application/json" }      
+        issuer_data = json.loads(db_api.read_issuer(issuer_id))
+        url = issuer_data['webhook']
+        data = json.dumps({'vp': vp})
+        r = requests.post(url,  data=data, headers=header)
         if not 199<r.status_code<300 :
             logging.error('issuer failed to call application, status code = %s', r.status_code)
             data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : "Issuer failed to call application"})
             red.publish('op_issuer', data)
-            return jsonify("application error"),500
-    
+            return jsonify("application error"),500    
         logging.info('status code ok')
         
         try :
