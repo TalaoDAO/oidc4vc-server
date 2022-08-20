@@ -205,15 +205,16 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         header = {"Authorization" : "Bearer " + access_token}      
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
         logging.info("webhook url = %s", issuer_data['webhook'])
-        logging.info("header = %s", header)
-        r = requests.post(issuer_data['webhook'], headers=header)
-        if not r.status_code == requests.codes.ok :
+
+        r = requests.post(issuer_data['webhook'],  data={'key': 'value'}, headers=header)
+        if not 199<r.status_code<300 :
             logging.error('issuer failed to call application, status code = %s', r.status_code)
             data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : "Issuer failed to call application"})
             red.publish('op_issuer', data)
             return jsonify("application error"),500
+    
         logging.info('status code ok')
         
         try :
