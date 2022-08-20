@@ -360,8 +360,10 @@ async def test_credentialOffer_endpoint(id, red):
         red.delete(id)
       
         credential['credentialSubject']['id'] = request.form['subject_id']
-       
-        print("presentation = ", request.form['presentation'])
+
+        presentation = json.loads(request.form['presentation'])
+        print("presentation  = ", presentation)
+    
         # to keep the possibility to use an RSA key with did:web
 
         global did_selected

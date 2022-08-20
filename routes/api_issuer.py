@@ -201,7 +201,6 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
 
         # build access token and call application webhook to receive application data
         vp = json.loads(request.form['presentation'])
-        print("vp = ", vp)
         access_token = build_access_token(vp, request.form['subject_id'], issuer_id, key, mode)
         header = {"Authorization" : "Bearer " + access_token}      
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
@@ -227,10 +226,10 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
 
         # prepare credential to issue   
         credential =  json.loads(credentialOffer)['credentialPreview']
-        if not credential_received.get('validUntil') and not credential_received.get('expirationDate') :
-            credential['expirationDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-        else : 
+        if not credential_received.get('expirationDate') :
             credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+        else :
+            credential['expirationDate'] = credential_received.get('expirationDate')
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential_type = credential['credentialSubject']['type']
 
