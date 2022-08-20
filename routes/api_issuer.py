@@ -159,8 +159,8 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         # build access token and call application webhook to receive application data
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
         vp = json.loads(request.form['presentation'])
-        header = {"client_secret" : issuer_data['client_secret'],
-                   "Content-Type": "application/json" }      
+        header = {"WEBHOOK_KEY" : issuer_data['client_secret'],
+                   "Content-Type": "applicaion/json" }      
         print("header = ", header)
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
         url = issuer_data['webhook']
