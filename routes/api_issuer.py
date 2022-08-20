@@ -146,7 +146,7 @@ def issuer_landing_page(issuer_id, red, mode) :
                                 }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
 
-    logging.info("credential manifest = %s", credential_manifest)
+    #logging.info("credential manifest = %s", credential_manifest)
 
     credentialOffer = {
         "type": "CredentialOffer",
@@ -204,9 +204,10 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         access_token = build_access_token(vp, request.form['subject_id'], issuer_id, key, mode)
         header = {"Authorization" : "Bearer " + access_token}      
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
+        logging.info("webhook url = %s", issuer_data['webhook'])
         r = requests.post(issuer_data['webhook'], headers=header)
         if not r.status_code == requests.codes.ok :
-            logging.error('issuer failed to call application')
+            logging.error('issuer failed to call application, status code = %s', r.status_code)
             data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : "Issuer failed to call application"})
