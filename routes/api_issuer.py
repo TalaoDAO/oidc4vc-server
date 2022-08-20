@@ -160,7 +160,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
         vp = json.loads(request.form['presentation'])
         header = {"WEBHOOK_KEY" : issuer_data['client_secret'],
-                   "Content-Type": "applicaion/json" }      
+                   "Content-Type": "application/json" }      
         print("header = ", header)
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
         url = issuer_data['webhook']
