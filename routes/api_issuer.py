@@ -106,6 +106,7 @@ def issuer_landing_page(issuer_id, red, mode) :
     #logging.info("credential manifest = %s", credential_manifest)
 
     credentialOffer = {
+        "id" : request.args.get('id'),
         "type": "CredentialOffer",
         "credentialPreview": credential,
         "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
@@ -156,16 +157,17 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             logging.warning('delete stream_id failed')
             pass
 
-        # build access token and call application webhook to receive application data
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
-        vp = json.loads(request.form['presentation'])
-        headers = {"key" : issuer_data['client_secret'],
-                   "Content-Type": "application/json" }      
-        print("header = ", headers)
-        issuer_data = json.loads(db_api.read_issuer(issuer_id))
+        headers = {
+                    "key" : issuer_data['client_secret'],
+                    "Content-Type": "application/json" 
+                    }      
         url = issuer_data['webhook']
-        data = json.dumps({'vp': vp})
-        r = requests.post(url,  data=data, headers=headers)
+        payload = {
+                    'vp': json.loads(request.form['presentation']),
+                    "id": request.form.get('id')
+                    }
+        r = requests.post(url,  data=json.dumps(payload), headers=headers)
         if not 199<r.status_code<300 :
             logging.error('issuer failed to call application, status code = %s', r.status_code)
             data = json.dumps({'stream_id' : stream_id,

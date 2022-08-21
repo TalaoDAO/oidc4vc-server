@@ -7,19 +7,8 @@ from urllib.parse import urlencode
 import uuid
 from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list
 import ebsi
-from jwcrypto import jwk
 
 logging.basicConfig(level=logging.INFO)
-
-
-try :
-    rsa_key_dict = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
-except :
-    rsa_key_dict = json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key']
-
-rsa_key = jwk.JWK(**rsa_key_dict) 
-public_key =  rsa_key.export(private_key=False, as_dict=True)
-
 
 
 def init_app(app,red, mode) :
@@ -147,8 +136,8 @@ def issuer_console(mode) :
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
         return render_template('issuer_console.html',
-                public_key=public_key,
                 login_name=session['login_name'],
+                client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 callback=session['client_data']['callback'],
                 webhook=session['client_data']['webhook'],

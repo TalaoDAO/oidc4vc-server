@@ -31,7 +31,8 @@ credential_to_issue_list = {
                     'CertificateOfEmployment' : 'Certificate of employment',
                     "AragoPass" : "Arago Pass",
                     'TalaoCommunity' : 'Talao Community card',
-                    "VotersCard" : "Voter Card"
+                    "VotersCard" : "Voter Card",
+                    "PhoneProof" : "Proof of phone number"
                 }
 
 credential_requested_list = {

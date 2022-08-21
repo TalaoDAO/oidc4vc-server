@@ -70,13 +70,10 @@
                         </div>
                         </div>
 
-
-
-
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Copy your landing page link, JWT key and provide your application endpoints</p>
+                              <p class="text-primary m-0 font-weight-bold">Copy your landing page link, client secret and provide your application endpoints</p>
                             </div>
                           </div>
                           <div class="card-body">
@@ -89,6 +86,9 @@
                           <div class="col" hidden>
                             <div class="form-group"><label><strong>Issuer Id</strong></label><input readonly class="form-control" name="client_id" type="text" value={{client_id}}></div>
                           </div>
+                          <div class="col">
+                            <div class="form-group"><label><strong>Client secret to check webhook call</strong></label><input readonly class="form-control" type="text" value={{client_secret}}></div>
+                          </div>
                         </div>
 
                         <div class="form-row">
@@ -100,11 +100,7 @@
                           </div> 
                         </div>
 
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group"><label><strong>JWT key to check signature of data received in webhook</strong><br></label><textarea class="form-control" rows="5" readonly name="public_key" >{{public_key}}</textarea></div>
-                          </div>
-                        </div>
+                       
 
                         
                         </div>
