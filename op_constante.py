@@ -133,5 +133,5 @@ client_data_pattern = {
                 "landing_page_url" : "https://www.company.com",
                 "privacy_url" : "https://www.company.com/privacy",
                 "terms_url" : "https://www.company.com/terms_and_conditions", 
-                "title" : "Scan with your wallet"
+                "title" : "Get it !" # QR code title
                 }

@@ -19,7 +19,6 @@ import uuid
 import didkit
 import logging
 from urllib.parse import urlencode
-from jwcrypto import jwk, jwt
 import requests
 import db_api
 import ebsi
@@ -48,6 +47,8 @@ def issuer_landing_page(issuer_id, red, mode) :
         return render_template('op_issuer_removed.html')
     try :
         credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
+        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
+        credential["issuer"] ="did:ebsi:"
     except :
         logging.error('credential not found %s', issuer_data['credential_to_issue'])
         return render_template('op_issuer_removed.html')
@@ -105,9 +106,14 @@ def issuer_landing_page(issuer_id, red, mode) :
 
     #logging.info("credential manifest = %s", credential_manifest)
 
+    if not request.args.get('id') :
+        logging.warning("no id passed by application")
+
     credentialOffer = {
         "id" : request.args.get('id'),
         "type": "CredentialOffer",
+        "challenge" : str(uuid.uuid1()),
+        "domain" : "https://altme.io",
         "credentialPreview": credential,
         "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         "credential_manifest" : credential_manifest,
@@ -147,6 +153,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
     
     # wallet GET
     if request.method == 'GET':
+        print(credentialOffer)
         return jsonify(credentialOffer)
                         
     # wallet POST
@@ -163,7 +170,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                     "Content-Type": "application/json" 
                     }      
         url = issuer_data['webhook']
-        payload = {
+        payload = { 'event' : 'ISSUANCE',
                     'vp': json.loads(request.form['presentation']),
                     "id": request.form.get('id')
                     }
@@ -235,21 +242,36 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                 issuer_data['jwk']
             )
             except :
-                message = 'Signature error, application failed to return correct data'
+                message = 'Signature failed, application failed to return correct data'
                 logging.error(message)
                 logging.error("credential to sign = %s", credential)
                 data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : message})
                 red.publish('op_issuer', data)
-                return jsonify("application error"),500
-
+                return jsonify("server error, signature failed"),500
         logging.info('signature ok')
+       
+        # send credential signed to application
+        headers = {
+                    "key" : issuer_data['client_secret'],
+                    "Content-Type": "application/json" 
+                    }      
+        url = issuer_data['webhook']
+        payload = { 'event' : 'RECEIPT',
+                    'vc': json.loads(signed_credential),
+                    "id": request.form.get('id')
+                    }
+        r = requests.post(url,  data=json.dumps(payload), headers=headers)
+        if not 199<r.status_code<300 :
+            logging.error('issuer failed to send signed credential, status code = %s', r.status_code)
+        else :
+            logging.info('signed credential sent')
+
         # send event to front to go forward callback
-        data = json.dumps({'stream_id' : stream_id,
-                            "result" : True
-                            })
+        data = json.dumps({'stream_id' : stream_id,"result" : True})
         red.publish('op_issuer', data)
+
         return jsonify(signed_credential)
         
 

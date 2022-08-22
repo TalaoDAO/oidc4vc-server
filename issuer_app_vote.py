@@ -1,7 +1,4 @@
 from flask import Flask, jsonify, redirect, request
-from jwcrypto import jwk, jwt
-import json
-import sys
 
 # Init Flask
 app = Flask(__name__)
@@ -9,8 +6,9 @@ app.config.update(SECRET_KEY = "abcdefgh")
 
 
 # data provided by Saas4ssi platform
-landing_page_link = 'http://192.168.0.220:3000/sandbox/op/issuer/ualqtjnowx'
-public_key =  {'kty': 'RSA', 'kid': '123', 'n': 'pPocyKreTAn3YrmGyPYXHklYqUiSSQirGACwJSYYs-ksfw4brtA3SZCmA2sdAO8a2DXfqADwFgVSxJFtJ3GkHLV2ZvOIOnZCX6MF6NIWHB9c64ydrYNJbEy72oyG_-v-sE6rb0x-D-uJe9DFYIURzisyBlNA7imsiZPQniOjPLv0BUgED0vdO5HijFe7XbpVhoU-2oTkHHQ4CadmBZhelCczACkXpOU7mwcImGj9h1__PsyT5VBLi_92-93NimZjechPaaTYEU2u0rfnfVW5eGDYNAynO4Q2bhpFPRTXWZ5Lhnhnq7M76T6DGA3GeAu_MOzB0l4dxpFMJ6wHnekdkQ', 'e': 'AQAB'}
+landing_page_link = 'http://192.168.0.123:3000/sandbox/op/issuer/fkzpmemedc'
+client_secret = '9cc1446c-2203-11ed-84ae-6d9dcad4e1b3'
+
 
 """ 
 Step 1
@@ -24,46 +22,36 @@ def index():
 
 """
 Step 2
-Application receives an access token with user data and return the credential data to issue
+Application receives user data and return the credential data to issue
+Application get a copy of teh credential seigned and transfered to wallet
 """
 @app.route('/webhook', methods=['POST'])
 def credential() :
+    if request.headers.get("key") != client_secret :
+        return jsonify("Forbidden"), 403
 
-    # Get user data from access_token received (optional)
-    access_token = request.headers["Authorization"].split()[1]
-    key = jwk.JWK(**public_key)
-    try :
-        ET = jwt.JWT(key=key, jwt=access_token)
-    except :
-        print ("signature error")
-        sys.exit()
-    user_data = json.loads(ET.claims)
-    #print('user data received from platform = ', user_data)
-
-    # Do what you need to prepare the credential to issue (required)
-    try :
+    data = request.get_json()    
+    # send back data to issue credential
+    if data['event'] == 'ISSUANCE' :
         credential = {
-    "@context": [],
-    "id": "",
-    "type": ["VerifiableCredential", "VotersCard"],
-    "issuer": "",
-    "issuanceDate": "",
-    "credentialSubject" : {
-        "id": "",
-        "type" : "VotersCard",
-        "familyName" : user_data["vp"]["verifiableCredential"]["credentialSubject"]["familyName"],
-        "givenName" : user_data["vp"]["verifiableCredential"]["credentialSubject"]["givenName"],
-        "birthDate" : user_data["vp"]["verifiableCredential"]["credentialSubject"]["birthDate"],
-       "issuedBy" : {
-            "name" : "Peeble.vote",
-            "website" : "https://www.pebble.vote/"
+            "credentialSubject" : {
+                "familyName" : data["vp"]["verifiableCredential"]["credentialSubject"]["familyName"],
+                "givenName" : data["vp"]["verifiableCredential"]["credentialSubject"]["givenName"],
+                "birthDate" : data["vp"]["verifiableCredential"]["credentialSubject"]["birthDate"],
+                "issuedBy" : {
+                    "name" : "Peeble.vote",
+                    "website" : "https://www.pebble.vote/"
+                }
+            }
         }
-    }
-    }
-    except :
-        credential = dict()
-    print("my credential = ", credential)
-    return jsonify(credential)
+        return jsonify(credential)
+    
+    # get the credential signed and transfered to wallet to store it locally (optional)
+    if data['event'] == 'RECEIPT' :
+        credential_signed = data['vc']
+        print("credential signed = ", credential_signed)
+        return jsonify('ok')
+ 
    
 
 
@@ -73,10 +61,7 @@ Application get user back after issuance
 """
 @app.route('/callback', methods=['GET'])
 def callback() :
-    print("callback success")
     return jsonify ('callback success')
-
-
 
 
 
