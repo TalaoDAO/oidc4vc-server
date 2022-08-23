@@ -44,6 +44,11 @@ credential_requested_list = {
                     "TalaoAssociatedAddress" : "Proof of TALAO token account",
                     'DID' : "None",
                 }
+landing_page_style_list = {
+                    "op_issuer_qrcode.html" : "Style 1",
+                    "op_issuer_qrcode_2.html" : "Style 2"
+                }
+
 
 protocol_list = {'w3cpr' : "W3C Presentation Request ",
                  #'openid4vc' : 'OpenID 4 VC'
@@ -112,9 +117,10 @@ client_data_pattern = {
                 "reason" : "Text in wallet message for credential 1",
                 "reason_2" : "Text in wallet message for credential 2",
                 "credential_requested" : "IdCard",
-                "credential_requested_2" : "",
+                "credential_requested_2" : "DID",
                 "credential_to_issue" : "NewIdentityPass",
                 "protocol" : "w3cpr",
+                "landing_page_style" : "op_issuer_qrcode.html",
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
                 "page_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",

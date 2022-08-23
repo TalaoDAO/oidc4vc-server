@@ -98,7 +98,7 @@ def credential() :
       return jsonify(credential)
 
     # Optional event = 'RECEIPT': this is to store a copy of the signed credential if needed 
-    if data['event'] == 'RECEIPT' :
+    if data['event'] == 'SIGNED_CREDENTIAL' :
       print("credential issued to store = ", data['vc'])
       return jsonify('ok')
    

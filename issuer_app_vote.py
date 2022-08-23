@@ -47,7 +47,7 @@ def credential() :
         return jsonify(credential)
     
     # get the credential signed and transfered to wallet to store it locally (optional)
-    if data['event'] == 'RECEIPT' :
+    if data['event'] == 'SIGNED_CREDENTIAL' :
         credential_signed = data['vc']
         print("credential signed = ", credential_signed)
         return jsonify('ok')

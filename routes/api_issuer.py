@@ -123,7 +123,13 @@ def issuer_landing_page(issuer_id, red, mode) :
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     deeplink_altme = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.set(stream_id, json.dumps(credentialOffer))
-    return render_template('op_issuer_qrcode.html',
+    if not issuer_data.get('landing_page_style') :
+        qrcode_page = "op_issuer_qrcode_2.html"
+    else : 
+        qrcode_page = issuer_data.get('landing_page_style')
+  
+
+    return render_template(qrcode_page,
                                 url=url,
                                 deeplink_talao=deeplink_talao,
                                 deeplink_altme=deeplink_altme,
@@ -165,6 +171,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             pass
 
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
+        
         headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
@@ -258,7 +265,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                     "Content-Type": "application/json" 
                     }      
         url = issuer_data['webhook']
-        payload = { 'event' : 'RECEIPT',
+        payload = { 'event' : 'SIGNED_CREDENTIAL',
                     'vc': json.loads(signed_credential),
                     "id": request.form.get('id')
                     }
@@ -278,7 +285,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
 def issuer_followup():  
     if not session.get('is_connected') :
         logging.error('user is not connectd')
-        return render_template('op_issuer_removed.html')
+        return render_template('op_issuer_removed.html',next = issuer_data['issuer_landing_page'])
     session.clear()
     issuer_id = request.args.get('issuer_id')
     issuer_data = json.loads(db_api.read_issuer(issuer_id))
@@ -287,7 +294,7 @@ def issuer_followup():
     try :
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
     except :
-        return render_template('op_issuer_removed.html')
+        return render_template('op_issuer_removed.html',next = issuer_data['issuer_landing_page'])
     return redirect (issuer_data['callback'])
     
     

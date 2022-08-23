@@ -5,7 +5,7 @@ import didkit
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list
+from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list, landing_page_style_list
 import ebsi
 
 logging.basicConfig(level=logging.INFO)
@@ -67,6 +67,10 @@ def issuer_preview (mode) :
     issuer_data = json.loads(db_api.read_issuer(client_id))
     qrcode_message = issuer_data.get('qrcode_message', "No message")
     mobile_message = issuer_data.get('mobile_message', "No message")
+    if not issuer_data.get('landing_page_style') :
+        qrcode_page = "op_issuer_qrcode_2.html"
+    else : 
+        qrcode_page = issuer_data.get('landing_page_style')
 
     if session['client_data']['method'] == "ebsi" :
         issuer_did = session['client_data']['did_ebsi']
@@ -75,7 +79,7 @@ def issuer_preview (mode) :
         
     url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : issuer_did})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
-    return render_template('op_issuer_qrcode.html',
+    return render_template(qrcode_page,
 							url=url,
                             deeplink=deeplink,
 							stream_id=stream_id,
@@ -123,6 +127,12 @@ def issuer_console(mode) :
                     credential_requested_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_select +=  "<option value=" + key + ">" + value + "</option>"
+        landing_page_style_select = str()
+        for key, value in landing_page_style_list.items() :
+                if key == session['client_data'].get('landing_page_style') :
+                    landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
         credential_requested_2_select = str()
         for key, value in credential_requested_list.items() :
                 if key ==   session['client_data'].get('credential_requested_2', "") :
@@ -163,6 +173,7 @@ def issuer_console(mode) :
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 credential_to_issue_select = credential_to_issue_select,
                 credential_requested_select =  credential_requested_select,
+                landing_page_style_select =  landing_page_style_select,
                 credential_requested_2_select =  credential_requested_2_select,
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
@@ -195,6 +206,7 @@ def issuer_console(mode) :
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']
             session['client_data']['webhook'] = request.form['webhook']
+            session['client_data']['landing_page_style'] = request.form['landing_page_style']
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']
             session['client_data']['page_description'] = request.form['page_description']
