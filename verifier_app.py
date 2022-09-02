@@ -7,7 +7,7 @@ from flask_pyoidc.user_session import UserSession
 # Init Flask
 app = Flask(__name__)
 app.config.update(
-    OIDC_REDIRECT_URI = 'http://127.0.0.1:4000/callback', # your application redirect uri. Must be not used in your code
+    OIDC_REDIRECT_URI = 'http://127.0.0.1:4000/callback', # your application redirect uri. Must not be used in your code
     SECRET_KEY = "lkjhlkjh" # your application secret code for session, random
 )
 

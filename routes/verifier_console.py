@@ -4,7 +4,7 @@ import logging
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_list, protocol_list, model_one, model_any, model_DIDAuth
+from op_constante import credential_list, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
 
 logging.basicConfig(level=logging.INFO)
 
@@ -37,7 +37,7 @@ def select(mode) :
             data_dict = json.loads(data)
             if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
                 verifier = """<tr>
-                    <td>""" + data_dict['company_name'] + """</td>
+                    <td>""" + data_dict.get('application_name', "") + """</td>
                     <td>""" + data_dict['user'] + """</td>
                     <td>""" + data_dict['vc'] + """</td>
                     <td>""" + mode.server + "sandbox/op" + """</td>
@@ -76,9 +76,15 @@ def preview (red, mode) :
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
     data = { "pattern": pattern }
     red.set(stream_id,  json.dumps(data))
+
+    if not verifier_data.get('landing_page_style') :
+        qrcode_page = "op_verifier_qrcode.html"
+    else : 
+        qrcode_page = verifier_data.get('landing_page_style')
+    
     url = mode.server + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
-    return render_template('op_verifier_qrcode.html',
+    return render_template(qrcode_page,
 							url=url,
                             deeplink=deeplink,
 							stream_id=stream_id,
@@ -107,7 +113,6 @@ def preview_presentation_endpoint(stream_id, red):
             red.set(stream_id + '_access',  'server_error')
             red.publish('login', json.dumps({"stream_id" : stream_id}))
             return jsonify("server error"), 500
-        print(my_pattern)
         return jsonify(my_pattern)
 
 
@@ -121,6 +126,14 @@ def console(mode) :
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
+        
+        landing_page_style_select = str()
+        for key, value in verifier_landing_page_style_list.items() :
+                if key == session['client_data'].get('landing_page_style') :
+                    landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
+
         vc_select = str()
         for key, value in credential_list.items() :
                 if key ==   session['client_data']['vc'] :
@@ -130,6 +143,7 @@ def console(mode) :
 
         return render_template('verifier_console.html',
                 title = session['client_data'].get('title'),
+                application_name = session['client_data'].get('application_name', ""),
                 contact_name = session['client_data'].get('contact_name'),
                 contact_email = session['client_data'].get('contact_email'),
                 privacy_url = session['client_data'].get('privacy_url'),
@@ -138,6 +152,7 @@ def console(mode) :
                 issuer = mode.server + "sandbox/op",
                 client_id= session['client_data']['client_id'],
                 client_secret= session['client_data']['client_secret'],
+                callback= session['client_data']['callback'],
                 token=mode.server + 'sandbox/op/token',
                 page_title = session['client_data']['page_title'],
                 note = session['client_data']['note'],
@@ -154,6 +169,7 @@ def console(mode) :
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 user_name=session['client_data'].get('user'),
+                landing_page_style_select =  landing_page_style_select,
                 vc_select=vc_select,
                 login_name=session['login_name']
                 )
@@ -174,9 +190,10 @@ def console(mode) :
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')
-        
+      
         elif request.form['button'] in [ "update", "preview"] :
             session['client_data']['note'] = request.form['note']
+            session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']
             session['client_data']['page_description'] = request.form['page_description']
@@ -184,7 +201,9 @@ def console(mode) :
             session['client_data']['page_text_color'] = request.form['page_text_color']  
             session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color'] 
             session['client_data']['contact_name'] = request.form['contact_name']
-            session['client_data']['title'] = request.form['title']
+            session['client_data']['title'] = request.form['title'] 
+            session['client_data']['landing_page_style'] = request.form['landing_page_style']
+            session['client_data']['callback'] = request.form['callback']
             session['client_data']['contact_email'] = request.form['contact_email']
             session['client_data']['privacy_url'] = request.form['privacy_url']
             session['client_data']['landing_page_url'] = request.form['landing_page_url']

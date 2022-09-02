@@ -6,9 +6,6 @@ import socket
 logging.basicConfig(level=logging.INFO)
 
 
-
-
-
 def extract_ip():
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:       
@@ -21,7 +18,6 @@ def extract_ip():
     return IP
 
 	
-
 class currentMode() :
 
 	def __init__(self, mychain, myenv):

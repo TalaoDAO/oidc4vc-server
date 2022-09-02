@@ -42,7 +42,7 @@ def init_app(app,red, mode) :
     return
 
 
-def build_id_token(client_id, sub, nonce, mode) :
+def build_id_token(client_id, sub, nonce, vp, mode) :
     verifier_key = jwk.JWK(**rsa_key_dict) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
@@ -50,6 +50,7 @@ def build_id_token(client_id, sub, nonce, mode) :
         "kid": rsa_key_dict['kid'],
         "alg": "RS256"
     }
+    # https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     payload = {
         "iss" : mode.server +'sandbox/op',
         "nonce" : nonce,
@@ -58,13 +59,31 @@ def build_id_token(client_id, sub, nonce, mode) :
         "exp": datetime.timestamp(datetime.now()) + 1000,
         "sub" : sub
     }
+    verifier_data = json.loads(read_verifier(client_id))
+    presentation = json.loads(vp)
+    if verifier_data['vc'] == "IdCard" :
+        payload["given_name"] = presentation['verifiableCredential']['credentialSubject']['givenName']
+        payload["family_name"] = presentation['verifiableCredential']['credentialSubject']['familyName']
+        payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
+        payload["birthdate"] = presentation['verifiableCredential']['credentialSubject']['birthDate']
+    elif verifier_data['vc'] == "EmailPass" :
+        payload["email"] = presentation['verifiableCredential']['credentialSubject']['email']
+        payload["email_verified"] = True
+    elif verifier_data['vc'] == "AgeRange" :
+        payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
+    elif verifier_data['vc'] == "Gender" :
+        payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['gender']
+    elif verifier_data['vc'] == "Nationality" :
+        payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
+    else :
+        pass
+
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
     return token.serialize()
    
 
 def jwks() :
-    print(public_rsa_key)
     return jsonify({"keys" : [public_rsa_key]})
 
 
@@ -147,6 +166,12 @@ def wallet_authorize(red) :
         logging.warning('unsupported response type')
         resp = {'error' : 'unsupported_response_type'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
+
+    verifier_data = json.loads(read_verifier(request.args['client_id']))
+    if request.args['redirect_uri'] != verifier_data['callback'] :
+        logging.warning('invalid Callback URL')
+        resp = {'error' : 'invalid_request_object'}
+        return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
     
     # creation grant (code)
     code = str(uuid.uuid1())
@@ -202,7 +227,7 @@ async def wallet_token(red, mode) :
     # token response
     vp = red.get(code + "_vp").decode()
     DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
-    id_token = build_id_token(client_id, DID, data['nonce'], mode)
+    id_token = build_id_token(client_id, DID, data['nonce'], vp, mode)
     logging.info('id_token and vp_token sent to RP')
     access_token = str(uuid.uuid1())
     endpoint_response = {"id_token" : id_token,
@@ -230,6 +255,7 @@ def wallet_logout() :
 
 
 # userinfo endpoint
+# https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
@@ -273,7 +299,12 @@ def login_qrcode(red, mode):
     url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
-    return render_template('op_verifier_qrcode.html',
+
+    if not verifier_data.get('landing_page_style') :
+        qrcode_page = "op_verifier_qrcode.html"
+    else : 
+        qrcode_page = verifier_data.get('landing_page_style')
+    return render_template(qrcode_page,
 							url=url,
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,

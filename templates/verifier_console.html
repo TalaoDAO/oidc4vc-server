@@ -33,7 +33,7 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Enter your verifier information</p>
+                              <p class="text-primary m-0 font-weight-bold">Company Information</p>
                             </div>
                           </div>
                           <div class="card-body">
@@ -43,19 +43,19 @@
                         <div class="form-row">
                             <div class="col">
                             
-                              <div class="form-group"><label><strong>User name</strong><br></label><input class="form-control" readonly type="text" value="{{user_name}}""  name="user_name" ></div>
+                              <div class="form-group"><label><strong>User Name (Login)</strong><br></label><input class="form-control" readonly type="text" value="{{user_name}}""  name="user_name" ></div>
                              
                             </div>
                             <div class="col">
-                              <div class="form-group"><label><strong>Verifier name</strong><br></label><input class="form-control" readonly type="text" value="{{company_name}}""  name="company_name" ></div>
+                              <div class="form-group"><label><strong>Company Name</strong><br></label><input class="form-control" readonly type="text" value="{{company_name}}""  name="company_name" ></div>
                             </div>
                         </div>
                         <div class="form-row">  
                             <div class="col">
-                              <div class="form-group"><label><strong>Contact name</strong><br></label><input class="form-control" readonly type ="text" value="{{contact_name}}" name="contact_name" ></div>
+                              <div class="form-group"><label><strong>Contact Name</strong><br></label><input class="form-control" readonly type ="text" value="{{contact_name}}" name="contact_name" ></div>
                             </div>
                             <div class="col">
-                              <div class="form-group"><label><strong>Contact email</strong><br></label><input class="form-control" readonly type="email" value="{{contact_email}}" name="contact_email" ></div>
+                              <div class="form-group"><label><strong>Contact Email</strong><br></label><input class="form-control" readonly type="email" value="{{contact_email}}" name="contact_email" ></div>
                             </div>
                         </div>
                         <div class="form-row">           
@@ -67,19 +67,19 @@
                         <div class="form-row">
                           <div class="col">
                           
-                            <div class="form-group"><label><strong>User name</strong><br></label><input class="form-control" required type="text" value="{{user_name}}""  name="user_name" ></div>
+                            <div class="form-group"><label><strong>User Name (Login)</strong><br></label><input class="form-control" required type="text" value="{{user_name}}""  name="user_name" ></div>
                            
                           </div>
                           <div class="col">
-                            <div class="form-group"><label><strong>Verifier name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}""  name="company_name" ></div>
+                            <div class="form-group"><label><strong>Company Name</strong><br></label><input class="form-control" type="text" value="{{company_name}}""  name="company_name" ></div>
                           </div>
                       </div>
                       <div class="form-row">  
                           <div class="col">
-                            <div class="form-group"><label><strong>Contact name</strong><br></label><input class="form-control" type ="text" value="{{contact_name}}" name="contact_name" ></div>
+                            <div class="form-group"><label><strong>Contact Name</strong><br></label><input class="form-control" type ="text" value="{{contact_name}}" name="contact_name" ></div>
                           </div>
                           <div class="col">
-                            <div class="form-group"><label><strong>Contact email</strong><br></label><input class="form-control" type="email" value="{{contact_email}}" name="contact_email" ></div>
+                            <div class="form-group"><label><strong>Contact Email</strong><br></label><input class="form-control" type="email" value="{{contact_email}}" name="contact_email" ></div>
                           </div>
                       </div>
                       <div class="form-row">           
@@ -89,62 +89,79 @@
                       </div>
                       {% endif %}
 
-
-
-
-
-
-
                         </div>
                         </div>
-
-
 
 
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Copy parameters to setup your OpenID client</p>
+                              <p class="text-primary m-0 font-weight-bold">Parameters to setup your OAuth / OpenID client</p>
                             </div>
                           </div>
                           <div class="card-body">
 
                         <div class="form-row">
+
+                          <div class="col">
+                            <div class="form-group"><label><strong>Application Name (IdP Name)</strong></label><input class="form-control" type="text" name="application_name"  value="{{application_name}}"></div>
+                          </div>
+
                             <div class="col">
-                              <div class="form-group"><label><strong>Issuer</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
+                              <div class="form-group"><label><strong>Issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
                             </div>
                        
-                          <div class="col">
-                            <div class="form-group"><label><strong>client_id</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group"><label><strong>client_secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
-                          </div> 
+                         
                          
                         </div>
 
-                        <!--
+                        <div class="form-row">
+                     
+                        <div class="col">
+                          <div class="form-group"><label><strong>Client ID</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group"><label><strong>Client Secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
+                        </div> 
+                       
+                      </div>
 
+                        
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Authorization endpoint</strong></label><input readonly class="form-control" type="text"  value={{authorization}}></div>
+                              <div class="form-group"><label><strong>OAuth Authorize Endpoint</strong></label><input readonly class="form-control" type="text"  value={{authorization}}></div>
                             </div>
                             <div class="col">
-                              <div class="form-group"><label><strong>Token endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{token}}></div>
+                              <div class="form-group"><label><strong>OAuth Token Endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{token}}></div>
                             </div> 
 
                         </div>
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Logout endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{logout}}></div>
+                              <div class="form-group"><label><strong>OAuth Logout Endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{logout}}></div>
                             </div> 
                             <div class="col">
-                              <div class="form-group"><label><strong>User info endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{userinfo}}></div>
+                              <div class="form-group"><label><strong>OAuth Get User Info Endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{userinfo}}></div>
                             </div> 
+                        </div>    
+
+                            <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>OAuth callback URL (required)</strong><br></label><input required class="form-control" type="text" name="callback" value="{{callback}}"></div>
+                              </div>
+
+                              <div class="col">
+                                <div class="form-group"><label><strong>Grant Type</strong><br></label><input readonly class="form-control" type="text" name="grant_type" value="Authorization code flow"></div>
+                              </div>
+                            </div>
+                         
+                        
                           </div>
-                        -->
                           </div>
-                          </div>
+                          
+                      
+
+
 
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
@@ -159,7 +176,6 @@
                                 <div class="form-group"><label><strong>Credential 1</strong></label><select name="vc" class="form-control">
                                   {{vc_select|safe}}  
                                   </select></div>
-                                 
                           </div>
                         
                             <div class="col-6">
@@ -168,8 +184,7 @@
                                   </select></div>
                             </div>      
                           </div>
-                        
-
+                       
                           </div>
                           </div>
 
@@ -183,6 +198,12 @@
                             <div class="card-body">
 
                               <div class="form-row">
+                                <div class="col-2">
+                                  <div class="form-group"><label><strong>Landing page style</strong></label><select  name="landing_page_style" class="form-control">
+                                    <option value="">--Please choose an option--</option>
+                                   {{landing_page_style_select|safe}}
+                                    </select></div>
+                              </div>
                                 <div class="col">
                                   <div class="form-group"><label><strong>Landing page title</strong><br></label><input class="form-control" type="text" name="page_title" value="{{page_title}}"></div>
                                 </div>

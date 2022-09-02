@@ -121,24 +121,28 @@ def issuer_console(mode) :
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
+        
         credential_requested_select = str()
         for key, value in credential_requested_list.items() :
                 if key ==   session['client_data']['credential_requested'] :
                     credential_requested_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         landing_page_style_select = str()
         for key, value in landing_page_style_list.items() :
                 if key == session['client_data'].get('landing_page_style') :
                     landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         credential_requested_2_select = str()
         for key, value in credential_requested_list.items() :
                 if key ==   session['client_data'].get('credential_requested_2', "") :
                     credential_requested_2_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_2_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         credential_to_issue_select = str()
         for key, value in credential_to_issue_list.items() :
                 if key ==   session['client_data']['credential_to_issue'] :

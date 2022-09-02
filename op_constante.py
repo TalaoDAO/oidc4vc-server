@@ -9,6 +9,9 @@ method_list = {
 
 credential_list = {
                     'EmailPass' : 'Proof of email',
+                    'AgeRange' : 'Age range',
+                    'Nationality' : 'Nationality',
+                    'Gender' : 'Gender',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Over 18',
                     'Tez_Voucher_1' : "Voucher 15% Tezotopia",
@@ -37,6 +40,8 @@ credential_to_issue_list = {
 
 credential_requested_list = {
                     'EmailPass' : 'Proof of email',
+                    'AgeRange' : 'Age range',
+                    'Nationality' : 'Nationality',
                     'PhonePass' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Proof of majority (Over 18)',
@@ -47,6 +52,11 @@ credential_requested_list = {
 landing_page_style_list = {
                     "op_issuer_qrcode.html" : "Style 1",
                     "op_issuer_qrcode_2.html" : "Style 2"
+                }
+
+verifier_landing_page_style_list = {
+                    "op_verifier_qrcode.html" : "Style 1",
+                    "op_verifier_qrcode_2.html" : "Style 2"
                 }
 
 
@@ -106,7 +116,7 @@ client_data_pattern = {
                 "user" : "all",
                 "client_id" :  "",
                 "client_secret" : "",
-                "callback" : "https://company.com/callback",
+                "callback" : "",
                 "webhook" : "https://company.com/webhook",
                 "jwk" : "",
                 "method" : "",
@@ -114,6 +124,7 @@ client_data_pattern = {
                 "issuer_landing_page" : "",     
                 "note" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
                 "company_name" : "New company",
+                "application_name" : "Application name",
                 "reason" : "Text in wallet message for credential 1",
                 "reason_2" : "Text in wallet message for credential 2",
                 "credential_requested" : "IdCard",

@@ -168,10 +168,9 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             red.delete(stream_id)
         except :
             logging.warning('delete stream_id failed')
-            pass
 
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
-        
+
         headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 

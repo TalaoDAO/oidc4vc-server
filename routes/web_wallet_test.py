@@ -184,6 +184,14 @@ def test_direct_offer(red, mode) :
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
+        del credentialOffer['display']    
+
+    elif VC_filename == "MembershipCard_1.jsonld" :
+        filename = "./credential_manifest/membershipcard_credential_manifest.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
         del credentialOffer['display']       
 
     elif VC_filename == "compellio_ticket.jsonld" :
