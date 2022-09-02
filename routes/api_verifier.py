@@ -139,16 +139,30 @@ def wallet_authorize(red) :
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
     logging.info('user is not connected in OP')
-    try : 
-        data = {
-            'client_id' : request.args['client_id'],
-            'scope' : request.args['scope'],
+
+    #https://talao.co/sandbox/op/authorize?
+    # scope=openid
+    # &response_type=code
+    # &state=GQG3nXh15yBSrnAQ
+    # &redirect_uri=https%3A%2F%2Flogin.xecurify.com%2Fmoas%2Fbroker%2Flogin%2Foauth%2Fcallback%2F292539
+    # &client_id=uuheppwxbc
+
+    #https://talao.co/sandbox/op/authorize?
+    # scope=openid
+    # &response_type=code
+    # &state=JNDCpNgOOVLLztuq
+    # &redirect_uri=https%3A%2F%2Flogin.xecurify.com%2Fmoas%2Fbroker%2Flogin%2Foauth%2Fcallback%2F292539
+    # &client_id=uuheppwxbc
+    data = {
+            'client_id' : request.args.get('client_id'),
+            'scope' : request.args.get('scope'),
             'state' : request.args.get('state'),
-            'response_type' : request.args['response_type'],
-            'redirect_uri' : request.args['redirect_uri'],
+            'response_type' : request.args.get('response_type'),
+            'redirect_uri' : request.args('redirect_uri'),
             'nonce' : request.args.get('nonce'),
             "expires" : datetime.timestamp(datetime.now()) + CODE_LIFE
         }
+    """
     except :
         logging.warning('invalid request')
         try :
@@ -156,7 +170,8 @@ def wallet_authorize(red) :
             return redirect(request.args['redirect_uri'] + '?' + urlencode(resp))
         except :
             return jsonify('request malformed'), 400
-
+    """
+    
     if not read_verifier(request.args['client_id']) :
         logging.warning('client_id not found')
         resp = {'error' : 'unauthorized_client'}
