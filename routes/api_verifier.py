@@ -158,7 +158,7 @@ def wallet_authorize(red) :
             'scope' : request.args.get('scope'),
             'state' : request.args.get('state'),
             'response_type' : request.args.get('response_type'),
-            'redirect_uri' : request.args('redirect_uri'),
+            'redirect_uri' : request.args.get('redirect_uri'),
             'nonce' : request.args.get('nonce'),
             "expires" : datetime.timestamp(datetime.now()) + CODE_LIFE
         }
@@ -171,7 +171,7 @@ def wallet_authorize(red) :
         except :
             return jsonify('request malformed'), 400
     """
-    
+
     if not read_verifier(request.args['client_id']) :
         logging.warning('client_id not found')
         resp = {'error' : 'unauthorized_client'}
