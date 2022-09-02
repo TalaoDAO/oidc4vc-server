@@ -197,6 +197,8 @@ def wallet_authorize(red) :
 # token endpoint
 async def wallet_token(red, mode) :
     #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
+    print("request header = ", request.headers)
+    print("request form = ", request.form)
     try :
         token = request.headers['Authorization']
         token = token.split(" ")[1]
