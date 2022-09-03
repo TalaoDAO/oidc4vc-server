@@ -112,7 +112,9 @@ def wallet_authorize(red, mode) :
     logging.info("authorization endpoint request args = %s", request.args)
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
    
-    
+    if session.get('response_type') == "id_token" and session.get('is_logged') == True :
+                return redirect(session['redirect_uri'])
+
     # user is connected, successfull exit to client with code
     if session.get('verified') and request.args.get('code') :
         
@@ -127,8 +129,6 @@ def wallet_authorize(red, mode) :
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
         elif session['response_type'] == "id_token" :
-            if session.get('is_logged') == True :
-                return redirect(session['redirect_uri'])
             code = request.args['code'] 
             vp = red.get(code + "_vp").decode()
             DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
