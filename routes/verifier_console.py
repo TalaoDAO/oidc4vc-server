@@ -91,6 +91,7 @@ def preview (red, mode) :
                             page_title=verifier_data['page_title'],
                             page_subtitle=verifier_data['page_subtitle'],
                             page_description=verifier_data['page_description'],
+                            application_name=verifier_data['application_name'],
                             qrcode_message=qrcode_message,
                             mobile_message=mobile_message,
                             landing_page_url= verifier_data['landing_page_url'],

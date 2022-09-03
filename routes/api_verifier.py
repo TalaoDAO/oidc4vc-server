@@ -111,9 +111,10 @@ def openid_configuration(mode):
 def wallet_authorize(red, mode) :
     logging.info("authorization endpoint request args = %s", request.args)
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
+   
     
     # user is connected, successfull exit to client with code
-    if session.get('is_connected') and request.args.get('code') :
+    if session.get('verified') and request.args.get('code') :
         
         if session['response_type'] == "code" :
             logging.info("response_type = code : successfull redirect to client with code = %s", request.args.get('code'))
@@ -126,12 +127,15 @@ def wallet_authorize(red, mode) :
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
         elif session['response_type'] == "id_token" :
+            if session.get('is_logged') == True :
+                return redirect(session['redirect_uri'])
             code = request.args['code'] 
             vp = red.get(code + "_vp").decode()
             DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
             id_token = build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
             resp = {"id_token" : id_token} 
             logging.info("redirect to client with id-token = %s", id_token)
+            session['is_logged'] = True
             return redirect(session['redirect_uri'] + '?' + urlencode(resp))
     
     # error in login, exit, clear session
@@ -147,7 +151,7 @@ def wallet_authorize(red, mode) :
         return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
     
     # User is not connected yet
-    session['is_connected'] = False
+    session['verified'] = False
     logging.info('user is not connected in OP')
     try :
         data = {
@@ -356,6 +360,7 @@ def login_qrcode(red, mode):
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
 							stream_id=stream_id,
+                            application_name=verifier_data.get('application_name'),
                             qrcode_message=verifier_data.get('qrcode_message'),
                             mobile_message=verifier_data.get('mobile_message'),
                             landing_page_url= verifier_data['landing_page_url'],
@@ -426,10 +431,10 @@ def login_followup(red):
     code = json.loads(red.get(stream_id).decode())['code']
     if red.get(stream_id + '_access').decode() != 'ok' :
         resp = {'code' : code, 'error' : red.get(stream_id + '_access').decode()}
-        session['is_connected'] = False
+        session['verified'] = False
     else :
         vp = red.get(stream_id +'_vp').decode()     
-        session['is_connected'] = True
+        session['verified'] = True
         red.set(code +"_vp", vp)
         resp = {'code' : code}
     red.delete(stream_id + '_vp')
