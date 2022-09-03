@@ -77,6 +77,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
     else :
         pass
+    logging.info("ID Token payload = %s", payload)
 
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
@@ -263,7 +264,9 @@ def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
         data = json.loads(red.get(access_token).decode())
-        data = {"sub" : data['sub']}
+        data = {
+                "sub" : data['sub'],
+                "email" : "userinfo@talao.co"}
         headers = {
             "Cache-Control" : "no-store",
             "Pragma" : "no-cache",
