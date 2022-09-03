@@ -232,7 +232,7 @@ async def wallet_token(red, mode) :
     vp = red.get(code + "_vp").decode()
     DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
     id_token = build_id_token(client_id, DID, data['nonce'], vp, mode)
-    logging.info('id_token and vp_token sent to RP')
+    logging.info('id_token and access_token sent to client')
     access_token = str(uuid.uuid1())
     endpoint_response = {"id_token" : id_token,
                         "access_token" : access_token,
@@ -243,7 +243,10 @@ async def wallet_token(red, mode) :
     red.delete(code + '_vp')
     red.setex(access_token, 
             ACCESS_TOKEN_LIFE,
-            json.dumps({"sub" : DID,"vp_token" : json.loads(vp)}))
+            json.dumps({
+                "client_id" : client_id,
+                "sub" : DID,
+                "vp_token" : json.loads(vp)}))
     headers = {
         "Cache-Control" : "no-store",
         "Pragma" : "no-cache",
@@ -264,14 +267,32 @@ def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
         data = json.loads(red.get(access_token).decode())
-        data = {
-                "sub" : data['sub'],
-                "email" : "userinfo@talao.co"}
+        client_id = data["client_id"]
+        payload = {"sub" : data['sub']}
+        verifier_data = json.loads(read_verifier(client_id))
+        presentation = data["vp_token"]
+        if verifier_data['vc'] == "IdCard" :
+            payload["given_name"] = presentation['verifiableCredential']['credentialSubject']['givenName']
+            payload["family_name"] = presentation['verifiableCredential']['credentialSubject']['familyName']
+            payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
+            payload["birthdate"] = presentation['verifiableCredential']['credentialSubject']['birthDate']
+        elif verifier_data['vc'] == "EmailPass" :
+            payload["email"] = presentation['verifiableCredential']['credentialSubject']['email']
+            payload["email_verified"] = True
+        elif verifier_data['vc'] == "AgeRange" :
+            payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
+        elif verifier_data['vc'] == "Gender" :
+            payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['gender']
+        elif verifier_data['vc'] == "Nationality" :
+            payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
+        else :
+            pass
+        logging.info("User info payload = %s", payload)
         headers = {
             "Cache-Control" : "no-store",
             "Pragma" : "no-cache",
             "Content-Type": "application/json"}
-        return Response(response=json.dumps(data), headers=headers)
+        return Response(response=json.dumps(payload), headers=headers)
 
     except :
         logging.warning("access token expired")
