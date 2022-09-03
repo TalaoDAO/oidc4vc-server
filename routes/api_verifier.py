@@ -130,7 +130,7 @@ def wallet_authorize(red, mode) :
             vp = red.get(code + "_vp").decode()
             DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
             id_token = build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
-            resp = {"id_token", id_token} 
+            resp = {"id_token" : id_token} 
             logging.info("redirect to client with id-token = %s", id_token)
             return redirect(session['redirect_uri'] + '?' + urlencode(resp))
     
