@@ -169,7 +169,7 @@ def wallet_authorize(red, mode) :
             return jsonify('request malformed'), 400
     
     session['response_type'] = request.args['response_type']
-    session['nonce'] = request.args['nonce']
+    session['nonce'] = request.args.get('nonce', "altme")
     session['client_id'] = request.args['client_id']
 
     if not read_verifier(request.args['client_id']) :
