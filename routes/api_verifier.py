@@ -108,15 +108,13 @@ def openid_configuration(mode):
 
 # authorization server
 def wallet_authorize(red) :
+    logging.info("authorization endpoint request args = %s", request.args)
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
     
-    if session.get('is_connected') :
-        logging.info('user is connected in OP')
-        try :
-            code = request.args['code']
-        except :
-            session.clear()
-            return jsonify('request_malformed'),404        
+    # user is connected, successfull exit to client with code
+    if session.get('is_connected') and request.args.get('code') :
+        logging.info("successfull redirect to client with code = %s", request.args.get('code'))
+        code = request.args['code']  
         data =  json.loads(red.get(code).decode())
         if  data.get('state') :
             resp = {'code' : code,  'state' : data['state']}
@@ -124,9 +122,10 @@ def wallet_authorize(red) :
             resp = {'code' : code}
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
+    # error in login
     if 'error' in request.args :
-        logging.warning('there is an error in the OP')
-        logging.warning('error = %s', request.args['error'])
+        logging.warning('there is an error in the login process, redirect to client with error code')
+        logging.warning('error code = %s', request.args['error'])
         code = request.args['code']
         try : 
             data =  json.loads(red.get(code).decode())
@@ -138,53 +137,45 @@ def wallet_authorize(red) :
         red.delete(code)
         return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
     
+    # User is not connected yet
+    session['is_connected'] = False
     logging.info('user is not connected in OP')
-
-    #https://thierry-webflow.webflow.io/you-are-logged-in?
-    # id_token=eyJraWQiOiIzMDAxMjAxNjI3MDEyMDI2IiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJNTyIsImF1ZCI6Imh0dHBzOi8vdGhpZXJyeS13ZWJmbG93LndlYmZsb3cuaW8veW91LWFyZS1sb2dnZWQtaW4iLCJleHAiOjE2NjIxMzYxODcsImp0aSI6IjltZmRNNFdPdGZhRDhzcG5MSDhoOEEiLCJpYXQiOjE2NjIxMzI1ODcsIm5iZiI6MTY2MjEzMjQ2Nywic3ViIjoiZGlkOmtleTp6Nk1rdHFIa2lXcXltNXI5Y1VHOE1ZdDhrNHR1SmtQdmZBY1FRb2d1eXBQN3FIY0ciLCJzY2hlbWEiOiJodHRwczovL3NjaGVtYS5vcmcvIiwiZ2VuZGVyIjoic2NoZW1hOmdlbmRlciIsIkB0eXBlIjoiQGlkIiwiandzIjoiaHR0cHM6Ly93M2lkLm9yZy9zZWN1cml0eSNqd3MiLCJ0eXBlIjoiQHR5cGUiLCJpc3N1ZXIiOiJkaWQ6dHo6dHoxTnlqclRVTnhEcFBhcU5aODRpcEdFTEFjVFdZZzZzNUR1IiwiU09VUkNFX0lEUCI6ImN1c3RvbV9vYXV0aF9hbHRtZSIsImV4cGlyeURhdGUiOiJzY2hlbWE6ZXhwaXJ5RGF0ZSIsImJpcnRoUGxhY2UiOiJzY2hlbWE6YmlydGhQbGFjZSIsImlzc3VhbmNlRGF0ZSI6IjIwMjItMDktMDFUMTQ6MjI6NTlaIiwiZmFtaWx5TmFtZSI6InNjaGVtYTpmYW1pbHlOYW1lIiwiQHZlcnNpb24iOiIxLjEiLCJsb2dvIjoiIiwicHJvb2ZQdXJwb3NlIjoiYXNzZXJ0aW9uTWV0aG9kIiwiaWQiOiJAaWQiLCJAaWQiOiJzY2hlbWE6aW1hZ2UiLCJ2ZXJpZmljYXRpb25NZXRob2QiOiJkaWQ6dHo6dHoxTnlqclRVTnhEcFBhcU5aODRpcEdFTEFjVFdZZzZzNUR1I2Jsb2NrY2hhaW5BY2NvdW50SWQiLCJpc3N1ZURhdGUiOiJzY2hlbWE6aXNzdWVkYXRlIiwiQGNvbnRhaW5lciI6IkBzZXQiLCJleHBpcmF0aW9uRGF0ZSI6IjIwMjMtMDgtMzFUMTQ6MjI6NTlaIiwiYWRkcmVzc0NvdW50cnkiOiJzY2hlbWE6YWRkcmVzc0NvdW50cnkiLCJjcmVhdGVkIjoiMjAyMi0wOS0wMVQxNDoyMzowMi4wMDRaIiwiY3J2IjoiRWQyNTUxOSIsImdpdmVuTmFtZSI6InNjaGVtYTpnaXZlbk5hbWUiLCJob2xkZXIiOiJkaWQ6a2V5Ono2TWt0cUhraVdxeW01cjljVUc4TVl0OGs0dHVKa1B2ZkFjUVFvZ3V5cFA3cUhjRyIsImJpcnRoRGF0ZSI6InNjaGVtYTpiaXJ0aERhdGUiLCJub25jZSI6Imh0dHBzOi8vdzNpZC5vcmcvc2VjdXJpdHkjbm9uY2UiLCJrdHkiOiJPS1AiLCJuYXRpb25hbGl0eSI6InNjaGVtYTpuYXRpb25hbGl0eSIsImRvbWFpbiI6Imh0dHBzOi8vdzNpZC5vcmcvc2VjdXJpdHkjZG9tYWluIiwiYXV0aG9yaXR5Ijoic2NoZW1hOmF1dGhvcml0eSIsIm5hbWUiOiJzY2hlbWE6bmFtZSIsIngiOiJGVW9MZXdINHc0LUtkYVBIMmNqWmJMLS1DS1l4UVJXUjA1WWRfYkliaFFvIiwiQHByb3RlY3RlZCI6InRydWUiLCJjaGFsbGVuZ2UiOiJodHRwczovL3czaWQub3JnL3NlY3VyaXR5I2NoYWxsZW5nZSJ9.Eej3zrEj-L13XEQZlWxLsbtEJ_-odfyMyfhfr2ZUvxNa68i6DvOiAomyP_e1jJQFNNh73zkJAdVryNkSZwYKMz-pdndYl5oF8N7LYRYd5fxx9YeGiCQx9TZF_w4BnGdo-HbZaa9joZ9JQHUzDyqknCKP-_jFH_iEzf7co3qYvUSyWuZwXEsWaL8y14ZMMtKtHk1XMuSbIsx2Jjdf7PB_tifYkXEbJShX_zgZs7AHugXN409MJArar6Pjg5-wXQfNwvVl97KPfKOqw-Cz3_D2bZt89evk_hcWx2oBiX9OA8qVEWyeU1R4KjNT_aBXfguxy6dagpZWUux2P3gXGzqwLA
-
-    #https://talao.co/sandbox/op/authorize?
-    # scope=openid
-    # &response_type=code
-    # &state=JNDCpNgOOVLLztuq
-    # &redirect_uri=https%3A%2F%2Flogin.xecurify.com%2Fmoas%2Fbroker%2Flogin%2Foauth%2Fcallback%2F292539
-    # &client_id=uuheppwxbc
-    data = {
-            'client_id' : request.args.get('client_id'),
+    try :
+        data = {
+            'client_id' : request.args['client_id'],
             'scope' : request.args.get('scope'),
             'state' : request.args.get('state'),
-            'response_type' : request.args.get('response_type'),
-            'redirect_uri' : request.args.get('redirect_uri'),
+            'response_type' : request.args['response_type'],
+            'redirect_uri' : request.args['redirect_uri'],
             'nonce' : request.args.get('nonce'),
             "expires" : datetime.timestamp(datetime.now()) + CODE_LIFE
         }
-    """
     except :
-        logging.warning('invalid request')
+        logging.warning('invalid request received in authorization server')
         try :
             resp = {'error' : 'invalid_request_object'}
             return redirect(request.args['redirect_uri'] + '?' + urlencode(resp))
         except :
             return jsonify('request malformed'), 400
-    """
+    
 
     if not read_verifier(request.args['client_id']) :
-        logging.warning('client_id not found')
+        logging.warning('client_id not found id data base')
         resp = {'error' : 'unauthorized_client'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
 
     if request.args['response_type'] != "code" :
-        logging.warning('unsupported response type')
+        logging.warning('unsupported response type %s', request.args['response_type'])
         resp = {'error' : 'unsupported_response_type'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
 
     verifier_data = json.loads(read_verifier(request.args['client_id']))
     if request.args['redirect_uri'] != verifier_data['callback'] :
-        logging.warning('invalid Callback URL')
+        logging.warning('redirect_uri does not match Callback URL')
         resp = {'error' : 'invalid_request_object'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
     
-    # creation grant (code)
+    # creation grant (code) and follow up to user consent
     code = str(uuid.uuid1())
     red.set(code, json.dumps(data))
     return redirect('/sandbox/login?code=' + code)
@@ -193,8 +184,7 @@ def wallet_authorize(red) :
 # token endpoint
 async def wallet_token(red, mode) :
     #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
-    print("request header = ", request.headers)
-    print("request form = ", request.form)
+    logging.info("token endpoint request form = %s", request.form)
     try :
         token = request.headers['Authorization']
         token = token.split(" ")[1]
@@ -273,8 +263,13 @@ def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
         data = json.loads(red.get(access_token).decode())
-        data = {"test" : "test"}
-        return jsonify(data)
+        data = {"sub" : data['sub']}
+        headers = {
+            "Cache-Control" : "no-store",
+            "Pragma" : "no-cache",
+            "Content-Type": "application/json"}
+        return Response(response=json.dumps(data), headers=headers)
+
     except :
         logging.warning("access token expired")
         headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "The access token expired"'}
