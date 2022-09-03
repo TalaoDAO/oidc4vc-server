@@ -273,9 +273,10 @@ async def wallet_token(red, mode) :
 
 # logout endpoint
 def wallet_logout() :
+    redirect_uri = session.get('redirect_uri', '')
     session.clear()
     logging.info("logout reçu")
-    return jsonify('logout')
+    return redirect(redirect_uri)
 
 
 # userinfo endpoint
