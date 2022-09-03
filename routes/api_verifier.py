@@ -114,38 +114,37 @@ def wallet_authorize(red, mode) :
     
     # user is connected, successfull exit to client with code
     if session.get('is_connected') and request.args.get('code') :
+        
         if session['response_type'] == "code" :
             logging.info("response_type = code : successfull redirect to client with code = %s", request.args.get('code'))
             code = request.args['code']  
-            data =  json.loads(red.get(code).decode())
-            if  data.get('state') :
-                resp = {'code' : code,  'state' : data['state']}
+            #data =  json.loads(red.get(code).decode())
+            if  session.get('state') :
+                resp = {'code' : code,  'state' : session['state']}
             else :
                 resp = {'code' : code}
-            return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
+            return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
+
         elif session['response_type'] == "id_token" :
-            logging.info("response_type = id_token : successfull redirect to client with code = %s", request.args.get('code'))
-            code = request.args['code']  
+            code = request.args['code'] 
             vp = red.get(code + "_vp").decode()
             DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
-            id_token = build_id_token(session['client_id'], DID, session['nonce'], vp, mode)
-            resp = {"id_token", id_token}         
-            return redirect(data['redirect_uri'] + '?' + urlencode(resp))
+            id_token = build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
+            resp = {"id_token", id_token} 
+            logging.info("redirect to client with id-token = %s", id_token)
+            return redirect(session['redirect_uri'] + '?' + urlencode(resp))
     
-    # error in login
+    # error in login, exit, clear session
     if 'error' in request.args :
         logging.warning('there is an error in the login process, redirect to client with error code')
         logging.warning('error code = %s', request.args['error'])
         code = request.args['code']
-        try : 
-            data =  json.loads(red.get(code).decode())
-        except :
-            return jsonify('request expired'), 400
         resp = {'error' : request.args['error']}
-        if data.get('state') :
-            resp['state'] = data['state']
+        if session('state') :
+            resp['state'] = session['state']
         red.delete(code)
-        return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
+        session.clear()
+        return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
     
     # User is not connected yet
     session['is_connected'] = False
@@ -168,26 +167,29 @@ def wallet_authorize(red, mode) :
         except :
             return jsonify('request malformed'), 400
     
-    session['response_type'] = request.args['response_type']
-    session['nonce'] = request.args.get('nonce', "altme")
-    session['client_id'] = request.args['client_id']
-
     if not read_verifier(request.args['client_id']) :
         logging.warning('client_id not found id data base')
         resp = {'error' : 'unauthorized_client'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
+    session['client_id'] = request.args['client_id']
+
 
     verifier_data = json.loads(read_verifier(request.args['client_id']))
     if request.args['redirect_uri'] != verifier_data['callback'] :
         logging.warning('redirect_uri does not match Callback URL')
         resp = {'error' : 'invalid_request_object'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
+    session['redirect_uri'] = request.args['redirect_uri']
 
     if request.args['response_type'] not in ["code", "id_token" ]:
         logging.warning('unsupported response type %s', request.args['response_type'])
         resp = {'error' : 'unsupported_response_type'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
-    
+    session['response_type'] = request.args['response_type']
+
+    session['nonce'] = request.args.get('nonce', "altme")
+    session['state'] = request.args.get('state')
+
     # creation grant (code) and follow up to user consent
     code = str(uuid.uuid1())
     red.set(code, json.dumps(data))
