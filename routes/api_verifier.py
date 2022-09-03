@@ -27,7 +27,7 @@ public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red})
+    app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red, "mode" : mode})
     app.add_url_rule('/sandbox/op/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red, 'mode' : mode})
     app.add_url_rule('/sandbox/op/logout',  view_func=wallet_logout, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/userinfo',  view_func=wallet_userinfo, methods = ['GET', 'POST'], defaults={"red" : red})
@@ -108,20 +108,29 @@ def openid_configuration(mode):
 
 
 # authorization server
-def wallet_authorize(red) :
+def wallet_authorize(red, mode) :
     logging.info("authorization endpoint request args = %s", request.args)
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
     
     # user is connected, successfull exit to client with code
     if session.get('is_connected') and request.args.get('code') :
-        logging.info("successfull redirect to client with code = %s", request.args.get('code'))
-        code = request.args['code']  
-        data =  json.loads(red.get(code).decode())
-        if  data.get('state') :
-            resp = {'code' : code,  'state' : data['state']}
-        else :
-            resp = {'code' : code}
-        return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
+        if session['response_type'] == "code" :
+            logging.info("response_type = code : successfull redirect to client with code = %s", request.args.get('code'))
+            code = request.args['code']  
+            data =  json.loads(red.get(code).decode())
+            if  data.get('state') :
+                resp = {'code' : code,  'state' : data['state']}
+            else :
+                resp = {'code' : code}
+            return redirect(data['redirect_uri'] + '?' + urlencode(resp)) 
+        elif session['response_type'] == "id_token" :
+            logging.info("response_type = id_token : successfull redirect to client with code = %s", request.args.get('code'))
+            code = request.args['code']  
+            vp = red.get(code + "_vp").decode()
+            DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
+            id_token = build_id_token(session['client_id'], DID, session['nonce'], vp, mode)
+            resp = {"id_token", id_token}         
+            return redirect(data['redirect_uri'] + '?' + urlencode(resp))
     
     # error in login
     if 'error' in request.args :
@@ -159,21 +168,24 @@ def wallet_authorize(red) :
         except :
             return jsonify('request malformed'), 400
     
+    session['response_type'] = request.args['response_type']
+    session['nonce'] = request.args['nonce']
+    session['client_id'] = request.args['client_id']
 
     if not read_verifier(request.args['client_id']) :
         logging.warning('client_id not found id data base')
         resp = {'error' : 'unauthorized_client'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
 
-    if request.args['response_type'] != "code" :
-        logging.warning('unsupported response type %s', request.args['response_type'])
-        resp = {'error' : 'unsupported_response_type'}
-        return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
-
     verifier_data = json.loads(read_verifier(request.args['client_id']))
     if request.args['redirect_uri'] != verifier_data['callback'] :
         logging.warning('redirect_uri does not match Callback URL')
         resp = {'error' : 'invalid_request_object'}
+        return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
+
+    if request.args['response_type'] not in ["code", "id_token" ]:
+        logging.warning('unsupported response type %s', request.args['response_type'])
+        resp = {'error' : 'unsupported_response_type'}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
     
     # creation grant (code) and follow up to user consent

@@ -146,13 +146,23 @@
                         </div>    
 
                             <div class="form-row">
-                              <div class="col">
+                              <div class="col-6">
                                 <div class="form-group"><label><strong>OAuth callback URL (required)</strong><br></label><input required class="form-control" type="text" name="callback" value="{{callback}}"></div>
                               </div>
 
+                              
+                            </div>
+
+                            <div class="form-row">
                               <div class="col">
-                                <div class="form-group"><label><strong>Grant Type</strong><br></label><input readonly class="form-control" type="text" name="grant_type" value="Authorization code flow"></div>
+                                <div class="form-group"><label><strong>Request for authorization code flow</strong><br></label><input readonly class="form-control" type="text" name="callback" value="{{authorization_request}}"></div>
                               </div>
+                            </div>
+                            <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>Request for implicit flow </strong><br></label><input readonly class="form-control" type="text" name="callback" value="{{implicit_request}}"></div>
+                              </div>
+                              
                             </div>
                          
                         
