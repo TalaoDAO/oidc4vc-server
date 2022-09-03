@@ -72,9 +72,11 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     elif verifier_data['vc'] == "AgeRange" :
         payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
     elif verifier_data['vc'] == "Gender" :
-        payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['gender']
+        payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
     elif verifier_data['vc'] == "Nationality" :
         payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
+    elif verifier_data['vc'] == "AragoPass" :
+        payload["group"] = presentation['verifiableCredential']['credentialSubject']['group']
     else :
         pass
     logging.info("ID Token payload = %s", payload)
@@ -296,8 +298,10 @@ def wallet_userinfo(red) :
             payload["email_verified"] = True
         elif verifier_data['vc'] == "AgeRange" :
             payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
+        elif verifier_data['vc'] == "AragoPass" :
+            payload["group"] = presentation['verifiableCredential']['credentialSubject']['group']
         elif verifier_data['vc'] == "Gender" :
-            payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['gender']
+            payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
         elif verifier_data['vc'] == "Nationality" :
             payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
         else :
