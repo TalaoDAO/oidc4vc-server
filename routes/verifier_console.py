@@ -218,6 +218,7 @@ def console(mode) :
             session['client_data']['company_name'] = request.form['company_name']
             session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['vc'] = request.form['vc']
+            session['client_data']['user'] = request.form['user_name']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          
             db_api.update_verifier(request.form['client_id'], json.dumps(session['client_data']))

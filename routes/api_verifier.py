@@ -273,9 +273,11 @@ async def wallet_token(red, mode) :
 
 # logout endpoint
 def wallet_logout() :
-    redirect_uri = session.get('redirect_uri', '')
+    redirect_uri = session.get('redirect_uri')
+    if not redirect_uri :
+        redirect_uri = request.full_path
     session.clear()
-    logging.info("logout reçu")
+    logging.info("logout call received, redirect to %s", redirect_uri)
     return redirect(redirect_uri)
 
 
@@ -306,6 +308,7 @@ def wallet_userinfo(red) :
         elif verifier_data['vc'] == "Nationality" :
             payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
         else :
+            logging.info("%s not supported", verifier_data['vc'])
             pass
         logging.info("User info payload = %s", payload)
         headers = {
@@ -358,6 +361,7 @@ def login_qrcode(red, mode):
     else : 
         qrcode_page = verifier_data.get('landing_page_style')
     return render_template(qrcode_page,
+                            back_button = False,
 							url=url,
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
