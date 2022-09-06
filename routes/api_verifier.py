@@ -11,10 +11,12 @@ from jwcrypto import jwk, jwt
 import didkit
 from db_api import read_verifier
 import op_constante
-
 logging.basicConfig(level=logging.INFO)
-ACCESS_TOKEN_LIFE = 180
+
+ACCESS_TOKEN_LIFE = 1800
+QRCODE_LIFE = 180
 CODE_LIFE = 180
+DID_VERIFIER = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 TRUSTED_ISSUER = [
     "did:tz:tz1RuLH4TvKNpLy3AqQMui6Hys6c1Dvik8J5",
     "did:tz:tz2X3K4x7346aUkER2NXSyYowG23ZRbueyse",
@@ -28,14 +30,14 @@ TRUSTED_ISSUER = [
 ]
 
 try :
-    rsa_key_dict = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
+    RSA_KEY_DICT = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
 except :
-    rsa_key_dict = json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key']
+    RSA_KEY_DICT = json.load(open("/home/thierry/sandbox/keys.json", "r"))['RSA_key']
 
-rsa_key = jwk.JWK(**rsa_key_dict) 
+rsa_key = jwk.JWK(**RSA_KEY_DICT) 
 public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
-did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
+
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red, "mode" : mode})
@@ -44,6 +46,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/userinfo',  view_func=wallet_userinfo, methods = ['GET', 'POST'], defaults={"red" : red})
     app.add_url_rule('/sandbox/op/.well-known/openid-configuration', view_func=openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
+    app.add_url_rule('/sandbox/op/webflow', view_func=webflow, methods=['GET'])
+
 
     # http://172.20.10.2:3000/sandbox/.well-known/openid-configuration
     app.add_url_rule('/sandbox/login',  view_func=login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
@@ -53,12 +57,23 @@ def init_app(app,red, mode) :
     return
 
 
+def webflow() :
+    f = open('common_page.txt', 'r')
+    payload = f.read()
+    headers = {
+            "Cache-Control" : "no-store",
+            "Pragma" : "no-cache",
+            "Content-Type": "application/json"}
+    return Response(response=payload, headers=headers)
+
+    
+
 def build_id_token(client_id, sub, nonce, vp, mode) :
-    verifier_key = jwk.JWK(**rsa_key_dict) 
+    verifier_key = jwk.JWK(**RSA_KEY_DICT) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
         "typ" :"JWT",
-        "kid": rsa_key_dict['kid'],
+        "kid": RSA_KEY_DICT['kid'],
         "alg": "RS256"
     }
     # https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
@@ -221,7 +236,7 @@ def wallet_authorize(red, mode) :
 
     # creation grant (code) and redirect to siop with wallet
     code = str(uuid.uuid1())
-    red.setex(code, 180, json.dumps(data))
+    red.setex(code, CODE_LIFE, json.dumps(data))
     return redirect('/sandbox/login?code=' + code)
    
 
@@ -330,7 +345,11 @@ def wallet_logout() :
 
 
 # userinfo endpoint
-# https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+"""
+ https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+ only access token is needed
+
+"""
 def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
@@ -400,8 +419,8 @@ def login_qrcode(red, mode):
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
     data = { "pattern": pattern,"code" : request.args['code'] }
-    red.setex(stream_id, 180, json.dumps(data))
-    url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
+    red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
+    url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : DID_VERIFIER})
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
 
@@ -431,7 +450,6 @@ def login_qrcode(red, mode):
                             qrcode_background_color = verifier_data['qrcode_background_color']
                             )
     
-
 
 async def login_presentation_endpoint(stream_id, red):
     """
@@ -474,7 +492,7 @@ async def login_presentation_endpoint(stream_id, red):
             event_data = json.dumps({"stream_id" : stream_id})           
             red.publish('api_verifier', event_data)
             logging.error("credential signature check failed")
-            return jsonify("signature_error"), 403
+            return jsonify("credential signature check failed"), 403
 
         if credential['issuer'] not in TRUSTED_ISSUER :
             value = json.dumps({"access" : "access_denied"})
@@ -482,7 +500,7 @@ async def login_presentation_endpoint(stream_id, red):
             event_data = json.dumps({"stream_id" : stream_id})           
             red.publish('api_verifier', event_data)
             logging.error("issuer not in trusted issuer list")
-            return jsonify("issuer_forbidden"), 403
+            return jsonify("issuer is forbidden"), 403
         else :
             logging.info("issuer is known %s", credential['issuer'] )      
 
@@ -522,7 +540,6 @@ def login_followup(red):
         pass
     # redirect to authorize server
     return redirect ('/sandbox/op/authorize?' + urlencode(resp))
-
 
 
 def login_presentation_stream(red):
