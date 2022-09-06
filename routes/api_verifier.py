@@ -5,6 +5,7 @@ import uuid
 from urllib.parse import urlencode
 import logging
 import base64
+import time
 from datetime import datetime
 from jwcrypto import jwk, jwt
 import didkit
@@ -14,7 +15,17 @@ import op_constante
 logging.basicConfig(level=logging.INFO)
 ACCESS_TOKEN_LIFE = 180
 CODE_LIFE = 180
-
+TRUSTED_ISSUER = [
+    "did:tz:tz1RuLH4TvKNpLy3AqQMui6Hys6c1Dvik8J5",
+    "did:tz:tz2X3K4x7346aUkER2NXSyYowG23ZRbueyse",
+    "did:ethr:0x61fb76ff95f11bdbcd94b45b838f95c1c7307dbd",
+    "did:web:talao.co",
+    "did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250",
+    "did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk",
+    "did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7",
+    "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du",
+    "did:tz:tz2UFjbN9ZruP5pusKoAKiPD3ZLV49CBG9Ef"
+]
 
 try :
     rsa_key_dict = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
@@ -61,6 +72,8 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     }
     verifier_data = json.loads(read_verifier(client_id))
     presentation = json.loads(vp)
+    vc_expiration_date = presentation['verifiableCredential']['issuanceDate'][:19]
+    payload["updated_at"] = time.mktime(time.strptime(vc_expiration_date, '%Y-%m-%dT%H:%M:%S'))
     if verifier_data['vc'] == "IdCard" :
         payload["given_name"] = presentation['verifiableCredential']['credentialSubject']['givenName']
         payload["family_name"] = presentation['verifiableCredential']['credentialSubject']['familyName']
@@ -71,6 +84,8 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         payload["email_verified"] = True
     elif verifier_data['vc'] == "AgeRange" :
         payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
+    elif verifier_data['vc'] == "Over18" :
+        payload["over_18"] = True
     elif verifier_data['vc'] == "Gender" :
         payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
     elif verifier_data['vc'] == "Nationality" :
@@ -80,7 +95,6 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     else :
         pass
     logging.info("ID Token payload = %s", payload)
-
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
     return token.serialize()
@@ -110,26 +124,37 @@ def openid_configuration(mode):
 
 
 # authorization server
+"""
+response_type supported = code or id_token
+
+
+"""
 def wallet_authorize(red, mode) :
     logging.info("authorization endpoint request args = %s", request.args)
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
 
     # user is connected, successfull exit to client with code
     if session.get('verified') and request.args.get('code') :
-        
-        if session['response_type'] == "code" :
+                
+        if session.get('response_type') == "code" :
             logging.info("response_type = code : successfull redirect to client with code = %s", request.args.get('code'))
             code = request.args['code']  
-            #data =  json.loads(red.get(code).decode())
             if  session.get('state') :
                 resp = {'code' : code,  'state' : session['state']}
             else :
                 resp = {'code' : code}
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
-        elif session['response_type'] == "id_token" :
+        elif session.get('response_type') == "id_token" :
             code = request.args['code'] 
-            vp = red.get(code + "_vp").decode()
+            try :
+                vp = red.get(code + "_vp").decode()
+            except :
+                logging.error("code expired")
+                resp = {'error' : "access_denied"}
+                session.clear()
+                return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
+
             DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
             id_token = build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
             resp = {"id_token" : id_token} 
@@ -143,13 +168,13 @@ def wallet_authorize(red, mode) :
         logging.warning('error code = %s', request.args['error'])
         code = request.args['code']
         resp = {'error' : request.args['error']}
-        if session('state') :
+        if session.get('state') :
             resp['state'] = session['state']
         red.delete(code)
         session.clear()
         return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
     
-    # User is not connected yet
+    # User is not connected
     session['verified'] = False
     logging.info('user is not connected in OP')
     try :
@@ -190,12 +215,11 @@ def wallet_authorize(red, mode) :
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
     session['response_type'] = request.args['response_type']
 
-    session['nonce'] = request.args.get('nonce', "altme")
     session['state'] = request.args.get('state')
 
-    # creation grant (code) and follow up to user consent
+    # creation grant (code) and redirect to siop with wallet
     code = str(uuid.uuid1())
-    red.set(code, json.dumps(data))
+    red.setex(code, 180, json.dumps(data))
     return redirect('/sandbox/login?code=' + code)
    
 
@@ -233,9 +257,15 @@ async def wallet_token(red, mode) :
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
 
-    if client_id != data['client_id'] or redirect_uri != data['redirect_uri']:
-        logging.warning('client_id or redirect_uri incorrect' )
+    if client_id != data['client_id'] :
+        logging.warning('client_id is incorrect' )
         endpoint_response= {"error": "invalid_client"}
+        headers = {'Content-Type': 'application/json'}
+        return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
+    
+    if redirect_uri != data['redirect_uri']:
+        logging.warning('redirect_uri id incorrect' )
+        endpoint_response= {"error": "invalid_redirect_uri"}
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
     
@@ -246,18 +276,28 @@ async def wallet_token(red, mode) :
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
     
     # token response
-    vp = red.get(code + "_vp").decode()
+    try :
+        vp = red.get(code + "_vp").decode()
+    except :
+        logging.warning('code expired' )
+        endpoint_response= {"error": "invalid_grant"}
+        headers = {'Content-Type': 'application/json'}
+        return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
+    
     DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
     id_token = build_id_token(client_id, DID, data['nonce'], vp, mode)
-    logging.info('id_token and access_token sent to client')
+    logging.info('id_token and access_token sent to client from token endpoint')
     access_token = str(uuid.uuid1())
     endpoint_response = {"id_token" : id_token,
                         "access_token" : access_token,
                         "token_type" : "Bearer",
                         "expires_in": ACCESS_TOKEN_LIFE
                         }
-    red.delete(code)
-    red.delete(code + '_vp')
+    try :
+        red.delete(code)
+        red.delete(code + '_vp')
+    except :
+        pass
     red.setex(access_token, 
             ACCESS_TOKEN_LIFE,
             json.dumps({
@@ -269,16 +309,22 @@ async def wallet_token(red, mode) :
         "Pragma" : "no-cache",
         'Content-Type': 'application/json'}
     return Response(response=json.dumps(endpoint_response), headers=headers)
-
+ 
 
 # logout endpoint
+#https://openid.net/specs/openid-connect-rpinitiated-1_0-02.html
 def wallet_logout() :
-    redirect_uri = session.get('redirect_uri')
-    if not redirect_uri :
-        redirect_uri = request.full_path
+    if not session.get('verified') :
+        return jsonify ('Forbidden'), 403
+    if request.method == "GET" :
+        post_logout_redirect_uri = session.args.get('post_logout_redirect_uri')
+    elif request.method == "POST" :
+        post_logout_redirect_uri = session.form.get('post_logout_redirect_uri')
+    if not post_logout_redirect_uri :
+        post_logout_redirect_uri = session['redirect_uri']
     session.clear()
-    logging.info("logout call received, redirect to %s", redirect_uri)
-    return redirect(redirect_uri)
+    logging.info("logout call received, redirect to %s", post_logout_redirect_uri)
+    return redirect(post_logout_redirect_uri)
 
 
 # userinfo endpoint
@@ -301,6 +347,8 @@ def wallet_userinfo(red) :
             payload["email_verified"] = True
         elif verifier_data['vc'] == "AgeRange" :
             payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
+        elif verifier_data['vc'] == "Over18" :
+            payload["over_18"] = True
         elif verifier_data['vc'] == "AragoPass" :
             payload["group"] = presentation['verifiableCredential']['credentialSubject']['group']
         elif verifier_data['vc'] == "Gender" :
@@ -330,14 +378,13 @@ Protocol pour Presentation Request
 
 
 def login_qrcode(red, mode):
-
     stream_id = str(uuid.uuid1())
     try :
         client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+        nonce = json.loads(red.get(request.args['code']).decode())['nonce']
     except :
         logging.error("session expired in login_qrcode")
-        return jsonify("session expired"), 404
-    nonce = json.loads(red.get(request.args['code']).decode())['nonce']
+        return jsonify("session expired"), 403
     verifier_data = json.loads(read_verifier(client_id))
     if verifier_data['vc'] == "ANY" :
         pattern = op_constante.model_any
@@ -351,7 +398,7 @@ def login_qrcode(red, mode):
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
     data = { "pattern": pattern,"code" : request.args['code'] }
-    red.set(stream_id,  json.dumps(data))
+    red.setex(stream_id, 180, json.dumps(data))
     url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
@@ -386,74 +433,100 @@ def login_qrcode(red, mode):
 
 async def login_presentation_endpoint(stream_id, red):
     """
-    stream_id_access : message d'erreur retourné a l authorization server 
-    stream_id_vp : presentation reçu du wallet
+    Redis : stream_id_DIDAuth : data pushed to followup endpoint  
     
     """
     if request.method == 'GET':
-        my_pattern = json.loads(red.get(stream_id).decode())['pattern']
+        try :
+            my_pattern = json.loads(red.get(stream_id).decode())['pattern']
+        except :
+            value = json.dumps({"access" : "access_denied"})
+            red.setex(stream_id + "_DIDAuth", 180, value)
+            event_data = json.dumps({"stream_id" : stream_id})           
+            red.publish('api_verifier', event_data)
+            logging.error("QR code expired")
+            return jsonify("signature_error"), 403
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
         presentation = request.form['presentation']
-        # Test sur signature VC/VP
+
+        # Check signature VC/VP and trusted issuer
         result_presentation = await didkit.verify_presentation(presentation,  '{}')
         logging.info("check presentation = %s", result_presentation)
         credential = json.loads(presentation)['verifiableCredential']
         result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
         logging.info("check credential = %s", result_credential)
-        if json.loads(result_credential)['errors'] :
-            red.set(stream_id + '_access',  'access_denied')
+
+        if json.loads(result_presentation)['errors'] :
+            value = json.dumps({"access" : "access_denied"})
+            red.setex(stream_id + "_DIDAuth", 180, value)
             event_data = json.dumps({"stream_id" : stream_id})           
-            red.publish('login', event_data)
+            red.publish('api_verifier', event_data)
+            logging.error("presenttaion signature check failed")
             return jsonify("signature_error"), 403
-        
-        # TODO check authorization criteria
-        code = json.loads(red.get(stream_id).decode())['code']
-        client_id =  json.loads(red.get(code).decode())['client_id']
-        verifier_data = json.loads(read_verifier(client_id))
-        # emails filtering
-        if verifier_data['emails'] :
-            authorized_emails = verifier_data['authorized_emails']
-            authorized_list = [emails.replace(" ", "") for emails in authorized_emails.split(' ')]
-            email = json.loads(presentation)['verifiableCredential']['credentialSubject']['email'].lower()
-            if email not in authorized_list :
-                logging.warning('email not in authorized list')
-                red.set(stream_id + '_access',  'access_denied')
-                event_data = json.dumps({"stream_id" : stream_id})           
-                red.publish('login', event_data)
-                return jsonify("access_denied"), 404
-        
-        red.set(stream_id + '_access',  'ok')
-        red.set(stream_id + '_vp',  request.form['presentation'])
+
+        if json.loads(result_credential)['errors'] :
+            value = json.dumps({"access" : "access_denied"})
+            red.setex(stream_id + "_DIDAuth", 180, value)
+            event_data = json.dumps({"stream_id" : stream_id})           
+            red.publish('api_verifier', event_data)
+            logging.error("credential signature check failed")
+            return jsonify("signature_error"), 403
+
+        if credential['issuer'] not in TRUSTED_ISSUER :
+            value = json.dumps({"access" : "access_denied"})
+            red.setex(stream_id + "_DIDAuth", 180, value)
+            event_data = json.dumps({"stream_id" : stream_id})           
+            red.publish('api_verifier', event_data)
+            logging.error("issuer not in trusted issuer list")
+            return jsonify("issuer_forbidden"), 403
+        else :
+            logging.info("issuer is known %s", credential['issuer'] )      
+
+        value = json.dumps({
+                    "access" : "ok",
+                    "vp" : request.form["presentation"]
+                    })
+        red.setex(stream_id + "_DIDAuth", 180, value)
         event_data = json.dumps({"stream_id" : stream_id})           
-        red.publish('login', event_data)
+        red.publish('api_verifier', event_data)
         return jsonify("ok")
 
 
-# check if user is connected or not
 def login_followup(red):  
-    stream_id = request.args['stream_id']
-    code = json.loads(red.get(stream_id).decode())['code']
-    if red.get(stream_id + '_access').decode() != 'ok' :
-        resp = {'code' : code, 'error' : red.get(stream_id + '_access').decode()}
+    """
+    check if user is connected or not and redirect data to authorization server
+    
+    
+    """
+    try :
+        stream_id = request.args.get('stream_id')
+        stream_id_DIDAuth = json.loads(red.get(stream_id + '_DIDAuth').decode())
+        code = json.loads(red.get(stream_id).decode())['code']
+    except :
+        return jsonify("Forbidden"), 403 
+    if stream_id_DIDAuth['access'] != 'ok' :
+        resp = {'code' : code, 'error' : stream_id_DIDAuth['access']}
         session['verified'] = False
     else :
-        vp = red.get(stream_id +'_vp').decode()     
         session['verified'] = True
-        red.set(code +"_vp", vp)
+        red.setex(code +"_vp", 180, stream_id_DIDAuth['vp'])
         resp = {'code' : code}
-    red.delete(stream_id + '_vp')
-    red.delete(stream_id + '_access')
-    red.delete(stream_id)
+    try :
+        red.delete(stream_id + '_DIDAuth')
+        red.delete(stream_id)
+    except :
+        pass
     # redirect to authorize server
     return redirect ('/sandbox/op/authorize?' + urlencode(resp))
+
 
 
 def login_presentation_stream(red):
     def login_event_stream(red):
         pubsub = red.pubsub()
-        pubsub.subscribe('login')
+        pubsub.subscribe('api_verifier')
         for message in pubsub.listen():
             if message['type']=='message':
                 yield 'data: %s\n\n' % message['data'].decode()
