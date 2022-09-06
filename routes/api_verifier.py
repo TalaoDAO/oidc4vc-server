@@ -47,6 +47,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/.well-known/openid-configuration', view_func=openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
     app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
+    app.add_url_rule('/sandbox/op/webflow.altme.loader.js', view_func=webflow_loader, methods=['GET'])
+
 
 
     # http://172.20.10.2:3000/sandbox/.well-known/openid-configuration
@@ -58,7 +60,17 @@ def init_app(app,red, mode) :
 
 
 def webflow() :
-    f = open('common_page.txt', 'r')
+    f = open('webflow_altme.js', 'r')
+    payload = f.read()
+    headers = {
+            "Cache-Control" : "no-store",
+            "Pragma" : "no-cache",
+            "Content-Type": "text/javascript"}
+    return Response(response=payload, headers=headers)
+
+
+def webflow_loader() :
+    f = open('webflow_loader.js', 'r')
     payload = f.read()
     headers = {
             "Cache-Control" : "no-store",
