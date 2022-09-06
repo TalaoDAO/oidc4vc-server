@@ -26,7 +26,7 @@
     //fuction for logout
      $altme(document).on("click",'#logoutbutton',function(){
        localStorage.removeItem("testObject");
-       localStorage.removeItem("email");
+       localStorage.removeItem("group");
      });
   }
 

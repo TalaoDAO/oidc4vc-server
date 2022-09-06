@@ -81,49 +81,103 @@
                           <div class="col">
                             <div class="form-group"><label><strong>Contact Email</strong><br></label><input class="form-control" type="email" value="{{contact_email}}" name="contact_email" ></div>
                           </div>
+                          <div class="col">
+                            <div class="form-group"><label><strong>Application Name (required)</strong></label><input required class="form-control" type="text" name="application_name"  value="{{application_name}}"></div>
+                          </div>
                       </div>
                       <div class="form-row">           
                         <div class="col">
                           <div class="form-group"><label><strong>Note</strong><br></label><textarea class="form-control" name="note" >{{note}}</textarea></div>
                         </div>
                       </div>
+
+                     
                       {% endif %}
 
+                      <div class="form-row">           
+                        <div class="col">
+                          <div class="form-group"><label><strong>Callback URL (required)</strong><br></label><input class="form-control" type="text" name="callback" value={{callback}}></div>
+                        </div>
+                      </div>
+
                         </div>
                         </div>
 
 
-                        <div class="card shadow my-3">
+   <div class="card shadow my-3">
+              
+
                           <div class="card-header py-3">
-                            <div class="d-flex justify-content-between">
-                              <p class="text-primary m-0 font-weight-bold">Parameters to setup your OAuth / OpenID client</p>
-                            </div>
+                  
+                         
+                              <p class="card-title text-primary m-0 font-weight-bold">Parameters to setup your OAuth / OpenID client</p>
+
+                              
+                              <ul class="nav nav-tabs card-header-tabs pull-right"  id="myTab" role="tablist">
+                                
+                                <li class="nav-item">
+                                  <a class="nav-link active" id="home-tab" data-toggle="tab" href="#oidc" role="tab" aria-controls="oidc" aria-selected="true">OpenID Connect</a>
+                                </li>
+                                
+                                <li class="nav-item">
+                                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#dhcp" role="tab" aria-controls="standard" aria-selected="true">OAuth 2</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#static" role="tab" aria-controls="miniorange" aria-selected="false">miniOrange</a>
+                                </li>
+
+                                <li class="nav-item">
+                                  <a class="nav-link" id="profile-tab" data-toggle="tab" href="#webflow" role="tab" aria-controls="webflow" aria-selected="false">Webflow</a>
+                              </li>
+                               
+                            </ul>
+
+
                           </div>
-                          <div class="card-body">
+
+
+                         
+              <div class="card-body">
+
+              <div class="tab-content" id="myTabContent">
+
+
+                <div class="tab-pane active" id="oidc" role="tabpanel" aria-labelledby="oidc-tab">
+
+                  <div class="form-row">
+                    
+                      <div class="col">
+                        <div class="form-group"><label><strong>Issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
+                      </div>
+                  </div>
+
+                  <div class="form-row">
+                  <div class="col">
+                    <div class="form-group"><label><strong>Client ID</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group"><label><strong>Client Secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
+                  </div> 
+                </div>
+
+                </div>
+                        
+                    <div class="tab-pane " id="dhcp" role="tabpanel" aria-labelledby="standard-tab">
 
                         <div class="form-row">
-
-                          <div class="col">
-                            <div class="form-group"><label><strong>Application Name (IdP Name)</strong></label><input class="form-control" type="text" name="application_name"  value="{{application_name}}"></div>
-                          </div>
-
+                          
                             <div class="col">
                               <div class="form-group"><label><strong>Issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
                             </div>
-                       
-                         
-                         
                         </div>
 
                         <div class="form-row">
-                     
                         <div class="col">
                           <div class="form-group"><label><strong>Client ID</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
                         </div>
                         <div class="col">
                           <div class="form-group"><label><strong>Client Secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
                         </div> 
-                       
                       </div>
 
                         
@@ -134,8 +188,8 @@
                             <div class="col">
                               <div class="form-group"><label><strong>OAuth Token Endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{token}}></div>
                             </div> 
-
                         </div>
+
                         <div class="form-row">
                             <div class="col">
                               <div class="form-group"><label><strong>OAuth Logout Endpoint</strong><br></label><input readonly size="50" class="form-control" type="text" value={{logout}}></div>
@@ -147,27 +201,163 @@
 
                             <div class="form-row">
                               <div class="col-6">
-                                <div class="form-group"><label><strong>OAuth callback URL (required)</strong><br></label><input required class="form-control" type="text" name="callback" value="{{callback}}"></div>
+                                <div class="form-group"><label><strong>OAuth callback URL</strong><br></label><input readonly class="form-control" type="text" value="{{callback}}"></div>
                               </div>
-
-                              
                             </div>
 
                             <div class="form-row">
                               <div class="col">
-                                <div class="form-group"><label><strong>Request for authorization code flow</strong><br></label><input readonly class="form-control" type="text" name="callback" value="{{authorization_request}}"></div>
+                                <div class="form-group"><label><strong>Request for authorization code flow</strong><br></label><input readonly class="form-control" type="text" name="authorization_request" value="{{authorization_request}}"></div>
                               </div>
                             </div>
+
                             <div class="form-row">
                               <div class="col">
-                                <div class="form-group"><label><strong>Request for implicit flow </strong><br></label><input readonly class="form-control" type="text" name="callback" value="{{implicit_request}}"></div>
+                                <div class="form-group"><label><strong>Request for implicit flow </strong><br></label><input readonly class="form-control" type="text" name="implicit_request" value="{{implicit_request}}"></div>
                               </div>
-                              
                             </div>
+
+                </div>
                          
+                <div class="tab-pane" id="static" role="tabpanel" aria-labelledby="miniorange-tab">
+
+                  <div class="form-group row">
+                    <label class="col-sm-6  col-form-label"><strong>IdP Name</strong></label>
+                        <div class="col-sm-6">Custom Provider                         
+                      </div>
+                  </div>
+
+                                 
+                  <div class="form-group row">
+                    <label class="col-sm-6  col-form-label"><strong>OAuth callback URL</strong></label>
+                    <div class="col-sm-6">
+                      <input class="form-control" type="text" readonly  value="{{callback}}"></div>
+                  </div>
+
+
+                  <div class="form-group row">
+                    <label class="col-sm-6  col-form-label">
+                      <strong>IdP Display Name</strong></label>
+                      <div class="col-sm-6">
+                      <input class="form-control" type="text" readonly value="{{application_name}}"></div>
+                   
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-sm-6  col-form-label">
+                      <strong>OAuth Authorize Endpoint</strong></label>
+                      <div class="col-sm-6">
+               
+                        <input readonly class="form-control" type="text"  value={{authorization}}></div>
+                    
+                    </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-6  col-form-label">
+                      <strong>OAuth Token Endpoint</strong><br></label>
+                      <div class="col-sm-6">
+                        <input readonly size="50" class="form-control" type="text" value={{token}}></div>
+                   
+                </div>
+
+                <div class="form-group row">
+                <label class="col-sm-6  col-form-label">
+                  <strong>OAuth Get User Info Endpoint</strong><br></label>
+                  <div class="col-sm-6">
+                    <input readonly size="50" class="form-control" type="text" value={{userinfo}}></div>
+               
+                </div>
+
+                  <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Client ID</strong></label>
+                    <div class="col-sm-6">
+                      <input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
+                
+                  </div>
+
+                  <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Client Secret</strong><br></label>
+                    <div class="col-sm-6">
+                      <input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
+                  
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Send client credentials in Header</strong><br></label>
+                    <div class="col-sm-6">ON
+                      </div>
+                </div>     
+                
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Grant Type</strong><br></label>
+                    <div class="col-sm-6">Authorization Code Grant
+                      </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Scope</strong><br></label>
+                    <div class="col-sm-6">openid
+                      </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Enable Enduser Login</strong><br></label>
+                    <div class="col-sm-6">ON
+                      </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Show IdP to Users</strong><br></label>
+                    <div class="col-sm-6">ON
+                      </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Prompt for User Registration</strong><br></label>
+                    <div class="col-sm-6">OFF
+                      </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-sm-6  col-form-label">
+                    <strong>Send configuration Attribute</strong><br></label>
+                    <div class="col-sm-6">OFF
+                      </div>
+                </div>
                         
-                          </div>
-                          </div>
+                </div>
+
+
+                <div class="tab-pane " id="webflow" role="tabpanel" aria-labelledby="webflow-tab">
+                  <div class="form-row">
+                  </div>
+
+                  <div class="form-row">
+                      <div class="col">
+                        <div class="form-group"><label><strong>Logout button link</strong><br></label><input readonly size="50" class="form-control" type="text" value={{logout}}></div>
+                      </div> 
+                  </div>    
+
+                      <div class="form-row">
+                        <div class="col">
+                          <div class="form-group"><label><strong>Sign In button link</strong><br></label><input readonly class="form-control" type="text" name="implicit_request" value="{{implicit_request}}"></div>
+                        </div>
+                      </div>
+          </div>
+
+
+
+          </div>
+          </div>
+           </div>
                           
                       
 
@@ -323,9 +513,13 @@
       {% include 'user_footer.html' %}
 
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-</body>
+
+
+
+    </body>
 
 </html>

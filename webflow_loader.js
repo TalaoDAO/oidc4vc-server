@@ -1,22 +1,21 @@
-//To handle javascript being disabled on browsers, this will auto redirect to a page with customizable message to enable javascript for proper functionality.
+const callback_url = "https://talao.co/sandbox/op/authorize?client_id=uuheppwxbc&response_type=id_token&redirect_uri=https://thierry-webflow.webflow.io/loader"
+const website = "https://thierry-webflow.webflow.io"
 
 
-  $mo = jQuery;
+
+$mo = jQuery;
    
     $mo(document).ready(function () {
 
-      //logout function loaded, invoked on click.
 	       
-      if(!localStorage.getItem('testObject'))//insert loader only when the session does not exist
+      if(!localStorage.getItem('testObject'))
       {
         $mo('body').css('display','none');
       }
-    
       setTimeout(function(){
-      
             var url = window.location.href;
             var token = url.split("?id_token=")[1];
-        if ( window.location.origin == "https://thierry-webflow.webflow.io") 
+        if ( window.location.origin == website) 
         { 
             if (token) 
             {
@@ -29,7 +28,7 @@
             }
          else if (localStorage.getItem('testObject') == null) 
          {
-       window.location.href = "https://talao.co/sandbox/op/authorize?client_id=uuheppwxbc&response_type=id_token&redirect_uri=https://thierry-webflow.webflow.io/loader"; 
+       window.location.href = callback_url ; 
             }   
     }
         
@@ -39,7 +38,7 @@
     function redirect(group) {
     if(group == 'Default')
        {
-         window.location.replace('https://thierry-webflow.webflow.io/');
+         window.location.replace(website);
        }
        else if (group == 'Test')
       {
