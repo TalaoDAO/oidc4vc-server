@@ -135,7 +135,7 @@ def wallet_authorize(red, mode) :
 
     # user is connected, successfull exit to client with code
     if session.get('verified') and request.args.get('code') :
-                
+
         if session.get('response_type') == "code" :
             logging.info("response_type = code : successfull redirect to client with code = %s", request.args.get('code'))
             code = request.args['code']  
@@ -152,8 +152,9 @@ def wallet_authorize(red, mode) :
             except :
                 logging.error("code expired")
                 resp = {'error' : "access_denied"}
+                redirect_uri = session['redirect_uri']
                 session.clear()
-                return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
+                return redirect(redirect_uri + '?' + urlencode(resp)) 
 
             DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
             id_token = build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
@@ -171,8 +172,9 @@ def wallet_authorize(red, mode) :
         if session.get('state') :
             resp['state'] = session['state']
         red.delete(code)
+        redirect_uri = session['redirect_uri']
         session.clear()
-        return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
+        return redirect(redirect_uri + '?' + urlencode(resp)) 
     
     # User is not connected
     session['verified'] = False
@@ -457,15 +459,15 @@ async def login_presentation_endpoint(stream_id, red):
         credential = json.loads(presentation)['verifiableCredential']
         result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
         logging.info("check credential = %s", result_credential)
-
+        """
         if json.loads(result_presentation)['errors'] :
             value = json.dumps({"access" : "access_denied"})
             red.setex(stream_id + "_DIDAuth", 180, value)
             event_data = json.dumps({"stream_id" : stream_id})           
             red.publish('api_verifier', event_data)
-            logging.error("presenttaion signature check failed")
+            logging.error("presentation signature check failed")
             return jsonify("signature_error"), 403
-
+        """
         if json.loads(result_credential)['errors'] :
             value = json.dumps({"access" : "access_denied"})
             red.setex(stream_id + "_DIDAuth", 180, value)
