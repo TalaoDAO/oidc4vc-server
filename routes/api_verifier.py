@@ -46,7 +46,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/userinfo',  view_func=wallet_userinfo, methods = ['GET', 'POST'], defaults={"red" : red})
     app.add_url_rule('/sandbox/op/.well-known/openid-configuration', view_func=openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
-    app.add_url_rule('/sandbox/op/webflow', view_func=webflow, methods=['GET'])
+    app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
 
 
     # http://172.20.10.2:3000/sandbox/.well-known/openid-configuration
@@ -63,7 +63,7 @@ def webflow() :
     headers = {
             "Cache-Control" : "no-store",
             "Pragma" : "no-cache",
-            "Content-Type": "application/json"}
+            "Content-Type": "text/javascript"}
     return Response(response=payload, headers=headers)
 
     
