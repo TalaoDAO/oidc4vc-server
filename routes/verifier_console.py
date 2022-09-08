@@ -2,6 +2,8 @@ from flask import  request, render_template, redirect, session, jsonify
 import json
 import logging
 import db_api 
+import activity_db_api
+
 from urllib.parse import urlencode
 import uuid
 from op_constante import credential_list, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
@@ -16,6 +18,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/console/advanced',  view_func=advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/console/preview',  view_func=preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
+    app.add_url_rule('/sandbox/op/console/activity',  view_func=activity, methods = ['GET', 'POST'])
+
     app.add_url_rule('/sandbox/preview_presentation/<stream_id>',  view_func=preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     return
       
@@ -55,7 +59,31 @@ def select(mode) :
         elif request.form['button'] == "logout" :
             session.clear()
             return redirect ('/sandbox/saas4ssi')
-       
+
+def activity() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+
+    if request.method == 'GET' :  
+        activities = activity_db_api.list(session['client_data']['client_id'])
+        activities.reverse() 
+        print("activity reverse liste = ", activities)
+        activity_list = str()
+        for data in activities :
+            data_dict = json.loads(data)
+            status = "Approved" if data_dict.get('status') else "Denied"
+            activity = """<tr>
+                    <td>""" + data_dict['presented'] + """</td>
+                     <td>""" + data_dict.get('user', "Unknown") + """</td>
+                    <td>""" + credential_list.get(data_dict['credential_1'], "None") + """</td>
+                    <td>""" + credential_list.get(data_dict['credential_2'], "None") + """</td>
+                    <td>""" + status + """</td>
+                    </tr>"""
+            activity_list += activity
+        return render_template('verifier_activity.html', activity=activity_list) 
+    else :
+        return redirect('/sandbox/op/console?client_id=' + session['client_data']['client_id'])
+     
 
 def preview (red, mode) :
     if not session.get('is_connected') or not session.get('login_name') :
@@ -77,10 +105,10 @@ def preview (red, mode) :
     data = { "pattern": pattern }
     red.set(stream_id,  json.dumps(data))
 
-    if not verifier_data.get('landing_page_style') :
-        qrcode_page = "op_verifier_qrcode.html"
+    if not verifier_data.get('verifier_landing_page_style') :
+        qrcode_page = "op_verifier_qrcode_2.html"
     else : 
-        qrcode_page = verifier_data.get('landing_page_style')
+        qrcode_page = verifier_data.get('verifier_landing_page_style')
     
     url = mode.server + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
@@ -115,10 +143,11 @@ def preview_presentation_endpoint(stream_id, red):
             red.publish('login', json.dumps({"stream_id" : stream_id}))
             return jsonify("server error"), 500
         return jsonify(my_pattern)
-
+    
 
 def console(mode) :
     global vc, reason
+  
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
@@ -130,18 +159,25 @@ def console(mode) :
         
         landing_page_style_select = str()
         for key, value in verifier_landing_page_style_list.items() :
-                if key == session['client_data'].get('landing_page_style') :
+                if key == session['client_data'].get('verifier_landing_page_style') :
                     landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
 
-        vc_select = str()
+        vc_select_1 = str()
         for key, value in credential_list.items() :
                 if key ==   session['client_data']['vc'] :
-                    vc_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                    vc_select_1 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
-                    vc_select +=  "<option value=" + key + ">" + value + "</option>"
-
+                    vc_select_1 +=  "<option value=" + key + ">" + value + "</option>"
+        
+        vc_select_2 = str()
+        for key, value in credential_list.items() :
+                if key ==   session['client_data'].get('vc_2', "DID") :
+                    vc_select_2 +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
+        
         authorization_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
         implicit_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
         return render_template('verifier_console.html',
@@ -171,11 +207,13 @@ def console(mode) :
                 userinfo=mode.server + 'sandbox/op/userinfo',
                 company_name = session['client_data']['company_name'],
                 reason = session['client_data']['reason'],
+                reason_2 = session['client_data'].get('reason_2'),
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 user_name=session['client_data'].get('user'),
                 landing_page_style_select =  landing_page_style_select,
-                vc_select=vc_select,
+                vc_select_1=vc_select_1,
+                vc_select_2=vc_select_2,
                 login_name=session['login_name']
                 )
     if request.method == 'POST' :
@@ -195,6 +233,9 @@ def console(mode) :
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')
+
+        elif request.form['button'] == "activity" :
+            return redirect ('/sandbox/op/console/activity')
       
         elif request.form['button'] in [ "update", "preview"] :
             session['client_data']['note'] = request.form['note']
@@ -217,7 +258,9 @@ def console(mode) :
             session['client_data']['client_secret'] = request.form['client_secret']
             session['client_data']['company_name'] = request.form['company_name']
             session['client_data']['reason'] = request.form.get('reason', "")
-            session['client_data']['vc'] = request.form['vc']
+            session['client_data']['reason_2'] = request.form.get('reason_2', "")
+            session['client_data']['vc'] = request.form['vc_1']
+            session['client_data']['vc_2'] = request.form['vc_2']
             session['client_data']['user'] = request.form['user_name']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          

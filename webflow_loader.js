@@ -1,16 +1,9 @@
-const callback_url = "https://talao.co/sandbox/op/authorize?client_id=uuheppwxbc&response_type=id_token&redirect_uri=https://thierry-webflow.webflow.io/loader"
-const website = "https://thierry-webflow.webflow.io"
-
-
-
-$mo = jQuery;
-   
-    $mo(document).ready(function () {
-
-	       
+// webflow loader custom code by Altme
+    $altme = jQuery;
+    $altme(document).ready(function () {
       if(!localStorage.getItem('testObject'))
       {
-        $mo('body').css('display','none');
+        $altme('body').css('display','none');
       }
       setTimeout(function(){
             var url = window.location.href;
@@ -26,13 +19,13 @@ $mo = jQuery;
                 var group = str.group;
                 redirect(group);
             }
-         else if (localStorage.getItem('testObject') == null) 
-         {
-       window.location.href = callback_url ; 
+          else if (localStorage.getItem('testObject') == null) 
+            {
+                window.location.href = callback_url ; 
             }   
-    }
+        }
         
-             }, 10);      
+      }, 10);      
     });
 
     function redirect(group) {
@@ -42,9 +35,9 @@ $mo = jQuery;
        }
        else if (group == 'Test')
       {
-         window.location.replace('https://'+window.location.host+'/test');
-	  }
-       else window.location.replace('https://' + window.location.host);
+         window.location.replace(website +'/test');
+	    }
+      else window.location.replace(website);
     }
 
     function parseJwt(token) {
@@ -61,10 +54,9 @@ $mo = jQuery;
         }).join(''));
         var headerJsonObj = JSON.parse(jsonHeader);
         var payloadJsonObj = JSON.parse(jsonPayload);
+
         var userGroup = payloadJsonObj.group;
-    	
         localStorage.setItem('group', JSON.stringify(userGroup));
-      
         return Object.assign({}, headerJsonObj, payloadJsonObj);
     };
   

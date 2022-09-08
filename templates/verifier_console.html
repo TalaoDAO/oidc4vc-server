@@ -94,9 +94,12 @@
                      
                       {% endif %}
 
-                      <div class="form-row">           
+                      <div class="form-row">  
                         <div class="col">
-                          <div class="form-group"><label><strong>Callback URL (required)</strong><br></label><input class="form-control" type="text" name="callback" value={{callback}}></div>
+                          <div class="form-group"><label><strong>Website URL (required)</strong><br></label><input class="form-control" required type="text" value="{{landing_page_url}}""  name="landing_page_url" ></div>
+                        </div>         
+                        <div class="col">
+                          <div class="form-group"><label><strong>Callback URL (required)</strong><br></label><input class="form-control" required type="text" name="callback" value={{callback}}></div>
                         </div>
                       </div>
 
@@ -351,6 +354,7 @@
                           <div class="form-group"><label><strong>Sign In button link</strong><br></label><input readonly class="form-control" type="text" name="implicit_request" value="{{implicit_request}}"></div>
                         </div>
                       </div>
+
           </div>
 
 
@@ -373,14 +377,14 @@
 
                           <div class="form-row">
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 1</strong></label><select name="vc" class="form-control">
-                                  {{vc_select|safe}}  
+                                <div class="form-group"><label><strong>Credential 1</strong></label><select name="vc_1" class="form-control">
+                                  {{vc_select_1|safe}}  
                                   </select></div>
                           </div>
                         
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 2 (not available today) </strong></label><select disabled name="vc2" class="form-control">
-                                  {{vc_select|safe}}  
+                                <div class="form-group"><label><strong>Credential 2</strong></label><select name="vc_2" class="form-control">
+                                  {{vc_select_2|safe}}  
                                   </select></div>
                             </div>      
                           </div>
@@ -455,18 +459,20 @@
                           <div class="form-group"><label><strong>Message for mobile</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
                         </div>
                    
+                         </div>
+                        <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>In wallet message</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
+                              <div class="form-group"><label><strong>In wallet message credential 1</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
                             </div>
 
-                           
+                            <div class="col">
+                              <div class="form-group"><label><strong>In wallet message credential 2</strong><br></label><textarea class="form-control" name="reason_2" >{{reason_2}}</textarea></div>
+                            </div>
                          </div>
 
 
                         <div class="form-row">
-                          <div class="col">
-                            <div class="form-group"><label><strong>Landing page URL</strong><br></label><input class="form-control" type="text" value="{{landing_page_url}}""  name="landing_page_url" ></div>
-                          </div>
+                         
                           <div class="col">
                             <div class="form-group"><label><strong>Privacy URL</strong><br></label><input class="form-control" type ="text" value="{{privacy_url}}" name="privacy_url" ></div>
                           </div>
@@ -486,6 +492,8 @@
                                 <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuraion</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="activity" type="submit">Activity</button></div>
+
 
 
 

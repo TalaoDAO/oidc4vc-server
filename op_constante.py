@@ -20,7 +20,7 @@ credential_list = {
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
                     'CertificateOfEmployment' : 'Certificate of employment',
-                    'DID' : "Decentralized Identifier",
+                    'DID' : "NONE",
                     'VotersCard' : 'Voter card',
                     'TalaoCommunity' : 'Talao Community card',
                     'ANY' : 'Any'
@@ -86,6 +86,32 @@ model_one = {
             "domain" : ""
             }
 
+model_two = {
+            "type": "VerifiablePresentationRequest",
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": [
+                        {
+                            "example" : {"type" : ""},
+                            "reason": [{"@language": "en","@value": ""}]
+                        }
+                    ]
+                },
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": [
+                        {
+                            "example" : {"type" : ""},
+                            "reason": [{"@language": "en","@value": ""}]
+                        }
+                    ]
+                }
+            ],
+            "challenge": "",
+            "domain" : ""
+            }
+
 
 model_DIDAuth = {
            "type": "VerifiablePresentationRequest",
@@ -112,6 +138,7 @@ model_any = {
 client_data_pattern = {
                 "authorized_emails" : "",
                 "vc" : "",
+                "vc_2" : "DID",
                 "emails" : None,
                 "user" : "all",
                 "client_id" :  "",
@@ -131,7 +158,8 @@ client_data_pattern = {
                 "credential_requested_2" : "DID",
                 "credential_to_issue" : "NewIdentityPass",
                 "protocol" : "w3cpr",
-                "landing_page_style" : "op_issuer_qrcode.html",
+                "landing_page_style" : "op_issuer_qrcode_2.html",
+                "verifier_landing_page_style" : "op_verifier_qrcode_2.html",
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
                 "page_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
