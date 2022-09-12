@@ -67,11 +67,10 @@ def activity() :
     if request.method == 'GET' :  
         activities = activity_db_api.list(session['client_data']['client_id'])
         activities.reverse() 
-        print("activity reverse liste = ", activities)
         activity_list = str()
         for data in activities :
             data_dict = json.loads(data)
-            status = "Approved" if data_dict.get('status') else "Denied"
+            status = "Approved" if data_dict['status'] else "Denied"
             activity = """<tr>
                     <td>""" + data_dict['presented'] + """</td>
                      <td>""" + data_dict.get('user', "Unknown") + """</td>
@@ -157,12 +156,12 @@ def console(mode) :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
         
-        landing_page_style_select = str()
+        verifier_landing_page_style_select = str()
         for key, value in verifier_landing_page_style_list.items() :
                 if key == session['client_data'].get('verifier_landing_page_style') :
-                    landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                    verifier_landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
-                    landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
+                    verifier_landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
 
         vc_select_1 = str()
         for key, value in credential_list.items() :
@@ -211,7 +210,7 @@ def console(mode) :
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 user_name=session['client_data'].get('user'),
-                landing_page_style_select =  landing_page_style_select,
+                verifier_landing_page_style_select =  verifier_landing_page_style_select,
                 vc_select_1=vc_select_1,
                 vc_select_2=vc_select_2,
                 login_name=session['login_name']
@@ -248,7 +247,7 @@ def console(mode) :
             session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color'] 
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['title'] = request.form['title'] 
-            session['client_data']['landing_page_style'] = request.form['landing_page_style']
+            session['client_data']['verifier_landing_page_style'] = request.form['verifier_landing_page_style']
             session['client_data']['callback'] = request.form['callback']
             session['client_data']['contact_email'] = request.form['contact_email']
             session['client_data']['privacy_url'] = request.form['privacy_url']
@@ -290,15 +289,10 @@ def advanced() :
                     protocol_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     protocol_select +=  "<option value=" + key + ">" + value + "</option>"
-        if session['client_data'].get('emails') :
-            emails_filtering = """<input class="form-check-input" checked type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
-        else :
-            emails_filtering = """<input class="form-check-input" type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
+        
         return render_template('advanced.html',
                 client_id = session['client_data']['client_id'],
-                authorized_emails = session['client_data']['authorized_emails'],
                 protocol = session['client_data']['protocol'],
-                emails_filtering=emails_filtering,
                 protocol_select=protocol_select
                 )
     if request.method == 'POST' :
@@ -307,9 +301,7 @@ def advanced() :
             return redirect ('/sandbox/op/console?client_id=' + request.form['client_id'] )
         
         elif request.form['button'] == "update" :
-            session['client_data']['authorized_emails'] = request.form.get('authorized_emails', "")
             session['client_data']['protocol'] = request.form['protocol']
-            session['client_data']['emails'] = request.form.get('emails')
             db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
             return redirect('/sandbox/op/console?client_id=' + request.form['client_id'])
           

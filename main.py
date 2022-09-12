@@ -28,7 +28,7 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 from routes import verifier_console, issuer_console, api_verifier, api_issuer
 from routes import  web_wallet_test
 from routes import web_display_VP
-from routes import saas4ssi
+from routes import saas4ssi, siopv2
 
 # Server Release
 VERSION = "4.0"
@@ -63,6 +63,7 @@ verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
 saas4ssi.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
+siopv2.init_app(app, red, mode)
 
 # MAIN entry point for test
 if __name__ == '__main__':

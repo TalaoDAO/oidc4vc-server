@@ -23,7 +23,7 @@
                   <div class="card shadow my-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Generate a verifier for your application, login : {{login_name}}</p>
+                        <p class="text-primary m-0 font-weight-bold">Generate a verifier for  application, login : {{login_name}}</p>
                       
                       </div>
                     </div>
@@ -113,17 +113,17 @@
                           <div class="card-header py-3">
                   
                          
-                              <p class="card-title text-primary m-0 font-weight-bold">Parameters to setup your OAuth / OpenID client</p>
+                              <p class="card-title text-primary m-0 font-weight-bold">Parameters to setup the client</p>
 
                               
                               <ul class="nav nav-tabs card-header-tabs pull-right"  id="myTab" role="tablist">
                                 
                                 <li class="nav-item">
-                                  <a class="nav-link active" id="home-tab" data-toggle="tab" href="#oidc" role="tab" aria-controls="oidc" aria-selected="true">OpenID Connect</a>
+                                  <a class="nav-link active" id="home-tab" data-toggle="tab" href="#oidc" role="tab" aria-controls="oidc" aria-selected="true">OIDC Discovery</a>
                                 </li>
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#dhcp" role="tab" aria-controls="standard" aria-selected="true">OAuth 2</a>
+                                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#dhcp" role="tab" aria-controls="standard" aria-selected="true">OIDC</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#static" role="tab" aria-controls="miniorange" aria-selected="false">miniOrange</a>
@@ -396,16 +396,16 @@
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
                               <div class="d-flex justify-content-between">
-                                <p class="text-primary m-0 font-weight-bold">Customize your verifier landing page</p>
+                                <p class="text-primary m-0 font-weight-bold">Customize verifier landing page</p>
                               </div>
                             </div>
                             <div class="card-body">
 
                               <div class="form-row">
                                 <div class="col-2">
-                                  <div class="form-group"><label><strong>Landing page style</strong></label><select  name="landing_page_style" class="form-control">
+                                  <div class="form-group"><label><strong>Landing page style</strong></label><select  name="verifier_landing_page_style" class="form-control">
                                     <option value="">--Please choose an option--</option>
-                                   {{landing_page_style_select|safe}}
+                                   {{verifier_landing_page_style_select|safe}}
                                     </select></div>
                               </div>
                                 <div class="col">
@@ -481,7 +481,7 @@
                           </div>
                       </div>
                       <div class="form-row text-center">
-                        <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview your landing page</button></div>
+                        <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview landing page</button></div>
                       </div>
 
                         </div>

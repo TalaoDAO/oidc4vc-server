@@ -1,5 +1,4 @@
 import json
-import uuid
 import traceback
 import logging
 import sys

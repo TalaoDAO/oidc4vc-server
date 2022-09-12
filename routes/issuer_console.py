@@ -36,14 +36,16 @@ def issuer_select(mode) :
         issuer_list=str()
         for data in my_list :
             data_dict = json.loads(data)
+            print(data_dict)
             if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
+                print(data_dict.get('credential_requested_2', "DID"))
                 issuer = """<tr>
                     <td>""" + data_dict['company_name'] + """</td>
                      <td>""" + data_dict['user'] + """</td>
                     <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
-                    <td>""" + data_dict['credential_to_issue'] + """</td>
-                    <td>""" + data_dict['credential_requested'] + """</td>
-                    <td>""" + data_dict.get('credential_requested_2', "") + """</td>
+                    <td>""" + credential_to_issue_list[data_dict['credential_to_issue']] + """</td>
+                    <td>""" + credential_requested_list.get(data_dict['credential_requested']) + """</td>
+                    <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
                     <td>""" + data_dict['callback'] + """</td>
                     <td>""" + data_dict['webhook'] + """</td>
                     </tr>"""

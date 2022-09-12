@@ -20,7 +20,7 @@ credential_list = {
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
                     'CertificateOfEmployment' : 'Certificate of employment',
-                    'DID' : "NONE",
+                    'DID' : "None",
                     'VotersCard' : 'Voter card',
                     'TalaoCommunity' : 'Talao Community card',
                     'ANY' : 'Any'
@@ -56,12 +56,13 @@ landing_page_style_list = {
 
 verifier_landing_page_style_list = {
                     "op_verifier_qrcode.html" : "Style 1",
-                    "op_verifier_qrcode_2.html" : "Style 2"
+                    "op_verifier_qrcode_2.html" : "Style 2",
+                       "op_verifier_qrcode_3.html" : "Style 3"
                 }
 
 
 protocol_list = {'w3cpr' : "W3C Presentation Request ",
-                 #'openid4vc' : 'OpenID 4 VC'
+                 'siopv2' : 'Siop V2'
                  }
 
 model_one = {
