@@ -1,0 +1,40 @@
+{
+        "id_token" : {
+        },
+        "vp_token": {
+            "presentation_definition": {
+                "id": "Test_4 with familyName and givenName required",
+                "input_descriptors": [
+                    {
+                        "id": "Test 4 for PEX",
+                        "purpose" : "Get the familyName",
+                        "constraints": {
+                            "limit_disclosure": "required",
+                            "fields": [
+                                {
+                                    "path": [
+                                        "$.credentialSubject.familyName"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "Test 4 for PEX",
+                        "purpose" : "Get the givenName",
+                        "constraints": {
+                            "limit_disclosure": "required",
+                            "fields": [
+                                {
+                                    "path": [
+                                        "$.credentialSubject.givenName"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+
+                ]
+            }
+        }
+    }

@@ -1,0 +1,30 @@
+{
+        "id_token" : {
+        },
+        "vp_token": {
+            "presentation_definition": {
+                "id": "Test_5",
+                "input_descriptors": [
+                    {
+                        "id": "5",
+                        "purpose" : "Test 5 for PEX",
+                        "constraints": {
+                            "limit_disclosure": "required",
+                            "fields": [
+                                {
+                                    "path": [
+                                        "$.issuer"
+                                    ],
+                                    "purpose" : "One can only accept VC signed by Talao with did:ethr",
+                                    "filter": {
+                                        "type": "string",
+                                        "pattern": "did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }

@@ -1,0 +1,33 @@
+{
+        "id_token" : {
+        },
+        "vp_token": {
+            "presentation_definition": {
+                "id": "Test_3",
+                "input_descriptors": [
+                    {
+                        "id": "Test 3 for PEX",
+                        "purpose" : "Test for Gaia-X hackathon",
+                        "format" : {
+                            "ldp_vc": {
+                                "proof_type": [
+                                                "JsonWebSignature2020"
+                                ]
+                            }
+                        },
+                        "constraints": {
+                            "limit_disclosure": "required",
+                            "fields": [
+                                {
+                                    "path": [
+                                        "$.credentialSubject.email"
+                                    ],
+                                    "purpose" : "One look for email data"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }
