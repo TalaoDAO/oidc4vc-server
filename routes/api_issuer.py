@@ -200,6 +200,14 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             red.publish('op_issuer', data)
             return jsonify("application error"),500
 
+        # credential is signed by external issuer
+        if issuer_data['method'] == "relay" :
+            # send event to front to go forward callback
+            data = json.dumps({'stream_id' : stream_id,"result" : True})
+            red.publish('op_issuer', data)
+            return jsonify(credential_received)
+
+
         # prepare credential to issue   
         credential =  json.loads(credentialOffer)['credentialPreview']
         if not credential_received.get('expirationDate') :

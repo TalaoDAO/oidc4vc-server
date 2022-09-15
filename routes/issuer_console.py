@@ -36,9 +36,7 @@ def issuer_select(mode) :
         issuer_list=str()
         for data in my_list :
             data_dict = json.loads(data)
-            print(data_dict)
             if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
-                print(data_dict.get('credential_requested_2', "DID"))
                 issuer = """<tr>
                     <td>""" + data_dict['company_name'] + """</td>
                      <td>""" + data_dict['user'] + """</td>
