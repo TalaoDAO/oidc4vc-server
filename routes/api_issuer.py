@@ -23,6 +23,7 @@ import requests
 import db_api
 import ebsi
 
+
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 
@@ -105,7 +106,6 @@ def issuer_landing_page(issuer_id, red, mode) :
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
 
     #logging.info("credential manifest = %s", credential_manifest)
-
     if not request.args.get('id') :
         logging.warning("no id passed by application")
 
@@ -128,7 +128,6 @@ def issuer_landing_page(issuer_id, red, mode) :
     else : 
         qrcode_page = issuer_data.get('landing_page_style')
   
-
     return render_template(qrcode_page,
                                 url=url,
                                 deeplink_talao=deeplink_talao,
@@ -159,7 +158,6 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
     
     # wallet GET
     if request.method == 'GET':
-        print(credentialOffer)
         return jsonify(credentialOffer)
                         
     # wallet POST
@@ -168,7 +166,6 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             red.delete(stream_id)
         except :
             logging.warning('delete stream_id failed')
-
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
 
         headers = {
@@ -206,7 +203,6 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             data = json.dumps({'stream_id' : stream_id,"result" : True})
             red.publish('op_issuer', data)
             return jsonify(credential_received)
-
 
         # prepare credential to issue   
         credential =  json.loads(credentialOffer)['credentialPreview']
@@ -281,11 +277,9 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             logging.error('issuer failed to send signed credential, status code = %s', r.status_code)
         else :
             logging.info('signed credential sent')
-
         # send event to front to go forward callback
         data = json.dumps({'stream_id' : stream_id,"result" : True})
         red.publish('op_issuer', data)
-
         return jsonify(signed_credential)
         
 

@@ -272,7 +272,6 @@ def wallet_authorize(red, mode) :
     if verifier_data['protocol'] == "w3cpr" :
         if session['state'] :
             resp['state'] = session['state']
-        print('resp = ', resp)    
         return redirect('/sandbox/login?' + urlencode(resp))
     else :
         if session['response_type'] not in ["vp_token"] :
@@ -419,8 +418,6 @@ def login_qrcode(red, mode):
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
         pattern["query"][1]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason_2']
         pattern["query"][1]["credentialQuery"][0]["example"]["type"] = verifier_data['vc_2']
-    
-    #print("pattern = ", pattern)
     
     if nonce :
         pattern['challenge'] = nonce

@@ -1,6 +1,6 @@
 
 method_list = {
-                    "relay" : "External issuer",
+                    "relay" : "External signer",
                     "ethr" : "did:ethr",
                     "key" : "did:key",
                     "tz": "did:tz",
