@@ -3,7 +3,6 @@ import uuid
 import logging
 import sqlite3
 import random 
-import sys
 import string
 import base58
 import os
@@ -11,8 +10,8 @@ from jwcrypto import jwk
 from op_constante import client_data_pattern
 logging.basicConfig(level=logging.INFO)
 
-def create_verifier(mode, user=None, demo=False) :
-    return create('verifier.db', user, mode, demo)
+def create_verifier(mode, user=None, method="ethr") :
+    return create('verifier.db', user, mode, method)
 def update_verifier(client_id, data) :
     return update(client_id, data, 'verifier.db')
 def read_verifier(client_id) :
@@ -22,8 +21,8 @@ def list_verifier() :
 def delete_verifier(client_id) :
     return delete(client_id, 'verifier.db')
     
-def create_issuer(mode, user=None, demo=False) :
-    return create('issuer.db', user, mode, demo)
+def create_issuer(mode, user=None, method="ethr") :
+    return create('issuer.db', user, mode, method)
 def update_issuer(client_id, data) :
     return update(client_id, data, 'issuer.db')
 def read_issuer(client_id) :
@@ -34,20 +33,17 @@ def delete_issuer(client_id) :
     return delete(client_id, 'issuer.db')
 
 
-def create(db, user, mode, demo) :
+def create(db, user, mode, method) :
     letters = string.ascii_lowercase
     data = client_data_pattern
-    if demo :
-        data['client_id'] =  data['client_secret'] = "demo"
-    else :
-        data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+    data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['client_secret'] = str(uuid.uuid1())
     if db == 'issuer.db' :
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
         # init with did:ethr
         key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
         data['jwk'] = key.export_private()
-        data['method'] = "ethr"
+        data['method'] = method
         # init did:ebsi in case of use
         data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
     if user :

@@ -125,7 +125,7 @@
                             </div>  
                             
                             <div class="col-6">
-                              <div class="form-group"><label><strong>Credential 2 requested for issuance (Not available today)</strong></label>
+                              <div class="form-group"><label><strong>Credential 2 requested for issuance</strong></label>
                                 <select name="credential_requested_2" class="form-control">
                                 <option value="">--Please choose an option--</option>
                                {{credential_requested_2_select|safe}}
@@ -312,9 +312,7 @@
                   <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
                   <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create issuer</button></div>
                   <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select issuer</button></div>
-                  {% if session['login_name'] == "admin1234" %}
-                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="demo" type="submit">Create demo issuer</button></div>
-                    {% endif %}
+                  
                   </div>
 
                 </form>

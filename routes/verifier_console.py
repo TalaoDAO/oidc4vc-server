@@ -43,7 +43,7 @@ def select(mode) :
                 verifier = """<tr>
                     <td>""" + data_dict.get('application_name', "") + """</td>
                     <td>""" + data_dict['user'] + """</td>
-                    <td>""" + data_dict['vc'] + """</td>
+                    <td>""" + credential_list[data_dict['vc']] + """</td>
                     <td>""" + mode.server + "sandbox/op" + """</td>
                     <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                     <td>""" + data_dict['client_secret'] + """</td>
@@ -59,6 +59,8 @@ def select(mode) :
         elif request.form['button'] == "logout" :
             session.clear()
             return redirect ('/sandbox/saas4ssi')
+        elif request.form['button'] == "home" :
+            return render_template("menu.html", login_name=session["login_name"])
 
 def activity() :
     if not session.get('is_connected') or not session.get('login_name') :
@@ -229,6 +231,9 @@ def console(mode) :
         elif request.form['button'] == "logout" :
             session.clear()
             return redirect ('/sandbox/saas4ssi')
+        
+        elif request.form['button'] == "home" :
+            return render_template("menu.html", login_name=session["login_name"])
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')
@@ -290,7 +295,7 @@ def advanced() :
                 else :
                     protocol_select +=  "<option value=" + key + ">" + value + "</option>"
         
-        return render_template('advanced.html',
+        return render_template('verifier_advanced.html',
                 client_id = session['client_data']['client_id'],
                 protocol = session['client_data']['protocol'],
                 protocol_select=protocol_select

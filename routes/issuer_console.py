@@ -35,21 +35,33 @@ def issuer_select(mode) :
         my_list = db_api.list_issuer()
         issuer_list=str()
         for data in my_list :
-            data_dict = json.loads(data)
+            data_dict = json.loads(data)            
+            #try :
+           
+            if data_dict['method'] == "ebsi" :
+                DID = data_dict['did_ebsi']
+            elif data_dict['method'] == "relay" :
+                DID = method_list['relay']
+            elif data_dict['method'] == False :
+                DID = "problem"
+            else : 
+                DID = didkit.key_to_did(data_dict['method'], data_dict['jwk'])
             if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
                 issuer = """<tr>
-                    <td>""" + data_dict['company_name'] + """</td>
-                     <td>""" + data_dict['user'] + """</td>
-                    <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
-                    <td>""" + credential_to_issue_list[data_dict['credential_to_issue']] + """</td>
-                    <td>""" + credential_requested_list.get(data_dict['credential_requested']) + """</td>
-                    <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
-                    <td>""" + data_dict['callback'] + """</td>
-                    <td>""" + data_dict['webhook'] + """</td>
-                    </tr>"""
+                        <td>""" + data_dict.get('company_name', "unknown") + """</td>
+                        <td>""" + data_dict.get('user', "unknown") + """</td>
+                        <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
+                        <td>""" + DID + """</td> 
+                        <td>""" + credential_to_issue_list[data_dict['credential_to_issue']] + """</td>
+                        <td>""" + credential_requested_list.get(data_dict['credential_requested']) + """</td>
+                        <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
+                        </tr>"""
                 issuer_list += issuer
             else :
-                pass     
+                pass
+            #except :
+            #    logging.warning('Not displayed %s',  data_dict['company_name'])
+            #    pass     
         return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
@@ -74,6 +86,8 @@ def issuer_preview (mode) :
 
     if session['client_data']['method'] == "ebsi" :
         issuer_did = session['client_data']['did_ebsi']
+    elif session['client_data']['method'] == "relay" :
+        issuer_did = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
     else : 
         issuer_did = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
         
@@ -188,8 +202,6 @@ def issuer_console(mode) :
     if request.method == 'POST' :
         if request.form['button'] == "new" :
             return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name']))
-        elif request.form['button'] == "demo" :
-            return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name'], demo=True))
         
         elif request.form['button'] == "select" :
             return redirect ('/sandbox/op/issuer/console/select')
@@ -201,11 +213,8 @@ def issuer_console(mode) :
         elif request.form['button'] == "logout" :
             session.clear()
             return redirect ('/sandbox/saas4ssi')
-
-        elif request.form['button'] == "advanced" :
-            return redirect ('/sandbox/op/issuer/console/advanced')
         
-        elif request.form['button'] in [ "update", "preview"] :
+        else :
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']
@@ -239,12 +248,18 @@ def issuer_console(mode) :
             session['client_data']['card_text_color'] = request.form['card_text_color']                
               
             db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
+            
             if request.form['button'] == "preview" :
                 return redirect ('/sandbox/op/issuer/console/preview')
+            
+            if request.form['button'] == "advanced" :
+                return redirect ('/sandbox/op/issuer/console/advanced')
+            
             return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+        """
         else :
             return redirect('/sandbox/op/issuer/console')
-
+"""
 
 async def issuer_advanced() :
     global  reason
@@ -264,26 +279,31 @@ async def issuer_advanced() :
                     method_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     method_select +=  "<option value=" + key + ">" + value + "</option>"
-        if session['client_data'].get('emails') :
-            emails_filtering = """<input class="form-check-input" checked type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
-        else :
-            emails_filtering = """<input class="form-check-input" type="checkbox" name="emails" value="ON" id="flexCheckDefault">"""
 
         if session['client_data']['method'] == "ebsi" :
-            DID = session['client_data']['did_ebsi']
+            DID = "Not applicable"
             did_document = ebsi.did_resolve(DID, session['client_data']['jwk'])
+            jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
+            did_ebsi = session['client_data']['did_ebsi']
+
+        elif session['client_data']['method'] == "relay" :
+            DID = "Unknown"
+            did_document = '{ "DID document" : "Unknown" }'
+            jwk = '{ "JWK" : "Unknown" }'
+            did_ebsi = "Not applicable"
         else : 
             DID = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
             did_document = await didkit.resolve_did(DID, '{}')
+            jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
+            did_ebsi = 'Not applicable'
         return render_template('issuer_advanced.html',
                 client_id = session['client_data']['client_id'],
                 protocol = session['client_data']['protocol'],
-                jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4),
+                jwk = jwk,
                 method = session['client_data']['method'],
-                emails_filtering=emails_filtering,
                 protocol_select=protocol_select,
                 method_select=method_select,
-                did_ebsi = session['client_data']['did_ebsi'],
+                did_ebsi = did_ebsi,
                 DID = DID,
                 did_document=json.dumps(json.loads(did_document), indent=4)
                 )
@@ -293,20 +313,27 @@ async def issuer_advanced() :
         
         elif request.form['button'] == "update" :
             session['client_data']['protocol'] = request.form['protocol']
+            session['client_data']['method'] = request.form['method']
+
+            if  session['client_data']['method'] == "relay" :
+                db_api.update_issuer( request.form['client_id'], json.dumps(session['client_data']))
+                return redirect('/sandbox/op/issuer/console/advanced')
+
             if request.form['method'] != "ebsi" :
                 try :
-                    didkit.key_to_did(request.form['method'], request.form['jwk'])
+                    didkit.key_to_did(request.form['method'], session['client_data']['jwk'])
                 except :
                     logging.error('wrong key/method')
                     return redirect('/sandbox/op/issuer/console/advanced')
-            session['client_data']['method'] = request.form['method']
-            jwk_dict = json.loads(request.form['jwk'])
+
+            jwk_dict = json.loads(session['client_data']['jwk'])
             if request.form['method'] in ['key', "ebsi"] :
                 jwk_dict['alg'] = "ES256K"
             else : 
                 jwk_dict['alg'] = "ES256K-R"
             session['client_data']['jwk'] = json.dumps(jwk_dict)
-            session['client_data']['did_ebsi'] = request.form['did_ebsi']
+            if request.form['method'] == "ebsi" and  request.form['did_ebsi'] != "Not applicable" :
+                session['client_data']['did_ebsi'] = request.form['did_ebsi']
             db_api.update_issuer( request.form['client_id'], json.dumps(session['client_data']))
             return redirect('/sandbox/op/issuer/console/advanced')
           

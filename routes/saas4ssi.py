@@ -8,19 +8,14 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
-    #app.add_url_rule('/sandbox/saas4ssi/user',  view_func=saas_user, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/catalog',  view_func=saas_catalog, methods = ['GET', 'POST'])
+
     return
 
 
 def saas_qrcode (mode) :
     return render_template('saas_qrcode.html', url = mode.server + '/sandbox/saas4ssi/device_detector' )
 
-"""
-def saas_user():
-    if request.method == "GET" :
-        return render_template("user.html")
-    return
-"""
 
 def saas_device_detector ():
     ua = request.headers.get('User-Agent')
@@ -32,6 +27,11 @@ def saas_device_detector ():
     else :
         return jsonify('unknown device')    
 
+
+
+def saas_catalog():
+    if request.method == "GET" :
+        return render_template("catalog.html")
 
 def saas_login():
     if request.method == "GET" :

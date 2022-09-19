@@ -1,6 +1,6 @@
 
 method_list = {
-                    "relay" : "External signer",
+                    "relay" : "Relay (external issuer)",
                     "ethr" : "did:ethr",
                     "key" : "did:key",
                     "tz": "did:tz",
@@ -8,6 +8,7 @@ method_list = {
                     "pkh:tz" : "did:pkh:tz",
                 }
 
+# for verifier
 credential_list = {
                     'EmailPass' : 'Proof of email',
                     'AgeRange' : 'Age range',
@@ -21,9 +22,9 @@ credential_list = {
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
                     'CertificateOfEmployment' : 'Certificate of employment',
-                    'DID' : "None",
                     'VotersCard' : 'Voter card',
                     'TalaoCommunity' : 'Talao Community card',
+                    'DID' : "None",
                     'ANY' : 'Any'
                 }
 
@@ -39,17 +40,21 @@ credential_to_issue_list = {
                     "PhoneProof" : "Proof of phone number"
                 }
 
+
 credential_requested_list = {
                     'EmailPass' : 'Proof of email',
                     'AgeRange' : 'Age range',
                     'Nationality' : 'Nationality',
+                    'Gender' : 'Gender card',
                     'PhonePass' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
-                    'Over18' : 'Proof of majority (Over 18)',
+                    'Over18' : 'Proof of majority',
                     "TezosAssociatedAddress" : "Proof of Tezos crypto account",
-                    "TalaoAssociatedAddress" : "Proof of TALAO token account",
+                    "AragoPass" : "Arago Pass",
+                    "login" : "Login and password",
                     'DID' : "None",
                 }
+
 landing_page_style_list = {
                     "op_issuer_qrcode.html" : "Style 1",
                     "op_issuer_qrcode_2.html" : "Style 2"

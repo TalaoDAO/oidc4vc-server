@@ -1,119 +1,87 @@
 from flask import Flask, jsonify, redirect, request
+import base64
+from datetime import datetime, timedelta
+import json
+import uuid
+import didkit
 
 # Init Flask
 app = Flask(__name__)
 app.config.update(SECRET_KEY = "abcdefgh")
+issuer_key = {
+    "alg": "ES256K-R",
+    "crv": "secp256k1",
+    "d": "_GsK8Br06HXl6qgV0eR9j5FcNkwm6xOCgps9DhtzT9c",
+    "kty": "EC",
+    "x": "fhHKGHBlgXlGt30upZ4NOiWFUQvbyyajr0whka4z1xA",
+    "y": "9eMTPBFHOM9s6IuIyvQ9c6xd79eb4ScAkoUP6_3bEOA"
+}
 
-
-# data provided by Saas4ssi platform
-landing_page_link = 'http://192.168.0.123:3000/sandbox/op/issuer/shgvbdvxgr'
-client_secret = "fd0b496e-2210-11ed-84ae-6d9dcad4e1b3"
 
 """
 Step 0 : configure an issuer with https://talao.co/sandbox/saas4ssi
-Note the issuer page URL and provides your call back and webhook endpoint
+Copy the issuer page URL and provide your callback and webhook endpoint
 Configure your issuer page, text, color and if needed SSI data as keys, DID method, etc
 """
+qrcode_page = 'http://192.168.0.220:3000/sandbox/op/issuer/eahsvvdyzm'
+client_secret = 'fe55ca5c-3678-11ed-a2b1-817c238705ae'
 
 
 """ 
-Step 1 : Your application redirects user to your issuer page
+Step 1 : Application redirects user to issuer page with QR code
 """
 @app.route('/')
 def index():
-  """
-  add an id as an argument to the link if needed to keep state
-  landing_page_link = 'http://192.168.43.67:3000/sandbox/op/issuer/demo&id=my_id'
-  """
-  return redirect(landing_page_link)
+  return redirect(qrcode_page)
 
 
 """
-Step 2  your application receives user data and return the credential data to issue
-user data is the credential requested to issue the diploma : maybe none if your issuer is behind a portal (university) or maybe an ID card or what ever you may need to authenticate your user
+Step 2  Application receives user login and password and return the signed credential to transfer to wallet
 """
 @app.route('/webhook', methods=['POST'])
-def credential() :
-    if request.headers.get("key") != client_secret :
+async def credential() :
+  if request.headers.get("key") != client_secret :
       return jsonify("Forbidden"), 403
-    # data sent by platform
-    data = request.get_json()
-    
-    # send user back data to issuer. If you need to link those data to the issuer which is logged to your portal use the id in the redirect link : id = data['id']
-    # event = 'ISSUANCE'
-    if data['event'] == 'ISSUANCE' :
-      credential = {
-        "credentialSchema": {
-          "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
-          "type": "JsonSchemaValidator2018"
-        },
-        "credentialSubject": {
-          "type": "VerifiableDiploma",
-          "awardingOpportunity": {
-            "awardingBody": {
-              "eidasLegalIdentifier": "Unknown",
-              "homepage": "https://leaston.bcdiploma.com/",
-              "id": "did:ebsi:zdRvvKbXhVVBsXhatjuiBhs",
-              "preferredName": "Leaston University",
-              "registration": "0597065J"
-            },
-            "endedAtTime": "2020-06-26T00:00:00Z",
-            "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
-            "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-          "location": "FRANCE",
-          "startedAtTime": "2019-09-02T00:00:00Z"
-        },
-        "dateOfBirth": "1993-04-08",
-        "familyName": "DOE",
-        "givenName": "Jane",
-        "gradingScheme": {
-          "id": "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
-          "title": "2 year full-time programme / 4 semesters"
-        },
-        "id": "did:tz:tz2TXUpeT6Sx1v7Ws7dhZxot87c2afzt68PY",
-        "identifier": "0904008084H",
-        "learningAchievement": {
-          "additionalNote": ["DISTRIBUTION MANAGEMENT"],
-          "description": "The Master in Information and Computer Sciences (MICS) at the University of Luxembourg enables students to acquire deeper knowledge in computer science by understanding its abstract and interdisciplinary foundations, focusing on problem solving and developing lifelong learning skills.",
-          "id": "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
-          "title": "Master in Information and Computer Sciences"
-        },
-        "learningSpecification": {
-          "ectsCreditPoints": 120,
-          "eqfLevel": 7,
-          "id": "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
-          "iscedfCode": ["7"],
-          "nqfLevel": ["7"]
-          }
-        },
-        "evidence": {
-          "documentPresence": ["Physical"],
-          "evidenceDocument": ["Passport"],
-          "id": "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
-          "subjectPresence": "Physical",
-          "type": ["DocumentVerification"],
-          "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
-        }
-      } 
-      return jsonify(credential)
+  
+  # get user and password
+  authorization = request.headers['Authorization']
+  user_password_encoded = authorization.split()[1]
+  user_password = base64.b64decode(user_password_encoded).decode()
+  user = user_password.split(':')[0]
+  password = user_password.split(':')[1]
 
-    # Optional event = 'RECEIPT': this is to store a copy of the signed credential if needed 
-    if data['event'] == 'SIGNED_CREDENTIAL' :
-      print("credential issued to store = ", data['vc'])
-      return jsonify('ok')
-   
+  # check if user exists
+  if user != "user1" or password != 'password1' :
+    return jsonify("Unauthorized"), 400
+  # sign credential and send it back in webhook response
+  with open('./verifiable_credentials/VerifiableDiploma.jsonld', 'r') as f :
+    credential = json.loads(f.read())
+  data = request.get_json()  # data sent to application is 
+  credential["credentialSubject"]["id"] = data['holder'] # wallet did
+  credential['issuer'] = didkit.key_to_did('ethr', json.dumps(issuer_key))
+  credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+  credential['id'] = "urn:uuid:" + str(uuid.uuid4())
+  credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+  didkit_options = {
+                "proofPurpose": "assertionMethod",
+                "verificationMethod": await didkit.key_to_verification_method('ethr', json.dumps(issuer_key))
+      } 
+  signed_credential =  await didkit.issue_credential(
+                json.dumps(credential),
+                didkit_options.__str__().replace("'", '"'),
+                json.dumps(issuer_key)
+                )
+  return jsonify(signed_credential)
 
 
 """ 
-Step 3 : your application get its user back after issuance here 
+Step 3 : Application get its user back after transfer to wallet 
 """
 @app.route('/callback', methods=['GET'])
 def callback() :
     print("callback success")
     # Do what you want now.....
     return jsonify ('callback success')
-
-
 
 
 # Python Flask http server loop

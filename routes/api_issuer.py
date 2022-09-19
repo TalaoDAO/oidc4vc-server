@@ -22,7 +22,7 @@ from urllib.parse import urlencode
 import requests
 import db_api
 import ebsi
-
+import base64
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
@@ -30,10 +30,41 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/<issuer_id>',  view_func=issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
-    app.add_url_rule('/sandbox/op/issuer_endpoint/<issuer_id>/<stream_id>',  view_func=issuer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/sandbox/op/issuer_endpoint/<issuer_id>/<stream_id>',  view_func=issuer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/op/issuer_stream',  view_func=issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/op/issuer_followup',  view_func=issuer_followup, methods = ['GET'])
+    app.add_url_rule('/sandbox/op/login_password/<issuer_id>',  view_func=login_password, methods = ['GET', 'POST'])
+
     return
+
+
+def login_password(issuer_id) :
+    if request.method == 'GET' :
+        try :
+            issuer_data = json.loads(db_api.read_issuer(issuer_id))
+        except :
+            logging.error('issuer id not found')
+            return render_template('op_issuer_removed.html')
+        return render_template ('login_password.html',
+            issuer_id=issuer_id,
+            page_title=issuer_data['page_title'],
+            page_subtitle=issuer_data['page_subtitle'],
+            page_description=issuer_data['page_description'],
+            title=issuer_data['title'],
+            qrcode_message=issuer_data['qrcode_message'],
+            landing_page_url=issuer_data['landing_page_url'],
+            privacy_url=issuer_data['privacy_url'],
+            terms_url=issuer_data['terms_url'],
+            mobile_message=issuer_data['mobile_message'],
+            page_background_color = issuer_data['page_background_color'],
+            page_text_color = issuer_data['page_text_color'],
+            qrcode_background_color = issuer_data['qrcode_background_color'])
+    if request.method == 'POST' :
+        session['username'] = request.form['username']
+        session['password'] = request.form['password']
+        session['login_password'] = True
+        print("post call")
+        return redirect('/sandbox/op/issuer/' + session['issuer_id'])
 
 
 """
@@ -46,6 +77,11 @@ def issuer_landing_page(issuer_id, red, mode) :
     except :
         logging.error('issuer id not found')
         return render_template('op_issuer_removed.html')
+
+    if issuer_data['credential_requested'] == "login" and not session.get('login_password') :
+        session['issuer_id'] = issuer_id
+        return redirect('/sandbox/op/login_password/' + issuer_id)
+    
     try :
         credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
@@ -61,6 +97,8 @@ def issuer_landing_page(issuer_id, red, mode) :
     
     if issuer_data['method'] == "ebsi" :
         issuer_did =  issuer_data['did_ebsi']
+    elif issuer_data['method'] == "relay" :
+        issuer_did = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
     else : 
         issuer_did = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])
     
@@ -78,7 +116,7 @@ def issuer_landing_page(issuer_id, red, mode) :
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
     credential_manifest['presentation_definition'] = dict()
-    if issuer_data['credential_requested'] == "DID" and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
+    if issuer_data['credential_requested'] in ["DID", "login"] and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
         pass
     else :
         credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}
@@ -117,12 +155,16 @@ def issuer_landing_page(issuer_id, red, mode) :
         "credentialPreview": credential,
         "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         "credential_manifest" : credential_manifest,
-    }
+    }   
     stream_id = str(uuid.uuid1())
     url = mode.server + "sandbox/op/issuer_endpoint/" + issuer_id + '/' + stream_id + '?issuer=' + issuer_did 
-    deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
     deeplink_altme = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
-    red.set(stream_id, json.dumps(credentialOffer))
+    red.setex(stream_id, 180, json.dumps(credentialOffer))
+    if issuer_data['credential_requested'] == "login" :
+        red.setex(stream_id + "_login", 180, json.dumps({"username" : session['username'],
+                                                         "password" : session["password"]
+                                                          } ))
+
     if not issuer_data.get('landing_page_style') :
         qrcode_page = "op_issuer_qrcode_2.html"
     else : 
@@ -130,7 +172,6 @@ def issuer_landing_page(issuer_id, red, mode) :
   
     return render_template(qrcode_page,
                                 url=url,
-                                deeplink_talao=deeplink_talao,
                                 deeplink_altme=deeplink_altme,
                                 stream_id=stream_id,
                                 issuer_id=issuer_id,
@@ -149,12 +190,17 @@ def issuer_landing_page(issuer_id, red, mode) :
                                 )
 
 
-async def issuer_endpoint(issuer_id, stream_id, red, mode):
+async def issuer_endpoint(issuer_id, stream_id, red):
     try : 
         credentialOffer = red.get(stream_id).decode()
+        issuer_data = json.loads(db_api.read_issuer(issuer_id))
     except :
-        logging.error("red.get(id) error")
-        return jsonify('server error'), 500
+        logging.error("red.get(id) errorn offer expired")
+        data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Offer expired"})
+        red.publish('op_issuer', data)
+        return jsonify("Unauthorized"),400 
     
     # wallet GET
     if request.method == 'GET':
@@ -162,21 +208,31 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                         
     # wallet POST
     if request.method == 'POST':
-        try :
-            red.delete(stream_id)
-        except :
-            logging.warning('delete stream_id failed')
-        issuer_data = json.loads(db_api.read_issuer(issuer_id))
-
+        if not issuer_data :
+            logging.error("Unhauthorized")
+            data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Offer expired"})
+            red.publish('op_issuer', data)
+            return jsonify("Unauthorized"),400  
+     
+        # send data to webhook
         headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
-                    }      
+                    }       
         url = issuer_data['webhook']
         payload = { 'event' : 'ISSUANCE',
+                    'holder' : json.loads(request.form['presentation'])['holder'],
                     'vp': json.loads(request.form['presentation']),
                     "id": request.form.get('id')
                     }
+        if issuer_data['credential_requested'] == 'login' :
+            user_pass = json.loads(red.get(stream_id + "_login").decode())
+            usrPass = (user_pass['username'] + ':' + user_pass['password']).encode()
+            b64Val = base64.b64encode(usrPass) 
+            headers["Authorization"] = "Basic " + b64Val.decode()
+        
         r = requests.post(url,  data=json.dumps(payload), headers=headers)
         if not 199<r.status_code<300 :
             logging.error('issuer failed to call application, status code = %s', r.status_code)
@@ -188,7 +244,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
         logging.info('status code ok')
         
         try :
-            credential_received = r.json()
+            data_received = r.json()
         except :
             logging.error('aplication data are not json')
             data = json.dumps({'stream_id' : stream_id,
@@ -202,38 +258,19 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
             # send event to front to go forward callback
             data = json.dumps({'stream_id' : stream_id,"result" : True})
             red.publish('op_issuer', data)
-            return jsonify(credential_received)
+            print('credential sent to wallet', data_received)
+            return jsonify(data_received)
 
-        # prepare credential to issue   
+        # credential is signed by issuer   
         credential =  json.loads(credentialOffer)['credentialPreview']
-        if not credential_received.get('expirationDate') :
-            credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
-        else :
-            credential['expirationDate'] = credential_received.get('expirationDate')
+        credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
-        credential_type = credential['credentialSubject']['type']
-
-        # extract data sent by application and merge them with verifiable credential data
-        try : 
-            credential["credentialSubject"] = credential_received['credentialSubject']
-        except :
-            message = "application failed to return correct credentialSubject"
-            logging.error(message)
-            data = json.dumps({'stream_id' : stream_id,
-                            "result" : False,
-                            "message" : message})
-            red.publish('op_issuer', data)
-            return jsonify("application error"),500
-        logging.info('credential received ok')
-
-        if credential_received.get('evidence') :
-            credential["evidence"] = credential_received['evidence']
-        if credential_received.get('credentialSchema') :
-            credential["credentialSchema"] = credential_received['credentialSchema']
         credential['credentialSubject']['id'] = request.form['subject_id']
-        credential['credentialSubject']['type'] = credential_type
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
 
+        # extract data sent by application and merge them with verifiable credential data
+        credential["credentialSubject"] = data_received
+       
         # sign credential
         if issuer_data['method'] == "ebsi" :
             logging.warning("EBSI issuer")
@@ -250,7 +287,7 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
                 issuer_data['jwk']
-            )
+                )
             except :
                 message = 'Signature failed, application failed to return correct data'
                 logging.error(message)
@@ -260,7 +297,8 @@ async def issuer_endpoint(issuer_id, stream_id, red, mode):
                             "message" : message})
                 red.publish('op_issuer', data)
                 return jsonify("server error, signature failed"),500
-        logging.info('signature ok')
+                
+            logging.info('signature ok')
        
         # send credential signed to application
         headers = {

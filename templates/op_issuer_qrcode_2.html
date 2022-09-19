@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- qrcode 2 -->
 <html style="background-color: {{ page_background_color }} ">
   <head>
    
@@ -12,27 +13,28 @@
 
     <font color="{{page_text_color}}">  
 
-        <div id="content_desktop" class="d-none d-sm-block mt-5" style="background-color: {{page_background_color}} " >
+        <div id="content_desktop" class="d-none d-sm-block " style="background-color: {{page_background_color}} " >
           
-          <div class="text-center ">
-            <h1>{{page_title}}</h1><br>
-            <h3>{{page_subtitle}}</h3><br>
+          <div class="text-center mt-5">
+            <h1 class="card-text">{{page_title}}</h1><br>
+            <h3 class="card-text">{{page_subtitle}}</h3><br>
             <div class="row">
               <div class="col-6 offset-3">
-                <h5>{{page_description}}</h5>
+                <h5 class="card-text">{{page_description}}</h5>
               </div>
             </div>
           </div> 
 
           <div class="row d-flex justify-content-center ">    
-            <div class="col-2">
+              <div class="col-2">
+
               <div class="text-center border-radius: 20%">
                 <div class="card shadow border-dark mt-5 " style="border-radius: 4%; background-color: {{qrcode_background_color}} ">
-                <h2 class="mt-2 p-2">{{title}}</h2>
-                <img class="card-img-top p-3 " src="{{ qrcode(url) }}">
+                <h3 class="mt-2 card-text">{{title}}</h3>
+                <img class="card-img-top px-3 " src="{{ qrcode(url) }}">
                   <div>
-                  <h6>{{qrcode_message}}</h6>
-                    <div class="mt-2"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
+                  <h6 class="card-text">{{qrcode_message}}</h6>
+                    <div class="my-2"><h6 class="text-secondary card-text"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
                   </div>
                 </div>
               </div>

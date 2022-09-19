@@ -1,8 +1,6 @@
 {
     "@context": ["https://www.w3.org/2018/credentials/v1",
         {
-            "name" : "https://schema.org/name",
-            "description" : "https://schema.org/description",
             "NewIdentityPass" : {
                 "@id": "https://github.com/TalaoDAO/context/blob/main/README.mdidentitypass",
                 "@context": {
@@ -36,34 +34,13 @@
         }
     ],
     "id": "",
-    "type": ["VerifiableCredential", "AgoraPass"],
+    "type": ["VerifiableCredential", "NewIdentityPass"],
     "issuer": "",
-    "name" : [ 
-        {
-            "@value": "Identity pass",
-            "@language": "en"
-        },
-        {
-            "@value": "Identity Pass",
-            "@language": "fr"
-        }
-    ],
-    "description" : [
-        {
-            "@language": "en",
-            "@value": "It can be used to authenticate with Talao services."
-        },
-        {
-            "@language": "fr",
-            "@value": "Cette attestation permet de s'authentifier auprès des services de Talao."
-        }
-    ],
     "issuanceDate": "",
     "credentialSubject" : {
         "id": "",
         "type" : "NewIdentityPass",
         "email" : "john.doe@gmail.com",
-        "image" : "",
         "familyName" : "Doe",
         "givenName" : "John",
         "duration" : "30",

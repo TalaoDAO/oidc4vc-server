@@ -11,17 +11,12 @@
     <div class="text-center mt-5">
         <br><br>
         <h1>Welcome to the Self Sovereign Identity verifier generator.</h1>
-        <br><br>
-        <h3>One can now authenticate a user who carries her own credentials in her Self Sovereign Identity wallet in any type of applications.</h3>
-        <br>
-        <h3>What you need to do is to install in your application a SSI connector.
-        <br>It takes no more than 2 hours.</h3>
-        <br>
-    
+      
+        <h3 class="mt-5">One can now authenticate a user who carries her own credentials in her Self Sovereign Identity wallet in any type of applications.</h3>
+       
         
-        <br><br><br>
-        <h3>How it works ?</h3>
-        <br>For each user for whom you want to authenticate with credentials, your application requests an OpenID authentication.
+        <h3 class="mt-5">How it works ?</h3>
+        <br>For each user for whom you want to authenticate with credentials, your application requests an OpenID authentication (code flow or implicit flow).
         <br>The platform will manage a user redirect to a page with a QR code (or deeplink for mobile device) allowing users to present a verifiable credential-presentation stored in their wallet.
         <br>Your app will receive the user credential as an Id token or a json file on the userinfo endpoint.
         <br>The verification of the signatures of the credential issuer and the user's wallet is carried out by the platform, your application can simply access the attributes of the json received in complete safety.

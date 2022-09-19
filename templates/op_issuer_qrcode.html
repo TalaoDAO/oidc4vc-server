@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- qr code page 1  -->
+
 <html style="background-color: {{ page_background_color }} ">
   <head>
    
@@ -12,10 +14,11 @@
 
     <font color="{{page_text_color}}">  
 
-        <div id="content_desktop" class="d-none d-sm-block mt-5" style="background-color: {{page_background_color}} " >
-          
-          <div class="text-center ">
-            <h1>{{page_title}}</h1><br>
+        <div id="content_desktop" class="d-none d-sm-block" style="background-color: {{page_background_color}} " >
+         
+          <div class="text-center">
+         
+            <h1 class="mt-5">{{page_title}}</h1><br>
             <h3>{{page_subtitle}}</h3><br>
             <div class="row">
               <div class="col-6 offset-3">
@@ -26,8 +29,9 @@
 
           <div class="row d-flex justify-content-center ">    
             <div class="col-2">
+
               <div class="text-center border-radius: 20%">
-                <h2 class="mt-2 p-2">{{title}}</h2>
+                <h2 hidden class="mt-2 p-2">{{title}}</h2>
                 
                 <div class="card shadow border-dark mt-2 " style="border-radius: 4%; background-color: {{qrcode_background_color}} ">
                 <img class="card-img-top p-3 " src="{{ qrcode(url) }}">
@@ -49,6 +53,7 @@
               </div>  
             </div>  
           </div>  
+         
 
           {% if back_button  %}
           <div class="text-center mt-5">
@@ -71,9 +76,7 @@
                 <h6>{{page_description}}</h6>
               </div>
             </div>
-         <!--
-                        <a href="{{deeplink_talao}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/talao.png"  style="width: 100px;"></a>  -->
-                        <br>
+                         
                         <a href="{{deeplink_altme}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/AltMe.png"  style="width: 50px;"></a>
                         <h6 class=" mt-4">{{mobile_message}}</h6>
                         <div class="mt-5"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
