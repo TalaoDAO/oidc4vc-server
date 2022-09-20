@@ -9,6 +9,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/pricing',  view_func=saas_catalog, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_catalog, methods = ['GET', 'POST'])
 
     return
 
