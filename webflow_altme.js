@@ -31,3 +31,4 @@ function logout()
      localStorage.removeItem("group");
    });
 }
+
