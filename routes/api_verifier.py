@@ -416,8 +416,8 @@ def login_qrcode(red, mode):
         pattern = op_constante.model_two
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
-        pattern["query"][1]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason_2']
-        pattern["query"][1]["credentialQuery"][0]["example"]["type"] = verifier_data['vc_2']
+        pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
+        pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
     
     if nonce :
         pattern['challenge'] = nonce

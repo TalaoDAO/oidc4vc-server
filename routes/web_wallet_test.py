@@ -466,26 +466,25 @@ def test_presentationRequest_qrcode(red, mode):
             pattern = DIDAuth
         else :
             pattern =  QueryBYExample
-            pattern['query'][0]["credentialQuery"] = list()          
-            if request.form.get('trustedIssuer') or request.form.get('type') or request.form.get('credentialSchema') : 
-                MycredentialQuery = dict()
-                if request.form.get('reason') :
-                    MycredentialQuery['reason'] = [
-                                                {"@value": request.form['reason'], "@language": "en"},
-                                                {"@value" : request.form['reason'], "@language" : "fr"},
-                                                {"@value" : request.form['reason'], "@language": "De"}
-                                                ]
-                MycredentialQuery['example'] = dict()
-                if request.form.get('type') :
-                    MycredentialQuery['example']['type'] =  request.form['type']
-                if request.form.get('trustedIssuer') :
-                    MycredentialQuery['example']['trustedIssuer'] = list()
-                    for issuer in [key.replace(" ", "") for key in request.form['trustedIssuer'].split(',')] :
-                        MycredentialQuery['example']['trustedIssuer'].append({"issuer" : issuer})   
-                pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
+            pattern['query'][0]["credentialQuery"] = list()
+            for i in['_1', '_2', '_3'] :          
+                if request.form.get('trustedIssuer'+ i) or request.form.get('type' + i) or request.form.get('credentialSchema' + i) : 
+                    MycredentialQuery = dict()
+                    MycredentialQuery["required"] = True
+                    if request.form.get('reason' + i) :
+                        MycredentialQuery['reason'] = request.form['reason' + i] 
+                    MycredentialQuery['example'] = dict()
+                    if request.form.get('type' + i) :
+                        MycredentialQuery['example']['type'] =  request.form['type' + i]
+                    if request.form.get('trustedIssuer' + i) :
+                        MycredentialQuery['example']['trustedIssuer'] = list()
+                        for issuer in [key.replace(" ", "") for key in request.form['trustedIssuer' + i].split(',')] :
+                            MycredentialQuery['example']['trustedIssuer'].append({"required" : True, "issuer" : issuer})   
+                    pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
+        print("pattern = ", pattern)
         url = mode.server + 'sandbox/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
         return render_template('credential_presentation_qr.html',
 							url=url,
