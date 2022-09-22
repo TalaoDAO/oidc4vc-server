@@ -30,6 +30,7 @@ credential_list = {
 
 credential_to_issue_list = {
                     'NewIdentityPass' : "Pass",
+                    'VerifierPass' : "Verifier Pass",
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',

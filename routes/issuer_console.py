@@ -13,13 +13,20 @@ logging.basicConfig(level=logging.INFO)
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'])
+
     app.add_url_rule('/sandbox/op/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    
+    # nav bar option
+    app.add_url_rule('/sandbox/op/issuer/nav/logout',  view_func=nav_logout, methods = ['GET'])
+    app.add_url_rule('/sandbox/op/issuer/nav/create',  view_func=nav_create, methods = ['GET'], defaults= {'mode' : mode})
+
+
     return
-      
+    
 # authentication
 def issuer_console_logout():
     if session.get('is_connected') :
@@ -63,13 +70,15 @@ def issuer_select(mode) :
             #    logging.warning('Not displayed %s',  data_dict['company_name'])
             #    pass     
         return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
-    else :
-        if request.form['button'] == "new" :
-            return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode))
-        elif request.form['button'] == "logout" :
-            session.clear()
-            return redirect ('/sandbox/saas4ssi')
+   
        
+def nav_logout() :
+    session.clear()
+    return redirect ('/sandbox/saas4ssi')
+def nav_create(mode) :
+    return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name']))
+
+
 
 def issuer_preview (mode) :
     if not session.get('is_connected') or not session.get('login_name') :
@@ -200,19 +209,11 @@ def issuer_console(mode) :
                 card_text_color = session['client_data']['card_text_color'],
                 )
     if request.method == 'POST' :
-        if request.form['button'] == "new" :
-            return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name']))
+     
         
-        elif request.form['button'] == "select" :
-            return redirect ('/sandbox/op/issuer/console/select')
-        
-        elif request.form['button'] == "delete" :
+        if request.form['button'] == "delete" :
             db_api.delete_issuer( request.form['client_id'])
             return redirect ('/sandbox/op/issuer/console')
-
-        elif request.form['button'] == "logout" :
-            session.clear()
-            return redirect ('/sandbox/saas4ssi')
         
         else :
             session['client_data']['contact_name'] = request.form['contact_name']
@@ -256,10 +257,7 @@ def issuer_console(mode) :
                 return redirect ('/sandbox/op/issuer/console/advanced')
             
             return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
-        """
-        else :
-            return redirect('/sandbox/op/issuer/console')
-"""
+
 
 async def issuer_advanced() :
     global  reason

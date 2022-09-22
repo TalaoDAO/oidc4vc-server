@@ -7,9 +7,10 @@
 
 <body id="page-top">
   <div id="wrapper">
-    <div class="d-flex flex-column" id="content-wrapper" >
-     
+    <div class="d-flex flex-column" id="content-wrapper" >     
       <div id="content">
+        {% include "issuer_nav_bar.html" %}
+
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}</h3>
@@ -21,14 +22,10 @@
                   <div class="card shadow mt-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Select an issuer, your login is {{login_name}}</p>
-                      
+                        <p class="text-primary m-0 font-weight-bold">Select an issuer</p>
                       </div>
                     </div>
                     <div class="card-body">
-                      <form action="/sandbox/op/issuer/console/select" method="POST">
-
-                       
                         <div class="form-row">
 
                             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
@@ -42,9 +39,7 @@
                                           <th style="width: 8%">Issuer DID</th>
                                           <th style="width: 15%">Credential to issue</th>
                                           <th style="width: 15%">Credential requested 1</th>
-                                          <th style="width: 15%">Credential requested 2</th>
-                                        
-                                         
+                                          <th style="width: 15%">Credential requested 2</th>                                        
                                       </tr>
                                   </thead>
                                   <tbody>
@@ -53,17 +48,8 @@
                               </table>
                              </div> 
                           </div>
-                       
-                        
                         </div>
-
-                        <div class="form-row mb-5">
-                          <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
-                          <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create issuer</button></div>
-                          </div>
-
                         
-                      </form>
                     </div>
                   </div>
                 </div>
@@ -72,7 +58,8 @@
           </div>
         </div>
       </div>
-
+    </div>
+  </div>
       {% include 'user_footer.html' %}
 
       <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>

@@ -57,7 +57,4 @@ def saas_verifier():
 def saas_issuer() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    if request.method == "GET" :
-        return render_template("saas_issuer.html")
-    else :
-        return redirect("/sandbox/op/issuer/console")
+    return redirect("/sandbox/op/issuer/console")

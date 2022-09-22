@@ -228,10 +228,10 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                     "id": request.form.get('id')
                     }
         if issuer_data['credential_requested'] == 'login' :
-            user_pass = json.loads(red.get(stream_id + "_login").decode())
-            usrPass = (user_pass['username'] + ':' + user_pass['password']).encode()
-            b64Val = base64.b64encode(usrPass) 
-            headers["Authorization"] = "Basic " + b64Val.decode()
+                user_pass = json.loads(red.get(stream_id + "_login").decode())
+                usrPass = (user_pass['username'] + ':' + user_pass['password']).encode()
+                b64Val = base64.b64encode(usrPass) 
+                headers["Authorization"] = "Basic " + b64Val.decode()
         
         r = requests.post(url,  data=json.dumps(payload), headers=headers)
         if not 199<r.status_code<300 :
@@ -243,23 +243,23 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("application error"),500    
         logging.info('status code ok')
         
-        try :
-            data_received = r.json()
-        except :
-            logging.error('aplication data are not json')
-            data = json.dumps({'stream_id' : stream_id,
+        if issuer_data['credential_to_isse'] != 'VerifierPass' :
+            try :
+                data_received = r.json()
+            except :
+                logging.error('aplication data are not json')
+                data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : "Application data are not json"})
-            red.publish('op_issuer', data)
-            return jsonify("application error"),500
+                red.publish('op_issuer', data)
+                return jsonify("application error"),500
 
-        # credential is signed by external issuer
-        if issuer_data['method'] == "relay" :
-            # send event to front to go forward callback
-            data = json.dumps({'stream_id' : stream_id,"result" : True})
-            red.publish('op_issuer', data)
-            print('credential sent to wallet', data_received)
-            return jsonify(data_received)
+            # credential is signed by external issuer
+            if issuer_data['method'] == "relay" :
+                # send event to front to go forward callback
+                data = json.dumps({'stream_id' : stream_id,"result" : True})
+                red.publish('op_issuer', data)
+                return jsonify(data_received)
 
         # credential is signed by issuer   
         credential =  json.loads(credentialOffer)['credentialPreview']
@@ -269,7 +269,8 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
 
         # extract data sent by application and merge them with verifiable credential data
-        credential["credentialSubject"] = data_received
+        if issuer_data['credential_to_isse'] != 'VerifierPass' :
+            credential["credentialSubject"] = data_received
        
         # sign credential
         if issuer_data['method'] == "ebsi" :
