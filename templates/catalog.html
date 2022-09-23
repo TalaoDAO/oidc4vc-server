@@ -4,24 +4,8 @@
 <head> {% include 'head.html' %}</head>
 <body id="page-top" >
 <div class="d-flex flex-column" id="content-wrapper">
- <!-- Nav Bar  -->
-  <nav class="navbar navbar-light navbar-expand-md sticky-top  mb-3" style="filter: blur(0px);opacity: 1;background: rgba(256, 256, 256, 0.93);">
-    <div class="container-fluid">
-      <div>
-        <a class=" d-none d-sm-block" href="https://altme.io"><img  src="/static/img/altme.png" style="width: 40px;border-radius:0px;"></a>
-      </div>
-      <div class="text-secondary flex-nowrap ml-auto ">
-        <div class="text-center">  
-            <h1 style="color: grey ; margin-bottom: 0">Decentralized Identity for Web3 <a href="https://altme.io">wallets</a> and applications</h1> 
-          
-        </div>
-    </div>
+    {% include 'saas_nav_bar.html' %}
 
-      <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
-      </ul>
-    </div>
-  </nav>
-  <!-- Nav Bar  -->
                 
     <div class="container-fluid  ">
 
@@ -335,7 +319,7 @@
         
         <div class="col">
             <div id="id_qrcode" class="text-center">
-                <br><strong>Gaming ranking</strong>
+                <strong>Gaming ranking</strong>
                 <br>Tezos operators can update the ranking of the gamers through an open access API. User can access to their ranking in real time. The credential is stored in the user wallet only.
                  User can display their proof of ranking on a public website or a social network account even transfer it to another user.
             </div>
@@ -358,8 +342,8 @@
         
         <div class="col">
             <div id="id_qrcode" class="text-center">
-                <br><strong>Proof of reputation</strong>
-                <br>This credential is issued by Altme on behalf of a Tezos community. Tezos operators can update the reputation of the gamers through an open access API.
+                <strong>Community reputation</strong>
+                <br>This credential is issued by Altme on behalf of a Tezos community. Tezos operators can update the reputation of their gamers through an open access API.
                 User can display this credential on a public website or a social network account or even transfer it to another user.
 
             </div>
@@ -428,14 +412,13 @@
         <div class="col">
             <div id="id_qrcode" class="text-center">
                 <strong>Game community on Discord</strong>
-                <br>Check that a Discord member is a game player without identity and blockchain address disclosure.
+                <br>Verify that a Discord member is a game player without identity and blockchain address disclosure.
 
             </div>
         </div> 
         <div class="col">
             <div id="id_qrcode" class="text-center">
                 <br>Subscription fees 49€/month
-                <br>Optional custom card : 1,500€
             </div>
         </div> 
     </div> 
