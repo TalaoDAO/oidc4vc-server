@@ -21,8 +21,24 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/console/activity',  view_func=activity, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/preview_presentation/<stream_id>',  view_func=preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+
+      # nav bar option
+    app.add_url_rule('/sandbox/op/verifier/nav/logout',  view_func=verifier_nav_logout, methods = ['GET'])
+    app.add_url_rule('/sandbox/op/verifier/nav/create',  view_func=verifier_nav_create, methods = ['GET'], defaults= {'mode' : mode})
     return
+
       
+def verifier_nav_logout() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    session.clear()
+    return redirect ('/sandbox/saas4ssi')
+def verifier_nav_create(mode) :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
+
+ 
 
 def console_logout():
     if session.get('is_connected') :
@@ -39,19 +55,21 @@ def select(mode) :
         verifier_list=str()
         for data in my_list :
             data_dict = json.loads(data)
-            if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
-                verifier = """<tr>
-                    <td>""" + data_dict.get('application_name', "") + """</td>
-                    <td>""" + data_dict['user'] + """</td>
-                    <td>""" + credential_list[data_dict['vc']] + """</td>
-                    <td>""" + mode.server + "sandbox/op" + """</td>
-                    <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
-                    <td>""" + data_dict['client_secret'] + """</td>
-                   
+            try :
+                if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
+                    verifier = """<tr>
+                        <td>""" + data_dict.get('application_name', "") + """</td>
+                        <td>""" + data_dict['user'] + """</td>
+                        <td>""" + credential_list[data_dict['vc']] + """</td>
+                        <td>""" + mode.server + "sandbox/op" + """</td>
+                        <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
+                        <td>""" + data_dict['client_secret'] + """</td>
                     </tr>"""
-                verifier_list += verifier
-            else :
-                pass     
+                    verifier_list += verifier
+                else :
+                    pass
+            except :
+                print(data_dict)         
         return render_template('verifier_select.html', verifier_list=verifier_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
@@ -221,19 +239,11 @@ def console(mode) :
         if request.form['button'] == "new" :
             return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
         
-        elif request.form['button'] == "select" :
-            return redirect ('/sandbox/op/console/select?user=' + session['login_name'])
         
         elif request.form['button'] == "delete" :
             db_api.delete_verifier( request.form['client_id'])
             return redirect ('/sandbox/op/console')
 
-        elif request.form['button'] == "logout" :
-            session.clear()
-            return redirect ('/sandbox/saas4ssi')
-        
-        elif request.form['button'] == "home" :
-            return render_template("menu.html", login_name=session["login_name"])
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')

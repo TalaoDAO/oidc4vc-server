@@ -8,8 +8,9 @@
 <body id="page-top">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
-     
       <div id="content">
+        {% include "verifier_nav_bar.html" %}
+
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}</h3>
@@ -23,7 +24,7 @@
                   <div class="card shadow my-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Generate a verifier for  application, login : {{login_name}}</p>
+                        <p class="text-primary m-0 font-weight-bold">Generate a verifier for application</p>
                       
                       </div>
                     </div>
@@ -504,13 +505,7 @@
                     </div>
                   </div>
 
-                  <div class="form-row">
-                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="home" type="submit">Home</button></div>
-                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="select" type="submit">Select verifier</button></div>
-                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Create verifier</button></div>
-                  <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="logout" type="submit">Logout</button></div>
-
-                  </div>
+               
 
                 </form>
                 </div>

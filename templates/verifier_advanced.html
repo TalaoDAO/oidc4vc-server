@@ -10,6 +10,8 @@
     <div class="d-flex flex-column" id="content-wrapper">
      
       <div id="content">
+        {% include 'verifier_nav_bar.html' %}
+
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
             <h3 class="text-dark mb-4">{{name}}</h3>
@@ -56,10 +58,6 @@
                         <div class="form-group">
                           <div class="form-row">
                             <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
-                            
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="back" type="submit">Back</button></div>
-
-
                           </div>
                         </div>
                       </form>

@@ -29,7 +29,6 @@ def saas_device_detector ():
         return jsonify('unknown device')    
 
 
-
 def saas_catalog():
     if request.method == "GET" :
         return render_template("catalog.html")
@@ -48,13 +47,11 @@ def saas_login():
 def saas_verifier():
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    if request.method == "GET" :
-        return render_template("saas_verifier.html")
     else :
-        return redirect("/sandbox/op/console")
+        return render_template("saas_verifier.html")
 
 
 def saas_issuer() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    return redirect("/sandbox/op/issuer/console")
+    return render_template("saas_issuer.html")

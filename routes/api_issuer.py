@@ -217,33 +217,32 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
-        headers = {
+        if issuer_data['credential_to_issue'] != 'VerifierPass' :
+            headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
                     }       
-        url = issuer_data['webhook']
-        payload = { 'event' : 'ISSUANCE',
-                    'holder' : json.loads(request.form['presentation'])['holder'],
+            url = issuer_data['webhook']
+            payload = { 'event' : 'ISSUANCE',
                     'vp': json.loads(request.form['presentation']),
                     "id": request.form.get('id')
                     }
-        if issuer_data['credential_requested'] == 'login' :
+            if issuer_data['credential_requested'] == 'login' :
                 user_pass = json.loads(red.get(stream_id + "_login").decode())
                 usrPass = (user_pass['username'] + ':' + user_pass['password']).encode()
                 b64Val = base64.b64encode(usrPass) 
                 headers["Authorization"] = "Basic " + b64Val.decode()
         
-        r = requests.post(url,  data=json.dumps(payload), headers=headers)
-        if not 199<r.status_code<300 :
-            logging.error('issuer failed to call application, status code = %s', r.status_code)
-            data = json.dumps({'stream_id' : stream_id,
+            r = requests.post(url,  data=json.dumps(payload), headers=headers)
+            if not 199<r.status_code<300 :
+                logging.error('issuer failed to call application, status code = %s', r.status_code)
+                data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : "Issuer failed to call application"})
-            red.publish('op_issuer', data)
-            return jsonify("application error"),500    
-        logging.info('status code ok')
+                red.publish('op_issuer', data)
+                return jsonify("application error"),500    
+            logging.info('status code ok')
         
-        if issuer_data['credential_to_isse'] != 'VerifierPass' :
             try :
                 data_received = r.json()
             except :
@@ -269,7 +268,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
 
         # extract data sent by application and merge them with verifiable credential data
-        if issuer_data['credential_to_isse'] != 'VerifierPass' :
+        if issuer_data['credential_to_issue'] != 'VerifierPass' :
             credential["credentialSubject"] = data_received
        
         # sign credential
@@ -301,7 +300,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 
             logging.info('signature ok')
        
-        # send credential signed to application
+        # send credential signed and credential recieved to application
         headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
@@ -309,6 +308,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         url = issuer_data['webhook']
         payload = { 'event' : 'SIGNED_CREDENTIAL',
                     'vc': json.loads(signed_credential),
+                    'vp' : json.loads(request.form['presentation']),
                     "id": request.form.get('id')
                     }
         r = requests.post(url,  data=json.dumps(payload), headers=headers)

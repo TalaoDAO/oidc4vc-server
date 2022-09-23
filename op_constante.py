@@ -146,7 +146,7 @@ model_any = {
 
 client_data_pattern = {
                 "authorized_emails" : "",
-                "vc" : "",
+                "vc" : "DID",
                 "vc_2" : "DID",
                 "emails" : None,
                 "user" : "all",

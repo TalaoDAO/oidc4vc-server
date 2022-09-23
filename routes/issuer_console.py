@@ -31,13 +31,14 @@ def init_app(app,red, mode) :
 def issuer_console_logout():
     if session.get('is_connected') :
         session.clear()
+    else :
+        return redirect('/sandbox/saas4ssi')
     return redirect('/sandbox/op/issuer/console')
 
 
 def issuer_select(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-
     if request.method == 'GET' :  
         my_list = db_api.list_issuer()
         issuer_list=str()
@@ -73,9 +74,13 @@ def issuer_select(mode) :
    
        
 def nav_logout() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     session.clear()
     return redirect ('/sandbox/saas4ssi')
 def nav_create(mode) :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name']))
 
 
@@ -209,8 +214,6 @@ def issuer_console(mode) :
                 card_text_color = session['client_data']['card_text_color'],
                 )
     if request.method == 'POST' :
-     
-        
         if request.form['button'] == "delete" :
             db_api.delete_issuer( request.form['client_id'])
             return redirect ('/sandbox/op/issuer/console')
@@ -263,6 +266,8 @@ async def issuer_advanced() :
     global  reason
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         protocol_select = str()       
@@ -306,10 +311,8 @@ async def issuer_advanced() :
                 did_document=json.dumps(json.loads(did_document), indent=4)
                 )
     if request.method == 'POST' :
-        if request.form['button'] == "back" :
-            return redirect ('/sandbox/op/issuer/console?client_id=' + request.form['client_id'] )
         
-        elif request.form['button'] == "update" :
+        if request.form['button'] == "update" :
             session['client_data']['protocol'] = request.form['protocol']
             session['client_data']['method'] = request.form['method']
 
