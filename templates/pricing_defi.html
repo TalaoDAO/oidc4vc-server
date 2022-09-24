@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!-- pricing_defi.html -->
+<html>
+<head> {% include 'head.html' %}</head>
+<body id="page-top" >
+<div class="d-flex flex-column" id="content-wrapper">
+    {% include 'saas_nav_bar.html' %}
+
+                
+    <div class="container-fluid  ">
+
+      
+
+
+
+        <div class="p-5" ">
+       
+                    <div class="text-center">
+                        <h3><strong>Best KYC AML process for user onboarding</strong></h3>
+                <br>It is today the most secure way to bind a blockchain address to a natural person (TFR, ...).
+                <br>The KYC process is carried out through a 3D facial liveness test and an integrated document authentication process in the mobile device with prior biometric authentication.
+                <br>User can associate multiple blockchain addresses to the same KYC in one step on the same device to avoid fraud or wrong operations.
+                <br>Privacy (GDPR : right to be forgotten) is guaranteed because the identity data are not written on any DLT or published on any blockchain name service.
+                <br>Altme retains the KYC process ID for auditing. KYC data and blockchain addresses are bound by crypto cross-signatures.
+                    </div>
+                   
+                    <div class="row my-5">
+
+                        <div class="col">                            
+                            <div id="id_qrcode" class="text-center">
+                                <img  src="/static/img/Id card.png"  style="width: 250px;border-radius:0px;">
+                            </div>
+                        </div>
+                        <div class="col">                            
+                            <div id="id_qrcode" class="text-center">
+                                <img  src="/static/img/blockchain_address.png"  style="width: 250px;border-radius:0px;">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div id="id_qrcode" class="text-center">
+                                <img  src="/static/img/aml.png"  style="width: 250px;border-radius:0px;">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div id="id_qrcode" class="text-center">
+                                <img  src="/static/img/residency.png"  style="width: 250px;border-radius:0px;">
+                            </div>
+                        </div>
+                        
+                      
+
+                    </div>
+
+                    
+
+                    <div class="text-center">
+                        <h4>Subscription fees 99€/month, + 3€ per user</h4>
+                     
+                    </div>
+                    <br>
+    </div>
+    
+                   
+      
+
+   
+        </div>
+    </div>
+                                {% include 'user_footer.html' %}
+
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+
+</body>
+
+</html>

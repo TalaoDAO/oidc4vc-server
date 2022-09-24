@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<!-- catalog.html -->
+<html>
+<head> {% include 'head.html' %}</head>
+<body id="page-top" >
+<div class="d-flex flex-column" id="content-wrapper">
+    {% include 'saas_nav_bar.html' %}
+
+                
+    <div class="container-fluid  ">
+
+    
+<div class="p-5">
+                   
+    <div class="text-center">
+        <h3><strong>Secure your application onboarding process and SSO</strong></h3>
+        <br>Decentralized Identity authentication is a solid option allowing users and platform operators to get an easy way to register on a website by sharing a limited amount of personal data.
+
+    </div>
+    <div class="row my-5">
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/emailproof.png"  style="width: 250px;border-radius:0px;">
+            </div>
+        </div>
+        
+                <div class="col">
+                    <div id="id_qrcode" class="text-center">
+                        <strong>Email pass</strong>
+                        <br>User can get a company or community pass to access services. 
+                        If needed data are stored in the user wallet. No identity disclosure.
+                    </div>
+                </div>  
+            
+
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <br>Free
+            </div>
+        </div> 
+        
+    </div>
+    <div class="row my-5">
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/blockchain_address.png"  style="width: 250px;border-radius:0px;">
+            </div>
+        </div>
+        
+                <div class="col">
+                    <div id="id_qrcode" class="text-center">
+                        <strong>Blockchain Tezos address</strong>
+                        <br>User can use their blockchain address to authenticate. This solution is a simple alternative to a Beacon authentication.
+                        No identity disclosure.
+                    </div>
+                </div>  
+            
+
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <br>Free
+            </div>
+        </div> 
+        
+    </div>
+    <div class="row my-5">
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/arago_card.png"  style="width: 250px;border-radius:0px;">
+            </div>
+        </div>
+        
+                <div class="col">
+                    <div id="id_qrcode" class="text-center">
+                        <strong>Company pass</strong>
+                        <br>User can get a company or community pass to access services. 
+                        If needed data are stored in the user wallet. No identity disclosure.
+                    </div>
+                </div>  
+            
+
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <br>Free
+                <br>Optional custom card : 2,500€
+            </div>
+        </div> 
+        
+    </div>
+    <div class="row my-5">
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/over18.png"  style="width: 250px;border-radius:0px;">
+            </div>
+        </div>
+        
+                <div class="col">
+                    <div id="id_qrcode" class="text-center">
+                        <strong>Age gated content</strong>
+                        <br>User can associate their decentralized identity to that credential with a KYC process embedded in the wallet. 
+                        The process is carried out by a KYC provider, the credential is issued by Altme which retains the KYC process ID for auditing. 
+                        Data are stored in the user wallet. No identity disclosure.
+                    </div>
+                </div>  
+            
+
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <br>Subscription fees 49€/month + 2€/user
+            </div>
+        </div> 
+        
+    </div>
+    <div class="row my-5">
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/humanity.png"  style="width: 250px;border-radius:0px;">
+            </div>
+        </div>
+        
+                <div class="col">
+                    <div id="id_qrcode" class="text-center">
+                        <strong>I am not a bot !</strong>
+                        <br>The verification process is carried out by a 3D facial liveness test embedded in the wallet.
+                                 The credential is issued by Altme. No identity disclosure.
+                    </div>
+                </div>  
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <br>Subscription fees 49€/month + 2€/user
+            </div>
+        </div> 
+    </div>
+    <div class="row my-5">
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/passport_number.png"  style="width: 250px;border-radius:0px;">
+            </div>
+        </div>
+        
+                <div class="col">
+                    <div id="id_qrcode" class="text-center">
+                        <strong>One address, one vote</strong>
+                        <br>The verification process is carried out by a KYC process embedded in the wallet. A hash is calculated from the passport MRZ (Machine-Readable Zone).
+                        It can be used to avoid a potential sybil attack in a blockchain voting system (unicity of the vote).
+                        The credential is issued by Altme. No identity disclosure.
+                    </div>
+                </div>  
+        <div class="col">
+            <div id="id_qrcode" class="text-center">
+                <br>Subscription fees 49€/month + 2€/user
+            </div>
+        </div> 
+    </div>
+  
+  
+</div>
+
+
+   
+        </div>
+    </div>
+                                {% include 'user_footer.html' %}
+
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+
+</body>
+
+</html>

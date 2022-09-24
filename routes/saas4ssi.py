@@ -9,6 +9,12 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/pricing',  view_func=pricing, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/pricing/gaming',  view_func=pricing_gaming, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/pricing/defi',  view_func=pricing_defi, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/pricing/marketplace',  view_func=pricing_marketplace, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/pricing/issuer',  view_func=pricing_issuer, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/pricing/web2',  view_func=pricing_web2, methods = ['GET', 'POST'])
+
     app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_catalog, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'])
@@ -39,7 +45,16 @@ def credentials():
 
 def pricing():
     return render_template("pricing.html")
-
+def pricing_gaming():
+    return render_template("pricing_gaming.html")
+def pricing_defi():
+    return render_template("pricing_defi.html")
+def pricing_marketplace():
+    return render_template("pricing_marketplace.html")
+def pricing_issuer():
+    return render_template("pricing_issuer.html")
+def pricing_web2():
+    return render_template("pricing_web2.html")
 
 def saas_catalog():
     if request.method == "GET" :
