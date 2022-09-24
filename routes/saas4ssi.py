@@ -15,7 +15,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/pricing/issuer',  view_func=pricing_issuer, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/pricing/web2',  view_func=pricing_web2, methods = ['GET', 'POST'])
 
-    app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_catalog, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_home, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'])
 
@@ -56,9 +56,6 @@ def pricing_issuer():
 def pricing_web2():
     return render_template("pricing_web2.html")
 
-def saas_catalog():
-    if request.method == "GET" :
-        return render_template("catalog.html")
 
 def saas_login():
     if request.method == "GET" :
