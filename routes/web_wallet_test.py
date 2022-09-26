@@ -105,7 +105,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
     app.add_url_rule('/sandbox',  view_func=sandbox, methods = ['GET', 'POST'])
-    app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/playground',  view_func=playground, methods = ['GET', 'POST'])
 
 
     global test_repo, registry_repo
