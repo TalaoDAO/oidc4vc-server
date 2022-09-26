@@ -1,5 +1,6 @@
 from flask import  request, render_template, redirect, session, jsonify
 import json
+import copy
 import logging
 import db_api 
 import activity_db_api
