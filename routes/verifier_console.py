@@ -236,14 +236,10 @@ def console(mode) :
                 login_name=session['login_name']
                 )
     if request.method == 'POST' :
-        if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
-        
-        
-        elif request.form['button'] == "delete" :
+       
+        if request.form['button'] == "delete" :
             db_api.delete_verifier( request.form['client_id'])
             return redirect ('/sandbox/op/console')
-
 
         elif request.form['button'] == "advanced" :
             return redirect ('/sandbox/op/console/advanced')
@@ -251,7 +247,7 @@ def console(mode) :
         elif request.form['button'] == "activity" :
             return redirect ('/sandbox/op/console/activity')
       
-        elif request.form['button'] in [ "update", "preview"] :
+        elif request.form['button'] == "update" :
             session['client_data']['note'] = request.form['note']
             session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['page_title'] = request.form['page_title']
@@ -279,11 +275,20 @@ def console(mode) :
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          
             db_api.update_verifier(request.form['client_id'], json.dumps(session['client_data']))
-            if request.form['button'] == "preview" :
-                return redirect ('/sandbox/op/console/preview')
             return redirect('/sandbox/op/console?client_id=' + request.form['client_id'])
-        else :
-            return redirect('/sandbox/op/console')
+
+        elif request.form['button'] == "copy" :
+            new_client_id=  db_api.create_verifier(mode,  user=session['login_name'])
+            new_data = copy.deepcopy(session['client_data'])
+            new_data['application_name'] = new_data['application_name'] + ' (copie)'
+            new_data['client_id'] = new_client_id
+            new_data['user'] = session['login_name']
+            db_api.update_verifier(new_client_id, json.dumps(new_data))
+            return redirect('/sandbox/op/console?client_id=' + new_client_id)
+
+        elif request.form['button'] == "preview" :
+            return redirect ('/sandbox/op/console/preview')
+        
 
 
 def advanced() :

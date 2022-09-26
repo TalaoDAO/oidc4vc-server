@@ -10,12 +10,10 @@
 
     <div class="text-center mt-5">
         <br><br>
-        <h1>Welcome to the Self Sovereign Identity verifier generator.</h1>
-      
-        <h3 class="mt-5">One can now authenticate a user who carries her own credentials in her Self Sovereign Identity wallet in any type of applications.</h3>
+       
        
         
-        <h3 class="mt-5">How it works ?</h3>
+        <h2 class="mt-5">How it works ?</h2>
         <br>For each user for whom you want to authenticate with credentials, your application requests an OpenID authentication (code flow or implicit flow).
         <br>The platform will manage a user redirect to a page with a QR code (or deeplink for mobile device) allowing users to present a verifiable credential-presentation stored in their wallet.
         <br>Your app will receive the user credential as an Id token or a json file on the userinfo endpoint.
@@ -27,12 +25,10 @@
 
         <br><br>An example of a minimal python application using this platform is <a href= "https://github.com/TalaoDAO/sandbox/blob/master/verifier_app.py ">here</a>.
 
-
-        <br><br><br>
-        <form action="/sandbox/saas4ssi/verifier" method="POST" >
-                <button class="btn btn-primary" type"submit" >Configure your verifier or generate a new one</button>
-        </form>
+        br><br><br><br><br><br><br><br><br><br>
+      
    </div>
+   {% include 'user_footer.html' %}
 
               <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
               <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

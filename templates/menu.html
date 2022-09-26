@@ -10,35 +10,52 @@
 
     <div class="text-center mt-5">
         <br><br><br>
-        <h2>Choose between an issuer or a verifier</h2>
 
-
-     
 
         <div class="row my-5">
-            <div class="col-4 offset-4 mt-4">
-                <div id="id_qrcode" class="text-center">
-                    <a href="/sandbox/saas4ssi/verifier"><img  src="/static/img/12.png"  style="width: 350px;border-radius:0px;"></a>
-                    <br><strong>Verifier</strong>
-                    <br>The verifier is usually an organisation, company, government, and so forth, to whom the user (individual or company) needs to prove the legitimacy and trustworthiness of information (i.e. a bank with which you want to open a bank account).
-
-                </div> 
+            <div class="col">
+            <img  src="/static/img/Id card.png"  style="width: 350px;border-radius:0px;">
             </div>
         </div>
+
         <div class="row my-5">
 
-            <div class="col-4 offset-4 mt-4">
+            {% if session["login_name"] == "guest" %}
+            <div class="col-4 offset-4 col-md-6 offset-md-3">
                 <div id="id_qrcode" class="text-center">
-                    <a href="/sandbox/saas4ssi/issuer"><img  src="/static/img/21.jpeg"  style="width: 350px;border-radius:0px;"></a>
+                   <br><strong>Verifier</strong>
+                    <br>The verifier is usually an organisation, company, government, and so forth, to whom the user needs to prove the legitimacy and trustworthiness of information (i.e. identity data to buy cryptos on an exchange).
+                </div> 
+                <br><br>
+                <a href="/sandbox/saas4ssi/verifier"> 
+                <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Next</button></div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-3 offset-3">
+              <div id="id_qrcode" class="text-center">
+                 <a href="/sandbox/saas4ssi/verifier"> 
+                 <br><strong>Verifier</strong>
+                 </a>
+                  <br>The verifier is usually an organisation, company, government, and so forth, to whom the user (individual or company) needs to prove the legitimacy and trustworthiness of information (i.e. a bank with which you want to open a bank account).
+              </div> 
+          </div>
+            <div class="col-3">
+                <div id="id_qrcode" class="text-center">
+                    <a href="/sandbox/saas4ssi/issuer">
                     <br><strong>Issuer</strong>
+                    </a>
                     <br> The issuer is the organisation, be it a company, certifier body, or governmental organisation that has been awarded a level of trust to provide information (i.e. a public body that issued a passport).
                 </div> 
             </div>
+            {% endif %}
 
 
         </div>
        
    </div>
+   {% include 'user_footer.html' %}
+
 
               <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
               <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

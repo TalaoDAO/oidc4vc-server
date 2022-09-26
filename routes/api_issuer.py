@@ -34,6 +34,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer_stream',  view_func=issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/op/issuer_followup',  view_func=issuer_followup, methods = ['GET'])
     app.add_url_rule('/sandbox/op/login_password/<issuer_id>',  view_func=login_password, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/op/secret/<issuer_id>',  view_func=secret, methods = ['GET', 'POST'])
 
     return
 
@@ -63,7 +64,32 @@ def login_password(issuer_id) :
         session['username'] = request.form['username']
         session['password'] = request.form['password']
         session['login_password'] = True
-        print("post call")
+        return redirect('/sandbox/op/issuer/' + session['issuer_id'])
+
+def secret(issuer_id) :
+    if request.method == 'GET' :
+        try :
+            issuer_data = json.loads(db_api.read_issuer(issuer_id))
+        except :
+            logging.error('issuer id not found')
+            return render_template('op_issuer_removed.html')
+        return render_template ('secret.html',
+            issuer_id=issuer_id,
+            page_title=issuer_data['page_title'],
+            page_subtitle=issuer_data['page_subtitle'],
+            page_description=issuer_data['page_description'],
+            title=issuer_data['title'],
+            qrcode_message=issuer_data['qrcode_message'],
+            landing_page_url=issuer_data['landing_page_url'],
+            privacy_url=issuer_data['privacy_url'],
+            terms_url=issuer_data['terms_url'],
+            mobile_message=issuer_data['mobile_message'],
+            page_background_color = issuer_data['page_background_color'],
+            page_text_color = issuer_data['page_text_color'],
+            qrcode_background_color = issuer_data['qrcode_background_color'])
+    if request.method == 'POST' :
+        session['secret'] = request.form['secret']
+        session['login_secret'] = True
         return redirect('/sandbox/op/issuer/' + session['issuer_id'])
 
 
@@ -81,6 +107,10 @@ def issuer_landing_page(issuer_id, red, mode) :
     if issuer_data['credential_requested'] == "login" and not session.get('login_password') :
         session['issuer_id'] = issuer_id
         return redirect('/sandbox/op/login_password/' + issuer_id)
+    
+    if issuer_data['credential_requested'] == "secret" and not session.get('login_secret') :
+        session['issuer_id'] = issuer_id
+        return redirect('/sandbox/op/secret/' + issuer_id)
     
     try :
         credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
@@ -163,7 +193,11 @@ def issuer_landing_page(issuer_id, red, mode) :
     if issuer_data['credential_requested'] == "login" :
         red.setex(stream_id + "_login", 180, json.dumps({"username" : session['username'],
                                                          "password" : session["password"]
-                                                          } ))
+                                                         } ))
+    elif issuer_data['credential_requested'] == "secret" :
+        red.setex(stream_id + "_secret", 180, json.dumps({"secret" : session['secret'],                                                      } ))
+    else :
+        pass
 
     if not issuer_data.get('landing_page_style') :
         qrcode_page = "op_issuer_qrcode_2.html"
@@ -217,7 +251,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
-        if issuer_data['credential_to_issue'] != 'VerifierPass' :
+        if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
             headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
@@ -232,7 +266,19 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 usrPass = (user_pass['username'] + ':' + user_pass['password']).encode()
                 b64Val = base64.b64encode(usrPass) 
                 headers["Authorization"] = "Basic " + b64Val.decode()
-        
+
+            elif issuer_data['credential_requested'] == 'secret' :
+                user_pass = json.loads(red.get(stream_id + "_secret").decode())
+                if user_pass['secret'] != issuer_data.get('secret') :
+                    logging.error("Secret does not match")
+                    data = json.dumps({'stream_id' : stream_id,
+                            "result" : False,
+                            "message" : "Access denied, secret does not match"})
+                    red.publish('op_issuer', data)
+                    return jsonify("Unauthorized"),400  
+            else :
+                pass
+
             r = requests.post(url,  data=json.dumps(payload), headers=headers)
             if not 199<r.status_code<300 :
                 logging.error('issuer failed to call application, status code = %s', r.status_code)
@@ -262,13 +308,16 @@ async def issuer_endpoint(issuer_id, stream_id, red):
 
         # credential is signed by issuer   
         credential =  json.loads(credentialOffer)['credentialPreview']
-        credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+        if issuer_data['credential_to_issue'] in ['VerifierPass', 'StandAlonePass'] :
+            credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
+        duration = issuer_data.get('credential_duration', "365")
+        credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
 
         # extract data sent by application and merge them with verifiable credential data
-        if issuer_data['credential_to_issue'] != 'VerifierPass' :
+        if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
             credential["credentialSubject"] = data_received
        
         # sign credential
@@ -300,23 +349,25 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 
             logging.info('signature ok')
        
-        # send credential signed and credential recieved to application
-        headers = {
+        # transfer credential signed and credential recieved to application
+        if issuer_data['credential_to_issue'] not in ['StandAlonePass'] :
+            headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
                     }      
-        url = issuer_data['webhook']
-        payload = { 'event' : 'SIGNED_CREDENTIAL',
+            url = issuer_data['webhook']
+            payload = { 'event' : 'SIGNED_CREDENTIAL',
                     'vc': json.loads(signed_credential),
                     'vp' : json.loads(request.form['presentation']),
                     "id": request.form.get('id')
                     }
-        r = requests.post(url,  data=json.dumps(payload), headers=headers)
-        if not 199<r.status_code<300 :
-            logging.error('issuer failed to send signed credential, status code = %s', r.status_code)
-        else :
-            logging.info('signed credential sent')
-        # send event to front to go forward callback
+            r = requests.post(url,  data=json.dumps(payload), headers=headers)
+            if not 199<r.status_code<300 :
+                logging.error('issuer failed to send signed credential to application, status code = %s', r.status_code)
+            else :
+                logging.info('signed credential sent to application')
+        
+        # send event to front to go forward callback and send credential to wallet
         data = json.dumps({'stream_id' : stream_id,"result" : True})
         red.publish('op_issuer', data)
         return jsonify(signed_credential)

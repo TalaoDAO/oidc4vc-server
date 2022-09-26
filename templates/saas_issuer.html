@@ -10,10 +10,9 @@
 
     <div class="text-center mt-5">
         <br><br>
-        <h1>Welcome to the issuer configurator and generator.</h1>
-        <h3 class="mt-5">What you need to do is to install in your code a webhook and a callback endpoint and redirect your user to a QR code page.
+        
       
-        <h3 class="mt-5">How it works ?</h3> 
+        <h2 class="mt-5">How it works ?</h2> 
         <br>When you want the user to collect her credential you redirect her browser to the issuer page provided by the platform so she can scan a QR code (or activate a deeplink).
         <br>Then your application receives a call on its webhook endpoint with eventually the requested credential of your choice in the form of a json.
         <br>Your application sends back either the data to include in a credential or the signed credential to transfer to the wallet.
@@ -26,6 +25,9 @@
       
        
    </div>
+
+   {% include 'user_footer.html' %}
+
 
               <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
               <script src="{{ url_for('static', filename='bs-init.js') }}"></script>

@@ -17,13 +17,12 @@
             <h3 class="text-dark mb-4">{{name}}</h3>
           </div>
           <div class="row mb-3">
-            <div class="col-lg-10 offset-lg-1">
-              <div class="row">
-                <div class="col">
+            <div class="col">
+             
                   <div class="card shadow mt-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p class="text-primary m-0 font-weight-bold">Select a verifier : login {{login_name }}</p>
+                        <p class="text-primary m-0 font-weight-bold">Select a verifier</p>
                       
                       </div>
                     </div>
@@ -65,17 +64,13 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+             
           </div>
         </div>
       </div>
 
       {% include 'user_footer.html' %}
 
-      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
-      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
-      <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 </body>

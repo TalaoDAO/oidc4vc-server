@@ -104,13 +104,22 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
-    app.add_url_rule('/sandbox',  view_func=playground, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox',  view_func=sandbox, methods = ['GET', 'POST'])
+    app.add_url_rule('/playground',  view_func=playground, methods = ['GET', 'POST'])
+
 
     global test_repo, registry_repo
     g = Github(mode.github)
     test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
+
+
+
+
+def sandbox() :
+    global status
+    return redirect("/sandbox/saas4ssi")
 
 def playground() :
     global status

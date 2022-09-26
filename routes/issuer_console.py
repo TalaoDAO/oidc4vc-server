@@ -2,10 +2,11 @@ from flask import  request, render_template, redirect, session, jsonify
 import json
 import logging
 import didkit
+import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list, landing_page_style_list
+from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import ebsi
 
 logging.basicConfig(level=logging.INFO)
@@ -15,7 +16,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/op/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/op/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
@@ -36,16 +37,14 @@ def issuer_console_logout():
     return redirect('/sandbox/op/issuer/console')
 
 
-def issuer_select(mode) :
+def issuer_select() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :  
         my_list = db_api.list_issuer()
         issuer_list=str()
         for data in my_list :
-            data_dict = json.loads(data)            
-            #try :
-           
+            data_dict = json.loads(data)                       
             if data_dict['method'] == "ebsi" :
                 DID = data_dict['did_ebsi']
             elif data_dict['method'] == "relay" :
@@ -56,20 +55,15 @@ def issuer_select(mode) :
                 DID = didkit.key_to_did(data_dict['method'], data_dict['jwk'])
             if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
                 issuer = """<tr>
-                        <td>""" + data_dict.get('company_name', "unknown") + """</td>
+                        <td>""" + data_dict.get('application_name', "unknown") + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>
                         <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + DID + """</td> 
-                        <td>""" + credential_to_issue_list[data_dict['credential_to_issue']] + """</td>
-                        <td>""" + credential_requested_list.get(data_dict['credential_requested']) + """</td>
+                        <td>""" + credential_to_issue_list.get(data_dict['credential_to_issue'], 'Unknown') + """</td>
+                        <td>""" + credential_requested_list.get(data_dict['credential_requested'], 'Unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
                         </tr>"""
                 issuer_list += issuer
-            else :
-                pass
-            #except :
-            #    logging.warning('Not displayed %s',  data_dict['company_name'])
-            #    pass     
         return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
    
        
@@ -120,7 +114,6 @@ def issuer_preview (mode) :
                             page_description=issuer_data['page_description'],
                             terms_url= issuer_data.get('terms_url'),
                             privacy_url=issuer_data.get('privacy_url'),
-                            company_name=issuer_data['company_name'],
                             back_button = True,
                             page_background_color = issuer_data['page_background_color'],
                             page_text_color = issuer_data['page_text_color'],
@@ -172,13 +165,21 @@ def issuer_console(mode) :
                     credential_requested_2_select +=  "<option value=" + key + ">" + value + "</option>"
         
         credential_to_issue_select = str()
-        for key, value in credential_to_issue_list.items() :
+
+        if session["login_name"] == 'admin1234' :
+            credential_items = credential_to_issue_list.items()
+        else :
+            credential_items = credential_to_issue_list_for_guest.items()
+        for key, value in credential_items :
                 if key ==   session['client_data']['credential_to_issue'] :
                     credential_to_issue_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
+
         return render_template('issuer_console.html',
                 login_name=session['login_name'],
+                application_name=session['client_data'].get('application_name', 'Unknown'),
+                secret=session['client_data'].get('secret', ''),
                 client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 callback=session['client_data']['callback'],
@@ -204,6 +205,7 @@ def issuer_console(mode) :
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 credential_to_issue_select = credential_to_issue_select,
+                credential_duration= session['client_data'].get('credential_duration', 365),
                 credential_requested_select =  credential_requested_select,
                 landing_page_style_select =  landing_page_style_select,
                 credential_requested_2_select =  credential_requested_2_select,
@@ -222,6 +224,7 @@ def issuer_console(mode) :
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']
+            session['client_data']['secret'] = request.form['secret']
             session['client_data']['webhook'] = request.form['webhook']
             session['client_data']['landing_page_style'] = request.form['landing_page_style']
             session['client_data']['page_title'] = request.form['page_title']
@@ -238,11 +241,13 @@ def issuer_console(mode) :
             session['client_data']['terms_url'] = request.form['terms_url']
             session['client_data']['client_id'] =  request.form['client_id']
             session['client_data']['company_name'] = request.form['company_name']
+            session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['reason'] = request.form['reason']
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['credential_requested'] = request.form['credential_requested']
             session['client_data']['credential_requested_2'] = request.form['credential_requested_2']
             session['client_data']['credential_to_issue'] = request.form['credential_to_issue']
+            session['client_data']['credential_duration'] = request.form['credential_duration']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
             session['client_data']['page_background_color'] = request.form['page_background_color']      
@@ -251,21 +256,28 @@ def issuer_console(mode) :
             session['client_data']['card_background_color'] = request.form['card_background_color']      
             session['client_data']['card_text_color'] = request.form['card_text_color']                
               
-            db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
-            
             if request.form['button'] == "preview" :
                 return redirect ('/sandbox/op/issuer/console/preview')
             
             if request.form['button'] == "advanced" :
                 return redirect ('/sandbox/op/issuer/console/advanced')
             
-            return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+            if request.form['button'] == "update" :
+                db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
+                return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+
+            if request.form['button'] == "copy" :
+                new_client_id=  db_api.create_issuer(mode,  user=session['login_name'])
+                new_data = copy.deepcopy(session['client_data'])
+                new_data['application_name'] = new_data['application_name'] + ' (copie)'
+                new_data['client_id'] = new_client_id
+                new_data['user'] = session['login_name']
+                db_api.update_issuer(new_client_id, json.dumps(new_data))
+                return redirect('/sandbox/op/issuer/console?client_id=' + new_client_id)
 
 
 async def issuer_advanced() :
     global  reason
-    if not session.get('is_connected') or not session.get('login_name') :
-        return redirect('/sandbox/saas4ssi')
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
@@ -312,6 +324,9 @@ async def issuer_advanced() :
                 )
     if request.method == 'POST' :
         
+        if request.form['button'] == "back" :
+            return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+
         if request.form['button'] == "update" :
             session['client_data']['protocol'] = request.form['protocol']
             session['client_data']['method'] = request.form['method']

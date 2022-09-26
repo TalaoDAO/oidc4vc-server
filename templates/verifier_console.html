@@ -482,7 +482,7 @@
                           </div>
                       </div>
                       <div class="form-row text-center">
-                        <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview landing page</button></div>
+                        <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview landing page</button></div>
                       </div>
 
                         </div>
@@ -490,10 +490,14 @@
 
                         <div class="form-group">
                           <div class="form-row">
-                                <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuraion</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="activity" type="submit">Activity</button></div>
+                                <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuration</button></div>
+                                <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="copy" type="submit">Copy</button></div>
+
+                                {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin1234' %} 
+                                <div class="col"><button style="background-color: #09060f;"  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
+                            <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
+                            {% endif %}
+                            <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="activity" type="submit">Activity</button></div>
 
 
 

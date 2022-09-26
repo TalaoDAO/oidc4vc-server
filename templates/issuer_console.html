@@ -33,14 +33,17 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p style="color: #09060f;" class="m-0 font-weight-bold">Enter your application and issuer information</p>
+                              <p style="color: #09060f;" class="m-0 font-weight-bold">Company, application and issuer information</p>
                             </div>
                           </div>
                           <div class="card-body">
 
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>Application or issuer name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}""  name="company_name" ></div>
+                              <div class="form-group"><label><strong>Company name</strong><br></label><input class="form-control" required type="text" value="{{company_name}}"  name="company_name" ></div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Application name</strong><br></label><input class="form-control" type="text" value="{{application_name}}"  name="application_name" ></div>
                             </div>
                             <div class="col">
                               {% if session['login_name'] != "admin1234" %}
@@ -48,6 +51,9 @@
                               {% else %}
                               <div class="form-group"><label><strong>User</strong><br></label><input class="form-control" type ="text" value="{{user}}" name="user" ></div>
                               {% endif %}
+                            </div>
+                            <div class="col">
+                              <div class="form-group"><label><strong>Issuer Id</strong><br></label><input class="form-control" readonly type="text" value="{{client_id}}" ></div>
                             </div>
                         
                         </div> 
@@ -73,7 +79,7 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p style="color: #09060f;" class="m-0 font-weight-bold">Copy your landing page link, client secret and provide your application endpoints</p>
+                              <p style="color: #09060f;" class="m-0 font-weight-bold">Landing page link, client secret and application endpoints</p>
                             </div>
                           </div>
                           <div class="card-body">
@@ -99,43 +105,18 @@
                             <div class="form-group"><label><strong>Webhook URL of your application (Required)</strong><br></label><input  required class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
                           </div> 
                         </div>
-
-                       
-
                         
                         </div>
                         </div>
 
-
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p style="color:#09060f;" class=" m-0 font-weight-bold">Choose the credential to issue and credentials requested</p>
+                              <p style="color:#09060f;" class=" m-0 font-weight-bold">Credential to issue</p>
                             </div>
                           </div>
                           <div class="card-body">
-
-                          <div class="form-row">
-                            <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 1 requested for issuance</strong></label>
-                                  <select name="credential_requested" class="form-control">
-                                  <option value="">--Please choose an option--</option>
-                                 {{credential_requested_select|safe}}
-                                  </select></div>
-                            </div>  
-                            
-                            <div class="col-6">
-                              <div class="form-group"><label><strong>Credential 2 requested for issuance</strong></label>
-                                <select name="credential_requested_2" class="form-control">
-                                <option value="">--Please choose an option--</option>
-                               {{credential_requested_2_select|safe}}
-                                </select></div>
-                          </div>  
-                            
-                            
-
-                          </div>
-
+                        
                           <div class="form-row">
                             <div class="col-6">
                                 <div class="form-group"><label><strong>Credential to issue</strong></label><select  onchange="getResponse();" id="selectCredential" name="credential_to_issue" class="form-control">
@@ -143,18 +124,65 @@
                                  {{credential_to_issue_select|safe}}
                                   </select></div>
                             </div>   
-                             
-                         
-                      </div> 
+                            <div class="col-6">
+                              <div class="form-group"><label><strong>Duration</strong><br></label><input  required class="form-control" step="10" type="number" value="{{credential_duration}}" name="credential_duration" ></div>
+                            </div> 
+                          </div> 
+                          </div>
+                          </div>
+                     
+                          
 
-                          </div>
-                          </div>
+                          <div class="card shadow my-3">
+                            <div class="card-header py-3">
+                              <div class="d-flex justify-content-between">
+                                <p style="color:#09060f;" class=" m-0 font-weight-bold">Credentials requested</p>
+                              </div>
+                            </div>
+                            <div class="card-body">
+  
+                            <div class="form-row">
+                              <div class="col-6">
+                                  <div class="form-group"><label><strong>Credential 1 requested for issuance</strong></label>
+                                    <select name="credential_requested" class="form-control">
+                                    <option value="">--Please choose an option--</option>
+                                   {{credential_requested_select|safe}}
+                                    </select></div>
+                              </div>  
+                              
+                              <div class="col-6">
+                                  <div class="form-group"><label><strong>Secret (If secret requested as credential)</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
+                                </div> 
+                              
+                            </div>  
+                          
+
+                            <div class="form-row">
+                              <div class="col-6">
+                                  <div class="form-group"><label><strong>Credential 2 requested for issuance</strong></label>
+                                    <select name="credential_requested_2" class="form-control">
+                                    <option value="">--Please choose an option--</option>
+                                   {{credential_requested_2_select|safe}}
+                                    </select></div>
+                              </div>  
+                              
+                              <div class="col-6">
+                                <div class="form-group"><label><strong>Credential 3 requested for issuance (not available)</strong></label>
+                                 <!-- <select disabled name="credential_requested_2" class="form-control">
+                                  <option value="">--Please choose an option--</option>
+                                 {{credential_requested_2_select|safe}}
+                                  </select>  --> </div>
+                            </div>  
+                            </div>
+
+                            </div>
+                            </div>
 
 
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
                               <div class="d-flex justify-content-between">
-                                <p style="color: #09060f;" class="m-0 font-weight-bold">Customize your issuer page</p>
+                                <p style="color: #09060f;" class="m-0 font-weight-bold">Issuer page customization</p>
                               </div>
                             </div>
                             <div class="card-body">
@@ -256,7 +284,7 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p style="color:#09060f;" class="m-0 font-weight-bold">Customize your card (no design)</p>
+                              <p style="color:#09060f;" class="m-0 font-weight-bold">Card customization</p>
                             </div>
                           </div>
                           <div class="card-body">
@@ -295,8 +323,9 @@
                         <div class="form-group">
                           <div class="form-row">
                                 <div class="col"><button  class="btn btn-primary btn-sm" name="button" style="background-color: #09060f;" value="advanced" type="submit">Advanced configuration</button></div>
+                            <div class="col"><button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="copy" type="submit">Copy</button></div>
+                            {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin1234' %} 
                             <div class="col"><button  class="btn btn-primary btn-sm" style="background-color:#09060f;"name="button" value="update" type="submit">Save</button></div>
-                            {% if session['login_name'] == "admin1234" %}
                             <div class="col"><button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="delete" type="submit">Delete</button></div>
                             {% endif %}
                           </div>

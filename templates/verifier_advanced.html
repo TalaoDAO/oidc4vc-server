@@ -30,8 +30,6 @@
                     <div class="card-body">
                       <form action="/sandbox/op/console/advanced" method="POST">
 
-                        
-
                         <input value="{{client_id}}" hidden name="client_id">
 
                           <div class="form-row">
@@ -45,19 +43,16 @@
 
                           <div class="form-row">
                             <div class="col">
-
-                            
+                    
                           </div>
                           </div>
   
-                         
-                        
-
-                          
-
                         <div class="form-group">
                           <div class="form-row">
-                            <div class="col"><button  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
+                            {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin1234' %} 
+
+                            <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="update" type="submit">Update</button></div>
+                            {% endif %}
                           </div>
                         </div>
                       </form>

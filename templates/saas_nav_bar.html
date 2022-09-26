@@ -1,19 +1,17 @@
   <!-- Nav Bar Guest -->
-  <nav class="navbar navbar-light navbar-expand-md sticky-top shadow mb-3" style="filter: blur(0px);opacity: 1;background: #ffffff;">
+  <nav class="navbar navbar-light navbar-expand-md sticky-top shadow " style="filter: blur(0px);opacity: 1;background: #ffffff;">
+    
     <div class="container-fluid">
 
-      <div class="">
         <a href="https://altme.io"><img  src="/static/img/altme_logo_2.png" style="width: 100px;border-radius:0px;"></a>
-      </div>
-      
       
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
 
-        <li class="nav-item active">
+        <li class="nav-item active d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi">Home</a>
         </li>
 
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown d-none d-md-block">
           <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Solutions
           </a>
@@ -23,49 +21,66 @@
             <a class="dropdown-item" href="https://issuer.talao.co/phonepass">Phone issuer issuer</a>
             <a class="dropdown-item text-secondary" href="#">Decentralized Identifier</a>
             <a class="dropdown-item text-secondary" href="#">Issuer/Verifier registry</a>
-
-
            <!-- <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Something else here</a>  -->
           </div>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+        <li class="nav-item dropdown d-none d-md-block">
+          <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Pricing
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
             <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/gaming">Gaming and metaverses</a>
             <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/marketplace">NFT marketplace and DAO</a>
             <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/defi">DeFi</a>
             <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/web2">Web2</a>
-
            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/issuer">Issuers</a>
           </div>
         </li>
 
-      
+        <li class="nav-item dropdown d-none d-md-block">
+          <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Developpers
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/playground">Sandbox</a>
+          </div>
+        </li>
 
-
-       
-       
-
-        <li class="nav-item active">
-            <a class="nav-link text-secondary" disabled style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/issuer">Developpers</a>
-          </li>
-
-          <li class="nav-item active">
+          <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="https://altme.io">Wallet</a>
           </li>
 
-          <li class="nav-item active">
+          {% if session['is_connected']  %}
+          <li class="nav-item active d-none d-md-block">
+            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/logout">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/login">Login</a>
           </li>
+          {% endif %}
 
-          <li class="nav-item active">
+          <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="background-color: rgb(54, 24, 88); margin-bottom: 0; color: #ffffff; " href="mailto:thierry@altme.io">Contact</a>
           </li>
       
+          <li class="nav-item dropdown no-arrow h-100 d-md-none" role="presentation">
+            <div class="nav-item dropdown show">
+              <a class=" nav-link" data-toggle="dropdown" aria-expanded="true" href="#">
+                <span  style="color: grey;"><i class="fas fa-bars fa-sm fa-fw mr-2 text-gray-400"></i></span>
+              </a>
+              <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
+                  <a class="dropdown-item" role="presentation" href="/sandbox/saas4ssi/credentials">Credentials</a>
+                  <a class="dropdown-item" role="presentation" href="https://altme.io">Wallet</a>
+                  <a class="dropdown-item" role="presentation" href="https://issuer.talao.co/emailpass">Email proof issuer</a>
+                  <a class="dropdown-item" role="presentation" href="mailto:thierry@altme.io">Contact</a>
+
+              </div>
+          </li>
+
       </ul>
     </div>
   </nav>
