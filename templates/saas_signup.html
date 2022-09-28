@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saas_login.html-->
+<!-- saas_signup.html-->
 <html>
   <head>
     {% include 'head.html' %}
@@ -10,24 +10,20 @@
 
 
     <div class="text-center mt-5">
- 
         <div class="mt-5">
-       
-            <h4>1) Install the Altme wallet on your smartphone from that QR code</h4>
+            <br><br>
+            <h4>1) Install the Altme mobile wallet on your smartphone from Apple Store or Google Store with that QR code</h4>
 
             <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url) }}"  width="200" ></div>
           </div>
+          <form action="/sandbox/saas4ssi/signup" method="POST" >
 
-
-            <h4 class="mt-5">When your wallet is installed and set up :</h4><br>
+            <h4 class="mt-5">When your wallet is installed on your phone and set up :</h4>
+            <button class="btn btn-primary" type"submit" >Next</button>
         
-            <form action="/sandbox/saas4ssi/login" method="POST" >
               <div class="form-row mt-5">
-          <      <div class="col-2 offset-5">
-                  <div class="form-group"><input class="form-control" required type="text" value="guest"  name="login_name" ></div>
-                </div> 
               </div>
-              <button class="btn btn-primary" type"submit" >Next</button>
+            
             </form> 
       </div>
    </div>

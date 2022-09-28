@@ -1,12 +1,17 @@
 from flask import jsonify, request, render_template, redirect, session
 from device_detector import SoftwareDetector
+import base64
+import json
+import db_user_api
+import op_constante
+
+
 
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_home, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
-    app.add_url_rule('/sandbox/saas4ssi/qrcode',  view_func=saas_qrcode, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
@@ -19,14 +24,16 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_home, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/saas4ssi/signup',  view_func=saas_signup, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
+    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/saas4ssi/callback_2',  view_func=saas_callback_2, methods = ['GET', 'POST'], defaults={'mode' : mode})
+
     app.add_url_rule('/sandbox/saas4ssi/logout',  view_func=saas_logout, methods = ['GET', 'POST'])
 
+
     return
-
-
-def saas_qrcode (mode) :
-    return render_template('saas_qrcode.html', url = mode.server + '/sandbox/saas4ssi/device_detector' )
 
 
 def saas_device_detector ():
@@ -68,16 +75,69 @@ def saas_logout():
     session.clear()
     return redirect ("/sandbox/saas4ssi")
 
-def saas_login():
-    if request.method == "GET" :
-        return render_template("saas_login.html")
+def saas_login(mode):
+    if mode.myenv == 'aws':
+        client_id = "cbtzxuotun"
     else :
-        if request.form["login_name"].lower() not in ['ebsilux', "admin1234", "guest", "arago1234"] :
-            return redirect('/sandbox/saas4ssi')
-        print(request.form["login_name"].lower())
-        session["login_name"] = request.form["login_name"].lower()
+        client_id = "gusczoiebs"
+    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback_2"
+    return redirect (url)
+       
+
+def saas_signup(mode):
+    if request.method == "GET" :
+        return render_template("saas_signup.html", url = mode.server + '/sandbox/saas4ssi/device_detector')
+    else :
+        if mode.myenv == 'aws':
+            client_id = "ovuifzktle"
+        else :
+            client_id = "hwrnyuknhf"
+        url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
+        print(url)
+        return redirect (url)
+
+# sign up
+def saas_callback(mode):
+    if request.args.get("error") :
+        print("access denied")
+        session.clear()
+        return redirect ("/sandbox/saas4ssi")
+    id_token = request.args['id_token']
+    s = id_token.split('.')[1]
+    payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
+    login_name = json.loads(payload.decode())['email']
+    if db_user_api.read(login_name) :
+        data = op_constante.user
+        data["did"] = json.loads(payload.decode())['sub']
+        data['login_name'] = session['login_name'] = login_name
         session['is_connected'] = True
-        return render_template("menu.html", login_name=session["login_name"])
+        db_user_api.create(login_name, data)
+        return redirect ('/sandbox/op/console/select')
+    else :
+        print('erreur, user exists')
+        session.clear()
+        return redirect ("/sandbox/saas4ssi")
+
+# login
+def saas_callback_2(mode):
+    if request.args.get("error") :
+        print("access denied")
+        session.clear()
+        return redirect ("/sandbox/saas4ssi")
+    id_token = request.args['id_token']
+    s = id_token.split('.')[1]
+    payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
+    login_name = json.loads(payload.decode())['email']
+    if login_name in ["thierry.thevenet@talao.io"] or db_user_api.read(login_name) :
+        if login_name in ["thierry.thevenet@talao.io"] :
+            login_name = "admin1234"
+        session['login_name'] = login_name
+        session['is_connected'] = True
+        return redirect ('/sandbox/op/console/select')
+    else :
+        print('erreur, user does not exist')
+        session.clear()
+        return redirect ("/sandbox/saas4ssi")
 
 
 def saas_verifier():

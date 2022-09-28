@@ -1,3 +1,10 @@
+user = {
+        "login_name" : "",
+        "did" : "",
+        "client_id" : []
+}
+
+
 
 method_list = {
                     "relay" : "Relay (external issuer)",
@@ -73,6 +80,7 @@ verifier_landing_page_style_list = {
                     "op_verifier_qrcode.html" : "Style 1",
                     "op_verifier_qrcode_2.html" : "Style 2",
                     "op_verifier_qrcode_3.html" : "Style 3",
+                    "op_verifier_qrcode_4.html" : "Altme",
                      "arago_verifier_qrcode.html" : "Arago Style"
                 }
 

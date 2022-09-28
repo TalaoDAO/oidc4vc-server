@@ -470,6 +470,7 @@ async def login_presentation_endpoint(stream_id, red):
             red.publish('api_verifier', event_data)
             logging.error("QR code expired")
             return jsonify("signature_error"), 403
+        print(my_pattern)
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
@@ -497,6 +498,7 @@ async def login_presentation_endpoint(stream_id, red):
         if json.loads(result_presentation)['errors'] :
             return manage_error("presentation signature check failed")
         """
+      
         if json.loads(result_credential)['errors'] or credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
             return manage_error("credential signature check failed")
         

@@ -48,7 +48,6 @@ def test_display_VP_qrcode(mode):
 
 
 def VP_presentation_endpoint(stream_id, mode, red):
-
     if request.method == 'GET':
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server

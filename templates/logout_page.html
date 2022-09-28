@@ -1,0 +1,31 @@
+//To handle javascript being disabled on browsers, this will auto redirect to a page with customizable message to enable javascript for proper functionality.
+<noscript><meta HTTP-EQUIV="refresh" content="0;url=disabled-script"></noscript> 
+
+//load jQuery
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script>
+  $altme = jQuery;
+  //html for the logout button
+  //replace href with your logout url - available in the app configuration
+  let html =  "<a href='https://login.xecurify.com/moas/broker/login/jwt/logout/292539?client_id=hlnGuVs7zusonr1m&redirect_uri=<your-application-logout-url>'><button name='Logout' id='logoutbutton' style='background-color: #B3CFCA; color: black; border: 3px solid #008CBA; padding: 14px; border-radius :14px;'>Logout</button></a>";
+  
+ 
+    $altme(document).ready(function () {
+	  let loader = '<div id="dvLoading"></div>'
+      $altme(html).appendTo(".main-nav ul");
+	  logout();    
+    });
+
+  
+  function logout()
+  {
+    //fuction for logout
+     $altme(document).on("click",'#logoutbutton',function(){
+       localStorage.removeItem("testObject");
+       localStorage.removeItem("group");
+       window.location.replace('https://talao.co/sandbox/op/logout');
+     });
+  }
+
+</script>
