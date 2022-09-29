@@ -23,6 +23,7 @@ import requests
 import db_api
 import ebsi
 import base64
+import issuer_activity_db_api
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
@@ -352,6 +353,11 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         # send event to front to go forward callback and send credential to wallet
         data = json.dumps({'stream_id' : stream_id,"result" : True})
         red.publish('op_issuer', data)
+
+        activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
+                "wallet_did" : request.form['subject_id']
+        }
+        issuer_activity_db_api.create(issuer_id, activity) 
         return jsonify(signed_credential)
         
 

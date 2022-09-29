@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 import uuid
 from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import ebsi
+import issuer_activity_db_api
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,7 +21,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    
+    app.add_url_rule('/sandbox/op/issuer/console/activity',  view_func=issuer_activity, methods = ['GET', 'POST'])
+
     # nav bar option
     app.add_url_rule('/sandbox/op/issuer/nav/logout',  view_func=nav_logout, methods = ['GET'])
     app.add_url_rule('/sandbox/op/issuer/nav/create',  view_func=nav_create, methods = ['GET'], defaults= {'mode' : mode})
@@ -36,6 +38,25 @@ def issuer_console_logout():
         return redirect('/sandbox/saas4ssi')
     return redirect('/sandbox/op/issuer/console')
 
+
+def issuer_activity() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+
+    if request.method == 'GET' :  
+        activities = issuer_activity_db_api.list(session['client_data']['client_id'])
+        activities.reverse() 
+        activity_list = str()
+        for data in activities :
+            data_dict = json.loads(data)
+            activity = """<tr>
+                    <td>""" + data_dict['presented'] + """</td>
+                     <td>""" + data_dict.get('wallet_did', "Unknown") + """</td>
+                    </tr>"""
+            activity_list += activity
+        return render_template('issuer_activity.html', activity=activity_list) 
+    else :
+        return redirect('/sandbox/op/issuer/console?client_id=' + session['client_data']['client_id'])
 
 def issuer_select() :
     if not session.get('is_connected') or not session.get('login_name') :
@@ -258,6 +279,9 @@ def issuer_console(mode) :
               
             if request.form['button'] == "preview" :
                 return redirect ('/sandbox/op/issuer/console/preview')
+
+            if request.form['button'] == "activity" :
+                return redirect ('/sandbox/op/issuer/console/activity')
             
             if request.form['button'] == "advanced" :
                 return redirect ('/sandbox/op/issuer/console/advanced')

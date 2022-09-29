@@ -11,7 +11,7 @@
     <div class="d-flex flex-column" id="content-wrapper">
      
       <div id="content">
-        {% include "verifier_nav_bar.html" %}
+        {% include "issuer_nav_bar.html" %}
 
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
@@ -29,7 +29,7 @@
                       </div>
                     </div>
                     <div class="card-body">
-                      <form action="/sandbox/op/console/activity" method="POST">
+                      <form action="/sandbox/op/issuer/console/activity" method="POST">
 
                        
                         <div class="form-row">
@@ -39,11 +39,9 @@
                               <table class="table my-0" id="dataTable">
                                   <thead>
                                       <tr>
-                                          <th style="width: 15%" >Proposed</th>
-                                          <th style="width: 35%" >User Id</th>
-                                          <th style="width: 20%" >Credential 1</th>
-                                          <th style="width: 20%">Credential 2</th>
-                                          <th style="width: 10%" >Status</th>
+                                          <th style="width: 30%" >Proposed</th>
+                                          <th style="width: 70%" >Wallet DID</th>
+                                         
                                       </tr>
                                   </thead>
                                   <tbody>
@@ -74,7 +72,6 @@
 
       {% include 'user_footer.html' %}
 
-      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
