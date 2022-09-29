@@ -146,7 +146,7 @@ def issuer_landing_page(issuer_id, red, mode) :
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
     credential_manifest['presentation_definition'] = dict()
-    if issuer_data['credential_requested'] in ["DID", "login"] and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
+    if issuer_data['credential_requested'] in ["DID", "login", "secret"] and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
         pass
     else :
         credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}
