@@ -35,7 +35,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer_followup',  view_func=issuer_followup, methods = ['GET'])
     app.add_url_rule('/sandbox/op/login_password/<issuer_id>',  view_func=login_password, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/secret/<issuer_id>',  view_func=secret, methods = ['GET', 'POST'])
-
     return
 
 
@@ -64,15 +63,15 @@ def login_password(issuer_id) :
         session['username'] = request.form['username']
         session['password'] = request.form['password']
         session['login_password'] = True
-        return redirect('/sandbox/op/issuer/' + session['issuer_id'])
+        return redirect('/sandbox/op/issuer/' + issuer_id)
 
 def secret(issuer_id) :
+    try :
+        issuer_data = json.loads(db_api.read_issuer(issuer_id))
+    except :
+        logging.error('issuer id not found')
+        return render_template('op_issuer_removed.html')
     if request.method == 'GET' :
-        try :
-            issuer_data = json.loads(db_api.read_issuer(issuer_id))
-        except :
-            logging.error('issuer id not found')
-            return render_template('op_issuer_removed.html')
         return render_template ('secret.html',
             issuer_id=issuer_id,
             page_title=issuer_data['page_title'],
@@ -88,14 +87,13 @@ def secret(issuer_id) :
             page_text_color = issuer_data['page_text_color'],
             qrcode_background_color = issuer_data['qrcode_background_color'])
     if request.method == 'POST' :
-        session['secret'] = request.form['secret']
+        if request.form['secret'] != issuer_data['secret'] :
+            logging.warning('secret is incorrect')
+            return render_template('secret_access_denied.html', next=issuer_data['callback'])
         session['login_secret'] = True
-        return redirect('/sandbox/op/issuer/' + session['issuer_id'])
+        return redirect('/sandbox/op/issuer/' + issuer_id)
 
 
-"""
-Direct access to one VC with filename passed as an argument
-"""
 def issuer_landing_page(issuer_id, red, mode) :
     session['is_connected'] = True
     try :
@@ -145,13 +143,11 @@ def issuer_landing_page(issuer_id, red, mode) :
     
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
-    credential_manifest['presentation_definition'] = dict()
-    if issuer_data['credential_requested'] in ["DID", "login", "secret"] and issuer_data['credential_requested_2'] == "DID" : # No credential requested to issue 
-        pass
+    if issuer_data['credential_requested'] in ["DID", "login", "secret"] and issuer_data['credential_requested_2'] in ["DID", "login", "secret"] : # No credential 2 requested to issue 
+        credential_manifest['presentation_definition'] = dict()
     else :
-        credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}
-        
-        if issuer_data['credential_requested'] != "DID" :
+        credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
+        if issuer_data['credential_requested'] not in ["DID", "login", "secret"] :
             input_descriptor = {"id": str(uuid.uuid1()),
                         "purpose" : issuer_data['reason'],
                         "constraints": {
@@ -162,7 +158,7 @@ def issuer_landing_page(issuer_id, red, mode) :
                                 }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
      
-        if issuer_data['credential_requested_2'] != "DID" :  
+        if issuer_data['credential_requested_2'] not in ["DID", "login", "secret"] :  
             input_descriptor_2 = {"id": str(uuid.uuid1()),
                         "purpose" : issuer_data.get('reason_2',""),
                         "constraints": {
@@ -194,11 +190,6 @@ def issuer_landing_page(issuer_id, red, mode) :
         red.setex(stream_id + "_login", 180, json.dumps({"username" : session['username'],
                                                          "password" : session["password"]
                                                          } ))
-    elif issuer_data['credential_requested'] == "secret" :
-        red.setex(stream_id + "_secret", 180, json.dumps({"secret" : session['secret'],                                                      } ))
-    else :
-        pass
-
     if not issuer_data.get('landing_page_style') :
         qrcode_page = "op_issuer_qrcode_2.html"
     else : 
@@ -251,6 +242,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
+        print("credential to issue = ", issuer_data['credential_to_issue'])
         if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
             headers = {
                     "key" : issuer_data['client_secret'],
@@ -266,18 +258,6 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 usrPass = (user_pass['username'] + ':' + user_pass['password']).encode()
                 b64Val = base64.b64encode(usrPass) 
                 headers["Authorization"] = "Basic " + b64Val.decode()
-
-            elif issuer_data['credential_requested'] == 'secret' :
-                user_pass = json.loads(red.get(stream_id + "_secret").decode())
-                if user_pass['secret'] != issuer_data.get('secret') :
-                    logging.error("Secret does not match")
-                    data = json.dumps({'stream_id' : stream_id,
-                            "result" : False,
-                            "message" : "Access denied, secret does not match"})
-                    red.publish('op_issuer', data)
-                    return jsonify("Unauthorized"),400  
-            else :
-                pass
 
             r = requests.post(url,  data=json.dumps(payload), headers=headers)
             if not 199<r.status_code<300 :
@@ -319,6 +299,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         # extract data sent by application and merge them with verifiable credential data
         if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
             credential["credentialSubject"] = data_received
+            logging.info("Data received from application added to credential")
        
         # sign credential
         if issuer_data['method'] == "ebsi" :
@@ -337,6 +318,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 didkit_options.__str__().replace("'", '"'),
                 issuer_data['jwk']
                 )
+                logging.info("credential signed by EBSI")
             except :
                 message = 'Signature failed, application failed to return correct data'
                 logging.error(message)

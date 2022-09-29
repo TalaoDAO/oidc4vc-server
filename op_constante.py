@@ -37,7 +37,7 @@ credential_list = {
 
 credential_to_issue_list = {
                    'NewIdentityPass' : 'Pass as ID card (reserved)',
-                    'StandAlonePass' : 'Pass',
+                    'StandAlonePass' : 'Pass with no data transfer',
                     'VerifierPass' : 'Pass with credential transfer',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
