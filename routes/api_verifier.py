@@ -530,10 +530,9 @@ def login_followup(red):
         stream_id = request.args.get('stream_id')
     except :
         return jsonify("Forbidden"), 403 
-    
+    code = json.loads(red.get(stream_id).decode())['code']
     try :
         stream_id_DIDAuth = json.loads(red.get(stream_id + '_DIDAuth').decode())
-        code = json.loads(red.get(stream_id).decode())['code']
     except :
         logging.error("code expired")
         resp = {'code' : code, 'error' : "access_denied"}
