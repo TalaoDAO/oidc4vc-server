@@ -68,6 +68,8 @@ def pricing_web2():
     return render_template("pricing_web2.html")
 
 def saas_menu ():
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
     return render_template("menu.html", login_name=session["login_name"])
 
 
