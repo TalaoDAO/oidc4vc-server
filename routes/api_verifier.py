@@ -403,7 +403,7 @@ def login_qrcode(red, mode):
         nonce = json.loads(red.get(request.args['code']).decode())['nonce']
     except :
         logging.error("session expired in login_qrcode")
-        return jsonify("session expired"), 403
+        return render_template("session_expired.html")
     verifier_data = json.loads(read_verifier(client_id))
     if verifier_data['vc'] == "ANY" :
         pattern = op_constante.model_any
@@ -471,7 +471,6 @@ async def login_presentation_endpoint(stream_id, red):
             red.publish('api_verifier', event_data)
             logging.error("QR code expired")
             return jsonify("signature_error"), 403
-        print(my_pattern)
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
