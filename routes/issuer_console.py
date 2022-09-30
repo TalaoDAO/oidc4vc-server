@@ -74,7 +74,7 @@ def issuer_select() :
                 DID = "problem"
             else : 
                 DID = didkit.key_to_did(data_dict['method'], data_dict['jwk'])
-            if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
+            if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin" :
                 issuer = """<tr>
                         <td>""" + data_dict.get('application_name', "unknown") + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>
@@ -187,7 +187,7 @@ def issuer_console(mode) :
         
         credential_to_issue_select = str()
 
-        if session["login_name"] == 'admin1234' :
+        if session["login_name"] == 'admin' :
             credential_items = credential_to_issue_list.items()
         else :
             credential_items = credential_to_issue_list_for_guest.items()

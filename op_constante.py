@@ -17,21 +17,23 @@ method_list = {
 
 # for verifier
 credential_list = {
+                    "StandAlonePass" : "Pass",
                     'EmailPass' : 'Proof of email',
+                    'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
                     'Nationality' : 'Nationality',
                     'Gender' : 'Gender',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Over 18',
-                    'Tez_Voucher_1' : "Voucher 15% Tezotopia",
+                  #  'Tez_Voucher_1' : "Voucher 15% Tezotopia",
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'LearningAchievement' : 'Diploma',
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
-                    'CertificateOfEmployment' : 'Certificate of employment',
-                    'VotersCard' : 'Voter card',
-                    'TalaoCommunity' : 'Talao Community card',
-                    'DID' : "None",
+                  #  'CertificateOfEmployment' : 'Certificate of employment',
+                  #  'VotersCard' : 'Voter card',
+                  #  'TalaoCommunity' : 'Talao Community card',
+                  #  'DID' : "None",
                     'ANY' : 'Any'
                 }
 

@@ -40,7 +40,7 @@
                           <div class="card-body">
 
 
-                          {% if session['login_name'] != session['client_data']['user'] and  session['login_name'] != "admin1234" %}
+                          {% if session['login_name'] != session['client_data']['user'] and  session['login_name'] != "admin" %}
                         <div class="form-row">
                             <div class="col">
                             
@@ -493,7 +493,7 @@
                                 <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced configuration</button></div>
                                 <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="copy" type="submit">Copy</button></div>
 
-                                {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin1234' %} 
+                                {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin' %} 
                                 <div class="col"><button style="background-color: #09060f;"  class="btn btn-primary btn-sm" name="button" value="update" type="submit">Save</button></div>
                             <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Delete</button></div>
                             {% endif %}

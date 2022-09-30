@@ -57,7 +57,7 @@ def select(mode) :
         for data in my_list :
             data_dict = json.loads(data)
             try :
-                if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin1234" :
+                if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin" :
                     verifier = """<tr>
                         <td>""" + data_dict.get('application_name', "") + """</td>
                         <td>""" + data_dict['user'] + """</td>

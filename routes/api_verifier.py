@@ -253,10 +253,9 @@ def wallet_authorize(red, mode) :
 
     verifier_data = json.loads(read_verifier(request.args['client_id']))
     if request.args['redirect_uri'] != verifier_data['callback'] :
-        logging.warning('redirect_uri does not match Callback URL')
+        logging.warning('redirect_uri of the request does not match the Callback URL')
         # TODO manage different redirect URL
         #return manage_error_request("invalid_request_object")
-       
     session['redirect_uri'] = request.args['redirect_uri']
 
     if request.args['response_type'] not in ["code", "code id_token", "id_token", "id_token code", "vp_token", "id_token vp_token"] :

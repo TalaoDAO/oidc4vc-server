@@ -4,6 +4,9 @@ import base64
 import json
 import db_user_api
 import op_constante
+import logging
+logging.basicConfig(level=logging.INFO)
+
 
 
 
@@ -77,6 +80,7 @@ def saas_logout():
     session.clear()
     return redirect ("/sandbox/saas4ssi")
 
+
 def saas_login(mode):
     if mode.myenv == 'aws':
         client_id = "cbtzxuotun"
@@ -95,51 +99,52 @@ def saas_signup(mode):
         else :
             client_id = "hwrnyuknhf"
         url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
-        print(url)
         return redirect (url)
 
 # sign up
 def saas_callback(mode):
     if request.args.get("error") :
-        print("access denied")
+        logging.warning("access denied")
         session.clear()
         return redirect ("/sandbox/saas4ssi")
     id_token = request.args['id_token']
     s = id_token.split('.')[1]
     payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
     login_name = json.loads(payload.decode())['email']
-    if db_user_api.read(login_name) :
+    if not db_user_api.read(login_name) :
         data = op_constante.user
         data["did"] = json.loads(payload.decode())['sub']
         data['login_name'] = session['login_name'] = login_name
         session['is_connected'] = True
         db_user_api.create(login_name, data)
-        return redirect ('/sandbox/op/console/select')
+        return redirect ('/sandbox/saas4ssi/menu')
     else :
-        print('erreur, user exists')
+        logging.warning('erreur, user exists')
         session.clear()
         return redirect ("/sandbox/saas4ssi")
 
 # login
 def saas_callback_2(mode):
     if request.args.get("error") :
-        print("access denied")
+        logging.warning("access denied")
         session.clear()
         return redirect ("/sandbox/saas4ssi")
     id_token = request.args['id_token']
     s = id_token.split('.')[1]
     payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
     login_name = json.loads(payload.decode())['email']
-    if login_name in ["thierry.thevenet@talao.io"] or db_user_api.read(login_name) :
+    if login_name in ["thierry.thevenet@talao.io", "thierry@altme.io"] or db_user_api.read(login_name) :
         if login_name in ["thierry.thevenet@talao.io"] :
+            login_name = "admin"
+        if login_name in ["thierry@altme.io"] :
             login_name = "admin1234"
         session['login_name'] = login_name
         session['is_connected'] = True
-        return redirect ('/sandbox/op/console/select')
+        return redirect ('/sandbox/saas4ssi/menu')
     else :
-        print('erreur, user does not exist')
+        logging.waring('erreur, user does not exist')
         session.clear()
-        return redirect ("/sandbox/saas4ssi")
+        return render_template ("access_denied.html")
 
 
 def saas_verifier():

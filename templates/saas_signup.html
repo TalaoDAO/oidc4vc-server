@@ -10,26 +10,33 @@
 
 
     <div class="text-center mt-5">
-        <div class="mt-5">
+      <div class="mt-5">
             <br><br>
             <h4>1) Install the Altme mobile wallet on your smartphone from Apple Store or Google Store with that QR code</h4>
+            
+            <div class="row d-flex justify-content-center mt-5">
+            
+            <div class="col-2">
+            <div class="card shadow border-dark p-3 " style="border-radius: 4%; background-color: {{qrcode_background_color}} ">
 
-            <div id="id_qrcode" class="mt-5"><img src="{{ qrcode(url) }}"  width="200" ></div>
-          </div>
+            <div id="id_qrcode" ><img src="{{ qrcode(url) }}"  width="250" ></div>
+            </div>
+            </div>
+            </div>
+            
+      </div>
+
+         
           <form action="/sandbox/saas4ssi/signup" method="POST" >
 
             <h4 class="mt-5">When your wallet is installed on your phone :
                 <br>1) set up a new wallet
                 <br>2) get an email proof</h4>
             <br><button class="btn btn-primary" type"submit" >Next</button>
-        
-              <div class="form-row mt-5">
-              </div>
             
-            </form> 
+          </form> 
       </div>
-   </div>
-
+   
 
    <br><br> <br><br> <br><br> <br><br>
    {% include 'user_footer.html' %}

@@ -20,18 +20,7 @@
 
         <div class="row my-5">
 
-            {% if session["login_name"] == "guest" %}
-            <div class="col-4 offset-4 col-md-6 offset-md-3">
-                <div id="id_qrcode" class="text-center">
-                   <br><strong>User onboarding (verifier)</strong>
-                    <br>The verifier is usually an organisation, company, government, and so forth, to whom the user needs to prove the legitimacy and trustworthiness of information (i.e. identity data to buy cryptos on an exchange).
-                </div> 
-                <br><br>
-                <a href="/sandbox/saas4ssi/verifier"> 
-                <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="delete" type="submit">Next</button></div>
-                </a>
-            </div>
-            {% else %}
+          
             <div class="col-3 offset-3">
               <div id="id_qrcode" class="text-center">
                  <a href="/sandbox/saas4ssi/verifier"> 
@@ -48,7 +37,6 @@
                     <br> The issuer is the organisation, be it a company, certifier body, or governmental organisation that has been awarded a level of trust to provide information (i.e. a public body that issued a passport).
                 </div> 
             </div>
-            {% endif %}
 
 
         </div>

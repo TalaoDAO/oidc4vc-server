@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- secret_access_denied.html -->
+<html>
+  <head>
+    {% include 'head.html' %}
+  </head>
+  <body>
+      
+    {% include 'saas_nav_bar.html' %}
+
+    <div class="text-center mt-5">
+        <br><br><br>
+        <h1>Acces denied, you need to sign up</h1>
+        <br><br><br><br>
+
+        <button  onclick="goBack()" class="border btn btn-primary btn-sm"  type="button">Back</button>
+       
+        
+   </div>
+   <script>function goBack() { window.history.back();}</script>
+
+              <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+              <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+              <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    
+  </body>
+</html>
