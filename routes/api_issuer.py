@@ -243,7 +243,6 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
-        print("credential to issue = ", issuer_data['credential_to_issue'])
         if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
             headers = {
                     "key" : issuer_data['client_secret'],

@@ -493,7 +493,6 @@ def test_presentationRequest_qrcode(red, mode):
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
-        print("pattern = ", pattern)
         url = mode.server + 'sandbox/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
         return render_template('credential_presentation_qr.html',
 							url=url,

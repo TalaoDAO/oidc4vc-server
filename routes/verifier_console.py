@@ -40,7 +40,6 @@ def verifier_nav_create(mode) :
     return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
 
  
-
 def console_logout():
     if session.get('is_connected') :
         session.clear()
@@ -57,7 +56,7 @@ def select(mode) :
         for data in my_list :
             data_dict = json.loads(data)
             try :
-                if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin" :
+                if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
                     verifier = """<tr>
                         <td>""" + data_dict.get('application_name', "") + """</td>
                         <td>""" + data_dict['user'] + """</td>
@@ -67,10 +66,8 @@ def select(mode) :
                         <td>""" + data_dict['client_secret'] + """</td>
                     </tr>"""
                     verifier_list += verifier
-                else :
-                    pass
             except :
-                print(data_dict)         
+                pass
         return render_template('verifier_select.html', verifier_list=verifier_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
@@ -290,7 +287,6 @@ def console(mode) :
         elif request.form['button'] == "preview" :
             return redirect ('/sandbox/op/console/preview')
         
-
 
 def advanced() :
     global vc, reason
