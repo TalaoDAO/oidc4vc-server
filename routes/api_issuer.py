@@ -243,7 +243,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
-        if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
+        if issuer_data['credential_to_issue'] != 'StandAlonePass' :
             headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
@@ -285,8 +285,13 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 data = json.dumps({'stream_id' : stream_id,"result" : True})
                 red.publish('op_issuer', data)
                 return jsonify(data_received)
+        
+            # extract data sent by application and merge them with verifiable credential data
+            if data_received :
+                credential["credentialSubject"] = data_received
+                logging.info("Data received from application added to credential")
 
-        # credential is signed by issuer   
+        # build credential   
         credential =  json.loads(credentialOffer)['credentialPreview']
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
@@ -295,11 +300,6 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
         duration = issuer_data.get('credential_duration', "365")
         credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
-
-        # extract data sent by application and merge them with verifiable credential data
-        if issuer_data['credential_to_issue'] not in ['VerifierPass', 'StandAlonePass'] :
-            credential["credentialSubject"] = data_received
-            logging.info("Data received from application added to credential")
        
         # sign credential
         if issuer_data['method'] == "ebsi" :
@@ -332,7 +332,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
-        if issuer_data['credential_to_issue'] not in ['StandAlonePass'] :
+        if issuer_data['credential_to_issue'] != 'StandAlonePass' :
             headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 

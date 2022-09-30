@@ -7,7 +7,7 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_list, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
+from op_constante import credential_list, credential_list_for_guest, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
 
 logging.basicConfig(level=logging.INFO)
 
@@ -181,15 +181,19 @@ def console(mode) :
                 else :
                     verifier_landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
 
+        if session['login_name'] == "admin" :
+            c_list = credential_list
+        else :
+            c_list = credential_list_for_guest
         vc_select_1 = str()
-        for key, value in credential_list.items() :
+        for key, value in c_list.items() :
                 if key ==   session['client_data']['vc'] :
                     vc_select_1 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     vc_select_1 +=  "<option value=" + key + ">" + value + "</option>"
         
         vc_select_2 = str()
-        for key, value in credential_list.items() :
+        for key, value in c_list.items() :
                 if key ==   session['client_data'].get('vc_2', "DID") :
                     vc_select_2 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :

@@ -74,13 +74,14 @@ def issuer_select() :
                 DID = "problem"
             else : 
                 DID = didkit.key_to_did(data_dict['method'], data_dict['jwk'])
-            if session['login_name'] == data_dict['user'] or data_dict['user'] == "all" or session['login_name'] == "admin" :
+            if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
+                print(data_dict['credential_to_issue'])
                 issuer = """<tr>
                         <td>""" + data_dict.get('application_name', "unknown") + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>
                         <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + DID + """</td> 
-                        <td>""" + credential_to_issue_list.get(data_dict['credential_to_issue'], 'Unknown') + """</td>
+                        <td>""" + credential_to_issue_list.get(data_dict['credential_to_issue'], 'unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict['credential_requested'], 'Unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
                         </tr>"""

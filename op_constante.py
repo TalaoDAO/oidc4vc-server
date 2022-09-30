@@ -17,7 +17,8 @@ method_list = {
 
 # for verifier
 credential_list = {
-                    "StandAlonePass" : "Pass",
+                    "StandAlonePass" : "Pass with no data transfer",
+                    'VerifierPass' : 'Pass with credential transfer',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
@@ -25,36 +26,54 @@ credential_list = {
                     'Gender' : 'Gender',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Over 18',
-                  #  'Tez_Voucher_1' : "Voucher 15% Tezotopia",
+                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    'Tez_Voucher_1' : "Voucher 15% Tezotopia",
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'LearningAchievement' : 'Diploma',
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
-                  #  'CertificateOfEmployment' : 'Certificate of employment',
-                  #  'VotersCard' : 'Voter card',
-                  #  'TalaoCommunity' : 'Talao Community card',
+                    'CertificateOfEmployment' : 'Certificate of employment',
+                    'VotersCard' : 'Voter card',
+                    'TalaoCommunity' : 'Talao Community card',
                   #  'DID' : "None",
                     'ANY' : 'Any'
                 }
 
+# for verifier for guest
+credential_list_for_guest = {
+                    "StandAlonePass" : "Pass (with no data transfer)",
+                    'VerifierPass' : 'Pass with credential transfer',
+                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    'EmailPass' : 'Proof of email',
+                    'PhoneProof' : 'Proof of phone',
+                    'AgeRange' : 'Age range',
+                    'Nationality' : 'Nationality',
+                    'Gender' : 'Gender',
+                    'IdCard' : 'Identity card',
+                    'Over18' : 'Over 18',
+                    'AragoPass' : 'Arago Pass',
+                  #  'DID' : "None",
+                    'ANY' : 'Any'
+                }
+
+# issuer
 credential_to_issue_list = {
-                   'NewIdentityPass' : 'Pass as ID card (reserved)',
+                   'IdCard' : 'Identity card',
                     'StandAlonePass' : 'Pass with no data transfer',
                     'VerifierPass' : 'Pass with credential transfer',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
-                   'StudentCard' : 'Student card (reserved)',
+                    'StudentCard' : 'Student card (reserved)',
                     'CertificateOfEmployment' : 'Certificate of employment (reserved)',
                     'TalaoCommunity' : 'Talao Community card (reserved)',
                     "VotersCard" : "Voter Card (reserved)",
                     'PhoneProof' : 'Proof of phone number (reserved)'
                 }
 
+# issuer for guest
 credential_to_issue_list_for_guest = {
-                    'StandAlonePass' : 'Pass',
-                    'VerifierPass' : 'Pass with credential transfer',
-                    'LearningAchievement' : 'Diploma - Learning achievement',
-                    'VerifiableDiploma' : 'Diploma EBSI - Verifiable Diploma',
+                    'StandAlonePass' : 'Pass with no data transfer',
+                    'VerifierPass' : 'Pass (with credential transfer)',
                 }
 
 
@@ -63,7 +82,7 @@ credential_requested_list = {
                     'AgeRange' : 'Age range',
                     'Nationality' : 'Nationality',
                     'Gender' : 'Gender card',
-                    'PhonePass' : 'Proof of phone number',
+                    'PhoneProof' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Proof of majority',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",

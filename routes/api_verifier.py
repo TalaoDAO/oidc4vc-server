@@ -544,14 +544,14 @@ def login_followup(red):
         session['verified'] = True
         red.setex(code +"_vp", 180, json.dumps(stream_id_DIDAuth['vp']))
         resp = {'code' : code}
-    verifier_data = json.loads(read_verifier(session['client_id']))
+    verifier_data = json.loads(read_verifier(client_id))
     activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
                 "user" : stream_id_DIDAuth["user"],
                 "credential_1" : verifier_data['vc'],
                 "credential_2" : verifier_data.get('vc_2', "None"),
                 "status" : session['verified']
     }
-    activity_db_api.create(session['client_id'], activity) 
+    activity_db_api.create(client_id, activity) 
     try :
         red.delete(stream_id + '_DIDAuth')
         red.delete(stream_id)
