@@ -35,7 +35,7 @@ credential_list = {
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'VotersCard' : 'Voter card',
                     'TalaoCommunity' : 'Talao Community card',
-                  #  'DID' : "None",
+                    'DID' : "None",
                     'ANY' : 'Any'
                 }
 
@@ -52,7 +52,7 @@ credential_list_for_guest = {
                     'IdCard' : 'Identity card',
                     'Over18' : 'Over 18',
                     'AragoPass' : 'Arago Pass',
-                  #  'DID' : "None",
+                    'DID' : "None",
                     'ANY' : 'Any'
                 }
 
