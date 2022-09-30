@@ -27,7 +27,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/signup',  view_func=saas_signup, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/saas4ssi/door',  view_func=door, methods = ['GET', 'POST'])
+    #app.add_url_rule('/sandbox/saas4ssi/door',  view_func=door, methods = ['GET', 'POST'])
 
 
     app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -101,13 +101,12 @@ def saas_signup(mode):
         url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
         return redirect (url)
 
-
+"""
 def door() :
     session['is_connected'] = True
     session['login_name'] = 'admin'
     return render_template("menu.html", login_name=session["login_name"])
-
-
+"""
 
 # sign up
 def saas_callback(mode):
