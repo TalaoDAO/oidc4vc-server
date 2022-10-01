@@ -331,6 +331,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             logging.warning("EBSI issuer")
             credential["issuer"] = issuer_data['did_ebsi']
             signed_credential = ebsi.lp_sign(credential, issuer_data['jwk'], issuer_data['did_ebsi'])
+            logging.info("credential signed by EBSI")
         else :
             credential["issuer"] = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])  
             didkit_options = {
@@ -343,7 +344,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 didkit_options.__str__().replace("'", '"'),
                 issuer_data['jwk']
                 )
-                logging.info("credential signed by EBSI")
+                logging.info("credential signed by %s", credential["issuer"])
             except :
                 message = 'Signature failed, application failed to return correct data'
                 logging.error(message)

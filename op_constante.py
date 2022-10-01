@@ -225,7 +225,7 @@ client_data_pattern = {
                 "mobile_message" : "Open your wallet",
                 "contact_email" : "contact@company.com",
                 "contact_name" : "",
-                "secret" : "",
+                "secret" : "base32secret3232",
                 "landing_page_url" : "https://www.company.com",
                 "privacy_url" : "https://www.company.com/privacy",
                 "terms_url" : "https://www.company.com/terms_and_conditions", 

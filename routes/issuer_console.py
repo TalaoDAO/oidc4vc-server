@@ -200,15 +200,17 @@ def issuer_console(mode) :
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
         
-        secret = session['client_data'].get('secret', "Unknown")
+        secret = session['client_data'].get('secret', "base32secret3232")
         if session['client_data']['credential_requested'] == 'totp' :
             try :
                 totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
+                totp_now= totp.now()
+                time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
             except :
                 secret = 'base32secret3232'
                 totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
-            totp_now= totp.now()
-            time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
+                totp_now= totp.now()
+                time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
             totp_link =  session['client_data']['issuer_landing_page'] + "?totp=" + totp_now
             totp_interval =  session['client_data'].get('totp_interval', "30")
         else :
