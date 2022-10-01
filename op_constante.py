@@ -17,8 +17,8 @@ method_list = {
 
 # for verifier
 credential_list = {
-                    "StandAlonePass" : "Pass with no data transfer",
-                    'VerifierPass' : 'Pass with credential transfer',
+                    "StandAlonePass" : 'Pass type 1 (with no data transfer)',
+                    'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
@@ -41,8 +41,8 @@ credential_list = {
 
 # for verifier for guest
 credential_list_for_guest = {
-                    "StandAlonePass" : "Pass (with no data transfer)",
-                    'VerifierPass' : 'Pass with credential transfer',
+                    "StandAlonePass" : 'Pass type 1',
+                    'VerifierPass' : 'Pass type 2',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
@@ -59,8 +59,8 @@ credential_list_for_guest = {
 # issuer
 credential_to_issue_list = {
                    'IdCard' : 'Identity card',
-                    'StandAlonePass' : 'Pass with no data transfer',
-                    'VerifierPass' : 'Pass with credential transfer',
+                    'StandAlonePass' : 'Pass type 1 (with no data transfer)',
+                    'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card (reserved)',
@@ -72,8 +72,8 @@ credential_to_issue_list = {
 
 # issuer for guest
 credential_to_issue_list_for_guest = {
-                    'StandAlonePass' : 'Pass with no data transfer',
-                    'VerifierPass' : 'Pass (with credential transfer)',
+                    'StandAlonePass' : 'Pass type 1 (with no data transfer)',
+                    'VerifierPass' : 'Pass type 2 (with data transfer)',
                 }
 
 
@@ -89,6 +89,7 @@ credential_requested_list = {
                     "AragoPass" : "Arago Pass",
                     "login" : "Login and password",
                     "secret" : "Secret",
+                    "totp" : "TOTP",
                     'DID' : "None",
                 }
 
@@ -184,7 +185,9 @@ model_any = {
 client_data_pattern = {
                 "authorized_emails" : "",
                 "vc" : "DID",
+                "vc_issuer_id" : "",
                 "vc_2" : "DID",
+                "totp_interval" : "30",
                 "emails" : None,
                 "user" : "guest",
                 "client_id" :  "",

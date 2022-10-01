@@ -234,6 +234,7 @@ def console(mode) :
                 user_name=session['client_data'].get('user'),
                 verifier_landing_page_style_select =  verifier_landing_page_style_select,
                 vc_select_1=vc_select_1,
+                vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
                 login_name=session['login_name']
                 )
@@ -272,6 +273,7 @@ def console(mode) :
             session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['vc'] = request.form['vc_1']
+            session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
             session['client_data']['vc_2'] = request.form['vc_2']
             session['client_data']['user'] = request.form['user_name']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']

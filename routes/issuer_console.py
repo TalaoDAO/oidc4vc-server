@@ -9,6 +9,8 @@ import uuid
 from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import ebsi
 import issuer_activity_db_api
+import pyotp
+import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -197,11 +199,31 @@ def issuer_console(mode) :
                     credential_to_issue_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
-
+        
+        secret = session['client_data']['secret']
+        if session['client_data']['credential_requested'] == 'totp' :
+            try :
+                totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
+            except :
+                secret = 'base32secret3232'
+                totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
+            totp_now= totp.now()
+            time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
+            totp_link =  session['client_data']['issuer_landing_page'] + "?totp=" + totp_now
+            totp_interval =  session['client_data'].get('totp_interval', "30")
+        else :
+            totp_now = "N/A"
+            totp_link = ""
+            time_remaining = "N/A"
+            totp_interval = "30"
         return render_template('issuer_console.html',
+                totp_now=totp_now,
+                totp_link=totp_link,
+                totp_interval=totp_interval,
+                time_remaining=time_remaining.split('.')[0],
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
-                secret=session['client_data'].get('secret', ''),
+                secret=secret,
                 client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 callback=session['client_data']['callback'],
@@ -244,6 +266,7 @@ def issuer_console(mode) :
         
         else :
             session['client_data']['contact_name'] = request.form['contact_name']
+            session['client_data']['totp_interval'] = request.form['totp_interval']
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']
             session['client_data']['secret'] = request.form['secret']

@@ -136,30 +136,37 @@
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
                               <div class="d-flex justify-content-between">
-                                <p style="color:#09060f;" class=" m-0 font-weight-bold">Credentials requested</p>
+                                <p style="color:#09060f;" class=" m-0 font-weight-bold">Credentials requested to issue</p>
                               </div>
                             </div>
                             <div class="card-body">
   
                             <div class="form-row">
-                              <div class="col-6">
-                                  <div class="form-group"><label><strong>Credential 1 requested for issuance</strong></label>
+                              <div class="col-3">
+                                  <div class="form-group"><label><strong>Credential 1</strong></label>
                                     <select name="credential_requested" class="form-control">
                                     <option value="">--Please choose an option--</option>
                                    {{credential_requested_select|safe}}
                                     </select></div>
                               </div>  
                               
-                              <div class="col-6">
-                                  <div class="form-group"><label><strong>Secret (If secret requested as credential)</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
+                              <div class="col-3">
+                                  <div class="form-group"><label><strong>Secret or TOTP</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
                                 </div> 
+                                <div class="col-3">
+                                  <div class="form-group"><label><strong><a  href="{{totp_link}}"  >TOTP remains {{time_remaining}}s</a></strong></label><input  readonly class="form-control" type="test" value="{{totp_now}}"  ></div>
+                                </div> 
+                                <div class="col-3">
+                                  <div class="form-group"><label><strong>TOTP intervals</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
+                                </div> 
+                                
                               
                             </div>  
                           
 
                             <div class="form-row">
                               <div class="col-6">
-                                  <div class="form-group"><label><strong>Credential 2 requested for issuance</strong></label>
+                                  <div class="form-group"><label><strong>Credential 2</strong></label>
                                     <select name="credential_requested_2" class="form-control">
                                     <option value="">--Please choose an option--</option>
                                    {{credential_requested_2_select|safe}}
@@ -167,7 +174,7 @@
                               </div>  
                               
                               <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 3 requested for issuance (not available)</strong></label>
+                                <div hidden class="form-group"><label><strong>Credential 3 requested for issuance (not available)</strong></label>
                                  <!-- <select disabled name="credential_requested_2" class="form-control">
                                   <option value="">--Please choose an option--</option>
                                  {{credential_requested_2_select|safe}}

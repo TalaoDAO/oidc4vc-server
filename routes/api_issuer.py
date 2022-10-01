@@ -24,6 +24,7 @@ import db_api
 import ebsi
 import base64
 import issuer_activity_db_api
+import pyotp
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
@@ -66,6 +67,7 @@ def login_password(issuer_id) :
         session['login_password'] = True
         return redirect('/sandbox/op/issuer/' + issuer_id)
 
+# secret and TOTP case
 def secret(issuer_id) :
     try :
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
@@ -73,6 +75,15 @@ def secret(issuer_id) :
         logging.error('issuer id not found')
         return render_template('op_issuer_removed.html')
     if request.method == 'GET' :
+        if issuer_data['credential_requested'] == 'totp' and request.args.get('totp') :
+            totp = pyotp.TOTP(issuer_data['secret'], interval=int(issuer_data.get("totp_interval", "30")))
+            if  totp.verify(request.args['totp']) :
+                session['login_secret'] = True
+                return redirect('/sandbox/op/issuer/' + issuer_id)
+            else :
+                logging.warning('TOTP secret is incorrect')
+                session.clear()
+                return render_template('secret_access_denied.html', next=issuer_data['callback'])
         return render_template ('secret.html',
             issuer_id=issuer_id,
             page_title=issuer_data['page_title'],
@@ -88,12 +99,23 @@ def secret(issuer_id) :
             page_text_color = issuer_data['page_text_color'],
             qrcode_background_color = issuer_data['qrcode_background_color'])
     if request.method == 'POST' :
-        if request.form['secret'] != issuer_data['secret'] :
+        if issuer_data['credential_requested'] == 'totp' :
+            totp = pyotp.TOTP(issuer_data.get('secret', "base32secret3232"), interval=int(issuer_data.get("totp_interval", "30")))
+            if  totp.verify(request.form['secret']) :
+                session['login_secret'] = True
+                logging.info('TOTP secret is correct')
+                return redirect('/sandbox/op/issuer/' + issuer_id)
             logging.warning('secret is incorrect')
+            session.clear()
             return render_template('secret_access_denied.html', next=issuer_data['callback'])
-        session['login_secret'] = True
-        return redirect('/sandbox/op/issuer/' + issuer_id)
-
+        else :
+            if  request.form['secret'] == issuer_data['secret'] :
+                session['login_secret'] = True
+                return redirect('/sandbox/op/issuer/' + issuer_id)
+            logging.warning('secret is incorrect')
+            session.clear()
+            return render_template('secret_access_denied.html', next=issuer_data['callback'])
+           
 
 def issuer_landing_page(issuer_id, red, mode) :
     session['is_connected'] = True
@@ -107,9 +129,11 @@ def issuer_landing_page(issuer_id, red, mode) :
         session['issuer_id'] = issuer_id
         return redirect('/sandbox/op/login_password/' + issuer_id)
     
-    if issuer_data['credential_requested'] == "secret" and not session.get('login_secret') :
+    if issuer_data['credential_requested'] in ["secret", "totp"] and not session.get('login_secret') :
         session['issuer_id'] = issuer_id
-        return redirect('/sandbox/op/secret/' + issuer_id)
+        if issuer_data['credential_requested'] == "totp" and request.args.get('totp') :
+            return redirect('/sandbox/op/secret/' + issuer_id + "?totp=" + request.args['totp'])
+        return redirect('/sandbox/op/secret/' + issuer_id )
     
     try :
         credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
@@ -144,7 +168,7 @@ def issuer_landing_page(issuer_id, red, mode) :
     
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
-    if issuer_data['credential_requested'] in ["DID", "login", "secret"] and issuer_data['credential_requested_2'] in ["DID", "login", "secret"] : # No credential 2 requested to issue 
+    if issuer_data['credential_requested'] in ["DID", "login", "secret", "totp"] and issuer_data['credential_requested_2'] in ["DID", "login", "secret"] : # No credential 2 requested to issue 
         credential_manifest['presentation_definition'] = dict()
     else :
         credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
@@ -298,6 +322,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
         if issuer_data['credential_to_issue'] in ['VerifierPass', 'StandAlonePass'] :
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
+            credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
         duration = issuer_data.get('credential_duration', "365")
         credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
        

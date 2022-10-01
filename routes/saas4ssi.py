@@ -27,11 +27,11 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/signup',  view_func=saas_signup, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    #app.add_url_rule('/sandbox/saas4ssi/door',  view_func=door, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/admin',  view_func=admin, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 
-    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/saas4ssi/callback_2',  view_func=saas_callback_2, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST'], defaults={'mode' : mode}) # signup
+    app.add_url_rule('/sandbox/saas4ssi/callback_2',  view_func=saas_callback_2, methods = ['GET', 'POST'], defaults={'mode' : mode}) # login
 
     app.add_url_rule('/sandbox/saas4ssi/logout',  view_func=saas_logout, methods = ['GET', 'POST'])
 
@@ -48,6 +48,7 @@ def saas_device_detector ():
         return redirect("https://apps.apple.com/fr/app/altme/id1633216869")
     else :
         return jsonify('unknown device')    
+
 
 def saas_home():
     session.clear()
@@ -84,8 +85,10 @@ def saas_logout():
 def saas_login(mode):
     if mode.myenv == 'aws':
         client_id = "cbtzxuotun"
+    elif mode.server == "http://192.168.0.65:3000/" :
+        client_id = "zpfzzwfstl"
     else :
-        client_id = "gusczoiebs"
+        client_id = "grtqvinups"
     url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback_2"
     return redirect (url)
        
@@ -96,17 +99,24 @@ def saas_signup(mode):
     else :
         if mode.myenv == 'aws':
             client_id = "ovuifzktle"
+        elif mode.server == "http://192.168.0.65:3000/" :
+            client_id = "evqozlvnsm"
         else :
-            client_id = "hwrnyuknhf"
+            client_id = "tjxhcdbxei"
         url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
         return redirect (url)
 
-"""
-def door() :
-    session['is_connected'] = True
-    session['login_name'] = 'admin'
-    return render_template("menu.html", login_name=session["login_name"])
-"""
+
+def admin(mode) :
+    if request.method == "GET" :
+        return render_template("admin.html")
+    if request.form['secret'] == mode.admin :
+        session['is_connected'] = True
+        session['login_name'] = 'admin'
+        return render_template("menu.html", login_name=session["login_name"])
+    else :
+        return redirect ("/sandbox/saas4ssi")
+
 
 # sign up
 def saas_callback(mode):

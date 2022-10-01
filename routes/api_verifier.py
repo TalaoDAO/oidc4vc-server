@@ -393,8 +393,6 @@ def wallet_userinfo(red) :
 """
 Protocol pour Presentation Request
 """
-
-
 def login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
     try :
@@ -407,17 +405,20 @@ def login_qrcode(red, mode):
     if verifier_data['vc'] == "ANY" :
         pattern = op_constante.model_any
     elif verifier_data['vc'] == "DID" :
-        pattern = op_constante.model_DIDAuth
-    elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+        #pattern = op_constante.model_DIDAuth
+        #TODO
+        pattern = op_constante.model_any
+    else : #if not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
         pattern = op_constante.model_one
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
-    else :
+    """else :
         pattern = op_constante.model_two
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
         pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
         pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
+    """
     
     if nonce :
         pattern['challenge'] = nonce
@@ -497,6 +498,15 @@ async def login_presentation_endpoint(stream_id, red):
         if json.loads(result_presentation)['errors'] :
             return manage_error("presentation signature check failed")
         """
+        # Check issuer id for pass
+        if credential["credentialSubject"]['type'] in ["StandAlonePass", "Verifierpass"] :
+            code = json.loads(red.get(stream_id).decode())['code']
+            client_id = json.loads(red.get(code).decode())['client_id']
+            verifier_data = json.loads(read_verifier(client_id))
+            if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
+                return manage_error("Pass issuer id does not match")
+            else :
+                logging.info("Pass issuer Id matches with credential")
       
         if json.loads(result_credential)['errors'] or credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
             return manage_error("credential signature check failed")
@@ -505,7 +515,8 @@ async def login_presentation_endpoint(stream_id, red):
             return manage_error("credential expired")
 
         if credential['issuer'] not in TRUSTED_ISSUER :
-            return manage_error("issuer not in trusted list")
+            logging.warning("issuer not in trusted list")
+            #return manage_error("issuer not in trusted list")
        
         value = json.dumps({
                     "access" : "ok",

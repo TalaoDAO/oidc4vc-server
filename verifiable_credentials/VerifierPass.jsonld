@@ -17,6 +17,7 @@
                             "schema" : "https://schema.org/",
                             "name" :  "schema:name",
                             "address" : "schema:address",
+                            "issuerId" : "schema:identifier",
                             "logo" : { "@id" : "schema:logo", "@type" : "@id"}
                         }
                     }
@@ -34,7 +35,7 @@
         "issuedBy" : {
             "name" : "Altme",
             "address" : "",
-            "logo" : ""
+            "issuerId" : ""
               }
     }
 }
