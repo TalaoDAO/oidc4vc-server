@@ -76,7 +76,7 @@ def secret(issuer_id) :
         return render_template('op_issuer_removed.html')
     if request.method == 'GET' :
         if issuer_data['credential_requested'] == 'totp' and request.args.get('totp') :
-            totp = pyotp.TOTP(issuer_data['secret'], interval=int(issuer_data.get("totp_interval", "30")))
+            totp = pyotp.TOTP(issuer_data.get('secret'), interval=int(issuer_data.get("totp_interval", "30")))
             if  totp.verify(request.args['totp']) :
                 session['login_secret'] = True
                 return redirect('/sandbox/op/issuer/' + issuer_id)
@@ -109,7 +109,7 @@ def secret(issuer_id) :
             session.clear()
             return render_template('secret_access_denied.html', next=issuer_data['callback'])
         else :
-            if  request.form['secret'] == issuer_data['secret'] :
+            if  request.form['secret'] == issuer_data.get('secret') :
                 session['login_secret'] = True
                 return redirect('/sandbox/op/issuer/' + issuer_id)
             logging.warning('secret is incorrect')

@@ -200,7 +200,7 @@ def issuer_console(mode) :
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
         
-        secret = session['client_data']['secret']
+        secret = session['client_data'].get('secret', "Unknown")
         if session['client_data']['credential_requested'] == 'totp' :
             try :
                 totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
