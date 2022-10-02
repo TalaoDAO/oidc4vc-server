@@ -17,9 +17,8 @@
             <h3 class="text-dark mb-4">{{name}}</h3>
           </div>
           <div class="row mb-3">
-            <div class="col-lg-10 offset-lg-1">
-              <div class="row">
-                <div class="col-xl-10 offset-xl-1">
+            <div class="col-lg-10 offset-lg-1 ">
+              
                   <form action="/sandbox/op/issuer/console" method="POST">
 
                   <div class="card shadow my-5">
@@ -124,8 +123,18 @@
                                  {{credential_to_issue_select|safe}}
                                   </select></div>
                             </div>   
-                            <div class="col-6">
+                            <div class="col-3">
                               <div class="form-group"><label><strong>Duration</strong><br></label><input  required class="form-control" step="10" type="number" value="{{credential_duration}}" name="credential_duration" ></div>
+                            </div> 
+
+                            <div class="col-2 offset-1">
+                              <div class="form-check"><br><br>
+                                <input class="form-check-input" type="checkbox" {{standalone}} name="standalone" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Data sent to application
+                                </label>
+                              </div>
+
                             </div> 
                           </div> 
                           </div>
@@ -142,7 +151,7 @@
                             <div class="card-body">
   
                             <div class="form-row">
-                              <div class="col-3">
+                              <div class="col-6">
                                   <div class="form-group"><label><strong>Credential 1</strong></label>
                                     <select name="credential_requested" class="form-control">
                                     <option value="">--Please choose an option--</option>
@@ -150,14 +159,14 @@
                                     </select></div>
                               </div>  
                               
-                              <div class="col-3">
-                                  <div class="form-group"><label><strong>Secret or TOTP</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
+                              <div class="col-2">
+                                  <div class="form-group"><label><strong>Secret or OTP secret key</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
                                 </div> 
-                                <div class="col-3">
-                                  <div class="form-group"><label><strong><a  href="{{totp_link}}"  >TOTP remains {{time_remaining}}s</a></strong></label><input  readonly class="form-control" type="test" value="{{totp_now}}"  ></div>
+                                <div class="col-2">
+                                  <div class="form-group"><label><strong><a  href="{{totp_link}}"><div id="countdown"></div></a></strong></label><input  readonly class="form-control" type="test" value="{{totp_now}}"  ></div>
                                 </div> 
-                                <div class="col-3">
-                                  <div class="form-group"><label><strong>TOTP intervals</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
+                                <div class="col-2">
+                                  <div class="form-group"><label><strong>TOTP interval in seconds</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
                                 </div> 
                                 
                               
@@ -345,8 +354,7 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+         
       </div>
 
       {% include 'user_footer.html' %}
@@ -354,5 +362,19 @@
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
       <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+
+<script>
+  var timeleft = parseInt("{{time_remaining}}");
+var downloadTimer = setInterval(function(){
+if(timeleft <= 0){
+clearInterval(downloadTimer);
+document.getElementById("countdown").innerHTML = "TOTP to renew";
+} else {
+document.getElementById("countdown").innerHTML = "TOTP " +  timeleft + " s remaining";
+}
+timeleft -= 1;
+}, 1000);  </script>
+
 </body>
 </html>

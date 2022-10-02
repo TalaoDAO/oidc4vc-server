@@ -1,3 +1,4 @@
+
 user = {
         "login_name" : "",
         "did" : "",
@@ -17,7 +18,8 @@ method_list = {
 
 # for verifier
 credential_list = {
-                    "StandAlonePass" : 'Pass type 1 (with no data transfer)',
+                    'Pass' : 'Pass',
+                    'StandAlonePass' : 'Pass type 1 (with no data transfer)',
                     'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
@@ -41,6 +43,7 @@ credential_list = {
 
 # for verifier for guest
 credential_list_for_guest = {
+                    'Pass' : 'Pass',
                     "StandAlonePass" : 'Pass type 1',
                     'VerifierPass' : 'Pass type 2',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
@@ -58,7 +61,9 @@ credential_list_for_guest = {
 
 # issuer
 credential_to_issue_list = {
+                    'Pass' : 'Pass',
                    'IdCard' : 'Identity card',
+                   'AragoPass' : 'Pass Arago',
                     'StandAlonePass' : 'Pass type 1 (with no data transfer)',
                     'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
@@ -72,8 +77,9 @@ credential_to_issue_list = {
 
 # issuer for guest
 credential_to_issue_list_for_guest = {
-                    'StandAlonePass' : 'Pass type 1 (with no data transfer)',
-                    'VerifierPass' : 'Pass type 2 (with data transfer)',
+                    'Pass' : 'Pass',
+                    #'StandAlonePass' : 'Pass type 1 (with no data transfer)',
+                    #'VerifierPass' : 'Pass type 2 (with data transfer)',
                 }
 
 
@@ -89,7 +95,7 @@ credential_requested_list = {
                     "AragoPass" : "Arago Pass",
                     "login" : "Login and password",
                     "secret" : "Secret",
-                    "totp" : "TOTP",
+                    "totp" : "Time-based OTP",
                     'DID' : "None",
                 }
 
@@ -103,6 +109,7 @@ verifier_landing_page_style_list = {
                     "op_verifier_qrcode_2.html" : "Style 2",
                     "op_verifier_qrcode_3.html" : "Style 3",
                     "op_verifier_qrcode_4.html" : "Altme",
+                    "op_verifier_qrcode_5.html" : "Style 2 with counter",
                      "arago_verifier_qrcode.html" : "Arago Style"
                 }
 
@@ -188,6 +195,7 @@ client_data_pattern = {
                 "vc_issuer_id" : "",
                 "vc_2" : "DID",
                 "totp_interval" : "30",
+                "standalone" : None,
                 "emails" : None,
                 "user" : "guest",
                 "client_id" :  "",
@@ -205,7 +213,7 @@ client_data_pattern = {
                 "reason_2" : "Text in wallet message for credential 2",
                 "credential_requested" : "DID",
                 "credential_requested_2" : "DID",
-                "credential_to_issue" : "StandAlonePass",
+                "credential_to_issue" : "Pass",
                 "protocol" : "w3cpr",
                 "landing_page_style" : "op_issuer_qrcode.html",
                 "verifier_landing_page_style" : "op_verifier_qrcode_2.html",
@@ -225,7 +233,7 @@ client_data_pattern = {
                 "mobile_message" : "Open your wallet",
                 "contact_email" : "contact@company.com",
                 "contact_name" : "",
-                "secret" : "base32secret3232",
+                "secret" : "",
                 "landing_page_url" : "https://www.company.com",
                 "privacy_url" : "https://www.company.com/privacy",
                 "terms_url" : "https://www.company.com/terms_and_conditions", 

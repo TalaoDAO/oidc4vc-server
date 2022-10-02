@@ -16,31 +16,34 @@ logging.basicConfig(level=logging.INFO)
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=issuer_console_logout, methods = ['GET', 'POST'])
-
+    app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=nav_logout, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/sandbox/op/issuer/console/activity',  view_func=issuer_activity, methods = ['GET', 'POST'])
-
     # nav bar option
     app.add_url_rule('/sandbox/op/issuer/nav/logout',  view_func=nav_logout, methods = ['GET'])
     app.add_url_rule('/sandbox/op/issuer/nav/create',  view_func=nav_create, methods = ['GET'], defaults= {'mode' : mode})
-
-
     return
     
 # authentication
+"""
 def issuer_console_logout():
     if session.get('is_connected') :
         session.clear()
     else :
         return redirect('/sandbox/saas4ssi')
     return redirect('/sandbox/op/issuer/console')
+"""
+def nav_logout() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    session.clear()
+    return redirect ('/sandbox/saas4ssi')
 
-
+# display activities of the issuer
 def issuer_activity() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
@@ -51,9 +54,15 @@ def issuer_activity() :
         activity_list = str()
         for data in activities :
             data_dict = json.loads(data)
-            activity = """<tr>
+            vp = data_dict.get('vp')
+            print("vp = ", vp)
+            data_received = str()
+            if session['client_data']['credential_requested_2'] == "TezosBlockchainAddress" :
+                data_received = vp['verifiableCredential']['credentialSubject']["associatedAddress"]
+            activity = """<tr>get()
                     <td>""" + data_dict['presented'] + """</td>
                      <td>""" + data_dict.get('wallet_did', "Unknown") + """</td>
+                    <td>""" + data_received + """</td>
                     </tr>"""
             activity_list += activity
         return render_template('issuer_activity.html', activity=activity_list) 
@@ -91,11 +100,7 @@ def issuer_select() :
         return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
    
        
-def nav_logout() :
-    if not session.get('is_connected') or not session.get('login_name') :
-        return redirect('/sandbox/saas4ssi')
-    session.clear()
-    return redirect ('/sandbox/saas4ssi')
+
 def nav_create(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
@@ -199,15 +204,17 @@ def issuer_console(mode) :
                     credential_to_issue_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
-        
-        secret = session['client_data'].get('secret', "base32secret3232")
+        if not session['client_data'].get('secret') :
+            secret = pyotp.random_base32()
+        else :
+            secret = session['client_data']["secret"] 
         if session['client_data']['credential_requested'] == 'totp' :
             try :
                 totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
                 totp_now= totp.now()
                 time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
             except :
-                secret = 'base32secret3232'
+                secret = pyotp.random_base32()
                 totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
                 totp_now= totp.now()
                 time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
@@ -222,6 +229,7 @@ def issuer_console(mode) :
                 totp_now=totp_now,
                 totp_link=totp_link,
                 totp_interval=totp_interval,
+                standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 time_remaining=time_remaining.split('.')[0],
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
@@ -268,6 +276,7 @@ def issuer_console(mode) :
         
         else :
             session['client_data']['contact_name'] = request.form['contact_name']
+            session['client_data']['standalone'] = request.form.get('standalone') 
             session['client_data']['totp_interval'] = request.form['totp_interval']
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']

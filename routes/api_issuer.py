@@ -168,11 +168,11 @@ def issuer_landing_page(issuer_id, red, mode) :
     
     credential_manifest['issuer']['id'] = issuer_did
     credential_manifest['issuer']['name'] = issuer_data['company_name']
-    if issuer_data['credential_requested'] in ["DID", "login", "secret", "totp"] and issuer_data['credential_requested_2'] in ["DID", "login", "secret"] : # No credential 2 requested to issue 
+    if issuer_data['credential_requested'] in ["DID", "login", "secret", "totp"] and issuer_data['credential_requested_2'] in ["DID", "login", "secret", "totp"] : # No credential 2 requested to issue 
         credential_manifest['presentation_definition'] = dict()
     else :
         credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
-        if issuer_data['credential_requested'] not in ["DID", "login", "secret"] :
+        if issuer_data['credential_requested'] not in ["DID", "login", "secret", "totp"] :
             input_descriptor = {"id": str(uuid.uuid1()),
                         "purpose" : issuer_data['reason'],
                         "constraints": {
@@ -183,7 +183,7 @@ def issuer_landing_page(issuer_id, red, mode) :
                                 }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
      
-        if issuer_data['credential_requested_2'] not in ["DID", "login", "secret"] :  
+        if issuer_data['credential_requested_2'] not in ["DID", "login", "secret", "totp"] :  
             input_descriptor_2 = {"id": str(uuid.uuid1()),
                         "purpose" : issuer_data.get('reason_2',""),
                         "constraints": {
@@ -267,7 +267,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
-        if issuer_data['credential_to_issue'] != 'StandAlonePass' :
+        if issuer_data.get('standalone', None) == 'on' :
             headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
@@ -299,7 +299,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 logging.error('aplication data are not json')
                 data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
-                            "message" : "Application data are not json"})
+                            "message" : "Application data received are not json format"})
                 red.publish('op_issuer', data)
                 return jsonify("application error"),500
 
@@ -308,6 +308,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 # send event to front to go forward callback
                 data = json.dumps({'stream_id' : stream_id,"result" : True})
                 red.publish('op_issuer', data)
+                logging.info('credential signed by external signer')
                 return jsonify(data_received)
         
             # extract data sent by application and merge them with verifiable credential data
@@ -320,7 +321,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-        if issuer_data['credential_to_issue'] in ['VerifierPass', 'StandAlonePass'] :
+        if issuer_data['credential_to_issue'] == 'Pass' :
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
             credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
         duration = issuer_data.get('credential_duration', "365")
@@ -358,7 +359,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
-        if issuer_data['credential_to_issue'] != 'StandAlonePass' :
+        if issuer_data.get('standalone', None) == 'on' :
             headers = {
                     "key" : issuer_data['client_secret'],
                     "Content-Type": "application/json" 
@@ -378,9 +379,10 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         # send event to front to go forward callback and send credential to wallet
         data = json.dumps({'stream_id' : stream_id,"result" : True})
         red.publish('op_issuer', data)
-
+        # record activity
         activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                "wallet_did" : request.form['subject_id']
+                "wallet_did" : request.form['subject_id'],
+                "vp" : json.loads(request.form['presentation'])
         }
         issuer_activity_db_api.create(issuer_id, activity) 
         return jsonify(signed_credential)
