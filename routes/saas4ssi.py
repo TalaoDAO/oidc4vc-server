@@ -30,8 +30,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/admin',  view_func=admin, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 
-    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST'], defaults={'mode' : mode}) # signup
-    app.add_url_rule('/sandbox/saas4ssi/callback_2',  view_func=saas_callback_2, methods = ['GET', 'POST'], defaults={'mode' : mode}) # login
+    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST']) # signup
+    app.add_url_rule('/sandbox/saas4ssi/callback_2',  view_func=saas_callback_2, methods = ['GET', 'POST']) # login
 
     app.add_url_rule('/sandbox/saas4ssi/logout',  view_func=saas_logout, methods = ['GET', 'POST'])
 
@@ -119,7 +119,7 @@ def admin(mode) :
 
 
 # sign up
-def saas_callback(mode):
+def saas_callback():
     if request.args.get("error") :
         logging.warning("access denied")
         session.clear()
@@ -141,7 +141,7 @@ def saas_callback(mode):
         return redirect ("/sandbox/saas4ssi")
 
 # login
-def saas_callback_2(mode):
+def saas_callback_2():
     if request.args.get("error") :
         logging.warning("access denied")
         session.clear()
@@ -159,7 +159,7 @@ def saas_callback_2(mode):
         session['is_connected'] = True
         return redirect ('/sandbox/saas4ssi/menu')
     else :
-        logging.waring('erreur, user does not exist')
+        logging.warning('erreur, user does not exist')
         session.clear()
         return render_template ("access_denied.html")
 
