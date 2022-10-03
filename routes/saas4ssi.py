@@ -7,7 +7,7 @@ import op_constante
 import logging
 logging.basicConfig(level=logging.INFO)
 
-
+admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io"]
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_home, methods = ['GET', 'POST'])
@@ -150,11 +150,11 @@ def saas_callback_2(mode):
     s = id_token.split('.')[1]
     payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
     login_name = json.loads(payload.decode())['email']
-    if login_name in ["thierry.thevenet@talao.io", "thierry@altme.io"] or db_user_api.read(login_name) :
-        if login_name in ["thierry.thevenet@talao.io"] :
-            login_name = "admin"
-        if login_name in ["thierry@altme.io"] :
-            login_name = "admin1234"
+    if login_name in admin_list :
+        session['login_name'] = "admin"
+        session['is_connected'] = True
+        return redirect ('/sandbox/saas4ssi/menu')
+    elif db_user_api.read(login_name) :
         session['login_name'] = login_name
         session['is_connected'] = True
         return redirect ('/sandbox/saas4ssi/menu')
