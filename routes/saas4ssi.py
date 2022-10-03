@@ -5,7 +5,10 @@ import json
 import db_user_api
 import op_constante
 import logging
+import message
+
 logging.basicConfig(level=logging.INFO)
+
 
 admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io"]
 
@@ -30,7 +33,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/admin',  view_func=admin, methods = ['GET', 'POST'], defaults={'mode' : mode})
 
 
-    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST']) # signup
+    app.add_url_rule('/sandbox/saas4ssi/callback',  view_func=saas_callback, methods = ['GET', 'POST'], defaults={'mode' : mode}) # signup
     app.add_url_rule('/sandbox/saas4ssi/callback_2',  view_func=saas_callback_2, methods = ['GET', 'POST']) # login
 
     app.add_url_rule('/sandbox/saas4ssi/logout',  view_func=saas_logout, methods = ['GET', 'POST'])
@@ -119,7 +122,7 @@ def admin(mode) :
 
 
 # sign up
-def saas_callback():
+def saas_callback(mode):
     if request.args.get("error") :
         logging.warning("access denied")
         session.clear()
@@ -134,6 +137,10 @@ def saas_callback():
         data['login_name'] = session['login_name'] = login_name
         session['is_connected'] = True
         db_user_api.create(login_name, data)
+        try :
+            message.message("New sign up on Altme", "thierry@altme.io", "New user = " + login_name, mode)
+        except :
+            pass
         return redirect ('/sandbox/saas4ssi/menu')
     else :
         logging.warning('erreur, user exists')
