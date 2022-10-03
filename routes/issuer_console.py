@@ -55,7 +55,6 @@ def issuer_activity() :
         for data in activities :
             data_dict = json.loads(data)
             vp = data_dict.get('vp')
-            print("vp = ", vp)
             data_received = str()
             if session['client_data']['credential_requested_2'] == "TezosBlockchainAddress" :
                 data_received = vp['verifiableCredential']['credentialSubject']["associatedAddress"]
@@ -86,7 +85,6 @@ def issuer_select() :
             else : 
                 DID = didkit.key_to_did(data_dict['method'], data_dict['jwk'])
             if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
-                print(data_dict['credential_to_issue'])
                 issuer = """<tr>
                         <td>""" + data_dict.get('application_name', "unknown") + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>

@@ -62,7 +62,7 @@ def select(mode) :
                         <td>""" + data_dict.get('application_name', "") + """</td>
                         <td>""" + data_dict['user'] + """</td>
                         <td>""" + credential_list[data_dict['vc']] + """</td>
-                        <td>""" + mode.server + "sandbox/op" + """</td>
+                        <td>""" + data_dict['callback'] + """</td>
                         <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + data_dict['client_secret'] + """</td>
                     </tr>"""

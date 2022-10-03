@@ -19,8 +19,8 @@ method_list = {
 # for verifier
 credential_list = {
                     'Pass' : 'Pass',
-                    'StandAlonePass' : 'Pass type 1 (with no data transfer)',
-                    'VerifierPass' : 'Pass type 2 (with credential transfer)',
+                    #'StandAlonePass' : 'Pass type 1 (with no data transfer)',
+                    #'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
@@ -44,8 +44,8 @@ credential_list = {
 # for verifier for guest
 credential_list_for_guest = {
                     'Pass' : 'Pass',
-                    "StandAlonePass" : 'Pass type 1',
-                    'VerifierPass' : 'Pass type 2',
+                    #"StandAlonePass" : 'Pass type 1',
+                    #'VerifierPass' : 'Pass type 2',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
@@ -64,8 +64,8 @@ credential_to_issue_list = {
                     'Pass' : 'Pass',
                    'IdCard' : 'Identity card',
                    'AragoPass' : 'Pass Arago',
-                    'StandAlonePass' : 'Pass type 1 (with no data transfer)',
-                    'VerifierPass' : 'Pass type 2 (with credential transfer)',
+                    #'StandAlonePass' : 'Pass type 1 (with no data transfer)',
+                    #'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card (reserved)',

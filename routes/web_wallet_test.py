@@ -198,7 +198,7 @@ def test_direct_offer(red, mode) :
         del credentialOffer['display']    
     
     elif VC_filename == "AragoPass.jsonld" :
-        filename = "./credential_manifest/aragopass_credential_manifest.json"
+        filename = "./credential_manifest/Aragopass_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -212,22 +212,6 @@ def test_direct_offer(red, mode) :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']       
-
-    elif VC_filename == "compellio_ticket.jsonld" :
-        filename = "./credential_manifest/compellio_ticket_cm.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']      
-
-    elif VC_filename == "compellio_club_membership.jsonld" :
-        filename = "./credential_manifest/compellio_club_membership_cm.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display'] 
 
     cm = json.loads(credential_manifest)
 
@@ -315,7 +299,6 @@ def test_credentialOffer_qrcode(red, mode) :
             credential = credential_from_filename(path, filename)
         except :
             return redirect ('/playground')
-        #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
         credential['issuer'] = did_issuer
