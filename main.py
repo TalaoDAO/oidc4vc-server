@@ -31,7 +31,7 @@ from routes import web_display_VP
 from routes import saas4ssi, siopv2
 
 # Server Release
-VERSION = "4.1"
+VERSION = "0.1"
 logging.info('Talao version : %s', VERSION)
 
 # Framework Flask and Session setup
