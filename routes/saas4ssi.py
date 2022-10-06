@@ -10,7 +10,7 @@ import message
 logging.basicConfig(level=logging.INFO)
 
 
-admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io"]
+admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io", "hugo@altme.io"]
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_home, methods = ['GET', 'POST'])
@@ -55,6 +55,8 @@ def saas_device_detector ():
 
 def saas_home():
     session.clear()
+    if request.args.get('pricing') == 'on' :
+        session['pricing'] = True
     return render_template("home.html")
 
 
