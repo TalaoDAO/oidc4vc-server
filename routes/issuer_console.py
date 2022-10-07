@@ -55,12 +55,13 @@ def issuer_activity() :
         for data in activities :
             data_dict = json.loads(data)
             vp = data_dict.get('vp')
+            DID = data_dict.get('wallet_did', "Unknown            ")
             data_received = str()
             if session['client_data']['credential_requested_2'] == "TezosBlockchainAddress" :
                 data_received = vp['verifiableCredential']['credentialSubject']["associatedAddress"]
-            activity = """<tr>get()
+            activity = """<tr>
                     <td>""" + data_dict['presented'] + """</td>
-                     <td>""" + data_dict.get('wallet_did', "Unknown") + """</td>
+                     <td>""" +   DID[:10] +'....' + DID[-10:] + """</td>
                     <td>""" + data_received + """</td>
                     </tr>"""
             activity_list += activity
@@ -89,7 +90,7 @@ def issuer_select() :
                         <td>""" + data_dict.get('application_name', "unknown") + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>
                         <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
-                        <td>""" + DID + """</td> 
+                        <td>""" + DID[:10] +'....' + DID[-10:] + """</td> 
                         <td>""" + credential_to_issue_list.get(data_dict['credential_to_issue'], 'unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict['credential_requested'], 'Unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>

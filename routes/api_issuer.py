@@ -273,6 +273,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                     "Content-Type": "application/json" 
                     }       
             url = issuer_data['webhook']
+            print('id retour wallet = ', request.form.get('id'))
             payload = { 'event' : 'ISSUANCE',
                     'vp': json.loads(request.form['presentation']),
                     "id": request.form.get('id')
@@ -310,22 +311,24 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 red.publish('op_issuer', data)
                 logging.info('credential signed by external signer')
                 return jsonify(data_received)
-        
-            # extract data sent by application and merge them with verifiable credential data
-            if data_received :
-                credential["credentialSubject"] = data_received
-                logging.info("Data received from application added to credential")
 
         # build credential   
         credential =  json.loads(credentialOffer)['credentialPreview']
+
+        # extract data sent by application and merge them with verifiable credential data
+        if data_received and issuer_data.get('standalone', None) == 'on' :
+            credential["credentialSubject"] = data_received
+            logging.info("Data received from application added to credential")
+
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+        duration = issuer_data.get('credential_duration', "365")
+        credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
+        
         if issuer_data['credential_to_issue'] == 'Pass' :
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
             credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
-        duration = issuer_data.get('credential_duration', "365")
-        credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
        
         # sign credential
         if issuer_data['method'] == "ebsi" :

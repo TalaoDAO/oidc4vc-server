@@ -3,6 +3,9 @@
 <html>
   <head>
     {% include 'head.html' %}
+
+   
+
   </head>
   <body>
       
@@ -14,7 +17,7 @@
 
         <div class="row my-5">
             <div class="col">
-            <img  src="/static/img/Id card.png"  style="width: 350px;border-radius:0px;">
+            <img id="animatebutton"  class='rotated' src="/static/img/Id card.png"  style="width: 350px;border-radius:0px;">
             </div>
         </div>
 
@@ -24,7 +27,7 @@
             <div class="col-3 offset-3">
               <div id="id_qrcode" class="text-center">
                  <a href="/sandbox/saas4ssi/verifier"> 
-                 <br><strong>User onboarding (verifier)</strong>
+                 <br><strong>Create a verifier to onboard users</strong>
                  </a>
                   <br>The verifier is usually an organisation, company, government, and so forth, to whom the user (individual or company) needs to prove the legitimacy and trustworthiness of information (i.e. a bank with which you want to open a bank account).
               </div> 
@@ -32,7 +35,7 @@
             <div class="col-3">
                 <div id="id_qrcode" class="text-center">
                     <a href="/sandbox/saas4ssi/issuer">
-                    <br><strong>Create credentials (issuer)</strong>
+                    <br><strong>Issue credentials for users</strong>
                     </a>
                     <br> The issuer is the organisation, be it a company, certifier body, or governmental organisation that has been awarded a level of trust to provide information (i.e. a public body that issued a passport).
                 </div> 
