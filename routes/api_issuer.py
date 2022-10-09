@@ -267,6 +267,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             return jsonify("Unauthorized"),400  
      
         # send data to webhook
+        data_received = dict()
         if issuer_data.get('standalone', None) == 'on' :
             headers = {
                     "key" : issuer_data['client_secret'],
