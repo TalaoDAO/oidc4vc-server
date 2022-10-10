@@ -253,14 +253,16 @@ def issuer_console(mode) :
         else :
             secret = session['client_data']["secret"] 
         # external generator https://totp.danhersam.com/
+        period = ""
         if session['client_data']['credential_requested'] == 'totp' :
-            try :
-                totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
+            period = session['client_data'].get('totp_interval', "30")
+            try :       
+                totp = pyotp.TOTP(secret, interval=int(period))
                 totp_now= totp.now()
                 time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
             except :
                 secret = pyotp.random_base32()
-                totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
+                totp = pyotp.TOTP(secret, interval=int(period))
                 totp_now= totp.now()
                 time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
             totp_link =  session['client_data']['issuer_landing_page'] + "?totp=" + totp_now
@@ -273,6 +275,7 @@ def issuer_console(mode) :
             totp_interval = "30"
         return render_template('issuer_console.html',
                 totp_now=totp_now,
+                period=period,
                 totp_link=totp_link,
                 totp_interval=totp_interval,
                 standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,

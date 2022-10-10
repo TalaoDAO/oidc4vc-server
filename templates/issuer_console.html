@@ -83,7 +83,7 @@
 
                         <div class="form-row">
                           <div class="col">
-                            <div class="form-group"><label><strong>Issuer landing page link to redirect your user</strong></label><input readonly class="form-control" type="text" value={{issuer_landing_page}}></div>
+                            <div class="form-group"><label><strong>Issuer landing page link to redirect your user</strong></label><input readonly class="form-control" type="text" value="{{issuer_landing_page}}"></div>
                           </div>
 
                           <div class="col" hidden>
@@ -158,13 +158,13 @@
                               </div>  
                               
                               <div class="col-4">
-                                  <div class="form-group"><label><strong>Secret or OTP secret key</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
+                                  <div class="form-group"><label><strong>Secret or TOTP key (<a href="https://totp.danhersam.com?key={{secret}}&period={{period}}">TOTP generator</a>)</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
                                 </div> 
                                 <div class="col-2">
-                                  <div class="form-group"><label><strong><a  href="{{totp_link}}"><div id="countdown"></div></a></strong></label><input  readonly class="form-control" type="test" value="{{totp_now}}"  ></div>
+                                  <div class="form-group"><label><strong><div id="countdown"></div></strong></label><input  readonly class="form-control" type="test" value="{{totp_now}}"  ></div>
                                 </div> 
                                 <div class="col-2">
-                                  <div class="form-group"><label><strong>Interval (sec.)</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
+                                  <div class="form-group"><label><strong>TOTP interval (sec.)</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
                                 </div> 
                                 
                               
@@ -374,14 +374,18 @@
       </div>
 
       {% include 'user_footer.html' %}
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
       <script src="{{ url_for('static', filename='theme.js') }}"></script>
-      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
       <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 
 <script>
-  var timeleft = parseInt("{{time_remaining}}");
+if ("{{time_remaining}}" == "N/A")
+  {document.getElementById("countdown").innerHTML = "TOTP code N/A";}
+else 
+{
+var timeleft = parseInt("{{time_remaining}}");
 var downloadTimer = setInterval(function(){
 if(timeleft <= 0){
 clearInterval(downloadTimer);
@@ -390,7 +394,11 @@ document.getElementById("countdown").innerHTML = "TOTP to renew";
 document.getElementById("countdown").innerHTML = "TOTP " +  timeleft + " s remaining";
 }
 timeleft -= 1;
-}, 1000);  </script>
+if (timeleft == -1)
+  {window.location.reload();}
+}, 1000); 
+}
+ </script>
 
 </body>
 </html>
