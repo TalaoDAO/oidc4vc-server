@@ -82,7 +82,7 @@ credential_to_issue_list_for_guest = {
                     #'VerifierPass' : 'Pass type 2 (with data transfer)',
                 }
 
-
+# for issuer
 credential_requested_list = {
                     'EmailPass' : 'Proof of email',
                     'AgeRange' : 'Age range',
@@ -90,12 +90,30 @@ credential_requested_list = {
                     'Gender' : 'Gender card',
                     'PhoneProof' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
-                    'Over18' : 'Proof of majority',
+                    'Over18' : 'Proof of majority (Over 18)',
+                    'Over13' : 'Over 13',
+                    'PassportNumber' : 'Passport footprint',                  
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
                     "AragoPass" : "Arago Pass",
                     "login" : "Login and password",
                     "secret" : "Secret",
                     "totp" : "Time-based OTP",
+                    'DID' : "None",
+                }
+
+# for issuer for 2, 3 and 4th credential
+credential_requested_list_2 = {
+                    'EmailPass' : 'Proof of email',
+                    'AgeRange' : 'Age range',
+                    'Nationality' : 'Nationality',
+                    'Gender' : 'Gender card',
+                    'PhoneProof' : 'Proof of phone number',
+                    'IdCard' : 'Identity card',
+                    'Over18' : 'Proof of majority (Over 18)',
+                    'Over13' : 'Over 13',
+                    'PassportNumber' : 'Passport footprint',                  
+                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    "AragoPass" : "Arago Pass",
                     'DID' : "None",
                 }
 
@@ -210,21 +228,25 @@ client_data_pattern = {
                 "company_name" : "New company",
                 "application_name" : "Application name",
                 "reason" : "Text in wallet message for credential 1",
-                "reason_2" : "Text in wallet message for credential 2",
+                "reason_2" : "In wallet message for credential 2",
+                "reason_3" : "In wallet message for credential 3",
+                "reason_4" : "In wallet message for credential 4",
                 "credential_requested" : "DID",
                 "credential_requested_2" : "DID",
+                "credential_requested_3" : "DID",
+                "credential_requested_4" : "DID",
                 "credential_to_issue" : "Pass",
                 "protocol" : "w3cpr",
                 "landing_page_style" : "op_issuer_qrcode.html",
                 "verifier_landing_page_style" : "op_verifier_qrcode_2.html",
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
-                "page_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                "page_description" : "Add here a credential description as you would like to see it displayed on the landing page of your app.",
                 "page_background_color" : "#ffffff",
                 "page_text_color" : "#000000",
-                "card_title" : "Page title",
-                "card_subtitle" : "Page subtitle",
-                "card_description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                "card_title" : "Card title",
+                "card_subtitle" : "Card subtitle",
+                "card_description" : "Add here a credential description as you would like to see it displayed in the wallet.",
                 "card_background_color" : "#ec6f6f",
                 "card_text_color" : "#ffffff",
                 "credential_duration" : "365",

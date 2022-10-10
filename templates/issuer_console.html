@@ -149,7 +149,7 @@
                             <div class="card-body">
   
                             <div class="form-row">
-                              <div class="col-6">
+                              <div class="col-4">
                                   <div class="form-group"><label><strong>Credential 1</strong></label>
                                     <select name="credential_requested" class="form-control">
                                     <option value="">--Please choose an option--</option>
@@ -157,14 +157,14 @@
                                     </select></div>
                               </div>  
                               
-                              <div class="col-2">
+                              <div class="col-4">
                                   <div class="form-group"><label><strong>Secret or OTP secret key</strong><br></label><input  class="form-control" type="test" value="{{secret}}" name="secret" ></div>
                                 </div> 
                                 <div class="col-2">
                                   <div class="form-group"><label><strong><a  href="{{totp_link}}"><div id="countdown"></div></a></strong></label><input  readonly class="form-control" type="test" value="{{totp_now}}"  ></div>
                                 </div> 
                                 <div class="col-2">
-                                  <div class="form-group"><label><strong>TOTP interval in seconds</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
+                                  <div class="form-group"><label><strong>Interval (sec.)</a></strong></label><input  class="form-control" type="number" name="totp_interval" value="{{totp_interval}}"  ></div>
                                 </div> 
                                 
                               
@@ -172,7 +172,7 @@
                           
 
                             <div class="form-row">
-                              <div class="col-6">
+                              <div class="col-4">
                                   <div class="form-group"><label><strong>Credential 2</strong></label>
                                     <select name="credential_requested_2" class="form-control">
                                     <option value="">--Please choose an option--</option>
@@ -180,13 +180,20 @@
                                     </select></div>
                               </div>  
                               
-                              <div class="col-6">
-                                <div hidden class="form-group"><label><strong>Credential 3 requested for issuance (not available)</strong></label>
-                                 <!-- <select disabled name="credential_requested_2" class="form-control">
+                              <div class="col-4">
+                                <div class="form-group"><label><strong>Credential 3</strong></label>
+                                 <select name="credential_requested_3" class="form-control">
                                   <option value="">--Please choose an option--</option>
-                                 {{credential_requested_2_select|safe}}
-                                  </select>  --> </div>
+                                 {{credential_requested_3_select|safe}}
+                                  </select> </div>
                             </div>  
+                            <div class="col-4">
+                              <div  class="form-group"><label><strong>Credential 4</strong></label>
+                               <select name="credential_requested_4" class="form-control">
+                                <option value="">--Please choose an option--</option>
+                               {{credential_requested_4_select|safe}}
+                                </select> </div>
+                          </div>  
                             </div>
 
                             </div>
@@ -273,6 +280,17 @@
 
                            
                          </div>
+                         <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>In wallet message for credential requested 3 </strong><br></label><input type="text" class="form-control" name="reason_3" value="{{reason_3}}"></div>
+                          </div>
+
+                          <div class="col">
+                            <div class="form-group"><label><strong>In wallet message for credential requested 4 </strong><br></label><input type="text" class="form-control" name="reason_4" value="{{reason_4}}"></div>
+                          </div>
+
+                         
+                       </div>
 
 
                         <div class="form-row">

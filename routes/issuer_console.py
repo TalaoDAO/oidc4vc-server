@@ -6,7 +6,7 @@ import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
+from op_constante import credential_requested_list, credential_requested_list_2, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import ebsi
 import issuer_activity_db_api
 import pyotp
@@ -54,15 +54,38 @@ def issuer_activity() :
         activity_list = str()
         for data in activities :
             data_dict = json.loads(data)
-            vp = data_dict.get('vp')
+            vp = data_dict.get('vp', [])
+            if isinstance(vp, dict) : # only one verifiable presentation sent by wallet
+                vp_list = list()
+                vp_list.append(json.dumps(vp))
+                vp = vp_list
             DID = data_dict.get('wallet_did', "Unknown            ")
-            data_received = str()
-            if session['client_data']['credential_requested_2'] == "TezosBlockchainAddress" :
-                data_received = vp['verifiableCredential']['credentialSubject']["associatedAddress"]
+            data_received = list()
+            for credential in vp :
+                if not json.loads(credential).get('verifiableCredential') :
+                    data_received = ""
+                elif json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'EmailPass' :
+                    data_received.append("email=" +json.loads(credential)['verifiableCredential']['credentialSubject']['email'])
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Over18' :
+                    data_received.append('Over18=True')
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Over13' :
+                    data_received.append('Over13=True')
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Nationality' :
+                    data_received.append('nationality=' + json.loads(credential)['verifiableCredential']['credentialSubject']['nationality'])  
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'AgeRange' :
+                    data_received.append('ageRange=' + json.loads(credential)['verifiableCredential']['credentialSubject']['ageRange'])  
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Gender' :
+                    data_received.append('gender=' + json.loads(credential)['verifiableCredential']['credentialSubject']['gender'])    
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'TezosAssociatedAddress' :
+                    data_received.append('tezosAddress=' + json.loads(credential)['verifiableCredential']['credentialSubject']['associatedAddress'])               
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'PhoneProof' :
+                    data_received.append('phon=' + json.loads(credential)['verifiableCredential']['credentialSubject']['phone']) 
+                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'PassportNumber' :
+                    data_received.append('passport_footprint=' + json.loads(credential)['verifiableCredential']['credentialSubject']['passportNumber']) 
             activity = """<tr>
                     <td>""" + data_dict['presented'] + """</td>
-                     <td>""" +   DID[:10] +'....' + DID[-10:] + """</td>
-                    <td>""" + data_received + """</td>
+                     <td>""" +  DID + """</td>
+                    <td>""" + " & ".join(data_received) + """</td>
                     </tr>"""
             activity_list += activity
         return render_template('issuer_activity.html', activity=activity_list) 
@@ -94,6 +117,9 @@ def issuer_select() :
                         <td>""" + credential_to_issue_list.get(data_dict['credential_to_issue'], 'unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict['credential_requested'], 'Unknown') + """</td>
                         <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
+                        <td>""" + credential_requested_list.get(data_dict.get('credential_requested_3'), "None") + """</td>
+                        <td>""" + credential_requested_list.get(data_dict.get('credential_requested_4'), "None") + """</td>
+
                         </tr>"""
                 issuer_list += issuer
         return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
@@ -171,6 +197,7 @@ def issuer_console(mode) :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         
+        # credential requested 1
         credential_requested_select = str()
         for key, value in credential_requested_list.items() :
                 if key ==   session['client_data']['credential_requested'] :
@@ -185,13 +212,31 @@ def issuer_console(mode) :
                 else :
                     landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
         
+        # credential requested 2
         credential_requested_2_select = str()
-        for key, value in credential_requested_list.items() :
-                if key ==   session['client_data'].get('credential_requested_2', "") :
+        for key, value in credential_requested_list_2.items() :
+                if key ==   session['client_data'].get('credential_requested_2', "DID") :
                     credential_requested_2_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_2_select +=  "<option value=" + key + ">" + value + "</option>"
         
+        # credential requested 3
+        credential_requested_3_select = str()
+        for key, value in credential_requested_list_2.items() :
+                if key ==   session['client_data'].get('credential_requested_3', "DID") :
+                    credential_requested_3_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    credential_requested_3_select +=  "<option value=" + key + ">" + value + "</option>"
+        
+        # credential requested 4
+        credential_requested_4_select = str()
+        for key, value in credential_requested_list_2.items() :
+                if key ==   session['client_data'].get('credential_requested_4', "DID") :
+                    credential_requested_4_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    credential_requested_4_select +=  "<option value=" + key + ">" + value + "</option>"
+
+
         credential_to_issue_select = str()
 
         if session["login_name"] == 'admin' :
@@ -221,6 +266,7 @@ def issuer_console(mode) :
             totp_link =  session['client_data']['issuer_landing_page'] + "?totp=" + totp_now
             totp_interval =  session['client_data'].get('totp_interval', "30")
         else :
+            secret = 'N/A'
             totp_now = "N/A"
             totp_link = ""
             time_remaining = "N/A"
@@ -249,6 +295,8 @@ def issuer_console(mode) :
                 company_name = session['client_data']['company_name'],
                 reason = session['client_data']['reason'],
                 reason_2 = session['client_data'].get('reason_2', ""),
+                reason_3 = session['client_data'].get('reason_3', ""),
+                reason_4 = session['client_data'].get('reason_4', ""),
                 page_title = session['client_data']['page_title'],
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
@@ -263,6 +311,8 @@ def issuer_console(mode) :
                 credential_requested_select =  credential_requested_select,
                 landing_page_style_select =  landing_page_style_select,
                 credential_requested_2_select =  credential_requested_2_select,
+                credential_requested_3_select =  credential_requested_3_select,
+                credential_requested_4_select =  credential_requested_4_select,
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color'],
@@ -300,8 +350,12 @@ def issuer_console(mode) :
             session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['reason'] = request.form['reason']
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
+            session['client_data']['reason_3'] = request.form.get('reason_4', "")
+            session['client_data']['reason_4'] = request.form.get('reason_4', "")
             session['client_data']['credential_requested'] = request.form['credential_requested']
             session['client_data']['credential_requested_2'] = request.form['credential_requested_2']
+            session['client_data']['credential_requested_3'] = request.form['credential_requested_3']
+            session['client_data']['credential_requested_4'] = request.form['credential_requested_4']
             session['client_data']['credential_to_issue'] = request.form['credential_to_issue']
             session['client_data']['credential_duration'] = request.form['credential_duration']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']

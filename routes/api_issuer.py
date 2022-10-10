@@ -182,8 +182,8 @@ def issuer_landing_page(issuer_id, red, mode) :
                                             "pattern": issuer_data['credential_requested']}
                                 }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
-     
-        if issuer_data['credential_requested_2'] not in ["DID", "login", "secret", "totp"] :  
+        
+        if issuer_data.get('credential_requested_2', 'DID') not in ["DID", "login", "secret", "totp"] :  
             input_descriptor_2 = {"id": str(uuid.uuid1()),
                         "purpose" : issuer_data.get('reason_2',""),
                         "constraints": {
@@ -193,6 +193,28 @@ def issuer_landing_page(issuer_id, red, mode) :
                                             "pattern": issuer_data['credential_requested_2']}
                                 }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
+
+        if issuer_data.get('credential_requested_3', 'DID') not in ["DID", "login", "secret", "totp"] :  
+            input_descriptor_3 = {"id": str(uuid.uuid1()),
+                        "purpose" : issuer_data.get('reason_3',""),
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.type"],
+                                "filter": {"type": "string",
+                                            "pattern": issuer_data['credential_requested_3']}
+                                }]}}
+            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_3)
+
+        if issuer_data.get('credential_requested_4', 'DID') not in ["DID", "login", "secret", "totp"] :  
+            input_descriptor_4 = {"id": str(uuid.uuid1()),
+                        "purpose" : issuer_data.get('reason_4',""),
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.type"],
+                                "filter": {"type": "string",
+                                            "pattern": issuer_data['credential_requested_4']}
+                                }]}}
+            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_4)
 
     #logging.info("credential manifest = %s", credential_manifest)
     if not request.args.get('id') :
@@ -383,6 +405,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         # send event to front to go forward callback and send credential to wallet
         data = json.dumps({'stream_id' : stream_id,"result" : True})
         red.publish('op_issuer', data)
+        
         # record activity
         activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
                 "wallet_did" : request.form['subject_id'],
