@@ -207,6 +207,7 @@ def issuer_console(mode) :
             secret = pyotp.random_base32()
         else :
             secret = session['client_data']["secret"] 
+        # external generator https://totp.danhersam.com/
         if session['client_data']['credential_requested'] == 'totp' :
             try :
                 totp = pyotp.TOTP(secret, interval=int(session['client_data'].get('totp_interval', "30")))
