@@ -99,7 +99,9 @@ def issuer_select() :
         my_list = db_api.list_issuer()
         issuer_list=str()
         for data in my_list :
-            data_dict = json.loads(data)                       
+            data_dict = json.loads(data)         
+            client_id = data_dict['client_id']
+            act = len(issuer_activity_db_api.list(client_id))              
             if data_dict['method'] == "ebsi" :
                 DID = data_dict['did_ebsi']
             elif data_dict['method'] == "relay" :
@@ -111,6 +113,7 @@ def issuer_select() :
             if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
                 issuer = """<tr>
                         <td>""" + data_dict.get('application_name', "unknown") + """</td>
+                         <td>""" + str(act) + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>
                         <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + DID[:10] +'....' + DID[-10:] + """</td> 

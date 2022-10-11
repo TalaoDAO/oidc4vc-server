@@ -56,10 +56,13 @@ def select(mode) :
         verifier_list=str()
         for data in my_list :
             data_dict = json.loads(data)
+            client_id = data_dict['client_id']
+            act = len(activity_db_api.list(client_id))   
             try :
                 if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
                     verifier = """<tr>
                         <td>""" + data_dict.get('application_name', "") + """</td>
+                        <td>""" + str(act) + """</td>
                         <td>""" + data_dict['user'] + """</td>
                         <td>""" + credential_list[data_dict['vc']] + """</td>
                         <td>""" + data_dict['callback'] + """</td>
