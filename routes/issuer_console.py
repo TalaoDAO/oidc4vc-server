@@ -270,6 +270,11 @@ def issuer_console(mode) :
                 time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
             totp_link =  session['client_data']['issuer_landing_page'] + "?totp=" + totp_now
             totp_interval =  session['client_data'].get('totp_interval', "30")
+        elif session['client_data']['credential_requested'] == 'secret' :
+            totp_now = "N/A"
+            totp_link = ""
+            time_remaining = "N/A"
+            totp_interval = "30"
         else :
             secret = 'N/A'
             totp_now = "N/A"

@@ -135,13 +135,13 @@ def issuer_landing_page(issuer_id, red, mode) :
             return redirect('/sandbox/op/secret/' + issuer_id + "?totp=" + request.args['totp'])
         return redirect('/sandbox/op/secret/' + issuer_id )
     
-    try :
-        credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
-        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
-        credential["issuer"] ="did:ebsi:"
-    except :
-        logging.error('credential not found %s', issuer_data['credential_to_issue'])
-        return render_template('op_issuer_removed.html')
+    credential = json.load(open('./verifiable_credentials/' + issuer_data['credential_to_issue'] + '.jsonld'))
+    credential['id'] = "urn:uuid:" + str(uuid.uuid1())
+    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential["issuer"] ="did:ebsi:"
+    credential["credentialSubject"]['id'] ="did:example:xxxxx:"
+    print("credential = ", credential)
+    
     try :
         credential_manifest = json.load(open('./credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
     except :
@@ -216,7 +216,7 @@ def issuer_landing_page(issuer_id, red, mode) :
                                 }]}}
             credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_4)
 
-    #logging.info("credential manifest = %s", credential_manifest)
+    logging.info("credential manifest = %s", credential_manifest)
     if not request.args.get('id') :
         logging.warning("no id passed by application")
 
@@ -227,9 +227,12 @@ def issuer_landing_page(issuer_id, red, mode) :
         "domain" : "https://altme.io",
         "credentialPreview": credential,
         "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-        "credential_manifest" : credential_manifest,
+        "credential_manifest" : credential_manifest
     }   
+    #logging.info('credential offer = %s', credentialOffer)
     stream_id = str(uuid.uuid1())
+    # TODO
+    issuer_did = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
     url = mode.server + "sandbox/op/issuer_endpoint/" + issuer_id + '/' + stream_id + '?issuer=' + issuer_did 
     deeplink_altme = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
     red.setex(stream_id, 180, json.dumps(credentialOffer))
@@ -263,6 +266,7 @@ def issuer_landing_page(issuer_id, red, mode) :
 
 
 async def issuer_endpoint(issuer_id, stream_id, red):
+    print('enter')
     try : 
         credentialOffer = red.get(stream_id).decode()
         issuer_data = json.loads(db_api.read_issuer(issuer_id))

@@ -68,22 +68,19 @@ credential_to_issue_list = {
                     'Pass' : 'Pass',
                    'IdCard' : 'Identity card',
                    'AragoPass' : 'Pass Arago',
-                    #'StandAlonePass' : 'Pass type 1 (with no data transfer)',
-                    #'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
-                    'StudentCard' : 'Student card (reserved)',
-                    'CertificateOfEmployment' : 'Certificate of employment (reserved)',
-                    'TalaoCommunity' : 'Talao Community card (reserved)',
-                    "VotersCard" : "Voter Card (reserved)",
-                    'PhoneProof' : 'Proof of phone number (reserved)'
+                    'StudentCard' : 'Student card',
+                    'CertificateOfEmployment' : 'Certificate of employment',
+                    'TalaoCommunity' : 'Talao Community card',
+                    "VotersCard" : "Voter Card",
+                    'PhoneProof' : 'PhoneProof',
+                    'EmailPass' : 'EmailPass'
                 }
 
 # issuer for guest
 credential_to_issue_list_for_guest = {
                     'Pass' : 'Pass',
-                    #'StandAlonePass' : 'Pass type 1 (with no data transfer)',
-                    #'VerifierPass' : 'Pass type 2 (with data transfer)',
                 }
 
 # for issuer
@@ -121,9 +118,13 @@ credential_requested_list_2 = {
                     'DID' : "None",
                 }
 
+# issuer
 landing_page_style_list = {
                     "op_issuer_qrcode.html" : "Style 1",
-                    "op_issuer_qrcode_2.html" : "Style 2"
+                    "op_issuer_qrcode_2.html" : "Style 2",
+                    "op_issuer_qrcode_emailpass.html" : "EmailPass card",
+                    "op_issuer_qrcode_phoneproof.html" : "PhoneProof card"
+
                 }
 
 verifier_landing_page_style_list = {
@@ -260,8 +261,8 @@ client_data_pattern = {
                 "contact_email" : "support@altme.io",
                 "contact_name" : "",
                 "secret" : "",
-                "landing_page_url" : "https://www.company.com",
-                "privacy_url" : "https://www.company.com/privacy",
-                "terms_url" : "https://www.company.com/terms_and_conditions", 
+                "landing_page_url" : "https://talao.io",
+                "privacy_url" : "https://talao.co/md_file?file=privacy",
+                "terms_url" : "https://talao.co/md_file?file=terms_and_conditions", 
                 "title" : "Get it !" # QR code title
                 }
