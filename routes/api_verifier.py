@@ -40,7 +40,6 @@ rsa_key = jwk.JWK(**RSA_KEY_DICT)
 public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
 
-
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red, "mode" : mode})
     app.add_url_rule('/sandbox/op/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red, 'mode' : mode})
@@ -49,7 +48,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/.well-known/openid-configuration', view_func=openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
     app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
-
 
     # http://172.20.10.2:3000/sandbox/.well-known/openid-configuration
     app.add_url_rule('/sandbox/login',  view_func=login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
@@ -90,26 +88,27 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     presentation = json.loads(vp)
     vc_expiration_date = presentation['verifiableCredential']['issuanceDate'][:19]
     payload["updated_at"] = time.mktime(time.strptime(vc_expiration_date, '%Y-%m-%dT%H:%M:%S'))
-    if verifier_data['vc'] == "IdCard" :
-        payload["given_name"] = presentation['verifiableCredential']['credentialSubject']['givenName']
-        payload["family_name"] = presentation['verifiableCredential']['credentialSubject']['familyName']
-        payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
-        payload["birthdate"] = presentation['verifiableCredential']['credentialSubject']['birthDate']
-    elif verifier_data['vc'] == "EmailPass" :
-        payload["email"] = presentation['verifiableCredential']['credentialSubject']['email']
-        payload["email_verified"] = True
-    elif verifier_data['vc'] == "AgeRange" :
-        payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
-    elif verifier_data['vc'] == "Over18" :
-        payload["over_18"] = True
-    elif verifier_data['vc'] == "Gender" :
-        payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
-    elif verifier_data['vc'] == "Nationality" :
-        payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
-    elif verifier_data['vc'] == "AragoPass" :
-        payload["group"] = presentation['verifiableCredential']['credentialSubject']['group']
-    else :
-        pass
+    if verifier_data.get('standalone') :
+        if verifier_data['vc'] == "IdCard" :
+            payload["given_name"] = presentation['verifiableCredential']['credentialSubject']['givenName']
+            payload["family_name"] = presentation['verifiableCredential']['credentialSubject']['familyName']
+            payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
+            payload["birthdate"] = presentation['verifiableCredential']['credentialSubject']['birthDate']
+        elif verifier_data['vc'] == "EmailPass" :
+            payload["email"] = presentation['verifiableCredential']['credentialSubject']['email']
+            payload["email_verified"] = True
+        elif verifier_data['vc'] == "AgeRange" :
+            payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
+        elif verifier_data['vc'] == "Over18" :
+            payload["over_18"] = True
+        elif verifier_data['vc'] == "Gender" :
+            payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
+        elif verifier_data['vc'] == "Nationality" :
+            payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
+        elif verifier_data['vc'] == "AragoPass" :
+            payload["group"] = presentation['verifiableCredential']['credentialSubject']['group']
+        else :
+            pass
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
@@ -376,8 +375,10 @@ def wallet_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
         data = json.loads(red.get(access_token).decode())
+        verifier_data = json.loads(read_verifier(data['client_id']))
         payload = {"sub" : data['sub']}
-        payload['_vp'] = data["vp_token"]
+        if verifier_data.get('standalone') :
+            payload['_vp'] = data["vp_token"]
         headers = {
             "Cache-Control" : "no-store",
             "Pragma" : "no-cache",

@@ -58,6 +58,7 @@ def select(mode) :
             data_dict = json.loads(data)
             client_id = data_dict['client_id']
             act = len(activity_db_api.list(client_id))   
+            standalone = "off" if data_dict.get('standalone') in [None, False]  else "on" 
             try :
                 if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
                     verifier = """<tr>
@@ -65,6 +66,7 @@ def select(mode) :
                         <td>""" + str(act) + """</td>
                         <td>""" + data_dict['user'] + """</td>
                         <td>""" + credential_list[data_dict['vc']] + """</td>
+                         <td>""" + standalone + """</td>                       
                         <td>""" + data_dict['callback'] + """</td>
                         <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + data_dict['client_secret'] + """</td>
@@ -209,6 +211,7 @@ def console(mode) :
                 authorization_request = authorization_request,
                 implicit_request = implicit_request,
                 title = session['client_data'].get('title'),
+                standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 application_name = session['client_data'].get('application_name', ""),
                 contact_name = session['client_data'].get('contact_name'),
                 contact_email = session['client_data'].get('contact_email'),
@@ -255,7 +258,9 @@ def console(mode) :
             return redirect ('/sandbox/op/console/activity')
       
         elif request.form['button'] == "update" :
+            print(request.form.get('standalone') )
             session['client_data']['note'] = request.form['note']
+            session['client_data']['standalone'] = request.form.get('standalone') 
             session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']

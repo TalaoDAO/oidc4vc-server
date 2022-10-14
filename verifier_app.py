@@ -15,11 +15,11 @@ app.config.update(
 Init OpenID Connect client PYOIDC with teh 3 bridge parameters :  client_id, client_secret and issuer URL
 """
 client_metadata = ClientMetadata(
-    client_id='fhwrsmszjn',
-    client_secret= "9bd6eeb0-0617-11ed-8fe6-8d54d1ffa6d3",
+    client_id='jskynlyika',
+    client_secret= "63c5419c-40d3-11ed-87bf-f791220d27e9",
     post_logout_redirect_uris=['http://127.0.0.1:4000/logout']) # your post logout uri (optional)
 
-provider_config = ProviderConfiguration(issuer='https://talao.co/sandblox/op',
+provider_config = ProviderConfiguration(issuer='http://192.168.0.65:3000/sandbox/op',
                                         client_metadata=client_metadata)
 
 auth = OIDCAuthentication({'default': provider_config}, app)
