@@ -293,7 +293,7 @@ async def wallet_token(red, mode) :
         endpoint_response= {"error": msg}
         headers = {'Content-Type': 'application/json'}
         return Response(response=json.dumps(endpoint_response), status=400, headers=headers)
-    
+        
     try :
         token = request.headers['Authorization']
         token = token.split(" ")[1]
