@@ -211,6 +211,7 @@ def console(mode) :
                 authorization_request = authorization_request,
                 implicit_request = implicit_request,
                 title = session['client_data'].get('title'),
+                pkce = "" if session['client_data'].get('pkce') in [None, False]  else "checked" ,
                 standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 application_name = session['client_data'].get('application_name', ""),
                 contact_name = session['client_data'].get('contact_name'),
@@ -258,9 +259,9 @@ def console(mode) :
             return redirect ('/sandbox/op/console/activity')
       
         elif request.form['button'] == "update" :
-            print(request.form.get('standalone') )
             session['client_data']['note'] = request.form['note']
             session['client_data']['standalone'] = request.form.get('standalone') 
+            session['client_data']['pkce'] = request.form.get('pkce') 
             session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']

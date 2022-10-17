@@ -123,10 +123,11 @@ landing_page_style_list = {
                     "op_issuer_qrcode.html" : "Style 1",
                     "op_issuer_qrcode_2.html" : "Style 2",
                     "op_issuer_qrcode_emailpass.html" : "EmailPass card",
-                    "op_issuer_qrcode_phoneproof.html" : "PhoneProof card"
-
+                    "op_issuer_qrcode_phoneproof.html" : "PhoneProof card",
+                    "op_issuer_qrcode_bloometa.html" : "Bloometa pass"
                 }
 
+# verifier
 verifier_landing_page_style_list = {
                     "op_verifier_qrcode.html" : "Style 1",
                     "op_verifier_qrcode_2.html" : "Style 2",
@@ -214,12 +215,13 @@ model_any = {
 
 client_data_pattern = {
                 "authorized_emails" : "",
+                "pkce" : None,
                 "vc" : "DID",
                 "vc_issuer_id" : "",
                 "vc_2" : "DID",
                 "totp_interval" : "30",
                 "standalone" : None,
-                "emails" : None,
+                #"emails" : None,
                 "user" : "guest",
                 "client_id" :  "",
                 "client_secret" : "",

@@ -12,6 +12,7 @@ import didkit
 from db_api import read_verifier
 import op_constante
 import activity_db_api
+import pkce # https://github.com/xzava/pkce
 
 logging.basicConfig(level=logging.INFO)
 
@@ -161,7 +162,7 @@ def wallet_authorize(red, mode) :
                 resp = {'code' : code}
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
-        # implicit flow -> redirect with id_token
+        # implicit flow -> redirect with id_token in fragment
         elif session.get('response_type') == "id_token" :
             code = request.args['code'] 
             try :
@@ -226,6 +227,7 @@ def wallet_authorize(red, mode) :
 
     session['verified'] = False
     logging.info('user is not connected in OP')
+    # PKCE https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spop-14
     try :
         data = {
             'client_id' : request.args['client_id'],
@@ -234,6 +236,8 @@ def wallet_authorize(red, mode) :
             'response_type' : request.args['response_type'],
             'redirect_uri' : request.args['redirect_uri'],
             'nonce' : request.args.get('nonce'),
+            'code_challenge' : request.args.get('code_challenge'),
+            'code_challenge_method' : request.args.get('code_challenge_method'),
             "expires" : datetime.timestamp(datetime.now()) + CODE_LIFE
         }
     except :
@@ -256,7 +260,6 @@ def wallet_authorize(red, mode) :
         # TODO manage different redirect URL
         #return manage_error_request("invalid_request_object")
     session['redirect_uri'] = request.args['redirect_uri']
-
     if request.args['response_type'] not in ["code", "code id_token", "id_token", "id_token code", "vp_token", "id_token vp_token"] :
         logging.warning('unsupported response type %s', request.args['response_type'])
         return manage_error_request("unsupported_response_type")
@@ -301,19 +304,28 @@ async def wallet_token(red, mode) :
         grant_type =  request.form['grant_type']
         code = request.form['code']
         redirect_uri = request.form['redirect_uri']
+        code_verifier = request.form.get('code_verifier')
     except :
         return manage_error("invalid_request")
      
     try :
         data = json.loads(red.get(code).decode())
     except :
-        return manage_error("invalid_grant")
-       
-    if verifier_data['client_secret'] != client_secret or client_id != data['client_id'] :
+        return manage_error("invalid_grant") 
+    
+    if client_id != data['client_id'] :
+        return manage_error("invalid_client")
+    if not verifier_data.get("pkce") and verifier_data['client_secret'] != client_secret :
         return manage_error("invalid_client")
     elif redirect_uri != data['redirect_uri']:
         return manage_error("invalid_redirect_uri")
     elif grant_type != 'authorization_code' :
+        return manage_error("unhauthorized_client")
+    if verifier_data.get('pkce') == 'on' and not code_verifier :
+        print("pb code verifier")
+        return manage_error("invalid_request")
+    if verifier_data.get("pkce") and pkce.get_code_challenge(code_verifier) != data['code_challenge'] :
+        print('code verifier not correct')
         return manage_error("unhauthorized_client")
     
     # token response
@@ -540,6 +552,7 @@ def login_followup(red):
         stream_id = request.args.get('stream_id')
     except :
         return jsonify("Forbidden"), 403 
+    print(red.get(stream_id).decode())
     code = json.loads(red.get(stream_id).decode())['code']
     try :
         stream_id_DIDAuth = json.loads(red.get(stream_id + '_DIDAuth').decode())

@@ -15,7 +15,7 @@ admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io", "hugo@altm
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_home, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
+    #app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
@@ -41,7 +41,7 @@ def init_app(app,red, mode) :
 
     return
 
-
+"""
 def saas_device_detector ():
     ua = request.headers.get('User-Agent')
     device = SoftwareDetector(ua).parse()
@@ -51,7 +51,7 @@ def saas_device_detector ():
         return redirect("https://apps.apple.com/fr/app/altme/id1633216869")
     else :
         return jsonify('unknown device')    
-
+"""
 
 def saas_home():
     session.clear()
@@ -99,17 +99,14 @@ def saas_login(mode):
        
 
 def saas_signup(mode):
-    if request.method == "GET" :
-        return render_template("saas_signup.html", url = mode.server + '/sandbox/saas4ssi/device_detector')
+    if mode.myenv == 'aws':
+        client_id = "ovuifzktle"
+    elif mode.server == "http://192.168.0.65:3000/" :
+        client_id = "evqozlvnsm"
     else :
-        if mode.myenv == 'aws':
-            client_id = "ovuifzktle"
-        elif mode.server == "http://192.168.0.65:3000/" :
-            client_id = "evqozlvnsm"
-        else :
-            client_id = "tjxhcdbxei"
-        url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
-        return redirect (url)
+        client_id = "tjxhcdbxei"
+    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
+    return redirect (url)
 
 
 def admin(mode) :
@@ -146,6 +143,7 @@ def saas_callback(mode):
         return redirect ('/sandbox/saas4ssi/menu')
     else :
         logging.warning('erreur, user exists')
+        message.message("User tried to sign up 2 times", "thierry@altme.io", "user = " + login_name, mode)
         session.clear()
         return redirect ("/sandbox/saas4ssi")
 

@@ -266,7 +266,6 @@ def issuer_landing_page(issuer_id, red, mode) :
 
 
 async def issuer_endpoint(issuer_id, stream_id, red):
-    print('enter')
     try : 
         credentialOffer = red.get(stream_id).decode()
         issuer_data = json.loads(db_api.read_issuer(issuer_id))
