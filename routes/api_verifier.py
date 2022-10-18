@@ -84,7 +84,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         "aud" : client_id,
         "exp": datetime.timestamp(datetime.now()) + 1000,
         "sub" : sub
-    }
+    }  
     verifier_data = json.loads(read_verifier(client_id))
     presentation = json.loads(vp)
     vc_expiration_date = presentation['verifiableCredential']['issuanceDate'][:19]
@@ -97,11 +97,16 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
             payload["birthdate"] = presentation['verifiableCredential']['credentialSubject']['birthDate']
         elif verifier_data['vc'] == "EmailPass" :
             payload["email"] = presentation['verifiableCredential']['credentialSubject']['email']
-            payload["email_verified"] = True
+        elif verifier_data['vc'] == "PhoneProof" :
+            payload["phone"] = presentation['verifiableCredential']['credentialSubject']['phone']
         elif verifier_data['vc'] == "AgeRange" :
             payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
         elif verifier_data['vc'] == "Over18" :
             payload["over_18"] = True
+        elif verifier_data['vc'] == "Over13" :
+            payload["over_13"] = True
+        elif verifier_data['vc'] ==  "TezosAssociatedAddress" :
+            payload["associatedAddress"] = presentation['verifiableCredential']['credentialSubject']['associatedAddress']
         elif verifier_data['vc'] == "Gender" :
             payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
         elif verifier_data['vc'] == "Nationality" :
@@ -162,7 +167,7 @@ def wallet_authorize(red, mode) :
                 resp = {'code' : code}
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
-        # implicit flow -> redirect with id_token in fragment
+        # implicit flow -> redirect with id_token in 
         elif session.get('response_type') == "id_token" :
             code = request.args['code'] 
             try :
@@ -512,7 +517,8 @@ async def login_presentation_endpoint(stream_id, red):
             return manage_error("presentation signature check failed")
         """
         # Check issuer id for pass
-        if credential["credentialSubject"]['type'] in ["StandAlonePass", "Verifierpass"] :
+        
+        if credential["credentialSubject"]['type'] in ["Pass"] :
             code = json.loads(red.get(stream_id).decode())['code']
             client_id = json.loads(red.get(code).decode())['client_id']
             verifier_data = json.loads(read_verifier(client_id))
@@ -520,9 +526,13 @@ async def login_presentation_endpoint(stream_id, red):
                 return manage_error("Pass issuer id does not match")
             else :
                 logging.info("Pass issuer Id matches with credential")
-      
+        
+        # TODO see pb with Arago issuer
         if json.loads(result_credential)['errors'] or credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
-            return manage_error("credential signature check failed")
+            if credential["credentialSubject"]['type'] == "AragoPass" :
+                logging.error("DID does not match in Arago pass")
+            else :       
+                return manage_error("credential signature check failed")
         
         if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
             return manage_error("credential expired")
@@ -552,7 +562,6 @@ def login_followup(red):
         stream_id = request.args.get('stream_id')
     except :
         return jsonify("Forbidden"), 403 
-    print(red.get(stream_id).decode())
     code = json.loads(red.get(stream_id).decode())['code']
     try :
         stream_id_DIDAuth = json.loads(red.get(stream_id + '_DIDAuth').decode())
