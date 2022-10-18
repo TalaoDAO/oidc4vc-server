@@ -494,36 +494,15 @@ def test_presentationRequest_qrcode(red, mode):
 
 
 async def test_presentationRequest_endpoint(stream_id, red):
-    try : 
-        my_pattern = json.loads(red.get(stream_id).decode())
-    except :
-        logging.error("red get id error")
-        return jsonify('ko'), 500
-    challenge = my_pattern['challenge']
-    domain = my_pattern['domain']
     if request.method == 'GET':
+        try : 
+            my_pattern = json.loads(red.get(stream_id).decode())
+        except :
+            logging.error("red get id error")
+            return jsonify('ko'), 500
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
-        #await didkit.verify_presentation()
-        presentation = json.loads(request.form['presentation'])
-      
-        try : 
-            response_challenge = presentation['proof']['challenge']
-            response_domain = presentation['proof']['domain']
-        except :
-            logging.warning('presentation is not correct')
-            event_data = json.dumps({"stream_id" : stream_id, "message" : "Presentation format failed."})
-            red.publish('credible', event_data)
-            return jsonify("presentation is not correct"), 401
-        if response_domain != domain or response_challenge != challenge :
-            logging.warning('challenge or domain failed')
-            logging.warning("domain = %s", response_domain)
-            logging.warning('challenge = %s', response_challenge)
-            event_data = json.dumps({"stream_id" : stream_id, "message" : "The presentation challenge failed."})
-            red.publish('credible', event_data)
-            return jsonify("challenge or domain failed"), 401
-        # we just display the presentation VC
         red.set(stream_id,  request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id,
 			                        "message" : "ok"})           
@@ -554,6 +533,8 @@ def test_presentation_display(red):
         presentation_json = red.get(request.args['stream_id']).decode()
         red.delete(request.args['stream_id'])
         presentation = json.loads(presentation_json)
+        print('presentation = ', presentation)
+
         holder = presentation['holder']
         if not presentation.get('verifiableCredential') :
             nb_credentials = "0"
