@@ -299,7 +299,6 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                     "Content-Type": "application/json" 
                     }       
             url = issuer_data['webhook']
-            print('id retour wallet = ', request.form.get('id'))
             payload = { 'event' : 'ISSUANCE',
                     'vp': json.loads(request.form['presentation']),
                     "id": request.form.get('id')

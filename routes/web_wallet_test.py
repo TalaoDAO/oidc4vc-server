@@ -533,8 +533,6 @@ def test_presentation_display(red):
         presentation_json = red.get(request.args['stream_id']).decode()
         red.delete(request.args['stream_id'])
         presentation = json.loads(presentation_json)
-        print('presentation = ', presentation)
-
         holder = presentation['holder']
         if not presentation.get('verifiableCredential') :
             nb_credentials = "0"

@@ -46,8 +46,6 @@ credential_list = {
 # for verifier for guest
 credential_list_for_guest = {
                     'Pass' : 'Pass',
-                    #"StandAlonePass" : 'Pass type 1',
-                    #'VerifierPass' : 'Pass type 2',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
                     'EmailPass' : 'Proof of email',
                     'PassportNumber' : 'Passport footprint',

@@ -50,7 +50,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
     app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
 
-    # http://172.20.10.2:3000/sandbox/.well-known/openid-configuration
+    # http://172.20.10.2:3000/sandbox/op/.well-known/openid-configuration
     app.add_url_rule('/sandbox/login',  view_func=login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/sandbox/login_followup',  view_func=login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -105,6 +105,8 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
             payload["over_18"] = True
         elif verifier_data['vc'] == "Over13" :
             payload["over_13"] = True
+        elif verifier_data['vc'] ==  'PassportNumber':
+            payload["passport_number"] = presentation['verifiableCredential']['credentialSubject']['passportNumber'];
         elif verifier_data['vc'] ==  "TezosAssociatedAddress" :
             payload["associatedAddress"] = presentation['verifiableCredential']['credentialSubject']['associatedAddress']
         elif verifier_data['vc'] == "Gender" :
@@ -423,9 +425,9 @@ def login_qrcode(red, mode):
     if verifier_data['vc'] == "ANY" :
         pattern = op_constante.model_any
     elif verifier_data['vc'] == "DID" :
-        #pattern = op_constante.model_DIDAuth
+        pattern = op_constante.model_DIDAuth
         #TODO
-        pattern = op_constante.model_any
+        #pattern = op_constante.model_any
     else : #if not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
         pattern = op_constante.model_one
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
@@ -437,7 +439,7 @@ def login_qrcode(red, mode):
         pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
         pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
     """
-    
+    print('pattern = ', pattern)
     if nonce :
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
