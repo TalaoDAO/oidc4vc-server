@@ -171,12 +171,7 @@ model_two = {
                         {
                             "example" : {"type" : ""},
                             "reason": [{"@language": "en","@value": ""}]
-                        }
-                    ]
-                },
-                {
-                    "type": "QueryByExample",
-                    "credentialQuery": [
+                        },
                         {
                             "example" : {"type" : ""},
                             "reason": [{"@language": "en","@value": ""}]
@@ -212,13 +207,13 @@ model_any = {
 
 
 client_data_pattern = {
-                "authorized_emails" : "",
+                #"authorized_emails" : "",
                 "pkce" : None,
                 "vc" : "DID",
                 "vc_issuer_id" : "",
                 "vc_2" : "DID",
-                "totp_interval" : "30",
-                "standalone" : None,
+                "totp_interval" : "30", 
+                "standalone" : None, # data are NOT transfered to application by default
                 #"emails" : None,
                 "user" : "guest",
                 "client_id" :  "",
@@ -260,7 +255,7 @@ client_data_pattern = {
                 "mobile_message" : "Open your wallet",
                 "contact_email" : "support@altme.io",
                 "contact_name" : "",
-                "secret" : "",
+                "secret" : "", # static or OTP
                 "landing_page_url" : "https://talao.io",
                 "privacy_url" : "https://talao.co/md_file?file=privacy",
                 "terms_url" : "https://talao.co/md_file?file=terms_and_conditions", 

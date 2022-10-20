@@ -49,7 +49,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/.well-known/openid-configuration', view_func=openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
     app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
-
     # http://172.20.10.2:3000/sandbox/op/.well-known/openid-configuration
     app.add_url_rule('/sandbox/login',  view_func=login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
@@ -85,38 +84,44 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         "exp": datetime.timestamp(datetime.now()) + 1000,
         "sub" : sub
     }  
-    verifier_data = json.loads(read_verifier(client_id))
     presentation = json.loads(vp)
-    vc_expiration_date = presentation['verifiableCredential']['issuanceDate'][:19]
-    payload["updated_at"] = time.mktime(time.strptime(vc_expiration_date, '%Y-%m-%dT%H:%M:%S'))
-    if verifier_data.get('standalone') :
-        if verifier_data['vc'] == "IdCard" :
-            payload["given_name"] = presentation['verifiableCredential']['credentialSubject']['givenName']
-            payload["family_name"] = presentation['verifiableCredential']['credentialSubject']['familyName']
-            payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
-            payload["birthdate"] = presentation['verifiableCredential']['credentialSubject']['birthDate']
-        elif verifier_data['vc'] == "EmailPass" :
-            payload["email"] = presentation['verifiableCredential']['credentialSubject']['email']
-        elif verifier_data['vc'] == "PhoneProof" :
-            payload["phone"] = presentation['verifiableCredential']['credentialSubject']['phone']
-        elif verifier_data['vc'] == "AgeRange" :
-            payload["age_range"] = presentation['verifiableCredential']['credentialSubject']['ageRange']
-        elif verifier_data['vc'] == "Over18" :
-            payload["over_18"] = True
-        elif verifier_data['vc'] == "Over13" :
-            payload["over_13"] = True
-        elif verifier_data['vc'] ==  'PassportNumber':
-            payload["passport_number"] = presentation['verifiableCredential']['credentialSubject']['passportNumber'];
-        elif verifier_data['vc'] ==  "TezosAssociatedAddress" :
-            payload["associatedAddress"] = presentation['verifiableCredential']['credentialSubject']['associatedAddress']
-        elif verifier_data['vc'] == "Gender" :
-            payload["gender"] = presentation['verifiableCredential']['credentialSubject']['gender']
-        elif verifier_data['vc'] == "Nationality" :
-            payload["nationality"] = presentation['verifiableCredential']['credentialSubject']['nationality']
-        elif verifier_data['vc'] == "AragoPass" :
-            payload["group"] = presentation['verifiableCredential']['credentialSubject']['group']
-        else :
-            pass
+    if isinstance(presentation['verifiableCredential'], dict) :
+        vc_list = list()
+        vc_list.append(presentation['verifiableCredential'])
+    else :
+        vc_list = presentation['verifiableCredential']
+    for vc in vc_list :
+        vc_expiration_date = vc['issuanceDate'][:19]
+        payload["updated_at"] = time.mktime(time.strptime(vc_expiration_date, '%Y-%m-%dT%H:%M:%S'))
+        verifier_data = json.loads(read_verifier(client_id))
+        if verifier_data.get('standalone') :
+            if vc['credentialSubject']['type'] == "IdCard" :
+                payload["given_name"] = vc['credentialSubject']['givenName']
+                payload["family_name"] = vc['credentialSubject']['familyName']
+                payload["gender"] = vc['credentialSubject']['gender']
+                payload["birthdate"] = vc['credentialSubject']['birthDate']
+            elif vc['credentialSubject']['type'] == "EmailPass" :
+                payload["email"] = vc['credentialSubject']['email']
+            elif vc['credentialSubject']['type'] == "PhoneProof" :
+                payload["phone"] = vc['credentialSubject']['phone']
+            elif vc['credentialSubject']['type'] == "AgeRange" :
+                payload["age_range"] = vc['credentialSubject']['ageRange']
+            elif vc['credentialSubject']['type'] == "Over18" :
+                payload["over_18"] = True
+            elif vc['credentialSubject']['type'] == "Over13" :
+                payload["over_13"] = True
+            elif vc['credentialSubject']['type'] ==  'PassportNumber':
+                payload["passport_number"] = vc['credentialSubject']['passportNumber'];
+            elif vc['credentialSubject']['type'] ==  "TezosAssociatedAddress" :
+                payload["associatedAddress"] = vc['credentialSubject']['associatedAddress']
+            elif vc['credentialSubject']['type'] == "Gender" :
+                payload["gender"] = vc['credentialSubject']['gender']
+            elif vc['credentialSubject']['type'] == "Nationality" :
+                payload["nationality"] = vc['credentialSubject']['nationality']
+            elif vc['credentialSubject']['type'] == "AragoPass" :
+                payload["group"] = vc['credentialSubject']['group']
+            else :
+                pass
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
@@ -171,6 +176,10 @@ def wallet_authorize(red, mode) :
 
         # implicit flow -> redirect with id_token in 
         elif session.get('response_type') == "id_token" :
+            if session.get('response_mode') == "query" :
+                sep = "?"
+            else :
+                sep = "#"
             code = request.args['code'] 
             try :
                 vp = red.get(code + "_vp").decode()
@@ -179,13 +188,13 @@ def wallet_authorize(red, mode) :
                 resp = {'error' : "access_denied"}
                 redirect_uri = session['redirect_uri']
                 session.clear()
-                return redirect(redirect_uri + '?' + urlencode(resp)) 
+                return redirect(redirect_uri + sep + urlencode(resp)) 
 
-            DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
+            DID = json.loads(vp)['holder']
             id_token = build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
             resp = {"id_token" : id_token} 
             logging.info("redirect to client with id-token = %s", id_token)
-            return redirect(session['redirect_uri'] + '?' + urlencode(resp))
+            return redirect(session['redirect_uri'] + sep + urlencode(resp))
         
         # oidc4vp  -> redirect with vp_token and eventually id_token
         elif "vp_token" in session.get('response_type').split() :
@@ -273,6 +282,7 @@ def wallet_authorize(red, mode) :
 
     session['response_type'] = request.args['response_type']
     session['state'] = request.args.get('state')
+    session['response_mode'] = request.args.get('response_mode')
 
     # creation grant (code) and redirect to  wallet login
     code = str(uuid.uuid1())
@@ -426,19 +436,17 @@ def login_qrcode(red, mode):
         pattern = op_constante.model_any
     elif verifier_data['vc'] == "DID" :
         pattern = op_constante.model_DIDAuth
-        #TODO
-        #pattern = op_constante.model_any
-    else : #if not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+    elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
         pattern = op_constante.model_one
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
-    """else :
+    else :
         pattern = op_constante.model_two
         pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
         pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
         pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
-    """
+    
     print('pattern = ', pattern)
     if nonce :
         pattern['challenge'] = nonce
@@ -494,15 +502,7 @@ async def login_presentation_endpoint(stream_id, red):
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
-        presentation = request.form['presentation'] # string
-
-        # Check signature VC/VP and trusted issuer
-        result_presentation = await didkit.verify_presentation(presentation,  '{}')
-        logging.info("check presentation = %s", result_presentation)
-        credential = json.loads(presentation)['verifiableCredential']
-        result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
-        logging.info("check credential = %s", result_credential)
-
+        
         def manage_error(msg) :
             value = json.dumps({
                     "access" : "access_denied",
@@ -513,40 +513,46 @@ async def login_presentation_endpoint(stream_id, red):
             red.publish('api_verifier', event_data)
             logging.error(msg)
             return jsonify(msg), 403
-
-        """
-        if json.loads(result_presentation)['errors'] :
-            return manage_error("presentation signature check failed")
-        """
-        # Check issuer id for pass
         
-        if credential["credentialSubject"]['type'] in ["Pass"] :
-            code = json.loads(red.get(stream_id).decode())['code']
-            client_id = json.loads(red.get(code).decode())['client_id']
-            verifier_data = json.loads(read_verifier(client_id))
-            if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
-                return manage_error("Pass issuer id does not match")
-            else :
-                logging.info("Pass issuer Id matches with credential")
-        
-        # TODO see pb with Arago issuer
-        if json.loads(result_credential)['errors'] or credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
-            if credential["credentialSubject"]['type'] == "AragoPass" :
-                logging.error("DID does not match in Arago pass")
-            else :       
+        async def check_credential(credential) :     
+            result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
+            if json.loads(result_credential)['errors']  :       
                 return manage_error("credential signature check failed")
-        
-        if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
-            return manage_error("credential expired")
+            if  credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
+                if credential["credentialSubject"]['type'] == "AragoPass" :
+                    logging.error("DID does not match in Arago pass")
+                else :       
+                    return manage_error("holder does not match subject.id")
+            if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
+                return manage_error("credential expired")
+            if credential['issuer'] not in TRUSTED_ISSUER :
+                logging.warning("issuer not in trusted list")
+                #return manage_error("issuer not in trusted list")
+            return
 
-        if credential['issuer'] not in TRUSTED_ISSUER :
-            logging.warning("issuer not in trusted list")
-            #return manage_error("issuer not in trusted list")
-       
+        presentation = request.form['presentation'] # string
+        #result_presentation = await didkit.verify_presentation(presentation,  '{}')
+        #if json.loads(result_presentation)['errors'] :
+        #    return manage_error("presentation signature check failed")
+        logging.info("check presentation = %s", await didkit.verify_presentation(presentation,  '{}'))
+
+        credential = json.loads(presentation)['verifiableCredential']
+        if isinstance(credential, dict) :
+            if credential["credentialSubject"]['type'] == "Pass" :
+                code = json.loads(red.get(stream_id).decode())['code']
+                client_id = json.loads(red.get(code).decode())['client_id']
+                verifier_data = json.loads(read_verifier(client_id))
+                if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
+                    return manage_error("Pass issuer id does not match")
+            await check_credential(credential)
+        else :
+            for vc in credential :
+                await check_credential(vc)
+
         value = json.dumps({
                     "access" : "ok",
                     "vp" : json.loads(presentation),
-                    "user" : credential["credentialSubject"]["id"]
+                    "user" : json.loads(presentation)['holder']
                     })
         red.setex(stream_id + "_DIDAuth", 180, value)
         event_data = json.dumps({"stream_id" : stream_id})           

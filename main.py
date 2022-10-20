@@ -29,6 +29,7 @@ from routes import verifier_console, issuer_console, api_verifier, api_issuer
 from routes import  web_wallet_test
 from routes import web_display_VP
 from routes import saas4ssi, siopv2
+from routes import dapp
 
 # Server Release
 VERSION = "0.1"
@@ -64,6 +65,7 @@ issuer_console.init_app(app, red, mode)
 saas4ssi.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 siopv2.init_app(app, red, mode)
+dapp.init_app(app, red, mode)
 
 # MAIN entry point for test
 if __name__ == '__main__':
