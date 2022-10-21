@@ -340,7 +340,7 @@
       document.getElementById('signPayloadOperation').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.OPERATION,
-          payload: '030908080808'
+          payload: '0300'
         })
 
         console.log('signature:', signature)
@@ -350,7 +350,7 @@
       document.getElementById('signPayloadMicheline').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.MICHELINE,
-          payload: '0575656576576'
+          payload: '0500'
         })
 
         console.log('signature:', signature)
