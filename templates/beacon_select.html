@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper" >     
+      <div id="content">
+        {% include "beacon_nav_bar.html" %}
+
+        <div class="container-fluid mt-3">
+          <div class="text-center mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+
+                  <div class="card shadow mt-5">
+                    <div class="card-header py-3">
+                      <div class="d-flex justify-content-between">
+                        <p style="color:#09060f;" class=" m-0 font-weight-bold">Select</p>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                              <div style="height:600px;overflow:auto;overflow-x: hidden;"> 
+                              <table class="table my-0" id="dataTable">
+                                  <thead>
+                                      <tr>
+                                          <th style="width: 10%" >Application name</th>
+                                          <th style="width: 5%" >Act.</th>
+                                          <th style="width: 5%" >User</th>
+                                          <th style="width: 5%">Issuer_id</th>
+                                          <th style="width: 10%">Issuer DID</th>
+                                          <th style="width: 13%">Credential to issue</th>
+                                          <th style="width: 13%">Credential 1</th>
+                                          <th style="width: 13%">Credential 2</th>  
+                                          <th style="width: 13%">Credential 3</th>
+                                          <th style="width: 15%">Credential 4</th>                                       
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{beacon_list|safe}}
+                                  </tbody>
+                              </table>
+                             </div> 
+                          </div>
+                        </div>
+                        
+                    </div>
+                  </div>
+                </div>
+              
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+      {% include 'user_footer.html' %}
+
+      <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

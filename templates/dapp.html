@@ -57,8 +57,10 @@
     <br /><br />
     <button id="signPayloadMicheline">Sign Payload (Micheline)</button>
     <br /><br />
-    ---
-    <br /><br />
+    <strong></stron>Altme integration Test<strong><br><br>
+    <button id="signPayloadAltme" style="background-color: rgb(211, 148, 148)">Altme welcome credential</button>
+
+    <br /><br /><br /><br /><br /><br />
     <button id="sendNotification">Send notification</button>
     <br /><br />
     ---
@@ -307,17 +309,22 @@
       })
 
 
-
-//const response = await dAppClient.requestSignPayload({
-//  signingType: SigningType.RAW,
-//  payload: "any string that will be signed",
-//});
       // Add event listener to the button
       document.getElementById('signPayloadRaw').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'any string that will be signed'
-        })
+          payload: 'Any string for a message to display'
+               })
+
+        console.log('signature:', signature)
+      })
+
+       // Add event listener to the button
+       document.getElementById('signPayloadAltme').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: '<Any string for a message to display>#http://192.168.0.220:3000/sandbox/op/beacon/trbyirizqq?issuer=did:ethr:0x2cf7bcfcc95b4105b2702c6332969342e52e9326'
+               })
 
         console.log('signature:', signature)
       })
@@ -347,7 +354,7 @@
       document.getElementById('signPayloadOperation').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.OPERATION,
-          payload: '0368656c6c6f'
+          payload: '04010031343854657a6f73205369676e6564204d6573736167653a2072617269626c652e636f6d20323032322d31302d32315430383a35353a34352e3739335a2068656c6c6f2066726f6d2054616c6f'
         })
 
         console.log('signature:', signature)

@@ -17,6 +17,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
     #app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/beacon',  view_func=saas_beacon, methods = ['GET', 'POST'])
+
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/saas4ssi/pricing',  view_func=pricing, methods = ['GET', 'POST'])
@@ -183,3 +185,11 @@ def saas_issuer() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/op/issuer/console/select')
+
+
+
+
+def saas_beacon() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    return redirect ('/sandbox/op/beacon/console/select')

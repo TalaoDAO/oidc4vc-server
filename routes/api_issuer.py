@@ -140,7 +140,6 @@ def issuer_landing_page(issuer_id, red, mode) :
     credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
     credential["issuer"] ="did:ebsi:"
     credential["credentialSubject"]['id'] ="did:example:xxxxx:"
-    print("credential = ", credential)
     
     try :
         credential_manifest = json.load(open('./credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
@@ -154,7 +153,6 @@ def issuer_landing_page(issuer_id, red, mode) :
         issuer_did = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
     else : 
         issuer_did = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])
-    
     # update credential manifest
     credential_manifest['id'] = str(uuid.uuid1())
     credential_manifest['output_descriptors'][0]['id'] = str(uuid.uuid1())

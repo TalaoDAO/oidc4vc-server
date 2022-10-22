@@ -32,6 +32,40 @@ def list_issuer() :
 def delete_issuer(client_id) :
     return delete(client_id, 'issuer.db')
 
+def update_beacon(client_id, data) :
+    return update(client_id, data, 'beacon.db')
+def read_beacon(client_id) :
+    return read(client_id, 'beacon.db')
+def list_beacon() :
+    return list('beacon.db')
+def delete_beacon(client_id) :
+    return delete(client_id, 'beacon.db')
+def create_beacon(mode, user=None, method="ethr") :
+    letters = string.ascii_lowercase
+    data = client_data_pattern
+    data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+    data['client_secret'] = str(uuid.uuid1())
+    data['issuer_landing_page'] = '<Any string for a message to display>#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
+    # init with did:ethr
+    key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+    data['jwk'] = key.export_private()
+    data['method'] = method
+    # init did:ebsi in case of use
+    data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
+    if user :
+        data['user'] = user
+    conn = sqlite3.connect('beacon.db')
+    c = conn.cursor()
+    db_data = { "client_id" : data['client_id'] ,"data" :json.dumps(data)}
+    try :
+        c.execute("INSERT INTO client VALUES (:client_id, :data)", db_data)
+    except :
+        logging.error('DB error')
+        return None
+    conn.commit()
+    conn.close()
+    return data['client_id']
+
 
 def create(db, user, mode, method) :
     letters = string.ascii_lowercase

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+     
+      <div id="content">
+        {% include "beacon_nav_bar.html" %}
+
+        <div class="container-fluid mt-3">
+          <div class="text-center mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-10 offset-lg-1 ">
+                  <div class="card shadow mt-5">
+                    <div class="card-header py-3">
+                      <div class="d-flex justify-content-between">
+                        <p style="color: #09060f;" class="m-0 font-weight-bold">Issuer advanced parameters</p>
+                      
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form action="/sandbox/op/beacon/console/advanced" method="POST">
+                      <input value="{{client_id}}" hidden name="client_id">
+
+                      <div class="form-row">
+                                                    
+                          <div class="col-3">
+                            <div class="form-group"><label><strong>Wallet protocol</strong></label><select name="protocol" class="form-control">
+                              {{protocol_select|safe}}  
+                              </select></div>
+                          </div>
+                         
+
+                            <div class="col-3">
+                              <div class="form-group"><label><strong>VC/VP format</strong></label>
+                                <select name="" class="form-control">
+                                <option selected value="JSON-LD">JSON-LD</option>
+                                </select>
+                              </div>
+                            </div>
+                      </div>
+
+                      <div class="form-row">
+
+                              <div class="col-3">
+                                <div class="form-group"><label><strong>DID method for secp256k1 keys</strong></label><select name="method" class="form-control">
+                                  {{method_select|safe}}  
+                                  </select></div>
+                              </div>
+
+                            <div class="col">
+                              <div class="form-group"><label><strong>Issuer DID</strong><br></label><input readonly class="form-control" type="text"  value="{{DID}}"></div>
+                            </div>
+
+                            <div class="col">
+                              <div class="form-group"><label><strong>Issuer DID for EBSI (input your DID if needed)</strong><br></label><input class="form-control" type="text"  name = "did_ebsi" value="{{did_ebsi}}"></div>
+                            </div>
+
+                      </div>
+
+                      <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>Secp256k1 private key for DID (JWK format)</strong><br></label><textarea class="form-control" rows="8" name="jwk" >{{jwk}}</textarea></div>
+                              </div>
+                      </div>
+
+                      <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>DID Document</strong><br></label><textarea readonly class="form-control" rows="10" name="" >{{did_document}}</textarea></div>
+                              </div>
+                      </div>
+
+                      <div class="form-row">
+                        <div class="col"><button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="back" type="submit">Back</button></div>
+
+                        {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin' %} 
+
+                            <div class="col"><button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="update" type="submit">Update</button></div>
+                        {% endif %}
+                          </div>
+
+                      </form>
+                    </div>
+                  </div>
+                </div>
+           
+          </div>
+        </div>
+      </div>
+
+      {% include 'user_footer.html' %}
+
+      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>
