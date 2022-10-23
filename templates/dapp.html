@@ -334,7 +334,6 @@
           signingType: beacon.SigningType.RAW,
           payload: 'Get your Welcome card ! #https://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
                })
-
         console.log('signature:', signature)
       })
 
@@ -342,9 +341,17 @@
       document.getElementById('signPayloadBloometa').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Welcome card ! #https://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
+          payload: 'Get your Bloometacard ! #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
                })
+        console.log('signature:', signature)
+      })
 
+    // Add event listener to the button
+   document.getElementById('signPayloadVoucher').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: 'Get your Tezotopia voucher ! #https://talao.co/sandbox/op/beacon/kmjdgmvtpu?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
+               })
         console.log('signature:', signature)
       })
 
