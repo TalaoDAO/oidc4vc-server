@@ -17,7 +17,19 @@
       Transport : <span id="activeAccountTransport"></span>
     </span>
     <br /><br />
-    <button id="requestPermission">Request Permission</button>
+    
+    
+      <button  style="background-color: rgb(211, 148, 148)" id="requestPermission">Synchronize your wallet (Temple, KuKai, Naan,...)</button>
+      <br /><br />
+    
+      <div id="altme">
+      <form action="/sandbox/saas4ssi/dapp" method = "POST">
+        <button id="synchroAltmeButton"  style="background-color: rgb(211, 148, 148)" type="submit" >Add your active account to Altme</button><br>
+        <input id="synchroAltme" hidden name="address" value="">
+        <input id="synchroAltmeWallet" hidden name="wallet" value="">
+      </form>
+    </div>
+
     <br /><br />
     <button id="sendToSelf">Send 1 mutez to myself</button>
     <br /><br />
@@ -33,22 +45,18 @@
     <input id="PayloadValue"  size="100" type="text" value="Any string">
     <br /><br />
 
-    <form action="/sandbox/saas4ssi/dapp" method = "POST">
-      <button id="synchroAltmeButton"  style="background-color: rgb(211, 148, 148)" type="submit" >Add this address to Altme</button><br>
-      <input id="synchroAltme" hidden name="address" value="">
-      <input id="synchroAltmeWallet" hidden name="wallet" value="">
-    </form>
+    
 
     <br /><br />
     <button id="signPayloadOperation">Sign Payload (Operation)</button>
     <br /><br />
     <button id="signPayloadMicheline">Sign Payload (Micheline)</button>
     <br /><br />
-    <button id="signPayloadAltme" style="background-color: rgb(211, 148, 148)">Get your Welcome card !</button>
+    <button id="signPayloadAltme" style="background-color: rgb(140, 219, 121)">Get your Welcome card !</button>
     <br><br>  
-    <button id="signPayloadBloometa" style="background-color: rgb(211, 148, 148)">Get your Bloometa card !</button>
+    <button id="signPayloadBloometa" style="background-color: rgb(140, 219, 121) ">Get your Bloometa card !</button>
     <br><br>  
-    <button id="signPayloadVoucher" style="background-color: rgb(211, 148, 148)">Get your Tezotopia voucher !</button>
+    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your Tezotopia voucher !</button>
 
 
     <br /><br /><br /><br /><br /><br />
@@ -151,7 +159,10 @@
 
       const x = new MyLogger()
 
-      beacon.setLogger(x)
+      beacon.setLogger(x);
+
+      document.getElementById('altme').style.visibility = 'hidden';
+
 
       // Initiate DAppClient
       const client = beacon.getDAppClientInstance({
@@ -178,6 +189,7 @@
             document.getElementById('activeAccountNetwork').innerText = activeAccount.network.type
             document.getElementById('activeAccountTransport').innerText = activeAccount.origin.type
             document.getElementById("synchroAltme").value = activeAccount.address
+            document.getElementById('altme').style.visibility = 'visible';
 
           } else {
             document.getElementById('activeAccount').innerText = ''
@@ -438,25 +450,27 @@
               updateActiveAccount()
             })
           } else {
-            console.log('no peers to be removed')
+            window.alert('no peers to be removed')
           }
         })
       })
 
       // Add event listener to the button
       document.getElementById('synchroAltmeButton').addEventListener('click', () => {
-        client.getPeers().then((peers) => {
+
+        client.getPeers()
+        .then((peers) => {
           if (peers.length > 0) {
             document.getElementById('synchroAltmeWallet').value=peers[0].name;
             client.removePeer(peers[0], true).then(() => {
-              console.log('peer removed', peers[0])
+              window.alert('peer removed');
               updateActiveAccount()
             })
           } else {
-            console.log('no peers to be removed')
+            window.alert('no peers to be removed');
           }
         })
-      })
+    })
 
       document.getElementById('externalInit').addEventListener('click', () => {
         console.log('This method has to be called directly after page load to reproduce the error')
