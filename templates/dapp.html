@@ -450,7 +450,7 @@
               updateActiveAccount()
             })
           } else {
-            window.alert('no peers to be removed')
+            console.log('no peers to be removed')
           }
         })
       })
@@ -463,11 +463,10 @@
           if (peers.length > 0) {
             document.getElementById('synchroAltmeWallet').value=peers[0].name;
             client.removePeer(peers[0], true).then(() => {
-              window.alert('peer removed');
               updateActiveAccount()
             })
           } else {
-            window.alert('no peers to be removed');
+            console.log('no peers to be removed');
           }
         })
     })
