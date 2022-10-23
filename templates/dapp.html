@@ -19,7 +19,7 @@
     <br /><br />
     
     
-      <button  style="background-color: rgb(211, 148, 148)" id="requestPermission">Synchronize your wallet (Temple, KuKai, Naan,...)</button>
+      <button  style="background-color: rgb(211, 148, 148)" id="requestPermission">Synchronize your wallet (Altme, Temple, KuKai, Naan.....)</button>
       <br /><br />
     
       <div id="altme">
@@ -341,7 +341,7 @@
       document.getElementById('signPayloadBloometa').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Bloometacard ! #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
+          payload: 'Get your Bloometa card ! #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
                })
         console.log('signature:', signature)
       })

@@ -32,8 +32,8 @@ from routes import saas4ssi, siopv2
 from routes import dapp, beacon_console, api_beacon
 
 # Server Release
-VERSION = "0.1"
-logging.info('Talao version : %s', VERSION)
+VERSION = "0.5"
+logging.info('Altme Sandbox version : %s', VERSION)
 
 # Framework Flask and Session setup
 app = Flask(__name__)
