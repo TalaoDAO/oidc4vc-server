@@ -10,8 +10,8 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/dapp/webhook',  view_func=dapp_webhook, methods = ['GET', 'POST'], defaults={'red' : red})
     global link, client_secret
     if mode.myenv == 'aws':
-        link = 'https://talao.co/sandbox/op/issuer/iagetctadx'
-        client_secret = "1c6f9c32-1941-11ed-915c-0a1628958560"
+        link = 'https://talao.co/sandbox/op/issuer/kfvuelfugb'
+        client_secret = "c8a7ce61-52e7-11ed-96ff-0a1628958560"
     else :
         link = "http://192.168.0.220:3000/sandbox/op/issuer/ovjyigjpbc"
         client_secret = '9828d8f8-52d1-11ed-9758-47cea17512cf'
@@ -35,6 +35,7 @@ def dapp_webhook(red) :
         data_returned = json.loads(red.get(data["id"]).decode())   
     except :
         print("error redis")
+        data_returned = ""
     # send back data to issue credential
     if data['event'] == 'ISSUANCE' :
         return jsonify(data_returned)
