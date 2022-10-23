@@ -25,7 +25,7 @@ import beacon_activity_db_api
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
-
+DID_issuer = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/<issuer_id>',  view_func=beacon_landing_page, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -45,11 +45,11 @@ async def beacon_landing_page(issuer_id, red) :
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
         credential["issuer"] ="did:ebsi:"
         credential["credentialSubject"]['id'] ="did:example:xxxxx:"    
-        try :
-            credential_manifest = json.load(open('./credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
-        except :
-            logging.error('credential manifest not found or error %s', issuer_data['credential_to_issue'])
-            return render_template('op_issuer_removed.html')
+        #try :
+        credential_manifest = json.load(open('./credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
+        #except :
+        #    logging.error('credential manifest not found or error %s', issuer_data['credential_to_issue'] + '_credential_manifest.json')
+        #    return render_template('op_issuer_removed.html')
         if issuer_data['method'] == "ebsi" :
             issuer_did =  issuer_data['did_ebsi']
         elif issuer_data['method'] == "relay" :
@@ -58,16 +58,19 @@ async def beacon_landing_page(issuer_id, red) :
             issuer_did = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])
     
         # update credential manifest
+        
         credential_manifest['id'] = str(uuid.uuid1())
-        credential_manifest['output_descriptors'][0]['id'] = str(uuid.uuid1())
-        credential_manifest['output_descriptors'][0]['schema'] = "https://github.com/TalaoDAO/wallet-tools/blob/main/test/CredentialOffer2/" + issuer_data['credential_to_issue'] + '.jsonld'
-        credential_manifest['output_descriptors'][0]['display']['title']['fallback'] = issuer_data['card_title']
-        credential_manifest['output_descriptors'][0]['display']['subtitle']['fallback'] = issuer_data['card_subtitle']
-        credential_manifest['output_descriptors'][0]['display']['description']['fallback'] = issuer_data['card_description']
-        credential_manifest['output_descriptors'][0]['styles'] = {
-            'background' : {'color' : issuer_data['card_background_color']},
-            'text' : { 'color' : issuer_data['card_text_color']}}
-    
+        try :
+            credential_manifest['output_descriptors'][0]['id'] = str(uuid.uuid1())
+            credential_manifest['output_descriptors'][0]['schema'] = "https://github.com/TalaoDAO/wallet-tools/blob/main/test/CredentialOffer2/" + issuer_data['credential_to_issue'] + '.jsonld'
+            credential_manifest['output_descriptors'][0]['display']['title']['fallback'] = issuer_data.get('card_title', "Unknown")
+            credential_manifest['output_descriptors'][0]['display']['subtitle']['fallback'] = issuer_data.get('card_subtitle', "Unknown")
+            credential_manifest['output_descriptors'][0]['display']['description']['fallback'] = issuer_data.get('card_description', "Unkwon")
+            credential_manifest['output_descriptors'][0]['styles'] = {
+                'background' : {'color' : issuer_data['card_background_color']},
+                'text' : { 'color' : issuer_data.get('card_text_color', "#000000")}}
+        except :
+            pass
         credential_manifest['issuer']['id'] = issuer_did
         credential_manifest['issuer']['name'] = issuer_data['company_name']
         if issuer_data['credential_requested'] == "DID" : 

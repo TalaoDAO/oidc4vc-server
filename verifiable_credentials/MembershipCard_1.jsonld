@@ -2,8 +2,6 @@
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
-            "name" : "https://schema.org/name",
-            "description" : "https://schema.org/description",
             "MembershipCard_1" : {
                 "@id": "https://github.com/TalaoDAO/context/blob/main/README.md",
                 "@context": {
@@ -12,6 +10,8 @@
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
+                    "ageRange" : "schema:ageRange",
+                    "addressCountry" : "schema:addressCountry",
                     "associatedAddress" : {
                         "@id": "https://schema.org/address",
                         "@context" : {
@@ -29,6 +29,8 @@
                             "category" : "schema:category",
                             "duration" : "schema:duration",
                             "endDate" : "schema:date",
+                             "analytics" : "schema:website",
+                            "userGuide" : "schema:userGuide",
                             "cardPrice": {
                                 "@context": {
                                     "@version": 1.1,
@@ -55,15 +57,7 @@
                                     "website" : "schema:website",
                                     "logo": {"@id" : "schema:image", "@type" : "@id"},
                                     "did" : "schema:identifier",
-                                    "name" : "schema:name",
-                                    "paymentMethod" : {
-                                        "@id" : "schema:paymentMethod",
-                                        "@context" : {
-                                            "currency" : "schema:currency",
-                                            "blockchain" : "schema:name",
-                                            "blockchainAccount" : "schema:identifier"
-                                        }
-                                    }
+                                    "name" : "schema:name"         
                                 }
                             }
                         }
@@ -76,23 +70,7 @@
                             "website" : "schema:website",
                             "logo": {"@id" : "schema:image", "@type" : "@id"},
                             "did" : "schema:identifier",
-                            "name" : "schema:name",
-                            "paymentAccepted" : {
-                                "@id" : "schema:paymentMethod",
-                                "@context" : {
-                                    "currency" : "schema:currency",
-                                    "blockchain" : "schema:name",
-                                    "blockchainAccount" : "schema:identifier"
-                                }
-                            },
-                            "paymentMethod" : {
-                                "@id" : "schema:paymentMethod",
-                                "@context" : {
-                                    "currency" : "schema:currency",
-                                    "blockchain" : "schema:name",
-                                    "blockchainAccount" : "schema:identifier"
-                                } 
-                            }
+                            "name" : "schema:name"
                         }
                     }
                 }
@@ -102,78 +80,39 @@
     "id": "urn:uuid:random",
     "type": ["VerifiableCredential", "MembershipCard_1"],
     "issuer": "did:tz:issuer",
-    "name" : [ 
-        {
-            "@value": "5% off Tezotopia NFTs",
-            "@language": "en"
-        },
-        {
-            "@value": "5% off Tezotopia NFTs",
-            "@language": "de"
-        },
-        {
-            "@value": "5% de reduction sur les NFT Tezotopia",
-            "@language": "fr"
-        }
-    ],
-    "description" : [
-        {
-            "@language": "en",
-            "@value": "Get a Tezotopia Membership card"
-        },
-        {
-            "@language": "de",
-            "@value": "Erhalten Sie 5 % Rabatt auf Ihren ersten Tezotop-Block!"
-        },
-        {
-            "@language": "fr",
-            "@value": "Get a Tezotopia Membership card"
-        }
-    ],
     "credentialSubject" : {
         "id" : "did:wallet",
         "type" : "MembershipCard_1",
+        "ageRange" : "",
+        "addressCountry" : "",
         "associatedAddress" : {
-                "blockchainTezos" : "tz1345765476547654",
-                "blockchainEthereum" : "0x1345765476547654"
+                "blockchainTezos" : ""
         },
         "offers" : {
             "startDate" : "2022-04-08T19:55:00Z",
             "endDate" : "2022-06-08T19:55:00Z",
             "category" : "membershipcard",
-            "duration" : "360",
+            "duration" : "365",
+             "analytics" : "",
+            "userGuide" :  "https://altme.io/#steps-03-575161",
             "cardPrice" : {
                 "currency" : "EUR",
-                "value" : "50"
+                "value" : "0"
             },
             "benefit" : {
                 "category" : "discount",
-                "discount" : "5%"
+                "discount" : "25%"
             },    
             "offeredBy": {
                 "logo": "ipfs://QmZmdndUVRoxiVhUnjGrKnNPn8ah3jT8fxTCLMnAzRAFFZ",
                 "name": "GifGames",
-                "description" : "gaming platform Tezotopia",
-                "paymentMethod" : {
-                    "blockchain" : "Tezos",
-                    "currency" : "XTZ",
-                    "blockchainAccount" : "tz1iyjrTUNxDpPaqNZ84ipGELAcTWYg66789"
-                }
+                "website" : "https://tezotopia.com",
+                "description" : "gaming platform Tezotopia"
             }
         },
         "issuedBy": {
             "logo": "ipfs://QmZmdndUVRoxiVhUnjGrKnNPn8ah3jT8fxTCLMnAzRAFFZ",
-            "name": "Talao",
-            "paymentAccepted" : {
-                "blockchain" : "Tezos",
-                "currency" : "XTZ",
-                "blockchainAccount" : "tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
-            },
-            "paymentMethod" : {
-                "blockchain" : "Tezos",
-                "currency" : "XTZ",
-                "blockchainAccount" : "tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
-            }
+            "name": "Altme"
         }
     }
 }

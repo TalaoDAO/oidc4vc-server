@@ -14,6 +14,9 @@ import datetime
 
 logging.basicConfig(level=logging.INFO)
 
+DID_issuer = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
+
+
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/console/logout',  view_func=beacon_nav_logout, methods = ['GET', 'POST'])
@@ -39,8 +42,7 @@ def beacon_console_logout():
 """
 
 async def beacon_qrcode() :
-    DID, did_ebsi, jwk, did_document = await did(session)
-    payload = session['client_data']['issuer_landing_page'] + "?issuer=" + DID
+    payload = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
     url = payload.split('#')[1]
     return render_template('beacon_qrcode.html', url=url, payload=payload)
 
@@ -208,7 +210,7 @@ async def beacon_console(mode) :
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
         
-        DID, did_ebsi, jwk, did_document = await did(session)
+        #DID, did_ebsi, jwk, did_document = await did(session)
         return render_template('beacon_console.html',
                 standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 login_name=session['login_name'],
@@ -216,7 +218,7 @@ async def beacon_console(mode) :
                 client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 webhook=session['client_data']['webhook'],
-                issuer_landing_page = session['client_data']['issuer_landing_page'] + "?issuer=" + DID,
+                issuer_landing_page = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer,
                 contact_name = session['client_data'].get('contact_name'),
                 contact_email = session['client_data'].get('contact_email'),
                 privacy_url = session['client_data'].get('privacy_url'),

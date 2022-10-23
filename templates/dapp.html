@@ -1,42 +1,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Style-Type" content="text/css" />
-    <title>Beacon Example DApp</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
-
-    <script>
-      // This will enable the debug mode of beacon
-      // This should only be used during development
-      window.beaconSdkDebugEnabled = true
-    </script>
+  <head> 
+    {% include 'head.html' %}
+    <script> window.beaconSdkDebugEnabled = true    </script>
     <script src="/static/walletbeacon.min.js"></script>
-
-
-  
-    <style>
-      /* To test if our UI is affected by global styles */
-      /* div {
-        background-color: red;
-      }
-
-      span {
-        background-color: orange;
-      } */
-    </style>
   </head>
 
   <body>
-    Beacon Example
-    <br /><br />
+    {% include "dapp_nav_bar.html" %}
+
+<div class="p-5"> 
+
     <span>
-      Active account:
-      <span id="activeAccount"></span>
-      <span id="activeAccountNetwork"></span>
-      <span id="activeAccountTransport"></span>
+      Active account : <span id="activeAccount"></span><br>
+      Network : <span id="activeAccountNetwork"></span><br>
+      Transport : <span id="activeAccountTransport"></span>
     </span>
     <br /><br />
     <button id="requestPermission">Request Permission</button>
@@ -51,14 +29,27 @@
     <br /><br />
     <button id="sendContractCall">Send Contract Call</button>
     <br /><br />
-    <button id="signPayloadRaw">Sign Payload (Raw)</button>
+    <button id="signPayloadRaw">Sign Payload (Raw)</button><br>
+    <input id="PayloadValue"  size="100" type="text" value="Any string">
+    <br /><br />
+
+    <form action="/sandbox/saas4ssi/dapp" method = "POST">
+      <button id="synchroAltmeButton"  style="background-color: rgb(211, 148, 148)" type="submit" >Add this address to Altme</button><br>
+      <input id="synchroAltme" hidden name="address" value="">
+      <input id="synchroAltmeWallet" hidden name="wallet" value="">
+    </form>
+
     <br /><br />
     <button id="signPayloadOperation">Sign Payload (Operation)</button>
     <br /><br />
     <button id="signPayloadMicheline">Sign Payload (Micheline)</button>
     <br /><br />
-    <strong></stron>Altme integration Test<strong><br><br>
-    <button id="signPayloadAltme" style="background-color: rgb(211, 148, 148)">Altme welcome credential</button>
+    <button id="signPayloadAltme" style="background-color: rgb(211, 148, 148)">Get your Welcome card !</button>
+    <br><br>  
+    <button id="signPayloadBloometa" style="background-color: rgb(211, 148, 148)">Get your Bloometa card !</button>
+    <br><br>  
+    <button id="signPayloadVoucher" style="background-color: rgb(211, 148, 148)">Get your Tezotopia voucher !</button>
+
 
     <br /><br /><br /><br /><br /><br />
     <button id="sendNotification">Send notification</button>
@@ -123,6 +114,8 @@
     <br /><br />
     <p style="margin-top: 1000px">End of page</p>
 
+  </div>
+
     <script>
       class MyLogger {
         constructor() {}
@@ -180,9 +173,12 @@
       const updateActiveAccount = () => {
         client.getActiveAccount().then((activeAccount) => {
           if (activeAccount) {
+            console.log(activeAccount)
             document.getElementById('activeAccount').innerText = activeAccount.address
             document.getElementById('activeAccountNetwork').innerText = activeAccount.network.type
             document.getElementById('activeAccountTransport').innerText = activeAccount.origin.type
+            document.getElementById("synchroAltme").value = activeAccount.address
+
           } else {
             document.getElementById('activeAccount').innerText = ''
             document.getElementById('activeAccountNetwork').innerText = ''
@@ -311,9 +307,10 @@
 
       // Add event listener to the button
       document.getElementById('signPayloadRaw').addEventListener('click', async () => {
+        const inputPayload = document.getElementById('PayloadValue').value;
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Any string for a message to display'
+          payload: inputPayload
                })
 
         console.log('signature:', signature)
@@ -323,7 +320,17 @@
        document.getElementById('signPayloadAltme').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: '<Any string for a message to display>#http://192.168.0.220:3000/sandbox/op/beacon/trbyirizqq?issuer=did:ethr:0x2cf7bcfcc95b4105b2702c6332969342e52e9326'
+          payload: 'Get your Welcome card ! #https://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
+               })
+
+        console.log('signature:', signature)
+      })
+
+      // Add event listener to the button
+      document.getElementById('signPayloadBloometa').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: 'Get your Welcome card ! #https://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
                })
 
         console.log('signature:', signature)
@@ -426,6 +433,21 @@
       document.getElementById('removePeer').addEventListener('click', () => {
         client.getPeers().then((peers) => {
           if (peers.length > 0) {
+            client.removePeer(peers[0], true).then(() => {
+              console.log('peer removed', peers[0])
+              updateActiveAccount()
+            })
+          } else {
+            console.log('no peers to be removed')
+          }
+        })
+      })
+
+      // Add event listener to the button
+      document.getElementById('synchroAltmeButton').addEventListener('click', () => {
+        client.getPeers().then((peers) => {
+          if (peers.length > 0) {
+            document.getElementById('synchroAltmeWallet').value=peers[0].name;
             client.removePeer(peers[0], true).then(() => {
               console.log('peer removed', peers[0])
               updateActiveAccount()
@@ -542,5 +564,13 @@
           .then((res) => console.log('Notification Response', res))
       })
     </script>
+
+{% include 'user_footer.html' %}
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+
   </body>
 </html>

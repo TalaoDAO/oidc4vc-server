@@ -14,7 +14,7 @@
 	"credentialSubject" : {
        		"id" : "did:key:wallet AltMe",
        		"type" : "TezosAssociatedAddress",
-          	"associatedAddress" : "tz1345765476547654",
-		    "accountName" : "Account 1"
+          	"associatedAddress" : "",
+		    "accountName" : ""
 	}
 }

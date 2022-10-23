@@ -345,6 +345,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
 
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
+        credential['credentialSubject']['type'] = issuer_data['credential_to_issue']
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
         duration = issuer_data.get('credential_duration', "365")
         credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
@@ -412,6 +413,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 "vp" : json.loads(request.form['presentation'])
         }
         issuer_activity_db_api.create(issuer_id, activity) 
+        print("signed_credential =", signed_credential)
         return jsonify(signed_credential)
         
 
