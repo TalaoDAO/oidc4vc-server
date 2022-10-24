@@ -76,18 +76,29 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p style="color: #09060f;" class="m-0 font-weight-bold">Landing page link, client secret and application endpoints</p>
+                              <p style="color: #09060f;" class="m-0 font-weight-bold">Beacon payload and webhook</p>
                             </div>
                           </div>
                           <div class="card-body">
 
+                            <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>Payload message</strong></label><input class="form-control" type="text" name="beacon_payload_message" value="{{beacon_payload_message}}"></div>
+                              </div>
+    
+                            </div>
                         <div class="form-row">
                           <div class="col">
-                            <div class="form-group"><label><strong>Beacon payload (RAW)</strong></label><input readonly class="form-control" type="text" value="{{issuer_landing_page}}"></div>
+                            <div class="form-group"><label><strong>Beacon payload (RAW)</strong></label><input readonly class="form-control" type="text" value="{{raw_payload}}"></div>
                           </div>
 
                         </div>
+                        <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>Beacon payload (MICHELINE)</strong></label><input readonly class="form-control" type="text" value="{{micheline_payload}}"></div>
+                          </div>
 
+                        </div>
                         <div class="form-row">
                           <div class="col">
                             <div class="form-group"><label><strong>Client secret to check webhook call</strong></label><input readonly class="form-control" type="text" value={{client_secret}}></div>
@@ -100,8 +111,15 @@
                         </div>
 
                         <div class="form-row">
-                          <div class="col"><button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="qrcode" type="submit">Test with wallet and QR code</button></div>
+                          <div class="col">
+                            <button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="qrcode" type="submit">Test with wallet and QR code</button>
                           </div>
+                          
+                          <div class="col">
+                            <button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="update" type="submit">Refresh</button>
+                          </div>
+                          </div>
+
                         </div>
                         </div>
 

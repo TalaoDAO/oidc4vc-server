@@ -45,7 +45,7 @@ def create_beacon(mode, user=None, method="ethr") :
     data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['client_secret'] = str(uuid.uuid1())
-    data['issuer_landing_page'] = '<Any string for a message to display>#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
+    data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
     # init with did:ethr
     key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
     data['jwk'] = key.export_private()

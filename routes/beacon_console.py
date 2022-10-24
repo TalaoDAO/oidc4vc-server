@@ -9,8 +9,7 @@ import uuid
 from op_constante import credential_requested_list, credential_requested_list_2, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import ebsi
 import beacon_activity_db_api
-import pyotp
-import datetime
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -210,15 +209,20 @@ async def beacon_console(mode) :
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
         
+        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+        micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
         #DID, did_ebsi, jwk, did_document = await did(session)
         return render_template('beacon_console.html',
+                raw_payload = raw_payload,
+                micheline_payload = micheline_payload,
+                beacon_payload_message = session['client_data'].get('beacon_payload_message', 'Any string'),
                 standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
                 client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 webhook=session['client_data']['webhook'],
-                issuer_landing_page = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer,
+                #issuer_landing_page = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer,
                 contact_name = session['client_data'].get('contact_name'),
                 contact_email = session['client_data'].get('contact_email'),
                 privacy_url = session['client_data'].get('privacy_url'),
@@ -250,6 +254,7 @@ async def beacon_console(mode) :
             db_api.delete_beacon( request.form['client_id'])
             return redirect ('/sandbox/op/beacon/console')
         else :
+            session['client_data']['beacon_payload_message'] = request.form['beacon_payload_message']
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['standalone'] = request.form.get('standalone') 
             session['client_data']['user'] = request.form['user']
@@ -297,6 +302,9 @@ async def beacon_console(mode) :
                 new_data['user'] = session['login_name']
                 db_api.update_beacon(new_client_id, json.dumps(new_data))
                 return redirect('/sandbox/op/beacon/console?client_id=' + new_client_id)
+            
+            print("error button", request.form['button'])
+            return(jsonify('ok'))
 
 
 async def beacon_advanced() :
@@ -379,3 +387,23 @@ async def did(session) :
         jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
         did_ebsi = 'Not applicable'
     return DID, did_ebsi, jwk, did_document
+
+
+"""
+https://docs.walletbeacon.io/guides/sign-payload/
+https://tezostaquito.io/docs/signing/#generating-a-signature-with-beacon-sdk
+"""
+def payload_tezos(input, signature_type) :
+    def char2Bytes(text): 
+        return text.encode('utf-8').hex()
+    formattedInput = ' '.join([
+        'Tezos Signed Message:',
+        'altme.io',
+        datetime.now().replace(microsecond=0).isoformat() + "Z",
+        input
+        ])
+    code = '05' if signature_type == "MICHELINE" else '03'
+    bytes = char2Bytes(formattedInput)
+    payloadBytes = code + '0100' + char2Bytes(str(len(bytes)))  + bytes
+    return payloadBytes
+

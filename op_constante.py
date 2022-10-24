@@ -212,6 +212,7 @@ model_any = {
 
 client_data_pattern = {
                 #"authorized_emails" : "",
+                "beacon_payload_message" : "Any string for a message to display",
                 "pkce" : None,
                 "vc" : "DID",
                 "vc_issuer_id" : "",
