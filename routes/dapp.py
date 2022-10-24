@@ -24,7 +24,9 @@ def dapp_wallet(red):
     else :
         id = str(uuid.uuid1())
         red.set(id, json.dumps({"associatedAddress" : request.form["address"],
-                                "accountName" : request.form["wallet"]}))
+                                "accountName" : request.form["wallet"],
+                                "issuedBy" : {"name" : "Altme"}}))
+
         return redirect (link + "?id=" + id)
 
 def dapp_webhook(red) :

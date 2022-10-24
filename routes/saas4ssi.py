@@ -96,7 +96,7 @@ def saas_login(mode):
         client_id = "zpfzzwfstl"
     else :
         client_id = "grtqvinups"
-    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback_2"
+    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&response_mode=query&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback_2"
     return redirect (url)
        
 
@@ -107,7 +107,7 @@ def saas_signup(mode):
         client_id = "evqozlvnsm"
     else :
         client_id = "tjxhcdbxei"
-    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
+    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&response_mode=query&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
     return redirect (url)
 
 

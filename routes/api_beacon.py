@@ -45,11 +45,11 @@ async def beacon_landing_page(issuer_id, red) :
         credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
         credential["issuer"] ="did:ebsi:"
         credential["credentialSubject"]['id'] ="did:example:xxxxx:"    
-        #try :
-        credential_manifest = json.load(open('./credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
-        #except :
-        #    logging.error('credential manifest not found or error %s', issuer_data['credential_to_issue'] + '_credential_manifest.json')
-        #    return render_template('op_issuer_removed.html')
+        try :
+            credential_manifest = json.load(open('./credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'))
+        except :
+            logging.error('credential manifest not found or error %s', issuer_data['credential_to_issue'] + '_credential_manifest.json')
+            return render_template('op_issuer_removed.html')
         if issuer_data['method'] == "ebsi" :
             issuer_did =  issuer_data['did_ebsi']
         elif issuer_data['method'] == "relay" :

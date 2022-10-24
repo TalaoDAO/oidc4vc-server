@@ -2,10 +2,20 @@
 	"@context": [ "https://www.w3.org/2018/credentials/v1", 
 		{
 			"accountName" :  "https://schema.org/identifier",
-      		"associatedAddress" : "https://schema.org/account"
+      		"associatedAddress" : "https://schema.org/account",
+			"issuedBy": {
+				"@id": "schema:issuedBy",
+				"@context": {
+					"@version": 1.1,
+					"@protected": true,
+					"schema" : "https://schema.org/",
+					"name" :  "schema:name",
+					"logo" : { "@id" : "schema:logo", "@type" : "@id"}
+				}
+			}
        		}
    	],
-	"id" : "urn:uuid:53d-bb37-0242ac130002",
+	"id" : "urn:uuid:xxxxxxxx",
 	"type": [
         		"VerifiableCredential",
            		"TezosAssociatedAddress"
@@ -15,6 +25,7 @@
        		"id" : "did:key:wallet AltMe",
        		"type" : "TezosAssociatedAddress",
           	"associatedAddress" : "",
-		    "accountName" : ""
+		    "accountName" : "",
+			"issuedBy" : {"name" : ""}
 	}
 }
