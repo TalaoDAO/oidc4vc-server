@@ -42,6 +42,8 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/sandbox/saas4ssi/logout',  view_func=saas_logout, methods = ['GET', 'POST'])
 
+    app.add_url_rule('/sandbox/saas4ssi/webhook',  view_func=default_webhook, methods = ['POST'])
+
 
     return
 
@@ -56,6 +58,11 @@ def saas_device_detector ():
     else :
         return jsonify('unknown device')    
 """
+
+def default_webhook() :
+     data = request.get_json()   
+     print('webiook data = ', data)
+     return jsonify ('ok')
 
 def saas_home():
     session.clear()
