@@ -12,7 +12,7 @@ async def dereference_did_url(did_url: str, input_metadata: str) -> str: ...
 async def did_auth(did: str, options: str, key: str) -> str: ...
 """
 
-from flask import jsonify, request, render_template
+from flask import jsonify, request, render_template, redirect, url_for
 import json
 from datetime import timedelta, datetime
 import uuid
@@ -28,11 +28,11 @@ OFFER_DELAY = timedelta(seconds= 10*60)
 DID_issuer = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/beacon/<issuer_id>',  view_func=beacon_landing_page, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/op/beacon/<issuer_id>',  view_func=beacon_landing, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     return
 
 
-async def beacon_landing_page(issuer_id, red) :
+async def beacon_landing(issuer_id, red, mode) :
     try :
         issuer_data = json.loads(db_api.read_beacon(issuer_id))
     except :
@@ -121,7 +121,7 @@ async def beacon_landing_page(issuer_id, red) :
                                 }]}}
                 credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_4)
 
-        logging.info("credential manifest = %s", credential_manifest)
+        #logging.info("credential manifest = %s", credential_manifest)
         if not request.args.get('id') :
             logging.warning("no id passed by application")
         id = str(uuid.uuid1())
@@ -239,3 +239,4 @@ def event_signed_credential(issuer_data, signed_credential, id) :
         logging.error('issuer failed to send signed credential to application, status code = %s', r.status_code)
     else :
          logging.info('signed credential sent to application')
+

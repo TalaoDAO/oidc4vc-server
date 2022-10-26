@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+     
+      <div id="content">
+        {% include 'beacon/beacon_verifier_nav_bar.html' %}
+
+        <div class="container-fluid mt-3">
+          <div class="text-center mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-10 offset-lg-1 ">
+
+             
+                  <div class="card shadow mt-5">
+                    <div class="card-header py-3">
+                      <div class="d-flex justify-content-between">
+                        <p style="color:#09060f;" class=" m-0 font-weight-bold">Select a verifier</p>
+                      
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form action="/sandbox/op/beacon/verifier/console/select" method="POST">
+
+                       
+                        <div class="form-row">
+
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                              <div style="height:600px;overflow:auto;overflow-x: hidden;"> 
+                              <table class="table my-0" id="dataTable">
+                                  <thead>
+                                      <tr>
+                                          <th style="width: 15%" >Application Name</th>
+                                          <th style="width: 5%" >Act.</th>
+                                          <th style="width: 10%" >User</th>
+                                          <th style="width: 10%">Credential</th>
+                                          <th style="width: 5%">Data transf.</th>
+                                          <th style="width: 25%" >Callback URL</th>
+                                          <th style="width: 10%">Client Id</th>
+                                          <th style="width: 20%">Client Secret</th>
+                                         
+                                         
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{verifier_list|safe}}
+                                  </tbody>
+                              </table>
+                             </div> 
+                          </div>
+                       
+                        
+                        </div>
+
+                        
+
+                        
+                      </form>
+                    </div>
+                  </div>
+                </div>
+             
+          </div>
+        </div>
+      </div>
+
+      {% include 'user_footer.html' %}
+
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

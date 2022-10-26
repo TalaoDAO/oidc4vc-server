@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- beacon_qrcode.html -->
+<html >
+  <head>
+   
+    <meta charset="utf-8">
+   <meta name="viewport" content="width=300px, initial-scale=1, maximum-scale=1">  
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
+    <title>{{company_name}}</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+  </head>
+  <body >
+
+
+        <div>
+          
+        
+
+          <div class="row d-flex justify-content-center mt-5">    
+              <div class="col-2 mt-5">
+
+              <div class="text-center border-radius: 20%">
+                <div class="card shadow border-dark mt-5 " ">
+                <img class="card-img-top p-3 " src="{{ qrcode(url) }}">       
+                </div>
+              </div>
+               
+            </div>  
+          </div>  
+          <div class="text-center mt-5">
+            url = {{url}}<br>
+            Beacon payload = {{payload}}<br><br>
+
+            <button  onclick="goBack()" class="btn btn-outline-secondary mt-2">Back to configurator</button>
+          </div>  
+        </div>
+        
+
+
+       
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+ 
+      <script>      
+                function goBack() {  window.history.back();}
+      </script>
+    
+      
+      
+    
+     
+
+  </body>
+</html>

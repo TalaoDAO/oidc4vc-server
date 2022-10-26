@@ -4,3 +4,4 @@ keys.json
 passwords.json
 issuer.db
 verifier.db
+node_modules

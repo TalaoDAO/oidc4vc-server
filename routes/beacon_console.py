@@ -43,6 +43,7 @@ def beacon_console_logout():
 async def beacon_qrcode() :
     payload = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
     url = payload.split('#')[1]
+    payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
     return render_template('beacon_qrcode.html', url=url, payload=payload)
 
 

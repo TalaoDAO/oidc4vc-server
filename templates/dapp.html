@@ -166,8 +166,8 @@
 
       // Initiate DAppClient
       const client = beacon.getDAppClientInstance({
-        name: 'Example DApp', // Name of the DApp,
-        disclaimerText: 'This is an optional <b>disclaimer</b>.',
+        name: 'Altme', // Name of the DApp,
+        disclaimerText: '',
         errorMessages: {
           KT1RPW5kTX6WFxg8JK34rGEU24gqEEudyfvz: {
             NOT_OWNER: 'You are not the owner of this token.'
@@ -332,7 +332,7 @@
        document.getElementById('signPayloadAltme').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Welcome card ! #https://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
+          payload: 'Get your Welcome card ! #http (RAW signingType)s://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
                })
         console.log('signature:', signature)
       })
@@ -341,7 +341,7 @@
       document.getElementById('signPayloadBloometa').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Bloometa card ! #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
+          payload: 'Get your Bloometa card ! (RAW signingType) #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
                })
         console.log('signature:', signature)
       })
@@ -350,7 +350,7 @@
    document.getElementById('signPayloadVoucher').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Tezotopia voucher ! #https://talao.co/sandbox/op/beacon/kmjdgmvtpu?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
+          payload: 'Get your Tezotopia voucher ! (RAW signingType) #https://talao.co/sandbox/op/beacon/kmjdgmvtpu?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
                })
         console.log('signature:', signature)
       })
@@ -380,7 +380,8 @@
       document.getElementById('signPayloadOperation').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.OPERATION,
-          payload: '04010031343854657a6f73205369676e6564204d6573736167653a2072617269626c652e636f6d20323032322d31302d32315430383a35353a34352e3739335a2068656c6c6f2066726f6d2054616c6f'
+          // Could you please authenticate with your credential ? # https://talao.co/sandbox/wallet_presentation/14503f75-5146-11ed-b0f6-0a1628958560?issuer=did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk
+          payload: '030100333734436f756c6420796f7520706c656173652061757468656e746963617465207769746820796f75722063726564656e7469616c203f20232068747470733a2f2f74616c616f2e636f2f73616e64626f782f77616c6c65745f70726573656e746174696f6e2f31343530336637352d353134362d313165642d623066362d3061313632383935383536303f6973737565723d6469643a747a3a747a324e516b507133464641337a47417947386b4c635761744762655870484d7537796b'
         })
 
         console.log('signature:', signature)

@@ -32,6 +32,17 @@ def list_issuer() :
 def delete_issuer(client_id) :
     return delete(client_id, 'issuer.db')
 
+def update_beacon_verifier(client_id, data) :
+    return update(client_id, data, 'beacon_verifier.db')
+def read_beacon_verifier(client_id) :
+    return read(client_id, 'beacon_verifier.db')
+def list_beacon_verifier() :
+    return list('beacon_verifier.db')
+def delete_beacon_verifier(client_id) :
+    return delete(client_id, 'beacon_verifier.db')
+def create_beacon_verifier(mode, user=None, method="ethr") :
+    return create_b('beacon_verifier.db', user, mode, method)
+
 def update_beacon(client_id, data) :
     return update(client_id, data, 'beacon.db')
 def read_beacon(client_id) :
@@ -41,11 +52,17 @@ def list_beacon() :
 def delete_beacon(client_id) :
     return delete(client_id, 'beacon.db')
 def create_beacon(mode, user=None, method="ethr") :
+    return create_b('beacon.db', user, mode, method)
+
+def create_b(db, user, mode, method) :
     letters = string.ascii_lowercase
     data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['client_secret'] = str(uuid.uuid1())
-    data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
+    if db == 'beacon.db' :
+        data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
+    else :
+        data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/verifier/' + data['client_id']
     # init with did:ethr
     key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
     data['jwk'] = key.export_private()
@@ -54,7 +71,7 @@ def create_beacon(mode, user=None, method="ethr") :
     data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
     if user :
         data['user'] = user
-    conn = sqlite3.connect('beacon.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     db_data = { "client_id" : data['client_id'] ,"data" :json.dumps(data)}
     try :

@@ -61,6 +61,25 @@ credential_list_for_guest = {
                     'ANY' : 'Any'
                 }
 
+# for beacon verifier for guest
+beacon_verifier_credential_list = {
+                    'Pass' : 'Pass',
+                    #"TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    #'EmailPass' : 'Proof of email',
+                    #'PassportNumber' : 'Passport footprint',
+                    #'PhoneProof' : 'Proof of phone',
+                    #'AgeRange' : 'Age range',
+                    #'Nationality' : 'Nationality',
+                    #'Gender' : 'Gender',
+                    'BloometaPass' : 'Bloometa gaming card',
+                    'IdCard' : 'Identity card',
+                    'Over18' : 'Over 18',
+                    'Over13' : 'Over 13',
+                    'AragoPass' : 'Arago Pass',
+                    'DID' : "None",
+                    #'ANY' : 'Any'
+                }
+
 # issuer
 credential_to_issue_list = {
                     'Pass' : 'Pass',
@@ -187,6 +206,30 @@ model_two = {
             "domain" : ""
             }
 
+model_three = {
+            "type": "VerifiablePresentationRequest",
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": [
+                        {
+                            "example" : {"type" : ""},
+                            "reason": [{"@language": "en","@value": ""}]
+                        },
+                        {
+                            "example" : {"type" : ""},
+                            "reason": [{"@language": "en","@value": ""}]
+                        },
+                        {
+                            "example" : {"type" : ""},
+                            "reason": [{"@language": "en","@value": ""}]
+                        }
+                    ]
+                }
+            ],
+            "challenge": "",
+            "domain" : ""
+            }
 
 model_DIDAuth = {
            "type": "VerifiablePresentationRequest",
@@ -212,6 +255,7 @@ model_any = {
 
 client_data_pattern = {
                 #"authorized_emails" : "",
+                "beacon_mode" : "issuer",
                 "beacon_payload_message" : "Any string for a message to display",
                 "pkce" : None,
                 "vc" : "DID",
