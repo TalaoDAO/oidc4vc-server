@@ -61,7 +61,7 @@ def saas_device_detector ():
 
 def default_webhook() :
      data = request.get_json()   
-     print('webiook data = ', data)
+     print('webook data = ', data)
      return jsonify ('ok')
 
 def saas_home():
