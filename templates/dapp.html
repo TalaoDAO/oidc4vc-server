@@ -52,11 +52,15 @@
     <br /><br />
     <button id="signPayloadMicheline">Sign Payload (Micheline)</button>
     <br /><br />
-    <button id="signPayloadAltme" style="background-color: rgb(140, 219, 121)">Get your Welcome card !</button>
+    <button id="signPayloadAltme" style="background-color: rgb(140, 219, 121)">Get your Welcome card ! (RAW)</button>
     <br><br>  
-    <button id="signPayloadBloometa" style="background-color: rgb(140, 219, 121) ">Get your Bloometa card !</button>
+    <button id="signPayloadBloometa" style="background-color: rgb(140, 219, 121) ">Get your Bloometa gaming card (RAW)</button>
     <br><br>  
-    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your Tezotopia voucher !</button>
+    <button id="signPayloadOver18" style="background-color: rgb(140, 219, 121) ">I am over 18 ! (OPERATION)</button>
+    <br><br> 
+    <button id="signPayloadOver13" style="background-color: rgb(140, 219, 121) ">I am over 13 ! (MICHELINE)</button>
+    <br><br> 
+    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your Tezotopia voucher ! (RAW)</button>
 
 
     <br /><br /><br /><br /><br /><br />
@@ -332,7 +336,25 @@
        document.getElementById('signPayloadAltme').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Welcome card ! #http (RAW signingType)s://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
+          payload: 'Get your Welcome card ! #https://talao.co/sandbox/op/beacon/ormmcdomjv?issuer=did:ethr:0x64098e894fea5b83e7e4c52a30d70b98e25bd9d5'
+               })
+        console.log('signature:', signature)
+      })
+
+       // Add event listener to the button
+       document.getElementById('signPayloadOver18').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.OPERATION,
+          payload: '03010033363054657a6f73205369676e6564204d6573736167653a20616c746d652e696f20323032322d31302d32365430393a31383a33355a204920616d206f766572203138207965617273206f6c642368747470733a2f2f74616c616f2e636f2f73616e64626f782f6f702f626561636f6e2f76657269666965722f6a766c666f70656f67743f6973737565723d6469643a747a3a747a314e796a7254554e7844705061714e5a3834697047454c4163545759673673354475'
+               })
+        console.log('signature:', signature)
+      })
+
+      // Add event listener to the button
+      document.getElementById('signPayloadOver13').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.MICHELINE,
+          payload: '05010033363054657a6f73205369676e6564204d6573736167653a20616c746d652e696f20323032322d31302d32365430393a32333a34365a204920616d206f766572203133207965617273206f6c642368747470733a2f2f74616c616f2e636f2f73616e64626f782f6f702f626561636f6e2f76657269666965722f74756169747663726b6c3f6973737565723d6469643a747a3a747a314e796a7254554e7844705061714e5a3834697047454c4163545759673673354475'
                })
         console.log('signature:', signature)
       })
@@ -341,7 +363,7 @@
       document.getElementById('signPayloadBloometa').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Bloometa card ! (RAW signingType) #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
+          payload: 'Get your Bloometa card ! #https://talao.co/sandbox/op/beacon/saunmrbsxk?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
                })
         console.log('signature:', signature)
       })
@@ -350,7 +372,7 @@
    document.getElementById('signPayloadVoucher').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
-          payload: 'Get your Tezotopia voucher ! (RAW signingType) #https://talao.co/sandbox/op/beacon/kmjdgmvtpu?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
+          payload: 'Get your Tezotopia voucher ! #https://talao.co/sandbox/op/beacon/kmjdgmvtpu?issuer=did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du'
                })
         console.log('signature:', signature)
       })
