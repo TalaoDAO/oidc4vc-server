@@ -70,18 +70,20 @@ async def beacon_verifier(verifier_id, red, mode):
         async def check_credential(credential) :     
             result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
             if json.loads(result_credential)['errors']  :       
-                return jsonify("credential signature check failed")
+                logging.warning("credential signature check failed")
+                return False
             if  credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
                 if credential["credentialSubject"]['type'] == "AragoPass" :
                     logging.error("DID does not match in Arago pass")
-                else :       
-                    return jsonify("holder does not match subject.id")
+                else :  
+                    logging.warning("holder does not match subject.id")     
+                    return False
             if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
-                return jsonify("credential expired")
+                return False
             if credential['issuer'] not in TRUSTED_ISSUER :
                 logging.warning("issuer not in trusted list")
                 #return manage_error("issuer not in trusted list")
-            return
+            return True
 
         presentation = request.form['presentation'] # string
         id = json.loads(presentation)['proof']['challenge']
@@ -92,14 +94,23 @@ async def beacon_verifier(verifier_id, red, mode):
         logging.info("check presentation = %s", await didkit.verify_presentation(presentation,  '{}'))
 
         credential = json.loads(presentation)['verifiableCredential']
+        verification = True
+
         if isinstance(credential, dict) :
             if credential["credentialSubject"]['type'] == "Pass" :
                 if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
-                    return jsonify("Pass issuer id does not match")
-            await check_credential(credential)
+                    verification = False
+                    logging.warning("Pass issuer id does not match")
+            if not await check_credential(credential) :
+                verification = False
         else :
-            for vc in credential :
-                await check_credential(vc)
+            for cred in credential :
+                if cred["credentialSubject"]['type'] == "Pass" :
+                    if cred["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
+                        verification = False
+                        logging.warning("Pass issuer id does not match")
+                if not await check_credential(cred) :
+                    verification = False
         vc_type = list()
         if isinstance(credential, dict) :
             vc_type.append(credential['credentialSubject']['type'])
@@ -111,13 +122,18 @@ async def beacon_verifier(verifier_id, red, mode):
                 if cred['credentialSubject']['type'] == 'TezosAssociatedAddress' :
                     blockchainAddress = cred['credentialSubject']['associatedAddress']
         payload = { 'event' : 'VERIFICATION',
+                    'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
-                    'blockchainAddress' : blockchainAddress
+                    'blockchainAddress' : blockchainAddress,
+                    "verification" : verification
         }
         if verifier_data.get('standalone', None) == 'on' :
             payload = { 'event' : 'VERIFICATION_DATA',
+                        'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
+                        'vc_type' : vc_type,
                         'vp': json.loads(request.form['presentation']),
-                        'blockchainAddress' : blockchainAddress
+                        'blockchainAddress' : blockchainAddress,
+                        'verification' : verification
             }
         headers = {
                 "key" : verifier_data['client_secret'],
@@ -127,10 +143,10 @@ async def beacon_verifier(verifier_id, red, mode):
         if not 199<r.status_code<300 :
             logging.error('verifier failed to call application, status code = %s', r.status_code)
         # record activity
-        activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                "wallet_did" : json.loads(presentation)['holder'],
-                "blockchainAddress" : blockchainAddress,
-                "vc_type" : vc_type,
+        activity = {'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
+                'blockchainAddress' : blockchainAddress,
+                'vc_type' : vc_type,
+                'verification' : verification
         }
         beacon_activity_db_api.create(verifier_id, activity) 
         return jsonify("ok")

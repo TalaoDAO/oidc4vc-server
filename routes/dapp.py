@@ -4,6 +4,7 @@ import json
 
 
 # https://github.com/airgap-it/beacon-sdk
+# https://tezostaquito.io/docs/signing/
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/dapp',  view_func=dapp_wallet, methods = ['GET', 'POST'], defaults={'red' : red})

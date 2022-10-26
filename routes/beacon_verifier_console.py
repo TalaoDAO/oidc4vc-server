@@ -15,7 +15,6 @@ logging.basicConfig(level=logging.INFO)
 DID_issuer = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
 
-
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/verifier/console/logout',  view_func=beacon_verifier_nav_logout, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/beacon/verifier/console',  view_func=beacon_verifier_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -54,11 +53,12 @@ def beacon_verifier_activity() :
         activity_list = str()
         for data in activities :
             data_dict = json.loads(data)
+            verification = "Succeed" if data_dict.get('verification', True) else "Failed"
             activity = """<tr>
-                    <td>""" + data_dict['presented'][0:10] + """</td>
-                     <td>""" +  data_dict['wallet_did'] + """</td>
+                    <td>""" + data_dict['presented'] + """</td>
                     <td>""" +  data_dict['blockchainAddress'] + """</td>
                     <td>""" + " ".join(data_dict['vc_type']) + """</td>
+                    <td>""" + verification + """</td>
                     </tr>"""
             activity_list += activity
         return render_template('beacon/beacon_verifier_activity.html', activity=activity_list) 
@@ -120,6 +120,7 @@ async def beacon_verifier_console(mode) :
         session['client_data'] = json.loads(db_api.read_beacon_verifier(session['client_id']))
         raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
         micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
+        operation_payload = payload_tezos( raw_payload, 'OPERATION')
         #DID, did_ebsi, jwk, did_document = await did(session)
         vc_select_1 = str()
         for key, value in beacon_verifier_credential_list.items() :
@@ -137,6 +138,7 @@ async def beacon_verifier_console(mode) :
         return render_template('beacon/beacon_verifier_console.html',
                 raw_payload = raw_payload,
                 micheline_payload = micheline_payload,
+                operation_payload = operation_payload,
                 beacon_payload_message = session['client_data'].get('beacon_payload_message', 'Any string'),
                 standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 login_name=session['login_name'],
