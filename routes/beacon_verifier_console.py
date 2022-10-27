@@ -22,16 +22,15 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/verifier/console/advanced',  view_func=beacon_verifier_advanced, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/beacon/verifier/console/activity',  view_func=beacon_verifier_activity, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/beacon/verifier/console/qrcode',  view_func=beacon_verifier_qrcode, methods = ['GET', 'POST'])
-
     # nav bar option
     app.add_url_rule('/sandbox/op/beacon/verifier/nav/logout',  view_func=beacon_verifier_nav_logout, methods = ['GET'])
     app.add_url_rule('/sandbox/op/beacon/verifier/nav/create',  view_func=beacon_verifier_nav_create, methods = ['GET'], defaults= {'mode' : mode})
     return
  
 async def beacon_verifier_qrcode() :
-    payload = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+    payload = session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
     url = payload.split('#')[1]
-    payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+    payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
     return render_template('beacon/beacon_verifier_qrcode.html', url=url, payload=payload)
 
 
@@ -46,7 +45,6 @@ def beacon_verifier_nav_logout() :
 def beacon_verifier_activity() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-
     if request.method == 'GET' :  
         activities = beacon_activity_db_api.list(session['client_data']['client_id'])
         activities.reverse() 
@@ -64,6 +62,7 @@ def beacon_verifier_activity() :
         return render_template('beacon/beacon_verifier_activity.html', activity=activity_list) 
     else :
         return redirect('/sandbox/op/beacon/verifier/console?client_id=' + session['client_data']['client_id'])
+
 
 def beacon_verifier_select(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
@@ -118,7 +117,7 @@ async def beacon_verifier_console(mode) :
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_beacon_verifier(session['client_id']))
-        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
         micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
         operation_payload = payload_tezos( raw_payload, 'OPERATION')
         #DID, did_ebsi, jwk, did_document = await did(session)
@@ -128,7 +127,6 @@ async def beacon_verifier_console(mode) :
                     vc_select_1 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     vc_select_1 +=  "<option value=" + key + ">" + value + "</option>"
-        
         vc_select_2 = str()
         for key, value in beacon_verifier_credential_list.items() :
                 if key ==   session['client_data'].get('vc_2', "DID") :
@@ -160,7 +158,6 @@ async def beacon_verifier_console(mode) :
                 vc_select_1=vc_select_1,
                 vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
-    
                 )
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
@@ -186,17 +183,13 @@ async def beacon_verifier_console(mode) :
               
             if request.form['button'] == "qrcode" :
                 return redirect ('/sandbox/op/beacon/verifier/console/qrcode')
-
             if request.form['button'] == "activity" :
                 return redirect ('/sandbox/op/beacon/verifier/console/activity')
-            
             if request.form['button'] == "advanced" :
                 return redirect ('/sandbox/op/beacon/verifier/console/advanced')
-            
             if request.form['button'] == "update" :
                 db_api.update_beacon_verifier(request.form['client_id'], json.dumps(session['client_data']))
                 return redirect('/sandbox/op/beacon/verifier/console?client_id=' + request.form['client_id'])
-
             if request.form['button'] == "copy" :
                 new_client_id=  db_api.create_beacon_verifier(mode,  user=session['login_name'])
                 new_data = copy.deepcopy(session['client_data'])
@@ -204,9 +197,7 @@ async def beacon_verifier_console(mode) :
                 new_data['client_id'] = new_client_id
                 new_data['user'] = session['login_name']
                 db_api.update_beacon_verifier(new_client_id, json.dumps(new_data))
-                return redirect('/sandbox/op/beacon/verifier/console?client_id=' + new_client_id)
-            
-            print("error button", request.form['button'])
+                return redirect('/sandbox/op/beacon/verifier/console?client_id=' + new_client_id)            
             return(jsonify('ok'))
 
 
@@ -241,7 +232,6 @@ async def beacon_verifier_advanced() :
                 did_document=json.dumps(json.loads(did_document), indent=4)
                 )
     if request.method == 'POST' :
-        
         if request.form['button'] == "back" :
             return redirect('/sandbox/op/beacon/verifier/console?client_id=' + request.form['client_id'])
 
@@ -297,8 +287,9 @@ https://docs.walletbeacon.io/guides/sign-payload/
 https://tezostaquito.io/docs/signing/#generating-a-signature-with-beacon-sdk
 """
 def payload_tezos(input, signature_type) :
-    def char2Bytes(text): 
-        return text.encode('utf-8').hex()
+    if signature_type not in ['MICHELINE', 'OPERATION'] :
+        return
+    char2Bytes = lambda text : text.encode('utf-8').hex()
     formattedInput = ' '.join([
         'Tezos Signed Message:',
         'altme.io',

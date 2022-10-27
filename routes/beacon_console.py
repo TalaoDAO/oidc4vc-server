@@ -16,7 +16,6 @@ logging.basicConfig(level=logging.INFO)
 DID_issuer = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
 
-
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/console/logout',  view_func=beacon_nav_logout, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/op/beacon/console',  view_func=beacon_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -41,9 +40,9 @@ def beacon_console_logout():
 """
 
 async def beacon_qrcode() :
-    payload = session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+    payload = session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
     url = payload.split('#')[1]
-    payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+    payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
     return render_template('beacon_qrcode.html', url=url, payload=payload)
 
 
@@ -210,7 +209,7 @@ async def beacon_console(mode) :
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
         
-        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?issuer=" + DID_issuer
+        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
         micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
         #DID, did_ebsi, jwk, did_document = await did(session)
         return render_template('beacon_console.html',

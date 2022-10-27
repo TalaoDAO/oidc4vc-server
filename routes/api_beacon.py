@@ -12,7 +12,7 @@ async def dereference_did_url(did_url: str, input_metadata: str) -> str: ...
 async def did_auth(did: str, options: str, key: str) -> str: ...
 """
 
-from flask import jsonify, request, render_template, redirect, url_for
+from flask import jsonify, request, render_template
 import json
 from datetime import timedelta, datetime
 import uuid
