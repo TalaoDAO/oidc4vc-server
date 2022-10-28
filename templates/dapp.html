@@ -4,6 +4,8 @@
     {% include 'head.html' %}
     <script> window.beaconSdkDebugEnabled = true    </script>
     <script src="/static/walletbeacon.min.js"></script>
+    <script src="/static/ethereumjs-tx-1.3.3.min.js"></script>
+
   </head>
 
   <body>
@@ -41,27 +43,29 @@
     <br /><br />
     <button id="sendContractCall">Send Contract Call</button>
     <br /><br />
-    <button id="signPayloadRaw">Sign Payload (Raw)</button><br>
-    <input id="PayloadValue"  size="100" type="text" value="Any string">
+
+    <h3> Sign payloads </h3>
+    Payload = <input id="PayloadValue"  size="100" type="text" value="Any string">
     <br /><br />
-
-    
-
+    <button id="signPayloadRaw">Sign Payload (Raw)</button>  
     <br /><br />
     <button id="signPayloadOperation">Sign Payload (Operation)</button>
     <br /><br />
     <button id="signPayloadMicheline">Sign Payload (Micheline)</button>
     <br /><br />
+
+    <h3> Use cases with an Issuer</h3>
     <button id="signPayloadAltme" style="background-color: rgb(140, 219, 121)">Get your Welcome card ! (RAW)</button>
     <br><br>  
     <button id="signPayloadBloometa" style="background-color: rgb(140, 219, 121) ">Get your Bloometa gaming card (RAW)</button>
     <br><br>  
+    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your Tezotopia voucher ! (RAW)</button>
+    <br><br> 
+
+    <h3> Use cases with a Verifier</h3>
     <button id="signPayloadOver18" style="background-color: rgb(140, 219, 121) ">I am over 18 ! (OPERATION)</button>
     <br><br> 
     <button id="signPayloadOver13" style="background-color: rgb(140, 219, 121) ">I am over 13 ! (MICHELINE)</button>
-    <br><br> 
-    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your Tezotopia voucher ! (RAW)</button>
-
     <br><br> 
     <button id="signPayloadArago" style="background-color: rgb(140, 219, 121) ">I have an Arago Pass (OPERATION)</button>
 
@@ -126,7 +130,7 @@
     <div id="logger-output"></div>
 
     <br /><br />
-    <p style="margin-top: 1000px">End of page</p>
+    <p style="margin-top: 1000px">End of page</p> 
 
   </div>
 
@@ -322,6 +326,7 @@
         })
       })
 
+// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
       // Add event listener to the button
       document.getElementById('signPayloadRaw').addEventListener('click', async () => {
@@ -330,10 +335,37 @@
           signingType: beacon.SigningType.RAW,
           payload: inputPayload
                })
-
         console.log('signature:', signature)
       })
 
+       // Add event listener to the button
+       document.getElementById('signPayloadOperation').addEventListener('click', async () => {
+        const inputPayload = document.getElementById('PayloadValue').value;
+        const payloadBytes = signPayload(inputPayload, 'OPERATION');
+        console.log(payloadBytes);
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.OPERATION,
+          payload: payloadBytes
+        })
+        console.log('signature:', signature)
+      })
+
+      // Add event listener to the button
+      document.getElementById('signPayloadMicheline').addEventListener('click', async () => {
+        const inputPayload = document.getElementById('PayloadValue').value;
+        const payloadBytes = signPayload(inputPayload, 'MICHELINE');
+        console.log(payloadBytes);
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.MICHELINE,
+          payload: payloadBytes
+        })
+        console.log('signature:', signature)
+      })
+
+
+     //************************** Button green 
+     
+     
        // Add event listener to the button
        document.getElementById('signPayloadAltme').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
@@ -410,26 +442,7 @@
         console.log('decrypted payload', decryptionResponse.payload)
       })
 
-      // Add event listener to the button
-      document.getElementById('signPayloadOperation').addEventListener('click', async () => {
-        const signature = await client.requestSignPayload({
-          signingType: beacon.SigningType.OPERATION,
-          // Could you please authenticate with your credential ? # https://talao.co/sandbox/wallet_presentation/14503f75-5146-11ed-b0f6-0a1628958560?issuer=did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk
-          payload: '030100393254657a6f73207369676e6564206d657373616765204a7573742061207465787420666f72204f5045524154494f4e'
-        })
-
-        console.log('signature:', signature)
-      })
-
-      // Add event listener to the button
-      document.getElementById('signPayloadMicheline').addEventListener('click', async () => {
-        const signature = await client.requestSignPayload({
-          signingType: beacon.SigningType.MICHELINE,
-          payload: '05010034313254657a6f73205369676e6564204d6573736167653a20616c746d652e696f20323032322d31302d32345431303a31323a30375a20416e7920737472696e6720666f722061206d65737361676520746f20646973706c617920776974682064657461696c7323687474703a2f2f3139322e3136382e302e3232303a333030302f73616e64626f782f6f702f626561636f6e2f636d626c6e6a6b6d706d3f6973737565723d6469643a747a3a747a314e796a7254554e7844705061714e5a3834697047454c4163545759673673354475'
-        })
-
-        console.log('signature:', signature)
-      })
+     
 
       // Add event listener to the button
       document.getElementById('clearActiveAccount').addEventListener('click', () => {
@@ -619,6 +632,37 @@
           .then((res) => console.log('Notification Response', res))
       })
     </script>
+
+
+
+<script>
+
+function char2Bytes(text){
+  return text.split("")
+  .map(c => c.charCodeAt(0).toString(16).padStart(2, "0"))
+  .join("");
+}
+
+function signPayload(input, messageType){
+  var date = new Date();
+  var sep = '03';
+  const formattedInput = [
+    'Tezos Signed Message:',
+    'altme.io',
+    date.toISOString(),
+    input,
+  ].join(' ');
+  console.log(formattedInput);
+  const bytes = char2Bytes(formattedInput);
+  console.log(bytes.length)
+  if ( messageType == 'MICHELINE'){
+    sep = '05';
+  }
+  const payloadBytes = sep + '01' + '00' + char2Bytes(bytes.length.toString()) +  bytes;
+  console.log(payloadBytes);
+  return payloadBytes
+}
+</script>  
 
 {% include 'user_footer.html' %}
 <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
