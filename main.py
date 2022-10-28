@@ -29,7 +29,8 @@ from routes import verifier_console, issuer_console, api_verifier, api_issuer
 from routes import  web_wallet_test
 from routes import web_display_VP
 from routes import saas4ssi, siopv2
-from routes import dapp, beacon_console, api_beacon, api_verifier_beacon, beacon_verifier_console
+from routes import dapp, beacon_issuer_console, api_issuer_beacon
+from routes import api_verifier_beacon, beacon_verifier_console
 
 # Server Release
 VERSION = "0.5"
@@ -60,7 +61,7 @@ def page_abort(e):
 web_wallet_test.init_app(app, red, mode)
 api_verifier.init_app(app, red, mode)
 api_issuer.init_app(app, red, mode)
-api_beacon.init_app(app, red, mode)
+api_issuer_beacon.init_app(app, red, mode)
 
 api_verifier_beacon.init_app(app, red, mode)
 beacon_verifier_console.init_app(app, red, mode)
@@ -68,7 +69,7 @@ beacon_verifier_console.init_app(app, red, mode)
 
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
-beacon_console.init_app(app, red, mode)
+beacon_issuer_console.init_app(app, red, mode)
 saas4ssi.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 siopv2.init_app(app, red, mode)

@@ -270,7 +270,7 @@ async def beacon_console(mode) :
             session['client_data']['application_name'] = request.form['application_name']
             session['client_data']['reason'] = request.form['reason']
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
-            session['client_data']['reason_3'] = request.form.get('reason_4', "")
+            session['client_data']['reason_3'] = request.form.get('reason_3', "")
             session['client_data']['reason_4'] = request.form.get('reason_4', "")
             session['client_data']['credential_requested'] = request.form['credential_requested']
             session['client_data']['credential_requested_2'] = request.form['credential_requested_2']

@@ -27,9 +27,34 @@ logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
 DID_issuer = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
 
+
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/<issuer_id>',  view_func=beacon_landing, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     return
+
+
+def update_credential_manifest(reason, credential_requested, credential_manifest) :
+    input_descriptor = {"id": str(uuid.uuid1()),
+                        "purpose" : reason,
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.type"],
+                                "filter": {"type": "string",
+                                            "pattern": credential_requested}
+                                }]}}
+    credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
+    return credential_manifest
+
+
+def update_credntial_manifest_all_address(reason, credential_manifest) :
+    input_descriptor = {"id": str(uuid.uuid1()),
+                        "purpose" : reason,
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.credentialSubject.associatedAddress"]}
+                                ]}}
+    credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
+    return credential_manifest
 
 
 async def beacon_landing(issuer_id, red, mode) :
@@ -77,49 +102,27 @@ async def beacon_landing(issuer_id, red, mode) :
             credential_manifest['presentation_definition'] = dict()
         else :
             credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
-            if issuer_data['credential_requested'] != "DID" :
-                input_descriptor = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data['reason'],
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested']}
-                                }]}}
-                credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
-        
-            if issuer_data.get('credential_requested_2', 'DID') != "DID" :  
-                input_descriptor_2 = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data.get('reason_2',""),
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested_2']}
-                                }]}}
-                credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
-
-            if issuer_data.get('credential_requested_3', 'DID') != "DID" :  
-                input_descriptor_3 = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data.get('reason_3',""),
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested_3']}
-                                }]}}
-                credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_3)
-
-            if issuer_data.get('credential_requested_4', 'DID') != "DID" :  
-                input_descriptor_4 = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data.get('reason_4',""),
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested_4']}
-                                }]}}
-                credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_4)
+            
+            if issuer_data['credential_requested'] == "AllAddress" :
+                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+            elif issuer_data['credential_requested'] != "DID":
+                credential_manifest = update_credential_manifest(issuer_data['reason'], issuer_data['credential_requested'], credential_manifest)
+            
+            if issuer_data['credential_requested_2'] == "AllAddress" :
+                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_2'], credential_manifest)
+            elif issuer_data.get('credential_requested_2', 'DID') != "DID" :  
+                credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data['credential_requested_2'], credential_manifest)
+            
+            if issuer_data['credential_requested_3'] == "AllAddress" :
+                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_3'], credential_manifest)
+            elif issuer_data.get('credential_requested_3', 'DID') != "DID" :  
+                credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data['credential_requested_3'], credential_manifest)
+            
+            if issuer_data['credential_requested_4'] == "AllAddress" :
+                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_4'], credential_manifest)
+            elif issuer_data.get('credential_requested_4', 'DID') != "DID" :  
+                credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
+        print('credential manifest = ', credential_manifest)
 
         #logging.info("credential manifest = %s", credential_manifest)
         if not request.args.get('id') :

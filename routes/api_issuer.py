@@ -40,6 +40,30 @@ def init_app(app,red, mode) :
     return
 
 
+def update_credential_manifest(reason, credential_requested, credential_manifest) :
+    input_descriptor = {"id": str(uuid.uuid1()),
+                        "purpose" : reason,
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.type"],
+                                "filter": {"type": "string",
+                                            "pattern": credential_requested}
+                                }]}}
+    credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
+    return credential_manifest
+
+
+def update_credntial_manifest_all_address(reason, credential_manifest) :
+    input_descriptor = {"id": str(uuid.uuid1()),
+                        "purpose" : reason,
+                        "constraints": {
+                            "fields": [
+                                {"path": ["$.credentialSubject.associatedAddress"]}
+                                ]}}
+    credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
+    return credential_manifest
+
+
 def login_password(issuer_id) :
     if request.method == 'GET' :
         try :
@@ -170,49 +194,26 @@ def issuer_landing_page(issuer_id, red, mode) :
         credential_manifest['presentation_definition'] = dict()
     else :
         credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
-        if issuer_data['credential_requested'] not in ["DID", "login", "secret", "totp"] :
-            input_descriptor = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data['reason'],
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested']}
-                                }]}}
-            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor)
+
+        if issuer_data['credential_requested'] == "AllAddress" :
+            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+        elif issuer_data['credential_requested'] not in ["DID", "login", "secret", "totp"] :
+            credential_manifest = update_credential_manifest(issuer_data['reason'], issuer_data['credential_requested'], credential_manifest)
         
-        if issuer_data.get('credential_requested_2', 'DID') not in ["DID", "login", "secret", "totp"] :  
-            input_descriptor_2 = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data.get('reason_2',""),
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested_2']}
-                                }]}}
-            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_2)
+        if issuer_data['credential_requested_2'] == "AllAddress" :
+            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+        elif issuer_data.get('credential_requested_2', 'DID') not in ["DID", "login", "secret", "totp"] : 
+            credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data['credential_requested_2'], credential_manifest)
 
-        if issuer_data.get('credential_requested_3', 'DID') not in ["DID", "login", "secret", "totp"] :  
-            input_descriptor_3 = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data.get('reason_3',""),
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested_3']}
-                                }]}}
-            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_3)
+        if issuer_data['credential_requested_3'] == "AllAddress" :
+            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+        elif issuer_data.get('credential_requested_3', 'DID') not in ["DID", "login", "secret", "totp"] :  
+            credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data['credential_requested_3'], credential_manifest)
 
-        if issuer_data.get('credential_requested_4', 'DID') not in ["DID", "login", "secret", "totp"] :  
-            input_descriptor_4 = {"id": str(uuid.uuid1()),
-                        "purpose" : issuer_data.get('reason_4',""),
-                        "constraints": {
-                            "fields": [
-                                {"path": ["$.type"],
-                                "filter": {"type": "string",
-                                            "pattern": issuer_data['credential_requested_4']}
-                                }]}}
-            credential_manifest['presentation_definition']['input_descriptors'].append(input_descriptor_4)
+        if issuer_data['credential_requested_4'] == "AllAddress" :
+            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+        elif issuer_data.get('credential_requested_4', 'DID') not in ["DID", "login", "secret", "totp"] :  
+            credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
 
     logging.info("credential manifest = %s", credential_manifest)
     if not request.args.get('id') :

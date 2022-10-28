@@ -116,6 +116,7 @@ credential_requested_list = {
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',                  
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    "AllAddress" : "Proof of blockchain account",
                     "AragoPass" : "Arago Pass",
                     "login" : "Login and password",
                     "secret" : "Secret",
@@ -135,6 +136,7 @@ credential_requested_list_2 = {
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',                  
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    "AllAddress" : "Proof of blockchain account",
                     "AragoPass" : "Arago Pass",
                     'DID' : "None",
                 }
