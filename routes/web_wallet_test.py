@@ -207,7 +207,7 @@ def test_direct_offer(red, mode) :
         print(credential_manifest)
     
     elif VC_filename == "AragoPass.jsonld" :
-        filename = "./credential_manifest/Aragopass_credential_manifest.json"
+        filename = "./credential_manifest/AragoPass_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
