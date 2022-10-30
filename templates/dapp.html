@@ -54,19 +54,19 @@
     <br /><br />
 
     <h3> Use cases with an Issuer</h3>
-    <button id="signPayloadAltme" style="background-color: rgb(140, 219, 121)">Get your Welcome card ! (RAW)</button>
+    <button id="signPayloadAltme" style="background-color: rgb(140, 219, 121)">Get your Welcome card</button>
     <br><br>  
-    <button id="signPayloadBloometa" style="background-color: rgb(140, 219, 121) ">Get your Bloometa gaming card (RAW)</button>
+    <button id="signPayloadBloometa" style="background-color: rgb(140, 219, 121) ">Get your Bloometa gaming card</button>
     <br><br>  
-    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your Tezotopia voucher ! (RAW)</button>
+    <button id="signPayloadVoucher" style="background-color: rgb(140, 219, 121) ">Get your 15% Tezotopia voucher</button>
     <br><br> 
 
     <h3> Use cases with a Verifier</h3>
-    <button id="signPayloadOver18" style="background-color: rgb(140, 219, 121) ">I am over 18 ! (OPERATION)</button>
+    <button id="signPayloadOver18" style="background-color: rgb(140, 219, 121) ">Prove that you are over 18 ? </button>
     <br><br> 
-    <button id="signPayloadOver13" style="background-color: rgb(140, 219, 121) ">I am over 13 ! (MICHELINE)</button>
+    <button id="signPayloadOver13" style="background-color: rgb(140, 219, 121) ">Prove that your are over 13 ? </button>
     <br><br> 
-    <button id="signPayloadArago" style="background-color: rgb(140, 219, 121) ">I have an Arago Pass (OPERATION)</button>
+    <button id="signPayloadArago" style="background-color: rgb(140, 219, 121) ">Prove that you have an Arago Pass ? </button>
 
     <br /><br /><br /><br /><br /><br />
     <button id="sendNotification">Send notification</button>
@@ -377,8 +377,8 @@
        // Add event listener to the button
        document.getElementById('signPayloadOver18').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
-          signingType: beacon.SigningType.OPERATION,
-          payload: '03010033363054657a6f73205369676e6564204d6573736167653a20616c746d652e696f20323032322d31302d32365430393a31383a33355a204920616d206f766572203138207965617273206f6c642368747470733a2f2f74616c616f2e636f2f73616e64626f782f6f702f626561636f6e2f76657269666965722f6a766c666f70656f67743f6973737565723d6469643a747a3a747a314e796a7254554e7844705061714e5a3834697047454c4163545759673673354475'
+          signingType: beacon.SigningType.RAW,
+          payload: 'I am over 18 years old#https://talao.co/sandbox/op/beacon/verifier/jvlfopeogt'
                })
         console.log('signature:', signature)
       })
@@ -387,8 +387,8 @@
         // Add event listener to the button
         document.getElementById('signPayloadArago').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
-          signingType: beacon.SigningType.OPERATION,
-          payload: '03010033353654657a6f73205369676e6564204d6573736167653a20616c746d652e696f20323032322d31302d32365431303a34303a33375a2049206861766520616e20417261676f20506173732368747470733a2f2f74616c616f2e636f2f73616e64626f782f6f702f626561636f6e2f76657269666965722f69626c7276787365767a3f6973737565723d6469643a747a3a747a314e796a7254554e7844705061714e5a3834697047454c4163545759673673354475'
+          signingType: beacon.SigningType.RAW,
+          payload: 'I have an Arago Pass#https://talao.co/sandbox/op/beacon/verifier/iblrvxsevz'
                })
         console.log('signature:', signature)
       })
