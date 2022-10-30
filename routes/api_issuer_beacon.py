@@ -214,8 +214,8 @@ async def beacon_landing(issuer_id, red, mode) :
             logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
-        if issuer_data.get('standalone', None) == 'on' :
-           event_signed_credential(issuer_data, signed_credential, request.form.get('id'))
+        #if issuer_data.get('standalone', None) == 'on' :
+        event_signed_credential(issuer_data, signed_credential, request.form.get('id'))
         
         # record activity
         activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",

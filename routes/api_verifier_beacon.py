@@ -34,19 +34,20 @@ def init_app(app,red, mode) :
 
 
 async def beacon_verifier(verifier_id, red, mode):
+    print('verifier id = ', verifier_id)
     try :
         verifier_data = json.loads(read_beacon_verifier(verifier_id))
     except :
         logging.error('client id not found')
-        return jsonify("issuer not found"), 404
+        return jsonify("verifier not found"), 404
     if request.method == 'GET':
         if verifier_data['vc'] == "DID" :
             pattern = op_constante.model_one
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Make sure you select the correct Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
         elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
             pattern = op_constante.model_two
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Make sure you select the correct Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
             pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason']
             pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
