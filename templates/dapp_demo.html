@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head> 
+    {% include 'head.html' %}
+    <script> window.beaconSdkDebugEnabled = false    </script>
+    <script src="/static/walletbeacon.min.js"></script>
+
+  </head>
+
+  <body>
+    {% include "dapp_nav_bar.html" %}
+
+<div class="p-5"> 
+
+    <h1>Self Sovereign Identity solution integrated with Beacon Tezos</h1>
+    <span>
+      Active account : <span id="activeAccount"></span><br>
+      Network : <span id="activeAccountNetwork"></span><br>
+      Transport : <span id="activeAccountTransport"></span>
+    </span>
+    <br /><br />
+    
+    
+      <button  style="background-color: rgb(211, 148, 148)" id="requestPermission">Synchronize your Altme wallet with Beacon</button>
+      <br /><br />
+    
+<!--      <div id="altme">
+      <form action="/sandbox/saas4ssi/dapp" method = "POST">
+        <button id="synchroAltmeButton"  style="background-color: rgb(211, 148, 148)" type="submit" >Add your active account to Altme</button><br>
+        <input id="synchroAltme" hidden name="address" value="">
+        <input id="synchroAltmeWallet" hidden name="wallet" value="">
+      </form>
+    </div>  -->
+
+  
+
+   
+
+    <h3>SSI Use cases with an Issuer</h3>
+    <button id="signPayloadAragoIssuer" style="background-color: rgb(140, 219, 121)">Get your Arago pass</button>
+    <br><br>  
+    <button id="signPayloadOver18Issuer" style="background-color: rgb(140, 219, 121) ">Get your Over 18 proof (fake credential)</button>
+    <br><br> 
+
+    <h3>SSI Use cases with a Verifier</h3>
+    <button id="signPayloadOver18Verifier" style="background-color: rgb(140, 219, 121) ">Prove that you are over 18 ? </button>
+    <br><br> 
+    <button id="signPayloadAragoVerifier" style="background-color: rgb(140, 219, 121) ">Prove that you have an Arago Pass ? </button>
+
+   
+    <br /><br />
+    <button id="clearActiveAccount">Clear ActiveAccount</button>
+    <br /><br />
+    <button id="getAccounts">Get Accounts</button>
+    <br /><br />
+    <button id="switchAccount">Switch Accounts</button>
+    <br /><br />
+    <button id="reset">Reset and Refresh</button>
+    <br /><br />
+
+    
+
+  </div>
+
+    <script>
+     
+      
+
+      //document.getElementById('altme').style.visibility = 'hidden';
+
+
+      // Initiate DAppClient
+      const client = beacon.getDAppClientInstance({
+        name: 'Altme', // Name of the DApp,
+        disclaimerText: '',
+        errorMessages: {
+          KT1RPW5kTX6WFxg8JK34rGEU24gqEEudyfvz: {
+            NOT_OWNER: 'You are not the owner of this token.'
+          }
+        }
+     
+      })
+
+      // Display the active account in the UI
+      const updateActiveAccount = () => {
+        client.getActiveAccount().then((activeAccount) => {
+          if (activeAccount) {
+            console.log(activeAccount)
+            document.getElementById('activeAccount').innerText = activeAccount.address
+            document.getElementById('activeAccountNetwork').innerText = activeAccount.network.type
+            document.getElementById('activeAccountTransport').innerText = activeAccount.origin.type
+            //document.getElementById("synchroAltme").value = activeAccount.address
+            //document.getElementById('altme').style.visibility = 'visible';
+
+          } else {
+            document.getElementById('activeAccount').innerText = ''
+            document.getElementById('activeAccountNetwork').innerText = ''
+            document.getElementById('activeAccountTransport').innerText = ''
+          }
+        })
+      }
+      updateActiveAccount()
+
+     
+  
+
+      // Initiate a permission request
+      const requestPermission = (callback) => {
+        client
+          .requestPermissions(/*{ network: { type: beacon.NetworkType.DELPHINET } }*/)
+          .then((permissions) => {
+            console.log('permissions', permissions)
+            if (callback) {
+              callback(permissions)
+            }
+            updateActiveAccount()
+          })
+          .catch((error) => {
+            console.log('error during permission request', error)
+          })
+      }
+
+
+
+      // Add event listener to the button
+      document.getElementById('requestPermission').addEventListener('click', () => {
+        requestPermission()
+      })
+
+      // Add event listener to the button
+      document.getElementById('reset').addEventListener('click', () => {
+        client.destroy().then(() => {
+          window.location.reload()
+        })
+      })
+
+
+
+     //************************** Button green 
+     
+     
+       // Add event listener to the button
+       document.getElementById('signPayloadAragoIssuer').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: '#'
+               })
+        console.log('signature:', signature)
+      })
+
+       // Add event listener to the button
+       document.getElementById('signPayloadOver18Issuer').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: '#'
+               })
+        console.log('signature:', signature)
+      })
+
+
+        // Add event listener to the button
+        document.getElementById('signPayloadAragoVerifier').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: 'I have an Arago Pass#'
+               })
+        console.log('signature:', signature)
+      })
+
+    
+
+    // Add event listener to the button
+   document.getElementById('signPayloadOver18Verifier').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload: 'I am over 18 years old#'
+               })
+        console.log('signature:', signature)
+      })
+
+
+     
+
+      // Add event listener to the button
+      document.getElementById('clearActiveAccount').addEventListener('click', () => {
+        client.setActiveAccount().then(() => {
+          updateActiveAccount()
+        })
+      })
+
+
+      // Add event listener to the button
+      document.getElementById('getAccounts').addEventListener('click', () => {
+        client.getAccounts().then((accounts) => {
+          console.log(accounts)
+          alert(`There are ${accounts.length} accounts stored. Check the console for more info.`)
+        })
+      })
+
+      // Add event listener to the button
+      document.getElementById('switchAccount').addEventListener('click', () => {
+        client.getAccounts().then((accounts) => {
+          client.getActiveAccount().then((activeAccount) => {
+            if (!activeAccount) {
+              if (accounts.length === 0) {
+                return alert('No account to switch to')
+              }
+
+              return client.setActiveAccount(accounts[0]).then(() => {
+                updateActiveAccount()
+              })
+            }
+            const filtered = accounts.filter(
+              (acc) => acc.accountIdentifier !== activeAccount.accountIdentifier
+            )
+            if (filtered.length === 0) {
+              return alert('No account to switch to')
+            }
+
+            client.setActiveAccount(filtered[0]).then(() => {
+              updateActiveAccount()
+            })
+          })
+        })
+      })
+
+      
+/*
+      // Add event listener to the button
+      document.getElementById('synchroAltmeButton').addEventListener('click', () => {
+
+        client.getPeers()
+        .then((peers) => {
+          if (peers.length > 0) {
+            document.getElementById('synchroAltmeWallet').value=peers[0].name;
+            client.removePeer(peers[0], true).then(() => {
+              updateActiveAccount()
+            })
+          } else {
+            console.log('no peers to be removed');
+          }
+        })
+    })
+
+   */
+
+      
+
+     
+
+      
+    </script>
+
+
+
+<script>
+
+function char2Bytes(text){
+  return text.split("")
+  .map(c => c.charCodeAt(0).toString(16).padStart(2, "0"))
+  .join("");
+}
+
+function signPayload(input, messageType){
+  var date = new Date();
+  var sep = '03';
+  const formattedInput = [
+    'Tezos Signed Message:',
+    'altme.io',
+    date.toISOString(),
+    input,
+  ].join(' ');
+  console.log(formattedInput);
+  const bytes = char2Bytes(formattedInput);
+  console.log(bytes.length)
+  if ( messageType == 'MICHELINE'){
+    sep = '05';
+  }
+  const payloadBytes = sep + '01' + '00' + char2Bytes(bytes.length.toString()) +  bytes;
+  console.log(payloadBytes);
+  return payloadBytes
+}
+</script>  
+
+{% include 'user_footer.html' %}
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
+
+  </body>
+</html>

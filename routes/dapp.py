@@ -8,6 +8,9 @@ import json
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/dapp',  view_func=dapp_wallet, methods = ['GET', 'POST'], defaults={'red' : red})
+    app.add_url_rule('/sandbox/saas4ssi/dapp/demo',  view_func=dapp_demo, methods = ['GET', 'POST'], defaults={'red' : red})
+    app.add_url_rule('/sandbox/dapp/demo',  view_func=dapp_demo, methods = ['GET', 'POST'], defaults={'red' : red})
+
     app.add_url_rule('/sandbox/saas4ssi/dapp/webhook',  view_func=dapp_webhook, methods = ['GET', 'POST'], defaults={'red' : red})
     global link, client_secret
     if mode.myenv == 'aws':
@@ -18,6 +21,13 @@ def init_app(app,red, mode) :
         client_secret = '9828d8f8-52d1-11ed-9758-47cea17512cf'
 
     return
+
+
+def dapp_demo(red):
+    #if request.method == 'GET' :
+    return render_template('dapp_demo.html')
+  
+
 
 def dapp_wallet(red):
     if request.method == 'GET' :

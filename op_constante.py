@@ -86,17 +86,19 @@ credential_to_issue_list = {
                    'IdCard' : 'Identity card',
                    'AragoPass' : 'Pass Arago',
                     'BloometaPass' : 'Bloometa card',
-                    'TezVoucher_1' : 'Tezotopia 10% voucher',
+                    'TezVoucher_1' : 'Tezotopia 10% voucher (fake)',
                     'MembershipCard_1' : 'Tezotopia 25% membership card',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'TalaoCommunity' : 'Talao Community card',
-                    'TezosAssociatedAddress' : "Tezos address proof",
+                    'TezosAssociatedAddress' : "Tezos address proof (fake)",
                     "VotersCard" : "Voter Card",
-                    'PhoneProof' : 'PhoneProof',
-                    'EmailPass' : 'EmailPass'
+                    'PhoneProof' : 'PhoneProof (fake)',
+                    'EmailPass' : 'EmailPass (fake)',
+                    'Over18' : 'Over 18 (fake)',
+                    'Over13' : 'Over 13 (fake)'
                 }
 
 # issuer for guest
