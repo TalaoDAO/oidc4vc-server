@@ -9,7 +9,12 @@
                     "schema" : "https://schema.org/",
                     "id": "@id",
                     "type": "@type",
-                    "group" : "schema:group",
+                    "alternateID" : "schema:givenName",
+                    "yearOfBirth" : "schema:birthDate",
+                    "nationality" : "schema:nationality",
+                    "tezosAddress" : "schema:identifier",
+                    "ethereumAddress" : "schema:identifier",
+                    "solanaAddress" : "schrma:identifier",
                     "duration" : "schema:duration",
                     "issuedBy": {
                         "@id": "schema:issuedBy",
@@ -18,9 +23,7 @@
                             "@protected": true,
                             "schema" : "https://schema.org/",
                             "name" :  "schema:name",
-                            "website": "schema:website",
-                            "address" : "schema:address",
-                            "logo" : { "@id" : "schema:logo", "@type" : "@id"}
+                            "website": "schema:website"
                         }
                     }
                 }
@@ -33,14 +36,17 @@
     "issuanceDate": "",
     "credentialSubject" : {
         "id": "",
+        "nationality" : "FRA",
         "type" : "BloometaPass",
-        "group" : "Default",
+        "alternateID" : "skite",
+        "yearOfBirth" : "1997",
+        "tezosAddress" : "tz1YtKsJMx5FqhULTDzNxs9r9QYHBGsmz58o",
+        "ethereumAddress" : "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+        "solanaAddress" : "5cmCn6fXDRuLBpz8LSwzZWWYbUaZxWq2zMRcGkterSGP",
         "duration" : "360",
         "issuedBy" : {
             "name" : "Bloometa",
-            "website" : "https://www.bloometa.com/",
-            "address" : "",
-            "logo" : ""
+            "website" : "https://www.bloometa.com/"
               }
     }
 }

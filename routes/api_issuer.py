@@ -367,14 +367,14 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 "proofPurpose": "assertionMethod",
                 "verificationMethod": await didkit.key_to_verification_method(issuer_data['method'], issuer_data['jwk'])
             }
-            try :
-                signed_credential =  await didkit.issue_credential(
+            #try :
+            signed_credential =  await didkit.issue_credential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
                 issuer_data['jwk']
                 )
-                logging.info("credential signed by %s", credential["issuer"])
-            except :
+            #    logging.info("credential signed by %s", credential["issuer"])
+            """except :
                 message = 'Signature failed, application failed to return correct data'
                 logging.error(message)
                 logging.error("credential to sign = %s", credential)
@@ -383,7 +383,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                             "message" : message})
                 red.publish('op_issuer', data)
                 return jsonify("server error, signature failed"),500
-                
+               """ 
             logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
