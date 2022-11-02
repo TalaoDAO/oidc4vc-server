@@ -94,6 +94,7 @@ credential_to_issue_list = {
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'TalaoCommunity' : 'Talao Community card',
                     'TezosAssociatedAddress' : "Tezos address proof (fake)",
+                    'EthereumAssociatedAddress' : "Ethereum address proof (fake)",
                     "VotersCard" : "Voter Card",
                     'PhoneProof' : 'PhoneProof (fake)',
                     'EmailPass' : 'EmailPass (fake)',

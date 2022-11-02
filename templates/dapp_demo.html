@@ -8,23 +8,24 @@
   </head>
 
   <body>
-    {% include "dapp_nav_bar.html" %}
+    {% include "saas_nav_bar.html" %}
 
 <div class="p-5 text-center"> 
 
     <h1>Self Sovereign Identity solution integrated with Beacon Tezos</h1>
-    <h4> Download the Altme wallet from Google store or Apple store and create a new wallet</h4>
-    
-    <br><br>
-    <span>
+    <h4> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h4>
+   
+    <img  class="mt-3" src="/static/img/universal_wallet.png"  style="width: 700px;">
+
+ <!--   <span >
       Active account : <span id="activeAccount"></span><br>
- <!--     Network : <span id="activeAccountNetwork"></span><br>
+      Network : <span id="activeAccountNetwork"></span><br>
       Transport : <span id="activeAccountTransport"></span> -->
     </span>
     <br /><br />
     
     
-      <button  style="background-color: rgb(211, 148, 148)" id="requestPermission">Synchronize your Altme wallet with Beacon</button>
+      <button  style="background-color: rgb(202, 199, 199)" id="requestPermission">Synchronize your Altme wallet with Beacon</button>
       <br /><br />
     
 <!--      <div id="altme">
@@ -39,13 +40,13 @@
 
    
 
-    <h3>SSI Use cases with an Issuer</h3>
+    <h3>Get some verifiable credentials for the demo</h3>
     <button id="signPayloadAragoIssuer" style="background-color: rgb(140, 219, 121)">Get your Arago pass</button>
     <br><br>  
-    <button id="signPayloadOver18Issuer" style="background-color: rgb(140, 219, 121) ">Get your Over 18 proof (fake credential)</button>
+    <button id="signPayloadOver18Issuer" style="background-color: rgb(140, 219, 121) ">Get an Over 18 proof (fake)</button>
     <br><br> 
 
-    <h3>SSI Use cases with a Verifier</h3>
+    <h3>Use cases with a Verifier</h3>
     <button id="signPayloadOver18Verifier" style="background-color: rgb(140, 219, 121) ">Prove that you are over 18 ? </button>
     <br><br> 
     <button id="signPayloadAragoVerifier" style="background-color: rgb(140, 219, 121) ">Prove that you have an Arago Pass ? </button>
@@ -53,7 +54,7 @@
    
     <br><br> 
 
-    <h3>Webhook : data received from verifier</h3>
+    <h3>Data received from verifier (Webhook)</h3>
 
     <textarea id="dataSent" rows="10" cols="100"></textarea>
     <br /><br />
@@ -96,14 +97,14 @@
         client.getActiveAccount().then((activeAccount) => {
           if (activeAccount) {
             console.log(activeAccount)
-            document.getElementById('activeAccount').innerText = activeAccount.address
+            //document.getElementById('activeAccount').innerText = activeAccount.address
             //document.getElementById('activeAccountNetwork').innerText = activeAccount.network.type
             //document.getElementById('activeAccountTransport').innerText = activeAccount.origin.type
             //document.getElementById("synchroAltme").value = activeAccount.address
             document.getElementById("requestPermission").style.visibility = 'hidden';
 
           } else {
-            document.getElementById('activeAccount').innerText = ''
+            //document.getElementById('activeAccount').innerText = ''
             //document.getElementById('activeAccountNetwork').innerText = ''
             //document.getElementById('activeAccountTransport').innerText = ''
           }

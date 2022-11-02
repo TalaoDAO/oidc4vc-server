@@ -352,7 +352,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
         
         if issuer_data['credential_to_issue'] == 'Pass' :
-            credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
+            credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Not indicated')
             credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
        
         # sign credential
@@ -367,14 +367,14 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 "proofPurpose": "assertionMethod",
                 "verificationMethod": await didkit.key_to_verification_method(issuer_data['method'], issuer_data['jwk'])
             }
-            #try :
-            signed_credential =  await didkit.issue_credential(
-                json.dumps(credential),
-                didkit_options.__str__().replace("'", '"'),
-                issuer_data['jwk']
+            try :
+                signed_credential =  await didkit.issue_credential(
+                    json.dumps(credential),
+                    didkit_options.__str__().replace("'", '"'),
+                    issuer_data['jwk']
                 )
-            #    logging.info("credential signed by %s", credential["issuer"])
-            """except :
+                logging.info("credential signed by %s", credential["issuer"])
+            except :
                 message = 'Signature failed, application failed to return correct data'
                 logging.error(message)
                 logging.error("credential to sign = %s", credential)
@@ -382,8 +382,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                             "result" : False,
                             "message" : message})
                 red.publish('op_issuer', data)
-                return jsonify("server error, signature failed"),500
-               """ 
+                return jsonify("server error, signature failed"),500                
             logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
