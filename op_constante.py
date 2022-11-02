@@ -77,7 +77,7 @@ beacon_verifier_credential_list = {
                     'Over13' : 'Over 13',
                     'AragoPass' : 'Arago Pass',
                     'DID' : "None",
-                    #'ANY' : 'Any'
+                    'ANY' : 'Any'
                 }
 
 # issuer

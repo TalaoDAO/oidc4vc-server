@@ -140,7 +140,10 @@ def saas_callback(mode):
     id_token = request.args['id_token']
     s = id_token.split('.')[1]
     payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
-    login_name = json.loads(payload.decode())['email']
+    try : 
+        login_name = json.loads(payload.decode())['email']
+    except :
+        login_name = json.loads(payload.decode())['sub']
     if not db_user_api.read(login_name) :
         data = op_constante.user
         data["did"] = json.loads(payload.decode())['sub']
