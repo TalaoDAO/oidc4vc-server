@@ -8,13 +8,15 @@
 
 
   <body style="background-color: rgb(185, 179, 243) ">
+    {% include 'use_case/dapp_demo_nav_bar.html' %}
+
     <div class="p-5 text-center"> 
 
     <div id="pairing">
         <h1 class="mt-5" >Demo : onboard users on Tezos dApps with Beacon and Altme wallet</h1>
         <h4>Secure your onboarding, know your users and respect their privacy with Self Sovereign Identity on Web3 apps</h4>
-        <h6> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h6>
-
+     <!--   <h6> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h6>
+     -->
         <br>
         <button  class="btn btn-outline-dark" id="requestPermission">SYNCHRONIZE YOUR ALTME WALLET</button><br>
         <button class="btn btn-outline-dark" id="reset">RESET</button><br>
@@ -23,85 +25,88 @@
     </div>
     
 
-    <div id="over18">
-        <h2>Are you over 18 ?</h2>
-        <button class="btn btn-outline-dark" id="signPayloadOver18Yes" >YES</button>
-        <button class="btn btn-outline-dark" id="signPayloadOver18No" >SKIP</button>
+    <div id="have_loyalty">
+      <h2>Do you have your loyalty card ?</h2>
+      <button class="btn btn-outline-dark" id="signPayloadHaveLoyaltyYes" >YES</button>
+      <button class="btn btn-outline-dark" id="signPayloadHaveLoyaltyNo" >NO</button>
+      <br><br>  <br><br>
+      <hr> 
+      <div id="webhook">
+          <h3>The Developers' Corner : data received on webhook</h3>
+          <textarea id="dataSent" rows="10" cols="100"></textarea>
+      </div>
+  </div>
+
+
+    <div id="over13">
+        <h2>Are you over 13 ?</h2>
+        <button class="btn btn-outline-dark" id="signPayloadOver13Yes" >YES</button>
+        <button class="btn btn-outline-dark" id="signPayloadOver13No" >SKIP</button>
         <br><br> <br><br>
         <hr> 
         <div id="webhook">
-            <h3>Data received on webhook</h3>
+            <h3>The Developers' Corner : data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
 
     </div>
 
 
-    <div id="student">
-        <h2>We propose a 25% discount to students, Do you have a student card ?</h2>
-        <button class="btn btn-outline-dark" id="signPayloadStudentYes" >YES</button>
-        <button class="btn btn-outline-dark" id="signPayloadStudentNo" >SKIP</button>
-        <br><br>  <br><br>
-        <hr> 
-        <div id="webhook">
-            <h3>Data received on webhook</h3>
-            <textarea id="dataSent" rows="10" cols="100"></textarea>
-        </div>
-    </div>
+    
    
 
-    <div id="loyalty">
-        <h2>Do you want a Loyalty card ?</h2>
-        <button  class="btn btn-outline-dark" id="signPayloadLoyaltyYes" >YES</button>
-        <button class="btn btn-outline-dark" id="signPayloadLoyaltyNo"" >SKIP</button>  
+    <div id="want_loyalty">
+        <h2>Do you want a loyalty card ?</h2>
+        <button  class="btn btn-outline-dark" id="signPayloadWantLoyaltyYes" >YES</button>
+        <button class="btn btn-outline-dark" id="signPayloadWantLoyaltyNo"" >NO</button>  
         <br><br>  <br><br>
         <hr> 
         <div id="webhook">
-            <h3>Data received on webhook</h3>
+            <h3>The Developers' Corner : data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
+
 
     <div id="welcome">
         <h1>Welcome on our web3 application !</h1>
-        <br><br> 
+        <br><br>  <br><br> 
         <hr> 
         <div id="webhook">
-            <h3>Data received on webhook</h3>
+            <h3>The Developers' Corner : data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
   </div>
-
  </div>         
-
-
+ {% include 'use_case/dapp_footer.html' %}
 
     <script>
     document.getElementById('reset').style.visibility = 'hidden';
-      document.getElementById('over18').style.visibility = 'hidden';
-      document.getElementById('student').style.visibility = 'hidden';
-      document.getElementById('loyalty').style.visibility = 'hidden';
-      document.getElementById('welcome').style.visibility = 'hidden';
+    document.getElementById('over13').style.visibility = 'hidden';
+    document.getElementById('have_loyalty').style.visibility = 'hidden';
+    document.getElementById('want_loyalty').style.visibility = 'hidden';
+    document.getElementById('welcome').style.visibility = 'hidden';
 
-      // Initiate DAppClient
-      const client = beacon.getDAppClientInstance({
-        name: 'Altme use case ', // Name of the DApp,
-        disclaimerText: '',
-        errorMessages: {
-          KT1RPW5kTX6WFxg8JK34rGEU24gqEEudyfvz: {
-            NOT_OWNER: 'You are not the owner of this token.'
-          }
-        }
+
+    // Initiate DAppClient
+    const client = beacon.getDAppClientInstance({
+        name: 'Demo Altme', // Name of the DApp,
+        disclaimerText: 'https://altme.io',
+        //errorMessages: {
+        //  KT1RPW5kTX6WFxg8JK34rGEU24gqEEudyfvz: {
+        //    NOT_OWNER: 'You are not the owner of this token.'
+        //  }
+        //}
       })
 
-      // Display the active account in the UI
-      const updateActiveAccount = () => {
+    // Display the active account in the UI
+    const updateActiveAccount = () => {
         client.getActiveAccount().then((activeAccount) => {
           if (activeAccount) {
             console.log(activeAccount)
             document.getElementById("requestPermission").style.visibility = 'hidden';
-            document.getElementById("over18").style.visibility = 'visible';
+            document.getElementById("have_loyalty").style.visibility = 'visible';
             document.getElementById("reset").style.visibility = 'visible';
           } else {
             //document.getElementById('activeAccount').innerText = ''
@@ -109,14 +114,13 @@
             //document.getElementById('activeAccountTransport').innerText = ''
           }
         })
-      }
+    }
 
-
-      updateActiveAccount()
+    updateActiveAccount()
 
 
       // Initiate a permission request
-      const requestPermission = (callback) => {
+    const requestPermission = (callback) => {
         client
           .requestPermissions(/*{ network: { type: beacon.NetworkType.DELPHINET } }*/)
           .then((permissions) => {
@@ -132,54 +136,55 @@
       }
 
 
-
       // Add event listener to the button
-      document.getElementById('requestPermission').addEventListener('click', () => {
+    document.getElementById('requestPermission').addEventListener('click', () => {
         requestPermission()
-      })
+    })
 
-      // Add event listener to the button
-      document.getElementById('reset').addEventListener('click', () => {
+    // Add event listener to the RESET button
+    document.getElementById('reset').addEventListener('click', () => {
         client.destroy().then(() => {
           window.location.reload()
         })
-      })
+    })
 
-
-    // Add event listener to the button
-   document.getElementById('signPayloadOver18Yes').addEventListener('click', async () => {
-        const signature = await client.requestSignPayload({
-          signingType: beacon.SigningType.RAW,
-          payload : '{{payload_over18}}'
-               })
-        console.log('signature:', signature);
-      })
-      // Add event listener to the button
-   document.getElementById('signPayloadOver18No').addEventListener('click', async () => {
-        document.getElementById("over18").innerHTML = '';
-        document.getElementById("student").style.visibility = 'visible';
-      })
-     
-
-
-    // Add event listener to the button
-   document.getElementById('signPayloadStudentYes').addEventListener('click', async () => {
+    // Add event listener to the STUDENT YES button
+    document.getElementById('signPayloadHaveLoyaltyYes').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
           payload : '{{payload_student}}'
                })
         console.log('signature:', signature);
-      })
-
-      // Add event listener to the button
-   document.getElementById('signPayloadStudentNo').addEventListener('click', async () => {
-        document.getElementById("student").innerHTML = '';
-        document.getElementById("loyalty").style.visibility = 'visible';
-      })
-
         
-    // Add event listener to the button
-   document.getElementById('signPayloadLoyaltyYes').addEventListener('click', async () => {
+    })
+
+    // Add event listener to the STUDENT SKIP button
+    document.getElementById('signPayloadHaveLoyaltyNo').addEventListener('click', async () => {
+        document.getElementById("have_loyalty").innerHTML = '';
+        document.getElementById("over13").style.visibility = 'visible';
+    })
+
+
+    // Add event listener to the OVER13 YES button
+    document.getElementById('signPayloadOver13Yes').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload : '{{payload_over13}}'
+               })
+        console.log('signature:', signature);
+    })
+    
+    // Add event listener to the OVER13 SKIP button
+    document.getElementById('signPayloadOver13No').addEventListener('click', async () => {
+        document.getElementById("over13").innerHTML = '';
+        document.getElementById("want_loyalty").style.visibility = 'visible';
+      })
+     
+
+    
+    
+    // Add event listener to the LOYALTY YES button
+    document.getElementById('signPayloadWantLoyaltyYes').addEventListener('click', async () => {
         const signature = await client.requestSignPayload({
           signingType: beacon.SigningType.RAW,
           payload : '{{payload_loyalty}}'
@@ -187,18 +192,15 @@
         console.log('signature:', signature);
         //document.getElementById("loyalty").innerHTML = '';
         //document.getElementById("welcome").style.visibility = 'visible';
-      })
-      // Add event listener to the button
-   document.getElementById('signPayloadLoyaltyNo').addEventListener('click', async () => {
-        document.getElementById("loyalty").innerHTML = '';
+    })
+    
+    // Add event listener to the LOYALTY SKIP button
+    document.getElementById('signPayloadWantLoyaltyNo').addEventListener('click', async () => {
+        document.getElementById("want_loyalty").innerHTML = '';
         document.getElementById("welcome").style.visibility = 'visible';
-      })
-
-      
+    })
+  
     </script>
-
-
-
 
 <script>
         var source = new EventSource('/sandbox/dapp/use_case/stream');
@@ -206,19 +208,22 @@
             const result = JSON.parse(event.data)
             //document.getElementById('dataSent').innerText = result.data;
             console.log(result);
-            if (result.over18 == 'ok' && result.id == '{{id}}' ){
+            if (result.over13 == 'ok' && result.id == '{{id}}' ){
                 console.log(result);
-                document.getElementById("over18").innerHTML = '';
-                document.getElementById("student").style.visibility = 'visible';  
+                document.getElementById("over13").innerHTML = '';
+                document.getElementById("want_loyalty").style.visibility = 'visible';  
                 document.getElementById("dataSent").innerHTML = result.data;
             }
-            if (result.student == 'ok' && result.id == '{{id}}' ){
-                document.getElementById("student").innerHTML = '';
-                document.getElementById("loyalty").style.visibility = 'visible';
+            if (result.loyalty == 'ok' && result.id == '{{id}}' ){
+                document.getElementById("have_loyalty").innerHTML = '';
+                document.getElementById("want_loyalty").innerHTML = '';
+                document.getElementById("over13").innerHTML = '';
+                document.getElementById("welcome").style.visibility = 'visible';
                 document.getElementById("dataSent").innerHTML = result.data;
             }
-            if (result.welcome == 'ok' && result.id == '{{id}}'){
-                document.getElementById("loyalty").innerHTML = '';
+            if (result.issue == 'ok' && result.id == '{{id}}'){
+                document.getElementById("want_loyalty").innerHTML = '';
+                document.getElementById("over13").innerHTML = '';
                 document.getElementById("welcome").style.visibility = 'visible';
                 document.getElementById("dataSent").innerHTML = result.data;
             }

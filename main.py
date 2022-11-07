@@ -34,7 +34,7 @@ from routes import api_verifier_beacon, beacon_verifier_console
 from routes import dapp_usecase
 
 # Server Release
-VERSION = "0.6.1"
+VERSION = "0.6.2"
 logging.info('Altme Sandbox version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -66,7 +66,6 @@ api_issuer_beacon.init_app(app, red, mode)
 
 api_verifier_beacon.init_app(app, red, mode)
 beacon_verifier_console.init_app(app, red, mode)
-
 
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
