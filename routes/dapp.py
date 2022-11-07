@@ -62,13 +62,15 @@ def dapp_webhook(red) :
     try :
         data_returned = json.loads(red.get(data["id"]).decode())   
     except :
-        print("error redis")
         data_returned = ""
     # send back data to issue credential
     if data['event'] == 'ISSUANCE' :
         return jsonify(data_returned)
     else :
         return jsonify('ok')
+
+
+#####################" dApp demo ####################"
 
 
 def dapp_demo_webhook(red) :

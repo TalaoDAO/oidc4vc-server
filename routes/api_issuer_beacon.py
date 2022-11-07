@@ -122,12 +122,13 @@ async def beacon_landing(issuer_id, red, mode) :
                 credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_4'], credential_manifest)
             elif issuer_data.get('credential_requested_4', 'DID') != "DID" :  
                 credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
-        print('credential manifest = ', credential_manifest)
 
         #logging.info("credential manifest = %s", credential_manifest)
         if not request.args.get('id') :
             logging.warning("no id passed by application")
-        id = str(uuid.uuid1())
+            id = str(uuid.uuid1())
+        else :
+            id = request.args.get('id')
         credentialOffer = {
             "id" : id,
             "type": "CredentialOffer",
@@ -152,7 +153,8 @@ async def beacon_landing(issuer_id, red, mode) :
             url = issuer_data['webhook']
             payload = { 'event' : 'ISSUANCE',
                     'vp': json.loads(request.form['presentation']),
-                    "id": request.form.get('id')
+                    "id": request.form.get('id'),
+                    'vc_type' : issuer_data['credential_to _issue']
                     }
 
             r = requests.post(url,  data=json.dumps(payload), headers=headers)
@@ -215,7 +217,7 @@ async def beacon_landing(issuer_id, red, mode) :
        
         # transfer credential signed and credential recieved to application
         #if issuer_data.get('standalone', None) == 'on' :
-        event_signed_credential(issuer_data, signed_credential, request.form.get('id'))
+        event_signed_credential(issuer_data, signed_credential, request.form.get('id'), issuer_data['credential_to_issue'])
         
         # record activity
         activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
@@ -226,7 +228,7 @@ async def beacon_landing(issuer_id, red, mode) :
         return jsonify(signed_credential)
  
 
-def event_signed_credential(issuer_data, signed_credential, id) :
+def event_signed_credential(issuer_data, signed_credential, id, vc_type) :
     headers = {
                 "key" : issuer_data['client_secret'],
                 "Content-Type": "application/json" 
@@ -234,6 +236,7 @@ def event_signed_credential(issuer_data, signed_credential, id) :
     url = issuer_data['webhook']
     payload = { 'event' : 'SIGNED_CREDENTIAL',
                 'vc': json.loads(signed_credential),
+                "vc_type" : vc_type,
                 'vp' : json.loads(request.form['presentation']),
                 "id": id
                 }

@@ -71,6 +71,7 @@ beacon_verifier_credential_list = {
                     #'AgeRange' : 'Age range',
                     #'Nationality' : 'Nationality',
                     #'Gender' : 'Gender',
+                    'LearningAchievement' : 'Diploma',
                     'BloometaPass' : 'Bloometa gaming card',
                     'IdCard' : 'Identity card',
                     'Over18' : 'Over 18',

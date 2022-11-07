@@ -176,7 +176,8 @@
       // Initiate DAppClient
       const client = beacon.getDAppClientInstance({
         name: 'Altme', // Name of the DApp,
-        disclaimerText: '',
+        disclaimerText: 'Universal wallet',
+        appUrl : 'https://altme.io',
         errorMessages: {
           KT1RPW5kTX6WFxg8JK34rGEU24gqEEudyfvz: {
             NOT_OWNER: 'You are not the owner of this token.'
@@ -184,9 +185,9 @@
         }
         // preferredNetwork: beacon.NetworkType.DELPHINET
         // matrixNodes: ['test.papers.tech', 'test2.papers.tech', 'matrix.papers.tech']
-        // matrixNodes: ['beacon-node-0.papers.tech:8448']
+         //matrixNodes: ['beacon-node-0.papers.tech:8448']
         // matrixNodes: ['matrix.papers.tech']
-        // matrixNodes: ['beacon.tztip.me']
+         //matrixNodes: ['beacon.tztip.me']
       })
 
       // Display the active account in the UI

@@ -10,7 +10,7 @@ import message
 logging.basicConfig(level=logging.INFO)
 
 
-admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io", "hugo@altme.io"]
+admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io", "hugo@altme.io", "googandads@gmail.com"]
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_home, methods = ['GET', 'POST'])
@@ -61,7 +61,6 @@ def saas_device_detector ():
 
 def default_webhook() :
      data = request.get_json()   
-     print('webook data = ', data)
      return jsonify ('ok')
 
 def saas_home():

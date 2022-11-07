@@ -34,24 +34,23 @@ def init_app(app,red, mode) :
 
 
 async def beacon_verifier(verifier_id, red, mode):
-    print('verifier id = ', verifier_id)
     try :
         verifier_data = json.loads(read_beacon_verifier(verifier_id))
     except :
         logging.error('client id not found')
         return jsonify("verifier not found"), 404
     if request.method == 'GET':
-        if verifier_data['vc'] == "DID" :
+        if not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
             pattern = op_constante.model_one
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Make sure you select the correct Tezos blockchain account'
-            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
-        elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
-            pattern = op_constante.model_two
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Make sure you select the correct Tezos blockchain account'
-            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
-            pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason']
-            pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
+            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
         else :
+            pattern = op_constante.model_two
+            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
+            pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
+            pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
+        """else :
             pattern = op_constante.model_three
             pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
@@ -59,10 +58,12 @@ async def beacon_verifier(verifier_id, red, mode):
             pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
             pattern["query"][0]["credentialQuery"][2]["reason"][0]["@value"] = verifier_data['reason_2']
             pattern["query"][0]["credentialQuery"][2]["example"]["type"] = verifier_data['vc_2']
-        
+        """
         pattern['domain'] = mode.server
-        pattern['challenge'] = str(uuid.uuid1())
-        print('pattern = ', pattern)
+        if not request.args.get('id') :
+            pattern['challenge'] = str(uuid.uuid1())
+        else : 
+            pattern['challenge'] = request.args.get('id')
         # TODO incorrect use of challenge to carry the redis data
         red.setex(pattern['challenge'], QRCODE_LIFE, json.dumps(pattern))
         return jsonify(pattern)
@@ -115,37 +116,44 @@ async def beacon_verifier(verifier_id, red, mode):
         vc_type = list()
         if isinstance(credential, dict) :
             vc_type.append(credential['credentialSubject']['type'])
-            if credential['credentialSubject']['type'] == 'TezosAssociatedAddress' :
-                blockchainAddress = credential['credentialSubject']['associatedAddress']
         else :
             for cred in credential :
                 vc_type.append(cred['credentialSubject']['type'])
-                if cred['credentialSubject']['type'] == 'TezosAssociatedAddress' :
-                    blockchainAddress = cred['credentialSubject']['associatedAddress']
+        
+        # send data to webhook        
         payload = { 'event' : 'VERIFICATION',
+                    'id' : id,  
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
-                    'blockchainAddress' : blockchainAddress,
                     "verification" : verification
         }
+        headers = {
+                "key" : verifier_data['client_secret'],
+                "Content-Type": "application/json" 
+        }   
+        r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
+        if not 199<r.status_code<300 :
+            logging.error('VERIFICATION : verifier failed to call application, status code = %s', r.status_code)
+        
+        # send data to webhook
         if verifier_data.get('standalone', None) == 'on' :
             payload = { 'event' : 'VERIFICATION_DATA',
                         'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                         'vc_type' : vc_type,
+                        'id' : id,
                         'vp': json.loads(request.form['presentation']),
-                        'blockchainAddress' : blockchainAddress,
                         'verification' : verification
             }
-        headers = {
+            headers = {
                 "key" : verifier_data['client_secret'],
                 "Content-Type": "application/json" 
-        }       
-        r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
-        if not 199<r.status_code<300 :
-            logging.error('verifier failed to call application, status code = %s', r.status_code)
+            }       
+            r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
+            if not 199<r.status_code<300 :
+                logging.error('VERIFICATION_DATA : verifier failed to call application, status code = %s', r.status_code)
+        
         # record activity
         activity = {'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                'blockchainAddress' : blockchainAddress,
                 'vc_type' : vc_type,
                 'verification' : verification
         }

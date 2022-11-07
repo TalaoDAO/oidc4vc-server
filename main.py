@@ -31,6 +31,7 @@ from routes import web_display_VP
 from routes import saas4ssi, siopv2
 from routes import dapp, beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
+from routes import dapp_usecase
 
 # Server Release
 VERSION = "0.6.1"
@@ -74,6 +75,7 @@ saas4ssi.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 siopv2.init_app(app, red, mode)
 dapp.init_app(app, red, mode)
+dapp_usecase.init_app(app, red, mode)
 
 # MAIN entry point for test
 if __name__ == '__main__':
