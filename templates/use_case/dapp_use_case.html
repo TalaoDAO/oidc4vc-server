@@ -11,32 +11,36 @@
     <div class="p-5 text-center"> 
 
     <div id="pairing">
-        <h1 class="mt-5" >Onboarding with Beacon and Altme wallet</h1>
-        <h4> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h4>
+        <h1 class="mt-5" >Demo : onboard users on Tezos dApps with Beacon and Altme wallet</h1>
+        <h4>Secure your onboarding, know your users and respect their privacy with Self Sovereign Identity on Web3 apps</h4>
+        <h6> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h6>
+
         <br>
-        <button id="reset">Reset and Refresh</button><br>
-        <button  style="btn btn-secondary" id="requestPermission">Synchronize your Altme wallet with Beacon</button><br>
+        <button  class="btn btn-outline-dark" id="requestPermission">Synchronize your Altme wallet with Beacon</button><br>
+        <button class="btn btn-outline-dark" id="reset">Reset and Refresh</button><br>
+
         <br /><br />
     </div>
     
 
     <div id="over18">
         <h2>Are you over 18 ?</h2>
-        <button id="signPayloadOver18Yes" >YES</button>
-        <button id="signPayloadOver18No" >SKIP</button>
+        <button class="btn btn-outline-dark" id="signPayloadOver18Yes" >YES</button>
+        <button class="btn btn-outline-dark" id="signPayloadOver18No" >SKIP</button>
         <br><br> <br><br>
         <hr> 
         <div id="webhook">
             <h3>Data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
+
     </div>
 
 
     <div id="student">
         <h2>We propose a 25% discount to students, Do you have a student card ?</h2>
-        <button id="signPayloadStudentYes" >YES</button>
-        <button id="signPayloadStudentNo" >SKIP</button>
+        <button class="btn btn-outline-dark" id="signPayloadStudentYes" >YES</button>
+        <button class="btn btn-outline-dark" id="signPayloadStudentNo" >SKIP</button>
         <br><br>  <br><br>
         <hr> 
         <div id="webhook">
@@ -48,8 +52,8 @@
 
     <div id="loyalty">
         <h2>Do you want a Loyalty card ?</h2>
-        <button id="signPayloadLoyaltyYes" >YES</button>
-        <button id="signPayloadLoyaltyNo"" >SKIP</button>  
+        <button  class="btn btn-outline-dark" id="signPayloadLoyaltyYes" >YES</button>
+        <button class="btn btn-outline-dark" id="signPayloadLoyaltyNo"" >SKIP</button>  
         <br><br>  <br><br>
         <hr> 
         <div id="webhook">
@@ -67,14 +71,14 @@
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
-    
   </div>
 
- </div>   
+ </div>         
+
 
 
     <script>
-      document.getElementById('reset').style.visibility = 'hidden';
+    document.getElementById('reset').style.visibility = 'hidden';
       document.getElementById('over18').style.visibility = 'hidden';
       document.getElementById('student').style.visibility = 'hidden';
       document.getElementById('loyalty').style.visibility = 'hidden';
@@ -97,9 +101,8 @@
           if (activeAccount) {
             console.log(activeAccount)
             document.getElementById("requestPermission").style.visibility = 'hidden';
-            document.getElementById("reset").style.visibility = 'visible';
             document.getElementById("over18").style.visibility = 'visible';
-
+            document.getElementById("reset").style.visibility = 'visible';
           } else {
             //document.getElementById('activeAccount').innerText = ''
             //document.getElementById('activeAccountNetwork').innerText = ''
