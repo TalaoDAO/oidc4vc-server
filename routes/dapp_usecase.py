@@ -3,7 +3,7 @@ import uuid
 import json
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/dapp/use_case',  view_func=dapp_use_case, methods = ['GET', 'POST'], defaults={'red' : red})
+    app.add_url_rule('/sandbox/dapp/use_case',  view_func=dapp_use_case, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/dapp/use_case/webhook',  view_func=dapp_use_case_webhook, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/sandbox/dapp/use_case/stream',  view_func=dapp_use_case_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     global payload_over18, payload_student, payload_loyalty
@@ -15,11 +15,10 @@ def init_app(app,red, mode) :
         payload_over18 = 'I confirm i am 18 yo or over#http://192.168.0.65:3000/sandbox/op/beacon/verifier/nebmmcdkva?id='
         payload_student =  'I have a student card#http://192.168.0.65:3000/sandbox/op/beacon/verifier/avtfbpsebn?id='
         payload_loyalty = 'Get your loyalty card !#http://192.168.0.65:3000/sandbox/op/beacon/mmibrdplfm?id='
-
     return
 
 
-def dapp_use_case(red):
+def dapp_use_case():
     #if request.method == 'GET' :
     global payload_over18, payload_student, payload_loyalty
     id = str(uuid.uuid1())
@@ -35,7 +34,6 @@ def dapp_use_case_webhook(red) :
     data = request.get_json()
     if data['event'] == 'VERIFICATION' :
         if  "Over18" in data["vc_type"] :
-            print('data sent')
             event_data = json.dumps({"over18" : 'ok',
                                      'id' : data['id'],
                                      'data' : json.dumps(data)})

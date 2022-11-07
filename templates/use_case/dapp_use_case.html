@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<html >
   <head> 
     {% include 'head.html' %}
     <script> window.beaconSdkDebugEnabled = false    </script>
@@ -7,7 +7,7 @@
   </head>
 
 
-  <body>
+  <body style="background-color: rgb(185, 179, 243) ">
     <div class="p-5 text-center"> 
 
     <div id="pairing">
@@ -27,7 +27,7 @@
         <br><br> <br><br>
         <hr> 
         <div id="webhook">
-            <h3>Data received from verifier on webhook</h3>
+            <h3>Data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
@@ -40,7 +40,7 @@
         <br><br>  <br><br>
         <hr> 
         <div id="webhook">
-            <h3>Data received from verifier on webhook</h3>
+            <h3>Data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
@@ -53,7 +53,7 @@
         <br><br>  <br><br>
         <hr> 
         <div id="webhook">
-            <h3>Data received from verifier on Webhook</h3>
+            <h3>Data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
@@ -63,7 +63,7 @@
         <br><br> 
         <hr> 
         <div id="webhook">
-            <h3>Data received from verifier on webhook</h3>
+            <h3>Data received on webhook</h3>
             <textarea id="dataSent" rows="10" cols="100"></textarea>
         </div>
     </div>
@@ -71,6 +71,8 @@
   </div>
 
  </div>   
+
+
     <script>
       document.getElementById('reset').style.visibility = 'hidden';
       document.getElementById('over18').style.visibility = 'hidden';
