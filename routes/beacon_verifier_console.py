@@ -83,7 +83,7 @@ def beacon_verifier_select(mode) :
                         <td>""" + data_dict['user'] + """</td>
                         <td>""" + beacon_verifier_credential_list[data_dict['vc']] + """</td>
                          <td>""" + standalone + """</td>                       
-                        <td>""" + data_dict['callback'] + """</td>
+                        <td>""" + data_dict['webhook'] + """</td>
                         <td><a href=/sandbox/op/beacon/verifier/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + data_dict['client_secret'] + """</td>
                     </tr>"""
@@ -156,7 +156,6 @@ async def beacon_verifier_console(mode) :
                 reason = session['client_data']['reason'],
                 reason_2 = session['client_data'].get('reason_2'),
                 vc_select_1=vc_select_1,
-                vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
                 )
     if request.method == 'POST' :
@@ -178,7 +177,6 @@ async def beacon_verifier_console(mode) :
             session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['vc'] = request.form['vc_1']
-            session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
             session['client_data']['vc_2'] = request.form['vc_2']            
               
             if request.form['button'] == "qrcode" :

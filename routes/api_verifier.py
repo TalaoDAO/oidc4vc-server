@@ -90,9 +90,10 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         vc_list.append(presentation['verifiableCredential'])
     else :
         vc_list = presentation['verifiableCredential']
+    print('vc list = ', vc_list)
     for vc in vc_list :
-        vc_expiration_date = vc['issuanceDate'][:19]
-        payload["updated_at"] = time.mktime(time.strptime(vc_expiration_date, '%Y-%m-%dT%H:%M:%S'))
+        vc_issuance_date = vc.get('issuanceDate')[:19]
+        payload["updated_at"] = time.mktime(time.strptime(vc_issuance_date, '%Y-%m-%dT%H:%M:%S'))
         verifier_data = json.loads(read_verifier(client_id))
         if verifier_data.get('standalone') :
             if vc['credentialSubject']['type'] == "IdCard" :
@@ -339,10 +340,10 @@ async def wallet_token(red, mode) :
     elif grant_type != 'authorization_code' :
         return manage_error("unhauthorized_client")
     if verifier_data.get('pkce') == 'on' and not code_verifier :
-        print("pb code verifier")
+        logging.warning("pb code verifier")
         return manage_error("invalid_request")
     if verifier_data.get("pkce") and pkce.get_code_challenge(code_verifier) != data['code_challenge'] :
-        print('code verifier not correct')
+        logging.warning('code verifier not correct')
         return manage_error("unhauthorized_client")
     
     # token response
@@ -447,7 +448,6 @@ def login_qrcode(red, mode):
         pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
         pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
     
-    print('pattern = ', pattern)
     if nonce :
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
@@ -536,8 +536,10 @@ async def login_presentation_endpoint(stream_id, red):
         #    return manage_error("presentation signature check failed")
         logging.info("check presentation = %s", await didkit.verify_presentation(presentation,  '{}'))
 
-        credential = json.loads(presentation)['verifiableCredential']
-        if isinstance(credential, dict) :
+        credential = json.loads(presentation).get('verifiableCredential')
+        if not credential :
+            pass
+        elif isinstance(credential, dict) :
             if credential["credentialSubject"]['type'] == "Pass" :
                 code = json.loads(red.get(stream_id).decode())['code']
                 client_id = json.loads(red.get(code).decode())['client_id']

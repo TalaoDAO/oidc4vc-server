@@ -97,22 +97,18 @@ async def beacon_verifier(verifier_id, red, mode):
 
         credential = json.loads(presentation)['verifiableCredential']
         verification = True
+        payload = dict()
 
         if isinstance(credential, dict) :
-            if credential["credentialSubject"]['type'] == "Pass" :
-                if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
-                    verification = False
-                    logging.warning("Pass issuer id does not match")
+            if credential["credentialSubject"]['type'] == "BloometaPass" :
+                payload.update(credential["credentialSubject"])
             if not await check_credential(credential) :
                 verification = False
         else :
             for cred in credential :
-                if cred["credentialSubject"]['type'] == "Pass" :
-                    if cred["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
-                        verification = False
-                        logging.warning("Pass issuer id does not match")
                 if not await check_credential(cred) :
                     verification = False
+               
         vc_type = list()
         if isinstance(credential, dict) :
             vc_type.append(credential['credentialSubject']['type'])
@@ -120,13 +116,14 @@ async def beacon_verifier(verifier_id, red, mode):
             for cred in credential :
                 vc_type.append(cred['credentialSubject']['type'])
         
-        # send data to webhook        
-        payload = { 'event' : 'VERIFICATION',
+        # send data to webhook       
+        payload.update({ 'event' : 'VERIFICATION',
                     'id' : id,  
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
                     "verification" : verification
-        }
+            })
+       
         headers = {
                 "key" : verifier_data['client_secret'],
                 "Content-Type": "application/json" 

@@ -64,8 +64,8 @@ credential_list_for_guest = {
 # for beacon verifier for guest
 beacon_verifier_credential_list = {
                     'Pass' : 'Pass',
-                    #"TezosAssociatedAddress" : "Proof of Tezos blockchain account",
-                    #'EmailPass' : 'Proof of email',
+                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    'EmailPass' : 'Proof of email',
                     #'PassportNumber' : 'Passport footprint',
                     #'PhoneProof' : 'Proof of phone',
                     #'AgeRange' : 'Age range',

@@ -1,5 +1,4 @@
-from flask import jsonify, request, render_template, redirect, session
-from device_detector import SoftwareDetector
+from flask import jsonify, request, render_template, redirect, session, flash
 import base64
 import json
 import db_user_api
@@ -64,7 +63,6 @@ def default_webhook() :
      return jsonify ('ok')
 
 def saas_home():
-    session.clear()
     if request.args.get('pricing') == 'on' :
         session['pricing'] = True
     return render_template("home.html")
@@ -138,11 +136,8 @@ def saas_callback(mode):
         return redirect ("/sandbox/saas4ssi")
     id_token = request.args['id_token']
     s = id_token.split('.')[1]
-    payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4))
-    try : 
-        login_name = json.loads(payload.decode())['email']
-    except :
-        login_name = json.loads(payload.decode())['sub']
+    payload = base64.urlsafe_b64decode(s + '=' * (4 - len(s) % 4)) 
+    login_name = json.loads(payload.decode())['email']
     if not db_user_api.read(login_name) :
         data = op_constante.user
         data["did"] = json.loads(payload.decode())['sub']
@@ -156,8 +151,9 @@ def saas_callback(mode):
         return redirect ('/sandbox/saas4ssi/menu')
     else :
         logging.warning('erreur, user exists')
-        message.message("User tried to sign up 2 times", "thierry@altme.io", "user = " + login_name, mode)
-        session.clear()
+        #message.message("User tried to sign up 2 times", "thierry@altme.io", "user = " + login_name, mode)
+        #session.clear()
+        flash("You are already registered as a user !", "error")
         return redirect ("/sandbox/saas4ssi")
 
 # login
