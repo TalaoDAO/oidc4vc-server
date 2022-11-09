@@ -123,9 +123,9 @@
             }
             updateActiveAccount();
 
-            client.subscribeToEvent(beacon.BeaconEvent.CHANNEL_CLOSED, (data) => {
-              window.alert("channel closed");
-            });
+            //client.subscribeToEvent(beacon.BeaconEvent.CHANNEL_CLOSED, (data) => {
+            //  window.alert("channel closed");
+            //});
           })
           .catch((error) => {
             console.log('error during permission request', error)
