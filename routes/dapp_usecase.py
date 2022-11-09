@@ -10,11 +10,11 @@ def init_app(app,red, mode) :
     if mode.myenv == 'aws':
         payload_over13 = 'I confirm i am over 13 years old #https://talao.co/sandbox/op/beacon/verifier/lhvnwdhczp?id='
         payload_download_gamer_pass =  'Get your Gamer Pass ! #https://talao.co/sandbox/op/beacon/zbsjclrass?id='
-        payload_account = ""
+        payload_account = "I want to associate another account #https://talao.co/sandbox/op/beacon/verifier/wfzovnsjrg?id="
     else :
         payload_over13 = 'I confirm i am over 13 years old #http://192.168.0.65:3000/sandbox/op/beacon/verifier/nebmmcdkva?id='
         payload_download_gamer_pass = 'Get your Gamer Pass ! #http://192.168.0.65:3000/sandbox/op/beacon/mmibrdplfm?id='
-        payload_account = 'Select an account #http://192.168.0.65:3000/sandbox/op/beacon/verifier/yusbbdwdnv?id='
+        payload_account = 'I want to associate another account #http://192.168.0.65:3000/sandbox/op/beacon/verifier/yusbbdwdnv?id='
     return
 
 
