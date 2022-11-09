@@ -22,7 +22,7 @@ def dapp_use_case():
     #if request.method == 'GET' :
     global payload_over13, payload_download_gamer_pass, payload_account
     id = str(uuid.uuid1())
-    return render_template('./use_case/dapp_use_case.html',
+    return render_template('./use_case/register_gamer_pass.html',
                              id = id,
                              payload_over13 = payload_over13 + id,
                              payload_download_gamer_pass = payload_download_gamer_pass + id,

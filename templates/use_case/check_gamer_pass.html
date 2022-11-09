@@ -27,17 +27,17 @@
     <div class=" text-center"> 
 
     <div id="pairing">
-        <h1 class="mt-5" >Onboard users with their Gamer Pass</h1>
-     <!--   <h4>Secure your onboarding, know your users and respect their privacy with decentralized identities on Web3 apps</h4>
-        <h6> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h6>
-     -->
+      <br /><br />   <br /><br />
+        <h1 class="my-5" >Onboard users with their Gamer Pass</h1>
         <br>
-        <button  class="btn btn-outline-dark" id="requestPermission">SYNCHRONIZE YOUR ALTME WALLET</button><br>
-    <!--    <button class="btn btn-outline-dark" id="reset">RESET</button><br>  -->
-
-        <br /><br />
+      
     </div>
     
+    <div id="intro">
+      <h3 class="mb-5"></h3>
+      <button  class="btn btn-outline-dark" id="requestPermission">SYNCHRONIZE YOUR ALTME WALLET</button><br>
+      {% include 'use_case/dapp_footer.html' %}
+    </div>
 
     <div id="haveGamerPass">
       <h3>Do you have a Gamer Pass ?</h3>
@@ -69,9 +69,6 @@
   </div>
   
   
-
-
-
     <script>
     document.getElementById('reset').style.visibility = 'hidden';
     document.getElementById('haveGamerPass').style.visibility = 'hidden';
@@ -90,14 +87,17 @@
         //}
       })
 
+   
+
     // Display the active account in the UI
     const updateActiveAccount = () => {
         client.getActiveAccount().then((activeAccount) => {
           if (activeAccount) {
             console.log(activeAccount)
-            document.getElementById("requestPermission").style.visibility = 'hidden';
+            document.getElementById("intro").innerHTML = '';
             document.getElementById("haveGamerPass").style.visibility = 'visible';
             document.getElementById("reset").style.visibility = 'visible';
+           
           } else {
             //document.getElementById('activeAccount').innerText = ''
             //document.getElementById('activeAccountNetwork').innerText = ''
@@ -105,6 +105,9 @@
           }
         })
     }
+
+
+     
 
     updateActiveAccount()
 
@@ -118,7 +121,11 @@
             if (callback) {
               callback(permissions)
             }
-            updateActiveAccount()
+            updateActiveAccount();
+
+            client.subscribeToEvent(beacon.BeaconEvent.CHANNEL_CLOSED, (data) => {
+              window.alert("channel closed");
+            });
           })
           .catch((error) => {
             console.log('error during permission request', error)
