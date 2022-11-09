@@ -9,7 +9,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/dapp/check_gamer_pass/stream',  view_func=check_gamer_pass_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     global payload_gamer_pass
     if mode.myenv == 'aws':
-        payload_gamer_pass = 'I have a Gamer Pass #https://talao.co/sandbox/op/beacon/verifier/wfzovnsjrg?id='
+        payload_gamer_pass = 'I have a Gamer Pass#https://talao.co/sandbox/op/beacon/verifier/fcouehqbiz?id='
     else :
         payload_gamer_pass =  'I have a Gamer Pass  #http://192.168.0.65:3000/sandbox/op/beacon/verifier/gkbekftugx?id='
     return
@@ -25,7 +25,6 @@ def check_gamer_pass():
 
 def check_gamer_pass_webhook(red) :
     data = request.get_json()
-    print('webhook data = ', data)
     if data['event'] == 'VERIFICATION' :
         if  "BloometaPass" in data["vc_type"]  :
             event_data = json.dumps({"gamer_pass" : 'verified',
