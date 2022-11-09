@@ -24,122 +24,64 @@
       </div>
     </nav>
 
-    <div class=" text-center"> 
+    <div class=" text-center">
+   
+
 
     <div id="pairing">
-        <h1 class="mt-5" >Onboard users with their Gamer Pass & register new users</h1>
-     <!--   <h4>Secure your onboarding, know your users and respect their privacy with decentralized identities on Web3 apps</h4>
-        <h6> Download the Altme wallet from <a href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme">Google play</a> or <a href="https://apps.apple.com/fr/app/altme/id1633216869">Apple store</a> and create a new wallet</h6>
-     -->
-        <br>
-        <button  class="btn btn-outline-dark" id="requestPermission">SYNCHRONIZE YOUR ALTME WALLET</button><br>
-    <!--    <button class="btn btn-outline-dark" id="reset">RESET</button><br>  -->
-
-        <br /><br />
+      <br /><br />   <br /><br />
+        <h1 class="my-5" >Register an Universal Gamer Pass with Altme</h1>
+        <br /><br />   
     </div>
     
 
-    <div id="haveGamerPass">
-      <h3>Do you have a Gamer Pass ?</h3>
-      <button class="btn btn-outline-dark" id="haveGamerPassYes" >YES</button>
-      <button class="btn btn-outline-dark" id="haveGamerPassNo" >NO</button>
-      <br><br>  <br><br>
-      <hr> 
-      <div id="webhook">
-          <h3>The Developers' Corner : data received on webhook</h3>
-          <textarea id="dataSent" rows="10" cols="100"></textarea>
-      </div>
-      <button class="btn btn-outline-dark my-2" onclick="Reset();" id="reset">RESET</button><br>
+    <div id="intro">
+      <h3 class="mb-5">Get discounts on NFTs and access private drops on all blockchains with your Decentralized IDentity</h3>
+      <button  class="btn btn-outline-dark" id="requestPermission">SYNCHRONIZE YOUR ALTME WALLET</button><br>
+
+     
       {% include 'use_case/dapp_footer.html' %}
-  </div>
-
-
-  <div id="registerGamerPass">
-    <h3>Do you want to register a Gamer Pass ?</h3>
-    <button class="btn btn-outline-dark" id="registerGamerPassYes" >YES</button>
-    <button class="btn btn-outline-dark" id="registerGamerPassNo" >NO</button>
-    <br><br>  <br><br>
-    <hr> 
-    <div id="webhook">
-        <h3>The Developers' Corner : data received on webhook</h3>
-        <textarea id="dataSent" rows="10" cols="100"></textarea>
     </div>
-    <button class="btn btn-outline-dark my-2" onclick="Reset();" id="reset">RESET</button><br>
-    {% include 'use_case/dapp_footer.html' %}
-</div>
-
-
 
 <div id="over13">
-  <h3>Do you have a certificate proving that you are over 13 years old ?</h3>
+  <h3 class="mb-5">Do you have a certificate proving that you are over 13 years old ?</h3>
   <button class="btn btn-outline-dark" id="over13Yes" >YES</button>
   <button class="btn btn-outline-dark" id="over13No" >NO</button>
   <br><br> <br><br>
-  <hr> 
-  <div id="webhook">
-      <h3>The Developers' Corner : data received on webhook</h3>
-      <textarea id="dataSent" rows="10" cols="100"></textarea>
-  </div>
-  <button class="btn btn-outline-dark my-2" onclick="Reset();" id="reset">RESET</button><br>
   {% include 'use_case/dapp_footer.html' %}
 </div>
 
+
   <div id="account">
-  <h3>Do you want to add another wallet account ?</h3>
+  <h3 class="mb-5">Do you want to associate your Identity to another wallet ? (Temple, Kukai, Airgap, Autonopmy, Naan, ...)</h3>
   <button class="btn btn-outline-dark" id="accountYes" >YES</button>
   <button class="btn btn-outline-dark" id="accountNo" >NO</button>
   <br><br> <br><br>
-  <hr> 
-  <div id="webhook">
-      <h3>The Developers' Corner : data received on webhook</h3>
-      <textarea id="dataSent" rows="10" cols="100"></textarea>
-  </div>
-  <button class="btn btn-outline-dark my-2" onclick="Reset();" id="reset">RESET</button><br>
   {% include 'use_case/dapp_footer.html' %}
 </div>
 
     <div id="downloadGamerPass">
-        <h3>Download your Gamer Pass ?</h3>
+        <h3 class="mb-5">Get your Gamer Pass ?</h3>
         <button  class="btn btn-outline-dark" id="downloadGamerPassYes" >YES</button>
         <button class="btn btn-outline-dark" id="downloadGamerPassNo"" >NO</button>  
         <br><br>  <br><br>
-        <hr> 
-        <div id="webhook">
-            <h3>The Developers' Corner : data received on webhook</h3>
-            <textarea id="dataSent" rows="10" cols="100"></textarea>
-        </div>
-        <button class="btn btn-outline-dark my-2" onclick="Reset();" id="reset">RESET</button><br>
         {% include 'use_case/dapp_footer.html' %}
     </div>
 
     <div id="welcome">
-        <h3 id="welcomeText"></h3>
+        <h3 class="mb-5" id="welcomeText"></h3>
         <button  class="btn btn-outline-dark" onclick="Reset();"  >RESET</button>
         <br><br>  <br><br>
-        <hr> 
-        <div id="webhook">
-            <h3>The Developers' Corner : data received on webhook</h3>
-            <textarea id="dataSent" rows="10" cols="100"></textarea>
-        </div>
         <br>
         {% include 'use_case/dapp_footer.html' %}
     </div>
   </div>
   
-  
-
-
-
     <script>
-    document.getElementById('reset').style.visibility = 'hidden';
-    document.getElementById('registerGamerPass').style.visibility = 'hidden';
     document.getElementById('account').style.visibility = 'hidden';
     document.getElementById('over13').style.visibility = 'hidden';
-    document.getElementById('haveGamerPass').style.visibility = 'hidden';
     document.getElementById('downloadGamerPass').style.visibility = 'hidden';
     document.getElementById('welcome').style.visibility = 'hidden';
-
-    var newGamerPass = false
 
     // Initiate DAppClient
     const client = beacon.getDAppClientInstance({
@@ -157,9 +99,8 @@
         client.getActiveAccount().then((activeAccount) => {
           if (activeAccount) {
             console.log(activeAccount)
-            document.getElementById("requestPermission").style.visibility = 'hidden';
-            document.getElementById("haveGamerPass").style.visibility = 'visible';
-            document.getElementById("reset").style.visibility = 'visible';
+            document.getElementById("intro").innerHTML = '';
+            document.getElementById("over13").style.visibility = 'visible';
           } else {
             //document.getElementById('activeAccount').innerText = ''
             //document.getElementById('activeAccountNetwork').innerText = ''
@@ -169,7 +110,6 @@
     }
 
     updateActiveAccount()
-
 
       // Initiate a permission request
     const requestPermission = (callback) => {
@@ -192,52 +132,13 @@
     document.getElementById('requestPermission').addEventListener('click', () => {
         requestPermission()
     })
-/*
-    // Add event listener to the RESET button
-    document.getElementById('reset').addEventListener('click', () => {
-        client.destroy().then(() => {
-          window.location.reload()
-        })
-    })
-*/
+
     // RESET button
     function Reset() {
         client.destroy().then(() => {
           window.location.reload()
         })
     }
-
-
-    // Add event listener "Do you have a Gamer Pass" YES button
-    document.getElementById('haveGamerPassYes').addEventListener('click', async () => {
-        const signature = await client.requestSignPayload({
-          signingType: beacon.SigningType.RAW,
-          payload : '{{payload_gamer_pass}}'
-               })
-        console.log('signature:', signature);  
-    })
-    // Add event listener "Do you have a Gamer Pass" NO button
-    document.getElementById('haveGamerPassNo').addEventListener('click', async () => {
-        document.getElementById("haveGamerPass").innerHTML = '';
-        document.getElementById("registerGamerPass").style.visibility = 'visible';
-    })
-
-
-  // Add event listener "Do you want to register a Gamer Pass" YES button
-     document.getElementById('registerGamerPassYes').addEventListener('click', async () => {
-        document.getElementById("registerGamerPass").innerHTML = '';
-        document.getElementById("over13").style.visibility = 'visible';
-    })
-    // Add event listener "Do you want to register a Gamer Pass" NO button
-    document.getElementById('registerGamerPassNo').addEventListener('click', async () => {
-        document.getElementById("registerGamerPass").innerHTML = '';
-        document.getElementById("haveGamerPass").innerHTML = '';
-        document.getElementById("account").innerHTML = '';
-        document.getElementById("downloadGamerPass").innerHTML = '';
-        document.getElementById("over13").innerHTML = '';
-        document.getElementById("welcomeText").innerHTML = 'Thank you for your visit !';
-        document.getElementById("welcome").style.visibility = 'visible';
-    })
 
 
     // Add event listener to the OVER13 YES button
@@ -248,7 +149,7 @@
                })
         console.log('signature:', signature);
     })
-    // Add event listener to the OVER13 SKIP button
+    // Add event listener to the OVER13 NO button
     document.getElementById('over13No').addEventListener('click', async () => {
         document.getElementById("over13").innerHTML = '';
         document.getElementById("account").style.visibility = 'visible';
@@ -298,31 +199,17 @@
                 console.log("result = ", result);
                 document.getElementById("over13").innerHTML = '';
                 document.getElementById("account").style.visibility = 'visible';  
-                document.getElementById("dataSent").innerHTML = result.data;
             }
             if (result.account == 'verified' && result.id == '{{id}}' ){
                 console.log("result = ", result);
                 document.getElementById("account").innerHTML = '';
                 document.getElementById("downloadGamerPass").style.visibility = 'visible';  
-                document.getElementById("dataSent").innerHTML = result.data;
-            }
-            if (result.gamer_pass == 'verified' && result.id == '{{id}}' ){
-              console.log("result = ", result);
-                document.getElementById("haveGamerPass").innerHTML = '';
-                document.getElementById("account").innerHTML = '';
-                document.getElementById("registerGamerPass").innerHTML = '';
-                document.getElementById("downloadGamerPass").innerHTML = '';
-                document.getElementById("over13").innerHTML = '';
-                document.getElementById("welcomeText").innerHTML = 'Congrats !';
-                document.getElementById("welcome").style.visibility = 'visible';
-                document.getElementById("dataSent").innerHTML = result.data;
             }
             if (result.gamer_pass == 'issued' && result.id == '{{id}}'){
               console.log("result = ", result);
                 document.getElementById("downloadGamerPass").innerHTML = '';
                 document.getElementById("welcomeText").innerHTML = 'Congrats you have now your Gamer Pass !';
                 document.getElementById("welcome").style.visibility = 'visible';
-                document.getElementById("dataSent").innerHTML = result.data;
             }
         };
 </script>

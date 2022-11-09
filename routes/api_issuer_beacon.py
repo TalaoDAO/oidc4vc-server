@@ -129,6 +129,7 @@ async def beacon_landing(issuer_id, red, mode) :
             id = str(uuid.uuid1())
         else :
             id = request.args.get('id')
+        
         credentialOffer = {
             "id" : id,
             "type": "CredentialOffer",
@@ -138,6 +139,7 @@ async def beacon_landing(issuer_id, red, mode) :
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
             "credential_manifest" : credential_manifest
         }
+        print(credentialOffer)
         red.set(id, json.dumps(credentialOffer))   
         return jsonify(credentialOffer)
                         

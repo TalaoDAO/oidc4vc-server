@@ -90,7 +90,6 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         vc_list.append(presentation['verifiableCredential'])
     else :
         vc_list = presentation['verifiableCredential']
-    print('vc list = ', vc_list)
     for vc in vc_list :
         vc_issuance_date = vc.get('issuanceDate')[:19]
         payload["updated_at"] = time.mktime(time.strptime(vc_issuance_date, '%Y-%m-%dT%H:%M:%S'))

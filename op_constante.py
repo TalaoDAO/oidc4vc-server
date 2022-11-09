@@ -98,8 +98,8 @@ credential_to_issue_list = {
                     'TezosAssociatedAddress' : "Tezos address proof (fake)",
                     'EthereumAssociatedAddress' : "Ethereum address proof (fake)",
                     "VotersCard" : "Voter Card",
-                    'PhoneProof' : 'PhoneProof (fake)',
-                    'EmailPass' : 'EmailPass (fake)',
+                    'PhoneProof' : 'PhoneProof',
+                    'EmailPass' : 'EmailPass',
                     'Over18' : 'Over 18 (fake)',
                     'Over13' : 'Over 13 (fake)'
                 }
