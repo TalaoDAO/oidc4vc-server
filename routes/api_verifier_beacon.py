@@ -40,7 +40,11 @@ async def beacon_verifier(verifier_id, red, mode):
         logging.error('client id not found')
         return jsonify("verifier not found"), 404
     if request.method == 'GET':
-        if not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+        if verifier_data.get('vc') == "ANY" :
+            pattern = op_constante.model_any
+        elif verifier_data.get('vc') == "DID" :
+            pattern = op_constante.model_DIDAuth
+        elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
             pattern = op_constante.model_one
             pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
@@ -64,6 +68,7 @@ async def beacon_verifier(verifier_id, red, mode):
             pattern['challenge'] = str(uuid.uuid1())
         else : 
             pattern['challenge'] = request.args.get('id')
+        pattern['domain'] = 'Altme.io'
         # TODO incorrect use of challenge to carry the redis data
         red.setex(pattern['challenge'], QRCODE_LIFE, json.dumps(pattern))
         return jsonify(pattern)
@@ -98,10 +103,12 @@ async def beacon_verifier(verifier_id, red, mode):
         credential = json.loads(presentation)['verifiableCredential']
         verification = True
         payload = dict()
-
+        logging.info('API verifier credential type = %s', credential["credentialSubject"]['type'])
         if isinstance(credential, dict) :
             if credential["credentialSubject"]['type'] == "BloometaPass" :
                 payload.update(credential["credentialSubject"])
+            if credential["credentialSubject"]['type'] in ["TezosAssociatedAddress", "EthereumAssociatedAddress"] :
+                payload['associatedAddress'] =  credential["credentialSubject"]['associatedAddress']
             if not await check_credential(credential) :
                 verification = False
         else :

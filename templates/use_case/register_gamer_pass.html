@@ -49,10 +49,16 @@
   {% include 'use_case/dapp_footer.html' %}
 </div>
 
+<div id="account">
+  <h3 class="mb-5">Choose a blockchain account to associate to your Gamer Pass</h3>
+  <button class="btn btn-outline-dark" id="accountYes" >GO</button>
+  <br><br> <br><br>
+  {% include 'use_case/dapp_footer.html' %}
+</div>
 
-  <div id="account">
-  <h3 class="mb-5">Do you want to associate your Identity to another wallet ? (Temple, Kukai, Airgap, Autonopmy, Naan, ...)</h3>
-  <button class="btn btn-outline-dark" id="accountYes" >YES</button>
+  <div id="account_2">
+  <h3 class="mb-5">Add another blockchain account ?</h3>
+  <button class="btn btn-outline-dark" id="accountYes_2" >YES</button>
   <button class="btn btn-outline-dark" id="accountNo" >NO</button>
   <br><br> <br><br>
   {% include 'use_case/dapp_footer.html' %}
@@ -77,6 +83,7 @@
   
     <script>
     document.getElementById('account').style.visibility = 'hidden';
+    document.getElementById('account_2').style.visibility = 'hidden';
     document.getElementById('over13').style.visibility = 'hidden';
     document.getElementById('downloadGamerPass').style.visibility = 'hidden';
     document.getElementById('welcome').style.visibility = 'hidden';
@@ -162,9 +169,17 @@
                })
         console.log('signature:', signature);
     })
+       // Add event listener to the account YES button
+       document.getElementById('accountYes_2').addEventListener('click', async () => {
+        const signature = await client.requestSignPayload({
+          signingType: beacon.SigningType.RAW,
+          payload : '{{payload_account}}'
+               })
+        console.log('signature:', signature);
+    })
     // Add event listener to the account NO button
     document.getElementById('accountNo').addEventListener('click', async () => {
-        document.getElementById("account").innerHTML = '';
+        document.getElementById("account_2").innerHTML = '';
         document.getElementById("downloadGamerPass").style.visibility = 'visible';
       })
      
@@ -194,17 +209,15 @@
             //document.getElementById('dataSent').innerText = result.data;
          
             if (result.over13 == 'verified' && result.id == '{{id}}' ){
-                console.log("result = ", result);
                 document.getElementById("over13").innerHTML = '';
                 document.getElementById("account").style.visibility = 'visible';  
             }
             if (result.account == 'verified' && result.id == '{{id}}' ){
-                console.log("result = ", result);
                 document.getElementById("account").innerHTML = '';
-                document.getElementById("downloadGamerPass").style.visibility = 'visible';  
+                document.getElementById("account_2").style.visibility = 'visible';  
             }
+
             if (result.gamer_pass == 'issued' && result.id == '{{id}}'){
-              console.log("result = ", result);
                 document.getElementById("downloadGamerPass").innerHTML = '';
                 document.getElementById("welcomeText").innerHTML = 'Congrats you have now your Gamer Pass !';
                 document.getElementById("welcome").style.visibility = 'visible';

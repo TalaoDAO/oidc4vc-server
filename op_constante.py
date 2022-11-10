@@ -243,8 +243,8 @@ model_DIDAuth = {
            "query": [{
                "type": "DIDAuth"
                }],
-           "challenge": "a random uri",
-           "domain" : "talao.co"
+           "challenge": "",
+           "domain" : ""
     }
 
 model_any = {

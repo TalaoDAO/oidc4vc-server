@@ -147,6 +147,7 @@ async def beacon_landing(issuer_id, red, mode) :
     if request.method == 'POST':
         # send data to webhook
         data_received = dict()
+        logging.info("standalone = %s", issuer_data.get('standalone', None))
         if issuer_data.get('standalone', None) == 'on' :
             headers = {
                     "key" : issuer_data['client_secret'],
@@ -156,7 +157,7 @@ async def beacon_landing(issuer_id, red, mode) :
             payload = { 'event' : 'ISSUANCE',
                     'vp': json.loads(request.form['presentation']),
                     "id": request.form.get('id'),
-                    'vc_type' : issuer_data['credential_to _issue']
+                    'vc_type' : issuer_data['credential_to_issue']
                     }
 
             r = requests.post(url,  data=json.dumps(payload), headers=headers)
@@ -168,7 +169,8 @@ async def beacon_landing(issuer_id, red, mode) :
             except :
                 logging.error('aplication data are not json')
                 return jsonify("application error"),500
-
+            
+            logging.info('aplication data received')
             # credential is signed by external issuer
             if issuer_data['method'] == "relay" :
                 logging.info('credential signed by external signer')
@@ -180,7 +182,8 @@ async def beacon_landing(issuer_id, red, mode) :
         # extract data sent by application and merge them with verifiable credential data
         if data_received and issuer_data.get('standalone', None) == 'on' :
             credential["credentialSubject"] = data_received
-            logging.info("Data received from application added to credential")
+            logging.info("Data received from application added to credential = %s", data_received)
+            logging.info("credentila subject = %s ", credential["credentialSubject"])
 
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
