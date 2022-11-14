@@ -13,7 +13,7 @@ def init_app(app,red, mode) :
     
     app.add_url_rule('/sandbox/dapp/use_case/webhook',  view_func=dapp_use_case_webhook, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/sandbox/dapp/use_case/stream',  view_func=dapp_use_case_stream, methods = ['GET', 'POST'], defaults={'red' : red})
-    global payload_over13, payload_gamer_pass, payload_download_gamer_pass, payload_account
+    global payload_over13, payload_download_gamer_pass, payload_account
     if mode.myenv == 'aws':
         payload_over13 = 'I confirm i am over 13 years old #https://talao.co/sandbox/op/beacon/verifier/lhvnwdhczp?id='
         payload_download_gamer_pass =  'Get your Gamer Pass ! #https://talao.co/sandbox/op/beacon/zbsjclrass?id='
@@ -88,6 +88,7 @@ def dapp_use_case_3_1(red):
             red.setex(session['id'] + "_alternateName", 180, request.form['altName'])
         return redirect('/sandbox/dapp/register_gamer_pass_4?id=' + session['id'])
 
+
 # Gamer Pass
 def dapp_use_case_4():
     if not session.get('id') :
@@ -123,13 +124,12 @@ def dapp_use_case_webhook(red) :
                                     "account" : 'verified'})
             red.publish('use_case', event_data)
             try :
-                tezosAddress = list()
-                tezosAddress.append(red.get(data['id'] +'_TezosAssociatedAddress').decode())
-                tezosAddress.append(data['associatedAddress'])
-                red.setex(data['id'] + "_TezosAssociatedAddress", 180, json.dumps(tezosAddress))
+                address = list()
+                address.append(red.get(data['id'] +'_TezosAssociatedAddress').decode())
+                address.append(data['associatedAddress'])
+                red.setex(data['id'] + "_TezosAssociatedAddress", 180, json.dumps(address))
             except :
                 red.setex(data['id'] + "_TezosAssociatedAddress", 180, data['associatedAddress'])
-            print (red.get(data['id'] + "_TezosAssociatedAddress").decode())
             return jsonify('ok')
 
         if  "EthereumAssociatedAddress" in data["vc_type"] :
@@ -137,13 +137,12 @@ def dapp_use_case_webhook(red) :
                                     "account" : 'verified'})
             red.publish('use_case', event_data)
             try :
-                tezosAddress = list()
-                tezosAddress.append(red.get(data['id'] +'_EthereumAssociatedAddress').decode())
-                tezosAddress.append(data['associatedAddress'])
-                red.setex(data['id'] + "_EthereumAssociatedAddress", 180, json.dumps(tezosAddress))
+                address = list()
+                address.append(red.get(data['id'] +'_EthereumAssociatedAddress').decode())
+                address.append(data['associatedAddress'])
+                red.setex(data['id'] + "_EthereumAssociatedAddress", 180, json.dumps(address))
             except :
                 red.setex(data['id'] + "_EthereumAssociatedAddress", 180, data['associatedAddress'])
-            print (red.get(data['id'] + "_EthereumAssociatedAddress").decode())
             return jsonify('ok')
     
     if data['event'] == 'ISSUANCE' :

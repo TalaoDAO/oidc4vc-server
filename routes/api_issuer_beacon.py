@@ -139,7 +139,7 @@ async def beacon_landing(issuer_id, red, mode) :
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
             "credential_manifest" : credential_manifest
         }
-        print(credentialOffer)
+        logging.info("credential Offer sent")
         red.set(id, json.dumps(credentialOffer))   
         return jsonify(credentialOffer)
                         
@@ -150,16 +150,16 @@ async def beacon_landing(issuer_id, red, mode) :
         logging.info("standalone = %s", issuer_data.get('standalone', None))
         if issuer_data.get('standalone', None) == 'on' :
             headers = {
-                    "key" : issuer_data['client_secret'],
-                    "Content-Type": "application/json" 
-                    }       
+                "key" : issuer_data['client_secret'],
+                "Content-Type": "application/json" 
+                }       
             url = issuer_data['webhook']
             payload = { 'event' : 'ISSUANCE',
-                    'vp': json.loads(request.form['presentation']),
-                    "id": request.form.get('id'),
-                    'vc_type' : issuer_data['credential_to_issue']
-                    }
-
+                'vp': json.loads(request.form['presentation']),
+                "id": request.form.get('id'),
+                'vc_type' : issuer_data['credential_to_issue']
+                }
+            logging.info("event ISSUANCE sent to webhook")
             r = requests.post(url,  data=json.dumps(payload), headers=headers)
             if not 199<r.status_code<300 :
                 logging.error('issuer failed to call application, status code = %s', r.status_code)
@@ -169,11 +169,7 @@ async def beacon_landing(issuer_id, red, mode) :
             except :
                 logging.error('aplication data are not json')
                 return jsonify("application error"),500
-            
-            logging.info('aplication data received')
-            # credential is signed by external issuer
-            if issuer_data['method'] == "relay" :
-                logging.info('credential signed by external signer')
+            logging.info('aplication data received from Webhook')
 
         # get credential
         credentialOffer = json.loads(red.get(request.form['id']).decode())  
@@ -183,7 +179,7 @@ async def beacon_landing(issuer_id, red, mode) :
         if data_received and issuer_data.get('standalone', None) == 'on' :
             credential["credentialSubject"] = data_received
             logging.info("Data received from application added to credential = %s", data_received)
-            logging.info("credentila subject = %s ", credential["credentialSubject"])
+            logging.info("credential subject = %s ", credential["credentialSubject"])
 
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
@@ -193,32 +189,25 @@ async def beacon_landing(issuer_id, red, mode) :
         
         if issuer_data['credential_to_issue'] == 'Pass' :
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Unknown')
-            credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
-       
-        # sign credential
-        if issuer_data['method'] == "ebsi" :
-            logging.warning("EBSI issuer")
-            credential["issuer"] = issuer_data['did_ebsi']
-            signed_credential = ebsi.lp_sign(credential, issuer_data['jwk'], issuer_data['did_ebsi'])
-            logging.info("credential signed by EBSI")
-        else :
-            credential["issuer"] = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])  
-            didkit_options = {
+            #credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
+      
+        credential["issuer"] = didkit.key_to_did(issuer_data['method'], issuer_data['jwk'])  
+        didkit_options = {
                 "proofPurpose": "assertionMethod",
                 "verificationMethod": await didkit.key_to_verification_method(issuer_data['method'], issuer_data['jwk'])
-            }
-            try :
-                signed_credential =  await didkit.issue_credential(
-                json.dumps(credential),
-                didkit_options.__str__().replace("'", '"'),
-                issuer_data['jwk']
-                )
-                logging.info("credential signed by %s", credential["issuer"])
-            except :
-                logging.error('Signature failed, application failed to return correct data')
-                logging.error("credential to sign = %s", credential)
-                return jsonify("server error, signature failed"),500
-            logging.info('signature ok')
+        }
+        try :
+            signed_credential =  await didkit.issue_credential(
+            json.dumps(credential),
+            didkit_options.__str__().replace("'", '"'),
+            issuer_data['jwk']
+            )
+            logging.info("credential signed by %s", credential["issuer"])
+        except :
+            logging.error('Signature failed, application failed to return correct data')
+            return jsonify("server error, signature failed"),500
+        
+        logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
         #if issuer_data.get('standalone', None) == 'on' :
@@ -230,6 +219,7 @@ async def beacon_landing(issuer_id, red, mode) :
                 "vp" : json.loads(request.form['presentation'])
         }
         beacon_activity_db_api.create(issuer_id, activity) 
+
         return jsonify(signed_credential)
  
 
@@ -245,9 +235,9 @@ def event_signed_credential(issuer_data, signed_credential, id, vc_type) :
                 'vp' : json.loads(request.form['presentation']),
                 "id": id
                 }
+    logging.info("event SIGNED_CREDENTIAL sent to webbhook")
     r = requests.post(url,  data=json.dumps(payload), headers=headers)
     if not 199<r.status_code<300 :
-        logging.error('issuer failed to send signed credential to application, status code = %s', r.status_code)
-    else :
-         logging.info('signed credential sent to application')
+        logging.error('issuer failed to send signed credential to webhook, status code = %s', r.status_code)
+   
 
