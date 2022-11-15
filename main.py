@@ -89,7 +89,6 @@ def md_file() :
         content = open('privacy_en.md', 'r').read()
     elif request.args['file'] == 'terms_and_conditions' :
         content = open('mobile_cgu_en.md', 'r').read()
-    print("content = ", content)
     return render_template_string( markdown.markdown(content, extensions=["fenced_code"]))
 
 
