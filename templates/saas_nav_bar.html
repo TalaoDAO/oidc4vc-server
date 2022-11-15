@@ -7,29 +7,17 @@
       
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
 
-        <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/admin"> </a>
-        </li>
-
+       
         <li class="nav-item active d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi">Home</a>
         </li>
 
-        <li class="nav-item dropdown d-none d-md-block">
-          <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Solutions
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="/sandbox/saas4ssi/credentials">Credentials</a>
-          
-            <a class="dropdown-item text-secondary" href="#">DIDs (Decentralized Identifiers)</a>
-            <a class="dropdown-item text-secondary" href="#">Registry</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://issuer.talao.co/emailpass">Email proof issuer</a>
-   <!--         <a class="dropdown-item" href="https://issuer.talao.co/phonepass">Phone proof issuer</a>  -->
-          </div>
+        <li class="nav-item active d-none d-md-block">
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/dids">Altme DIDs</a>
         </li>
 
+       
+       
 
         {% if session['pricing']  %}
         <li class="nav-item dropdown d-none d-md-block">
@@ -49,15 +37,22 @@
 
         <li class="nav-item dropdown d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Developpers
+            Developers
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/index.html">Documentation</a>
+            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/index.html">Full documentation</a>
+            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_openid.html">OpenID bridge for verifier</a>
+            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_beacon.html">Beacon integration for verifier</a>
+            <hr>
+
+    <!--        <a class="dropdown-item" href="/sandbox/saas4ssi/dapp/demo">dApp demo</a>  -->
+            <a class="dropdown-item" href="https://issuer.talao.co/register_gamer_pass">Get a Gamer Pass</a>
+            <a class="dropdown-item" href="/sandbox/dapp/check_gamer_pass">Check a Gamer Pass</a>
+            <a class="dropdown-item" href="/sandbox/dapp/check_over13">Check an Over13 proof</a>
+            
+            <hr>
+            <a class="dropdown-item" href="/sandbox/saas4ssi/dapp">Beacon dApp simulator</a>
             <a class="dropdown-item" href="/sandbox/playground">Credentials and tools</a>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/dapp">dApp simulator</a>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/dapp/demo">dApp demo 1</a>
-            <a class="dropdown-item" href="https://issuer.talao.co/register_gamer_pass">Register Gamer Pass</a>
-            <a class="dropdown-item" href="/sandbox/dapp/check_gamer_pass">Check Gamer Pass</a>
             <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP</a>
           </div>
         </li>

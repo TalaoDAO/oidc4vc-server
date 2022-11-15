@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- menu.html-->
+<html>
+  <head>
+    {% include 'head.html' %}
+
+   
+
+  </head>
+  <body>
+      
+    {% include 'saas_nav_bar.html' %}
+
+    <div class="text-center mt-5">
+
+
+            <div class="row my-5">
+            
+                <div class = "col-8 offset-2">
+
+           <h2 class="mt-5">Altme uses several DIDs to sign and to issue verifiable credentials. <br>Here is a list of the DIDs we use : </h2>
+            
+           <h4 class="mt-5">Tezos (did:tz) : </h4>
+            <li>did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk</li>
+            <li>did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du</li>
+            <li>did:tz:tz2UFjbN9ZruP5pusKoAKiPD3ZLV49CBG9Ef</li>
+           <li>did:tz:tz1RuLH4TvKNpLy3AqQMui6Hys6c1Dvik8J5</li>
+            <li>did:tz:tz2X3K4x7346aUkER2NXSyYowG23ZRbueyse</li>
+          <h4 class="mt-5">DID web (did:web) : </h4>
+            <li>did:web:talao.co</li>
+          <h4 class="mt-5">Ethereum (did:ethr) : </h4>
+          <li>did:ethr:0xd6008c16068c40c05a5574525db31053ae8b3ba7</li>  
+            <li>did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250</li>
+            <li>did:ethr:0x61fb76ff95f11bdbcd94b45b838f95c1c7307dbd</li>
+
+            </div>
+      </div>
+
+        </div>
+    
+   {% include 'user_footer.html' %}
+
+
+              <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+              <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+              <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    
+  </body>
+</html>

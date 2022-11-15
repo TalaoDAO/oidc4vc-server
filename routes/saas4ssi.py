@@ -13,6 +13,8 @@ admin_list = ["thierry.thevenet@talao.io", "nicolas.muller@talao.io", "hugo@altm
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi',  view_func=saas_home, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/dids',  view_func=dids, methods = ['GET'])
+
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
     #app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
@@ -70,6 +72,10 @@ def saas_home():
 
 def credentials():
     return render_template("credentials.html")
+
+
+def dids():
+    return render_template("dids.html")
 
 def pricing():
     return render_template("pricing.html")

@@ -1,6 +1,7 @@
 import os
 import time
-from flask import Flask, redirect
+import markdown
+from flask import Flask, redirect, request, render_template_string
 from flask_session import Session
 from datetime import timedelta
 from flask_qrcode import QRcode
@@ -32,6 +33,7 @@ from routes import saas4ssi, siopv2
 from routes import dapp, beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
 from routes import dapp_check_gamer_pass
+from routes import dapp_over13
 
 # Server Release
 VERSION = "0.6.2"
@@ -75,7 +77,21 @@ web_display_VP.init_app(app, red, mode)
 siopv2.init_app(app, red, mode)
 dapp.init_app(app, red, mode)
 dapp_check_gamer_pass.init_app(app, red, mode)
-#dapp_check_gamer_pass.init_app(app, red, mode)
+dapp_over13.init_app(app, red, mode)
+
+
+
+@app.route('/sandbox/md_file', methods = ['GET'])
+def md_file() :
+	#Display markdown files for CGU and Privacy
+	#https://dev.to/mrprofessor/rendering-markdown-from-flask-1l41
+    if request.args['file'] == 'privacy' :
+        content = open('privacy_en.md', 'r').read()
+    elif request.args['file'] == 'terms_and_conditions' :
+        content = open('mobile_cgu_en.md', 'r').read()
+    print("content = ", content)
+    return render_template_string( markdown.markdown(content, extensions=["fenced_code"]))
+
 
 # MAIN entry point for test
 if __name__ == '__main__':

@@ -138,7 +138,6 @@ async def beacon_verifier_console(mode) :
                 micheline_payload = micheline_payload,
                 operation_payload = operation_payload,
                 beacon_payload_message = session['client_data'].get('beacon_payload_message', 'Any string'),
-                standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
                 client_secret=session['client_data']['client_secret'],
@@ -165,7 +164,6 @@ async def beacon_verifier_console(mode) :
         else :
             session['client_data']['beacon_payload_message'] = request.form['beacon_payload_message']
             session['client_data']['contact_name'] = request.form['contact_name']
-            session['client_data']['standalone'] = request.form.get('standalone') 
             session['client_data']['user'] = request.form['user']
             session['client_data']['webhook'] = request.form['webhook']
             session['client_data']['note'] = request.form['note']          
@@ -199,8 +197,10 @@ async def beacon_verifier_console(mode) :
             return(jsonify('ok'))
 
 
-async def beacon_verifier_advanced() :
-    global  reason
+
+
+def beacon_verifier_advanced() :
+    global vc, reason
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
@@ -211,53 +211,23 @@ async def beacon_verifier_advanced() :
                     protocol_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     protocol_select +=  "<option value=" + key + ">" + value + "</option>"
-        method_select = str()       
-        for key, value in method_list.items() :
-                if key ==   session['client_data'].get('method', "") :
-                    method_select +=  "<option selected value=" + key + ">" + value + "</option>"
-                else :
-                    method_select +=  "<option value=" + key + ">" + value + "</option>"
-        DID, did_ebsi, jwk, did_document = await did(session)
-        return render_template('beacon_verifier_advanced.html',
+        
+        return render_template('beacon/beacon_verifier_advanced.html',
                 client_id = session['client_data']['client_id'],
                 protocol = session['client_data']['protocol'],
-                jwk = jwk,
-                method = session['client_data']['method'],
-                protocol_select=protocol_select,
-                method_select=method_select,
-                did_ebsi = did_ebsi,
-                DID = DID,
-                did_document=json.dumps(json.loads(did_document), indent=4)
+                protocol_select=protocol_select
                 )
     if request.method == 'POST' :
+
         if request.form['button'] == "back" :
-            return redirect('/sandbox/op/beacon/verifier/console?client_id=' + request.form['client_id'])
-
-        if request.form['button'] == "update" :
+            return redirect ('/sandbox/op/beacon/verifier/console?client_id=' + request.form['client_id'] )
+        
+        elif request.form['button'] == "update" :
             session['client_data']['protocol'] = request.form['protocol']
-            session['client_data']['method'] = request.form['method']
+            db_api.update_verifier( request.form['client_id'], json.dumps(session['client_data']))
+            return redirect('/sandbox/op/beacon/verifier/console?client_id=' + request.form['client_id'])
+          
 
-            if  session['client_data']['method'] == "relay" :
-                db_api.update_beacon_verifier( request.form['client_id'], json.dumps(session['client_data']))
-                return redirect('/sandbox/op/beacon/verifier/console/advanced')
-
-            if request.form['method'] != "ebsi" :
-                try :
-                    didkit.key_to_did(request.form['method'], session['client_data']['jwk'])
-                except :
-                    logging.error('wrong key/method')
-                    return redirect('/sandbox/op/beacon/verifier/console/advanced')
-
-            jwk_dict = json.loads(session['client_data']['jwk'])
-            if request.form['method'] in ['key', "ebsi"] :
-                jwk_dict['alg'] = "ES256K"
-            else : 
-                jwk_dict['alg'] = "ES256K-R"
-            session['client_data']['jwk'] = json.dumps(jwk_dict)
-            if request.form['method'] == "ebsi" and  request.form['did_ebsi'] != "Not applicable" :
-                session['client_data']['did_ebsi'] = request.form['did_ebsi']
-            db_api.update_beacon_verifier( request.form['client_id'], json.dumps(session['client_data']))
-            return redirect('/sandbox/op/beacon/verifier/console/advanced')
 
 
 async def did(session) :

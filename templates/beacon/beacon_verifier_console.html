@@ -93,13 +93,13 @@
                           </div>
 
                         </div>
-                        <div hidden class="form-row">
+                        <div  class="form-row">
                           <div class="col">
                             <div class="form-group"><label><strong>Beacon payload (MICHELINE)</strong></label><input readonly class="form-control" type="text" value="{{micheline_payload}}"></div>
                           </div>
 
                         </div>
-                        <div hidden class="form-row">
+                        <div class="form-row">
                           <div class="col">
                             <div class="form-group"><label><strong>Beacon payload (OPERATION)</strong></label><input readonly class="form-control" type="text" value="{{operation_payload}}"></div>
                           </div>
@@ -139,17 +139,6 @@
                             </div>
                           </div>
                           <div class="card-body">
-                           
-                            {% if session['client_data']['user'] == 'admin' %}
-                            <div class="form-row mb-3">
-                            <div class="col">
-                              <div class="form-check">
-                                <input class="form-check-input" type="checkbox" {{standalone}} name="standalone" id="flexCheckDefault">
-                                <label class="form-check-label" for="flexCheckDefault">Data transfered to application : if <strong>checked</strong> application receives the credential data, if <strong>unchecked</strong>, application receives a proof of a successful verification of the credentials</label>
-                              </div>
-                            </div> 
-                            </div>
-                            {% endif %}
 
                         <div class="form-row">
                           <div class="col-6">

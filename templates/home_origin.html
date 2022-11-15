@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!-- home.html-->
+<html>
+  <head>
+    {% include 'head.html' %}
+  </head>
+  <body>
+      
+    {% include 'saas_nav_bar.html' %} 
+
+    <div class="container-fluid">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+            <h6 style="background-color : rgb(245, 207, 207)">{{ message }}</h6>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+
+        <div class="col text-center my-5 p-2">
+             
+            <h1><strong>Altme provides users with a decentralized identity and credentials for their Web3 journey</strong></h1>
+        </div>
+    </div>
+
+   
+    <div class="row">
+        <div class="col text-center ">
+            <img class="mt-5" src="/static/img/im1.png" style="width: 350px;border-radius:0px;"><img class="mt-5" src="/static/img/im2.png" style="width:300px;border-radius:0px;" >        
+        </div>
+    </div>
+
+    <div class="row">
+        
+        
+        <div class="col-lg-6 offset-lg-3 text-center my-5">
+            <div class="p-2">
+    
+            </div> 
+       </div>
+    </div>
+       
+    <div class="row">
+        
+        <div class="col  text-center">
+            <div class="p-2">
+                <h1 class="mt-2"><strong>Altme helps Web3 companies to enter a new world of decentralized data</h1>
+                <h6></h6>
+
+
+            </div> 
+        
+            
+        </div>   
+    </div>
+
+
+       
+    <div class="p-5 my-2" style="background-color: #f0f0f0 ">
+            <div class="row">
+                <div class="col-lg-6 offset-lg-3 text-center">
+                    <h3 class="mt-2 p-2"><strong>Altme issues users with credentials and a wallet giving them full control of their data and assets</strong></h3>
+
+                            <h6>More than 20 immediately usable certificates for individuals</h6>
+                </div>                            
+            </div> 
+
+            <div class="row">
+                                <div class="col mt-5">
+                                    <div id="id_qrcode" class="text-center">
+                                        <img  src="/static/img/blockchain_account.png"  style="width: 250px;border-radius:0px;">
+                                    </div>
+                                </div>
+                           
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/phone_proof.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                           
+                            
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/emailproof.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                          
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/discord_tezotopia.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                </div> 
+
+
+                <div class="row ">
+                           
+                           
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img src="/static/img/twitter_account.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                       
+                 
+    
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/reputation.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                       
+                
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/level.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                            
+           
+                       
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/nationality.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                
+                </div>
+                <div class="row ">
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/gender.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                                             
+                        
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/age_range.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                                           
+                       
+                            <div class="col mt-5">
+                                <div id="id_qrcode" class="text-center">
+                                    <img  src="/static/img/humanity.png"  style="width: 250px;border-radius:0px;">
+                                </div>
+                            </div>
+                            
+                          
+                     
+                        <div class="col mt-5">
+                            <div id="id_qrcode" class="text-center">
+                                <img  src="/static/img/over18.png"  style="width: 250px;border-radius:0px;">
+                            </div>
+                        </div>
+                       
+                </div>
+            <div class="row ">
+
+                    <div class="col mt-5">
+                        <div id="id_qrcode" class="text-center">
+                            <img  src="/static/img/passport_footprint.png"  style="width: 250px;border-radius:0px;">
+                        </div>
+                    </div>
+                    
+
+    
+            <div class="col mt-5">                            
+                <div id="id_qrcode" class="text-center">
+                    <img  src="/static/img/identity.png"  style="width: 250px;border-radius:0px;">
+                </div>
+            </div>
+           
+           
+        
+            <div class="col mt-5">
+                <div id="id_qrcode" class="text-center">
+                    <img  src="/static/img/aml.png"  style="width: 250px;border-radius:0px;">
+                </div>
+            </div>
+            
+           
+        
+            <div class="col-3  mt-5">
+                <div id="id_qrcode" class="text-center">
+                    <img  src="/static/img/residency.png"  style="width: 250px;border-radius:0px;">
+                </div>
+            </div>
+            
+            
+        </div>
+
+        <div class="row ">
+
+            <div class="col mt-5">
+                <div id="id_qrcode" class="text-center">
+                    <img  src="/static/img/over13.png"  style="width: 250px;border-radius:0px;">
+                </div>
+            </div>
+            
+
+
+    <div class="col mt-5">                            
+        <div id="id_qrcode" class="text-center">
+            <img  src="/static/img/company_pass.png"  style="width: 250px;border-radius:0px;">
+        </div>
+    </div>
+   
+   
+
+    <div class="col mt-5">
+        <div id="id_qrcode" class="text-center">
+            <img  src="/static/img/certificate_of_employment.png"  style="width: 250px;border-radius:0px;">
+        </div>
+    </div>
+    
+   
+
+    <div class="col-3  mt-5">
+        <div id="id_qrcode" class="text-center">
+            <img  src="/static/img/diploma_card.png"  style="width: 250px;border-radius:0px;">
+        </div>
+    </div>
+    
+    
+</div>
+    
+       
+      
+            
+   
+    </div>
+          
+    
+   </div>
+
+   {% include 'user_footer.html' %}
+
+              <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+              <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+              <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  </body>
+</html>

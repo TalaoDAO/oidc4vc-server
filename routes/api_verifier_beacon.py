@@ -123,7 +123,7 @@ async def beacon_verifier(verifier_id, red, mode):
             for cred in credential :
                 vc_type.append(cred['credentialSubject']['type'])
         
-        # send data to webhook       
+        # send digest data to webhook       
         payload.update({ 'event' : 'VERIFICATION',
                     'id' : id,  
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
@@ -139,22 +139,21 @@ async def beacon_verifier(verifier_id, red, mode):
         if not 199<r.status_code<300 :
             logging.error('VERIFICATION : verifier failed to call application, status code = %s', r.status_code)
         
-        # send data to webhook
-        if verifier_data.get('standalone', None) == 'on' :
-            payload = { 'event' : 'VERIFICATION_DATA',
-                        'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                        'vc_type' : vc_type,
-                        'id' : id,
-                        'vp': json.loads(request.form['presentation']),
-                        'verification' : verification
+        # send credentials to webhook
+        payload = { 'event' : 'VERIFICATION_DATA',
+                    'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
+                    'vc_type' : vc_type,
+                    'id' : id,
+                    'vp': json.loads(request.form['presentation']),
+                    'verification' : verification
             }
-            headers = {
-                "key" : verifier_data['client_secret'],
-                "Content-Type": "application/json" 
-            }       
-            r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
-            if not 199<r.status_code<300 :
-                logging.error('VERIFICATION_DATA : verifier failed to call application, status code = %s', r.status_code)
+        headers = {
+            "key" : verifier_data['client_secret'],
+            "Content-Type": "application/json" 
+        }       
+        r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
+        if not 199<r.status_code<300 :
+            logging.error('VERIFICATION_DATA : verifier failed to send data to webhook, status code = %s', r.status_code)
         
         # record activity
         activity = {'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
