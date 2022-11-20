@@ -16,11 +16,9 @@ method_list = {
                     "pkh:tz" : "did:pkh:tz",
                 }
 
-# for verifier
+# for verifier admin
 credential_list = {
                     'Pass' : 'Pass',
-                    #'StandAlonePass' : 'Pass type 1 (with no data transfer)',
-                    #'VerifierPass' : 'Pass type 2 (with credential transfer)',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
@@ -36,6 +34,7 @@ credential_list = {
                     'LearningAchievement' : 'Diploma',
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
+                    'InfrachainPass' : 'Infrachain Pass',
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'VotersCard' : 'Voter card',
                     'TalaoCommunity' : 'Talao Community card',
@@ -43,10 +42,11 @@ credential_list = {
                     'ANY' : 'Any'
                 }
 
-# for verifier for guest
+# for verifier  guest
 credential_list_for_guest = {
                     'Pass' : 'Pass',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    "EthereumAssociatedAddress" : "Proof of Ethereum blockchain account",
                     'EmailPass' : 'Proof of email',
                     'PassportNumber' : 'Passport footprint',
                     'PhoneProof' : 'Proof of phone',
@@ -57,6 +57,7 @@ credential_list_for_guest = {
                     'Over18' : 'Over 18',
                     'Over13' : 'Over 13',
                     'AragoPass' : 'Arago Pass',
+                    'InfrachainPass' : 'Infrachain Pass',
                     'DID' : "None",
                     'ANY' : 'Any'
                 }
@@ -87,6 +88,7 @@ credential_to_issue_list = {
                     'Pass' : 'Pass',
                    'IdCard' : 'Identity card',
                    'AragoPass' : 'Pass Arago',
+                   'InfrachainPass' : 'Pass Infrachain',
                     'BloometaPass' : 'Bloometa card',
                     'TezVoucher_1' : 'Tezotopia 10% voucher (fake)',
                     'MembershipCard_1' : 'Tezotopia 25% membership card',

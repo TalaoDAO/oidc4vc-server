@@ -375,7 +375,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 )
                 logging.info("credential signed by %s", credential["issuer"])
             except :
-                message = 'Signature failed, application failed to return correct data'
+                message = 'Signature failed'
                 logging.error(message)
                 logging.error("credential to sign = %s", credential)
                 data = json.dumps({'stream_id' : stream_id,
