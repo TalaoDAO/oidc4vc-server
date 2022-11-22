@@ -36,7 +36,7 @@ from routes import dapp_check_gamer_pass
 from routes import dapp_over13
 
 # Server Release
-VERSION = "0.6.5"
+VERSION = "0.6.7"
 logging.info('Altme Sandbox version : %s', VERSION)
 
 # Framework Flask and Session setup

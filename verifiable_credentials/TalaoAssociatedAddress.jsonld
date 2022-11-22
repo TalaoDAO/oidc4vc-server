@@ -3,7 +3,7 @@
 		{
 			"accountName" :  "https://schema.org/identifier",
 			"description" : "https://schema.org/description",
-      			"associatedAddress" : "https://schema.org/account",
+      		"associatedAddress" : "https://schema.org/account",
 			"name" : "https://schema.org/name"
        		}
    	],

@@ -3,6 +3,8 @@
 		{
 			"accountName" :  "https://schema.org/identifier",
       		"associatedAddress" : "https://schema.org/account",
+			"cryptoWalletSignature" : "https://schema.org/identifier",
+			"cryptoWalletPayload" : "https://schema.org/identifier",
 			"issuedBy": {
 				"@id": "schema:issuedBy",
 				"@context": {

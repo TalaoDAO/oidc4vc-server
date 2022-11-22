@@ -82,7 +82,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         "iat": datetime.timestamp(datetime.now()),
         "aud" : client_id,
         "exp": datetime.timestamp(datetime.now()) + 1000,
-        "sub" : sub
+        "sub" : sub,
     }  
     presentation = json.loads(vp)
     if isinstance(presentation['verifiableCredential'], dict) :
@@ -100,6 +100,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
                 payload["family_name"] = vc['credentialSubject']['familyName']
                 payload["gender"] = vc['credentialSubject']['gender']
                 payload["birthdate"] = vc['credentialSubject']['birthDate']
+                payload["nationality"] = vc['credentialSubject']['nationality']
             elif vc['credentialSubject']['type'] == "EmailPass" :
                 payload["email"] = vc['credentialSubject']['email']
             elif vc['credentialSubject']['type'] == "PhoneProof" :
@@ -114,11 +115,15 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
                 payload["passport_number"] = vc['credentialSubject']['passportNumber'];
             elif vc['credentialSubject']['type'] ==  "TezosAssociatedAddress" :
                 payload["associatedAddress"] = vc['credentialSubject']['associatedAddress']
+            elif vc['credentialSubject']['type'] ==  "EthereumAssociatedAddress" :
+                payload["associatedAddress"] = vc['credentialSubject']['associatedAddress']
             elif vc['credentialSubject']['type'] == "Gender" :
                 payload["gender"] = vc['credentialSubject']['gender']
             elif vc['credentialSubject']['type'] == "Nationality" :
                 payload["nationality"] = vc['credentialSubject']['nationality']
             elif vc['credentialSubject']['type'] == "AragoPass" :
+                payload["group"] = vc['credentialSubject']['group']
+            elif vc['credentialSubject']['type'] == "InfrachainPass" :
                 payload["group"] = vc['credentialSubject']['group']
             else :
                 pass
@@ -407,7 +412,7 @@ def wallet_userinfo(red) :
         verifier_data = json.loads(read_verifier(data['client_id']))
         payload = {"sub" : data['sub']}
         if verifier_data.get('standalone') :
-            payload['_vp'] = data["vp_token"]
+            payload['vp'] = data["vp_token"]
         headers = {
             "Cache-Control" : "no-store",
             "Pragma" : "no-cache",
