@@ -14,7 +14,7 @@ def init_app(app,red, mode) :
         payload_gamer_pass =  'I am over 13 years old #http://192.168.0.65:3000/sandbox/op/beacon/verifier/gehziwlsij?id='
     return
 
-l
+
 def check_over13():
     global payload_gamer_pass
     id = str(uuid.uuid1())
