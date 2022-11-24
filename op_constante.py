@@ -19,6 +19,7 @@ method_list = {
 # for verifier admin
 credential_list = {
                     'Pass' : 'Pass',
+                    'GamerPass' : 'Gamer Pass',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
@@ -45,6 +46,7 @@ credential_list = {
 # for verifier  guest
 credential_list_for_guest = {
                     'Pass' : 'Pass',
+                    'GamerPass' : 'Gamer Pass',
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
                     "EthereumAssociatedAddress" : "Proof of Ethereum blockchain account",
                     'EmailPass' : 'Proof of email',
@@ -65,7 +67,9 @@ credential_list_for_guest = {
 # for beacon verifier for guest
 beacon_verifier_credential_list = {
                     'Pass' : 'Pass',
-                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    'GamerPass' : 'Gamer Pass',
+                    'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
+                    'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
                     'EmailPass' : 'Proof of email',
                     #'PassportNumber' : 'Passport footprint',
                     #'PhoneProof' : 'Proof of phone',
@@ -79,7 +83,7 @@ beacon_verifier_credential_list = {
                     'Over18' : 'Over 18',
                     'Over13' : 'Over 13',
                     'AragoPass' : 'Arago Pass',
-                    'DID' : "None",
+                    'DID' : 'None',
                     'ANY' : 'Any'
                 }
 
@@ -169,7 +173,13 @@ verifier_landing_page_style_list = {
 
 
 protocol_list = {'w3cpr' : "W3C Presentation Request ",
-                 'siopv2' : 'Siop V2'
+                 'siopv2' : 'Siop V2 EBSI implementation',
+                  'siopv2_openid' : 'Siop V2 OpenID implementation'
+                 }
+
+pre_authorized_code_list = {'none' : "None",
+                 'pac' : 'Pre authorized code',
+                  'pac_pin' : 'Pre authorized code + PIN code'
                  }
 
 model_one = {
@@ -265,6 +275,7 @@ model_any = {
 client_data_pattern = {
                 #"authorized_emails" : "",
                 "beacon_mode" : "issuer",
+                "pre_authorized_code" : "no",
                 "beacon_payload_message" : "Any string for a message to display",
                 "pkce" : None,
                 "vc" : "DID",

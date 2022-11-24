@@ -30,14 +30,13 @@
                       <input value="{{client_id}}" hidden name="client_id">
 
                       <div class="form-row">
-                                                    
+
                           <div class="col-3">
                             <div class="form-group"><label><strong>Wallet protocol</strong></label><select name="protocol" class="form-control">
                               {{protocol_select|safe}}  
                               </select></div>
-                          </div>
-                         
-
+                          </div> 
+                                                    
                             <div class="col-3">
                               <div class="form-group"><label><strong>VC/VP format</strong></label>
                                 <select name="" class="form-control">
@@ -45,6 +44,16 @@
                                 </select>
                               </div>
                             </div>
+
+                            <div class="col-3">
+                              <div class="form-group"><label><strong>Pre authorized code mode</strong></label>
+                                <select name="pre_authorized_code" class="form-control">
+                                  {{pre_authorized_code_select|safe}}  
+                                </select>
+                              </div>
+                            </div>
+
+                          
                       </div>
 
                       <div class="form-row">

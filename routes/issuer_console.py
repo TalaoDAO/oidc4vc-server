@@ -6,7 +6,8 @@ import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, credential_requested_list_2, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
+from op_constante import credential_requested_list, pre_authorized_code_list, credential_requested_list_2, credential_to_issue_list
+from op_constante import protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import ebsi
 import issuer_activity_db_api
 import pyotp
@@ -199,7 +200,7 @@ def issuer_console(mode) :
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
-        
+
         # credential requested 1
         credential_requested_select = str()
         for key, value in credential_requested_list.items() :
@@ -406,12 +407,21 @@ async def issuer_advanced() :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
+        
         protocol_select = str()       
         for key, value in protocol_list.items() :
                 if key ==   session['client_data'].get('protocol', "") :
                     protocol_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     protocol_select +=  "<option value=" + key + ">" + value + "</option>"
+        
+        pre_authorized_code_select = str()       
+        for key, value in pre_authorized_code_list.items() :
+                if key ==  session['client_data'].get('pre_authorized_code', "") :
+                    pre_authorized_code_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    pre_authorized_code_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         method_select = str()       
         for key, value in method_list.items() :
                 if key ==   session['client_data'].get('method', "") :
@@ -441,6 +451,7 @@ async def issuer_advanced() :
                 jwk = jwk,
                 method = session['client_data']['method'],
                 protocol_select=protocol_select,
+                pre_authorized_code_select=pre_authorized_code_select,
                 method_select=method_select,
                 did_ebsi = did_ebsi,
                 DID = DID,
@@ -453,6 +464,7 @@ async def issuer_advanced() :
 
         if request.form['button'] == "update" :
             session['client_data']['protocol'] = request.form['protocol']
+            session['client_data']['pre_authorized_code'] = request.form['pre_authorized_code']
             session['client_data']['method'] = request.form['method']
 
             if  session['client_data']['method'] == "relay" :

@@ -9,9 +9,9 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/dapp/check_over13/stream',  view_func=check_over13_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     global payload_gamer_pass
     if mode.myenv == 'aws':
-        payload_gamer_pass = ''
+        payload_gamer_pass = 'I am over 13 years old #https://talao.co/sandbox/op/beacon/verifier/tuaitvcrkl'
     else :
-        payload_gamer_pass =  'I am over 13 years old#http://192.168.0.65:3000/sandbox/op/beacon/verifier/gehziwlsij?id='
+        payload_gamer_pass =  'I am over 13 years old #http://192.168.0.65:3000/sandbox/op/beacon/verifier/gehziwlsij?id='
     return
 
 

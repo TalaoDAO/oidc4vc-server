@@ -1,0 +1,37 @@
+{
+    "@context": ["https://www.w3.org/2018/credentials/v1",
+        {
+            "over18" : "https://schema.org/typicalAgeRange",
+            "alternateName" : "https://schema.org/alternatName",
+            "over13" : "https://schema.org/typicalAgeRange",
+            "tezosAddress" : "https://schema.org/accountId",
+            "ethereumAddress" : "https://schema.org/accountId",
+            "solanaAddress" : "https://schema.org/accountId",
+            "duration" : "https://schema.org/duration",
+            "nationality" : "https://schema.orf/nationality",
+            "issuedBy": {
+                "@id": "https://schema.org/issuedBy",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "schema" : "https://schema.org/",
+                    "name" :  "schema:name",
+                    "website" : "schema:website",
+                    "logo" : { "@id" : "schema:logo", "@type" : "@id"}
+                }
+            }
+        }
+    ],
+    "id": "",
+    "type": ["VerifiableCredential", "GamerPass"],
+    "issuer": "",
+    "issuanceDate": "",
+    "credentialSubject" : {
+        "id": "",
+        "type" : "GamerPass",
+        "issuedBy" : {
+            "name" : "Altme",
+            "website" : "https://altme.io"
+        }
+    }
+}

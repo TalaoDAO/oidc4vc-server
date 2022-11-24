@@ -1,13 +1,16 @@
-from flask import  request, render_template, redirect, session, jsonify
+from flask import  request, render_template, redirect, session, jsonify, Response
 import json
 import logging
 import didkit
 import copy
 import db_api 
+import message
 import uuid
 from op_constante import protocol_list, method_list, beacon_verifier_credential_list
 import ebsi
 import beacon_activity_db_api
+import db_user_api
+import op_constante
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -25,8 +28,80 @@ def init_app(app,red, mode) :
     # nav bar option
     app.add_url_rule('/sandbox/op/beacon/verifier/nav/logout',  view_func=beacon_verifier_nav_logout, methods = ['GET'])
     app.add_url_rule('/sandbox/op/beacon/verifier/nav/create',  view_func=beacon_verifier_nav_create, methods = ['GET'], defaults= {'mode' : mode})
+
+    # API Gamer Pass
+    app.add_url_rule('/sandbox/op/beacon/verifier/api/create',  view_func=create_verifier_gamer_pass, methods = ['POST'], defaults= {'mode' : mode})
+
     return
  
+
+# API Gamer Pass
+def create_verifier_gamer_pass(mode):
+    data_received = request.json
+    try :
+        contact_email = data_received['contact_email']
+        webhook = data_received['webhook']
+    except :
+        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_request", error_description = "Data is missing in request"'}
+        return Response(status=401,headers=headers) 
+    
+    # only one verifier by email
+    if not db_user_api.read(contact_email) :
+        data = op_constante.user
+        data["did"] = "unknown"
+        data['login_name'] = contact_email
+        db_user_api.create(contact_email, data)
+        try :
+            message.message("New sign up on Altme through API", "thierry@altme.io", "New user = " + contact_email, mode)
+        except :
+            pass
+    else :
+        logging.warning('user alreday registered')
+        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="user_alreday_registered", error_description = "Use the Talao.co web platform to create new verifiers"'}
+        return Response(status=401,headers=headers)
+
+
+    verifier_id = db_api.create_beacon_verifier(mode,  user=contact_email)
+
+    beacon_payload_message = "Sign with your Gamer Pass" if not data_received.get('message') else data_received['message']
+    website = "altme.io" if not data_received.get('website') else data_received['website']
+    application_name = "Gamer Pass of " + contact_email if not data_received.get('application_name') else data_received['application_name']
+    company_name = "Company of " + contact_email if not data_received.get('company_name') else data_received['company_name']
+    contact_name = "" + contact_email if not data_received.get('contact_name') else data_received['contact_name']
+
+    # update verifier
+    verifier_data =  json.loads(db_api.read_beacon_verifier(verifier_id))
+    verifier_data["vc"] = "GamerPass"
+    verifier_data["reason"] = "Select your Gamer Pass"
+    verifier_data["beacon_payload_message"] = beacon_payload_message
+    verifier_data["webhook"] = webhook
+    verifier_data["contact_email"] = contact_email
+    verifier_data['user'] = contact_email
+    verifier_data["application_name"] = application_name
+    verifier_data["company_name"] = company_name
+    verifier_data["contact_name"] = contact_name
+    db_api.update_beacon_verifier(verifier_id,  json.dumps(verifier_data))
+    
+    # send back verifier data
+    RAW_payload =  beacon_payload_message + ' ' + verifier_data['issuer_landing_page']
+    data_sent = {
+        "contact_email" : contact_email,
+        "user" : contact_email,
+        "application_name" : application_name,
+        "company_name" : company_name,
+        "contact_name" : contact_name,
+        "webhook" : webhook,
+        "verifier_id" : verifier_id,
+        "verifier_secret" : verifier_data['client_secret'],
+        "beacon_payload_message" : beacon_payload_message,
+        "RAW_payload" : RAW_payload,
+        "MICHELINE_paylod" : payload_tezos(RAW_payload, 'MICHELINE', website=website),
+        "OPERATION_payload"  : payload_tezos(RAW_payload, 'OPERATION', website=website)
+    }
+    return jsonify(data_sent)
+
+# curl -d '{"webhook" : "https://altme.io", "contact_email" :"thierry@altme.io"}'  -H "Content-Type: application/json" -X POST http://192.168.0.66:3000/sandbox/op/beacon/verifier/api/create
+
 async def beacon_verifier_qrcode() :
     payload = session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
     url = payload.split('#')[1]
@@ -254,13 +329,13 @@ async def did(session) :
 https://docs.walletbeacon.io/guides/sign-payload/
 https://tezostaquito.io/docs/signing/#generating-a-signature-with-beacon-sdk
 """
-def payload_tezos(input, signature_type) :
+def payload_tezos(input, signature_type, website='altme.io') :
     if signature_type not in ['MICHELINE', 'OPERATION'] :
         return
     char2Bytes = lambda text : text.encode('utf-8').hex()
     formattedInput = ' '.join([
         'Tezos Signed Message:',
-        'altme.io',
+        website,
         datetime.now().replace(microsecond=0).isoformat() + "Z",
         input
         ])
