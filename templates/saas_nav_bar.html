@@ -14,12 +14,23 @@
         <li class="nav-item active d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi">Home</a>
         </li>
-
-        <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/dids">Altme DIDs</a>
-        </li>
-
        
+
+        <li class="nav-item dropdown d-none d-md-block">
+          <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Credentials supported
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+            <a class="dropdown-item" href="/sandbox/saas4ssi#gaming">Gaming and metaverses</a>
+            <a class="dropdown-item" href="/sandbox/saas4ssi#blockchain">Blockchains and crypto wallets</a>
+            <a class="dropdown-item" href="/sandbox/saas4ssi#age">Age restriction</a>
+
+            <a class="dropdown-item" href="/sandbox/saas4ssi#social">Social Network</a>
+            <a class="dropdown-item" href="/sandbox/saas4ssi#identity">Identity</a>
+            <a class="dropdown-item" href="/sandbox/saas4ssi#defi">DeFi</a>
+            <a class="dropdown-item" href="/sandbox/saas4ssi#authentication">Authentication</a>
+          </div>
+        </li> 
        
 
         {% if session['pricing']  %}
@@ -47,22 +58,24 @@
             <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_openid.html">OpenID bridge for verifier</a>
             <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_beacon.html">Beacon integration for verifier</a>
             <hr>
+            <a class="dropdown-item" href="/sandbox/saas4ssi/dids">Our DIDs</a>
+            <hr>
 
     <!--        <a class="dropdown-item" href="/sandbox/saas4ssi/dapp/demo">dApp demo</a>  -->
-            <a class="dropdown-item" href="https://issuer.talao.co/register_gamer_pass">Get a Gamer Pass</a>
-            <a class="dropdown-item" href="/sandbox/dapp/check_gamer_pass">Check a Gamer Pass</a>
-            <a class="dropdown-item" href="/sandbox/dapp/check_over13">Check an Over13 proof</a>
+            <a class="dropdown-item" href="https://issuer.talao.co/register_gamer_pass">Issue a Gamer Pass</a>
+            <a class="dropdown-item" href="/sandbox/dapp/check_gamer_pass">Verify a Gamer Pass</a>
+            <a class="dropdown-item" href="/sandbox/dapp/check_over13">Verify an Over13 proof</a>
             
             <hr>
             <a class="dropdown-item" href="/sandbox/saas4ssi/dapp">Beacon dApp simulator</a>
-            <a class="dropdown-item" href="/sandbox/playground">Credentials and tools</a>
+            <a class="dropdown-item" href="/sandbox/playground">Credential for demo and tools</a>
             <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP</a>
           </div>
         </li>
 
-          <li class="nav-item active d-none d-md-block">
+        <!--  <li  class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="https://altme.io">Wallet</a>
-          </li>
+          </li>  -->
 
           {% if session['is_connected']  %}
           <li class="nav-item active d-none d-md-block">
