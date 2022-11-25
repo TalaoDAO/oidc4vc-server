@@ -30,13 +30,15 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/verifier/nav/create',  view_func=beacon_verifier_nav_create, methods = ['GET'], defaults= {'mode' : mode})
 
     # API Gamer Pass
-    app.add_url_rule('/sandbox/op/beacon/verifier/api/create',  view_func=create_verifier_gamer_pass, methods = ['POST'], defaults= {'mode' : mode})
+    app.add_url_rule('/sandbox/op/beacon/verifier/api/create/<verifiable_credential>',  view_func=create_verifier_gamer_pass, methods = ['POST'], defaults= {'mode' : mode})
 
     return
  
 
-# API Gamer Pass
-def create_verifier_gamer_pass(mode):
+#from ratelimiter import RateLimiter
+# API pour Verifier https://pypi.org/project/ratelimiter/
+#@RateLimiter(max_calls=1, period=10)
+def create_verifier_gamer_pass(verifiable_credential, mode):
     data_received = request.json
     try :
         contact_email = data_received['contact_email']
@@ -57,22 +59,37 @@ def create_verifier_gamer_pass(mode):
             pass
     else :
         logging.warning('user alreday registered')
-        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="user_alreday_registered", error_description = "Use the Talao.co web platform to create new verifiers"'}
+        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="user_already_registered", error_description = "Use the Talao.co web platform to create new verifiers"'}
         return Response(status=401,headers=headers)
-
-
+    
+    if verifiable_credential == "gamerpass" :
+        beacon_payload_message =  "Sign with your Gamer Pass" if not data_received.get('message') else data_received['message']
+        reason = "Select your Gamer Pass"
+        vc = "GamerPass"
+    elif verifiable_credential == "over13" :
+        beacon_payload_message =  "Sign with your proof of age : Over13" if not data_received.get('message') else data_received['message']
+        reason = "Select your Over13 proof"
+        vc = "Over13"
+    elif verifiable_credential == "over18" :
+        beacon_payload_message =  "Sign with your proof of age : Over18" if not data_received.get('message') else data_received['message']
+        reason = "Select your Over18 proof"
+        vc = "Over18"
+    else :
+        logging.warning('credentila not suupported')
+        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="credential_not_supported", error_description = "This credential is not supported"'}
+        return Response(status=401,headers=headers)
+    
     verifier_id = db_api.create_beacon_verifier(mode,  user=contact_email)
 
-    beacon_payload_message = "Sign with your Gamer Pass" if not data_received.get('message') else data_received['message']
-    website = "altme.io" if not data_received.get('website') else data_received['website']
-    application_name = "Gamer Pass of " + contact_email if not data_received.get('application_name') else data_received['application_name']
+    #website = "altme.io" if not data_received.get('website') else data_received['website']
+    application_name = "Application of " + contact_email if not data_received.get('application_name') else data_received['application_name']
     company_name = "Company of " + contact_email if not data_received.get('company_name') else data_received['company_name']
-    contact_name = "" + contact_email if not data_received.get('contact_name') else data_received['contact_name']
+    contact_name = "" if not data_received.get('contact_name') else data_received['contact_name']
 
     # update verifier
     verifier_data =  json.loads(db_api.read_beacon_verifier(verifier_id))
-    verifier_data["vc"] = "GamerPass"
-    verifier_data["reason"] = "Select your Gamer Pass"
+    verifier_data["vc"] = vc
+    verifier_data["reason"] = reason
     verifier_data["beacon_payload_message"] = beacon_payload_message
     verifier_data["webhook"] = webhook
     verifier_data["contact_email"] = contact_email
@@ -83,9 +100,10 @@ def create_verifier_gamer_pass(mode):
     db_api.update_beacon_verifier(verifier_id,  json.dumps(verifier_data))
     
     # send back verifier data
-    RAW_payload =  beacon_payload_message + ' ' + verifier_data['issuer_landing_page']
+    RAW_payload =  beacon_payload_message + ' ' + verifier_data['issuer_landing_page'] +'?id=<your_user_id>'
     data_sent = {
         "contact_email" : contact_email,
+        "vc" : vc,
         "user" : contact_email,
         "application_name" : application_name,
         "company_name" : company_name,
@@ -95,12 +113,13 @@ def create_verifier_gamer_pass(mode):
         "verifier_secret" : verifier_data['client_secret'],
         "beacon_payload_message" : beacon_payload_message,
         "RAW_payload" : RAW_payload,
-        "MICHELINE_paylod" : payload_tezos(RAW_payload, 'MICHELINE', website=website),
-        "OPERATION_payload"  : payload_tezos(RAW_payload, 'OPERATION', website=website)
+        #"MICHELINE_payload" : payload_tezos(RAW_payload, 'MICHELINE', website=website),
+        #"OPERATION_payload"  : payload_tezos(RAW_payload, 'OPERATION', website=website)
     }
     return jsonify(data_sent)
 
-# curl -d '{"webhook" : "https://altme.io", "contact_email" :"thierry@altme.io"}'  -H "Content-Type: application/json" -X POST http://192.168.0.66:3000/sandbox/op/beacon/verifier/api/create
+# curl -d '{"webhook" : "https://altme.io/webhook", "contact_email" :"thierry@altme.io"}'  -H "Content-Type: application/json" -X POST http://192.168.0.66:3000/sandbox/op/beacon/verifier/api/create/over13
+# curl -d '{"webhook" : "https://altme.io/webhook", "contact_email" :"thierry@gmail.io"}'  -H "Content-Type: application/json" -X POST https://talao.co/sandbox/op/beacon/verifier/api/create/over13
 
 async def beacon_verifier_qrcode() :
     payload = session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
@@ -192,7 +211,7 @@ async def beacon_verifier_console(mode) :
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_beacon_verifier(session['client_id']))
-        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
+        raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] + "?id="
         micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
         operation_payload = payload_tezos( raw_payload, 'OPERATION')
         #DID, did_ebsi, jwk, did_document = await did(session)

@@ -273,7 +273,6 @@ model_any = {
 
 
 client_data_pattern = {
-                #"authorized_emails" : "",
                 "beacon_mode" : "issuer",
                 "pre_authorized_code" : "no",
                 "beacon_payload_message" : "Any string for a message to display",
@@ -283,7 +282,6 @@ client_data_pattern = {
                 "vc_2" : "DID",
                 "totp_interval" : "30", 
                 "standalone" : None, # data are NOT transfered to application by default
-                #"emails" : None,
                 "user" : "guest",
                 "client_id" :  "",
                 "client_secret" : "",
