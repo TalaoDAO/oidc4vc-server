@@ -55,8 +55,8 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/index.html">Full documentation</a>
-            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_openid.html">OpenID bridge for verifier</a>
-            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_beacon.html">Beacon integration for verifier</a>
+            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_openid.html">OpenID bridge for Verifiers</a>
+            <a class="dropdown-item" href="https://sandbox-doc.readthedocs.io/en/latest/code_beacon.html">Beacon integration for Verifiers</a>
             <hr>
             <a class="dropdown-item" href="/sandbox/saas4ssi/dids">Our DIDs</a>
             <hr>
@@ -67,7 +67,7 @@
             
             <hr>
             <a class="dropdown-item" href="/sandbox/saas4ssi/dapp">Beacon dApp simulator</a>
-            <a class="dropdown-item" href="/sandbox/playground">Get credentials for demo</a>
+            <a class="dropdown-item" href="/sandbox/playground">Get fake credentials for demo</a>
             <a class="dropdown-item" href="https://issuer.talao.co/register_gamer_pass">Get a Gamer Pass with Beacon</a>
             <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP</a>
           </div>
@@ -82,13 +82,16 @@
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/logout">Logout</a>
           </li>
           {% else %}
+          
+          <li class="nav-item active d-none d-md-block">
+            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/signup">Create a Verifier</a>
+          </li>
+          {% endif %}
+
+
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/login">Login</a>
           </li>
-          <li class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/signup">Sign-Up</a>
-          </li>
-          {% endif %}
 
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="background-color: rgb(54, 24, 88); margin-bottom: 0; color: #ffffff; " href="mailto:thierry@altme.io">Contact</a>
@@ -102,8 +105,7 @@
               <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
                   <a class="dropdown-item" role="presentation" href="/sandbox/saas4ssi/credentials">Credentials</a>
                   <a class="dropdown-item" role="presentation" href="https://altme.io">Wallet</a>
-                  <a class="dropdown-item" role="presentation" href="https://issuer.talao.co/emailpass">Email proof issuer</a>
-                  <a class="dropdown-item" role="presentation" href="https://issuer.talao.co/phonepass">Phone proof issuer</a>
+                  <a class="dropdown-item" role="presentation" href="https://issuer.talao.co/emailpass">Get an Email proof</a>
                   <a class="dropdown-item" role="presentation" href="mailto:thierry@altme.io">Contact</a>
 
               </div>
