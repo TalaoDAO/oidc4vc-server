@@ -11,10 +11,6 @@
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/admin"></a>
         </li>
        
-        <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi">Home</a>
-        </li>
-       
 
         <li class="nav-item dropdown d-none d-md-block">
           <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -73,25 +69,25 @@
           </div>
         </li>
 
-        <!--  <li  class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="https://altme.io">Wallet</a>
-          </li>  -->
-
+      
           {% if session['is_connected']  %}
+          
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/logout">Logout</a>
           </li>
           {% else %}
-          
           <li class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/signup">Create a Verifier</a>
+            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/signup">Register</a>
+          </li>
+          {% endif %}
+
+          {% if not session['is_connected']  %}
+          <li class="nav-item active d-none d-md-block">
+            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/login">Login</a>
           </li>
           {% endif %}
 
 
-          <li class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/login">Login</a>
-          </li>
 
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="background-color: rgb(54, 24, 88); margin-bottom: 0; color: #ffffff; " href="mailto:thierry@altme.io">Contact</a>
