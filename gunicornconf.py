@@ -3,6 +3,8 @@
 workers = 5
 loglevel = 'info'
 
+worker_class = 'gevent' 
+
 errorlog = "-"
 accesslog = "-"
 
