@@ -333,6 +333,7 @@ async def wallet_token(red, mode) :
     try :
         data = json.loads(red.get(code).decode())
     except :
+        logging.error("red get probleme sur code")
         return manage_error("invalid_grant") 
     
     if client_id != data['client_id'] :
@@ -354,6 +355,7 @@ async def wallet_token(red, mode) :
     try :
         vp = red.get(code + "_vp").decode()
     except :
+        logging.error("red get probleme sur _vp")
         return manage_error("invalid_grant")
        
     DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
