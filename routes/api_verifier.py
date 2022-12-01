@@ -308,7 +308,7 @@ def wallet_authorize(red, mode) :
 # token endpoint
 async def wallet_token(red, mode) :
     #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
-    logging.info("token endpoint request = %s", request.form)
+    logging.info("token endpoint request ")
 
     def manage_error (msg) :
         logging.warning(msg)
@@ -408,6 +408,7 @@ def wallet_logout() :
 
 """
 def wallet_userinfo(red) :
+    logging.info("user info endpoint request")
     access_token = request.headers["Authorization"].split()[1]
     try :
         data = json.loads(red.get(access_token).decode())
