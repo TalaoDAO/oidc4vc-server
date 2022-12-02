@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!-- home.html-->
+<html>
+  <head>
+    {% include 'head.html' %}
+  </head>
+  <body>
+      
+    {% include 'saas_nav_bar.html' %} 
+
+    <div class="container-fluid">
+       
+
+    <div class="row">
+        <div class="col  text-center mt-5">
+            <h1 class="mt-5" ><strong>Integrate a SSI Verifier in minutes
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
+            <div class="p-2">                
+                   <h3>The Verifiable Credentials exchange protocols between Issuers, Holders and Verifiers are relatively complex and not always stabilized. 
+                    Credential design and signatures checks are also complex tasks.
+                    The result of all this is that the integration of a SSI Verifier or a SSI Issuer with a development sdk is generally a nightmare for application developers and  hindrance to the deployment of SSI solutions.
+                   <br><br>
+                   Altme has set up a Saas-type platform that allows a company to configure its Verifier in less than 5 minutes and install it in less than an hour in any application developed with a traditional framework (Node, Python, Ruby, C, ...) or a CMS (Wordpress, Webflow,...).
+                           </h3>
+            </div>
+       </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col  text-center mt-2">
+            <h1 class="mt-5" ><strong>Integrate a SSI Verifier in Web3 applications</strong></h1>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
+            <div class="p-2"><h3>                
+                   
+                   In addition, Web3 integration requires in particular integration with crypto protocols, for this we have also developed gateways with Beacon for Tezos and WalletConnect for EVMs.
+                   
+                   Installing a Verifier which is activated during synchronization between your wallet and your dApp at the same time as the crypto transaction is now achievable in a few hours.</h3>
+            </h3>
+                </div> 
+       </div>
+    </div>
+       
+    <div class="row ">
+        <div class="col-qm-12 col-lg-2 offset-lg-3 mt-2">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/openid.jpeg"  style="width: 150px;border-radius:0px;">
+            </div>
+        </div>
+        <div class="col-sm-12 col-lg-2 mt-2">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/walletconnect.jpeg"  style="width: 150px;border-radius:0px;">
+            </div>
+        </div>
+        <div class="col-sm-12 col-lg-2 mt-2">
+            <div id="id_qrcode" class="text-center">
+                <img  src="/static/img/beacon.jpeg"  style="width: 150px;border-radius:0px;">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col  text-center mt-2">
+            <h1 class="mt-5" ><strong>Whitelist, NFT/SBT issuance triggered by Verifiable Presentation</strong></h1>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
+            <div class="p-2"><h3>                
+                In some situations a dApp needs to have on-chain information. Several technologies are possible for this. 
+                For us it is mainly a question of integrating ourselves with the architectures of our partners such as <a href="https://compell.io/" >Compellio</a>
+                 or <a href="https://tezid.net/"">TezID</a>.
+                        </h3>
+                </div> 
+       </div>
+    </div>
+
+
+
+        <div class="row mt-5">
+            <div class="col-lg-10 offset-lg-1 col-sm-12 text-center mt-5">
+                <div class="p-2">
+                    <h1 ><strong>SSI can now become mainstram !</h1>
+                </div> 
+           </div>
+        </div>
+
+
+        <div class="row mt-2 mb-5">
+            <div class="col text-center">
+        <a href="/sandbox/saas4ssi/signup"><button type="button" class="btn btn-outline-dark mt-2">Get started, it's free !</button></a></h3>
+           </div>
+           </div>         
+   
+
+</div>
+
+
+</div>
+                               
+       
+   
+
+   {% include 'user_footer.html' %}
+
+              <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+              <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+              <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  </body>
+</html>

@@ -25,6 +25,7 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
+    app.add_url_rule('/sandbox/saas4ssi/credential_supported',  view_func=credential_supported, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/pricing',  view_func=pricing, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/pricing/gaming',  view_func=pricing_gaming, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/pricing/defi',  view_func=pricing_defi, methods = ['GET', 'POST'])
@@ -34,6 +35,8 @@ def init_app(app,red, mode) :
 
     app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_home, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/verifier_home',  view_func=verifier, methods = ['GET', 'POST'])
+
     app.add_url_rule('/sandbox/saas4ssi/login',  view_func=saas_login, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/signup',  view_func=saas_signup, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/saas4ssi/admin',  view_func=admin, methods = ['GET', 'POST'], defaults={'mode' : mode})
@@ -73,6 +76,13 @@ def saas_home():
 def credentials():
     return render_template("credentials.html")
 
+
+def credential_supported():
+    return render_template("credential_supported.html")
+
+def verifier():
+    print('verifier')
+    return render_template("verifier.html")
 
 def dids():
     return render_template("dids.html")
