@@ -47,6 +47,7 @@ class currentMode() :
 			sys.exit()
 		self.password = passwords['password']
 		self.passbase = passwords['passbase']
+		self.tezid_issuer_key = passwords['tezid-issuer-key']
 		self.admin = passwords['password']
 		self.smtp_password = passwords['smtp_password'] # used in smtp.py
 		self.pinata_api_key = passwords['pinata_api_key'] # used in Talao_ipfs.py

@@ -8,7 +8,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/dapp/check_over13/stream',  view_func=check_tezid_over13_stream, methods = ['GET', 'POST'], defaults={'red' : red})
     global payload
     if mode.myenv == 'aws':
-        payload = 'I am over 13 years old #https://talao.co/sandbox/op/beacon/verifier/tuaitvcrkl?id='
+        payload = 'I am over 13 years old#https://talao.co/sandbox/op/tezid/verifier/bnrbbhntyf?id='
     else :
         payload = 'I am over 13#http://192.168.0.65:3000/sandbox/op/tezid/verifier/smbgvxvzfl?id='
     return
