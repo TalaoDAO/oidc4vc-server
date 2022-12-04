@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <!-- verfiier_activity.html -->
+
+<head>
+  {% include 'head.html' %}
+</head>
+
+<body id="page-top">
+    <div class="d-flex flex-column" id="content-wrapper">
+      <div id="content">
+        {% include "tezid/tezid_verifier_nav_bar.html" %}
+        <div class="container-fluid mt-3">
+          <div class="text-center mt-3">
+            <h3 class="text-dark mb-4">{{name}}</h3>
+          </div>
+          <div class="row mb-3">
+            <div class="col-lg-10 offset-lg-1">          
+                  <div class="card shadow mt-5">
+                    <div class="card-header py-3">
+                      <div class="d-flex justify-content-between">
+                        <p style="color:#09060f;" class="m-0 font-weight-bold">Activity </p>
+                      
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form action="/sandbox/op/tezid/verifier/console/activity" method="POST">
+                        <div class="form-row">
+                          
+                            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                              
+                              <div style="height:600px;overflow:auto;overflow-x: hidden;"> 
+                              
+                              <table class="table my-0" id="dataTable">
+                                  <thead>
+                                      <tr>
+                                          <th style="width: 20%" >Proposed</th>
+                                          <th style="width: 20%" >Address</th>
+                                          <th style="width: 50%" >Credentials</th> 
+                                          <th style="width: 10%" >Verification</th> 
+                                       
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{activity|safe}}
+                                  </tbody>
+                              </table>
+                             </div> 
+                          </div>                      
+                        </div>
+                        <div class="form-row mb-5">
+                          <div class="col"><button  style="background-color: #09060f;"  class="btn btn-primary btn-sm" name="button" value="new" type="submit">Back</button></div>
+                          </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+     
+
+      {% include 'user_footer.html' %}
+
+      <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+      <script src="{{ url_for('static', filename='theme.js') }}"></script>
+      <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+
+</html>

@@ -54,6 +54,22 @@ def delete_beacon(client_id) :
 def create_beacon(mode, user=None, method="ethr") :
     return create_b('beacon.db', user, mode, method)
 
+
+
+
+def update_tezid_verifier(client_id, data) :
+    return update(client_id, data, 'tezid_verifier.db')
+def read_tezid_verifier(client_id) :
+    return read(client_id, 'tezid_verifier.db')
+def list_tezid_verifier() :
+    return list('tezid_verifier.db')
+def delete_tezid_verifier(client_id) :
+    return delete(client_id, 'tezid_verifier.db')
+def create_tezid_verifier(mode, user=None, method="ethr") :
+    return create_tezid('tezid_verifier.db', user, mode, method)
+
+
+
 def create_b(db, user, mode, method) :
     letters = string.ascii_lowercase
     data = client_data_pattern
@@ -63,6 +79,35 @@ def create_b(db, user, mode, method) :
         data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
     else :
         data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/verifier/' + data['client_id']
+    # init with did:ethr
+    key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+    data['jwk'] = key.export_private()
+    data['method'] = method
+    # init did:ebsi in case of use
+    data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
+    if user :
+        data['user'] = user
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    db_data = { "client_id" : data['client_id'] ,"data" :json.dumps(data)}
+    try :
+        c.execute("INSERT INTO client VALUES (:client_id, :data)", db_data)
+    except :
+        logging.error('DB error')
+        return None
+    conn.commit()
+    conn.close()
+    return data['client_id']
+
+def create_tezid(db, user, mode, method) :
+    letters = string.ascii_lowercase
+    data = client_data_pattern
+    data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+    data['client_secret'] = str(uuid.uuid1())
+    if db == 'tezid.db' :
+        data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/tezid/' + data['client_id']
+    else :
+        data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/tezid/verifier/' + data['client_id']
     # init with did:ethr
     key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
     data['jwk'] = key.export_private()

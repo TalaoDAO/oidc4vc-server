@@ -7,11 +7,11 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/dapp/check_over13',  view_func=check_over13, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/dapp/check_over13/webhook',  view_func=check_over13_webhook, methods = ['GET', 'POST'], defaults={'red' : red})
     app.add_url_rule('/sandbox/dapp/check_over13/stream',  view_func=check_over13_stream, methods = ['GET', 'POST'], defaults={'red' : red})
-    global payload_gamer_pass
+    global payload
     if mode.myenv == 'aws':
-        payload_gamer_pass = 'I am over 13 years old #https://talao.co/sandbox/op/beacon/verifier/tuaitvcrkl?id='
+        payload = 'I am over 13 years old #https://talao.co/sandbox/op/beacon/verifier/tuaitvcrkl?id='
     else :
-        payload_gamer_pass =  'I am over 13 years old #http://192.168.0.65:3000/sandbox/op/beacon/verifier/gehziwlsij?id='
+        payload =  'I am over 13 years old #http://192.168.0.65:3000/sandbox/op/beacon/verifier/gehziwlsij?id='
     return
 
 
@@ -20,7 +20,7 @@ def check_over13():
     id = str(uuid.uuid1())
     return render_template('./use_case/check_over13.html',
                              id = id,
-                             payload_gamer_pass = payload_gamer_pass + id)
+                             payload_gamer_pass = payload + id)
   
 
 def check_over13_webhook(red) :

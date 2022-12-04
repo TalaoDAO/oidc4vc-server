@@ -18,10 +18,12 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
     #app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
+    
     app.add_url_rule('/sandbox/saas4ssi/beacon',  view_func=saas_beacon, methods = ['GET', 'POST'])
-
     app.add_url_rule('/sandbox/saas4ssi/beacon/verifier',  view_func=saas_beacon_verifier, methods = ['GET', 'POST'])
 
+
+    app.add_url_rule('/sandbox/saas4ssi/tezid/verifier',  view_func=saas_tezid_verifier, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
@@ -81,7 +83,6 @@ def credential_supported():
     return render_template("credential_supported.html")
 
 def verifier():
-    print('verifier')
     return render_template("verifier.html")
 
 def dids():
@@ -133,10 +134,13 @@ def saas_signup(mode):
     return redirect (url)
 
 
+
 def admin(mode) :
     if request.method == "GET" :
         return render_template("admin.html")
+    
     if request.form['secret'] == mode.admin :
+        print( request.form['secret'])
         session['is_connected'] = True
         session['login_name'] = 'admin'
         return render_template("menu.html", login_name=session["login_name"])
@@ -223,3 +227,9 @@ def saas_beacon_verifier() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/op/beacon/verifier/console/select')
+
+
+def saas_tezid_verifier() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    return redirect ('/sandbox/op/tezid/verifier/console/select')

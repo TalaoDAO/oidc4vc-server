@@ -87,6 +87,30 @@ beacon_verifier_credential_list = {
                     'ANY' : 'Any'
                 }
 
+# for tesid verifier for guest
+tezid_verifier_credential_list = {
+                    'Pass' : 'Pass',
+                    'GamerPass' : 'Gamer Pass',
+                    #'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
+                    #'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
+                    #'EmailPass' : 'Proof of email',
+                    #'PassportNumber' : 'Passport footprint',
+                    #'PhoneProof' : 'Proof of phone',
+                    #'AgeRange' : 'Age range',
+                    #'Nationality' : 'Nationality',
+                    #'Gender' : 'Gender',
+                    #'TalaoCommunity' : 'Talao loyalty card',
+                    #'LearningAchievement' : 'Diploma',
+                    #'BloometaPass' : 'Bloometa gaming card',
+                    #'IdCard' : 'Identity card',
+                    'Over18' : 'Over 18',
+                    'Over13' : 'Over 13',
+                    #'AragoPass' : 'Arago Pass',
+                    'DID' : 'None'
+                    #'ANY' : 'Any'
+                }
+
+
 # issuer
 credential_to_issue_list = {
                     'Pass' : 'Pass',

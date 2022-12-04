@@ -21,7 +21,7 @@ def extract_ip():
 class currentMode() :
 
 	def __init__(self, mychain, myenv):
-		self.admin = 'thierry.thevenet@talao.io'
+		#self.admin = 'thierry.thevenet@talao.io'
 		self.test = True
 		self.myenv = myenv
 		self.flaskserver = "127.0.0.1" # default value to avoid pb with aws
