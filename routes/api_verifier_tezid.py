@@ -112,25 +112,8 @@ async def tezid_verifier(verifier_id, red, mode):
         if not verification :
             logging.warning('Access denied')
             return jsonify('Unhautorized'), 403
-        #[{"id":"test_type","label":"Test_type","meta":{"issuer":"altme"},"verified":true,"register_date":"2022-12-03T11:16:30Z"}]
-        # check if proof exist on TezID smart contract
-        url = "https://tezid.net/api/ghostnet/proofs/" + associatedAddress
-        r = requests.get(url)
-        proof_type_list = r.json()
-        logging.info('existing Proof types = %s', proof_type_list)
-        if not proof_type_list :
-            if not register_proof_type(associatedAddress, verifier_id, mode) :
-                jsonify('server error'), 500
-        else :
-            proof_registered = False
-            for proof in proof_type_list :
-                if proof['id'] == verifier_id and proof['verified'] :
-                    proof_registered = True
-                    logging.info('proof exists on TezID')
-                    break
-            if not proof_registered :
-                if not register_proof_type(associatedAddress, verifier_id, mode) :
-                    jsonify('server error'), 500
+        if not register_tezid(associatedAddress, verifier_id, mode) :
+            return jsonify ('Server error'), 500
         # record activity
         vc_type_list = list()
         for credential in credential_list :
@@ -145,7 +128,29 @@ async def tezid_verifier(verifier_id, red, mode):
 
 
 # curl -XPOST https://tezid.net/api/ghostnet/issuer/altme -H 'tezid-issuer-key:p3hMf9V/OaiJjPOC2Va9uzDg6uj02E1YpCD9xdTB63Q=' -H 'Content-Type: application/json' --data '{ "address": "tz1UVNksAzMyR3HDnKDjrF7N4BCw7m6Bgs6J", "prooftype": "test_type", "register": true }'
+
+def register_tezid(address, id, mode) :
+    url = "https://tezid.net/api/ghostnet/proofs/" + address
+    r = requests.get(url)
+    if not 199<r.status_code<300 :
+        logging.error("API call to TezID rejected %s", r.status_code)
+        return False
+    logging.info('existing Proof types = %s', r.json())
+    if not r.json() and not register_proof_type(address, id, mode) :
+        return False
+    else :
+        proof_registered = False
+        for proof in r.json() :
+            if proof['id'] == id and proof['verified'] :
+                proof_registered = True
+                logging.info('proof exists on TezID')
+                break
+        if not proof_registered and not register_proof_type(address, id, mode) :
+            return False
+    return True
+
 def register_proof_type(address, proof_type, mode) :
+    #[{"id":"test_type","label":"Test_type","meta":{"issuer":"altme"},"verified":true,"register_date":"2022-12-03T11:16:30Z"}]
     url = 'https://tezid.net/api/ghostnet/issuer/altme'
     headers = {
         'Content-Type' : 'application/json',

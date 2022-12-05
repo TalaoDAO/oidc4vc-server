@@ -215,7 +215,7 @@ def test_direct_offer(red, mode) :
         del credentialOffer['display']    
 
     elif VC_filename == "MembershipCard_1.jsonld" :
-        filename = "./credential_manifest/membershipcard_credential_manifest.json"
+        filename = "./credential_manifest/MembershipCard_1_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
@@ -266,10 +266,6 @@ def test_credentialOffer_qrcode(red, mode) :
                         <option selected value="""+ DID_TZ1 + """>""" + DID_TZ1 + """</option>
                         <option value="""+ DID_TZ2 + """>""" + DID_TZ2 + """</option>
                         <option value=""" + DID_ETHR + """>""" + DID_ETHR + """</option>
-                        <option value="did:web:talao.co#key-1">did:web:talao.co#key-1 (Secp256k1)</option>
-                 
-                         <option value="did:web:talao.co#key-3">did:web:talao.co#key-3 (Ed25519)</option>
-                        <option value="did:web:talao.co#key-4">did:web:talao.co#key-4 (P-256)</option>
                         <option value=""" + DID_KEY + """>""" + DID_KEY + """</option>
                         </select><br><br>
                         <input hidden name="path" value=""" + path + """> 
