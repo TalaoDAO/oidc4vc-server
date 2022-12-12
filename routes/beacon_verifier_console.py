@@ -7,6 +7,7 @@ import db_api
 import message
 import uuid
 from op_constante import protocol_list, method_list, beacon_verifier_credential_list
+from op_constante import sbt_network_list, tezid_network_list
 import ebsi
 import beacon_activity_db_api
 import db_user_api
@@ -148,7 +149,7 @@ def beacon_verifier_activity() :
             verification = "Succeed" if data_dict.get('verification', True) else "Failed"
             activity = """<tr>
                     <td>""" + data_dict['presented'] + """</td>
-                    <td>""" +  data_dict['blockchainAddress'] + """</td>
+                    <td>""" +  data_dict.get('blockchainAddress', "Unknow") + """</td>
                     <td>""" + " ".join(data_dict['vc_type']) + """</td>
                     <td>""" + verification + """</td>
                     </tr>"""
@@ -215,6 +216,23 @@ async def beacon_verifier_console(mode) :
         micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
         operation_payload = payload_tezos( raw_payload, 'OPERATION')
         #DID, did_ebsi, jwk, did_document = await did(session)
+        
+        # SBT network
+        sbt_network_select = str()
+        for key, value in sbt_network_list.items() :
+                if key ==   session['client_data'].get('sbt_network', 'none') :
+                    sbt_network_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    sbt_network_select +=  "<option value=" + key + ">" + value + "</option>"
+        
+        # TezID network
+        tezid_network_select = str()
+        for key, value in tezid_network_list.items() :
+                if key ==   session['client_data'].get('tezid_network', 'none') :
+                    tezid_network_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    tezid_network_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         vc_select_1 = str()
         for key, value in beacon_verifier_credential_list.items() :
                 if key ==   session['client_data']['vc'] :
@@ -228,6 +246,14 @@ async def beacon_verifier_console(mode) :
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         return render_template('beacon/beacon_verifier_console.html',
+                sbt_name = session['client_data'].get('sbt_name', ''),
+                sbt_description = session['client_data'].get('sbt_description', ''),
+                sbt_network = session['client_data'].get('sbt_network', 'none'),
+                sbt_thumbnail_uri = session['client_data'].get('sbt_thumbnail_uri', ''),
+                sbt_display_uri = session['client_data'].get('sbt_display_uri', ''),
+                sbt_artifact_uri = session['client_data'].get('sbt_display_uri', ''),
+                sbt_network_select=sbt_network_select,
+                
                 raw_payload = raw_payload,
                 micheline_payload = micheline_payload,
                 operation_payload = operation_payload,
@@ -250,12 +276,21 @@ async def beacon_verifier_console(mode) :
                 reason_2 = session['client_data'].get('reason_2'),
                 vc_select_1=vc_select_1,
                 vc_select_2=vc_select_2,
+                tezid_proof_type = session['client_data'].get('tezid_proof_type', session['client_data']['client_id']),
+                tezid_network_select=tezid_network_select
                 )
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
             db_api.delete_beacon_verifier( request.form['client_id'])
             return redirect ('/sandbox/op/beacon/verifier/console')
         else :
+            session['client_data']['sbt_name'] = request.form['sbt_name']
+            session['client_data']['sbt_description'] = request.form['sbt_description']
+            session['client_data']['sbt_display_uri'] = request.form['sbt_display_uri']
+            session['client_data']['sbt_artifact_uri'] = request.form['sbt_display_uri']
+            session['client_data']['sbt_thumbnail_uri'] = request.form['sbt_thumbnail_uri']
+            session['client_data']['sbt_network'] = request.form['sbt_network']
+
             session['client_data']['beacon_payload_message'] = request.form['beacon_payload_message']
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['user'] = request.form['user']
@@ -269,7 +304,9 @@ async def beacon_verifier_console(mode) :
             session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['vc'] = request.form['vc_1']
-            session['client_data']['vc_2'] = request.form['vc_2']            
+            session['client_data']['vc_2'] = request.form['vc_2']   
+            session['client_data']['tezid_network'] = request.form['tezid_network']   
+            session['client_data']['tezid_proof_type'] = request.form['tezid_proof_type']           
               
             if request.form['button'] == "qrcode" :
                 return redirect ('/sandbox/op/beacon/verifier/console/qrcode')

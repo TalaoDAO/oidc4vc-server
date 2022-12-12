@@ -1,21 +1,31 @@
 {
 	"@context": [ "https://www.w3.org/2018/credentials/v1", 
 		{
-			"accountName" :  "https://schema.org/identifier",
-      		"associatedAddress" : "https://schema.org/account",
-			"cryptoWalletSignature" : "https://schema.org/identifier",
-			"cryptoWalletPayload" : "https://schema.org/identifier",
-			"issuedBy": {
-				"@id": "schema:issuedBy",
-				"@context": {
+			"EthereumAssociatedAddress" : {
+				"@id" : "https://github.com/TalaoDAO/context#ethereumassociatedaddress",
+				"@context" : {
 					"@version": 1.1,
 					"@protected": true,
+					"id": "@id",
+                    "type": "@type",
 					"schema" : "https://schema.org/",
-					"name" :  "schema:name",
-					"logo" : { "@id" : "schema:logo", "@type" : "@id"}
-				}
+					"accountName" :  "schema:identifier",
+      				"associatedAddress" : "https://github.com/TalaoDAO/context#associatedaddress",
+					"cryptoWalletSignature" : "schema:identifier",
+					"cryptoWalletPayload" : "schema:identifier",
+					"issuedBy": {
+						"@id": "schema:issuedBy",
+						"@context": {
+							"@version": 1.1,
+							"@protected": true,
+							"schema" : "https://schema.org/",
+							"name" :  "schema:legalName",
+							"logo" : { "@id" : "schema:logo", "@type" : "@id"}
+						}
+					}
+       			}
 			}
-       		}
+		}
    	],
 	"id" : "urn:uuid:xxxxxxxx",
 	"type": [
@@ -27,7 +37,7 @@
        		"id" : "did:key:wallet AltMe",
        		"type" : "EthereumAssociatedAddress",
           	"associatedAddress" : "0x9433fd38ea335c84d74fd60332dd2ede6df9ca4c",
-		    "accountName" : "Account 1",
+		    "accountName" : "",
 			"issuedBy" : {"name" : "Altme"}
 	}
 }

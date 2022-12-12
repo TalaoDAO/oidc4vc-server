@@ -32,7 +32,8 @@ from routes import web_display_VP
 from routes import saas4ssi, siopv2
 from routes import dapp, beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
-from routes import api_verifier_tezid, tezid_verifier_console
+from routes import api_verifier_tezid
+#from routes import tezid_verifier_console
 from routes import dapp_check_gamer_pass
 
 from routes import dapp_over13, dapp_tezid_over13
@@ -72,7 +73,7 @@ api_verifier_beacon.init_app(app, red, mode)
 beacon_verifier_console.init_app(app, red, mode)
 
 api_verifier_tezid.init_app(app, red, mode)
-tezid_verifier_console.init_app(app, red, mode)
+#tezid_verifier_console.init_app(app, red, mode)
 
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)

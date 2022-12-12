@@ -6,6 +6,20 @@ user = {
 }
 
 
+sbt_network_list = {
+    'none' : 'None',
+    #'tezos' : 'Tezos Mainnet',
+    'ghostnet' : 'Tezos Ghostnet',
+    #'ethereum' : 'Ethereum Mainet',
+    #'rinkeby' : 'Ethereum Rinkeby'
+}
+
+
+tezid_network_list = {
+    'none' : 'None',
+    #'tezos' : 'Tezos Mainnet',
+    'ghostnet' : 'Tezos Ghostnet',
+}
 
 method_list = {
                     "relay" : "Relay (external issuer)",
@@ -87,7 +101,7 @@ beacon_verifier_credential_list = {
                     'ANY' : 'Any'
                 }
 
-# for tesid verifier for guest
+# for tezid verifier for guest
 tezid_verifier_credential_list = {
                     'Pass' : 'Pass',
                     'GamerPass' : 'Gamer Pass',
@@ -114,24 +128,17 @@ tezid_verifier_credential_list = {
 # issuer
 credential_to_issue_list = {
                     'Pass' : 'Pass',
-                   'IdCard' : 'Identity card',
                    'AragoPass' : 'Pass Arago',
                    'InfrachainPass' : 'Pass Infrachain',
                     'BloometaPass' : 'Bloometa card',
                     'TezVoucher_1' : 'Tezotopia 10% voucher (fake)',
-                    'MembershipCard_1' : 'Tezotopia 25% membership card',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'TalaoCommunity' : 'Talao Community card',
-                    'TezosAssociatedAddress' : "Tezos address proof (fake)",
-                    'EthereumAssociatedAddress' : "Ethereum address proof (fake)",
                     "VotersCard" : "Voter Card",
                     'PhoneProof' : 'PhoneProof',
-                    'EmailPass' : 'EmailPass',
-                    'Over18' : 'Over 18 (fake)',
-                    'Over13' : 'Over 13 (fake)'
                 }
 
 # issuer for guest
@@ -151,7 +158,8 @@ credential_requested_list = {
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',                  
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
-                    "AllAddress" : "Proof of blockchain account",
+                    "EthereumAssociatedAddress" : "Proof of Ethereum blockchain account",
+                    "AllAddress" : "Proof of blockchain crypto account",
                     "AragoPass" : "Arago Pass",
                     "login" : "Login and password",
                     "secret" : "Secret",
@@ -171,6 +179,7 @@ credential_requested_list_2 = {
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',                  
                     "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    "EthereumAssociatedAddress" : "Proof of Ethereum blockchain account",
                     "AllAddress" : "Proof of blockchain account",
                     "AragoPass" : "Arago Pass",
                     'DID' : "None",
@@ -297,10 +306,18 @@ model_any = {
 
 
 client_data_pattern = {
+                "sbt_name" : "",
+                "sbt_description" : "",
+                "sbt_display_uri" : "",
+                "sbt_thumbnail_uri" : "",
+                "sbt_artifact_uri" : "",
+                "sbt_network" : "none",
                 "beacon_mode" : "issuer",
                 "pre_authorized_code" : "no",
                 "beacon_payload_message" : "Any string for a message to display",
                 "pkce" : None,
+                "tezid_proof_type" : "",
+                "tezid_network" : "none",
                 "vc" : "DID",
                 "vc_issuer_id" : "",
                 "vc_2" : "DID",

@@ -7,6 +7,7 @@ import db_api
 from urllib.parse import urlencode
 import uuid
 from op_constante import credential_requested_list, credential_requested_list_2, credential_to_issue_list, protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
+from op_constante import sbt_network_list, tezid_network_list
 import ebsi
 import beacon_activity_db_api
 from datetime import datetime
@@ -43,7 +44,7 @@ async def beacon_qrcode() :
     payload = session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
     url = payload.split('#')[1]
     payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
-    return render_template('beacon_qrcode.html', url=url, payload=payload)
+    return render_template('beacon/beacon_issuer_qrcode.html', url=url, payload=payload)
 
 
 def beacon_nav_logout() :
@@ -97,7 +98,7 @@ def beacon_activity() :
                     <td>""" + " & ".join(data_received) + """</td>
                     </tr>"""
             activity_list += activity
-        return render_template('beacon_activity.html', activity=activity_list) 
+        return render_template('beacon/beacon_issuer_activity.html', activity=activity_list) 
     else :
         return redirect('/sandbox/op/beacon/console?client_id=' + session['client_data']['client_id'])
 
@@ -134,7 +135,7 @@ def beacon_select() :
 
                         </tr>"""
                 beacon_list += beacon
-        return render_template('beacon_select.html', beacon_list=beacon_list, login_name=session['login_name']) 
+        return render_template('beacon/beacon_issuer_select.html', beacon_list=beacon_list, login_name=session['login_name']) 
    
        
 
@@ -157,6 +158,14 @@ async def beacon_console(mode) :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_beacon(session['client_id']))
         
+        # SBT network
+        sbt_network_select = str()
+        for key, value in sbt_network_list.items() :
+                if key ==   session['client_data'].get('sbt_network', 'none') :
+                    sbt_network_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    sbt_network_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         # credential requested 1
         credential_requested_select = str()
         for key, value in credential_requested_list.items() :
@@ -164,7 +173,7 @@ async def beacon_console(mode) :
                     credential_requested_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_select +=  "<option value=" + key + ">" + value + "</option>"
-        
+
         landing_page_style_select = str()
         for key, value in landing_page_style_list.items() :
                 if key == session['client_data'].get('landing_page_style') :
@@ -212,7 +221,15 @@ async def beacon_console(mode) :
         raw_payload = session['client_data'].get('beacon_payload_message', 'Any string') + session['client_data']['issuer_landing_page'] #+ "?issuer=" + DID_issuer
         micheline_payload = payload_tezos( raw_payload, 'MICHELINE')
         #DID, did_ebsi, jwk, did_document = await did(session)
-        return render_template('beacon_console.html',
+        return render_template('beacon/beacon_issuer_console.html',
+                sbt_name = session['client_data'].get('sbt_name', ''),
+                sbt_description = session['client_data'].get('sbt_description', ''),
+                sbt_network = session['client_data'].get('sbt_network', 'none'),
+                sbt_thumbnail_uri = session['client_data'].get('sbt_thumbnail_uri', ''),
+                sbt_display_uri = session['client_data'].get('sbt_display_uri', ''),
+                sbt_artifact_uri = session['client_data'].get('sbt_display_uri', ''),
+                sbt_network_select =  sbt_network_select,
+                
                 raw_payload = raw_payload,
                 micheline_payload = micheline_payload,
                 beacon_payload_message = session['client_data'].get('beacon_payload_message', 'Any string'),
@@ -254,6 +271,13 @@ async def beacon_console(mode) :
             db_api.delete_beacon( request.form['client_id'])
             return redirect ('/sandbox/op/beacon/console')
         else :
+            session['client_data']['sbt_name'] = request.form['sbt_name']
+            session['client_data']['sbt_description'] = request.form['sbt_description']
+            session['client_data']['sbt_display_uri'] = request.form['sbt_display_uri']
+            session['client_data']['sbt_artifact_uri'] = request.form['sbt_display_uri']
+            session['client_data']['sbt_thumbnail_uri'] = request.form['sbt_thumbnail_uri']
+            session['client_data']['sbt_network'] = request.form['sbt_network']
+
             session['client_data']['beacon_payload_message'] = request.form['beacon_payload_message']
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['standalone'] = request.form.get('standalone') 
@@ -303,7 +327,7 @@ async def beacon_console(mode) :
                 db_api.update_beacon(new_client_id, json.dumps(new_data))
                 return redirect('/sandbox/op/beacon/console?client_id=' + new_client_id)
             
-            print("error button", request.form['button'])
+            logging.error("error button %s", request.form['button'])
             return(jsonify('ok'))
 
 
@@ -326,7 +350,7 @@ async def beacon_advanced() :
                 else :
                     method_select +=  "<option value=" + key + ">" + value + "</option>"
         DID, did_ebsi, jwk, did_document = await did(session)
-        return render_template('beacon_advanced.html',
+        return render_template('beacon/beacon_issuer_advanced.html',
                 client_id = session['client_data']['client_id'],
                 protocol = session['client_data']['protocol'],
                 jwk = jwk,

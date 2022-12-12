@@ -8,6 +8,7 @@ import didkit
 from db_api import read_beacon_verifier
 import op_constante
 import beacon_activity_db_api
+from altme_on_chain import register_tezid, issue_sbt
 
 logging.basicConfig(level=logging.INFO)
 
@@ -40,29 +41,26 @@ async def beacon_verifier(verifier_id, red, mode):
         logging.error('client id not found')
         return jsonify("verifier not found"), 404
     if request.method == 'GET':
-        if verifier_data.get('vc') == "ANY" :
-            pattern = op_constante.model_any
-        elif verifier_data.get('vc') == "DID" :
-            pattern = op_constante.model_DIDAuth
-        elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+        if verifier_data.get('vc') == "DID" :
             pattern = op_constante.model_one
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
-            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
-        else :
+            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
+        elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
             pattern = op_constante.model_two
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
-            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
-            pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason_2']
-            pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
-        """else :
+            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
+            pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
+        else :
             pattern = op_constante.model_three
             pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
             pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason']
             pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
             pattern["query"][0]["credentialQuery"][2]["reason"][0]["@value"] = verifier_data['reason_2']
-            pattern["query"][0]["credentialQuery"][2]["example"]["type"] = verifier_data['vc_2']
-        """
+            pattern["query"][0]["credentialQuery"][2]["example"]["type"] = verifier_data['vc_2']    
+        pattern['domain'] = mode.server
+       
         pattern['domain'] = mode.server
         if not request.args.get('id') :
             pattern['challenge'] = str(uuid.uuid1())
@@ -79,58 +77,54 @@ async def beacon_verifier(verifier_id, red, mode):
             if json.loads(result_credential)['errors']  :       
                 logging.warning("credential signature check failed")
                 return False
-            if  credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
-                if credential["credentialSubject"]['type'] == "AragoPass" :
-                    logging.error("DID does not match in Arago pass")
-                else :  
-                    logging.warning("holder does not match subject.id")     
-                    return False
+            if  credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :  
+                logging.warning("holder does not match subject.id")     
+                return False
             if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
+                logging.warning("Credential expired")     
                 return False
             if credential['issuer'] not in TRUSTED_ISSUER :
-                logging.warning("issuer not in trusted list")
-                #return manage_error("issuer not in trusted list")
+                logging.warning("Issuer not in trusted issuer registry")
             return True
-
-        presentation = request.form['presentation'] # string
-        id = json.loads(presentation)['proof']['challenge']
-        pattern = red.get(id).decode()
-        #result_presentation = await didkit.verify_presentation(presentation,  '{}')
-        #if json.loads(result_presentation)['errors'] :
-        #    return manage_error("presentation signature check failed")
-        logging.info("check presentation = %s", await didkit.verify_presentation(presentation,  '{}'))
-
-        credential = json.loads(presentation)['verifiableCredential']
+        
+        presentation = request.form['presentation']
         verification = True
-        payload = dict()
-        logging.info('API verifier credential type = %s', credential["credentialSubject"]['type'])
-        if isinstance(credential, dict) :
-            if credential["credentialSubject"]['type'] == "BloometaPass" :
-                payload.update(credential["credentialSubject"])
-            if credential["credentialSubject"]['type'] in ["TezosAssociatedAddress", "EthereumAssociatedAddress"] :
-                payload['associatedAddress'] =  credential["credentialSubject"]['associatedAddress']
+        # one cannot do more than check that 
+        try :
+            id = json.loads(presentation)['proof']['challenge']
+            pattern = red.get(id).decode()
+        except :
+            verification = False
+        if json.loads(pattern)['challenge'] != id :
+            logging.warning('challenge does not match')
+            verification = False
+        result_presentation = await didkit.verify_presentation(presentation,  '{}')
+        if json.loads(result_presentation)['errors'] :   
+            logging.warning("check presentation = %s", result_presentation)
+        credential_list = json.loads(presentation)['verifiableCredential']
+        vc_type = list()
+        if isinstance(credential_list, dict) :
+            credential_list = list(credential_list)
+        for credential in credential_list :
+            vc_type.append(credential['credentialSubject']['type'])
             if not await check_credential(credential) :
                 verification = False
-        else :
-            for cred in credential :
-                if not await check_credential(cred) :
-                    verification = False
-               
-        vc_type = list()
-        if isinstance(credential, dict) :
-            vc_type.append(credential['credentialSubject']['type'])
-        else :
-            for cred in credential :
-                vc_type.append(cred['credentialSubject']['type'])
+            if credential['credentialSubject']['type'] not in ['TezosAssociatedAddress', verifier_data.get('vc'), verifier_data.get('vc_2')] :
+                verification = False
+            if credential['credentialSubject']['type'] == 'TezosAssociatedAddress' :
+                associatedAddress = credential['credentialSubject']['associatedAddress']
+        if not verification :
+            logging.warning('Access denied')
+            return jsonify('Unhautorized'), 403
         
         # send digest data to webhook       
-        payload.update({ 'event' : 'VERIFICATION',
+        payload = { 'event' : 'VERIFICATION',
                     'id' : id,  
+                    'address' : associatedAddress, 
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
                     "verification" : verification
-            })
-       
+            }
         headers = {
                 "key" : verifier_data['client_secret'],
                 "Content-Type": "application/json" 
@@ -138,9 +132,12 @@ async def beacon_verifier(verifier_id, red, mode):
         r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
         if not 199<r.status_code<300 :
             logging.error('VERIFICATION : verifier failed to call application, status code = %s', r.status_code)
+        else :
+            logging.info('VERIFICATION event sent')
         
         # send credentials to webhook
         payload = { 'event' : 'VERIFICATION_DATA',
+                    'address' : associatedAddress, 
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
                     'id' : id,
@@ -154,11 +151,42 @@ async def beacon_verifier(verifier_id, red, mode):
         r = requests.post(verifier_data['webhook'],  data=json.dumps(payload), headers=headers)
         if not 199<r.status_code<300 :
             logging.error('VERIFICATION_DATA : verifier failed to send data to webhook, status code = %s', r.status_code)
+        else :
+            logging.info('VERIFICATION_DATA event sent')
         
+        # TezID whitelisting
+        if verifier_data.get("tezid_proof_type", None) and verifier_data.get('tezid_network') not in  ['none', None] :
+            register_tezid(associatedAddress, verifier_data["tezid_proof_type"], verifier_data['tezid_network'], mode) 
+            logging.info('Whitelisting done')
+        
+        # issue SBT
+        # https://tzip.tezosagora.org/proposal/tzip-21/#creators-array
+        if verifier_data.get('sbt_network') not in  ['none', None] :
+            metadata = {
+                "name": verifier_data['sbt_name'],
+                "symbol":"ALTMESBT",
+                "creators":["Altme.io","did:web:altme.io:did:web:app.altme.io:issuer"],
+                "decimals":"0",
+                "identifier" :  credential['id'],
+                "displayUri":verifier_data['sbt_display_url'],
+                "publishers":["compell.io"],
+                "minter": "KT1JwgHTpo4NZz6jKK89rx3uEo9L5kLY1FQe",
+                "rights": "No License / All Rights Reserved",
+                "artifactUri": verifier_data['sbt_display_uri'],
+                "description": verifier_data['sbt_description'],
+                "thumbnailUri": verifier_data['sbt_thumbnail_uri'],
+                "is_transferable":False,
+                "shouldPreferSymbol":False
+            }
+            if issue_sbt(associatedAddress, metadata, credential['id'], mode) :
+                logging.info("SBT sent")
+
         # record activity
-        activity = {'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                'vc_type' : vc_type,
-                'verification' : verification
+        activity = {
+            'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
+            'vc_type' : vc_type,
+            'verification' : verification,
+            'blockchainAddress' : associatedAddress
         }
         beacon_activity_db_api.create(verifier_id, activity) 
         return jsonify("ok")

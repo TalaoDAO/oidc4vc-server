@@ -46,7 +46,7 @@ def update_credential_manifest(reason, credential_requested, credential_manifest
     return credential_manifest
 
 
-def update_credntial_manifest_all_address(reason, credential_manifest) :
+def update_credential_manifest_all_address(reason, credential_manifest) :
     input_descriptor = {"id": str(uuid.uuid1()),
                         "purpose" : reason,
                         "constraints": {
@@ -98,30 +98,30 @@ async def beacon_landing(issuer_id, red, mode) :
             pass
         credential_manifest['issuer']['id'] = issuer_did
         credential_manifest['issuer']['name'] = issuer_data['company_name']
-        if issuer_data['credential_requested'] == "DID" : 
-            credential_manifest['presentation_definition'] = dict()
-        else :
-            credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
+        
+        # request always a Tezos address
+        credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
+        credential_manifest = update_credential_manifest('Select a Tezos address', 'TezosAssociatedAddress', credential_manifest)
             
-            if issuer_data['credential_requested'] == "AllAddress" :
-                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
-            elif issuer_data['credential_requested'] != "DID":
-                credential_manifest = update_credential_manifest(issuer_data['reason'], issuer_data['credential_requested'], credential_manifest)
+        if issuer_data['credential_requested'] == "AllAddress" :
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
+        elif issuer_data['credential_requested'] != "DID":
+            credential_manifest = update_credential_manifest(issuer_data['reason'], issuer_data['credential_requested'], credential_manifest)
             
-            if issuer_data['credential_requested_2'] == "AllAddress" :
-                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_2'], credential_manifest)
-            elif issuer_data.get('credential_requested_2', 'DID') != "DID" :  
-                credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data['credential_requested_2'], credential_manifest)
+        if issuer_data['credential_requested_2'] == "AllAddress" :
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason_2'], credential_manifest)
+        elif issuer_data.get('credential_requested_2', 'DID') != "DID" :  
+            credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data['credential_requested_2'], credential_manifest)
             
-            if issuer_data['credential_requested_3'] == "AllAddress" :
-                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_3'], credential_manifest)
-            elif issuer_data.get('credential_requested_3', 'DID') != "DID" :  
-                credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data['credential_requested_3'], credential_manifest)
+        if issuer_data['credential_requested_3'] == "AllAddress" :
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason_3'], credential_manifest)
+        elif issuer_data.get('credential_requested_3', 'DID') != "DID" :  
+            credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data['credential_requested_3'], credential_manifest)
             
-            if issuer_data['credential_requested_4'] == "AllAddress" :
-                credential_manifest = update_credntial_manifest_all_address(issuer_data['reason_4'], credential_manifest)
-            elif issuer_data.get('credential_requested_4', 'DID') != "DID" :  
-                credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
+        if issuer_data['credential_requested_4'] == "AllAddress" :
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason_4'], credential_manifest)
+        elif issuer_data.get('credential_requested_4', 'DID') != "DID" :  
+            credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
 
         #logging.info("credential manifest = %s", credential_manifest)
         if not request.args.get('id') :
@@ -213,6 +213,29 @@ async def beacon_landing(issuer_id, red, mode) :
         #if issuer_data.get('standalone', None) == 'on' :
         event_signed_credential(issuer_data, signed_credential, request.form.get('id'), issuer_data['credential_to_issue'])
         
+         # issue SBT
+        metadata = {
+            "name":issuer_data.get('sbt_name', ''),
+            "symbol":"ALTMESBT",
+            "creators":["altme.io","did:web:altme.io:did:web:app.altme.io:issuer"],
+            "decimals":"0",
+            "identifier" :  credential['id'],
+            "displayUri": issuer_data.get('sbt_display_uri', ''),
+            "publishers":["compell.io"],
+            "minter": "KT1JwgHTpo4NZz6jKK89rx3uEo9L5kLY1FQe",
+            "rights": "No License / All Rights Reserved",
+            "artifactUri": issuer_data.get('sbt_artifact_uri', ''),
+            "description":issuer_data.get('sbt_description', ''),
+            "thumbnailUri": issuer_data.get('sbt_thumbnail_uri', ''),
+            "is_transferable":False,
+            "shouldPreferSymbol":False
+        }
+        # issue SBT on Ghostnet
+        if issuer_data.get('sbt_network', 'none') != 'none' :
+            if issue_sbt('tezos_address', metadata, credential['id'], mode) :
+                logging.info("SBT sent")
+
+
         # record activity
         activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
                 "wallet_did" : request.form['subject_id'],
@@ -241,3 +264,44 @@ def event_signed_credential(issuer_data, signed_credential, id, vc_type) :
         logging.error('issuer failed to send signed credential to webhook, status code = %s', r.status_code)
    
 
+
+def issue_sbt(address, metadata, credential_id, mode) :
+    metadata_ipfs = add_to_ipfs(metadata, "sbt:" + credential_id , mode)
+    if metadata_ipfs :
+        metadata_ipfs_url = "ipfs://" + metadata_ipfs
+    else :
+        return None
+    url = 'https://altme-api.dvl.compell.io/mint'
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    data = {
+        "transfer_to" : address,
+        "ipfs_url" : metadata_ipfs_url
+    }
+    resp = requests.post(url, data=data, headers=headers)
+    if not 199<resp.status_code<300 :
+        logging.warning("Get access refused, SBT not sent %s", resp.status_code)
+        return None
+    return True
+ 
+
+def add_to_ipfs(data_dict, name, mode) :
+    api_key = mode.pinata_api_key
+    secret = mode.pinata_secret_api_key
+    headers = {
+        'Content-Type': 'application/json',
+		'pinata_api_key': api_key,
+        'pinata_secret_api_key': secret}
+    data = {
+        'pinataMetadata' : {
+            'name' : name
+        },
+        'pinataContent' : data_dict
+    }
+    r = requests.post('https://api.pinata.cloud/pinning/pinJSONToIPFS', data=json.dumps(data), headers=headers)
+    if not 199<r.status_code<300 :
+        logging.warning("POST access to Pinatta refused")
+        return None
+    else :
+	    return r.json()['IpfsHash']

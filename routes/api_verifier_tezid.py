@@ -8,6 +8,7 @@ import didkit
 from db_api import read_tezid_verifier
 import op_constante
 import tezid_activity_db_api
+from altme_on_chain import register_tezid
 
 logging.basicConfig(level=logging.INFO)
 
@@ -84,6 +85,7 @@ async def tezid_verifier(verifier_id, red, mode):
                 logging.warning("issuer not in trusted list")
                 #return False
             return True
+
         presentation = request.form['presentation']
         verification = True
         # one cannot do more than check that 
@@ -98,7 +100,6 @@ async def tezid_verifier(verifier_id, red, mode):
         result_presentation = await didkit.verify_presentation(presentation,  '{}')
         if json.loads(result_presentation)['errors'] :   
             logging.warning("check presentation = %s", result_presentation)
-            #verification = False
         credential_list = json.loads(presentation)['verifiableCredential']
         if isinstance(credential_list, dict) :
             credential_list = list(credential_list)
@@ -112,8 +113,11 @@ async def tezid_verifier(verifier_id, red, mode):
         if not verification :
             logging.warning('Access denied')
             return jsonify('Unhautorized'), 403
-        if not register_tezid(associatedAddress, verifier_id, mode) :
-            return jsonify ('Server error'), 500
+        
+        # register TezID whitelist
+        if verifier_data.get("tezid_proof_type", None) and verifier_data.get('tezid_network') not in  ['none', None] :
+            register_tezid(associatedAddress, verifier_data.get('tezid_proof-type', ""), verifier_data.get('tezid_network', 'ghostnet'), mode)
+        
         # record activity
         vc_type_list = list()
         for credential in credential_list :
@@ -125,46 +129,3 @@ async def tezid_verifier(verifier_id, red, mode):
         }
         tezid_activity_db_api.create(verifier_id, activity) 
         return jsonify("ok")
-
-
-# curl -XPOST https://tezid.net/api/ghostnet/issuer/altme -H 'tezid-issuer-key:p3hMf9V/OaiJjPOC2Va9uzDg6uj02E1YpCD9xdTB63Q=' -H 'Content-Type: application/json' --data '{ "address": "tz1UVNksAzMyR3HDnKDjrF7N4BCw7m6Bgs6J", "prooftype": "test_type", "register": true }'
-
-def register_tezid(address, id, mode) :
-    url = "https://tezid.net/api/ghostnet/proofs/" + address
-    r = requests.get(url)
-    if not 199<r.status_code<300 :
-        logging.error("API call to TezID rejected %s", r.status_code)
-        return False
-    logging.info('existing Proof types = %s', r.json())
-    if not r.json() and not register_proof_type(address, id, mode) :
-        return False
-    else :
-        proof_registered = False
-        for proof in r.json() :
-            if proof['id'] == id and proof['verified'] :
-                proof_registered = True
-                logging.info('proof exists on TezID')
-                break
-        if not proof_registered and not register_proof_type(address, id, mode) :
-            return False
-    return True
-
-def register_proof_type(address, proof_type, mode) :
-    #[{"id":"test_type","label":"Test_type","meta":{"issuer":"altme"},"verified":true,"register_date":"2022-12-03T11:16:30Z"}]
-    url = 'https://tezid.net/api/ghostnet/issuer/altme'
-    headers = {
-        'Content-Type' : 'application/json',
-        'tezid-issuer-key' : mode.tezid_issuer_key     
-    }
-    data = {
-        "address": address,
-        "prooftype": proof_type,
-        "register": True
-    }
-    r = requests.post(url, headers=headers, data=json.dumps(data))
-    logging.info("status code = %s", r.status_code)
-    if not 199<r.status_code<300 :
-        logging.error("API call to TezID rejected %s", r.status_code)
-        return False
-    logging.info('User has been registered on TezID')
-    return True

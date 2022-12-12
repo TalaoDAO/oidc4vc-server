@@ -1,23 +1,31 @@
 {
     "@context": ["https://www.w3.org/2018/credentials/v1",
         {
-            "over18" : "https://schema.org/typicalAgeRange",
-            "alternateName" : "https://schema.org/alternatName",
-            "over13" : "https://schema.org/typicalAgeRange",
-            "tezosAddress" : "https://schema.org/accountId",
-            "ethereumAddress" : "https://schema.org/accountId",
-            "solanaAddress" : "https://schema.org/accountId",
-            "duration" : "https://schema.org/duration",
-            "nationality" : "https://schema.orf/nationality",
-            "issuedBy": {
-                "@id": "https://schema.org/issuedBy",
-                "@context": {
+            "GamerPass" : {
+                "@id" : "https://talao.co/contaxt#gamerpass",
+                "@context" : {
                     "@version": 1.1,
                     "@protected": true,
                     "schema" : "https://schema.org/",
-                    "name" :  "schema:name",
-                    "website" : "schema:website",
-                    "logo" : { "@id" : "schema:logo", "@type" : "@id"}
+                    "ageOver" : "https://talao.co/context/ageOver",
+                    "twitterId" : "schema:identifier",
+                    "discordId" : "schema:identifier",
+                    "tezosAddress" : "schema:accountId",
+                    "ethereumAddress" : "https://schema.org/accountId",
+                    "solanaAddress" : "https://schema.org/accountId",
+                    "polygonAddressé" : "https://schema.org/accountId",
+                    "fantomAddress" : "https://schema.org/accountId",
+                    "duration" : "https://schema.org/duration",
+                    "issuedBy": {
+                        "@id": "https://schema.org/issuedBy",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "schema" : "https://schema.org/",
+                            "name" :  "schema:name",
+                            "website" : "schema:website"
+                        }
+                    }
                 }
             }
         }
@@ -28,7 +36,9 @@
     "issuanceDate": "",
     "credentialSubject" : {
         "id": "",
+        "ethereumAddress" : ["0x258768765876576474", "0x98756AE786EE"],
         "type" : "GamerPass",
+        "ageOver" : "13",
         "issuedBy" : {
             "name" : "Altme",
             "website" : "https://altme.io"

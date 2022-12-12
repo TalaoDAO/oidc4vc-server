@@ -74,6 +74,7 @@ def create_b(db, user, mode, method) :
     letters = string.ascii_lowercase
     data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+    data['tezid_proof_type'] = "urn:uuid:" + str(uuid.uuid1())
     data['client_secret'] = str(uuid.uuid1())
     if db == 'beacon.db' :
         data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/beacon/' + data['client_id']
@@ -103,6 +104,7 @@ def create_tezid(db, user, mode, method) :
     letters = string.ascii_lowercase
     data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+    data['tezid_proof_type'] = "urn:uuid:" + str(uuid.uuid1())
     data['client_secret'] = str(uuid.uuid1())
     if db == 'tezid.db' :
         data['issuer_landing_page'] = '#' + mode.server + 'sandbox/op/tezid/' + data['client_id']
@@ -133,6 +135,7 @@ def create(db, user, mode, method) :
     letters = string.ascii_lowercase
     data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
+    data['tezid_proof_type'] = data['client_id']
     data['client_secret'] = str(uuid.uuid1())
     if db == 'issuer.db' :
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
