@@ -154,7 +154,7 @@ async def beacon_verifier(verifier_id, red, mode):
         else :
             logging.info('VERIFICATION_DATA event sent')
         
-        # TezID whitelisting
+        # TezID whitelisting register in whitelist on ghostnet KT1K2i7gcbM9YY4ih8urHBDbmYHLUXTWvDYj
         if verifier_data.get("tezid_proof_type", None) and verifier_data.get('tezid_network') not in  ['none', None] :
             register_tezid(associatedAddress, verifier_data["tezid_proof_type"], verifier_data['tezid_network'], mode) 
             logging.info('Whitelisting done')

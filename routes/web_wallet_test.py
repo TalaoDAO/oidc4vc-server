@@ -152,11 +152,10 @@ def test_direct_offer(red, mode) :
     #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['issuanceDate'] = datetime.utcnow().isoformat() + "Z"
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
-
-
     credential['credentialSubject']['id'] = "did:..."
     credential['id'] = "urn:uuid:" + str(uuid.uuid1())
     backgroundColor = "ffffff"
+
     if VC_filename == "VerifiableDiploma.jsonld" :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
@@ -208,6 +207,22 @@ def test_direct_offer(red, mode) :
     
     elif VC_filename == "AragoPass.jsonld" :
         filename = "./credential_manifest/AragoPass_credential_manifest.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']    
+    
+    elif VC_filename == "CustomType.jsonld" :
+        filename = "./credential_manifest/CustomType_credential_manifest.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']  
+
+    elif VC_filename == "GamerPass.jsonld" :
+        filename = "./credential_manifest/GamerPass_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
