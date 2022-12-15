@@ -139,10 +139,11 @@ def test_direct_offer(red, mode) :
         cm = request.args.get("cm", "1")
     except :
         return jsonify("Request malformed"), 400
+    print(VC_filename)
     try :
         credential = credential_from_filename("test/CredentialOffer2", VC_filename)
     except :
-        return jsonify("Verifiable Credential not found"), 405
+        return jsonify("Verifiable Credential not found"), 500
     if request.args.get('method') == "ethr" :
         credential['issuer'] = DID_ETHR
     elif request.args.get('method') == "key" :
@@ -223,6 +224,14 @@ def test_direct_offer(red, mode) :
 
     elif VC_filename == "GamerPass.jsonld" :
         filename = "./credential_manifest/GamerPass_credential_manifest.json"
+        with open(filename, "r") as f:
+            credential_manifest = f.read()
+        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+        del credentialOffer['shareLink']
+        del credentialOffer['display']   
+
+    elif VC_filename == "LoyaltyCard.jsonld" :
+        filename = "./credential_manifest/LoyaltyCard_credential_manifest.json"
         with open(filename, "r") as f:
             credential_manifest = f.read()
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)

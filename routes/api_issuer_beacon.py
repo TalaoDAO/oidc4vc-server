@@ -22,6 +22,8 @@ import requests
 import db_api
 import ebsi
 import beacon_activity_db_api
+from altme_on_chain import register_tezid, issue_sbt
+
 
 logging.basicConfig(level=logging.INFO)
 OFFER_DELAY = timedelta(seconds= 10*60)
@@ -213,6 +215,26 @@ async def beacon_landing(issuer_id, red, mode) :
         #if issuer_data.get('standalone', None) == 'on' :
         event_signed_credential(issuer_data, signed_credential, request.form.get('id'), issuer_data['credential_to_issue'])
         
+        # TezID whitelisting register in whitelist on ghostnet KT1K2i7gcbM9YY4ih8urHBDbmYHLUXTWvDYj
+        try :
+            associatedAddress = False
+            presentation_list = json.loads(request.form['presentation'])
+            if isinstance(presentation_list, str) :
+                presentation_list = list(presentation_list)
+            print("presentation  list = ", presentation_list)
+            for presentation in presentation_list :  
+                presentation = json.loads(presentation)
+                print("presentation = ", presentation)
+                if credential['credentialSubject']['type'] == 'TezosAssociatedAddress' :
+                    associatedAddress = credential['credentialSubject']['associatedAddress']
+                    break      
+            if associatedAddress and issuer_data.get("tezid_proof_type", None) and issuer_data.get('tezid_network') not in  ['none', None] :
+                register_tezid(associatedAddress, issuer_data["tezid_proof_type"], issuer_data['tezid_network'], mode) 
+                logging.info('Whitelisting done')
+        except :
+            print('probleme code tezID')
+
+        """
          # issue SBT
         metadata = {
             "name":issuer_data.get('sbt_name', ''),
@@ -235,6 +257,7 @@ async def beacon_landing(issuer_id, red, mode) :
             if issue_sbt('tezos_address', metadata, credential['id'], mode) :
                 logging.info("SBT sent")
 
+        """
 
         # record activity
         activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
