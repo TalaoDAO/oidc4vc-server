@@ -56,7 +56,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/issuer/siopv2/<issuer_id>/credential',  view_func=issuer_siopv2_credential, methods = ['GET', 'POST'], defaults={'red' :red})
 
     # endpoint for VC API protocol with wallet
-    app.add_url_rule('/sandbox/op/issuer_endpoint/<stream_id>',  view_func=issuer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/sandbox/op/issuer_endpoint/<issuer_id>/<stream_id>',  view_func=issuer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     return
 
 
@@ -93,7 +93,7 @@ def update_credential_manifest(reason, credential_requested, credential_manifest
     return credential_manifest
 
 
-def update_credntial_manifest_all_address(reason, credential_manifest) :
+def update_credential_manifest_all_address(reason, credential_manifest) :
     input_descriptor = {"id": str(uuid.uuid1()),
                         "purpose" : reason,
                         "constraints": {
@@ -242,22 +242,22 @@ def issuer_landing_page(issuer_id, red, mode) :
         credential_manifest['presentation_definition'] = {"id": str(uuid.uuid1()), "input_descriptors": list()}    
 
         if issuer_data['credential_requested'] == "AllAddress" :
-            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data['credential_requested'] not in ["DID", "login", "secret", "totp"] :
             credential_manifest = update_credential_manifest(issuer_data['reason'], issuer_data['credential_requested'], credential_manifest)
         
         if issuer_data['credential_requested_2'] == "AllAddress" :
-            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data.get('credential_requested_2', 'DID') not in ["DID", "login", "secret", "totp"] : 
             credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data['credential_requested_2'], credential_manifest)
 
         if issuer_data['credential_requested_3'] == "AllAddress" :
-            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data.get('credential_requested_3', 'DID') not in ["DID", "login", "secret", "totp"] :  
             credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data['credential_requested_3'], credential_manifest)
 
         if issuer_data['credential_requested_4'] == "AllAddress" :
-            credential_manifest = update_credntial_manifest_all_address(issuer_data['reason'], credential_manifest)
+            credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data.get('credential_requested_4', 'DID') not in ["DID", "login", "secret", "totp"] :  
             credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
 
@@ -491,7 +491,6 @@ def issuer_siopv2_credential(issuer_id, red) :
     return Response(response=json.dumps(payload), headers=headers)
   
 
-
 async def issuer_endpoint(issuer_id, stream_id, red):
     try : 
         credentialOffer = red.get(stream_id).decode()
@@ -518,7 +517,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             red.publish('op_issuer', data)
             return jsonify("Unauthorized"),400  
      
-        # send data to webhook
+        # send data to application webhook to get the credential data
         data_received = dict()
         if issuer_data.get('standalone', None) == 'on' :
             headers = {
@@ -556,7 +555,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 red.publish('op_issuer', data)
                 return jsonify("application error"),500
 
-            # credential is signed by external issuer
+            # If credential is signed by external issuer
             if issuer_data['method'] == "relay" :
                 # send event to front to go forward callback
                 data = json.dumps({'stream_id' : stream_id,"result" : True})
@@ -564,14 +563,15 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 logging.info('credential signed by external signer')
                 return jsonify(data_received)
 
-        # build credential   
+        # get credential   
         credential =  json.loads(credentialOffer)['credentialPreview']
 
-        # extract data sent by application and merge them with verifiable credential data
+        # If needed extract data sent by application and merge them with verifiable credential data
         if data_received and issuer_data.get('standalone', None) == 'on' :
             credential["credentialSubject"] = data_received
             logging.info("Data received from application added to credential")
 
+        # set basic credential attributes
         credential['id'] = "urn:uuid:" + str(uuid.uuid4())
         credential['credentialSubject']['id'] = request.form['subject_id']
         credential['credentialSubject']['type'] = issuer_data['credential_to_issue']
@@ -579,6 +579,7 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         duration = issuer_data.get('credential_duration', "365")
         credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= int(duration))).isoformat() + "Z"
         
+        # fill Pass number in credential
         if issuer_data['credential_to_issue'] == 'Pass' :
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Not indicated')
             credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
@@ -614,22 +615,22 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             logging.info('signature ok')
        
         # transfer credential signed and credential recieved to application
-        if issuer_data.get('standalone', None) == 'on' :
-            headers = {
-                    "key" : issuer_data['client_secret'],
-                    "Content-Type": "application/json" 
-                    }      
-            url = issuer_data['webhook']
-            payload = { 'event' : 'SIGNED_CREDENTIAL',
-                    'vc': json.loads(signed_credential),
-                    'vp' : json.loads(request.form['presentation']),
-                    "id": request.form.get('id')
-                    }
-            r = requests.post(url,  data=json.dumps(payload), headers=headers)
-            if not 199<r.status_code<300 :
-                logging.error('issuer failed to send signed credential to application, status code = %s', r.status_code)
-            else :
-                logging.info('signed credential sent to application')
+        headers = {
+            "key" : issuer_data['client_secret'],
+            "Content-Type": "application/json" 
+        }      
+        url = issuer_data['webhook']
+        payload = { 
+            'event' : 'SIGNED_CREDENTIAL',
+            'vc': json.loads(signed_credential),
+            'vp' : json.loads(request.form['presentation']),
+            "id": request.form.get('id')
+        }
+        r = requests.post(url,  data=json.dumps(payload), headers=headers)
+        if not 199<r.status_code<300 :
+            logging.error('issuer failed to send signed credential to application, status code = %s', r.status_code)
+        else :
+            logging.info('signed credential sent to application')
         
         # send event to front to go forward callback and send credential to wallet
         data = json.dumps({'stream_id' : stream_id,"result" : True})
@@ -641,6 +642,8 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                 "vp" : json.loads(request.form['presentation'])
         }
         issuer_activity_db_api.create(issuer_id, activity) 
+
+        # send VC to wallet
         return jsonify(signed_credential)
         
 

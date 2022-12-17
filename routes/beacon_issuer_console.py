@@ -158,6 +158,14 @@ async def beacon_console(mode) :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_beacon(session['client_id']))
         
+        # TezID network
+        tezid_network_select = str()
+        for key, value in tezid_network_list.items() :
+                if key ==   session['client_data'].get('tezid_network', 'none') :
+                    tezid_network_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    tezid_network_select +=  "<option value=" + key + ">" + value + "</option>"
+
         # SBT network
         sbt_network_select = str()
         for key, value in sbt_network_list.items() :
@@ -265,6 +273,8 @@ async def beacon_console(mode) :
                 page_background_color = session['client_data']['page_background_color'],
                 card_background_color = session['client_data']['card_background_color'],
                 card_text_color = session['client_data']['card_text_color'],
+                tezid_proof_type = session['client_data'].get('tezid_proof_type', session['client_data']['client_id']),
+                tezid_network_select=tezid_network_select 
                 )
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
@@ -303,7 +313,9 @@ async def beacon_console(mode) :
             session['client_data']['credential_to_issue'] = request.form['credential_to_issue']
             session['client_data']['credential_duration'] = request.form['credential_duration']
             session['client_data']['card_background_color'] = request.form['card_background_color']      
-            session['client_data']['card_text_color'] = request.form['card_text_color']                
+            session['client_data']['card_text_color'] = request.form['card_text_color']    
+            session['client_data']['tezid_network'] = request.form['tezid_network']   
+            session['client_data']['tezid_proof_type'] = request.form['tezid_proof_type']             
               
             if request.form['button'] == "qrcode" :
                 return redirect ('/sandbox/op/beacon/console/qrcode')

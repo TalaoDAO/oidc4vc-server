@@ -220,6 +220,29 @@
                             <div class="card shadow my-3">
                               <div class="card-header py-3">
                                 <div class="d-flex justify-content-between">
+                                  <p style="color: #09060f;" class="m-0 font-weight-bold">Whitelist with TezID (Ghostnet contract KT1K2i7gcbM9YY4ih8urHBDbmYHLUXTWvDYj )</p>
+                                </div>
+                              </div>
+                              <div class="card-body">
+    
+                                <div class="form-row">
+                                  <div class="col-2">
+                                    <div class="form-group"><label><strong>Network</strong></label><select name="tezid_network" class="form-control">
+                                      {{tezid_network_select|safe}}  
+                                      </select></div>
+                                    </div> 
+                                  <div class="col-4">
+                                    <div class="form-group"><label><strong>TezID proof type</strong></label><input class="form-control" type="text" name="tezid_proof_type" value="{{tezid_proof_type}}"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+
+
+                            <div class="card shadow my-3">
+                              <div class="card-header py-3">
+                                <div class="d-flex justify-content-between">
                                   <p style="color: #09060f;" class="m-0 font-weight-bold">Soulbound Token (SBT)</p>
                                 </div>
                               </div>
